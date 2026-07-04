@@ -260,6 +260,22 @@
 <div class="app">
 
   <!-- SIDEBAR -->
+      <section class="view" id="v-settings">
+        <div class="eyebrow">Settings</div>
+        <div class="h1">설정</div>
+        <div class="sub">학원 Gemini API 키 · AI 분석(생기부 파싱·탐구주제·리포트 코멘트)에 사용됩니다</div>
+        <div style="max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
+          <div class="sectionhead"><span class="idx">AI</span><h3>Gemini API 키 (학원별)</h3></div>
+          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">aistudio.google.com에서 발급한 키를 입력하세요. 학원별로 저장되고 <b>서버(엣지함수)에서만</b> 사용됩니다.</div>
+          <input id="set-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          <div id="set-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
+          <div style="display:flex;gap:8px">
+            <button onclick="saveApiKey()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">저장</button>
+            <button onclick="testAI()" style="padding:10px 18px;background:transparent;border:1px solid var(--line);color:var(--ink-dim);border-radius:9px;cursor:pointer">연결 테스트</button>
+          </div>
+          <div id="set-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div>
+        </div>
+      </section>
   <aside class="side">
     <div class="brand"><div>
       <div class="logo">ARCHE<b>.</b></div>
@@ -281,7 +297,8 @@
     <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3M8 6l4-3 4 3"/></svg> 학생부 설계</div>
 
     <div class="navlabel">아웃풋</div>
-    <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg> 컨설팅 리포트</div>
+    <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
+    <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
   </aside>
@@ -364,6 +381,14 @@
         <div class="h1">학생 자료 입력</div>
         <div class="sub">활성 학생: <b id="intake-who">— 미선택</b> · 세특·성적·인지지표 입력 → 진단에 반영</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px" class="stu-grid">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;grid-column:1/-1">
+            <div class="sectionhead"><span class="idx">00</span><h3>학생부 업로드 · AI 자동정리 <span style="font-size:11px;color:var(--ink-mute)">(PDF)</span></h3></div>
+            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">PDF 학교생활기록부를 올리면 텍스트 추출 → AI가 이수과목·세특을 자동 정리합니다. (HWP는 PDF로 변환 후 업로드)</div>
+            <input type="file" id="rec-file" accept="application/pdf,.pdf" onchange="uploadRecord(this.files[0])" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div id="rec-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
+            <button id="rec-ai" onclick="aiAutofill()" disabled style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer;opacity:.55">AI 자동정리</button>
+            <div id="rec-setech" style="margin-top:12px"></div>
+          </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px">
             <div class="sectionhead"><span class="idx">01</span><h3>세특 입력 <span style="font-size:11px;color:var(--ink-mute)">(읽기·분석용 · 대필 아님)</span></h3></div>
             <div style="display:flex;gap:8px">
@@ -710,15 +735,16 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트"};
+const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트",settings:"설정"};
 function go(el){
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1008,6 +1034,82 @@ async function saveCompetency(){
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
   m.style.color='var(--safe)';m.textContent='역량 저장 완료 · 리포트 반영됨.';
   if(window.renderReport)renderReport();
+}
+
+
+
+/* ===== 학생부 업로드 · PDF 추출 · AI 자동정리 ===== */
+window._recText=''; window._parsedSetech=[];
+async function uploadRecord(file){
+  var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!file||!sb)return;
+  var path=s.academy_id+'/'+s.id+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
+  m.style.color='var(--ink-mute)';m.textContent='업로드 중…';
+  var up=await sb.storage.from('records').upload(path,file);
+  if(up.error){m.style.color='var(--risk)';m.textContent=up.error.message;return;}
+  await sb.from('student_records').insert({student_id:s.id,doc_type:'생활기록부',storage_path:path});
+  if(/\.pdf$/i.test(file.name)&&window.pdfjsLib){
+    m.textContent='업로드 완료 · 텍스트 추출 중…';
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      var buf=await file.arrayBuffer();
+      var pdf=await pdfjsLib.getDocument({data:buf}).promise; var t='';
+      for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i);var c=await pg.getTextContent();t+=c.items.map(function(x){return x.str;}).join(' ')+'\n';}
+      window._recText=t;
+      var np=document.getElementById('nd-paste'); if(np) np.value=t.slice(0,5000);
+      var b=document.getElementById('rec-ai'); b.disabled=false; b.style.opacity='1';
+      m.style.color='var(--safe)';m.textContent='추출 완료 ('+t.length+'자). [AI 자동정리] 누르거나 아래 표에서 직접 확인.';
+    }catch(e){ m.style.color='var(--risk)';m.textContent='PDF 추출 실패: '+e.message; }
+  } else { m.style.color='var(--safe)';m.textContent='업로드 완료 (자동추출은 PDF만).'; }
+}
+async function aiAutofill(){
+  var m=document.getElementById('rec-msg'); if(!window._recText){m.style.color='var(--risk)';m.textContent='추출된 텍스트가 없습니다.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='AI 분석 중… (학원 키 필요)';
+  try{
+    var d=await callAI('parse_record',{text:window._recText.slice(0,12000)});
+    var obj={}; try{obj=JSON.parse(d.text);}catch(e){m.style.color='var(--risk)';m.textContent='AI 응답 파싱 실패';return;}
+    if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade))};}); renderCourses(); }
+    window._parsedSetech=obj.setech||[];
+    var se=window._parsedSetech;
+    document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 세특 '+se.length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">세특 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 세특 없음</div>';
+    m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/세특 확인 후 저장하세요.';
+  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; }
+}
+async function saveParsedSetech(){
+  var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!sb)return;
+  var rows=(window._parsedSetech||[]).map(function(x){return {student_id:s.id,subject:x.subject||null,area:'교과세특',text:x.summary||'',source:'ai_parsed'};});
+  if(!rows.length)return;
+  var {error}=await sb.from('student_setech').insert(rows);
+  if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
+  m.style.color='var(--safe)';m.textContent='세특 '+rows.length+'건 저장.'; loadSetech();
+}
+
+/* ===== AI (학원 자체 키 · 엣지함수) ===== */
+async function callAI(task,payload){
+  if(!sb) throw new Error('DB 미로드');
+  var sess=(await sb.auth.getSession()).data.session;
+  var res=await fetch(SB_URL+'/functions/v1/arche-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({task:task,payload:payload})});
+  var d=await res.json(); if(!res.ok) throw new Error(d.error||'AI 오류'); return d;
+}
+window.callAI=callAI;
+async function loadApiKey(){
+  if(!sb)return; var el=document.getElementById('set-gemini'); if(!el)return;
+  var {data}=await sb.from('academies').select('gemini_api_key').limit(1);
+  if(data&&data[0]&&data[0].gemini_api_key) el.value=data[0].gemini_api_key;
+}
+async function saveApiKey(){
+  var m=document.getElementById('set-msg'); if(!sb){m.textContent='DB 미로드';return;}
+  var {data:acs}=await sb.from('academies').select('id').limit(1); var id=acs&&acs[0]&&acs[0].id;
+  if(!id){m.style.color='var(--risk)';m.textContent='학원 정보 없음';return;}
+  var key=document.getElementById('set-gemini').value.trim();
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var {error}=await sb.from('academies').update({gemini_api_key:key||null}).eq('id',id);
+  if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
+  m.style.color='var(--safe)';m.textContent='저장 완료.';
+}
+async function testAI(){
+  var t=document.getElementById('set-test'); t.style.color='var(--ink-dim)'; t.textContent='테스트 중…';
+  try{ await callAI('report_comment',{metrics:{naesin:1.4,note:'연결테스트'}}); t.style.color='var(--safe)'; t.textContent='연결 성공 · Gemini 응답 수신'; }
+  catch(e){ t.style.color='var(--risk)'; t.textContent='실패: '+e.message; }
 }
 
 /* ===== 통합 리포트 ===== */
