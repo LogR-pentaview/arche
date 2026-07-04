@@ -682,10 +682,13 @@ line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'�
 /* ===== Supabase 연동 ===== */
 const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
-const sb = window.supabase.createClient(SB_URL, SB_KEY);
+let sb=null;
+if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){console.error('[arche] init',e);} }
+else { console.error('[arche] supabase-js 미로드 (CDN 차단?)'); }
 
 (async function dbStatus(){
   const el=document.getElementById('dbstat');
+  if(!sb){ if(el) el.innerHTML='<span style="width:7px;height:7px;border-radius:50%;background:var(--risk);display:inline-block"></span> DB 로드 실패 (supabase-js)'; return; }
   try{
     const [a,s]=await Promise.all([
       sb.from('achievement_standards').select('*',{count:'exact',head:true}),
@@ -727,12 +730,14 @@ async function enterApp(session){
     const kpi=document.querySelector('#v-home .kpi .num'); if(kpi&&typeof count==='number') kpi.textContent=count; }catch(e){}
 }
 document.getElementById('au-login').onclick=async()=>{
+  if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
   msg('로그인 중…',true);
   const {data,error}=await sb.auth.signInWithPassword({email:auE(),password:auP()});
   if(error)return msg(error.message);
   enterApp(data.session);
 };
 document.getElementById('au-signup').onclick=async()=>{
+  if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
   if(!document.getElementById('au-name').value.trim())return msg('학원명을 입력하세요.');
   msg('가입 중…',true);
   const {data,error}=await sb.auth.signUp({email:auE(),password:auP(),options:{data:{academy_name:document.getElementById('au-name').value.trim()}}});
@@ -741,7 +746,7 @@ document.getElementById('au-signup').onclick=async()=>{
   else msg('확인 메일을 보냈습니다. 인증 후 로그인하세요.',true);
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.reload();};
-sb.auth.getSession().then(({data})=>{ if(data.session) enterApp(data.session); });
+if(sb) sb.auth.getSession().then(({data})=>{ if(data.session) enterApp(data.session); });
 
 /* ===== ① 본체 엔진 이식 (인지레이더·성과레이더·가속도곡선·자동채점) ===== */
 window.Arche=(function(){
