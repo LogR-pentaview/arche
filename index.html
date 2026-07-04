@@ -268,6 +268,7 @@
 
     <div class="navlabel">컨설팅</div>
     <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
+    <div class="nav" data-v="students" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 6.5a3 3 0 010 5.4M18 20c0-2.3-1-4.3-2.5-5.4"/></svg> 학생 관리</div>
     <div class="nav" data-v="intake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg> 학생 자료 입력</div>
 
     <div class="navlabel">진단</div>
@@ -331,6 +332,33 @@
       </section>
 
       <!-- 2. INTAKE -->
+      <section class="view" id="v-students">
+        <div class="eyebrow">Student Management</div>
+        <div class="h1">학생 관리</div>
+        <div class="sub">우리 학원 수강생을 등록·관리합니다 · 데이터는 학원별로 격리(RLS)됩니다</div>
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
+            <div class="sectionhead"><span class="idx">＋</span><h3>학생 등록</h3></div>
+            <input id="st-name" placeholder="이름 *" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="st-school" placeholder="학교" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <select id="st-grade" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년</option><option>고1</option><option>고2</option><option>고3</option><option>N수</option></select>
+              <select id="st-track" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">계열</option><option>인문</option><option>자연</option><option>공학</option><option>의약</option><option>예체능</option><option>기타</option></select>
+            </div>
+            <input id="st-univ" placeholder="목표 대학" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="st-major" placeholder="목표 학과" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent"> 생기부 활용 동의</label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여</label>
+            <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
+            <button onclick="addStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
+          </div>
+          <div>
+            <h3 style="font-size:14px;color:var(--ink);margin:2px 0 12px">수강생 목록 <span id="st-count" class="mono" style="font-size:12px;color:var(--lime)">0</span></h3>
+            <div id="st-list" style="display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute)">로그인 후 표시됩니다.</div></div>
+          </div>
+        </div>
+      </section>
+
       <section class="view" id="v-intake">
         <div class="eyebrow">Student Data Intake</div>
         <div class="h1">학생 자료 입력</div>
@@ -622,7 +650,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트"};
+const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트"};
 function go(el){
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
@@ -726,8 +754,7 @@ async function enterApp(session){
   const ac=await ensureAcademy(session.user);
   document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+session.user.email;
   gate.style.display='none';
-  try{ const {count}=await sb.from('students').select('*',{count:'exact',head:true});
-    const kpi=document.querySelector('#v-home .kpi .num'); if(kpi&&typeof count==='number') kpi.textContent=count; }catch(e){}
+  loadStudents();
 }
 document.getElementById('au-login').onclick=async()=>{
   if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
@@ -747,6 +774,61 @@ document.getElementById('au-signup').onclick=async()=>{
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.reload();};
 if(sb) sb.auth.getSession().then(({data})=>{ if(data.session) enterApp(data.session); });
+
+/* ===== 학생 관리 ===== */
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+window._students=[];
+async function loadStudents(){
+  const list=document.getElementById('st-list'); if(!list)return;
+  if(!sb){list.innerHTML='<div style="color:var(--risk)">DB 미로드</div>';return;}
+  const {data,error}=await sb.from('students').select('*').order('created_at',{ascending:false});
+  if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
+  window._students=data||[];
+  document.getElementById('st-count').textContent=window._students.length;
+  const kpi=document.querySelector('#v-home .kpi .num'); if(kpi) kpi.textContent=window._students.length;
+  if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 학생이 없습니다. 좌측에서 등록하세요.</div>';return;}
+  list.innerHTML=window._students.map(s=>'<div style="background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">'+
+    '<div><div style="font-weight:700;color:var(--ink)">'+esc(s.name||'-')+' <span class="mono" style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'')+(s.track?' · '+esc(s.track):'')+'</span></div>'+
+    '<div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc(s.school||'')+(s.target_univ?' · '+esc(s.target_univ)+' '+esc(s.target_major||''):'')+'</div></div>'+
+    '<div style="display:flex;gap:6px"><button onclick="selectStudent(\''+s.id+'\')" style="padding:6px 11px;background:var(--lime);color:#0a1a05;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer">활성</button>'+
+    '<button onclick="delStudent(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:12px;cursor:pointer">삭제</button></div></div>').join('');
+}
+async function addStudent(){
+  const m=document.getElementById('st-msg');
+  const name=document.getElementById('st-name').value.trim();
+  if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
+  if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드 — 새로고침.';return;}
+  const {data:acs}=await sb.from('academies').select('id').limit(1);
+  const acid=acs&&acs[0]&&acs[0].id;
+  if(!acid){m.style.color='var(--risk)';m.textContent='학원 정보 없음.';return;}
+  const row={academy_id:acid,name:name,
+    school:document.getElementById('st-school').value.trim()||null,
+    grade:document.getElementById('st-grade').value||null,
+    track:document.getElementById('st-track').value||null,
+    target_univ:document.getElementById('st-univ').value.trim()||null,
+    target_major:document.getElementById('st-major').value.trim()||null,
+    consent_record:document.getElementById('st-consent').checked,
+    benchmark_opt_in:document.getElementById('st-bench').checked};
+  m.style.color='var(--ink-mute)';m.textContent='등록 중…';
+  const {error}=await sb.from('students').insert(row);
+  if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
+  m.style.color='var(--safe)';m.textContent='등록 완료.';
+  ['st-name','st-school','st-univ','st-major'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('st-grade').value='';document.getElementById('st-track').value='';
+  document.getElementById('st-consent').checked=false;document.getElementById('st-bench').checked=false;
+  loadStudents();
+}
+async function delStudent(id){
+  if(!sb)return; if(!confirm('삭제하시겠습니까? 관련 자료도 함께 삭제됩니다.'))return;
+  const {error}=await sb.from('students').delete().eq('id',id);
+  if(error){alert(error.message);return;} loadStudents();
+}
+function selectStudent(id){
+  const s=(window._students||[]).find(x=>x.id===id); if(!s)return;
+  window._activeStudent=s;
+  const tag=document.querySelector('.studenttag');
+  if(tag) tag.innerHTML='활성 학생 <b>&nbsp;'+esc(s.name||'')+(s.grade?' · '+esc(s.grade):'')+'&nbsp;</b>'+(s.target_univ?'· '+esc(s.target_univ)+' '+esc(s.target_major||'')+' 지망':'');
+}
 
 /* ===== ① 본체 엔진 이식 (인지레이더·성과레이더·가속도곡선·자동채점) ===== */
 window.Arche=(function(){
