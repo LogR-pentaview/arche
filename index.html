@@ -747,12 +747,13 @@ function pt(i,rad){const a=-Math.PI/2+i*Math.PI/3;return[R.cx+rad*Math.cos(a),R.
   let dp='';R.axes.forEach((ax,i)=>{const[x,y]=pt(i,R.r*ax.v/100);dp+=(i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);});
   g+=`<path d="${dp}Z" fill="rgba(180,240,60,.16)" stroke="#B4F03C" stroke-width="1.6"/>`;
   R.axes.forEach((ax,i)=>{const[x,y]=pt(i,R.r*ax.v/100);g+=`<circle cx="${x}" cy="${y}" r="2.6" fill="#F5B301"/>`;});
-  document.getElementById('radar').innerHTML=g;
-  document.getElementById('legend6').innerHTML=R.axes.map(a=>`<div><div class="row"><span>${a.k}</span><span class="v">${a.v}</span></div><div class="barmini"><i style="width:${a.v}%"></i></div></div>`).join('');
+  var _rad=document.getElementById('radar'); if(_rad)_rad.innerHTML=g;
+  var _leg=document.getElementById('legend6'); if(_leg)_leg.innerHTML=R.axes.map(a=>`<div><div class="row"><span>${a.k}</span><span class="v">${a.v}</span></div><div class="barmini"><i style="width:${a.v}%"></i></div></div>`).join('');
 })();
 
 /* line charts */
 function line(id,data,{invert=false,min,max,fmt,color='#5b8def'}){
+  if(!document.getElementById(id))return;
   const W=id==='lineNaesin'?460:300,H=170,pl=34,pr=14,pt2=16,pb=28;
   const xs=(W-pl-pr)/(data.length-1);
   const yv=v=>{const t=(v-min)/(max-min);const tt=invert?t:1-t;return pt2+tt*(H-pt2-pb);};
