@@ -95,6 +95,7 @@
   .subtabs{display:flex;gap:6px;margin-bottom:20px;border-bottom:1px solid var(--line);padding-bottom:0}
   .subtab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--ink-dim);font-family:'Noto Sans KR';font-size:13px;padding:10px 14px;cursor:pointer;transition:.15s;margin-bottom:-1px}
   .subtab.on{color:var(--ink);border-bottom-color:var(--gold);font-weight:500}
+  @media(max-width:640px){.diag-penta-wrap{grid-template-columns:1fr!important}}
   .pane{display:none}.pane.on{display:block}
 
   /* ===== INTAKE ===== */
@@ -410,8 +411,8 @@
               <div style="flex:1"><label style="font-size:11px;color:var(--ink-mute);display:block;margin-bottom:4px">내신 평균</label><input id="mx-naesin" type="number" step="0.01" placeholder="1.42" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
               <div style="flex:1"><label style="font-size:11px;color:var(--ink-mute);display:block;margin-bottom:4px">모평 백분위</label><input id="mx-mopyeong" type="number" placeholder="94" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
             </div>
-            <div style="font-size:12px;color:var(--ink-mute);margin:4px 0 8px">인지 5지표 (0~100)</div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">사고 조정력</span><input id="cg-csci" type="number" min="0" max="100" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">성취기준 도달도</span><input id="cg-saa" type="number" min="0" max="100" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">탐구 심화력</span><input id="cg-sri" type="number" min="0" max="100" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">자기이해력</span><input id="cg-meta" type="number" min="0" max="100" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">회복탄력성</span><input id="cg-resilience" type="number" min="0" max="100" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div>
+            <div style="font-size:12px;color:var(--ink-mute);margin:4px 0 8px">학종 5역량 (0~10) · 컨설팅 진단지표 <span style="color:var(--gold,#c8a24a)">· AI 자동산출/보정</span></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">학업역량 <small style="color:var(--ink-mute)">· 내신</small></span><input id="cg-academic" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">탐구역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-inquiry" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">융합창의역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-convergence" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">공동체역량 <small style="color:var(--ink-mute)">· 자율·행발</small></span><input id="cg-community" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">문제해결역량 <small style="color:var(--ink-mute)">· 전체세특</small></span><input id="cg-problem" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div>
             <div id="mx-msg" style="min-height:14px;font-size:12px;margin:6px 0"></div>
             <button onclick="saveMetrics()" style="width:100%;padding:10px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">지표 저장</button>
           </div>
@@ -456,7 +457,7 @@
         <button onclick="estimateCog()" style="margin-top:10px;padding:9px 16px;background:var(--gold,#c8a24a);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">AI 추정 (생기부 기반) · 활동 추가시 재보정</button>
         <div id="diag-body"><div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하고 [자료 입력]에서 지표를 저장하면 진단이 표시됩니다.</div></div>
       
-        <div class="card" style="margin-top:16px"><div class="sectionhead"><span class="idx">평가</span><h3>학종 3역량 평가 <span style="font-size:11px;color:var(--ink-mute)">· 컨설턴트 입력 (현행 3역량)</span></h3></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="flex:1;font-size:13px;color:var(--ink-dim)">학업역량</span><input id="cmp-academic" type="number" min="0" max="100" placeholder="0~100" style="width:80px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="flex:1;font-size:13px;color:var(--ink-dim)">진로역량</span><input id="cmp-career" type="number" min="0" max="100" placeholder="0~100" style="width:80px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="flex:1;font-size:13px;color:var(--ink-dim)">공동체역량</span><input id="cmp-community" type="number" min="0" max="100" placeholder="0~100" style="width:80px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div id="comp-msg" style="min-height:14px;font-size:12px;margin:4px 0"></div><button onclick="saveCompetency()" style="padding:9px 16px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">역량 저장</button></div>
+
       </section>
 
       <!-- 4. ARCHE -->
@@ -981,7 +982,7 @@ async function refreshIntake(){
   populateIntakePicker();
   const w=document.getElementById('intake-who');
   if(w) w.textContent=window._activeStudent?(esc(window._activeStudent.name)+' · '+esc(window._activeStudent.grade||'')):'— 미선택';
-  loadSetech();
+  loadSetech(); if(window.loadMetrics)loadMetrics();
 }
 async function saveSetech(){
   const m=document.getElementById('se-msg'); const s=requireActive(m); if(!s||!sb)return;
@@ -1002,14 +1003,22 @@ async function loadSetech(){
   if(!data.length){list.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 세특 없음</div>';return;}
   list.innerHTML=data.map(x=>'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px 12px"><div style="font-size:11px;color:var(--lime)">'+esc(x.subject||'')+(x.area?' · '+esc(x.area):'')+'</div><div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc((x.text||'').slice(0,120))+((x.text||'').length>120?'…':'')+'</div></div>').join('');
 }
+async function loadMetrics(){
+  if(!window._activeStudent||!sb)return;
+  var r=await sb.from('student_metrics').select('*').eq('student_id',window._activeStudent.id).eq('metric_type','comp5').order('measured_at',{ascending:false}).limit(1);
+  var p=(r.data&&r.data[0]&&r.data[0].payload)||{};
+  var set=function(id,v){var el=document.getElementById(id);if(el)el.value=(v!=null?v:'');};
+  set('mx-naesin',p.naesin);set('mx-mopyeong',p.mopyeong);
+  set('cg-academic',p.academic);set('cg-inquiry',p.inquiry);set('cg-convergence',p.convergence);set('cg-community',p.community);set('cg-problem',p.problem);
+}
 async function saveMetrics(){
   const m=document.getElementById('mx-msg'); const s=requireActive(m); if(!s||!sb)return;
   const num=id=>{const v=document.getElementById(id).value;return v===''?null:Number(v);};
-  const payload={naesin:num('mx-naesin'),mopyeong:num('mx-mopyeong'),csci:num('cg-csci'),saa:num('cg-saa'),sri:num('cg-sri'),meta:num('cg-meta'),resilience:num('cg-resilience')};
+  const payload={naesin:num('mx-naesin'),mopyeong:num('mx-mopyeong'),academic:num('cg-academic'),inquiry:num('cg-inquiry'),convergence:num('cg-convergence'),community:num('cg-community'),problem:num('cg-problem'),source:'manual'};
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
-  const {error}=await sb.from('student_metrics').insert({student_id:s.id,metric_type:'cognitive',payload:payload});
+  const {error}=await sb.from('student_metrics').insert({student_id:s.id,metric_type:'comp5',payload:payload});
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
-  m.style.color='var(--safe)';m.textContent='저장 완료 · 진단에 반영됨.';
+  m.style.color='var(--safe)';m.textContent='5역량 저장 완료 · 진단·리포트 반영됨.'; if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
 }
 
 async function estimateCog(){
@@ -1030,7 +1039,7 @@ async function estimateCog(){
       var ulist=JSON.parse(rc.text);
       if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
     }catch(ue){}
-    if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
+    if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport(); if(window.loadMetrics)loadMetrics();
     alert('AI 분석 완료: 5역량 + 지원가능 대학 6선 (생기부 기반 근사치). 리포트 반영됨. 활동 추가 후 다시 누르면 보정됩니다.');
   }catch(e){ alert('추정 실패: '+e.message); }
   finally{ hideAiLoading(); }
@@ -1040,13 +1049,17 @@ async function renderDiag(){
   const who=document.getElementById('diag-who'), body=document.getElementById('diag-body'); if(!body)return;
   if(!window._activeStudent||!sb){ if(who)who.textContent='— 미선택'; body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
   const s=window._activeStudent; if(who)who.textContent=esc(s.name)+' · '+esc(s.grade||'');
-  const {data,error}=await sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','cognitive').order('measured_at',{ascending:false}).limit(1);
+  const {data,error}=await sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','comp5').order('measured_at',{ascending:false}).limit(1);
   if(error){body.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
-  if(!data||!data.length){body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 지표가 없습니다. [자료 입력]에서 인지지표를 저장하세요.</div>';return;}
+  if(!data||!data.length){body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 5역량이 없습니다. [자료 입력]에서 저장하거나 위 <b>AI 추정</b>을 실행하세요.</div>';return;}
   const p=data[0].payload||{};
-  const radar=(window.Arche?window.Arche.cwRadar({csci:p.csci||0,saa:p.saa||0,sri:p.sri||0,meta:p.meta||0,resilience:p.resilience||0}):'');
-  body.innerHTML='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">01</span><h3>인지 프로파일 <span style="font-size:11px;color:var(--ink-mute)">· '+(p.source==='ai_estimate'?'AI 추정치(보정 가능)':'특허 수식')+'</span></h3></div>'+radar+'</div>'+
+  var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체'],['convergence','융합창의역량','과세특·창체'],['community','공동체역량','자율·행발'],['problem','문제해결역량','전체 세특']];
+  var vals=COMP.map(function(c){return {key:c[1],src:c[2],v:(p[c[0]]!=null?Number(p[c[0]]):0)};});
+  var total=vals.reduce(function(a,x){return a+x.v;},0);
+  var bars=vals.map(function(x){return '<div style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);margin-bottom:3px"><span>'+x.key+' <small style="color:var(--ink-mute)">· '+x.src+'</small></span><b class="mono" style="color:var(--gold,#c8a24a)">'+x.v.toFixed(1)+'<span style="color:var(--ink-mute);font-weight:400">/10</span></b></div><div style="height:6px;background:var(--panel-2);border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:'+(x.v*10)+'%;background:linear-gradient(90deg,#4a8a5e,var(--gold,#c8a24a))"></i></div></div>';}).join('');
+  body.innerHTML='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">01</span><h3>5역량 인지 프로파일 <span style="font-size:11px;color:var(--ink-mute)">· '+(p.source==='ai_estimate'?'AI 추정치(보정 가능) · 50점 만점':'컨설턴트 입력 · 50점 만점')+'</span></h3></div><div class="diag-penta-wrap" style="display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:center"><svg id="diag-penta" viewBox="0 0 360 340" style="max-width:290px;width:100%;display:block;margin:0 auto"></svg><div>'+bars+'<div style="text-align:right;font-size:12px;color:var(--ink-dim);margin-top:6px">종합 <b class="mono" style="color:var(--ink);font-size:16px">'+total.toFixed(1)+'</b><span style="color:var(--ink-mute)">/50</span></div></div></div></div>'+
     '<div class="card"><div class="sectionhead"><span class="idx">02</span><h3>성적</h3></div><div style="display:flex;gap:28px;font-size:14px;color:var(--ink-dim)"><div>내신 평균 <b style="color:var(--ink)">'+(p.naesin!=null?p.naesin:'—')+'</b></div><div>모평 백분위 <b style="color:var(--ink)">'+(p.mopyeong!=null?p.mopyeong:'—')+'</b></div></div></div>';
+  if(window.renderPentagon)renderPentagon(document.getElementById('diag-penta'),vals.map(function(x){return {key:x.key,v:x.v};}),{label:'#eaf3ee',grid:'rgba(255,255,255,.16)',val:'#F5B301',stroke:'#F5B301',dot:'#B4F03C',dotFill:'#0d1f14',f0:'#F5B301',f1:'#0d2b1e'});
 }
 
 
@@ -1307,22 +1320,24 @@ function fitScore(text,major){
   Object.keys(extra).forEach(function(k){if(major.indexOf(k)>=0)kw=kw.concat(extra[k]);});
   var sc=0; kw.forEach(function(w){if(w&&t.indexOf(w)>=0)sc++;}); return sc;
 }
-function renderPentagon(el,comp){
-  if(!el)return;
+function renderPentagon(el,comp,opts){
+  if(!el)return; opts=opts||{};
+  var LBL=opts.label||'#173a27',VAL=opts.val||'#c8a24a',GRID=opts.grid||'#ddd2b8',STROKE=opts.stroke||'#c8a24a',DOTS=opts.dot||'#173a27',DOTF=opts.dotFill||'#fffdf7',F0=opts.f0||'#c8a24a',F1=opts.f1||'#173a27';
+  var uid='pg'+Math.random().toString(36).slice(2,7);
   var CX=180,CY=158,R=118,N=5,MAX=10;
   function ang(i){return (-90+i*(360/N))*Math.PI/180;}
   function pt(i,r){return [CX+r*Math.cos(ang(i)),CY+r*Math.sin(ang(i))];}
   function poly(r){var a=[];for(var i=0;i<N;i++)a.push(pt(i,r).join(','));return a.join(' ');}
-  var s='<defs><radialGradient id="pgFill" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="#c8a24a" stop-opacity="0.42"/><stop offset="100%" stop-color="#173a27" stop-opacity="0.30"/></radialGradient><filter id="pgGlow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-  for(var lv=1;lv<=5;lv++){var r=R*lv/5;s+='<polygon points="'+poly(r)+'" fill="none" stroke="#ddd2b8" stroke-width="'+(lv===5?1.3:0.8)+'" opacity="'+(lv===5?0.95:0.55)+'"/>';}
+  var s='<defs><radialGradient id="'+uid+'f" cx="50%" cy="50%" r="65%"><stop offset="0%" stop-color="'+F0+'" stop-opacity="0.42"/><stop offset="100%" stop-color="'+F1+'" stop-opacity="0.30"/></radialGradient><filter id="'+uid+'g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  for(var lv=1;lv<=5;lv++){var r=R*lv/5;s+='<polygon points="'+poly(r)+'" fill="none" stroke="'+GRID+'" stroke-width="'+(lv===5?1.3:0.8)+'" opacity="'+(lv===5?0.95:0.55)+'"/>';}
   var labels=comp.map(function(c){return c.key;});
-  for(var i=0;i<N;i++){var p=pt(i,R);s+='<line x1="'+CX+'" y1="'+CY+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="#ddd2b8" stroke-width="0.8" opacity="0.6"/>';
+  for(var i=0;i<N;i++){var p=pt(i,R);s+='<line x1="'+CX+'" y1="'+CY+'" x2="'+p[0]+'" y2="'+p[1]+'" stroke="'+GRID+'" stroke-width="0.8" opacity="0.6"/>';
     var lp=pt(i,R+27),anchor='middle';if(lp[0]>CX+6)anchor='start';if(lp[0]<CX-6)anchor='end';var dy=(lp[1]<CY-4)?-2:(lp[1]>CY+4?12:4);
-    s+='<text x="'+lp[0]+'" y="'+(lp[1]+dy)+'" text-anchor="'+anchor+'" font-family="\'Noto Sans KR\',sans-serif" font-size="11.5" font-weight="700" fill="#173a27">'+labels[i]+'</text>';
-    s+='<text x="'+lp[0]+'" y="'+(lp[1]+dy+14)+'" text-anchor="'+anchor+'" font-family="\'JetBrains Mono\',monospace" font-size="11" font-weight="700" fill="#c8a24a">'+comp[i].v.toFixed(1)+'</text>';}
+    s+='<text x="'+lp[0]+'" y="'+(lp[1]+dy)+'" text-anchor="'+anchor+'" font-family="\'Noto Sans KR\',sans-serif" font-size="11.5" font-weight="700" fill="'+LBL+'">'+labels[i]+'</text>';
+    s+='<text x="'+lp[0]+'" y="'+(lp[1]+dy+14)+'" text-anchor="'+anchor+'" font-family="\'JetBrains Mono\',monospace" font-size="11" font-weight="700" fill="'+VAL+'">'+comp[i].v.toFixed(1)+'</text>';}
   var dp=comp.map(function(c,i){return pt(i,R*Math.max(0,Math.min(MAX,c.v))/MAX).join(',');}).join(' ');
-  s+='<polygon points="'+dp+'" fill="url(#pgFill)" stroke="#c8a24a" stroke-width="2" filter="url(#pgGlow)" stroke-linejoin="round"/>';
-  comp.forEach(function(c,i){var q=pt(i,R*Math.max(0,Math.min(MAX,c.v))/MAX);s+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="3.4" fill="#fffdf7" stroke="#173a27" stroke-width="1.6"/>';});
+  s+='<polygon points="'+dp+'" fill="url(#'+uid+'f)" stroke="'+STROKE+'" stroke-width="2" filter="url(#'+uid+'g)" stroke-linejoin="round"/>';
+  comp.forEach(function(c,i){var q=pt(i,R*Math.max(0,Math.min(MAX,c.v))/MAX);s+='<circle cx="'+q[0]+'" cy="'+q[1]+'" r="3.4" fill="'+DOTF+'" stroke="'+DOTS+'" stroke-width="1.6"/>';});
   el.innerHTML=s;
 }
 
