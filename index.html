@@ -1051,6 +1051,19 @@ async function saveCompetency(){
 
 /* ===== 학생부 업로드 · PDF 추출 · AI 자동정리 ===== */
 window._recText=''; window._parsedSetech=[];
+window._recImages=[];
+async function renderPdfImages(pdf,maxPages,scaleW){
+  var out=[]; var n=Math.min(pdf.numPages,maxPages);
+  for(var i=1;i<=n;i++){
+    var pg=await pdf.getPage(i);
+    var vp=pg.getViewport({scale:1}); var scale=scaleW/vp.width; if(scale>2)scale=2;
+    var v=pg.getViewport({scale:scale});
+    var cv=document.createElement('canvas'); cv.width=v.width; cv.height=v.height;
+    await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise;
+    out.push(cv.toDataURL('image/jpeg',0.55).split(',')[1]);
+  }
+  return out;
+}
 async function uploadRecord(file){
   var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!file||!sb)return;
   var path=s.academy_id+'/'+s.id+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
@@ -1065,18 +1078,27 @@ async function uploadRecord(file){
       var buf=await file.arrayBuffer();
       var pdf=await pdfjsLib.getDocument({data:buf}).promise; var t='';
       for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i);var c=await pg.getTextContent();t+=c.items.map(function(x){return x.str;}).join(' ')+'\n';}
-      window._recText=t;
-      var np=document.getElementById('nd-paste'); if(np) np.value=t.slice(0,5000);
-      var b=document.getElementById('rec-ai'); b.disabled=false; b.style.opacity='1';
-      m.style.color='var(--safe)';m.textContent='추출 완료 ('+t.length+'자). [AI 자동정리] 누르거나 아래 표에서 직접 확인.';
+      if(t.trim().length>=100){
+        window._recText=t; window._recImages=[];
+        var np=document.getElementById('nd-paste'); if(np) np.value=t.slice(0,5000);
+        var b=document.getElementById('rec-ai'); b.disabled=false; b.style.opacity='1';
+        m.style.color='var(--safe)';m.textContent='추출 완료 ('+t.length+'자). [AI 자동정리] 누르거나 아래 표에서 직접 확인.';
+      } else {
+        m.style.color='var(--ink-mute)'; m.textContent='스캔(이미지) PDF 감지 · 페이지 이미지화 중… (잠시)';
+        window._recText='';
+        window._recImages=await renderPdfImages(pdf,25,1000);
+        var b2=document.getElementById('rec-ai'); b2.disabled=false; b2.style.opacity='1';
+        m.style.color='var(--safe)';m.textContent='스캔 PDF '+window._recImages.length+'p 준비됨. [AI 자동정리]로 비전 분석하세요.';
+      }
     }catch(e){ m.style.color='var(--risk)';m.textContent='PDF 추출 실패: '+e.message; }
   } else { m.style.color='var(--safe)';m.textContent='업로드 완료 (자동추출은 PDF만).'; }
 }
 async function aiAutofill(){
-  var m=document.getElementById('rec-msg'); if(!window._recText){m.style.color='var(--risk)';m.textContent='추출된 텍스트가 없습니다.';return;}
+  var m=document.getElementById('rec-msg'); var hasImg=window._recImages&&window._recImages.length; if(!window._recText&&!hasImg){m.style.color='var(--risk)';m.textContent='추출된 텍스트/이미지가 없습니다.';return;}
   m.style.color='var(--ink-mute)';m.textContent='AI 분석 중… (학원 키 필요)';
   try{
-    var d=await callAI('parse_record',{text:window._recText.slice(0,12000)});
+    var payload=hasImg?{images:window._recImages}:{text:window._recText.slice(0,12000)};
+    var d=await callAI('parse_record',payload);
     var obj={}; try{obj=JSON.parse(d.text);}catch(e){m.style.color='var(--risk)';m.textContent='AI 응답 파싱 실패';return;}
     if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade))};}); renderCourses(); }
     window._parsedSetech=obj.setech||[];
