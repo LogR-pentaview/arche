@@ -379,7 +379,11 @@
             <section class="view" id="v-intake">
         <div class="eyebrow">Student Data Intake</div>
         <div class="h1">학생 자료 입력</div>
-        <div class="sub">활성 학생: <b id="intake-who">— 미선택</b> · 세특·성적·인지지표 입력 → 진단에 반영</div>
+        <div class="sub" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span>학생 선택</span>
+          <select id="intake-student" onchange="selectStudent(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 학생 선택 —</option></select>
+          <b id="intake-who" style="color:var(--lime)"></b>
+        </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px" class="stu-grid">
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;grid-column:1/-1">
             <div class="sectionhead"><span class="idx">00</span><h3>학생부 업로드 · AI 자동정리 <span style="font-size:11px;color:var(--ink-mute)">(PDF)</span></h3></div>
@@ -874,7 +878,7 @@ async function loadStudents(){
   if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   window._students=data||[];
   document.getElementById('st-count').textContent=window._students.length;
-  const kpi=document.querySelector('#v-home .kpi .num'); if(kpi) kpi.textContent=window._students.length;
+  const kpi=document.querySelector('#v-home .kpi .num'); if(kpi) kpi.textContent=window._students.length; populateIntakePicker();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 학생이 없습니다. 좌측에서 등록하세요.</div>';return;}
   list.innerHTML=window._students.map(s=>'<div style="background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">'+
     '<div><div style="font-weight:700;color:var(--ink)">'+esc(s.name||'-')+' <span class="mono" style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'')+(s.track?' · '+esc(s.track):'')+'</span></div>'+
@@ -922,7 +926,14 @@ function selectStudent(id){
 
 /* ===== 자료 입력 · 진단 ===== */
 function requireActive(m){ if(!window._activeStudent){ if(m){m.style.color='var(--risk)';m.textContent='먼저 [학생 관리]에서 학생을 활성화하세요.';} return null;} return window._activeStudent; }
-function refreshIntake(){
+function populateIntakePicker(){
+  var sel=document.getElementById('intake-student'); if(!sel)return;
+  var cur=window._activeStudent?window._activeStudent.id:'';
+  sel.innerHTML='<option value="">— 학생 선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');
+}
+async function refreshIntake(){
+  if(sb && (!window._students||!window._students.length)){ await loadStudents(); }
+  populateIntakePicker();
   const w=document.getElementById('intake-who');
   if(w) w.textContent=window._activeStudent?(esc(window._activeStudent.name)+' · '+esc(window._activeStudent.grade||'')):'— 미선택';
   loadSetech();
