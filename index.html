@@ -355,7 +355,7 @@
     <div class="topbar">
       <div style="display:flex;align-items:center">
         <div class="crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag">활성 학생 <b>&nbsp;김민준 · 고3&nbsp;</b>· 연세대 경영 지망</div>
+        <div class="studenttag">활성 학생 <b>&nbsp;— 미선택&nbsp;</b></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -384,11 +384,8 @@
         <div class="card pad0">
           <table>
             <thead><tr><th>학생</th><th>1지망</th><th>내신</th><th>모평 백분위</th><th>합격 신호</th><th>프로파일</th></tr></thead>
-            <tbody>
-              <tr onclick="jump('diag')"><td><div class="stu"><div class="ph">민</div>김민준 · 고3</div></td><td>연세대 경영</td><td class="grade">1.42</td><td class="mono">94.1</td><td><span class="pill p-reach"><span class="dot"></span>적정</span></td><td class="mono up">완료 100%</td></tr>
-              <tr onclick="jump('diag')"><td><div class="stu"><div class="ph">서</div>이서연 · 고3</div></td><td>성균관대 소프트</td><td class="grade">1.18</td><td class="mono">96.8</td><td><span class="pill p-safe"><span class="dot"></span>안정</span></td><td class="mono up">완료 100%</td></tr>
-              <tr onclick="jump('intake')"><td><div class="stu"><div class="ph">도</div>박도현 · 고3</div></td><td>한양대 기계</td><td class="grade">2.05</td><td class="mono">88.4</td><td><span class="pill p-reach"><span class="dot"></span>적정</span></td><td class="mono" style="color:var(--reach)">입력 62%</td></tr>
-              <tr onclick="jump('intake')"><td><div class="stu"><div class="ph">하</div>정하윤 · 고3</div></td><td>고려대 미디어</td><td class="grade">1.67</td><td class="mono">91.2</td><td><span class="pill p-risk"><span class="dot"></span>소신</span></td><td class="mono" style="color:var(--risk)">입력 40%</td></tr>
+            <tbody id="home-stu-tbody">
+              <tr><td colspan="6" style="color:var(--ink-mute);padding:18px;text-align:center">[학생 관리]에서 학생을 등록하세요.</td></tr>
             </tbody>
           </table>
         </div>
@@ -538,21 +535,9 @@
       <section class="view" id="v-curri">
         <div class="eyebrow">Course Hierarchy Check</div>
         <div class="h1">이수과목 위계 검증</div>
-        <div class="sub">대학·학과 요강의 권장 이수과목 대비 학생의 실제 이수 현황 대조</div>
-        <div class="card pad0" style="padding:18px">
-          <table class="mtx">
-            <thead><tr><th style="text-align:left">권장/필수 과목</th><th>위계</th><th>연세대 경영</th><th>성균관 글로벌</th><th>고려대 경영</th><th>학생 이수</th></tr></thead>
-            <tbody>
-              <tr><td class="lab">미적분Ⅰ</td><td class="chk">일반선택</td><td class="chk rec">권장</td><td class="chk no">필수</td><td class="chk rec">권장</td><td class="chk ok">✔ 이수</td></tr>
-              <tr><td class="lab">확률과 통계</td><td class="chk">일반선택</td><td class="chk no">필수</td><td class="chk no">필수</td><td class="chk rec">권장</td><td class="chk ok">✔ 이수</td></tr>
-              <tr><td class="lab">경제</td><td class="chk">진로선택</td><td class="chk rec">권장</td><td class="chk rec">권장</td><td class="chk no">필수</td><td class="chk no">✘ 미이수</td></tr>
-              <tr><td class="lab">경제 수학</td><td class="chk">융합선택</td><td class="chk rec">권장</td><td class="chk">-</td><td class="chk rec">권장</td><td class="chk ok">✔ 이수</td></tr>
-              <tr><td class="lab">사회문제 탐구</td><td class="chk">융합선택</td><td class="chk rec">권장</td><td class="chk rec">권장</td><td class="chk rec">권장</td><td class="chk ok">✔ 이수</td></tr>
-            </tbody>
-          </table>
-        </div>
-        <div class="flag-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
-          <div><b>고려대 경영 지원 시 위계 결손:</b> ‘경제’ 미이수(고려대 필수). 3-2학기 진로선택 편성 협의 또는 미이수 사유를 세특·자소서 보완 서사로 처리 필요. → <b style="color:var(--gold)">성장 로드맵</b>에 자동 반영됨.</div></div>
+        <div class="sub">목표 계열·학과 진학에 통상 요구되는 이수과목 대비 학생의 실제 이수 현황 점검 (계열 통념 기준 근사)</div>
+        <div style="display:flex;gap:10px;margin:8px 0 16px"><button class="btn" onclick="genCurri()">AI 이수 위계 검증</button><button class="btn ghost" onclick="renderCurri()">불러오기</button></div>
+        <div id="curri-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 이수 위계 검증]</b>을 누르면 목표 계열 기준 이수 점검 결과가 나옵니다.</div></div>
       </section>
 
       <!-- 6. ROADMAP -->
@@ -629,16 +614,10 @@
 
         <!-- 6c research topics -->
         <div class="pane" id="p-rm-topic">
-          <div class="sub" style="margin:-6px 0 16px">연세대 경영 지망 · 표현·설명력 병목 보완 · 탐구 심화력 강점 활용 기준으로 분야별 자동 제안</div>
-          <div class="topic-grid">
-            <div class="topic" onclick="jump('sr')"><span class="tf tf-sasetuk">과세특 · 경제</span><div class="tt">행동경제학의 넛지가 소비를 바꾸는가 — 편의점 진열 동선 관찰 분석</div><div class="tmeta"><span>전공적합성 <b>매우 높음</b></span><span>난이도 <b>중</b></span></div><div class="go">학생부 설계 →</div></div>
-            <div class="topic" onclick="jump('sr')"><span class="tf tf-sasetuk">과세특 · 확률과 통계</span><div class="tt">베이즈 정리로 재해석한 스팸 필터 — 조건부확률의 실사용</div><div class="tmeta"><span>수리·논리 <b>강화</b></span><span>난이도 <b>중상</b></span></div><div class="go">학생부 설계 →</div></div>
-            <div class="topic" onclick="jump('sr')"><span class="tf tf-changche">창체 · 진로활동</span><div class="tt">국내 3사 ESG 경영보고서 비교 — 지속가능경영 지표는 무엇을 숨기나</div><div class="tmeta"><span>전공적합성 <b>높음</b></span><span>난이도 <b>중상</b></span></div><div class="go">학생부 설계 →</div></div>
-            <div class="topic" onclick="jump('sr')"><span class="tf tf-changche">창체 · 동아리</span><div class="tt">지역 소상공인 매출 데이터로 만든 수요 예측 미니 모델</div><div class="tmeta"><span>융합·데이터 <b>강점활용</b></span><span>난이도 <b>상</b></span></div><div class="go">학생부 설계 →</div></div>
-            <div class="topic" onclick="jump('sr')"><span class="tf tf-changche">창체 · 자율활동</span><div class="tt">학급 중고장터 운영과 가격탄력성 — 값을 내리면 정말 더 팔릴까</div><div class="tmeta"><span>실행·리더십 <b>부각</b></span><span>난이도 <b>중</b></span></div><div class="go">학생부 설계 →</div></div>
-            <div class="topic" onclick="jump('sr')"><span class="tf tf-sasetuk">과세특 · 국어</span><div class="tt">설득 광고의 수사 전략 — 프로스펙트 이론으로 읽는 손실 회피 문구</div><div class="tmeta"><span>표현력 <b>병목보완</b></span><span>난이도 <b>중</b></span></div><div class="go">학생부 설계 →</div></div>
-          </div>
-          <div class="note">※ 주제는 지망 학과 + 인지 진단(강점/병목) + 이수과목을 교차해 생성. 카드 클릭 → <b style="color:var(--ink)">학생부 설계</b>에서 탐구보고서 구조로 전개.</div>
+          <div class="sub" style="margin:-6px 0 16px">지망 계열·강점/병목·이수과목을 교차해 학생 맞춤 탐구주제를 생성</div>
+          <div style="display:flex;gap:10px;margin-bottom:16px"><button class="btn" onclick="genTopics()">AI 탐구주제 생성</button><button class="btn ghost" onclick="renderTopics()">불러오기</button></div>
+          <div id="topic-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 탐구주제 생성]</b>을 누르면 맞춤 주제 5개가 제시됩니다.</div></div>
+          <div class="note">※ 주제는 방향 제안이며, 실제 수행·기록은 학생·학교의 몫입니다(대필 아님).</div>
         </div>
       </section>
 
@@ -961,7 +940,7 @@ window.AD=AD;
         <div class="sub">진단·역설계·로드맵·학생부 설계를 통합한 학부모 발송용 PDF (미리보기)</div>
         <div class="report">
           <div class="rep-eye">PENTAVIEW ARCHE · 통합 입시 컨설팅 리포트</div>
-          <h2>김민준 학생 · 2026 수시 전략 브리프</h2>
+          <h2>학생 · 수시 전략 브리프</h2>
           <div style="font-size:11px;color:#7a8f6a;margin-top:2px">발행 2026.07.03 · 담당 김기욱 원장 · 로그·알 입시연구소</div>
           <hr>
           <div class="rp-row" style="margin-bottom:18px">
@@ -995,7 +974,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'&&window.renderTopics)renderTopics(); if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1303,6 +1282,51 @@ async function genDesign(){
     var o=JSON.parse(d.text);
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:o});
     renderDesign();
+  }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
+}
+async function renderCurri(){
+  const body=document.getElementById('curri-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  const {data}=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','curri').order('measured_at',{ascending:false}).limit(1);
+  const d=(data&&data[0]&&data[0].payload)||null;
+  if(!d){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 검증이 없습니다. <b>[AI 이수 위계 검증]</b>을 눌러주세요.</div>'; return; }
+  var RC={'필수':'var(--risk)','권장':'var(--gold,#c8a24a)','-':'var(--ink-mute)'};
+  var SC={'이수':'var(--safe)','미이수':'var(--risk)','미상':'var(--ink-mute)'};
+  var rows=(d.items||[]).map(function(x){return '<tr><td class="lab">'+esc(x.subject||'')+'</td><td class="chk" style="color:'+(RC[x.need]||'var(--ink-mute)')+'">'+esc(x.need||'-')+'</td><td class="chk" style="color:'+(SC[x.status]||'var(--ink-mute)')+'">'+esc(x.status||'미상')+'</td><td class="chk">'+esc(x.risk||'-')+'</td></tr>';}).join('');
+  body.innerHTML='<div class="card pad0" style="padding:18px"><table class="mtx"><thead><tr><th style="text-align:left">과목</th><th>구분</th><th>이수여부</th><th>위험도</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(d.summary?'<div class="flag-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div>'+esc(d.summary)+'</div></div>':'');
+}
+async function genCurri(){
+  const body=document.getElementById('curri-body'); const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">이수 위계 검증 중…</div>';
+  try{
+    var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+    var courses=((mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[]).map(function(c){return c.subject;}).filter(Boolean).join(', ');
+    var d=await callAI('curri_check',{field:majorToField(s.target_major),career:(s.target_major||''),target:(s.target_univ||''),courses:courses});
+    var o=JSON.parse(d.text);
+    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'curri',payload:o});
+    renderCurri();
+  }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">검증 실패: '+esc(e.message)+'</div>'; }
+}
+async function renderTopics(){
+  const body=document.getElementById('topic-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  const {data}=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','topics').order('measured_at',{ascending:false}).limit(1);
+  const list=(data&&data[0]&&data[0].payload&&data[0].payload.list)||null;
+  if(!list){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 주제가 없습니다. <b>[AI 탐구주제 생성]</b>을 눌러주세요.</div>'; return; }
+  body.innerHTML='<div class="topic-grid">'+list.map(function(t){return '<div class="topic"><span class="tf tf-sasetuk">'+esc(t.subject||'탐구')+'</span><div class="tt">'+esc(t.title||'')+'</div><div class="tmeta"><span>'+esc(t.career||'')+'</span></div><div style="font-size:11px;color:var(--ink-mute);margin-top:8px;line-height:1.6">Q. '+esc(t.question||'')+'<br>방법: '+esc(t.method||'')+'</div></div>';}).join('')+'</div>';
+}
+async function genTopics(){
+  const body=document.getElementById('topic-body'); const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">맞춤 탐구주제 생성 중…</div>';
+  try{
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
+    var ctx=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,3000);
+    var d=await callAI('research_topics',{target:(s.target_univ||''),field:majorToField(s.target_major),context:(s.target_major||'')+' '+ctx});
+    var arr=JSON.parse(d.text);
+    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'topics',payload:{list:arr}});
+    renderTopics();
   }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
 }
 async function renderArche(){
