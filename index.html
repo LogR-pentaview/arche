@@ -567,9 +567,9 @@
         <!-- 6c research topics -->
         <div class="pane" id="p-rm-topic">
           <div class="sub" style="margin:-6px 0 16px">지망 계열·강점/병목·이수과목을 교차해 학생 맞춤 탐구주제를 생성</div>
-          <div style="display:flex;gap:10px;margin-bottom:16px"><button class="btn" onclick="genTopics()">AI 탐구주제 생성</button><button class="btn ghost" onclick="renderTopics()">불러오기</button></div>
-          <div id="topic-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 탐구주제 생성]</b>을 누르면 맞춤 주제 5개가 제시됩니다.</div></div>
-          <div class="note">※ 주제는 방향 제안이며, 실제 수행·기록은 학생·학교의 몫입니다(대필 아님).</div>
+          <div style="display:flex;gap:10px;margin-bottom:16px"><button class="btn ghost" onclick="renderTopics()">불러오기</button></div>
+          <div id="topic-body"><div style="color:var(--ink-mute);padding:20px">탐구주제는 <b>[학생부 디자인]</b> 결과에서 자동 인출됩니다.</div></div>
+          <div class="note">※ 학생부 디자인의 과세특·탐구 항목이 여기에 표시됩니다(대필 아님).</div>
         </div>
       </section>
 
@@ -1206,34 +1206,72 @@ async function estimateCog(){
   finally{ hideAiLoading(); }
 }
 
-function designHTML(d){
-  var subs=(d.subjects||[]).map(function(x){return '<div class="card" style="margin-bottom:12px"><div style="font-size:13px;font-weight:600;color:var(--gold,#c8a24a);margin-bottom:5px">'+esc(x.subject||'')+'</div><div style="font-size:13px;line-height:1.7;color:var(--ink-dim)">'+esc(x.direction||'')+'</div>'+(x.link?'<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">↳ 진로 연결: '+esc(x.link)+'</div>':'')+'</div>';}).join('');
-  var acts=(d.activities||[]).map(function(x){return '<div class="card" style="margin-bottom:12px"><div style="font-size:11px;color:var(--lime,#B4F03C);letter-spacing:.04em;margin-bottom:5px">창체 · '+esc(x.area||'')+'</div><div style="font-size:13px;line-height:1.7;color:var(--ink-dim)">'+esc(x.plan||'')+'</div>'+(x.goal?'<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">기대 역량: '+esc(x.goal)+'</div>':'')+'</div>';}).join('');
-  var pri=d.priority?'<div class="card" style="border-color:var(--gold,#c8a24a);margin-bottom:16px"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>':'';
-  return pri+'<div class="sectionhead" style="margin:6px 0 12px"><span class="idx">과목</span><h3>과목별 세특 설계 방향</h3></div>'+(subs||'<div style="color:var(--ink-mute);padding:12px">—</div>')+'<div class="sectionhead" style="margin:20px 0 12px"><span class="idx">창체</span><h3>창의적 체험활동 설계</h3></div>'+(acts||'<div style="color:var(--ink-mute);padding:12px">—</div>');
-}
+var DI_ST=['예정','진행중','완료','보류'];
+var DI_COL={'예정':'var(--ink-mute)','진행중':'var(--gold,#c8a24a)','완료':'var(--safe)','보류':'var(--risk)'};
 async function renderDesign(){
   const body=document.getElementById('design-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
   const s=window._activeStudent;
-  const {data}=await sb.from('student_metrics').select('payload,measured_at').eq('student_id',s.id).eq('metric_type','design').order('measured_at',{ascending:false}).limit(1);
-  const d=(data&&data[0]&&data[0].payload)||null;
-  if(!d){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 설계가 없습니다. <b>[AI 학생부 디자인 생성]</b>을 눌러주세요.</div>'; return; }
-  body.innerHTML=designHTML(d);
+  const mr=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','design').order('measured_at',{ascending:false}).limit(1);
+  const d=(mr.data&&mr.data[0]&&mr.data[0].payload)||null;
+  const ir=await sb.from('design_items').select('*').eq('student_id',s.id).order('grade',{ascending:true}).order('sem',{ascending:true});
+  const items=(ir.data)||[];
+  if(!d&&!items.length){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 설계가 없습니다. <b>[AI 학생부 디자인 생성]</b>을 눌러주세요.</div>'; return; }
+  var html='';
+  if(d&&d.priority)html+='<div class="card" style="border-color:var(--gold,#c8a24a);margin-bottom:16px"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>';
+  // 진행 요약(완료/전체)
+  var doneN=items.filter(function(x){return x.status==='완료';}).length;
+  html+='<div style="display:flex;gap:10px;margin-bottom:16px;font-size:12px;color:var(--ink-dim)"><span>진행 <b class="mono" style="color:var(--ink)">'+doneN+'/'+items.length+'</b></span><span style="color:var(--ink-mute)">누적될수록 실제 입시 무기가 됩니다.</span></div>';
+  // 이미 진행
+  if(d&&d.done&&d.done.length){
+    html+='<div class="sectionhead" style="margin:6px 0 10px"><span class="idx">완료</span><h3>이미 진행한 것</h3></div>';
+    html+=d.done.map(function(x){return '<div class="card" style="margin-bottom:8px"><div style="font-size:12px;color:var(--safe);margin-bottom:3px">'+esc(x.subject||'')+'</div><div style="font-size:13px;line-height:1.6;color:var(--ink-dim)">'+esc(x.summary||'')+'</div></div>';}).join('');
+  }
+  // 앞으로 할 것 (학년>학기>과목)
+  html+='<div class="sectionhead" style="margin:20px 0 10px"><span class="idx">예정</span><h3>앞으로 할 것 <span style="font-size:11px;color:var(--ink-mute)">· 클릭 시 구체 활동</span></h3></div>';
+  if(items.length){
+    var g={};
+    items.forEach(function(it){var gk=(it.grade||'-')+'학년';var sk=it.sem||'';(g[gk]=g[gk]||{});(g[gk][sk]=g[gk][sk]||[]).push(it);});
+    Object.keys(g).sort().forEach(function(gk){
+      html+='<div style="font-size:13px;font-weight:600;color:var(--gold,#c8a24a);margin:14px 0 8px">'+esc(gk)+'</div>';
+      Object.keys(g[gk]).sort().forEach(function(sk){
+        if(sk)html+='<div style="font-size:11px;color:var(--ink-mute);margin:8px 0 4px">'+esc(sk)+'</div>';
+        g[gk][sk].forEach(function(it){
+          var col=DI_COL[it.status]||'var(--ink-mute)';
+          var opts=DI_ST.map(function(o){return '<option'+(o===it.status?' selected':'')+'>'+o+'</option>';}).join('');
+          html+='<div class="card" style="margin-bottom:8px;padding:12px 14px">'+
+            '<div style="display:flex;align-items:center;gap:10px">'+
+              '<div style="flex:1;cursor:pointer" onclick="toggleDesignDetail('+it.id+')"><span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line-soft,rgba(234,243,238,.1));border-radius:5px;padding:1px 6px;margin-right:7px">'+esc(it.area||'')+'</span><b style="font-size:13px;color:var(--ink);font-weight:500">'+esc(it.subject||'')+' · '+esc(it.title||'')+'</b></div>'+
+              '<select onchange="updateDesignStatus('+it.id+',this.value)" style="background:var(--panel-2);border:1px solid '+col+';color:'+col+';border-radius:6px;padding:3px 6px;font-size:11px">'+opts+'</select>'+
+            '</div>'+
+            '<div id="di-det-'+it.id+'" style="display:none;font-size:12px;line-height:1.7;color:var(--ink-dim);margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))">'+esc(it.detail||'')+'</div>'+
+          '</div>';
+        });
+      });
+    });
+  } else { html+='<div style="color:var(--ink-mute);padding:12px">—</div>'; }
+  body.innerHTML=html;
 }
+window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
+window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
 async function genDesign(){
   const body=document.getElementById('design-body');
   const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
-  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">AI가 진로·학과 맞춤 설계를 생성 중…</div>';
+  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">분석자료 기반 설계 생성 중…</div>';
   try{
     var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,4000);
     var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
     var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
-    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),context:setechTxt,qual:q4});
+    var gye=majorToField(s.target_major); var rec='';
+    if(gye){ var dq=await sb.from('dept_recommended_subjects').select('subjects').eq('gye',gye).limit(20); var set={}; (dq.data||[]).forEach(function(r){(r.subjects||[]).forEach(function(x){set[x]=1;});}); rec=Object.keys(set).join(', '); }
+    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),rec:rec,context:setechTxt,qual:q4});
     var o=JSON.parse(d.text);
-    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:o});
-    renderDesign();
+    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||''}});
+    await sb.from('design_items').delete().eq('student_id',s.id);
+    var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||'',title:t.title||'',detail:t.detail||'',status:'예정'};});
+    if(todo.length)await sb.from('design_items').insert(todo);
+    renderDesign(); if(window.renderTopics)renderTopics();
   }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
 }
 async function renderCurri(){
@@ -1264,23 +1302,14 @@ async function renderTopics(){
   const body=document.getElementById('topic-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
   const s=window._activeStudent;
-  const {data}=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','topics').order('measured_at',{ascending:false}).limit(1);
-  const list=(data&&data[0]&&data[0].payload&&data[0].payload.list)||null;
-  if(!list){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 주제가 없습니다. <b>[AI 탐구주제 생성]</b>을 눌러주세요.</div>'; return; }
-  body.innerHTML='<div class="topic-grid">'+list.map(function(t){return '<div class="topic"><span class="tf tf-sasetuk">'+esc(t.subject||'탐구')+'</span><div class="tt">'+esc(t.title||'')+'</div><div class="tmeta"><span>'+esc(t.career||'')+'</span></div><div style="font-size:11px;color:var(--ink-mute);margin-top:8px;line-height:1.6">Q. '+esc(t.question||'')+'<br>방법: '+esc(t.method||'')+'</div></div>';}).join('')+'</div>';
+  const ir=await sb.from('design_items').select('*').eq('student_id',s.id).order('grade',{ascending:true});
+  var items=(ir.data)||[];
+  // 탐구성 항목: 과세특 또는 제목에 탐구/보고서/연구
+  var topics=items.filter(function(x){return (x.area||'').indexOf('과세특')>=0||/탐구|보고서|연구|실험|분석/.test((x.title||'')+(x.detail||''));});
+  if(!topics.length){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">학생부 디자인 결과가 없습니다. <b>[학생부 디자인]</b>에서 먼저 생성하세요.</div>'; return; }
+  body.innerHTML='<div class="topic-grid">'+topics.map(function(t){var col=DI_COL[t.status]||'var(--ink-mute)';return '<div class="topic" onclick="jump(\'sr\')"><span class="tf tf-sasetuk">'+esc(t.subject||t.area||'탐구')+' <b style="color:'+col+'">· '+esc(t.status||'')+'</b></span><div class="tt">'+esc(t.title||'')+'</div><div style="font-size:11px;color:var(--ink-mute);margin-top:8px;line-height:1.6">'+esc((t.detail||'').slice(0,120))+'</div><div class="go">학생부 디자인 →</div></div>';}).join('')+'</div>';
 }
-async function genTopics(){
-  const body=document.getElementById('topic-body'); const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
-  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">맞춤 탐구주제 생성 중…</div>';
-  try{
-    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
-    var ctx=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,3000);
-    var d=await callAI('research_topics',{target:(s.target_univ||''),field:majorToField(s.target_major),context:(s.target_major||'')+' '+ctx});
-    var arr=JSON.parse(d.text);
-    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'topics',payload:{list:arr}});
-    renderTopics();
-  }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
-}
+async function genTopics(){ await genDesign(); if(window.renderTopics)renderTopics(); }
 async function renderRmCourse(){
   const body=document.getElementById('rmcourse-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
