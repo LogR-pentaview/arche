@@ -511,6 +511,7 @@
         <div class="eyebrow">Reverse-Engineering Admission</div>
         <div class="h1">합격 역설계</div>
         <div class="sub">목표 대학의 합격선에서 거꾸로 계산 — 지금 어디에 있고, 무엇이 부족한가</div>
+        <div id="arche-body">
         <div class="arche-target">
           <div class="at-head"><div class="at-uni">연세대 경영학과 <span>· 활동우수형(수시)</span></div><div class="at-verdict" style="color:var(--reach)">적정 · 합격선까지 0.14등급</div></div>
           <div class="track"><div class="zone z-risk">소신</div><div class="zone z-reach">적정</div><div class="zone z-safe">안정</div>
@@ -530,6 +531,7 @@
           <div class="at-foot"><div class="metric"><small>필요 상승폭</small><b style="color:var(--risk)">-0.20등급</b></div><div class="metric"><small>결정 변수</small><b>3-1학기 성적</b></div><div class="metric"><small>권장</small><b style="color:var(--reach)">면접 대비 집중</b></div></div>
         </div>
         <div class="note">※ 커트라인 DB = 대표님 골든 시드 데이터 연동 지점. 목표 3지망 입력 시 자동 산출.</div>
+        </div>
       </section>
 
       <!-- 5. CURRI CHECK -->
@@ -1016,7 +1018,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1290,12 +1292,27 @@ async function estimateCog(){
       var ulist=JSON.parse(rc.text);
       if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
     }catch(ue){}
-    if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport(); if(window.loadMetrics)loadMetrics();
+    if(window.renderDiag)renderDiag(); if(window.renderArche)renderArche(); if(window.renderReport)renderReport(); if(window.loadMetrics)loadMetrics();
     alert('AI 분석 완료: 5역량 + 지원가능 대학 6선 (생기부 기반 근사치). 리포트 반영됨. 활동 추가 후 다시 누르면 보정됩니다.');
   }catch(e){ alert('추정 실패: '+e.message); }
   finally{ hideAiLoading(); }
 }
 
+async function renderArche(){
+  const body=document.getElementById('arche-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  const {data,error}=await sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','univ_reco').order('measured_at',{ascending:false}).limit(1);
+  if(error){body.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
+  const list=(data&&data[0]&&data[0].payload&&data[0].payload.list)||[];
+  if(!list.length){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">아직 역설계 결과가 없습니다. [학생 진단]에서 <b>AI 분석</b>을 실행하세요.</div>'; return; }
+  const POS={reach:['소신','var(--risk)'],fit:['적정','var(--reach)'],safe:['안정','var(--safe)']};
+  const rows=list.map(function(u){
+    var pk=POS[u.pos]||POS.fit;
+    return '<div class="arche-target"><div class="at-head"><div class="at-uni">'+esc(u.name||'')+' '+esc(u.major||'')+' <span>· '+esc(u.type||'')+'</span></div><div class="at-verdict" style="color:'+pk[1]+'">'+pk[0]+'</div></div><div class="at-foot"><div class="metric"><small>포지션</small><b style="color:'+pk[1]+'">'+pk[0]+'</b></div><div class="metric" style="flex:2"><small>근거</small><b style="font-weight:500;font-size:12px">'+esc(u.basis||'')+'</b></div></div></div>';
+  }).join('');
+  body.innerHTML=rows+'<div class="note">※ 계열·내신 기반 근사 추정(골든시드 연동). 정밀 합격커트라인은 admission_cutlines 적재 후 표기됩니다.</div>';
+}
 async function renderDiag(){
   const who=document.getElementById('diag-who'), body=document.getElementById('diag-body'); if(!body)return;
   if(!window._activeStudent||!sb){ if(who)who.textContent='— 미선택'; body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
@@ -1835,7 +1852,8 @@ const EB = (function(){
 window.EB = EB;
 // 골든시드 채점 = 내부 전용. 대입 운영 화면엔 숨김.
 // URL ?internal=1 또는 콘솔 archeInternal() 로만 노출.
-window.archeInternal=function(){var n=document.getElementById('nav-essaybatch');if(n)n.style.display='';var m=document.getElementById('nav-admindata');if(m)m.style.display='';console.log('[arche] 내부 탭 노출: 골든시드 채점 + 입시자료 조회');};
+// 골든시드 채점(essaybatch)은 특목고 자소서 기능 준비 전까지 완전 숨김 — 내부 노출에서도 제외.
+window.archeInternal=function(){var m=document.getElementById('nav-admindata');if(m)m.style.display='';console.log('[arche] 내부 탭 노출: 입시자료 조회');};
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
 </script>
