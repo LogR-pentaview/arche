@@ -407,7 +407,9 @@
               <select id="st-track" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">계열</option><option>인문</option><option>자연</option><option>공학</option><option>의약</option><option>예체능</option><option>기타</option></select>
             </div>
             <input id="st-univ" placeholder="목표 대학" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="st-major" placeholder="목표 학과" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="st-major" placeholder="목표 학과" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent"> 생기부 활용 동의</label>
             <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여</label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
@@ -438,12 +440,12 @@
             <div id="rec-setech" style="margin-top:12px"></div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px">
-            <div class="sectionhead"><span class="idx">01</span><h3>세특 입력 <span style="font-size:11px;color:var(--ink-mute)">(읽기·분석용 · 대필 아님)</span></h3></div>
+            <div class="sectionhead"><span class="idx">01</span><h3>세특 · 창체 수동 입력 <span style="font-size:11px;color:var(--ink-mute)">(읽기·분석용 · 대필 아님)</span></h3></div>
             <div style="display:flex;gap:8px">
-              <input id="se-subject" placeholder="과목" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-              <input id="se-area" placeholder="영역(교과세특 등)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+              <input id="se-subject" placeholder="과목/활동명" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+              <select id="se-area" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="과세특">과세특</option><option value="자율">자율활동</option><option value="진로">진로활동</option><option value="동아리">동아리활동</option><option value="봉사">봉사활동</option><option value="독서">독서활동</option><option value="행발">행동특성·종합의견</option></select>
             </div>
-            <textarea id="se-text" rows="4" placeholder="세특 원문을 붙여넣으세요" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+            <textarea id="se-text" rows="4" placeholder="세특/창체 활동 내용을 입력하세요 (학생부 없어도 직접 기입 가능)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
             <div id="se-msg" style="min-height:14px;font-size:12px;margin-bottom:6px"></div>
             <button onclick="saveSetech()" style="width:100%;padding:10px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">세특 저장</button>
             <div id="se-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
@@ -451,7 +453,7 @@
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
             <div class="sectionhead"><span class="idx">02</span><h3>성적 · 인지지표</h3></div>
             <div style="display:flex;gap:8px">
-              <div style="flex:1"><label style="font-size:11px;color:var(--ink-mute);display:block;margin-bottom:4px">내신 평균</label><input id="mx-naesin" type="number" step="0.01" placeholder="1.42" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
+              <div style="flex:1"><label style="font-size:11px;color:var(--ink-mute);display:block;margin-bottom:4px">내신 평균 <span style="color:var(--gold,#c8a24a)">(5등급제)</span></label><input id="mx-naesin" type="number" step="0.01" min="1" max="5" placeholder="2.10" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
               <div style="flex:1"><label style="font-size:11px;color:var(--ink-mute);display:block;margin-bottom:4px">모평 백분위</label><input id="mx-mopyeong" type="number" placeholder="94" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
             </div>
             <div style="font-size:12px;color:var(--ink-mute);margin:4px 0 8px">학종 5역량 (0~10) · 컨설팅 진단지표 <span style="color:var(--gold,#c8a24a)">· AI 자동산출/보정</span></div>
@@ -1078,13 +1080,15 @@ async function addStudent(){
     track:document.getElementById('st-track').value||null,
     target_univ:document.getElementById('st-univ').value.trim()||null,
     target_major:document.getElementById('st-major').value.trim()||null,
+    career:document.getElementById('st-career').value.trim()||null,
+    interest:document.getElementById('st-interest').value.trim()||null,
     consent_record:document.getElementById('st-consent').checked,
     benchmark_opt_in:document.getElementById('st-bench').checked};
   m.style.color='var(--ink-mute)';m.textContent='등록 중…';
   const {error}=await sb.from('students').insert(row);
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
   m.style.color='var(--safe)';m.textContent='등록 완료.';
-  ['st-name','st-school','st-univ','st-major'].forEach(id=>document.getElementById(id).value='');
+  ['st-name','st-school','st-univ','st-major','st-career','st-interest'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('st-grade').value='';document.getElementById('st-track').value='';
   document.getElementById('st-consent').checked=false;document.getElementById('st-bench').checked=false;
   loadStudents();
@@ -1261,11 +1265,14 @@ async function genDesign(){
   try{
     var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,4000);
+    var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+    var subjList=Array.from(new Set(((mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[]).map(function(c){return c.subject;}).filter(Boolean)));
     var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
     var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
     var gye=majorToField(s.target_major); var rec='';
     if(gye){ var dq=await sb.from('dept_recommended_subjects').select('subjects').eq('gye',gye).limit(20); var set={}; (dq.data||[]).forEach(function(r){(r.subjects||[]).forEach(function(x){set[x]=1;});}); rec=Object.keys(set).join(', '); }
-    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),rec:rec,context:setechTxt,qual:q4});
+    var scope='[필수 지침] todo는 다음 수강 전 과목 각각의 과세특 활동 + 창체 4영역(자율·진로·동아리·봉사) 각각을 모두 포함해 빠짐없이 생성하라. 수강과목: '+(subjList.join(', ')||'(파싱된 과목 없음 — 계열 표준 과목 가정)')+'. 관심분야: '+(s.interest||'')+'.';
+    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),rec:rec,context:scope+'\n'+setechTxt,qual:q4});
     var o=JSON.parse(d.text);
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||''}});
     await sb.from('design_items').delete().eq('student_id',s.id);
