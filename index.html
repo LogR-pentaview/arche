@@ -242,6 +242,50 @@
     .rm{grid-template-columns:64px 1fr 1fr 1fr;font-size:10px}
   }
 </style>
+<style>
+  #v-essaybatch .eb-card{background:var(--panel,#0e2c1f);border:1px solid var(--line,rgba(180,240,60,.13));border-radius:14px;padding:22px 24px;margin-bottom:18px}
+  #v-essaybatch .eb-head{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  #v-essaybatch .eb-head .idx{font-family:'Bebas Neue';font-size:20px;color:var(--gold,#F5B301)}
+  #v-essaybatch .eb-head h3{font-size:15px;font-weight:500;flex:1}
+  #v-essaybatch .eb-actions{display:flex;gap:8px}
+  #v-essaybatch .eb-drop{border:1.5px dashed var(--line,rgba(180,240,60,.2));border-radius:11px;padding:20px;text-align:center;transition:.15s;cursor:default}
+  #v-essaybatch .eb-drop.hot{border-color:var(--gold,#F5B301);background:rgba(245,179,1,.05)}
+  #v-essaybatch .eb-drop-in{font-size:13px;color:var(--ink-dim,#8ba99a);display:flex;flex-direction:column;gap:10px;align-items:center}
+  #v-essaybatch .eb-drop-in b{color:var(--ink,#eaf3ee);font-weight:500}
+  #v-essaybatch .eb-ta{width:100%;min-height:120px;margin-top:12px;background:var(--panel-2,#0a2418);border:1px solid var(--line-soft,rgba(234,243,238,.07));border-radius:10px;padding:13px 15px;color:var(--ink,#eaf3ee);font-family:'Noto Sans KR',sans-serif;font-size:13px;line-height:1.7;resize:vertical}
+  #v-essaybatch .eb-ta:focus{outline:none;border-color:rgba(245,179,1,.4)}
+  #v-essaybatch .eb-row{display:flex;align-items:center;gap:14px;margin-top:12px;flex-wrap:wrap}
+  #v-essaybatch .eb-mini{font-size:11px;color:var(--ink-mute,#5f7d6f);display:flex;align-items:center;gap:6px}
+  #v-essaybatch .eb-sep{width:64px;background:var(--panel-2,#0a2418);border:1px solid var(--line-soft,rgba(234,243,238,.07));border-radius:7px;padding:5px 8px;color:var(--ink,#eaf3ee);font-family:'JetBrains Mono',monospace;font-size:12px}
+  #v-essaybatch .eb-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-dim,#8ba99a);margin-left:auto}
+  #v-essaybatch .eb-btn{background:linear-gradient(90deg,var(--gold,#F5B301),#e0a400);color:#1a1200;border:none;border-radius:8px;padding:8px 16px;font-weight:700;font-size:12px;cursor:pointer;transition:.15s}
+  #v-essaybatch .eb-btn:hover{filter:brightness(1.08)}
+  #v-essaybatch .eb-btn:disabled{opacity:.5;cursor:not-allowed}
+  #v-essaybatch .eb-btn.ghost{background:transparent;color:var(--ink-dim,#8ba99a);border:1px solid var(--line,rgba(180,240,60,.18))}
+  #v-essaybatch .eb-btn.ghost:hover{color:var(--ink,#eaf3ee);border-color:var(--gold,#F5B301)}
+  #v-essaybatch .eb-progress{display:flex;align-items:center;gap:12px;margin-top:14px}
+  #v-essaybatch .eb-bar{height:6px;background:var(--panel-3,#123626);border-radius:4px;flex:1;overflow:hidden;position:relative}
+  #v-essaybatch .eb-bar::after{content:'';position:absolute;left:0;top:0;bottom:0;width:var(--p,0%);background:linear-gradient(90deg,var(--lime,#B4F03C),var(--gold,#F5B301));transition:width .3s}
+  #v-essaybatch #eb-ptext{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-dim,#8ba99a);white-space:nowrap}
+  #v-essaybatch .eb-item{background:var(--panel-2,#0a2418);border:1px solid var(--line-soft,rgba(234,243,238,.07));border-radius:11px;padding:16px 18px;margin-bottom:12px}
+  #v-essaybatch .eb-item.err{border-color:rgba(239,83,80,.4)}
+  #v-essaybatch .eb-item-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  #v-essaybatch .eb-name{font-size:13px;font-weight:500;color:var(--ink,#eaf3ee);flex:1}
+  #v-essaybatch .eb-ref{width:130px;background:var(--panel,#0e2c1f);border:1px solid var(--line-soft,rgba(234,243,238,.07));border-radius:6px;padding:4px 8px;color:var(--ink-dim,#8ba99a);font-family:'JetBrains Mono',monospace;font-size:11px}
+  #v-essaybatch .eb-sig{font-size:10px;font-weight:700;padding:3px 10px;border-radius:7px;letter-spacing:.03em}
+  #v-essaybatch .eb-sig.s-강함{background:rgba(180,240,60,.16);color:var(--lime,#B4F03C)}
+  #v-essaybatch .eb-sig.s-보통{background:rgba(245,179,1,.16);color:var(--gold,#F5B301)}
+  #v-essaybatch .eb-sig.s-약함{background:rgba(239,83,80,.16);color:var(--risk,#EF5350)}
+  #v-essaybatch .eb-overall{font-family:'Bebas Neue';font-size:26px;color:var(--gold,#F5B301);line-height:1}
+  #v-essaybatch .eb-axes{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  #v-essaybatch .eb-axis{background:var(--panel,#0e2c1f);border-radius:8px;padding:10px 12px}
+  #v-essaybatch .eb-axis .al{font-size:10px;color:var(--ink-mute,#5f7d6f);letter-spacing:.04em}
+  #v-essaybatch .eb-axis .av{font-family:'Bebas Neue';font-size:22px;color:var(--ink,#eaf3ee);line-height:1.1}
+  #v-essaybatch .eb-axis .track{height:4px;background:var(--panel-3,#123626);border-radius:3px;margin-top:5px;overflow:hidden}
+  #v-essaybatch .eb-axis .track i{display:block;height:100%;background:linear-gradient(90deg,var(--lime,#B4F03C),var(--gold,#F5B301))}
+  #v-essaybatch .eb-reason{font-size:12px;line-height:1.7;color:var(--ink-dim,#8ba99a);margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))}
+  #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
+</style>
 </head>
 <body>
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
@@ -299,6 +343,7 @@
 
     <div class="navlabel">아웃풋</div>
     <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
+    <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
     <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
@@ -419,7 +464,7 @@
         </div>
       
             <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:20px;grid-column:1/-1">
-              <div class="sectionhead"><span class="idx">03</span><h3>내신 · 이수과목 <span style="font-size:11px;color:var(--ink-mute)">(단위가중 환산 · 자소성가 형식)</span></h3></div>
+              <div class="sectionhead"><span class="idx">03</span><h3>내신 · 이수과목 <span style="font-size:11px;color:var(--ink-mute)">(단위가중 환산)</span></h3></div>
               <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">학생부 [교과학습발달상황]을 붙여넣고 자동 맵핑 → 과목·이수단위·석차등급 추출 후 단위가중 평균 계산</div>
               <textarea id="nd-paste" rows="3" placeholder="예) 1학년 1학기  국어 4 88/72(12.3) A(250) 2" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical;margin-bottom:8px"></textarea>
               <div style="display:flex;gap:8px;margin-bottom:12px">
@@ -754,6 +799,41 @@
           <div class="foot"><span>특허 10-2026-0053173 기반 인지 진단</span><span><span id="rp-date"></span> · penta-view.com</span></div>
         </div>
       </section>
+
+      <section class="view" id="v-essaybatch">
+  <div class="eyebrow">Essay 4-Axis Scoring</div>
+  <div class="h1">자소서 4축 일괄 채점</div>
+  <div class="sub">활동 · 사고 · 가치관형성 · 비전 — 서류통과 신호를 정량화. 채점만 수행하며 문장은 생성하지 않습니다.</div>
+
+  <div class="eb-card">
+    <div class="eb-head"><span class="idx">01</span><h3>자소서 투입</h3></div>
+    <div class="eb-drop" id="eb-drop">
+      <input type="file" id="eb-file" accept=".txt" multiple hidden>
+      <div class="eb-drop-in">
+        <b>텍스트를 붙여넣거나</b> .txt 파일을 끌어다 놓으세요 (다중 가능)
+        <button class="eb-btn ghost" type="button" onclick="document.getElementById('eb-file').click()">파일 선택</button>
+      </div>
+    </div>
+    <textarea id="eb-paste" class="eb-ta" placeholder="여러 건이면 아래 구분선(---)으로 나눠 붙여넣으세요.&#10;예)&#10;홍길동 자소서 원문...&#10;---&#10;다음 학생 자소서 원문..."></textarea>
+    <div class="eb-row">
+      <label class="eb-mini">구분자 <input id="eb-sep" class="eb-sep" value="---"></label>
+      <label class="eb-mini">호출 간격(ms) <input id="eb-delay" class="eb-sep" value="600"></label>
+      <span class="eb-count" id="eb-count">0건 대기</span>
+      <button class="eb-btn" id="eb-run" type="button" onclick="EB.run()">채점 시작</button>
+    </div>
+    <div class="eb-progress" id="eb-prog" style="display:none"><div class="eb-bar" id="eb-bar"></div><span id="eb-ptext"></span></div>
+  </div>
+
+  <div class="eb-card" id="eb-results-card" style="display:none">
+    <div class="eb-head"><span class="idx">02</span><h3>채점 결과</h3>
+      <div class="eb-actions">
+        <button class="eb-btn ghost" type="button" onclick="EB.csv()">CSV 내보내기</button>
+        <button class="eb-btn ghost" type="button" onclick="EB.saveAll()">essay_axes 저장</button>
+      </div>
+    </div>
+    <div id="eb-results"></div>
+  </div>
+</section>
 <!--OLD_REPORT
         <div class="eyebrow">Consulting Output</div>
         <div class="h1">컨설팅 리포트</div>
@@ -787,14 +867,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트",settings:"설정"};
+const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트",essaybatch:"자소서 채점",settings:"설정"};
 function go(el){
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -977,12 +1057,20 @@ function populateIntakePicker(){
   var cur=window._activeStudent?window._activeStudent.id:'';
   sel.innerHTML='<option value="">— 학생 선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');
 }
+async function loadNaesinCourses(){
+  if(!window._activeStudent||!sb)return;
+  var r=await sb.from('student_metrics').select('payload').eq('student_id',window._activeStudent.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+  var p=(r.data&&r.data[0]&&r.data[0].payload)||null;
+  if(p&&Array.isArray(p.courses)&&p.courses.length){ window._courses=p.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade))};}); }
+  else { window._courses=[]; }
+  if(window.renderCourses)renderCourses();
+}
 async function refreshIntake(){
   if(sb && (!window._students||!window._students.length)){ await loadStudents(); }
   populateIntakePicker();
   const w=document.getElementById('intake-who');
   if(w) w.textContent=window._activeStudent?(esc(window._activeStudent.name)+' · '+esc(window._activeStudent.grade||'')):'— 미선택';
-  loadSetech(); if(window.loadMetrics)loadMetrics();
+  loadSetech(); if(window.loadMetrics)loadMetrics(); if(window.loadNaesinCourses)loadNaesinCourses();
 }
 async function saveSetech(){
   const m=document.getElementById('se-msg'); const s=requireActive(m); if(!s||!sb)return;
@@ -1001,7 +1089,14 @@ async function loadSetech(){
   const {data,error}=await sb.from('student_setech').select('*').eq('student_id',window._activeStudent.id).order('extracted_at',{ascending:false});
   if(error){list.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(error.message)+'</div>';return;}
   if(!data.length){list.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 세특 없음</div>';return;}
-  list.innerHTML=data.map(x=>'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:10px 12px"><div style="font-size:11px;color:var(--lime)">'+esc(x.subject||'')+(x.area?' · '+esc(x.area):'')+'</div><div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc((x.text||'').slice(0,120))+((x.text||'').length>120?'…':'')+'</div></div>').join('');
+  var grp={}; data.forEach(function(x){var g=subjectGroup(x.subject,x.area);(grp[g]=grp[g]||[]).push(x);});
+  var out='';
+  GORDER.forEach(function(g){var arr=grp[g];if(!arr||!arr.length)return;
+    arr.sort(function(a,b){return semKey(a.grade)-semKey(b.grade);});
+    out+='<div style="font-size:10.5px;font-weight:700;color:var(--gold,#c8a24a);letter-spacing:.03em;margin:8px 0 2px">'+esc(g)+' ('+arr.length+')</div>';
+    arr.forEach(function(x){var gl=gradeLabel(x.grade);out+='<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:9px 12px"><div style="font-size:11px;color:var(--lime)">'+esc(x.subject||'')+(gl?' · '+gl:'')+(x.area?' · '+esc(x.area):'')+'</div><div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc((x.text||'').slice(0,120))+((x.text||'').length>120?'…':'')+'</div></div>';});
+  });
+  list.innerHTML=out;
 }
 async function loadMetrics(){
   if(!window._activeStudent||!sb)return;
@@ -1063,7 +1158,7 @@ async function renderDiag(){
 }
 
 
-/* ===== 내신 · 이수과목 (단위가중, 자소성가 형식) ===== */
+/* ===== 내신 · 이수과목 (단위가중) ===== */
 window._courses=[]; window._naesin=null;
 const SEMS=['1-1','1-2','2-1','2-2','3-1'];
 function _cell(){return "width:100%;padding:5px 7px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px";}
@@ -1206,10 +1301,11 @@ async function aiAutofill(){
 }
 async function saveParsedSetech(){
   var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!sb)return;
+  function _gt(x){var g=(x.grade!=null&&x.grade!==0)?x.grade:null;var t=(x.term!=null&&x.term!==0)?x.term:null;return g?(t?(g+'-'+t):(''+g)):null;}
   var rows=[];
-  (window._parsedSetech||[]).forEach(function(x){rows.push({student_id:s.id,subject:x.subject||null,area:'교과세특',text:x.summary||'',source:'ai_parsed'});});
-  (window._parsedChangche||[]).forEach(function(x){rows.push({student_id:s.id,subject:(x.area||'창체'),area:'창체세특',text:x.summary||'',source:'ai_parsed'});});
-  (window._parsedHaengbal||[]).forEach(function(x){rows.push({student_id:s.id,subject:'행동특성',area:'행발세특',text:x.summary||'',source:'ai_parsed'});});
+  (window._parsedSetech||[]).forEach(function(x){rows.push({student_id:s.id,subject:x.subject||null,area:'교과세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
+  (window._parsedChangche||[]).forEach(function(x){rows.push({student_id:s.id,subject:(x.area||'창체'),area:'창체세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
+  (window._parsedHaengbal||[]).forEach(function(x){rows.push({student_id:s.id,subject:'행동특성',area:'행발세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
   if(!rows.length)return;
   var {error}=await sb.from('student_setech').insert(rows);
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
@@ -1296,11 +1392,18 @@ async function renderReport(){
     document.getElementById('rp-diag').innerHTML='<div style="color:#999;font-size:12px">5역량 산출 후 표시됩니다.</div>';
   }
 
-  // ④ 전체 세특 하이라이트 (지원학과 정렬)
-  var major=(s.target_major||'');
+  // ④ 전체 세특 하이라이트 (과목군 분류 · 학년.학기 정렬 · 전체)
   var catClass={'교과세특':'gyo','창체세특':'chang','행발세특':'haeng'};
-  var scored=se.map(function(x){return {x:x,fit:fitScore(x.text,major)};}).sort(function(a,b){return b.fit-a.fit;}).slice(0,8);
-  document.getElementById('rp-setech').innerHTML=(scored.length)?scored.map(function(o){var x=o.x;var cc=catClass[x.area]||'gyo';var lab=(x.area||'교과세특');var fitL=o.fit>=3?'매우 높음':(o.fit>=1?'높음':'보통');return '<li><div class="seh"><span class="cat '+cc+'">'+esc(lab)+'</span><span class="subj">'+esc(x.subject||x.area||'세특')+'</span><span class="fit">전공적합 <b>'+fitL+'</b></span></div><div class="txt">'+esc((x.text||'').slice(0,150))+((x.text||'').length>150?'…':'')+'</div></li>';}).join(''):'<li style="list-style:none;color:#999">세특 데이터 없음</li>';
+  var groups={};
+  se.forEach(function(x){var g=subjectGroup(x.subject,x.area);(groups[g]=groups[g]||[]).push(x);});
+  var seHtml='';
+  GORDER.forEach(function(g){var arr=groups[g];if(!arr||!arr.length)return;
+    arr.sort(function(a,b){return semKey(a.grade)-semKey(b.grade);});
+    seHtml+='<li style="list-style:none;background:transparent;border:none;padding:0;margin:6px 0 0"><div style="font-size:11px;font-weight:800;color:#173a27;letter-spacing:.02em">'+esc(g)+' <span style="color:#8a8574;font-weight:400">('+arr.length+')</span></div></li>';
+    arr.forEach(function(x){var cc=catClass[x.area]||'gyo';var lab=(x.area||'교과세특');var gl=gradeLabel(x.grade);
+      seHtml+='<li><div class="seh"><span class="cat '+cc+'">'+esc(lab)+'</span><span class="subj">'+esc(x.subject||x.area||'세특')+'</span>'+(gl?'<span class="fit">'+gl+'</span>':'')+'</div><div class="txt">'+esc((x.text||'').slice(0,160))+((x.text||'').length>160?'…':'')+'</div></li>';});
+  });
+  document.getElementById('rp-setech').innerHTML=seHtml||'<li style="list-style:none;color:#999">세특 데이터 없음</li>';
 
   // ⑤ 지원가능 대학 6선
   var posLab={reach:'소신',fit:'적정',safe:'안정'};
@@ -1311,6 +1414,17 @@ async function renderReport(){
 }
 
 /* ===== 재설계 리포트 헬퍼 ===== */
+var GORDER=['국어','수학','영어','사회','과학','체육·예술','기술·가정/정보','제2외국어·한문','교양','기타 교과','창의적 체험활동','행동특성·종합의견'];
+function subjectGroup(subject,area){
+  if(area==='창체세특')return '창의적 체험활동';
+  if(area==='행발세특')return '행동특성·종합의견';
+  var s=String(subject||'');
+  var G=[['국어',['국어','문학','독서','작문','화법','언어','매체']],['수학',['수학','대수','미적','기하','확률','통계']],['영어',['영어']],['사회',['통합사회','사회','역사','한국사','지리','도덕','윤리','정치','법과','경제','세계시민']],['과학',['통합과학','과학','물리','화학','생명','지구']],['체육·예술',['체육','음악','미술','스포츠','운동','연극']],['기술·가정/정보',['기술','가정','정보','공학','컴퓨터']],['제2외국어·한문',['중국어','일본어','한문','독일어','프랑스어','스페인어','러시아어','아랍어','베트남어']],['교양',['교양','논술','진로','철학','심리','환경','보건','종교']]];
+  for(var i=0;i<G.length;i++){for(var k=0;k<G[i][1].length;k++){if(s.indexOf(G[i][1][k])>=0)return G[i][0];}}
+  return '기타 교과';
+}
+function semKey(g){if(!g)return 99;var m=String(g).match(/(\d)(?:-(\d))?/);if(!m)return 99;return Number(m[1])*10+(m[2]?Number(m[2]):0);}
+function gradeLabel(g){if(!g)return '';var m=String(g).match(/(\d)(?:-(\d))?/);if(!m)return '';return m[1]+'학년'+(m[2]?' '+m[2]+'학기':'');}
 function fitScore(text,major){
   if(!major)return 0;
   var t=String(text||'');
@@ -1405,6 +1519,158 @@ Object.assign(window.Arche,{
 });
 
 console.log('[Arche ① self-test] autoScore=',Arche.autoScore([{qtype:'ox',answer:'O',val:'o'},{qtype:'short',answer:'광합성',val:' 광합성'}]));
+</script>
+<script>
+
+
+const EB = (function(){
+  let _sb = null, _rows = [];
+  function sb(){ return window.sb || null; }
+  const $ = s => document.querySelector(s);
+  const esc = s => (s||"").replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+
+  function splitEssays(){
+    const sep = ($("#eb-sep").value||"---").trim();
+    const raw = $("#eb-paste").value;
+    let items = [];
+    if (raw.trim()){
+      items = raw.split(new RegExp("\\n\\s*"+sep.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+"\\s*\\n"))
+                 .map(t=>t.trim()).filter(t=>t.length>30)
+                 .map((t,i)=>({name:"붙여넣기 #"+(i+1), text:t}));
+    }
+    return items.concat(EB._files||[]);
+  }
+  function refreshCount(){
+    const n = splitEssays().length;
+    $("#eb-count").textContent = n+"건 대기";
+    $("#eb-run").disabled = n===0;
+  }
+
+  async function scoreOne(text){
+    const client = sb();
+    if (!client) throw new Error("supabase 클라이언트 없음 · EB_SUPA_ANON 설정 또는 전역 sb 필요");
+    const { data, error } = await client.functions.invoke("arche-ai", { body:{ task:"eval_essay", payload:{ text } } });
+    if (error) throw new Error(error.message || "invoke 실패");
+    if (data && data.error) throw new Error(data.error);
+    let parsed;
+    try { parsed = JSON.parse((data.text||"").replace(/^```json\s*/i,"").replace(/```\s*$/i,"").trim()); }
+    catch(e){ throw new Error("JSON 파싱 실패: "+(data.text||"").slice(0,80)); }
+    return parsed;
+  }
+
+  async function run(){
+    const items = splitEssays();
+    if (!items.length) return;
+    const delay = Math.max(0, parseInt($("#eb-delay").value)||600);
+    _rows = [];
+    $("#eb-results-card").style.display = "block";
+    $("#eb-results").innerHTML = "";
+    $("#eb-prog").style.display = "flex";
+    $("#eb-run").disabled = true;
+    for (let i=0;i<items.length;i++){
+      const it = items[i];
+      $("#eb-bar").style.setProperty("--p", Math.round((i/items.length)*100)+"%");
+      $("#eb-ptext").textContent = (i+1)+" / "+items.length+" · "+it.name;
+      let row;
+      try { const r = await scoreOne(it.text); row = Object.assign({name:it.name, ref:it.ref||"", ok:true}, r); }
+      catch(e){ row = {name:it.name, ref:it.ref||"", ok:false, err:String(e.message||e)}; }
+      _rows.push(row);
+      renderRow(row, _rows.length-1);
+      if (i<items.length-1 && delay) await new Promise(r=>setTimeout(r,delay));
+    }
+    $("#eb-bar").style.setProperty("--p","100%");
+    $("#eb-ptext").textContent = "완료 · "+_rows.filter(r=>r.ok).length+"/"+_rows.length;
+    $("#eb-run").disabled = false;
+  }
+
+  function renderRow(r, idx){
+    const box = document.createElement("div");
+    box.className = "eb-item"+(r.ok?"":" err");
+    if (!r.ok){
+      box.innerHTML = '<div class="eb-item-top"><div class="eb-name">'+esc(r.name)+'</div>'
+        +'<span class="eb-sig s-약함">실패</span></div>'
+        +'<div class="eb-reason">'+esc(r.err)+'</div>';
+      $("#eb-results").appendChild(box); return;
+    }
+    const axes = [["활동","activity"],["사고","thinking"],["가치관","values"],["비전","vision"]];
+    const axHtml = axes.map(([k,f])=>{
+      const v = Number(r[f]||0);
+      return '<div class="eb-axis"><div class="al">'+k+'</div><div class="av">'+v.toFixed(1)+'</div>'
+        +'<div class="track"><i style="width:'+(v*10)+'%"></i></div></div>';
+    }).join("");
+    const sig = r.signal||"보통";
+    box.innerHTML =
+      '<div class="eb-item-top">'
+      +'<div class="eb-name">'+esc(r.name)+'</div>'
+      +'<input class="eb-ref" placeholder="student_ref" value="'+esc(r.ref)+'" onchange="EB.setRef('+idx+',this.value)">'
+      +'<span class="eb-sig s-'+sig+'">'+sig+'</span>'
+      +'<div class="eb-overall">'+Number(r.overall||0).toFixed(1)+'</div>'
+      +'<span class="eb-save-st" id="eb-st-'+idx+'"></span>'
+      +'</div>'
+      +'<div class="eb-axes">'+axHtml+'</div>'
+      +(r.reason?'<div class="eb-reason">'+esc(r.reason)+'</div>':'');
+    $("#eb-results").appendChild(box);
+  }
+
+  function setRef(i,v){ if(_rows[i]) _rows[i].ref = v.trim(); }
+
+  async function saveOne(r, idx){
+    if (!r.ok || !r.ref) return {skip:true};
+    const client = sb(); if(!client) return {err:"no client"};
+    const payload = { activity:r.activity, thinking:r.thinking, values:r.values, vision:r.vision, overall:r.overall, signal:r.signal, reason:r.reason, scored_at:new Date().toISOString() };
+    const { error } = await client.from("document_pass_profiles").update({ essay_axes: payload }).eq("student_ref", r.ref);
+    const st = document.getElementById("eb-st-"+idx);
+    if (error){ if(st){st.textContent="✗ "+error.message; st.style.color="var(--risk,#EF5350)";} return {err:error.message}; }
+    if (st){ st.textContent="✓ 저장"; st.style.color="var(--lime,#B4F03C)"; }
+    return {ok:true};
+  }
+  async function saveAll(){
+    for (let i=0;i<_rows.length;i++){ await saveOne(_rows[i], i); }
+  }
+
+  function csv(){
+    const head = ["name","student_ref","activity","thinking","values","vision","overall","signal","reason"];
+    const lines = [head.join(",")].concat(_rows.filter(r=>r.ok).map(r=>
+      [r.name,r.ref,r.activity,r.thinking,r.values,r.vision,r.overall,r.signal,(r.reason||"").replace(/[",\n]/g," ")]
+      .map(x=>'"'+String(x==null?"":x).replace(/"/g,'""')+'"').join(",")));
+    const blob = new Blob(["\ufeff"+lines.join("\n")],{type:"text/csv;charset=utf-8"});
+    const a = document.createElement("a"); a.href=URL.createObjectURL(blob);
+    a.download="essay_axes_"+Date.now()+".csv"; a.click();
+  }
+
+  // 파일 드롭/선택
+  function initDrop(){
+    EB._files = [];
+    const drop = $("#eb-drop"), fi = $("#eb-file");
+    async function readFiles(list){
+      for (const f of list){
+        if (!/\.txt$/i.test(f.name)) continue;
+        const text = await f.text();
+        if (text.trim().length>30) EB._files.push({name:f.name, text:text.trim()});
+      }
+      refreshCount();
+    }
+    fi.addEventListener("change", e=>readFiles(e.target.files));
+    ["dragenter","dragover"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add("hot");}));
+    ["dragleave","drop"].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove("hot");}));
+    drop.addEventListener("drop",e=>readFiles(e.dataTransfer.files));
+    $("#eb-paste").addEventListener("input", refreshCount);
+    $("#eb-sep").addEventListener("input", refreshCount);
+    refreshCount();
+  }
+  if (document.readyState!=="loading") initDrop();
+  else document.addEventListener("DOMContentLoaded", initDrop);
+
+  let _inited=false;
+  function init(){ if(_inited) return; _inited=true; initDrop(); }
+  return { run, csv, saveAll, setRef, sb, init };
+})();
+window.EB = EB;
+// 골든시드 채점 = 내부 전용. 대입 운영 화면엔 숨김.
+// URL ?internal=1 또는 콘솔 archeInternal() 로만 노출.
+window.archeInternal=function(){var n=document.getElementById('nav-essaybatch');if(n){n.style.display='';console.log('[arche] 내부 골든시드 채점 탭 노출');}};
+try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
+
 </script>
 </body>
 </html>
