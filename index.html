@@ -344,6 +344,7 @@
     <div class="navlabel">아웃풋</div>
     <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
+    <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
     <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
@@ -834,6 +835,146 @@
     <div id="eb-results"></div>
   </div>
 </section>
+
+<section class="view" id="v-admin_data">
+  <div class="eyebrow">Admission Data</div>
+  <div class="h1">입시자료 조회</div>
+  <div class="sub">2027 대학입학전형 분석자료 · 경기 입시결과 · 대학 카탈로그. 내부 참고용(일부 OCR 요지).</div>
+
+  <div class="ad-tabs">
+    <button class="ad-tab on" data-t="plan" onclick="AD.tab('plan')">2027 전형계획</button>
+    <button class="ad-tab" data-t="gg" onclick="AD.tab('gg')">경기 입시결과</button>
+    <button class="ad-tab" data-t="cat" onclick="AD.tab('cat')">대학 카탈로그</button>
+  </div>
+
+  <!-- 2027 전형계획 -->
+  <div class="ad-panel" id="ad-plan">
+    <div class="ad-ctrl">
+      <input id="ad-plan-q" class="ad-input" placeholder="대학명 검색 (예: 건국대, 인하대)" oninput="AD.loadPlan()">
+      <label class="ad-chk"><input type="checkbox" id="ad-plan-chg" onchange="AD.loadPlan()"> 변경사항만</label>
+      <span class="ad-count" id="ad-plan-count"></span>
+    </div>
+    <div id="ad-plan-list" class="ad-list"></div>
+  </div>
+
+  <!-- 경기 입시결과 -->
+  <div class="ad-panel" id="ad-gg" style="display:none">
+    <div class="ad-ctrl">
+      <input id="ad-gg-q" class="ad-input" placeholder="대학명 (예: 가천대학교)" oninput="AD.loadGG()">
+      <select id="ad-gg-year" class="ad-sel" onchange="AD.loadGG()"><option value="">전체연도</option></select>
+      <span class="ad-count" id="ad-gg-count"></span>
+    </div>
+    <div id="ad-gg-list" class="ad-list"></div>
+  </div>
+
+  <!-- 대학 카탈로그 -->
+  <div class="ad-panel" id="ad-cat" style="display:none">
+    <div class="ad-ctrl"><span class="ad-count" id="ad-cat-count"></span></div>
+    <div id="ad-cat-list" class="ad-list"></div>
+  </div>
+</section>
+
+<style>
+  #v-admin_data .ad-tabs{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+  #v-admin_data .ad-tab{background:transparent;border:1px solid var(--line,rgba(180,240,60,.18));color:var(--ink-dim,#8ba99a);border-radius:8px;padding:8px 16px;font-size:12px;cursor:pointer;transition:.15s}
+  #v-admin_data .ad-tab.on{background:linear-gradient(90deg,var(--gold,#F5B301),#e0a400);color:#1a1200;font-weight:700;border-color:transparent}
+  #v-admin_data .ad-ctrl{display:flex;gap:12px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+  #v-admin_data .ad-input{flex:1;min-width:200px;background:var(--panel-2,#0a2418);border:1px solid var(--line-soft,rgba(234,243,238,.08));border-radius:9px;padding:9px 13px;color:var(--ink,#eaf3ee);font-size:13px;font-family:'Noto Sans KR',sans-serif}
+  #v-admin_data .ad-input:focus{outline:none;border-color:rgba(245,179,1,.4)}
+  #v-admin_data .ad-sel{background:var(--panel-2,#0a2418);border:1px solid var(--line-soft,rgba(234,243,238,.08));border-radius:9px;padding:9px 11px;color:var(--ink,#eaf3ee);font-size:12px}
+  #v-admin_data .ad-chk{font-size:11px;color:var(--ink-dim,#8ba99a);display:flex;align-items:center;gap:5px;white-space:nowrap}
+  #v-admin_data .ad-count{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-mute,#5f7d6f);margin-left:auto}
+  #v-admin_data .ad-list{display:flex;flex-direction:column;gap:10px}
+  #v-admin_data .ad-card{background:var(--panel,#0e2c1f);border:1px solid var(--line-soft,rgba(234,243,238,.07));border-radius:11px;padding:15px 17px}
+  #v-admin_data .ad-card .u{font-size:14px;font-weight:600;color:var(--ink,#eaf3ee);display:flex;align-items:center;gap:8px}
+  #v-admin_data .ad-card .u .pg{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-mute,#5f7d6f);background:var(--panel-2,#0a2418);padding:2px 7px;border-radius:5px}
+  #v-admin_data .ad-card .u .rg{font-size:10px;color:var(--gold,#F5B301)}
+  #v-admin_data .ad-card .chg{font-size:12px;line-height:1.75;color:var(--ink-dim,#8ba99a);margin-top:9px}
+  #v-admin_data .ad-card .raw{font-size:11px;line-height:1.6;color:var(--ink-mute,#5f7d6f);margin-top:8px;padding-top:8px;border-top:1px solid var(--line-soft,rgba(234,243,238,.05))}
+  #v-admin_data .ad-tag{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:700;letter-spacing:.03em}
+  #v-admin_data .ad-tag.ok{background:rgba(180,240,60,.14);color:var(--lime,#B4F03C)}
+  #v-admin_data .ad-tag.est{background:rgba(245,179,1,.14);color:var(--gold,#F5B301)}
+  #v-admin_data .ad-tag.na{background:rgba(239,83,80,.12);color:var(--risk,#EF5350)}
+  #v-admin_data .ggrow{display:grid;grid-template-columns:1fr 1.4fr 1fr .8fr .8fr .8fr;gap:8px;padding:8px 12px;font-size:11px;border-bottom:1px solid var(--line-soft,rgba(234,243,238,.05));align-items:center}
+  #v-admin_data .ggrow.h{font-weight:700;color:var(--gold,#F5B301);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.03em}
+  #v-admin_data .ggrow .num{font-family:'JetBrains Mono',monospace;text-align:right}
+  #v-admin_data .ad-empty{font-size:12px;color:var(--ink-mute,#5f7d6f);padding:20px;text-align:center}
+</style>
+
+<script>
+const AD=(function(){
+  function sb(){return window.sb||null;}
+  const $=s=>document.querySelector(s);
+  const esc=s=>(s==null?'':String(s)).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  let _init=false, _cur='plan';
+
+  function tab(t){
+    _cur=t;
+    document.querySelectorAll('#v-admin_data .ad-tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
+    ['plan','gg','cat'].forEach(p=>$('#ad-'+p).style.display=(p===t?'block':'none'));
+    if(t==='plan')loadPlan(); else if(t==='gg')loadGG(); else loadCat();
+  }
+
+  async function loadPlan(){
+    const c=sb(); if(!c){$('#ad-plan-list').innerHTML='<div class="ad-empty">DB 연결 없음</div>';return;}
+    const q=($('#ad-plan-q').value||'').trim();
+    const chgOnly=$('#ad-plan-chg').checked;
+    let qb=c.from('admission_plan_2027').select('page_no,univ_name,region,changes,ocr_raw').order('page_no');
+    if(q) qb=qb.ilike('univ_name','%'+q+'%');
+    if(chgOnly) qb=qb.or('changes.not.is.null,ocr_raw.ilike.%주소확정%,ocr_raw.ilike.%헤더%');
+    const {data,error}=await qb.limit(200);
+    if(error){$('#ad-plan-list').innerHTML='<div class="ad-empty">'+esc(error.message)+'</div>';return;}
+    $('#ad-plan-count').textContent=(data||[]).length+'건';
+    if(!data||!data.length){$('#ad-plan-list').innerHTML='<div class="ad-empty">결과 없음</div>';return;}
+    $('#ad-plan-list').innerHTML=data.map(r=>{
+      const raw=r.ocr_raw||'';
+      let tag='<span class="ad-tag na">미확정</span>';
+      if(r.univ_name){tag=(raw.indexOf('추정')>=0||raw.indexOf('미확정')>=0)?'<span class="ad-tag est">추정</span>':'<span class="ad-tag ok">확정</span>';}
+      const body=r.changes?('<div class="chg">'+esc(r.changes)+'</div>'):('<div class="raw">'+esc(raw.slice(0,240))+'</div>');
+      return '<div class="ad-card"><div class="u"><span class="pg">p'+r.page_no+'</span>'+esc(r.univ_name||'(미확정)')+(r.region?' <span class="rg">'+esc(r.region)+'</span>':'')+' '+tag+'</div>'+body+'</div>';
+    }).join('');
+  }
+
+  async function fillYears(){
+    const c=sb(); if(!c)return;
+    const {data}=await c.from('gg_univ_admission').select('year').order('year');
+    if(!data)return;
+    const ys=[...new Set(data.map(d=>d.year).filter(Boolean))];
+    const sel=$('#ad-gg-year');
+    if(sel.options.length<=1) ys.forEach(y=>{const o=document.createElement('option');o.value=y;o.textContent=y;sel.appendChild(o);});
+  }
+  async function loadGG(){
+    const c=sb(); if(!c){$('#ad-gg-list').innerHTML='<div class="ad-empty">DB 연결 없음</div>';return;}
+    await fillYears();
+    const q=($('#ad-gg-q').value||'').trim(), yr=$('#ad-gg-year').value;
+    let qb=c.from('gg_univ_admission').select('year,univ_norm,admission_type,cat_l,recruit_cnt,enroll_cnt,enroll_rate').order('year',{ascending:false});
+    if(q) qb=qb.ilike('univ_norm','%'+q+'%');
+    if(yr) qb=qb.eq('year',yr);
+    const {data,error}=await qb.limit(150);
+    if(error){$('#ad-gg-list').innerHTML='<div class="ad-empty">'+esc(error.message)+'</div>';return;}
+    $('#ad-gg-count').textContent=(data||[]).length+'행';
+    if(!data||!data.length){$('#ad-gg-list').innerHTML='<div class="ad-empty">대학명을 입력하세요 (경기 소재 대학)</div>';return;}
+    const head='<div class="ggrow h"><span>연도</span><span>대학</span><span>전형유형</span><span class="num">모집</span><span class="num">등록</span><span class="num">등록률</span></div>';
+    $('#ad-gg-list').innerHTML=head+data.map(r=>
+      '<div class="ggrow"><span>'+esc(r.year)+'</span><span>'+esc(r.univ_norm)+'</span><span>'+esc(r.admission_type||r.cat_l||'-')+'</span><span class="num">'+(r.recruit_cnt??'-')+'</span><span class="num">'+(r.enroll_cnt??'-')+'</span><span class="num">'+(r.enroll_rate!=null?r.enroll_rate+'%':'-')+'</span></div>'
+    ).join('');
+  }
+
+  async function loadCat(){
+    const c=sb(); if(!c){$('#ad-cat-list').innerHTML='<div class="ad-empty">DB 연결 없음</div>';return;}
+    const {data,error}=await c.from('university_catalog').select('univ_name,region,seed_freq').order('seed_freq',{ascending:false});
+    if(error){$('#ad-cat-list').innerHTML='<div class="ad-empty">'+esc(error.message)+'</div>';return;}
+    $('#ad-cat-count').textContent=(data||[]).length+'개교';
+    $('#ad-cat-list').innerHTML=(data||[]).map(r=>
+      '<div class="ad-card"><div class="u">'+esc(r.univ_name)+(r.region?' <span class="rg">'+esc(r.region)+'</span>':'')+'<span class="pg">빈도 '+(r.seed_freq||0)+'</span></div></div>'
+    ).join('')||'<div class="ad-empty">데이터 없음</div>';
+  }
+
+  function init(){ if(_init)return; _init=true; tab('plan'); }
+  return {tab,loadPlan,loadGG,loadCat,init};
+})();
+window.AD=AD;
+</script>
 <!--OLD_REPORT
         <div class="eyebrow">Consulting Output</div>
         <div class="h1">컨설팅 리포트</div>
@@ -867,14 +1008,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트",essaybatch:"자소서 채점",settings:"설정"};
+const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
 function go(el){
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1668,7 +1809,7 @@ const EB = (function(){
 window.EB = EB;
 // 골든시드 채점 = 내부 전용. 대입 운영 화면엔 숨김.
 // URL ?internal=1 또는 콘솔 archeInternal() 로만 노출.
-window.archeInternal=function(){var n=document.getElementById('nav-essaybatch');if(n){n.style.display='';console.log('[arche] 내부 골든시드 채점 탭 노출');}};
+window.archeInternal=function(){var n=document.getElementById('nav-essaybatch');if(n)n.style.display='';var m=document.getElementById('nav-admindata');if(m)m.style.display='';console.log('[arche] 내부 탭 노출: 골든시드 채점 + 입시자료 조회');};
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
 </script>
