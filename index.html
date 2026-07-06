@@ -554,62 +554,14 @@
 
         <!-- 6a course roadmap -->
         <div class="pane on" id="p-rm-course">
-          <div class="rm">
-            <div class="rm-h"></div>
-            <div class="rm-h yr">1학년<span class="rm-sub">공통 · 이수완료</span></div>
-            <div class="rm-h yr">2학년<span class="rm-sub">일반선택 · 현재</span></div>
-            <div class="rm-h yr">3학년<span class="rm-sub">진로·융합 · 예정</span></div>
-
-            <div class="rm-g">국어</div>
-            <div class="rm-c"><span class="crs c-done">공통국어1·2</span></div>
-            <div class="rm-c"><span class="crs c-now">화법과 언어</span><span class="crs c-now">독서와 작문</span></div>
-            <div class="rm-c"><span class="crs c-plan">문학</span><span class="crs c-rec">주제 탐구 독서 ★</span></div>
-
-            <div class="rm-g">수학</div>
-            <div class="rm-c"><span class="crs c-done">공통수학1·2</span></div>
-            <div class="rm-c"><span class="crs c-now">대수</span><span class="crs c-now">미적분Ⅰ</span></div>
-            <div class="rm-c"><span class="crs c-rec">확률과 통계 ★</span><span class="crs c-rec">경제 수학 ★</span></div>
-
-            <div class="rm-g">영어</div>
-            <div class="rm-c"><span class="crs c-done">공통영어1·2</span></div>
-            <div class="rm-c"><span class="crs c-now">영어Ⅰ</span><span class="crs c-now">영어Ⅱ</span></div>
-            <div class="rm-c"><span class="crs c-plan">영어 독해와 작문</span><span class="crs c-plan">영어 발표와 토론</span></div>
-
-            <div class="rm-g">사회</div>
-            <div class="rm-c"><span class="crs c-done">통합사회1·2</span><span class="crs c-done">한국사1·2</span></div>
-            <div class="rm-c"><span class="crs c-now">사회와 문화</span><span class="crs c-now">세계시민과 지리</span></div>
-            <div class="rm-c"><span class="crs c-rec">경제 ★필수</span><span class="crs c-rec">금융과 경제생활 ★</span><span class="crs c-rec">사회문제 탐구 ★</span></div>
-
-            <div class="rm-g">과학·교양</div>
-            <div class="rm-c"><span class="crs c-done">통합과학1·2</span><span class="crs c-done">탐구실험</span></div>
-            <div class="rm-c"><span class="crs c-now">생명과학</span></div>
-            <div class="rm-c"><span class="crs c-plan">진로와 직업</span></div>
-          </div>
-          <div class="rm-legend">
-            <span><i class="c-done" style="background:rgba(76,175,80,.5)"></i>이수완료</span>
-            <span><i class="c-now" style="background:rgba(91,141,239,.6)"></i>현재 수강</span>
-            <span><i class="c-plan" style="background:var(--panel-3)"></i>예정</span>
-            <span><i class="c-rec" style="background:var(--gold)"></i>★ 연세대 경영 지망 정렬 추천</span>
-          </div>
-          <div class="flag-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg>
-            <div><b>3학년 편성 시 ‘경제’ 반드시 선택.</b> 상경계열 핵심 위계 과목이며 고려대 경영 필수. 미편성 시 지원 자격·서류 평가 모두 불리.</div></div>
-          <div class="note">※ 이수완료·현재 데이터는 <b style="color:var(--ink)">학생 자료 입력</b>의 파싱 결과에서 자동 채움. 예정 칸은 지망 학과 요강 역산으로 추천.</div>
+          <div id="rmcourse-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 시 이수 현황 + 목표대학 2027 전형 정보가 표시됩니다.</div></div>
+          <div class="note">※ 이수 현황=자료 입력 파싱 결과 / 2027 전형정보=입시요강 DB 연동.</div>
         </div>
 
         <!-- 6b GPA management -->
         <div class="pane" id="p-rm-gpa">
-          <div class="grid g4" style="margin-bottom:20px">
-            <div class="card kpi"><div class="lab">현재 내신</div><div class="num">1.42</div><div class="delta mono" style="color:var(--ink-dim)">3-1 기준</div></div>
-            <div class="card kpi"><div class="lab">3-1 목표</div><div class="num" style="color:var(--gold)">1.30</div><div class="delta up mono">-0.12 필요</div></div>
-            <div class="card kpi"><div class="lab">연세대 커트</div><div class="num">1.28</div><div class="delta mono" style="color:var(--reach)">도달권</div></div>
-            <div class="card kpi"><div class="lab">남은 반영학기</div><div class="num">1</div><div class="delta down mono">3-1 마지막 승부처</div></div>
-          </div>
-          <div class="sectionhead"><span class="idx">★</span><h3>과목 우선순위 <span style="color:var(--ink-mute);font-size:11px">· 반영 비중 × 개선 여력</span></h3></div>
-          <div class="pri"><div class="rank r1">1</div><div class="pinfo"><div class="pn">확률과 통계 <small>단위 4 · 반영 비중 최상</small></div><div class="pwhy">현재 2등급, 최다 이수단위. 여기서 1등급 전환 시 전체 내신 -0.06 효과. 최우선 투자.</div></div><div class="pg"><div class="cur">현재 2.0</div><div class="arw">→ 1.0</div></div></div>
-          <div class="pri"><div class="rank r2">2</div><div class="pinfo"><div class="pn">미적분Ⅰ <small>단위 4 · 상경 핵심</small></div><div class="pwhy">현재 1.7. 반영 큰 과목이라 안정적 1등급 고정이 필수. 실수 방지 중심 관리.</div></div><div class="pg"><div class="cur">현재 1.7</div><div class="arw">→ 1.0</div></div></div>
-          <div class="pri"><div class="rank r3">3</div><div class="pinfo"><div class="pn">경제 <small>진로선택 · 지망 정렬</small></div><div class="pwhy">지망 핵심 교과. 성취도 A 확보가 세특·전공적합성 서사로 직결. 등급보다 성취·활동 병행.</div></div><div class="pg"><div class="cur">현재 A</div><div class="arw">유지</div></div></div>
-          <div class="strat" style="margin-top:16px"><b>3-1 관리 전략:</b> 남은 반영학기가 1개이므로 “고르게”가 아니라 <b>반영단위 큰 확통·미적에 집중</b>. 이미 1등급인 과목은 방어, 2등급 과목만 끌어올려 -0.12를 만든다. 예체능·교양은 등급 방어만.</div>
-          <div class="note">※ 반영 비중·단위 정보는 지망 대학 전형 방법(교과 반영식)에서 역산. 학생별 시간표 데이터와 결합.</div>
+          <div id="rmgpa-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 시 내신 추이 + 반영단위 기준 과목 우선순위가 표시됩니다.</div></div>
+          <div class="note">※ 내신·반영단위는 자료 입력 파싱 결과에서 자동 계산.</div>
         </div>
 
         <!-- 6c research topics -->
@@ -974,7 +926,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'&&window.renderTopics)renderTopics(); if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1328,6 +1280,69 @@ async function genTopics(){
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'topics',payload:{list:arr}});
     renderTopics();
   }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
+}
+async function renderRmCourse(){
+  const body=document.getElementById('rmcourse-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+  var courses=(mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[];
+  var taken=courses.map(function(c){return (c.subject||'').replace(/\s/g,'');});
+  function has(subj){var t=subj.replace(/\s/g,'');return taken.some(function(x){return x.indexOf(t)>=0||t.indexOf(x)>=0;});}
+  var gye=majorToField(s.target_major);
+  var html='';
+  // 대학 권장과목 (dept_recommended_subjects)
+  var rows=[];
+  if(gye){
+    var q=await sb.from('dept_recommended_subjects').select('univ,gye,moojib,subjects').eq('gye',gye);
+    rows=(q.data)||[];
+  }
+  // 목표대학 매칭 우선, 모집단위 키워드 매칭
+  var uroot=(s.target_univ||'').replace(/\s/g,'').replace('학교','').slice(0,3);
+  var mj=(s.target_major||'');
+  var pick=rows.filter(function(r){return uroot&&r.univ&&r.univ.indexOf(uroot)>=0;});
+  if(mj){ var pm=pick.filter(function(r){return mj.indexOf(r.moojib)>=0||r.moojib.indexOf(mj.slice(0,2))>=0;}); if(pm.length)pick=pm; }
+  var recSet={}, src='';
+  if(pick.length){ src=pick[0].univ+' · '+pick[0].moojib; (pick[0].subjects||[]).forEach(function(x){recSet[x]=1;}); }
+  else if(rows.length){ // 계열 빈도 집계
+    var cnt={}; rows.forEach(function(r){(r.subjects||[]).forEach(function(x){cnt[x]=(cnt[x]||0)+1;});});
+    Object.keys(cnt).sort(function(a,b){return cnt[b]-cnt[a];}).slice(0,6).forEach(function(x){recSet[x]=1;});
+    src=gye+' 계열 권장(대학 공통 빈도)';
+  }
+  var recs=Object.keys(recSet);
+  if(recs.length){
+    var chips=recs.map(function(x){var ok=has(x);return '<span style="background:'+(ok?'rgba(76,175,80,.15)':'rgba(245,179,1,.12)')+';border:1px solid '+(ok?'var(--safe)':'var(--gold,#c8a24a)')+';border-radius:7px;padding:4px 11px;font-size:12px;color:var(--ink)">'+esc(x)+' '+(ok?'✔':'추천')+'</span>';}).join(' ');
+    var missing=recs.filter(function(x){return !has(x);});
+    html+='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">권장</span><h3>'+esc(s.target_univ||'목표대학')+' '+esc(s.target_major||'')+' 권장 이수과목 <span style="font-size:11px;color:var(--ink-mute)">· '+esc(src)+'</span></h3></div><div style="display:flex;flex-wrap:wrap;gap:8px">'+chips+'</div>'+(missing.length?'<div class="note" style="margin-top:12px;color:var(--gold)">미이수 권장과목: <b>'+esc(missing.join(', '))+'</b> → 향후 학기 편성 검토</div>':'<div class="note" style="margin-top:12px;color:var(--safe)">권장과목 충족</div>')+'</div>';
+  } else {
+    html+='<div class="card" style="margin-bottom:16px;color:var(--ink-mute)">해당 계열/학과의 권장과목 데이터가 없습니다(자료집 미수록 모집단위).</div>';
+  }
+  // 학생 이수 현황
+  if(courses.length){
+    var bySem={}; courses.forEach(function(c){var k=c.sem||'기타';(bySem[k]=bySem[k]||[]).push(c);});
+    html+='<div class="card"><div class="sectionhead"><span class="idx">이수</span><h3>이수 현황 <span style="font-size:11px;color:var(--ink-mute)">· 학기별</span></h3></div>';
+    html+=Object.keys(bySem).sort().map(function(k){return '<div style="margin-bottom:10px"><div style="font-size:12px;color:var(--gold,#c8a24a);margin-bottom:5px">'+esc(k)+'</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+bySem[k].map(function(c){return '<span style="background:var(--panel-2);border:1px solid var(--line-soft,rgba(234,243,238,.08));border-radius:6px;padding:3px 9px;font-size:12px;color:var(--ink-dim)">'+esc(c.subject||'')+'</span>';}).join('')+'</div></div>';}).join('')+'</div>';
+  }
+  body.innerHTML=html;
+}
+async function renderRmGpa(){
+  const body=document.getElementById('rmgpa-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+  var pl=(mx.data&&mx.data[0]&&mx.data[0].payload)||null;
+  if(!pl||!pl.courses||!pl.courses.length){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">내신 데이터가 없습니다. [학생 자료 입력]에서 성적을 입력/파싱하세요.</div>'; return; }
+  var courses=pl.courses.filter(function(c){return c.grade!=null&&c.unit!=null;});
+  var overall=pl.weighted_overall;
+  var bySem=pl.by_semester||{};
+  var semHtml=Object.keys(bySem).sort().map(function(k){return '<div class="card kpi"><div class="lab">'+esc(k)+'</div><div class="num">'+(bySem[k]!=null?Number(bySem[k]).toFixed(2):'—')+'</div></div>';}).join('');
+  // 우선순위: 반영단위 큰데 등급 낮은(개선여력) 과목
+  var pri=courses.slice().sort(function(a,b){return (b.unit*b.grade)-(a.unit*a.grade);}).slice(0,3);
+  var priHtml=pri.map(function(c,i){return '<div class="pri"><div class="rank r'+(i+1)+'">'+(i+1)+'</div><div class="pinfo"><div class="pn">'+esc(c.subject||'')+' <small>단위 '+c.unit+' · 현재 '+c.grade+'등급</small></div><div class="pwhy">반영단위(단위×등급 부담)가 커 개선 효과가 큼. 우선 투자 대상.</div></div><div class="pg"><div class="cur">현재 '+c.grade+'</div><div class="arw">→ '+Math.max(1,c.grade-1)+'</div></div></div>';}).join('');
+  var body_html='<div class="grid g4" style="margin-bottom:20px"><div class="card kpi"><div class="lab">전체 내신</div><div class="num">'+(overall!=null?Number(overall).toFixed(2):'—')+'</div></div>'+semHtml+'</div>';
+  body_html+='<div class="sectionhead"><span class="idx">★</span><h3>과목 우선순위 <span style="color:var(--ink-mute);font-size:11px">· 반영단위 × 개선여력</span></h3></div>'+priHtml;
+  body_html+='<div class="strat" style="margin-top:16px"><b>관리 전략:</b> 반영단위 큰 과목의 등급 개선이 전체 내신에 미치는 효과가 큽니다. 이미 1등급인 과목은 방어, 위 상위 과목의 등급을 끌어올리는 데 집중하세요.</div>';
+  body.innerHTML=body_html;
 }
 async function renderArche(){
   const body=document.getElementById('arche-body'); if(!body)return;
