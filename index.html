@@ -1258,6 +1258,19 @@ async function saveMetrics(){
   m.style.color='var(--safe)';m.textContent='5역량 저장 완료 · 진단·리포트 반영됨.'; if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
 }
 
+function majorToField(m){
+  m=(m||'')+'';
+  if(/의예|의학|간호|약학|치의|한의|보건|수의/.test(m))return'의약';
+  if(/공학|전자|기계|컴퓨터|소프트|반도체|신소재|건축|토목|화공|산업|로봇|정보|데이터/.test(m))return'공학';
+  if(/경영|경제|회계|무역|금융|마케팅|통상|상경/.test(m))return'상경';
+  if(/정치|외교|행정|사회|심리|언론|미디어|복지|법학/.test(m))return'사회';
+  if(/철학|사학|국문|영문|어문|문학|언어|인문|역사/.test(m))return'인문';
+  if(/교육|사범/.test(m))return'교육';
+  if(/디자인|미술|음악|체육|무용|연기|영상|예술|작곡/.test(m))return'예체능';
+  if(/물리|화학|생명|수학|통계|천문|지구과학|생물|자연/.test(m))return'자연';
+  if(/국제|글로벌|자유전공/.test(m))return'국제';
+  return'';
+}
 async function estimateCog(){
   var s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
   showAiLoading();
@@ -1267,13 +1280,13 @@ async function estimateCog(){
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,8000);
     if(!setechTxt){alert('세특 데이터가 없습니다. 먼저 생기부 업로드/입력.');hideAiLoading();return;}
     var ctx='목표:'+(s.target_univ||'')+' '+(s.target_major||'')+'\n세특/활동:\n'+setechTxt;
-    var d=await callAI('estimate_cog',{text:ctx});
+    var d=await callAI('estimate_cog',{text:ctx,field:majorToField(s.target_major),target:(s.target_univ||'')});
     var o=JSON.parse(d.text);
     var naesin=(mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.weighted_overall)||null;
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'comp5',payload:{academic:o.academic,inquiry:o.inquiry,convergence:o.convergence,community:o.community,problem:o.problem,naesin:naesin,source:'ai_estimate'}});
     if(o.qual){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'qual4',payload:{activity:o.qual.activity,thinking:o.qual.thinking,values:o.qual.values,vision:o.qual.vision,source:'ai_estimate'}}); }
     try{
-      var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:(s.target_major||''),target:(s.target_univ||''),gpa:(naesin!=null?naesin:''),context:setechTxt.slice(0,3000)});
+      var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gpa:(naesin!=null?naesin:''),context:setechTxt.slice(0,3000)});
       var ulist=JSON.parse(rc.text);
       if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
     }catch(ue){}
