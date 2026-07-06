@@ -339,7 +339,7 @@
 
     <div class="navlabel">설계 · 성장</div>
     <div class="nav" data-v="roadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
-    <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3M8 6l4-3 4 3"/></svg> 학생부 설계</div>
+    <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3M8 6l4-3 4 3"/></svg> 학생부 디자인</div>
 
     <div class="navlabel">아웃풋</div>
     <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
@@ -645,34 +645,11 @@
       <!-- 7. SR DESIGN -->
       <section class="view" id="v-sr">
         <div class="eyebrow">Student Record Design</div>
-        <div class="h1">학생부 설계</div>
-        <div class="sub">분야별(창체·과세특) 탐구보고서를 구조화 — 학생이 실제 수행할 탐구 설계서로 출력</div>
-        <div class="sr">
-          <div class="sr-fields">
-            <div class="sr-f on">경제 세특<small>선택</small></div>
-            <div class="sr-f">확률과 통계 세특<small>·</small></div>
-            <div class="sr-f">국어 세특<small>·</small></div>
-            <div class="sr-f">자율활동<small>·</small></div>
-            <div class="sr-f">동아리활동<small>·</small></div>
-            <div class="sr-f">진로활동<small>·</small></div>
-            <div class="sr-f">독서활동<small>·</small></div>
-          </div>
-          <div class="sr-doc">
-            <div class="sr-topsel">설계 대상 주제 · <b>행동경제학의 넛지가 소비를 바꾸는가 — 편의점 진열 동선 관찰 분석</b> · 경제 과세특</div>
-            <div class="sr-block"><div class="sl">탐구 동기</div><div class="sc">‘사람은 합리적으로 소비한다’는 전제에 의문. 편의점에서 <b>계산대 옆 상품이 왜 잘 팔리는가</b>를 행동경제학의 넛지·기본값 개념으로 검증하고자 함.</div></div>
-            <div class="sr-block"><div class="sl">핵심 탐구 질문</div><div class="sc">진열 위치(동선·높이)가 실제 구매 선택에 유의한 영향을 주는가? 넛지 효과는 가격보다 강한가?</div></div>
-            <div class="sr-block"><div class="sl">탐구 방법</div><div class="sc">① 편의점 3곳 진열 구조 관찰·도식화 ② 위치별 노출 상품 기록 ③ 간이 설문(선택 이유) ④ 넛지 이론틀로 해석. <b>확률과 통계에서 배운 표본·빈도 분석</b> 연계.</div></div>
-            <div class="sr-block"><div class="sl">예상 산출물</div><div class="sc">진열-구매 상관 관찰 보고서 1편 + 넛지 유형 분류표. 후속으로 ‘윤리적 넛지 vs 조작’ 토론 확장.</div></div>
-            <div class="sr-block"><div class="sl">학생부 연계 포인트</div>
-              <span class="linktag">경제 세특 — 이론의 현실 적용력</span>
-              <span class="linktag">전공적합성 — 경영·소비자행동</span>
-              <span class="linktag">확률과 통계 세특 — 데이터 해석 교차서술</span>
-            </div>
-            <div class="sr-block"><div class="sl">위계 상승 (심화 확장)</div><div class="sc">1단계 관찰 → 2단계 <b>소규모 A/B 실험 설계</b> → 3단계 ‘디지털 환경의 다크패턴’으로 주제 확장. 3년 누적 시 <b style="color:var(--gold)">일관된 탐구 서사</b> 형성.</div></div>
-            <div style="display:flex;gap:10px;margin-top:20px"><button class="btn">탐구 설계서 PDF 출력</button><button class="btn ghost">주제 다시 제안</button></div>
-          </div>
-        </div>
-        <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 탐구를 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공. 학교 엔진의 세특 등급표기 금지 원칙과 층위가 다릅니다.</div>
+        <div class="h1">학생부 디자인</div>
+        <div class="sub">진로·학과에 맞춰 앞으로 학생부에서 채워갈 방향을 과목·창체별로 설계 (대필 아님 · 방향 가이드)</div>
+        <div style="display:flex;gap:10px;margin:8px 0 16px"><button class="btn" onclick="genDesign()">AI 학생부 디자인 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button></div>
+        <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 학생부 디자인 생성]</b>을 누르면 진로·학과 맞춤 과목·창체별 설계가 생성됩니다.</div></div>
+        <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
       </section>
 
       <!-- 8. REPORT -->
@@ -1011,14 +988,14 @@ window.AD=AD;
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 설계",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
+const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
 function go(el){
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1298,6 +1275,36 @@ async function estimateCog(){
   finally{ hideAiLoading(); }
 }
 
+function designHTML(d){
+  var subs=(d.subjects||[]).map(function(x){return '<div class="card" style="margin-bottom:12px"><div style="font-size:13px;font-weight:600;color:var(--gold,#c8a24a);margin-bottom:5px">'+esc(x.subject||'')+'</div><div style="font-size:13px;line-height:1.7;color:var(--ink-dim)">'+esc(x.direction||'')+'</div>'+(x.link?'<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">↳ 진로 연결: '+esc(x.link)+'</div>':'')+'</div>';}).join('');
+  var acts=(d.activities||[]).map(function(x){return '<div class="card" style="margin-bottom:12px"><div style="font-size:11px;color:var(--lime,#B4F03C);letter-spacing:.04em;margin-bottom:5px">창체 · '+esc(x.area||'')+'</div><div style="font-size:13px;line-height:1.7;color:var(--ink-dim)">'+esc(x.plan||'')+'</div>'+(x.goal?'<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">기대 역량: '+esc(x.goal)+'</div>':'')+'</div>';}).join('');
+  var pri=d.priority?'<div class="card" style="border-color:var(--gold,#c8a24a);margin-bottom:16px"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>':'';
+  return pri+'<div class="sectionhead" style="margin:6px 0 12px"><span class="idx">과목</span><h3>과목별 세특 설계 방향</h3></div>'+(subs||'<div style="color:var(--ink-mute);padding:12px">—</div>')+'<div class="sectionhead" style="margin:20px 0 12px"><span class="idx">창체</span><h3>창의적 체험활동 설계</h3></div>'+(acts||'<div style="color:var(--ink-mute);padding:12px">—</div>');
+}
+async function renderDesign(){
+  const body=document.getElementById('design-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  const {data}=await sb.from('student_metrics').select('payload,measured_at').eq('student_id',s.id).eq('metric_type','design').order('measured_at',{ascending:false}).limit(1);
+  const d=(data&&data[0]&&data[0].payload)||null;
+  if(!d){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 설계가 없습니다. <b>[AI 학생부 디자인 생성]</b>을 눌러주세요.</div>'; return; }
+  body.innerHTML=designHTML(d);
+}
+async function genDesign(){
+  const body=document.getElementById('design-body');
+  const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">AI가 진로·학과 맞춤 설계를 생성 중…</div>';
+  try{
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
+    var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,4000);
+    var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
+    var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
+    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),context:setechTxt,qual:q4});
+    var o=JSON.parse(d.text);
+    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:o});
+    renderDesign();
+  }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
+}
 async function renderArche(){
   const body=document.getElementById('arche-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
