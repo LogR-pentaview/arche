@@ -2025,7 +2025,7 @@ window.EB = EB;
 // 골든시드 채점 = 내부 전용. 대입 운영 화면엔 숨김.
 // URL ?internal=1 또는 콘솔 archeInternal() 로만 노출.
 // 골든시드 채점(essaybatch)은 특목고 자소서 기능 준비 전까지 완전 숨김 — 내부 노출에서도 제외.
-window.archeInternal=function(){var m=document.getElementById('nav-admindata');if(m)m.style.display='';console.log('[arche] 내부 탭 노출: 입시자료 조회');};
+window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자료 조회 비활성)');};
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
 </script>
