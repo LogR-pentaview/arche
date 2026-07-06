@@ -344,7 +344,7 @@
     <div class="navlabel">아웃풋</div>
     <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
-    <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
+    <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회</div>
     <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
@@ -758,6 +758,7 @@
     <button class="ad-tab on" data-t="plan" onclick="AD.tab('plan')">2027 전형계획</button>
     <button class="ad-tab" data-t="gg" onclick="AD.tab('gg')">경기 입시결과</button>
     <button class="ad-tab" data-t="cat" onclick="AD.tab('cat')">대학 카탈로그</button>
+    <button class="ad-tab" data-t="dept" onclick="AD.tab('dept')">권장이수과목</button>
   </div>
 
   <!-- 2027 전형계획 -->
@@ -784,6 +785,15 @@
   <div class="ad-panel" id="ad-cat" style="display:none">
     <div class="ad-ctrl"><span class="ad-count" id="ad-cat-count"></span></div>
     <div id="ad-cat-list" class="ad-list"></div>
+  </div>
+
+  <!-- 권장이수과목 (2028 자료집) -->
+  <div class="ad-panel" id="ad-dept" style="display:none">
+    <div class="ad-ctrl">
+      <input id="ad-dept-q" class="ad-input" placeholder="대학 또는 모집단위 (예: 서울대, 경영, 컴퓨터공학)" oninput="AD.loadDept()">
+      <span class="ad-count" id="ad-dept-count"></span>
+    </div>
+    <div id="ad-dept-list" class="ad-list"></div>
   </div>
 </section>
 
@@ -824,8 +834,23 @@ const AD=(function(){
   function tab(t){
     _cur=t;
     document.querySelectorAll('#v-admin_data .ad-tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
-    ['plan','gg','cat'].forEach(p=>$('#ad-'+p).style.display=(p===t?'block':'none'));
-    if(t==='plan')loadPlan(); else if(t==='gg')loadGG(); else loadCat();
+    ['plan','gg','cat','dept'].forEach(p=>$('#ad-'+p).style.display=(p===t?'block':'none'));
+    if(t==='plan')loadPlan(); else if(t==='gg')loadGG(); else if(t==='dept')loadDept(); else loadCat();
+  }
+  async function loadDept(){
+    const c=sb(); if(!c){$('#ad-dept-list').innerHTML='<div class="ad-empty">DB 연결 없음</div>';return;}
+    const q=($('#ad-dept-q').value||'').trim();
+    let qb=c.from('dept_recommended_subjects').select('univ,gye,moojib,subjects').order('moojib');
+    if(q) qb=qb.or('univ.ilike.%'+q+'%,moojib.ilike.%'+q+'%');
+    const {data,error}=await qb.limit(300);
+    if(error){$('#ad-dept-list').innerHTML='<div class="ad-empty">'+esc(error.message)+'</div>';return;}
+    $('#ad-dept-count').textContent=(data||[]).length+'건';
+    if(!data||!data.length){$('#ad-dept-list').innerHTML='<div class="ad-empty">결과 없음</div>';return;}
+    var g={}; data.forEach(function(r){(g[r.moojib]=g[r.moojib]||[]).push(r);});
+    $('#ad-dept-list').innerHTML=Object.keys(g).sort().map(function(mj){
+      return '<div class="ad-card"><div class="u">'+esc(mj)+' <span class="rg">'+esc(g[mj][0].gye||'')+'</span></div>'+
+        g[mj].map(function(r){return '<div class="raw"><b>'+esc(r.univ)+'</b> · 권장: '+esc((r.subjects||[]).join(', '))+'</div>';}).join('')+'</div>';
+    }).join('');
   }
 
   async function loadPlan(){
@@ -884,7 +909,7 @@ const AD=(function(){
   }
 
   function init(){ if(_init)return; _init=true; tab('plan'); }
-  return {tab,loadPlan,loadGG,loadCat,init};
+  return {tab,loadPlan,loadGG,loadCat,loadDept,init};
 })();
 window.AD=AD;
 </script>
