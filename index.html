@@ -785,6 +785,7 @@
             </div>
             <div class="sec"><div class="sec-h"><span class="no">03</span><h3>학종 역량 진단 <span style="font-size:11px;color:#8a8574;font-weight:400">· 5역량 통합 서술</span></h3></div>
               <div class="diag-lead" id="rp-diag-lead"></div><div class="diag-grid" id="rp-diag"></div>
+              <div id="rp-qual4" style="margin-top:14px"></div>
             </div>
             <div class="sec"><div class="sec-h"><span class="no">04</span><h3>전체 세특 하이라이트 <span style="font-size:11px;color:#8a8574;font-weight:400">· 교과+창체+행발 · 지원학과 정렬</span></h3></div>
               <ul class="se" id="rp-setech"><li style="list-style:none;color:#999">세특 데이터 없음</li></ul>
@@ -1270,6 +1271,7 @@ async function estimateCog(){
     var o=JSON.parse(d.text);
     var naesin=(mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.weighted_overall)||null;
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'comp5',payload:{academic:o.academic,inquiry:o.inquiry,convergence:o.convergence,community:o.community,problem:o.problem,naesin:naesin,source:'ai_estimate'}});
+    if(o.qual){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'qual4',payload:{activity:o.qual.activity,thinking:o.qual.thinking,values:o.qual.values,vision:o.qual.vision,source:'ai_estimate'}}); }
     try{
       var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:(s.target_major||''),target:(s.target_univ||''),gpa:(naesin!=null?naesin:''),context:setechTxt.slice(0,3000)});
       var ulist=JSON.parse(rc.text);
@@ -1496,12 +1498,14 @@ async function renderReport(){
     sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','comp5').order('measured_at',{ascending:false}).limit(1),
     sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1),
     sb.from('student_setech').select('*').eq('student_id',s.id).order('extracted_at',{ascending:false}),
-    sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','univ_reco').order('measured_at',{ascending:false}).limit(1)
+    sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','univ_reco').order('measured_at',{ascending:false}).limit(1),
+    sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1)
   ]);
   var cp=(res[0].data&&res[0].data[0]&&res[0].data[0].payload)||{};
   var n=(res[1].data&&res[1].data[0]&&res[1].data[0].payload)||{};
   var se=res[2].data||[];
   var reco=(res[3]&&res[3].data&&res[3].data[0]&&res[3].data[0].payload&&res[3].data[0].payload.list)||[];
+  var q4=(res[4]&&res[4].data&&res[4].data[0]&&res[4].data[0].payload)||{};
   document.getElementById('rp-kpi-naesin').textContent=(n.weighted_overall!=null?Number(n.weighted_overall).toFixed(2):(cp.naesin!=null?cp.naesin:'—'));
   document.getElementById('rp-kpi-mopyeong').textContent=(cp.mopyeong!=null?cp.mopyeong:'—');
   var bs=n.by_semester||{}, sk=['1-1','1-2','2-1','2-2','3-1'];
@@ -1531,6 +1535,15 @@ async function renderReport(){
   }else{
     document.getElementById('rp-diag-lead').innerHTML='';
     document.getElementById('rp-diag').innerHTML='<div style="color:#999;font-size:12px">5역량 산출 후 표시됩니다.</div>';
+  }
+
+  // ③-2 정성평가 4축 (골든시드 판단 렌즈)
+  var Q4=[['activity','활동'],['thinking','사고'],['values','가치관형성'],['vision','비전']];
+  var hasQ4=Q4.some(function(c){return q4[c[0]]&&q4[c[0]].note;});
+  if(hasQ4){
+    document.getElementById('rp-qual4').innerHTML='<div style="font-size:11px;font-weight:800;color:#173a27;letter-spacing:.02em;margin-bottom:8px">정성평가 4축 <span style="color:#8a8574;font-weight:400">· 골든시드 합격사례 특징 대비 · 세특 기반 근거</span></div>'+Q4.map(function(c){var o=q4[c[0]]||{};var sc=(o.score!=null?Number(o.score):null);return '<div class="diag-row" style="border-left:2px solid var(--gold,#c8a24a);padding-left:10px;margin-bottom:6px"><div class="dk">'+c[1]+'<small>'+(sc!=null?sc.toFixed(1):'—')+'/10</small></div><div class="dt">'+esc(o.note||'')+'</div></div>';}).join('');
+  }else{
+    document.getElementById('rp-qual4').innerHTML='';
   }
 
   // ④ 전체 세특 하이라이트 (과목군 분류 · 학년.학기 정렬 · 전체)
