@@ -322,6 +322,7 @@
     <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
     <div class="nav" data-v="students" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 6.5a3 3 0 010 5.4M18 20c0-2.3-1-4.3-2.5-5.4"/></svg> 학생 관리</div>
     <div class="nav" data-v="intake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg> 학생 자료 입력</div>
+    <div class="nav" data-v="consult" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> 상담 기록</div>
 
     <div class="navlabel">진단</div>
     <div class="nav" data-v="diag" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 학생 진단</div>
@@ -414,6 +415,24 @@
         </div>
       </section>
 
+            <section class="view" id="v-consult">
+              <div class="eyebrow">Consultation</div>
+              <div class="h1">상담 기록</div>
+              <div class="sub">학생부가 없어도 상담 내용 기반으로 학생부 디자인을 생성합니다</div>
+              <div style="display:flex;gap:8px;margin:14px 0">
+                <select id="con-kind" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="student">학생 상담</option><option value="parent">학부모 상담</option></select>
+              </div>
+              <div class="fieldrow">
+                <input id="con-univ" placeholder="희망 대학" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+                <input id="con-major" placeholder="희망 학과" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+              </div>
+              <input id="con-career" placeholder="희망 진로" style="width:100%;margin:10px 0;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+              <textarea id="con-act" rows="4" placeholder="현재 학생부 활동 현황 (창체활동 중심: 자율·진로·동아리·봉사)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+              <textarea id="con-memo" rows="3" placeholder="상담 메모 (자유)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+              <button onclick="saveConsult()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
+              <div id="con-msg" style="font-size:12px;margin-top:8px"></div>
+              <div id="con-list" style="margin-top:20px"></div>
+            </section>
             <section class="view" id="v-intake">
         <div class="eyebrow">Student Data Intake</div>
         <div class="h1">학생 자료 입력</div>
@@ -1057,7 +1076,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1501,13 +1520,17 @@ async function renderDesign(){
           var opts=DI_ST.map(function(o){return '<option'+(o===it.status?' selected':'')+'>'+o+'</option>';}).join('');
           var stu=window._role==='stu';
           var appBadge=it.approved?'<span style="font-size:10px;color:var(--safe);border:1px solid var(--safe);border-radius:5px;padding:1px 6px;margin-left:6px">승인됨</span>':'';
+          var sentBadge=it.sent?'<span style="font-size:10px;color:var(--reach,#8ab4f8);border:1px solid var(--reach,#8ab4f8);border-radius:5px;padding:1px 6px;margin-left:6px">전송됨</span>':(stu?'':'<span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line);border-radius:5px;padding:1px 6px;margin-left:6px">미전송</span>');
           html+='<div class="card" style="margin-bottom:8px;padding:12px 14px">'+
             '<div style="display:flex;align-items:center;gap:10px">'+
-              '<div style="flex:1;cursor:pointer" onclick="toggleDesignDetail('+it.id+')"><span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line-soft,rgba(234,243,238,.1));border-radius:5px;padding:1px 6px;margin-right:7px">'+esc(it.area||'')+'</span><b style="font-size:13px;color:var(--ink);font-weight:500">'+esc(it.subject||'')+' · '+esc(it.title||'')+'</b>'+appBadge+'</div>'+
+              '<div style="flex:1;cursor:pointer" onclick="toggleDesignDetail('+it.id+')"><span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line-soft,rgba(234,243,238,.1));border-radius:5px;padding:1px 6px;margin-right:7px">'+esc(it.area||'')+'</span><b style="font-size:13px;color:var(--ink);font-weight:500">'+esc(it.subject||'')+' · '+esc(it.title||'')+'</b>'+appBadge+sentBadge+'</div>'+
               (stu?'<span style="font-size:11px;color:'+col+'">'+esc(it.status||'')+'</span>':'<select onchange="updateDesignStatus('+it.id+',this.value)" style="background:var(--panel-2);border:1px solid '+col+';color:'+col+';border-radius:6px;padding:3px 6px;font-size:11px">'+opts+'</select>')+
             '</div>'+
             '<div id="di-det-'+it.id+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))">'+
-              '<div style="font-size:12px;line-height:1.7;color:var(--ink-dim)">'+esc(it.detail||'')+'</div>'+
+              (it.goal?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">활동 목표</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim);margin-bottom:8px">'+esc(it.goal)+'</div>':'')+
+              '<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim)">'+esc(it.detail||'')+'</div>'+
+              (it.outline?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:10px 0 3px">탐구보고서 목차</div><div style="font-size:12px;line-height:1.8;color:var(--ink-dim);white-space:pre-line">'+esc(it.outline)+'</div>':'')+
+              (stu?'':'<div style="margin-top:10px">'+(it.sent?'<button onclick="unsendDesign('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">전송 취소</button>':'<button onclick="sendDesign('+it.id+')" style="padding:4px 11px;background:var(--reach,#5b8def);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">학생에게 전송</button>')+'</div>')+
               // 결과물 제출 (학생 또는 대리입력)
               '<div style="margin-top:10px"><div style="font-size:10px;color:var(--gold,#c8a24a);margin-bottom:4px">활동 결과물'+(it.submitted_at?' · 제출됨':'')+(it.analyzed?' · <span style="color:var(--safe)">AI 분석완료</span>':'')+'</div>'+
                 '<textarea id="sub-'+it.id+'" rows="2" placeholder="수행 결과·산출물 요약 입력 (또는 파일 첨부)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.submission||'')+'</textarea>'+
@@ -1516,7 +1539,7 @@ async function renderDesign(){
                   '<button onclick="submitDesign('+it.id+')" style="padding:4px 11px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">제출</button>'+
                   (stu?'':'<button onclick="analyzeSubmission('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">AI 분석</button>')+
                 '</div>'+
-                '<div id="fmsg-'+it.id+'" style="font-size:10px;color:var(--ink-mute);margin-top:4px">'+(it.file_name?'첨부: '+esc(it.file_name):'')+'</div></div>'+
+                '<div id="fmsg-'+it.id+'" style="font-size:10px;color:var(--ink-mute);margin-top:4px">'+(it.file_name?'첨부: '+esc(it.file_name):'')+'</div>'+(stu?'':'<div style="font-size:10px;color:var(--gold,#c8a24a);margin-top:3px">※ 제출물은 [AI 분석] 또는 [제출]로 반드시 저장하세요. 저장하지 않으면 원본은 보관되지 않습니다.</div>')+'</div>'+
               // 피드백/승인 (컨설턴트 전용)
               (stu
                 ? (it.feedback?'<div style="margin-top:10px;font-size:11px;color:var(--reach,#8ab4f8)">컨설턴트 피드백: '+esc(it.feedback)+'</div>':'')
@@ -1534,6 +1557,8 @@ window.dfold=function(id){var c=document.getElementById('dfc-'+id);var a=documen
 window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
 window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
+window.sendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:true,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
+window.unsendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:false,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.attachDesignFile=async function(id){
   var inp=document.getElementById('file-'+id); var msg=document.getElementById('fmsg-'+id);
   var f=inp&&inp.files&&inp.files[0]; if(!f)return;
@@ -1576,6 +1601,28 @@ window.analyzeSubmission=async function(id){
 };
 window.saveFeedback=async function(id){ if(!sb)return; var t=document.getElementById('fb-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({feedback:v,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.approveDesign=async function(id,ok){ if(!sb)return; await sb.from('design_items').update({approved:ok,status:ok?'완료':'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
+async function saveConsult(){
+  var s=window._activeStudent; var m=document.getElementById('con-msg');
+  if(!s||!sb){if(m){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';}return;}
+  var row={student_id:s.id,kind:document.getElementById('con-kind').value,
+    target_univ:document.getElementById('con-univ').value.trim()||null,
+    target_major:document.getElementById('con-major').value.trim()||null,
+    career:document.getElementById('con-career').value.trim()||null,
+    activities:document.getElementById('con-act').value.trim()||null,
+    memo:document.getElementById('con-memo').value.trim()||null};
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var {error}=await sb.from('consultations').insert(row);
+  if(error){m.style.color='var(--risk)';m.textContent=error.message;return;}
+  m.style.color='var(--safe)';m.textContent='저장 완료. 학생부 디자인 생성 시 이 상담이 반영됩니다.';
+  ['con-univ','con-major','con-career','con-act','con-memo'].forEach(function(i){document.getElementById(i).value='';});
+  renderConsult();
+}
+async function renderConsult(){
+  var wrap=document.getElementById('con-list'); if(!wrap)return;
+  var s=window._activeStudent; if(!s||!sb){wrap.innerHTML='';return;}
+  var {data}=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
+  wrap.innerHTML='<div class="sectionhead" style="margin-bottom:10px"><span class="idx">기록</span><h3>상담 이력</h3></div>'+((data||[]).map(function(c){return '<div class="card" style="margin-bottom:8px"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">'+(c.kind==='parent'?'학부모':'학생')+' · '+(c.created_at||'').slice(0,10)+'</div><div style="font-size:12px;color:var(--ink-dim)">'+esc(c.target_univ||'')+' '+esc(c.target_major||'')+(c.career?' · '+esc(c.career):'')+'</div>'+(c.activities?'<div style="font-size:12px;color:var(--ink-mute);margin-top:5px">활동: '+esc(c.activities)+'</div>':'')+(c.memo?'<div style="font-size:12px;color:var(--ink-mute);margin-top:3px">메모: '+esc(c.memo)+'</div>':'')+'</div>';}).join('')||'<div style="color:var(--ink-mute)">상담 기록 없음</div>');
+}
 async function genDesign(){
   const body=document.getElementById('design-body');
   const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
@@ -1590,11 +1637,17 @@ async function genDesign(){
     var gye=majorToField(s.target_major); var rec='';
     if(gye){ var dq=await sb.from('dept_recommended_subjects').select('subjects').eq('gye',gye).limit(20); var set={}; (dq.data||[]).forEach(function(r){(r.subjects||[]).forEach(function(x){set[x]=1;});}); rec=Object.keys(set).join(', '); }
     var scope='[필수 지침] todo는 다음 수강 전 과목 각각의 과세특 활동 + 창체 4영역(자율·진로·동아리·봉사) 각각을 모두 포함해 빠짐없이 생성하라. 수강과목: '+(subjList.join(', ')||'(파싱된 과목 없음 — 계열 표준 과목 가정)')+'. 관심분야: '+(s.interest||'')+'.';
-    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),rec:rec,context:scope+'\n'+setechTxt,qual:q4});
+    // 세특 없으면 상담내용 반영
+    var conTxt='';
+    if(!setechTxt || setechTxt.length<20){
+      var cq=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false}).limit(3);
+      conTxt=(cq.data||[]).map(function(c){return '['+(c.kind==='parent'?'학부모상담':'학생상담')+'] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / 활동현황:'+(c.activities||'')+' / 메모:'+(c.memo||'');}).join('\n');
+    }
+    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),rec:rec,context:scope+'\n'+setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:''),qual:q4});
     var o=JSON.parse(d.text);
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||''}});
     await sb.from('design_items').delete().eq('student_id',s.id);
-    var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||'',title:t.title||'',detail:t.detail||'',status:'예정'};});
+    var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||'',title:t.title||'',goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),status:'예정',sent:false};});
     if(todo.length)await sb.from('design_items').insert(todo);
     renderDesign(); if(window.renderTopics)renderTopics();
   }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
