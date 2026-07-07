@@ -9,18 +9,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#071a12; --shell:#061710;
-    --panel:#0e2c1f; --panel-2:#0a2418; --panel-3:#123626;
-    --line:rgba(180,240,60,.13); --line-soft:rgba(234,243,238,.07);
-    --ink:#f2f8f4; --ink-dim:#b8cec1; --ink-mute:#93ab9e;
-    --lime:#B4F03C; --gold:#F5B301; --blue:#5b8def;
-    --safe:#4CAF50; --reach:#FFA000; --risk:#EF5350; --violet:#9d7bef;
+    --bg:#f4f7f4; --shell:#ffffff;
+    --panel:#ffffff; --panel-2:#f0f4f0; --panel-3:#e8efe8;
+    --line:rgba(20,80,40,.14); --line-soft:rgba(20,60,35,.08);
+    --ink:#16241c; --ink-dim:#41564a; --ink-mute:#6d8377;
+    --lime:#2fa860; --gold:#c8871a; --blue:#2f7de0;
+    --safe:#2e9e56; --reach:#e08a1a; --risk:#e05353; --violet:#7b5fef;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
-  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);font-weight:300;-webkit-font-smoothing:antialiased;
-    background-image:radial-gradient(1200px 600px at 80% -10%,rgba(180,240,60,.05),transparent 60%);}
-  ::selection{background:var(--gold);color:#1a1200}
+  body{font-family:'Noto Sans KR',sans-serif;background:var(--bg);color:var(--ink);font-weight:400;-webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(1000px 500px at 85% -10%,rgba(47,168,96,.06),transparent 60%);}
+  ::selection{background:var(--lime);color:#fff}
   .mono{font-family:'JetBrains Mono',monospace}
   .disp{font-family:'Bebas Neue',sans-serif}
 
@@ -43,7 +43,7 @@
   .avatar{width:32px;height:32px;border-radius:8px;background:var(--panel-3);display:grid;place-items:center;font-family:'Bebas Neue';color:var(--lime);font-size:16px}
   .side .foot .who{font-size:12px}.side .foot .who small{display:block;color:var(--ink-mute);font-size:10px}
 
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 30px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(7,26,18,.86);backdrop-filter:blur(10px);z-index:5}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 30px;border-bottom:1px solid var(--line);position:sticky;top:0;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);z-index:5}
   .crumbs{font-size:12px;color:var(--ink-mute)}.crumbs b{color:var(--ink);font-weight:500}
   .studenttag{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-dim);background:var(--panel-2);border:1px solid var(--line-soft);padding:6px 12px;border-radius:8px;margin-left:14px}
   .studenttag b{color:var(--ink);font-weight:500}
@@ -233,7 +233,7 @@
   .report .rp-box .rl{font-size:10px;color:#8a9c86;letter-spacing:.06em}
   .report .rp-box .rv{font-family:'Bebas Neue';font-size:28px;color:#0d2b1e;line-height:1.1}
   .report p{font-size:13px;line-height:1.75;color:#33463a}
-  .badge-out{display:inline-block;background:#0d2b1e;color:var(--gold);font-family:'JetBrains Mono';font-size:10px;padding:3px 8px;border-radius:5px}
+  .badge-out{display:inline-block;background:var(--panel-2);color:var(--gold);font-family:'JetBrains Mono';font-size:10px;padding:3px 8px;border-radius:5px}
 
   .studentview-banner{background:linear-gradient(90deg,rgba(91,141,239,.16),transparent);border:1px solid rgba(91,141,239,.3);border-radius:10px;padding:10px 15px;font-size:12px;color:#a9c4f5;margin-bottom:18px;display:flex;align-items:center;gap:9px}
 
@@ -350,7 +350,7 @@
     <div class="topbar">
       <div style="display:flex;align-items:center">
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag" id="topbar-studenttag">활성 학생 <b>&nbsp;— 미선택&nbsp;</b></div>
+        <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="selectStudent(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -432,7 +432,7 @@
               <input id="con-career" placeholder="희망 진로" style="width:100%;margin:10px 0;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
               <textarea id="con-act" rows="4" placeholder="현재 학생부 활동 현황 (창체활동 중심: 자율·진로·동아리·봉사)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
               <textarea id="con-memo" rows="3" placeholder="상담 메모 (자유)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
-              <button onclick="saveConsult()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
+              <button id="con-save-btn" onclick="saveConsult()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
               <div id="con-msg" style="font-size:12px;margin-top:8px"></div>
               <div id="con-list" style="margin-top:20px"></div>
             </section>
@@ -1314,7 +1314,7 @@ async function loadStudents(){
   if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   window._students=data||[];
   document.getElementById('st-count').textContent=window._students.length;
-  const kpi=document.querySelector('#v-home .kpi .num'); if(kpi) kpi.textContent=window._students.length; populateIntakePicker();
+  const kpi=document.querySelector('#v-home .kpi .num'); if(kpi) kpi.textContent=window._students.length; populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 학생이 없습니다. 좌측에서 등록하세요.</div>';return;}
   var order=['고3','고2','고1','N수','미지정'];
   var g={}; window._students.forEach(function(s){var k=s.grade||'미지정';(g[k]=g[k]||[]).push(s);});
@@ -1322,11 +1322,10 @@ async function loadStudents(){
   var out=order.filter(function(k){return g[k];}).map(function(k){
     var rows=g[k].map(function(s){
       var on=s.id===actId;
-      return '<div style="background:var(--panel);border:1px solid '+(on?'var(--lime)':'var(--line)')+';border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 14px">'+
+      return '<div onclick="selectStudent(\''+s.id+'\')" style="background:var(--panel);border:1px solid '+(on?'var(--lime)':'var(--line)')+';border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 14px;cursor:pointer">'+
         '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
         '<div style="font-size:11px;color:var(--ink-dim);margin-top:2px">'+esc(s.school||'')+(s.target_univ?' · '+esc(s.target_univ)+' '+esc(s.target_major||''):'')+(s.career?' · 진로:'+esc(s.career):'')+'</div></div>'+
-        '<div style="display:flex;gap:5px">'+
-          '<button onclick="selectStudent(\''+s.id+'\')" style="padding:5px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">활성</button>'+
+        '<div style="display:flex;gap:5px" onclick="event.stopPropagation()">'+
           '<button onclick="editStudent(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">수정</button>'+
           '<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">계정</button>'+
           '<button onclick="delStudent(\''+s.id+'\')" style="padding:5px 8px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">삭제</button>'+
@@ -1396,10 +1395,16 @@ async function delStudent(id){
 function selectStudent(id){
   const s=(window._students||[]).find(x=>x.id===id); if(!s)return;
   window._activeStudent=s;
-  const tag=document.querySelector('.studenttag');
-  if(tag) tag.innerHTML='활성 학생 <b>&nbsp;'+esc(s.name||'')+(s.grade?' · '+esc(s.grade):'')+'&nbsp;</b>'+(s.target_univ?'· '+esc(s.target_univ)+' '+esc(s.target_major||'')+' 지망':'');
+  var td=document.getElementById('topbar-student'); if(td)td.value=id;
+  var sv=document.getElementById('v-students'); if(sv&&sv.classList.contains('on')&&window.loadStudents)loadStudents();
   if(window.refreshIntake)refreshIntake(); if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
 }
+function fillStudentPickers(){
+  var opts='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
+  var td=document.getElementById('topbar-student'); if(td){var v=window._activeStudent?window._activeStudent.id:'';td.innerHTML=opts;td.value=v;}
+  var ip=document.getElementById('intake-student'); if(ip){var v2=ip.value;ip.innerHTML='<option value="">— 학생 선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+'</option>';}).join('');ip.value=v2;}
+}
+window.fillStudentPickers=fillStudentPickers;
 
 /* ===== 자료 입력 · 진단 ===== */
 function requireActive(m){ if(!window._activeStudent){ if(m){m.style.color='var(--risk)';m.textContent='먼저 [학생 관리]에서 학생을 활성화하세요.';} return null;} return window._activeStudent; }
@@ -1679,17 +1684,36 @@ async function saveConsult(){
     activities:document.getElementById('con-act').value.trim()||null,
     memo:document.getElementById('con-memo').value.trim()||null};
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
-  var {error}=await sb.from('consultations').insert(row);
+  var error;
+  if(window._conEdit){ var r=await sb.from('consultations').update(row).eq('id',window._conEdit); error=r.error; }
+  else { var r2=await sb.from('consultations').insert(row); error=r2.error; }
   if(error){m.style.color='var(--risk)';m.textContent=error.message;return;}
-  m.style.color='var(--safe)';m.textContent='저장 완료. 학생부 디자인 생성 시 이 상담이 반영됩니다.';
+  m.style.color='var(--safe)';m.textContent=window._conEdit?'수정되었습니다.':'저장 완료. 학생부 디자인 생성 시 이 상담이 반영됩니다.';
+  window._conEdit=null; var btn=document.getElementById('con-save-btn'); if(btn)btn.textContent='상담 저장';
   ['con-univ','con-major','con-career','con-act','con-memo'].forEach(function(i){document.getElementById(i).value='';});
   renderConsult();
 }
+window.editConsult=async function(id){
+  var {data}=await sb.from('consultations').select('*').eq('id',id).limit(1); var c=data&&data[0]; if(!c)return;
+  document.getElementById('con-kind').value=c.kind||'student';
+  document.getElementById('con-univ').value=c.target_univ||'';
+  document.getElementById('con-major').value=c.target_major||'';
+  document.getElementById('con-career').value=c.career||'';
+  document.getElementById('con-act').value=c.activities||'';
+  document.getElementById('con-memo').value=c.memo||'';
+  window._conEdit=id; var btn=document.getElementById('con-save-btn'); if(btn)btn.textContent='수정 저장';
+  var m=document.getElementById('con-msg'); if(m){m.style.color='var(--gold,#c8a24a)';m.textContent='수정 모드 — 내용 변경 후 [수정 저장]을 누르세요.';}
+  document.getElementById('con-kind').scrollIntoView({behavior:'smooth',block:'center'});
+};
+window.delConsult=async function(id){
+  if(!confirm('이 상담 기록을 삭제할까요?'))return;
+  await sb.from('consultations').delete().eq('id',id); renderConsult();
+};
 async function renderConsult(){
   var wrap=document.getElementById('con-list'); if(!wrap)return;
   var s=window._activeStudent; if(!s||!sb){wrap.innerHTML='';return;}
   var {data}=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
-  wrap.innerHTML='<div class="sectionhead" style="margin-bottom:10px"><span class="idx">기록</span><h3>상담 이력</h3></div>'+((data||[]).map(function(c){return '<div class="card" style="margin-bottom:8px"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">'+(c.kind==='parent'?'학부모':'학생')+' · '+(c.created_at||'').slice(0,10)+'</div><div style="font-size:12px;color:var(--ink-dim)">'+esc(c.target_univ||'')+' '+esc(c.target_major||'')+(c.career?' · '+esc(c.career):'')+'</div>'+(c.activities?'<div style="font-size:12px;color:var(--ink-mute);margin-top:5px">활동: '+esc(c.activities)+'</div>':'')+(c.memo?'<div style="font-size:12px;color:var(--ink-mute);margin-top:3px">메모: '+esc(c.memo)+'</div>':'')+'</div>';}).join('')||'<div style="color:var(--ink-mute)">상담 기록 없음</div>');
+  wrap.innerHTML='<div class="sectionhead" style="margin-bottom:10px"><span class="idx">기록</span><h3>상담 이력</h3></div>'+((data||[]).map(function(c){return '<div class="card" style="margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">'+(c.kind==='parent'?'학부모':'학생')+' · '+(c.created_at||'').slice(0,10)+'</div><div style="display:flex;gap:5px"><button onclick="editConsult('+c.id+')" style="padding:3px 9px;background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">수정</button><button onclick="delConsult('+c.id+')" style="padding:3px 8px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">삭제</button></div></div><div style="font-size:12px;color:var(--ink-dim)">'+esc(c.target_univ||'')+' '+esc(c.target_major||'')+(c.career?' · '+esc(c.career):'')+'</div>'+(c.activities?'<div style="font-size:12px;color:var(--ink-mute);margin-top:5px">활동: '+esc(c.activities)+'</div>':'')+(c.memo?'<div style="font-size:12px;color:var(--ink-mute);margin-top:3px">메모: '+esc(c.memo)+'</div>':'')+'</div>';}).join('')||'<div style="color:var(--ink-mute)">상담 기록 없음</div>');
 }
 function showGen(on,msg){
   var m=document.getElementById('gen-modal');
