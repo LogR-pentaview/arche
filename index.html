@@ -96,6 +96,7 @@
   .subtab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--ink-dim);font-family:'Noto Sans KR';font-size:13px;padding:10px 14px;cursor:pointer;transition:.15s;margin-bottom:-1px}
   .subtab.on{color:var(--ink);border-bottom-color:var(--gold);font-weight:500}
   @media(max-width:640px){.diag-penta-wrap{grid-template-columns:1fr!important}}
+  @keyframes spin{to{transform:rotate(360deg)}}
   .pane{display:none}.pane.on{display:block}
 
   /* ===== INTAKE ===== */
@@ -591,8 +592,17 @@
         <div class="eyebrow">Student Record Design</div>
         <div class="h1">학생부 디자인</div>
         <div class="sub">진로·학과에 맞춰 앞으로 학생부에서 채워갈 방향을 과목·창체별로 설계 (대필 아님 · 방향 가이드)</div>
-        <div style="display:flex;gap:10px;margin:8px 0 16px"><button class="btn" onclick="genDesign()">AI 학생부 디자인 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button></div>
-        <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 학생부 디자인 생성]</b>을 누르면 진로·학과 맞춤 과목·창체별 설계가 생성됩니다.</div></div>
+        <div id="design-actions" style="display:flex;gap:10px;margin:8px 0 16px;flex-wrap:wrap"><button class="btn" onclick="genDesign('subject')">① 주요과목 탐구 생성</button><button class="btn" onclick="genDesign('changche')">② 창체활동 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button></div>
+        <div class="card" id="dist-box" style="margin-bottom:14px;padding:14px">
+          <div class="sectionhead" style="margin-bottom:8px"><span class="idx">직접</span><h3>컨설턴트 직접 활동 배포 <span style="font-size:11px;color:var(--ink-mute)">· 활동지 파일을 학생에게 전송</span></h3></div>
+          <div class="fieldrow"><input id="dist-subj" placeholder="탐구 대상 과목/영역" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><input id="dist-title" placeholder="탐구 주제" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
+          <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
+            <input type="file" id="dist-file" accept=".hwp,.hwpx,.pdf,.docx,.doc,.xlsx,.pptx" style="font-size:12px;color:var(--ink-dim)">
+            <button class="btn" onclick="distributeActivity()">파일 업로드 후 전송</button>
+          </div>
+          <div id="dist-msg" style="font-size:11px;color:var(--ink-mute);margin-top:6px">※ 한글(hwp)·pdf·docx 등 업로드 가능. 전송 즉시 학생이 다운로드할 수 있습니다.</div>
+        </div>
+        <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[① 주요과목 탐구]</b>부터 생성하세요. 과목당 학기 1개(연 2개)로, 진로·학과로 이어지는 연계 서사로 설계됩니다. 이후 <b>[② 창체활동]</b>을 추가 생성합니다.</div></div>
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
       </section>
 
@@ -675,6 +685,7 @@
 .arche-report .note2{font-size:11px;color:#6b6656;background:#f2efe6;border:1px solid #eae4d6;border-radius:8px;padding:11px 13px;margin-top:12px}
 @media print{
   .side,.topbar,.rp-actions,#authgate{display:none!important}
+  body.student-mode #dist-box,body.student-mode #design-actions{display:none!important}
   .app,main,body{background:#fff!important;display:block!important}
   main{padding:0!important;margin:0!important}
   .view:not(#v-report){display:none!important}
@@ -1231,7 +1242,12 @@ async function enterStudentApp(session){
   // 학생 홈 렌더
   renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
-  if(sa&&sa[0]&&sa[0].must_change){ setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400); }
+  var mustChange=sa&&sa[0]&&sa[0].must_change;
+  var prompted=false; try{prompted=sessionStorage.getItem('pw_prompted')==='1';}catch(e){}
+  if(mustChange && !prompted){
+    try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
+    setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400);
+  }
   var h=document.querySelector('.nav[data-v="home"]'); if(h)go(h);
 }
 function renderStudentHome(){
@@ -1245,8 +1261,9 @@ async function changeStudentPw(){
   var np=prompt('새 비밀번호 입력 (4자 이상)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.');
   var {error}=await sb.auth.updateUser({password:np});
   if(error)return alert('변경 실패: '+error.message);
-  var s=(await sb.auth.getSession()).data.session;
-  if(s) await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',s.user.id);
+  var u=(await sb.auth.getUser()).data.user;
+  if(u){ var r=await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); if(r.error)console.error('[must_change]',r.error); }
+  try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
   alert('비밀번호가 변경되었습니다.');
 }
 document.getElementById('au-login').onclick=async()=>{
@@ -1529,6 +1546,7 @@ async function renderDesign(){
             '<div id="di-det-'+it.id+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))">'+
               (it.goal?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">활동 목표</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim);margin-bottom:8px">'+esc(it.goal)+'</div>':'')+
               '<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim)">'+esc(it.detail||'')+'</div>'+
+              (it.dist_path?'<div style="margin-top:8px"><button onclick="dlActivity(\''+it.dist_path+'\',\''+esc(it.dist_name||'활동지')+'\')" style="padding:5px 12px;background:var(--gold,#c8a24a);color:#1a1200;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">📎 활동지 다운로드'+(it.dist_name?' ('+esc(it.dist_name)+')':'')+'</button></div>':'')+
               (it.outline?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:10px 0 3px">탐구보고서 목차</div><div style="font-size:12px;line-height:1.8;color:var(--ink-dim);white-space:pre-line">'+esc(it.outline)+'</div>':'')+
               (stu?'':'<div style="margin-top:10px">'+(it.sent?'<button onclick="unsendDesign('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">전송 취소</button>':'<button onclick="sendDesign('+it.id+')" style="padding:4px 11px;background:var(--reach,#5b8def);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">학생에게 전송</button>')+'</div>')+
               // 결과물 제출 (학생 또는 대리입력)
@@ -1555,10 +1573,36 @@ async function renderDesign(){
 }
 window.dfold=function(id){var c=document.getElementById('dfc-'+id);var a=document.getElementById('dfa-'+id);if(c){var open=c.style.display!=='none';c.style.display=open?'none':'block';if(a)a.textContent=open?'▸':'▾';}};
 window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
+window.dlActivity=async function(path,name){
+  if(!sb)return; var r=sb.storage.from('activity-files').getPublicUrl(path);
+  var url=r&&r.data&&r.data.publicUrl; if(!url)return alert('다운로드 링크 생성 실패');
+  var a=document.createElement('a'); a.href=url; a.download=name||''; a.target='_blank'; document.body.appendChild(a); a.click(); a.remove();
+};
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
 window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.sendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:true,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.unsendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:false,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
+async function distributeActivity(){
+  var s=window._activeStudent; var m=document.getElementById('dist-msg');
+  if(!s||!sb){if(m){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';}return;}
+  var subj=document.getElementById('dist-subj').value.trim();
+  var title=document.getElementById('dist-title').value.trim();
+  var f=document.getElementById('dist-file').files[0];
+  if(!subj||!title){m.style.color='var(--risk)';m.textContent='과목과 탐구 주제를 입력하세요.';return;}
+  if(!f){m.style.color='var(--risk)';m.textContent='파일을 선택하세요.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='업로드 중…';
+  try{
+    var path=s.id+'/'+Date.now()+'_'+f.name.replace(/[^\w.\-가-힣]/g,'_');
+    var up=await sb.storage.from('activity-files').upload(path,f,{upsert:true});
+    if(up.error)throw up.error;
+    var row={student_id:s.id,grade:String(s.grade||''),sem:'',subject:subj,area:'과세특',title:title,goal:'컨설턴트 직접 배포 활동',detail:'첨부된 활동지를 다운로드해 작성 후 다시 제출하세요.',status:'예정',sent:true,source:'manual',dist_path:path,dist_name:f.name};
+    var ins=await sb.from('design_items').insert(row);
+    if(ins.error)throw ins.error;
+    m.style.color='var(--safe)';m.textContent='전송 완료: '+f.name+' → 학생이 다운로드할 수 있습니다.';
+    document.getElementById('dist-subj').value='';document.getElementById('dist-title').value='';document.getElementById('dist-file').value='';
+    renderDesign();
+  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+(e.message||e); }
+}
 window.attachDesignFile=async function(id){
   var inp=document.getElementById('file-'+id); var msg=document.getElementById('fmsg-'+id);
   var f=inp&&inp.files&&inp.files[0]; if(!f)return;
@@ -1623,34 +1667,47 @@ async function renderConsult(){
   var {data}=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
   wrap.innerHTML='<div class="sectionhead" style="margin-bottom:10px"><span class="idx">기록</span><h3>상담 이력</h3></div>'+((data||[]).map(function(c){return '<div class="card" style="margin-bottom:8px"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">'+(c.kind==='parent'?'학부모':'학생')+' · '+(c.created_at||'').slice(0,10)+'</div><div style="font-size:12px;color:var(--ink-dim)">'+esc(c.target_univ||'')+' '+esc(c.target_major||'')+(c.career?' · '+esc(c.career):'')+'</div>'+(c.activities?'<div style="font-size:12px;color:var(--ink-mute);margin-top:5px">활동: '+esc(c.activities)+'</div>':'')+(c.memo?'<div style="font-size:12px;color:var(--ink-mute);margin-top:3px">메모: '+esc(c.memo)+'</div>':'')+'</div>';}).join('')||'<div style="color:var(--ink-mute)">상담 기록 없음</div>');
 }
-async function genDesign(){
+function showGen(on,msg){
+  var m=document.getElementById('gen-modal');
+  if(!m){ m=document.createElement('div'); m.id='gen-modal'; m.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(4,14,9,.72);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px)'; document.body.appendChild(m); }
+  if(on){ m.style.display='flex'; m.innerHTML='<div style="background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 34px;max-width:340px;text-align:center"><div class="spin" style="width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--lime);border-radius:50%;margin:0 auto 16px;animation:spin 0.8s linear infinite"></div><div style="font-size:14px;color:var(--ink);font-weight:600;margin-bottom:6px">AI 설계 생성 중</div><div id="gen-step" style="font-size:12px;color:var(--ink-dim);line-height:1.6">'+esc(msg||'')+'</div></div>'; }
+  else { m.style.display='none'; }
+}
+function genStep(t){ var e=document.getElementById('gen-step'); if(e)e.textContent=t; }
+async function genDesign(phase){
+  phase=phase||'subject';
   const body=document.getElementById('design-body');
   const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
-  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">분석자료 기반 설계 생성 중…</div>';
+  showGen(true, phase==='changche'?'창체활동을 설계하고 있어요…':'주요과목 탐구활동을 설계하고 있어요…');
   try{
+    genStep('학생 자료를 불러오는 중…');
     var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
-    var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,4000);
+    var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,3500);
     var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
     var subjList=Array.from(new Set(((mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[]).map(function(c){return c.subject;}).filter(Boolean)));
     var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
     var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
-    var gye=majorToField(s.target_major); var rec='';
-    if(gye){ var dq=await sb.from('dept_recommended_subjects').select('subjects').eq('gye',gye).limit(20); var set={}; (dq.data||[]).forEach(function(r){(r.subjects||[]).forEach(function(x){set[x]=1;});}); rec=Object.keys(set).join(', '); }
-    var scope='[필수 지침] todo는 다음 수강 전 과목 각각의 과세특 활동 + 창체 4영역(자율·진로·동아리·봉사) 각각을 모두 포함해 빠짐없이 생성하라. 수강과목: '+(subjList.join(', ')||'(파싱된 과목 없음 — 계열 표준 과목 가정)')+'. 관심분야: '+(s.interest||'')+'.';
+    var gye=majorToField(s.target_major);
     // 세특 없으면 상담내용 반영
     var conTxt='';
     if(!setechTxt || setechTxt.length<20){
       var cq=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false}).limit(3);
       conTxt=(cq.data||[]).map(function(c){return '['+(c.kind==='parent'?'학부모상담':'학생상담')+'] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / 활동현황:'+(c.activities||'')+' / 메모:'+(c.memo||'');}).join('\n');
     }
-    var d=await callAI('design_record',{career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),rec:rec,context:scope+'\n'+setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:''),qual:q4});
+    var major=(subjList.length?subjList:['국어','영어','수학','과학','사회']);
+    genStep(phase==='changche'?'창체 4영역 활동을 구성 중…':'과목 간 연계 서사를 구성 중…');
+    var d=await callAI('design_record',{phase:phase,subjects:major.join(','),career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:''),qual:q4});
     var o=JSON.parse(d.text);
-    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||''}});
-    await sb.from('design_items').delete().eq('student_id',s.id);
-    var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||'',title:t.title||'',goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),status:'예정',sent:false};});
+    genStep('설계를 저장하는 중…');
+    if(o.done&&o.done.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||'',narrative:o.narrative||''}}); }
+    // phase별 부분 삭제 후 삽입
+    if(phase==='changche'){ await sb.from('design_items').delete().eq('student_id',s.id).in('area',['자율','진로','동아리','봉사']); }
+    else { await sb.from('design_items').delete().eq('student_id',s.id).eq('area','과세특'); }
+    var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||(phase==='changche'?'자율':'과세특'),title:t.title||'',goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),seq:t.seq||0,status:'예정',sent:false};});
     if(todo.length)await sb.from('design_items').insert(todo);
+    showGen(false);
     renderDesign(); if(window.renderTopics)renderTopics();
-  }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
+  }catch(e){ showGen(false); if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
 }
 async function renderCurri(){
   const body=document.getElementById('curri-body'); if(!body)return;
