@@ -291,9 +291,14 @@
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 26px">
     <div style="font-family:'Bebas Neue';font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
-    <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 22px">학원 컨설팅 엔진 · 로그인</div>
+    <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
+    <div class="roletoggle" id="login-role" style="margin-bottom:14px;width:100%">
+      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">컨설턴트/관리자</button>
+      <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
+    </div>
+    <input id="au-sid" type="text" placeholder="학생 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
@@ -305,6 +310,18 @@
 <div class="app">
 
   <!-- SIDEBAR -->
+      <section class="view" id="v-admin">
+        <div class="eyebrow">Admin Console</div>
+        <div class="h1">관리자 콘솔</div>
+        <div class="sub">엔진 운영 · 학원/DB/통계 관리</div>
+        <div style="display:flex;gap:8px;margin:16px 0" id="adm-tabs">
+          <button class="btn" onclick="ADMIN.tab('academies')">학원 관리</button>
+          <button class="btn ghost" onclick="ADMIN.tab('golden')">골든시드</button>
+          <button class="btn ghost" onclick="ADMIN.tab('admission')">입시자료</button>
+          <button class="btn ghost" onclick="ADMIN.tab('stats')">통계</button>
+        </div>
+        <div id="adm-body"><div style="color:var(--ink-mute);padding:20px">불러오는 중…</div></div>
+      </section>
       <section class="view" id="v-settings">
         <div class="eyebrow">Settings</div>
         <div class="h1">설정</div>
@@ -345,6 +362,7 @@
     <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
     <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회</div>
+    <div class="nav" data-v="admin" id="nav-admin" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg> 관리자 콘솔</div>
     <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
@@ -912,6 +930,35 @@ const AD=(function(){
   return {tab,loadPlan,loadGG,loadCat,loadDept,init};
 })();
 window.AD=AD;
+const ADMIN=(function(){
+  var $=function(s){return document.querySelector(s);};
+  async function call(action){
+    var sess=(await sb.auth.getSession()).data.session; if(!sess)return{error:'로그인 필요'};
+    var r=await fetch('https://dvxepjctjazobrkjrkdw.supabase.co/functions/v1/admin-api',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify({action:action})});
+    return await r.json();
+  }
+  function card(title,inner){return '<div class="card" style="margin-bottom:12px"><div class="sectionhead"><span class="idx">·</span><h3>'+title+'</h3></div>'+inner+'</div>';}
+  function kv(o){return '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-dim)">'+Object.keys(o).map(function(k){return '<div>'+esc(k)+' <b class="mono" style="color:var(--ink)">'+o[k]+'</b></div>';}).join('')+'</div>';}
+  async function tab(t){
+    document.querySelectorAll('#adm-tabs button').forEach(function(b){b.className='btn ghost';});
+    var idx={academies:0,golden:1,admission:2,stats:3}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
+    var body=$('#adm-body'); body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>';
+    var d=await call(t);
+    if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
+    if(t==='academies'){
+      body.innerHTML=(d.rows||[]).map(function(a){return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between"><div><b style="color:var(--ink)">'+esc(a.name||'-')+'</b>'+(a.is_admin?' <span style="font-size:10px;color:var(--gold)">관리자</span>':'')+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명</div></div><div style="font-size:11px;color:var(--ink-mute)">'+(a.created_at||'').slice(0,10)+'</div></div>';}).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
+    } else if(t==='golden'){
+      body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field));
+    } else if(t==='admission'){
+      body.innerHTML=card('입시자료 DB',kv(d));
+    } else if(t==='stats'){
+      body.innerHTML=card('사용 통계',kv({학생:d.students,계정:d.accounts,분석건수:d.analyses}))+card('학년 분포',kv(d.by_grade));
+    }
+  }
+  function init(){ tab('academies'); }
+  return {tab,init};
+})();
+window.ADMIN=ADMIN;
 </script>
 <!--OLD_REPORT
         <div class="eyebrow">Consulting Output</div>
@@ -953,7 +1000,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1050,16 +1097,75 @@ async function ensureAcademy(user){
   }
   return ac;
 }
+window._loginRole='con';
+function setLoginRole(r){
+  window._loginRole=r;
+  document.querySelectorAll('#login-role button').forEach(b=>b.classList.toggle('on',b.dataset.lr===r));
+  var stu=r==='stu';
+  document.getElementById('au-sid').style.display=stu?'block':'none';
+  document.getElementById('au-email').style.display=stu?'none':'block';
+  document.getElementById('au-name').style.display=stu?'none':'block';
+  document.getElementById('au-signup').style.display=stu?'none':'block';
+}
+var STU_EMAIL_DOMAIN='stu.penta-view.com';
 async function enterApp(session){
-  const ac=await ensureAcademy(session.user);
-  document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+session.user.email;
+  var u=session.user;
+  var role=(u.user_metadata&&u.user_metadata.role)||'con';
+  window._appRole=role;
+  if(role==='student'){ return enterStudentApp(session); }
+  // 컨설턴트/관리자
+  const ac=await ensureAcademy(u);
+  window._academy=ac;
+  var isAdmin=false;
+  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin').eq('id',ac.id).limit(1); isAdmin=ar&&ar[0]&&ar[0].is_admin; }
+  window._isAdmin=isAdmin;
+  document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+u.email+(isAdmin?' · 관리자':'');
   gate.style.display='none';
+  if(isAdmin){
+    document.body.classList.add('admin-mode');
+    var keep=['admin'];
+    document.querySelectorAll('.nav').forEach(function(n){ if(keep.indexOf(n.dataset.v)<0)n.style.display='none'; });
+    var an=document.getElementById('nav-admin'); if(an)an.style.display='';
+    var ad=document.querySelector('.nav[data-v="admin"]'); if(ad)go(ad);
+    return;
+  }
   loadStudents();
+}
+async function enterStudentApp(session){
+  gate.style.display='none';
+  document.body.classList.add('student-mode');
+  window._role='stu';
+  // 본인 student row 활성화
+  var {data:sd}=await sb.from('students').select('*').limit(1);
+  var me=sd&&sd[0];
+  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생')+' · 학생'; }
+  // 컨설턴트 전용 메뉴 숨김
+  var hide=['students','intake','settings','admin_data','essaybatch'];
+  hide.forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  // 비번 변경 안내 (초기 0000)
+  var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
+  if(sa&&sa[0]&&sa[0].must_change){ setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400); }
+  // 진단 화면으로
+  var d=document.querySelector('.nav[data-v="diag"]'); if(d)go(d);
+}
+async function changeStudentPw(){
+  var np=prompt('새 비밀번호 입력 (4자 이상)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.');
+  var {error}=await sb.auth.updateUser({password:np});
+  if(error)return alert('변경 실패: '+error.message);
+  var s=(await sb.auth.getSession()).data.session;
+  if(s) await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',s.user.id);
+  alert('비밀번호가 변경되었습니다.');
 }
 document.getElementById('au-login').onclick=async()=>{
   if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
   msg('로그인 중…',true);
-  const {data,error}=await sb.auth.signInWithPassword({email:auE(),password:auP()});
+  var email, pw=auP();
+  if(window._loginRole==='stu'){
+    var sid=(document.getElementById('au-sid').value||'').trim().toLowerCase();
+    if(!sid)return msg('학생 아이디를 입력하세요.');
+    email=sid+'@'+STU_EMAIL_DOMAIN;
+  } else { email=auE(); }
+  const {data,error}=await sb.auth.signInWithPassword({email:email,password:pw});
   if(error)return msg(error.message);
   enterApp(data.session);
 };
@@ -1101,12 +1207,24 @@ async function loadStudents(){
         '<div style="display:flex;gap:5px">'+
           '<button onclick="selectStudent(\''+s.id+'\')" style="padding:5px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">활성</button>'+
           '<button onclick="editStudent(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">수정</button>'+
+          '<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">계정</button>'+
           '<button onclick="delStudent(\''+s.id+'\')" style="padding:5px 8px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">삭제</button>'+
         '</div></div>';
     }).join('');
     return '<div style="margin-bottom:10px"><div onclick="toggleFolder(\''+k+'\')" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 14px"><span id="arrow-'+k+'" style="color:var(--gold,#c8a24a)">▾</span><b style="color:var(--ink);font-size:13px">'+esc(k)+'</b><span style="font-size:11px;color:var(--ink-mute)">'+g[k].length+'명</span></div><div id="fold-'+k+'" style="display:block">'+rows+'</div></div>';
   }).join('');
   list.innerHTML=out;
+}
+async function createStudentAccount(id,code){
+  if(!sb)return;
+  var sess=(await sb.auth.getSession()).data.session; if(!sess)return alert('로그인 필요');
+  var body={student_id:id}; if(code)body.set_code=code;
+  var r=await fetch('https://dvxepjctjazobrkjrkdw.supabase.co/functions/v1/create-student',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify(body)});
+  var d=await r.json();
+  if(d.need_code){ var c=prompt('학원 고유기호를 설정하세요 (영문/숫자, 예: PV). 이후 학생 ID는 이 기호+번호로 자동생성됩니다.'); if(!c)return; return createStudentAccount(id,c.toUpperCase()); }
+  if(d.error)return alert('실패: '+d.error);
+  if(d.existed)return alert('이미 계정 있음 · 아이디: '+d.login_id);
+  alert('계정 생성 완료\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n(학생이 로그인 후 비밀번호 변경)');
 }
 async function editStudent(id){
   var s=(window._students||[]).find(function(x){return x.id===id;}); if(!s)return;
