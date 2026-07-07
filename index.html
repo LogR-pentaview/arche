@@ -402,7 +402,8 @@
               <select id="st-track" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">계열</option><option>인문</option><option>자연</option><option>공학</option><option>의약</option><option>예체능</option><option>기타</option></select>
             </div>
             <input id="st-univ" placeholder="목표 대학" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="st-major" placeholder="목표 학과" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="display:flex;gap:6px;margin-bottom:10px"><input id="st-major" placeholder="목표 학과" style="flex:1;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><button type="button" class="btn ghost" onclick="searchMajor()" style="white-space:nowrap">학과 검색</button></div>
+            <div id="major-results" style="margin-bottom:10px"></div>
             <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent"> 생기부 활용 동의</label>
@@ -1710,7 +1711,9 @@ async function genDesign(phase){
     var subjList=Array.from(new Set(((mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[]).map(function(c){return c.subject;}).filter(Boolean)));
     var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
     var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
-    var gye=majorToField(s.target_major);
+    var gye=await resolveField(s.target_major);
+    var cnTxt=''; var cn=await careernet('major_search',(s.target_major||''));
+    if(cn&&cn.items&&cn.items[0]){ var it0=cn.items[0]; cnTxt='[커리어넷 학과정보] 계열:'+(it0.series||'')+' / 학과:'+(it0.major||'')+' / 개설:'+(it0.facil||'').slice(0,150); }
     // 세특 없으면 상담내용 반영
     var conTxt='';
     if(!setechTxt || setechTxt.length<20){
@@ -1719,7 +1722,7 @@ async function genDesign(phase){
     }
     var major=(subjList.length?subjList:['국어','영어','수학','과학','사회']);
     genStep(phase==='changche'?'창체 4영역 활동을 구성 중…':'과목 간 연계 서사를 구성 중…');
-    var d=await callAI('design_record',{phase:phase,subjects:major.join(','),career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:''),qual:q4});
+    var d=await callAI('design_record',{phase:phase,subjects:major.join(','),career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:'')+(cnTxt?'\n'+cnTxt:''),qual:q4});
     var o=JSON.parse(d.text);
     genStep('설계를 저장하는 중…');
     if(o.done&&o.done.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||'',narrative:o.narrative||''}}); }
@@ -2062,6 +2065,36 @@ async function callAI(task,payload){
   var d=await res.json(); if(!res.ok) throw new Error(d.error||'AI 오류'); return d;
 }
 window.callAI=callAI;
+async function careernet(action,query){
+  if(!sb) return null;
+  var sess=(await sb.auth.getSession()).data.session;
+  try{
+    var res=await fetch(SB_URL+'/functions/v1/careernet',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({action:action,query:query})});
+    var d=await res.json(); return res.ok?d:null;
+  }catch(e){ return null; }
+}
+window.careernet=careernet;
+var _SERIES_MAP={'공학계열':'공학','자연계열':'자연','의약계열':'의약','사회계열':'사회','인문계열':'인문','교육계열':'교육','예체능계열':'예체능','예능계열':'예체능','경영·경제':'상경'};
+async function resolveField(major){
+  var loc=majorToField(major); if(loc)return loc;      // 로컬 우선
+  var r=await careernet('major_search',major);
+  var s=r&&r.items&&r.items[0]&&r.items[0].series;
+  return _SERIES_MAP[s]||majorToField(s||'')||'';
+}
+window.resolveField=resolveField;
+window.searchMajor=async function(){
+  var q=document.getElementById('st-major').value.trim(); var box=document.getElementById('major-results');
+  if(!q){box.innerHTML='';return;}
+  box.innerHTML='<div style="font-size:11px;color:var(--ink-mute);padding:6px">커리어넷 검색 중…</div>';
+  var r=await careernet('major_search',q);
+  var items=(r&&r.items)||[];
+  if(!items.length){box.innerHTML='<div style="font-size:11px;color:var(--ink-mute);padding:6px">검색 결과 없음</div>';return;}
+  box.innerHTML=items.map(function(x){return '<div onclick="pickMajor(\''+esc(x.major)+'\',\''+esc(x.series)+'\')" style="cursor:pointer;padding:7px 10px;border:1px solid var(--line);border-radius:7px;margin-bottom:4px;font-size:12px;color:var(--ink-dim)"><b style="color:var(--ink)">'+esc(x.major)+'</b> <span style="color:var(--gold,#c8a24a);font-size:11px">'+esc(x.series)+'</span><div style="font-size:10px;color:var(--ink-mute);margin-top:2px">개설: '+esc((x.facil||'').slice(0,80))+'…</div></div>';}).join('');
+};
+window.pickMajor=function(major,series){
+  document.getElementById('st-major').value=major;
+  document.getElementById('major-results').innerHTML='<div style="font-size:11px;color:var(--safe);padding:4px">선택: '+esc(major)+' ('+esc(series)+')</div>';
+};
 async function loadApiKey(){
   if(!sb)return; var el=document.getElementById('set-gemini'); if(!el)return;
   var {data}=await sb.from('academies').select('gemini_api_key').limit(1);
