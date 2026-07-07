@@ -97,6 +97,7 @@
   .subtab.on{color:var(--ink);border-bottom-color:var(--gold);font-weight:500}
   @media(max-width:640px){.diag-penta-wrap{grid-template-columns:1fr!important}}
   @keyframes spin{to{transform:rotate(360deg)}}
+  body.student-mode #dist-box,body.student-mode #design-actions,body.student-mode #v-sr .sub,body.student-mode #design-priority{display:none!important}
   .pane{display:none}.pane.on{display:block}
 
   /* ===== INTAKE ===== */
@@ -685,7 +686,6 @@
 .arche-report .note2{font-size:11px;color:#6b6656;background:#f2efe6;border:1px solid #eae4d6;border-radius:8px;padding:11px 13px;margin-top:12px}
 @media print{
   .side,.topbar,.rp-actions,#authgate{display:none!important}
-  body.student-mode #dist-box,body.student-mode #design-actions{display:none!important}
   .app,main,body{background:#fff!important;display:block!important}
   main{padding:0!important;margin:0!important}
   .view:not(#v-report){display:none!important}
@@ -1512,7 +1512,7 @@ async function renderDesign(){
   const items=(ir.data)||[];
   if(!d&&!items.length){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 설계가 없습니다. <b>[AI 학생부 디자인 생성]</b>을 눌러주세요.</div>'; return; }
   var html='';
-  if(d&&d.priority)html+='<div class="card" style="border-color:var(--gold,#c8a24a);margin-bottom:16px"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>';
+  if(d&&d.priority)html+='<div id="design-priority" class="card" style="border-color:var(--gold,#c8a24a);margin-bottom:16px"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>';
   // 진행 요약(완료/전체)
   var doneN=items.filter(function(x){return x.status==='완료';}).length;
   html+='<div style="display:flex;gap:10px;margin-bottom:16px;font-size:12px;color:var(--ink-dim)"><span>진행 <b class="mono" style="color:var(--ink)">'+doneN+'/'+items.length+'</b></span><span style="color:var(--ink-mute)">누적될수록 실제 입시 무기가 됩니다.</span></div>';
