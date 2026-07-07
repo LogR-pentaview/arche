@@ -312,34 +312,6 @@
 <div class="app">
 
   <!-- SIDEBAR -->
-      <section class="view" id="v-admin">
-        <div class="eyebrow">Admin Console</div>
-        <div class="h1">관리자 콘솔</div>
-        <div class="sub">엔진 운영 · 학원/DB/통계 관리</div>
-        <div style="display:flex;gap:8px;margin:16px 0" id="adm-tabs">
-          <button class="btn" onclick="ADMIN.tab('academies')">학원 관리</button>
-          <button class="btn ghost" onclick="ADMIN.tab('golden')">골든시드</button>
-          <button class="btn ghost" onclick="ADMIN.tab('admission')">입시자료</button>
-          <button class="btn ghost" onclick="ADMIN.tab('stats')">통계</button>
-        </div>
-        <div id="adm-body"><div style="color:var(--ink-mute);padding:20px">불러오는 중…</div></div>
-      </section>
-      <section class="view" id="v-settings">
-        <div class="eyebrow">Settings</div>
-        <div class="h1">설정</div>
-        <div class="sub">학원 Gemini API 키 · AI 분석(생기부 파싱·탐구주제·리포트 코멘트)에 사용됩니다</div>
-        <div style="max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
-          <div class="sectionhead"><span class="idx">AI</span><h3>Gemini API 키 (학원별)</h3></div>
-          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">aistudio.google.com에서 발급한 키를 입력하세요. 학원별로 저장되고 <b>서버(엣지함수)에서만</b> 사용됩니다.</div>
-          <input id="set-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-          <div id="set-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
-          <div style="display:flex;gap:8px">
-            <button onclick="saveApiKey()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">저장</button>
-            <button onclick="testAI()" style="padding:10px 18px;background:transparent;border:1px solid var(--line);color:var(--ink-dim);border-radius:9px;cursor:pointer">연결 테스트</button>
-          </div>
-          <div id="set-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div>
-        </div>
-      </section>
   <aside class="side">
     <div class="brand"><div>
       <div class="logo">ARCHE<b>.</b></div>
@@ -943,8 +915,10 @@ const ADMIN=(function(){
   function kv(o){return '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-dim)">'+Object.keys(o).map(function(k){return '<div>'+esc(k)+' <b class="mono" style="color:var(--ink)">'+o[k]+'</b></div>';}).join('')+'</div>';}
   async function tab(t){
     document.querySelectorAll('#adm-tabs button').forEach(function(b){b.className='btn ghost';});
-    var idx={academies:0,golden:1,admission:2,stats:3}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
-    var body=$('#adm-body'); body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>';
+    var idx={academies:0,golden:1,admission:2,stats:3,account:4}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
+    var body=$('#adm-body');
+    if(t==='account'){ body.innerHTML=''; renderAccount(); return; }
+    body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>';
     var d=await call(t);
     if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
     if(t==='academies'){
@@ -955,10 +929,22 @@ const ADMIN=(function(){
       body.innerHTML=card('입시자료 DB',kv(d));
     } else if(t==='stats'){
       body.innerHTML=card('사용 통계',kv({학생:d.students,계정:d.accounts,분석건수:d.analyses}))+card('학년 분포',kv(d.by_grade));
+    } else if(t==='account'){
+      body.innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div>';
     }
   }
+  function renderAccount(){
+    $('#adm-body').innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div>';
+  }
+  async function changePw(){
+    var np=($('#adm-newpw').value||'').trim(); var m=$('#adm-pwmsg');
+    if(np.length<4){m.style.color='var(--risk)';m.textContent='4자 이상 입력하세요.';return;}
+    var {error}=await sb.auth.updateUser({password:np});
+    if(error){m.style.color='var(--risk)';m.textContent=error.message;return;}
+    m.style.color='var(--safe)';m.textContent='변경 완료.';
+  }
   function init(){ tab('academies'); }
-  return {tab,init};
+  return {tab,init,changePw};
 })();
 window.ADMIN=ADMIN;
 </script>
@@ -989,6 +975,35 @@ window.ADMIN=ADMIN;
 -->
 
     </div>
+      <section class="view" id="v-admin">
+        <div class="eyebrow">Admin Console</div>
+        <div class="h1">관리자 콘솔</div>
+        <div class="sub">엔진 운영 · 학원/DB/통계 관리</div>
+        <div style="display:flex;gap:8px;margin:16px 0;flex-wrap:wrap" id="adm-tabs">
+          <button class="btn" onclick="ADMIN.tab('academies')">학원 관리</button>
+          <button class="btn ghost" onclick="ADMIN.tab('golden')">골든시드</button>
+          <button class="btn ghost" onclick="ADMIN.tab('admission')">입시자료</button>
+          <button class="btn ghost" onclick="ADMIN.tab('stats')">통계</button>
+          <button class="btn ghost" onclick="ADMIN.tab('account')">계정 설정</button>
+        </div>
+        <div id="adm-body"><div style="color:var(--ink-mute);padding:20px">불러오는 중…</div></div>
+      </section>
+      <section class="view" id="v-settings">
+        <div class="eyebrow">Settings</div>
+        <div class="h1">설정</div>
+        <div class="sub">학원 Gemini API 키 · AI 분석(생기부 파싱·탐구주제·리포트 코멘트)에 사용됩니다</div>
+        <div style="max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
+          <div class="sectionhead"><span class="idx">AI</span><h3>Gemini API 키 (학원별)</h3></div>
+          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">aistudio.google.com에서 발급한 키를 입력하세요. 학원별로 저장되고 <b>서버(엣지함수)에서만</b> 사용됩니다.</div>
+          <input id="set-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          <div id="set-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
+          <div style="display:flex;gap:8px">
+            <button onclick="saveApiKey()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">저장</button>
+            <button onclick="testAI()" style="padding:10px 18px;background:transparent;border:1px solid var(--line);color:var(--ink-dim);border-radius:9px;cursor:pointer">연결 테스트</button>
+          </div>
+          <div id="set-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div>
+        </div>
+      </section>
   </main>
 </div>
 
