@@ -346,7 +346,7 @@
   <main>
     <div class="topbar">
       <div style="display:flex;align-items:center">
-        <div class="crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
+        <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
         <div class="studenttag" id="topbar-studenttag">활성 학생 <b>&nbsp;— 미선택&nbsp;</b></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
@@ -1048,6 +1048,7 @@ window.ADMIN=ADMIN;
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
 const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
 function go(el){
@@ -1195,18 +1196,31 @@ async function enterStudentApp(session){
   gate.style.display='none';
   document.body.classList.add('student-mode');
   window._role='stu';
-  // 본인 student row 활성화
   var {data:sd}=await sb.from('students').select('*').limit(1);
   var me=sd&&sd[0];
-  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생')+' · 학생'; }
-  // 컨설턴트 전용 메뉴 숨김
-  var hide=['students','intake','settings','admin_data','essaybatch'];
+  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); }
+  // 컨설턴트 전용 메뉴 숨김 (home은 학생 홈으로 재활용)
+  var hide=['students','intake','settings','admin_data','essaybatch','admin'];
   hide.forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
-  // 비번 변경 안내 (초기 0000)
+  // 상단 뷰토글·활성학생 숨김
+  var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
+  var stg=document.getElementById('topbar-studenttag'); if(stg)stg.style.display='none';
+  var cb=document.getElementById('topbar-crumbs'); if(cb)cb.style.display='none';
+  var cr=document.getElementById('crumb'); // 아르케·컨설팅홈 크럼
+  // [학생 진단] → [나의 진단 내용]
+  var dn=document.querySelector('.nav[data-v="diag"]'); if(dn){dn.innerHTML=dn.innerHTML.replace('학생 진단','나의 진단 내용');}
+  // 학생 홈 렌더
+  renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
   if(sa&&sa[0]&&sa[0].must_change){ setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400); }
-  // 진단 화면으로
-  var d=document.querySelector('.nav[data-v="diag"]'); if(d)go(d);
+  var h=document.querySelector('.nav[data-v="home"]'); if(h)go(h);
+}
+function renderStudentHome(){
+  var v=document.getElementById('v-home'); if(!v)return;
+  var s=window._activeStudent||{};
+  var menus=[['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','학생부 디자인','앞으로 할 것·수행 관리'],['report','컨설팅 리포트','종합 리포트']];
+  v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.target_univ||'')+' '+esc(s.target_major||'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
+    '<div class="grid g3" style="margin-top:20px">'+menus.map(function(m){return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+'</div>';
 }
 async function changeStudentPw(){
   var np=prompt('새 비밀번호 입력 (4자 이상)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.');
@@ -1493,9 +1507,14 @@ async function renderDesign(){
             '<div id="di-det-'+it.id+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))">'+
               '<div style="font-size:12px;line-height:1.7;color:var(--ink-dim)">'+esc(it.detail||'')+'</div>'+
               // 결과물 제출 (학생 또는 대리입력)
-              '<div style="margin-top:10px"><div style="font-size:10px;color:var(--gold,#c8a24a);margin-bottom:4px">활동 결과물'+(it.submitted_at?' · 제출됨':'')+'</div>'+
-                '<textarea id="sub-'+it.id+'" rows="2" placeholder="수행 결과·산출물 요약 입력" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.submission||'')+'</textarea>'+
-                '<button onclick="submitDesign('+it.id+')" style="margin-top:5px;padding:4px 11px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">제출</button></div>'+
+              '<div style="margin-top:10px"><div style="font-size:10px;color:var(--gold,#c8a24a);margin-bottom:4px">활동 결과물'+(it.submitted_at?' · 제출됨':'')+(it.analyzed?' · <span style="color:var(--safe)">AI 분석완료</span>':'')+'</div>'+
+                '<textarea id="sub-'+it.id+'" rows="2" placeholder="수행 결과·산출물 요약 입력 (또는 파일 첨부)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.submission||'')+'</textarea>'+
+                '<div style="display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap">'+
+                  '<input type="file" id="file-'+it.id+'" accept=".pdf,.docx,.hwp,.hwpx" onchange="attachDesignFile('+it.id+')" style="font-size:11px;color:var(--ink-dim);max-width:200px">'+
+                  '<button onclick="submitDesign('+it.id+')" style="padding:4px 11px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">제출</button>'+
+                  (stu?'':'<button onclick="analyzeSubmission('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">AI 분석</button>')+
+                '</div>'+
+                '<div id="fmsg-'+it.id+'" style="font-size:10px;color:var(--ink-mute);margin-top:4px">'+(it.file_name?'첨부: '+esc(it.file_name):'')+'</div></div>'+
               // 피드백/승인 (컨설턴트 전용)
               (stu
                 ? (it.feedback?'<div style="margin-top:10px;font-size:11px;color:var(--reach,#8ab4f8)">컨설턴트 피드백: '+esc(it.feedback)+'</div>':'')
@@ -1511,6 +1530,46 @@ async function renderDesign(){
 window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
 window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
+window.attachDesignFile=async function(id){
+  var inp=document.getElementById('file-'+id); var msg=document.getElementById('fmsg-'+id);
+  var f=inp&&inp.files&&inp.files[0]; if(!f)return;
+  var ext=(f.name.split('.').pop()||'').toLowerCase();
+  msg.style.color='var(--ink-mute)'; msg.textContent='파일 처리 중…';
+  try{
+    var text='';
+    if(ext==='pdf'){
+      var buf=await f.arrayBuffer(); pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      var pdf=await pdfjsLib.getDocument({data:buf}).promise; var out=[];
+      for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i);var tc=await pg.getTextContent();out.push(tc.items.map(function(x){return x.str;}).join(' '));}
+      text=out.join('\n');
+    } else if(ext==='docx'){
+      var ab=await f.arrayBuffer(); var res=await mammoth.extractRawText({arrayBuffer:ab}); text=res.value||'';
+    } else if(ext==='hwp'||ext==='hwpx'){
+      await sb.from('design_items').update({file_name:f.name,submitted_at:new Date().toISOString(),status:'진행중'}).eq('id',id);
+      msg.style.color='var(--gold,#c8a24a)'; msg.innerHTML='hwp 파일은 자동 분석이 안 됩니다. <b>PDF로 변환 후 다시 첨부</b>하면 AI 분석이 가능합니다. (파일은 제출됨)';
+      return;
+    } else { msg.style.color='var(--risk)'; msg.textContent='지원하지 않는 형식(pdf/docx/hwp만).'; return; }
+    if(text.trim().length<20){ msg.style.color='var(--risk)'; msg.textContent='텍스트 추출 실패(스캔본일 수 있음). PDF 텍스트본으로 재시도하세요.'; return; }
+    var ta=document.getElementById('sub-'+id); if(ta)ta.value=text.slice(0,8000);
+    await sb.from('design_items').update({submission:text.slice(0,8000),file_name:f.name,submitted_at:new Date().toISOString(),status:'진행중',analyzed:false,updated_at:new Date().toISOString()}).eq('id',id);
+    msg.style.color='var(--safe)'; msg.textContent='추출 완료: '+f.name+' · 컨설턴트가 [AI 분석] 실행하면 분석결과만 저장됩니다.';
+  }catch(e){ msg.style.color='var(--risk)'; msg.textContent='처리 실패: '+e.message; }
+};
+window.analyzeSubmission=async function(id){
+  if(!sb)return; var msg=document.getElementById('fmsg-'+id);
+  var {data}=await sb.from('design_items').select('subject,title,submission').eq('id',id).limit(1);
+  var it=data&&data[0]; if(!it||!it.submission||it.submission.length<10){ if(msg){msg.style.color='var(--risk)';msg.textContent='분석할 제출물이 없습니다.';} return; }
+  if(msg){msg.style.color='var(--ink-mute)';msg.textContent='AI 분석 중…';}
+  try{
+    var s=window._activeStudent;
+    var d=await callAI('analyze_activity',{title:it.title||'',subject:it.subject||'',field:(s?majorToField(s.target_major):''),target:(s?s.target_univ:''),text:it.submission});
+    var o=JSON.parse(d.text);
+    var analysis='[AI 분석] '+(o.summary||'')+'\n· 강점: '+(o.strengths||'')+'\n· 탐구깊이: '+(o.depth||'')+'\n· 전공연결: '+(o.link||'')+'\n· 다음: '+(o.next||'');
+    // 분석결과만 저장 (원본 텍스트 폐기)
+    await sb.from('design_items').update({submission:analysis,analyzed:true,status:'완료',updated_at:new Date().toISOString()}).eq('id',id);
+    renderDesign();
+  }catch(e){ if(msg){msg.style.color='var(--risk)';msg.textContent='분석 실패: '+e.message;} }
+};
 window.saveFeedback=async function(id){ if(!sb)return; var t=document.getElementById('fb-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({feedback:v,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.approveDesign=async function(id,ok){ if(!sb)return; await sb.from('design_items').update({approved:ok,status:ok?'완료':'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 async function genDesign(){
