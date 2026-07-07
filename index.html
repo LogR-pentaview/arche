@@ -968,7 +968,7 @@ const ADMIN=(function(){
     var d=await call(t);
     if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
     if(t==='academies'){
-      body.innerHTML=(d.rows||[]).map(function(a){return '<div class="card" onclick="admOpenAcademy(\''+a.id+'\')" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;cursor:pointer"><div><b style="color:var(--ink)">'+esc(a.name||'-')+'</b>'+(a.is_admin?' <span style="font-size:10px;color:var(--gold)">관리자</span>':'')+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명</div></div><div style="font-size:11px;color:var(--ink-mute)">'+(a.created_at||'').slice(0,10)+' ›</div></div>';}).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
+      body.innerHTML=(d.rows||[]).map(function(a){var ap=a.approved!==false;var st=a.is_admin?'<span style="font-size:10px;color:var(--gold)">관리자</span>':(ap?'<span style="font-size:10px;color:var(--safe)">승인됨</span>':'<span style="font-size:10px;color:var(--risk)">승인대기</span>');var btn=a.is_admin?'':(ap?'<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',false)" style="padding:4px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">승인취소</button>':'<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>');return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div onclick="admOpenAcademy(\''+a.id+'\')" style="flex:1;cursor:pointer"><b style="color:var(--ink)">'+esc(a.name||'-')+'</b> '+st+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명 · '+(a.created_at||'').slice(0,10)+'</div></div>'+btn+'</div>';}).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
     } else if(t==='golden'){
       body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field))+uploadBox('golden_documents','year,univ,doctype,field,chars,text_body,source_file');
     } else if(t==='admission'){
@@ -1013,7 +1013,8 @@ const ADMIN=(function(){
     m.style.color='var(--safe)';m.textContent=r.inserted+'건 추가 완료.';
   }
   function init(){ tab('academies'); }
-  return {tab,init,changePw,doUpload};
+  return {tab,init,changePw,doUpload,approve};
+  async function approve(id,ok){ var r=await callBody({action:'approve',academy_id:id,approved:ok}); if(r.error)return alert('실패: '+r.error); tab('academies'); }
 })();
 window.ADMIN=ADMIN;
 </script>
@@ -1205,8 +1206,13 @@ async function enterApp(session){
   // 컨설턴트/관리자
   const ac=await ensureAcademy(u);
   window._academy=ac;
-  var isAdmin=false;
-  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin').eq('id',ac.id).limit(1); isAdmin=ar&&ar[0]&&ar[0].is_admin; }
+  var isAdmin=false, approved=true;
+  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved;} }
+  if(!isAdmin && approved===false){
+    await sb.auth.signOut();
+    gate.style.display='flex';
+    return msg('가입 신청이 접수되었습니다. 관리자 승인 후 이용 가능합니다.');
+  }
   window._isAdmin=isAdmin;
   document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+u.email+(isAdmin?' · 관리자':'');
   gate.style.display='none';
