@@ -293,10 +293,12 @@
     <div style="font-family:'Bebas Neue';font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
     <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:14px;width:100%">
-      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">컨설턴트/관리자</button>
+      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">컨설턴트</button>
+      <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
     </div>
     <input id="au-sid" type="text" placeholder="학생 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
@@ -1101,12 +1103,14 @@ window._loginRole='con';
 function setLoginRole(r){
   window._loginRole=r;
   document.querySelectorAll('#login-role button').forEach(b=>b.classList.toggle('on',b.dataset.lr===r));
-  var stu=r==='stu';
+  var stu=r==='stu', adm=r==='adm';
   document.getElementById('au-sid').style.display=stu?'block':'none';
-  document.getElementById('au-email').style.display=stu?'none':'block';
-  document.getElementById('au-name').style.display=stu?'none':'block';
-  document.getElementById('au-signup').style.display=stu?'none':'block';
+  document.getElementById('au-adm').style.display=adm?'block':'none';
+  document.getElementById('au-email').style.display=(stu||adm)?'none':'block';
+  document.getElementById('au-name').style.display=(stu||adm)?'none':'block';
+  document.getElementById('au-signup').style.display=(stu||adm)?'none':'block';
 }
+var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 async function enterApp(session){
   var u=session.user;
@@ -1164,6 +1168,10 @@ document.getElementById('au-login').onclick=async()=>{
     var sid=(document.getElementById('au-sid').value||'').trim().toLowerCase();
     if(!sid)return msg('학생 아이디를 입력하세요.');
     email=sid+'@'+STU_EMAIL_DOMAIN;
+  } else if(window._loginRole==='adm'){
+    var aid=(document.getElementById('au-adm').value||'').trim().toLowerCase();
+    if(!aid)return msg('관리자 아이디를 입력하세요.');
+    email=(aid.indexOf('@')>0)?aid:ADMIN_EMAIL;
   } else { email=auE(); }
   const {data,error}=await sb.auth.signInWithPassword({email:email,password:pw});
   if(error)return msg(error.message);
