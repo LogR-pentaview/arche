@@ -12,7 +12,7 @@
     --bg:#071a12; --shell:#061710;
     --panel:#0e2c1f; --panel-2:#0a2418; --panel-3:#123626;
     --line:rgba(180,240,60,.13); --line-soft:rgba(234,243,238,.07);
-    --ink:#eaf3ee; --ink-dim:#8ba99a; --ink-mute:#5f7d6f;
+    --ink:#f2f8f4; --ink-dim:#b8cec1; --ink-mute:#93ab9e;
     --lime:#B4F03C; --gold:#F5B301; --blue:#5b8def;
     --safe:#4CAF50; --reach:#FFA000; --risk:#EF5350; --violet:#9d7bef;
   }
@@ -294,8 +294,8 @@
     <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:14px;width:100%">
       <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">컨설턴트</button>
-      <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
+      <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <input id="au-sid" type="text" placeholder="학생 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
@@ -347,12 +347,12 @@
     <div class="topbar">
       <div style="display:flex;align-items:center">
         <div class="crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag">활성 학생 <b>&nbsp;— 미선택&nbsp;</b></div>
+        <div class="studenttag" id="topbar-studenttag">활성 학생 <b>&nbsp;— 미선택&nbsp;</b></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <span id="acadname" class="mono" style="font-size:11px;color:var(--ink-dim)"></span>
-        <div class="roletoggle">
+        <div class="roletoggle" id="topbar-roletoggle">
           <button class="on" data-role="con" onclick="setRole('con')">컨설턴트 뷰</button>
           <button data-role="stu" onclick="setRole('stu')">학생 뷰</button>
         </div>
@@ -911,6 +911,22 @@ const ADMIN=(function(){
     var r=await fetch('https://dvxepjctjazobrkjrkdw.supabase.co/functions/v1/admin-api',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify({action:action})});
     return await r.json();
   }
+  async function callBody(payload){
+    var sess=(await sb.auth.getSession()).data.session; if(!sess)return{error:'로그인 필요'};
+    var r=await fetch('https://dvxepjctjazobrkjrkdw.supabase.co/functions/v1/admin-api',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify(payload)});
+    return await r.json();
+  }
+  window.admOpenAcademy=async function(id){
+    var body=$('#adm-body'); body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>';
+    var d=await callBody({action:'academy_detail',academy_id:id});
+    if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
+    var a=d.academy||{};
+    var sl=(d.students||[]).map(function(s){return '<div style="padding:7px 0;border-bottom:1px solid var(--line-soft,rgba(234,243,238,.06));font-size:12px;color:var(--ink-dim)">'+esc(s.name||'-')+' · '+esc(s.grade||'')+' · '+esc(s.target_univ||'')+' '+esc(s.target_major||'')+'</div>';}).join('')||'<div style="color:var(--ink-mute)">학생 없음</div>';
+    body.innerHTML='<button class="btn ghost" onclick="ADMIN.tab(\'academies\')" style="margin-bottom:12px">← 목록</button>'+
+      card(esc(a.name||'학원')+' 현황 <span style="font-size:11px;color:var(--ink-mute)">· 정산 참고</span>',
+        kv({학원코드:a.code||'-',컨설턴트수:(d.consultants||[]).length+1,학생수:(d.students||[]).length,학생계정:d.accounts,가입일:(a.created_at||'').slice(0,10)}))+
+      card('학생 명단',sl);
+  };
   function card(title,inner){return '<div class="card" style="margin-bottom:12px"><div class="sectionhead"><span class="idx">·</span><h3>'+title+'</h3></div>'+inner+'</div>';}
   function kv(o){return '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-dim)">'+Object.keys(o).map(function(k){return '<div>'+esc(k)+' <b class="mono" style="color:var(--ink)">'+o[k]+'</b></div>';}).join('')+'</div>';}
   async function tab(t){
@@ -922,11 +938,11 @@ const ADMIN=(function(){
     var d=await call(t);
     if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
     if(t==='academies'){
-      body.innerHTML=(d.rows||[]).map(function(a){return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between"><div><b style="color:var(--ink)">'+esc(a.name||'-')+'</b>'+(a.is_admin?' <span style="font-size:10px;color:var(--gold)">관리자</span>':'')+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명</div></div><div style="font-size:11px;color:var(--ink-mute)">'+(a.created_at||'').slice(0,10)+'</div></div>';}).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
+      body.innerHTML=(d.rows||[]).map(function(a){return '<div class="card" onclick="admOpenAcademy(\''+a.id+'\')" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;cursor:pointer"><div><b style="color:var(--ink)">'+esc(a.name||'-')+'</b>'+(a.is_admin?' <span style="font-size:10px;color:var(--gold)">관리자</span>':'')+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명</div></div><div style="font-size:11px;color:var(--ink-mute)">'+(a.created_at||'').slice(0,10)+' ›</div></div>';}).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
     } else if(t==='golden'){
-      body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field));
+      body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field))+uploadBox('golden_documents','year,univ,doctype,field,chars,text_body,source_file');
     } else if(t==='admission'){
-      body.innerHTML=card('입시자료 DB',kv(d));
+      body.innerHTML=card('입시자료 DB',kv(d))+uploadBox('dept_recommended_subjects','univ,gye,moojib,subjects(JSON)');
     } else if(t==='stats'){
       body.innerHTML=card('사용 통계',kv({학생:d.students,계정:d.accounts,분석건수:d.analyses}))+card('학년 분포',kv(d.by_grade));
     } else if(t==='account'){
@@ -943,8 +959,31 @@ const ADMIN=(function(){
     if(error){m.style.color='var(--risk)';m.textContent=error.message;return;}
     m.style.color='var(--safe)';m.textContent='변경 완료.';
   }
+  function uploadBox(table,hint){
+    return '<div class="card"><div class="sectionhead"><span class="idx">＋</span><h3>데이터 추가 · '+table+'</h3></div>'+
+      '<div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">CSV 붙여넣기 (첫 줄=헤더). 컬럼 예: '+esc(hint)+'</div>'+
+      '<textarea id="up-csv" rows="6" placeholder="header1,header2\\nval1,val2" style="width:100%;padding:9px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical"></textarea>'+
+      '<button class="btn" onclick="ADMIN.doUpload(\''+table+'\')" style="margin-top:8px">추가</button>'+
+      '<div id="up-msg" style="font-size:12px;margin-top:8px"></div></div>';
+  }
+  async function doUpload(table){
+    var m=$('#up-msg'); var raw=($('#up-csv').value||'').trim();
+    if(!raw){m.style.color='var(--risk)';m.textContent='CSV를 입력하세요.';return;}
+    var lines=raw.split(/\r?\n/).filter(function(x){return x.trim();});
+    var hd=lines[0].split(',').map(function(x){return x.trim().replace(/\(JSON\)/i,'');});
+    var rows=[];
+    for(var i=1;i<lines.length;i++){
+      var cells=lines[i].split(','); var o={};
+      hd.forEach(function(h,idx){var v=(cells[idx]||'').trim(); if(/^\[|^\{/.test(v)){try{v=JSON.parse(v);}catch(e){}} o[h]=v;});
+      rows.push(o);
+    }
+    m.style.color='var(--ink-mute)';m.textContent='추가 중…';
+    var r=await callBody({action:'insert',table:table,rows:rows});
+    if(r.error){m.style.color='var(--risk)';m.textContent=r.error;return;}
+    m.style.color='var(--safe)';m.textContent=r.inserted+'건 추가 완료.';
+  }
   function init(){ tab('academies'); }
-  return {tab,init,changePw};
+  return {tab,init,changePw,doUpload};
 })();
 window.ADMIN=ADMIN;
 </script>
@@ -1142,6 +1181,8 @@ async function enterApp(session){
   gate.style.display='none';
   if(isAdmin){
     document.body.classList.add('admin-mode');
+    var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
+    var stg=document.getElementById('topbar-studenttag'); if(stg)stg.style.display='none';
     var keep=['admin'];
     document.querySelectorAll('.nav').forEach(function(n){ if(keep.indexOf(n.dataset.v)<0)n.style.display='none'; });
     var an=document.getElementById('nav-admin'); if(an)an.style.display='';
