@@ -1548,7 +1548,7 @@ async function renderDesign(){
               '<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim)">'+esc(it.detail||'')+'</div>'+
               (it.dist_path?'<div style="margin-top:8px"><button onclick="dlActivity(\''+it.dist_path+'\',\''+esc(it.dist_name||'활동지')+'\')" style="padding:5px 12px;background:var(--gold,#c8a24a);color:#1a1200;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">📎 활동지 다운로드'+(it.dist_name?' ('+esc(it.dist_name)+')':'')+'</button></div>':'')+
               (it.outline?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:10px 0 3px">탐구보고서 목차</div><div style="font-size:12px;line-height:1.8;color:var(--ink-dim);white-space:pre-line">'+esc(it.outline)+'</div>':'')+
-              (stu?'':'<div style="margin-top:10px">'+(it.sent?'<button onclick="unsendDesign('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">전송 취소</button>':'<button onclick="sendDesign('+it.id+')" style="padding:4px 11px;background:var(--reach,#5b8def);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">학생에게 전송</button>')+'</div>')+
+              (stu?'':'<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap"><button onclick="regenItem('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">↻ 이 주제 재생성</button>'+(it.sent?'<button onclick="unsendDesign('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">전송 취소</button>':'<button onclick="sendDesign('+it.id+')" style="padding:4px 11px;background:var(--reach,#5b8def);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">학생에게 전송</button>')+'</div>')+
               // 결과물 제출 (학생 또는 대리입력)
               '<div style="margin-top:10px"><div style="font-size:10px;color:var(--gold,#c8a24a);margin-bottom:4px">활동 결과물'+(it.submitted_at?' · 제출됨':'')+(it.analyzed?' · <span style="color:var(--safe)">AI 분석완료</span>':'')+'</div>'+
                 '<textarea id="sub-'+it.id+'" rows="2" placeholder="수행 결과·산출물 요약 입력 (또는 파일 첨부)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.submission||'')+'</textarea>'+
@@ -1577,6 +1577,23 @@ window.dlActivity=async function(path,name){
   if(!sb)return; var r=sb.storage.from('activity-files').getPublicUrl(path);
   var url=r&&r.data&&r.data.publicUrl; if(!url)return alert('다운로드 링크 생성 실패');
   var a=document.createElement('a'); a.href=url; a.download=name||''; a.target='_blank'; document.body.appendChild(a); a.click(); a.remove();
+};
+window.regenItem=async function(id){
+  var s=window._activeStudent; if(!s||!sb)return;
+  var {data}=await sb.from('design_items').select('*').eq('id',id).limit(1); var it=data&&data[0]; if(!it)return;
+  var chang=['자율','진로','동아리','봉사'].indexOf(it.area)>=0;
+  showGen(true,'“'+(it.subject||'')+'” 탐구주제를 새로 만드는 중…');
+  try{
+    var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
+    var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
+    var gye=majorToField(s.target_major);
+    var hint='[재생성 지침] 과목/영역="'+(it.subject||'')+'"('+(it.area||'')+'), 기존 주제="'+(it.title||'')+'". 이 기존 주제는 마음에 들지 않으니, 진로·학과로 이어지는 서사를 유지하되 완전히 다른 새 탐구주제 1개만 제시하라. todo 배열에 정확히 1개만.';
+    var d=await callAI('design_record',{phase:chang?'changche':'subject',subjects:(it.subject||''),career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(it.grade||s.grade||''),context:hint,qual:q4});
+    var o=JSON.parse(d.text); var t=(o.todo||[])[0];
+    if(!t){showGen(false);return alert('재생성 결과가 비었습니다. 다시 시도하세요.');}
+    await sb.from('design_items').update({title:t.title||it.title,goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),sent:false,updated_at:new Date().toISOString()}).eq('id',id);
+    showGen(false); renderDesign(); if(window.renderTopics)renderTopics();
+  }catch(e){ showGen(false); alert('재생성 실패: '+(e.message||e)); }
 };
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
 window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
