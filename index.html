@@ -1480,18 +1480,20 @@ async function renderDesign(){
   // 진행 요약(완료/전체)
   var doneN=items.filter(function(x){return x.status==='완료';}).length;
   html+='<div style="display:flex;gap:10px;margin-bottom:16px;font-size:12px;color:var(--ink-dim)"><span>진행 <b class="mono" style="color:var(--ink)">'+doneN+'/'+items.length+'</b></span><span style="color:var(--ink-mute)">누적될수록 실제 입시 무기가 됩니다.</span></div>';
-  // 이미 진행
+  // 이미 진행 (폴더)
   if(d&&d.done&&d.done.length){
-    html+='<div class="sectionhead" style="margin:6px 0 10px"><span class="idx">완료</span><h3>이미 진행한 것</h3></div>';
-    html+=d.done.map(function(x){return '<div class="card" style="margin-bottom:8px"><div style="font-size:12px;color:var(--safe);margin-bottom:3px">'+esc(x.subject||'')+'</div><div style="font-size:13px;line-height:1.6;color:var(--ink-dim)">'+esc(x.summary||'')+'</div></div>';}).join('');
+    html+='<div style="margin-bottom:10px"><div onclick="dfold(\'done\')" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 14px"><span id="dfa-done" style="color:var(--safe)">▸</span><b style="color:var(--ink);font-size:13px">이미 진행한 것</b><span style="font-size:11px;color:var(--ink-mute)">'+d.done.length+'건</span></div><div id="dfc-done" style="display:none;padding-top:8px">'+
+      d.done.map(function(x){return '<div class="card" style="margin:0 0 8px 14px"><div style="font-size:12px;color:var(--safe);margin-bottom:3px">'+esc(x.subject||'')+'</div><div style="font-size:13px;line-height:1.6;color:var(--ink-dim)">'+esc(x.summary||'')+'</div></div>';}).join('')+'</div></div>';
   }
-  // 앞으로 할 것 (학년>학기>과목)
-  html+='<div class="sectionhead" style="margin:20px 0 10px"><span class="idx">예정</span><h3>앞으로 할 것 <span style="font-size:11px;color:var(--ink-mute)">· 클릭 시 구체 활동</span></h3></div>';
+  // 앞으로 할 것 (학년별 폴더)
+  html+='<div class="sectionhead" style="margin:20px 0 10px"><span class="idx">예정</span><h3>앞으로 할 것 <span style="font-size:11px;color:var(--ink-mute)">· 폴더 클릭 → 항목 클릭 시 구체 활동</span></h3></div>';
   if(items.length){
     var g={};
     items.forEach(function(it){var gk=(it.grade||'-')+'학년';var sk=it.sem||'';(g[gk]=g[gk]||{});(g[gk][sk]=g[gk][sk]||[]).push(it);});
     Object.keys(g).sort().forEach(function(gk){
-      html+='<div style="font-size:13px;font-weight:600;color:var(--gold,#c8a24a);margin:14px 0 8px">'+esc(gk)+'</div>';
+      var gcnt=0; Object.keys(g[gk]).forEach(function(sk){gcnt+=g[gk][sk].length;});
+      var fid='gr'+gk.replace(/[^0-9]/g,'')||'gr0';
+      html+='<div style="margin-bottom:8px"><div onclick="dfold(\''+fid+'\')" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:11px 14px"><span id="dfa-'+fid+'" style="color:var(--gold,#c8a24a)">▸</span><b style="color:var(--ink);font-size:13px">'+esc(gk)+'</b><span style="font-size:11px;color:var(--ink-mute)">'+gcnt+'건</span></div><div id="dfc-'+fid+'" style="display:none;padding:8px 0 0 14px">';
       Object.keys(g[gk]).sort().forEach(function(sk){
         if(sk)html+='<div style="font-size:11px;color:var(--ink-mute);margin:8px 0 4px">'+esc(sk)+'</div>';
         g[gk][sk].forEach(function(it){
@@ -1523,10 +1525,12 @@ async function renderDesign(){
           '</div>';
         });
       });
+      html+='</div></div>';
     });
   } else { html+='<div style="color:var(--ink-mute);padding:12px">—</div>'; }
   body.innerHTML=html;
 }
+window.dfold=function(id){var c=document.getElementById('dfc-'+id);var a=document.getElementById('dfa-'+id);if(c){var open=c.style.display!=='none';c.style.display=open?'none':'block';if(a)a.textContent=open?'▸':'▾';}};
 window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
 window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
