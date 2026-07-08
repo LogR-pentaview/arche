@@ -1093,11 +1093,17 @@ window.ADMIN=ADMIN;
           </div>
           <div id="set-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div>
         </div>
+
+        <div id="billing-card" style="max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
+          <div class="sectionhead"><span class="idx">$</span><h3>구독 · 결제 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 기본료 20만 + 학생당 4만/월</span></h3></div>
+          <div id="billing-body" style="font-size:13px;color:var(--ink-dim);margin-top:8px">불러오는 중…</div>
+        </div>
       </section>
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://js.tosspayments.com/v1/payment"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
@@ -1108,7 +1114,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling();}
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1319,7 +1325,7 @@ document.getElementById('au-signup').onclick=async()=>{
   else msg('확인 메일을 보냈습니다. 인증 후 로그인하세요.',true);
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.reload();};
-if(sb) sb.auth.getSession().then(({data})=>{ if(data.session) enterApp(data.session); });
+if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } });
 
 /* ===== 학생 관리 ===== */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -2320,6 +2326,102 @@ async function testAI(){
   try{ await callAI('report_comment',{metrics:{naesin:1.4,note:'연결테스트'}}); t.style.color='var(--safe)'; t.textContent='연결 성공 · Gemini 응답 수신'; }
   catch(e){ t.style.color='var(--risk)'; t.textContent='실패: '+e.message; }
 }
+
+/* ===== 구독·결제 (토스페이먼츠 빌링) ===== */
+// ⚠️ 자동결제(빌링) 계약 완료 후 발급된 '클라이언트 키'로 교체하세요. (아래는 토스 문서 테스트 키)
+var TOSS_CLIENT_KEY="test_ck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+function won(n){ return (n==null?'-':Number(n).toLocaleString('ko-KR')+'원'); }
+function dfmt(s){ if(!s)return '-'; try{return new Date(s).toISOString().slice(0,10);}catch(e){return '-';} }
+async function billingCall(action,extra){
+  var sess=(await sb.auth.getSession()).data.session;
+  var r=await fetch(SB_URL+'/functions/v1/toss-billing',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify(Object.assign({action:action},extra||{}))});
+  var d=await r.json(); if(!r.ok)throw new Error(d.error||('HTTP '+r.status)); return d;
+}
+async function renderBilling(){
+  var body=document.getElementById('billing-body'); if(!body||!sb)return;
+  if(window._role==='stu'){ var bc=document.getElementById('billing-card'); if(bc)bc.style.display='none'; return; }
+  body.innerHTML='불러오는 중…';
+  try{
+    var d=await billingCall('status');
+    var s=d.subscription||{}; var active=s.status==='active';
+    var statusBadge=active
+      ? '<span style="font-size:11px;font-weight:700;color:#fff;background:var(--safe);padding:2px 9px;border-radius:20px">구독중</span>'
+      : (s.status==='canceled'?'<span style="font-size:11px;font-weight:700;color:#fff;background:var(--risk);padding:2px 9px;border-radius:20px">해지됨</span>':'<span style="font-size:11px;font-weight:700;color:var(--ink-dim);border:1px solid var(--line);padding:2px 9px;border-radius:20px">미등록</span>');
+    var html='<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">'+statusBadge
+      +(s.card_number_masked?'<span style="font-size:12px;color:var(--ink-dim)">'+esc(s.card_company||'')+' '+esc(s.card_number_masked)+'</span>':'')+'</div>';
+    // 청구 요약
+    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">'
+      +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">재원 학생</div><div style="font-size:18px;font-weight:800;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+d.student_count+'명</div></div>'
+      +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">이번 달 청구액</div><div style="font-size:18px;font-weight:800;color:#173a27;font-family:\'JetBrains Mono\',monospace">'+won(d.current_amount)+'</div></div>'
+      +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">다음 청구일</div><div style="font-size:15px;font-weight:700;color:var(--ink);margin-top:3px">'+dfmt(s.next_charge_at)+'</div></div>'
+      +'</div>';
+    html+='<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">산식: 기본료 '+won(s.plan_base)+' + 학생 '+d.student_count+'명 × '+won(s.per_student)+' = <b style="color:var(--ink)">'+won(d.current_amount)+'</b></div>';
+    // 버튼
+    html+='<div id="billing-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap">';
+    html+='<button class="btn" onclick="registerCard()">'+(active?'카드 변경':'카드 등록')+'</button>';
+    if(active){
+      html+='<button class="btn ghost" onclick="chargeNow()">지금 청구</button>';
+      html+='<button class="btn ghost" style="color:var(--risk)" onclick="cancelSub()">구독 해지</button>';
+    }
+    html+='</div>';
+    // 결제 내역
+    if((d.payments||[]).length){
+      html+='<div style="margin-top:18px;border-top:1px solid var(--line);padding-top:12px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">결제 내역</div>';
+      html+='<div style="font-size:12px">'+d.payments.map(function(p){
+        var ok=p.status==='DONE'||p.status==='APPROVED';
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><span style="color:var(--ink-dim)">'+dfmt(p.approved_at||p.created_at)+' · 학생 '+(p.student_count||'-')+'명</span><span style="display:flex;gap:8px;align-items:center"><b style="font-family:\'JetBrains Mono\',monospace;color:var(--ink)">'+won(p.amount)+'</b><span style="font-size:10.5px;color:'+(ok?'var(--safe)':'var(--risk)')+'">'+esc(ok?'완료':(p.status||'실패'))+'</span>'+(p.receipt_url?' <a href="'+esc(p.receipt_url)+'" target="_blank" style="font-size:10.5px;color:var(--gold,#c8a24a)">영수증</a>':'')+'</span></div>';
+      }).join('')+'</div></div>';
+    }
+    body.innerHTML=html;
+  }catch(e){ body.innerHTML='<div style="color:var(--risk)">상태 조회 실패: '+esc(e.message||e)+'</div>'; }
+}
+async function registerCard(){
+  var m=document.getElementById('billing-msg');
+  try{
+    if(!window.TossPayments){ if(m){m.style.color='var(--risk)';m.textContent='토스 SDK 미로드 — 새로고침 하세요.';} return; }
+    var d=await billingCall('ensure');
+    var tp=TossPayments(TOSS_CLIENT_KEY);
+    var base=location.origin+location.pathname;
+    await tp.requestBillingAuth('카드',{
+      customerKey:d.customer_key,
+      successUrl:base+'?billing=success',
+      failUrl:base+'?billing=fail'
+    });
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='카드 등록 실패: '+esc(e.message||e);} }
+}
+async function chargeNow(){
+  var m=document.getElementById('billing-msg');
+  if(!confirm('지금 이번 달 구독료를 청구할까요? (등록된 카드로 즉시 결제)'))return;
+  if(m){m.style.color='var(--ink-mute)';m.textContent='결제 요청 중…';}
+  try{ var d=await billingCall('charge'); if(m){m.style.color='var(--safe)';m.textContent='결제 완료 · '+won(d.amount)+' (학생 '+d.student_count+'명)';} renderBilling(); }
+  catch(e){ if(m){m.style.color='var(--risk)';m.textContent='결제 실패: '+esc(e.message||e);} }
+}
+async function cancelSub(){
+  var m=document.getElementById('billing-msg');
+  if(!confirm('구독을 해지하면 다음 달부터 자동청구가 중단됩니다. 계속할까요?'))return;
+  try{ await billingCall('cancel'); if(m){m.style.color='var(--ink-dim)';m.textContent='구독이 해지되었습니다.';} renderBilling(); }
+  catch(e){ if(m){m.style.color='var(--risk)';m.textContent='해지 실패: '+esc(e.message||e);} }
+}
+// 카드등록 리다이렉트 처리
+async function handleBillingRedirect(){
+  var q=new URLSearchParams(location.search);
+  var bill=q.get('billing');
+  if(!bill)return;
+  var base=location.origin+location.pathname;
+  if(bill==='success'){
+    var authKey=q.get('authKey'), customerKey=q.get('customerKey');
+    try{
+      await billingCall('issue',{authKey:authKey,customerKey:customerKey});
+      history.replaceState(null,'',base);
+      alert('카드가 등록되었습니다. 이제 매월 자동청구가 진행됩니다.');
+      var sn=document.querySelector('.nav[data-v="settings"]'); if(sn)go(sn);
+    }catch(e){ history.replaceState(null,'',base); alert('빌링키 발급 실패: '+(e.message||e)); }
+  } else {
+    history.replaceState(null,'',base);
+    alert('카드 등록이 취소되었거나 실패했습니다: '+(q.get('message')||q.get('code')||''));
+  }
+}
+window.renderBilling=renderBilling; window.registerCard=registerCard; window.chargeNow=chargeNow; window.cancelSub=cancelSub;
 
 /* ===== 통합 리포트 ===== */
 async function renderReport(){
