@@ -97,7 +97,7 @@
   .subtab.on{color:var(--ink);border-bottom-color:var(--gold);font-weight:500}
   @media(max-width:640px){.diag-penta-wrap{grid-template-columns:1fr!important}}
   @keyframes spin{to{transform:rotate(360deg)}}
-  body.student-mode #dist-box,body.student-mode #design-actions,body.student-mode #v-sr .sub,body.student-mode #design-priority{display:none!important}
+  body.student-mode #dist-box,body.student-mode #design-actions,body.student-mode #v-sr .sub,body.student-mode #design-priority,body.student-mode #iv-actions{display:none!important}
   .pane{display:none}.pane.on{display:block}
 
   /* ===== INTAKE ===== */
@@ -334,6 +334,7 @@
     <div class="navlabel">설계 · 성장</div>
     <div class="nav" data-v="roadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
     <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3M8 6l4-3 4 3"/></svg> 학생부 디자인</div>
+    <div class="nav" data-v="iv" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4M8 22h8"/></svg> 면접 준비</div>
 
     <div class="navlabel">아웃풋</div>
     <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
@@ -606,6 +607,24 @@
         </div>
         <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[① 주요과목 탐구]</b>부터 생성하세요. 과목당 학기 1개(연 2개)로, 진로·학과로 이어지는 연계 서사로 설계됩니다. 이후 <b>[② 창체활동]</b>을 추가 생성합니다.</div></div>
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
+      </section>
+
+      <!-- 면접 준비 -->
+      <section class="view" id="v-iv">
+        <div class="eyebrow">Interview Prep</div>
+        <div class="h1">면접 준비</div>
+        <div class="sub">생기부·활동 실적을 근거로 예상 질문을 설계하고 모의 답변을 연습 (답변 대필 아님 · 구조 가이드)</div>
+        <div class="subtabs" style="margin-top:6px">
+          <button class="subtab on" data-iv="doc" onclick="ivTab(this,'doc')">서류기반 면접</button>
+          <button class="subtab" data-iv="major" onclick="ivTab(this,'major')">전공기초 면접</button>
+          <button class="subtab" data-iv="person" onclick="ivTab(this,'person')">인성·공동체 면접</button>
+        </div>
+        <div id="iv-actions" style="display:flex;gap:10px;margin:12px 0 14px;flex-wrap:wrap">
+          <button class="btn" onclick="genInterview()">예상 질문 생성</button>
+          <button class="btn ghost" onclick="renderInterview()">불러오기</button>
+        </div>
+        <div id="iv-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 유형별로 <b>[예상 질문 생성]</b>을 누르세요. 생기부·학생부 디자인 활동·상담 기록을 근거로 질문·출제 의도·답변 가이드·꼬리질문이 설계됩니다.</div></div>
+        <div class="note">※ 답변 가이드는 <b style="color:var(--ink)">구조·핵심 포인트만</b> 제공합니다(모범답변 대필 아님). 답변 입력 후 [AI 피드백 받기]로 면접관 관점의 평가를 받을 수 있습니다.</div>
       </section>
 
       <!-- 8. REPORT -->
@@ -1082,14 +1101,14 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
+const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
 function go(el){
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   document.getElementById('v-'+v).classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey)loadApiKey();
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1260,7 +1279,7 @@ async function enterStudentApp(session){
 function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
   var s=window._activeStudent||{};
-  var menus=[['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','학생부 디자인','앞으로 할 것·수행 관리'],['report','컨설팅 리포트','종합 리포트']];
+  var menus=[['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','학생부 디자인','앞으로 할 것·수행 관리'],['iv','면접 준비','예상 질문·모의 답변 연습'],['report','컨설팅 리포트','종합 리포트']];
   v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.target_univ||'')+' '+esc(s.target_major||'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
     '<div class="grid g3" style="margin-top:20px">'+menus.map(function(m){return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+'</div>';
 }
@@ -1759,6 +1778,103 @@ async function genDesign(phase){
     renderDesign(); if(window.renderTopics)renderTopics();
   }catch(e){ showGen(false); if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
 }
+/* ===== 면접 준비 ===== */
+var _ivType='doc';
+var IV_LABEL={doc:'서류기반',major:'전공기초',person:'인성·공동체'};
+function ivTab(btn,t){
+  _ivType=t;
+  var wrap=btn.closest('.view');
+  wrap.querySelectorAll('.subtab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  renderInterview();
+}
+async function genInterview(){
+  var s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  showGen(true, IV_LABEL[_ivType]+' 면접 예상 질문을 설계하고 있어요…');
+  try{
+    genStep('학생 자료를 불러오는 중…');
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
+    var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,3000);
+    var di=await sb.from('design_items').select('subject,area,title,goal,submission').eq('student_id',s.id).order('seq',{ascending:true}).limit(30);
+    var diTxt=(di.data||[]).map(function(x){return '['+(x.area||'')+'/'+(x.subject||'')+'] '+(x.title||'')+(x.submission?' — 수행: '+String(x.submission).slice(0,200):'');}).join('\n').slice(0,2500);
+    var cq=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false}).limit(3);
+    var conTxt=(cq.data||[]).map(function(c){return '[상담] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / '+(c.activities||'')+' / '+(c.memo||'');}).join('\n').slice(0,1000);
+    var gye=await resolveField(s.target_major);
+    genStep('면접관 관점의 질문을 구성 중…');
+    var d=await callAI('interview_prep',{qtype:_ivType,career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(diTxt?'\n[활동 설계·실적]\n'+diTxt:'')+(conTxt?'\n'+conTxt:'')});
+    var o=JSON.parse(d.text);
+    if(!o.questions||!o.questions.length)throw new Error('질문 생성 결과가 비어있습니다.');
+    genStep('질문 세트를 저장하는 중…');
+    await sb.from('interview_sets').delete().eq('student_id',s.id).eq('qtype',_ivType);
+    var ins=await sb.from('interview_sets').insert({student_id:s.id,qtype:_ivType,questions:o.questions});
+    if(ins.error)throw new Error(ins.error.message);
+    showGen(false); renderInterview();
+  }catch(e){ showGen(false); var b=document.getElementById('iv-body'); if(b)b.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
+}
+async function renderInterview(){
+  var body=document.getElementById('iv-body'); if(!body)return;
+  var s=window._activeStudent;
+  if(!s||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  var r=await sb.from('interview_sets').select('*').eq('student_id',s.id).eq('qtype',_ivType).order('created_at',{ascending:false}).limit(1);
+  var set=r.data&&r.data[0];
+  if(!set||!(set.questions||[]).length){
+    body.innerHTML='<div style="color:var(--ink-mute);padding:20px">'+(window._role==='stu'?'아직 준비된 '+IV_LABEL[_ivType]+' 질문이 없습니다. 컨설턴트 선생님께 문의하세요.':'[예상 질문 생성]을 눌러 '+IV_LABEL[_ivType]+' 면접 질문 세트를 만드세요.')+'</div>';
+    window._ivSet=null; return;
+  }
+  window._ivSet=set;
+  var pr=await sb.from('interview_practice').select('*').eq('set_id',set.id).order('created_at',{ascending:false});
+  var prMap={}; (pr.data||[]).forEach(function(p){ if(prMap[p.q_index]===undefined)prMap[p.q_index]=p; });
+  var qs=set.questions||[];
+  body.innerHTML=qs.map(function(q,i){
+    var p=prMap[i]; var fb=p&&p.feedback;
+    return '<div class="card" style="margin-bottom:12px;padding:16px 18px">'
+      +'<div style="display:flex;gap:12px;align-items:flex-start">'
+      +'<span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:#c8a24a;padding-top:2px">Q'+(i+1)+'</span>'
+      +'<div style="flex:1;min-width:0">'
+      +'<div style="font-size:14px;font-weight:700;color:var(--ink);line-height:1.5">'+esc(q.q||'')+'</div>'
+      +(q.basis?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:5px">근거 · '+esc(q.basis)+'</div>':'')
+      +(q.intent?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:2px">출제 의도 · '+esc(q.intent)+'</div>':'')
+      +((q.guide&&q.guide.length)?'<div style="margin-top:9px;font-size:12px;color:var(--ink-dim)"><b style="color:var(--ink);font-size:11.5px">답변 구성 가이드</b><ul style="margin:4px 0 0;padding-left:18px">'+q.guide.map(function(g){return '<li style="margin-bottom:2px">'+esc(g)+'</li>';}).join('')+'</ul></div>':'')
+      +((q.followups&&q.followups.length)?'<div style="margin-top:7px;font-size:11.5px;color:var(--ink-mute)">예상 꼬리질문 · '+q.followups.map(function(f){return esc(f);}).join(' / ')+'</div>':'')
+      +'<div style="margin-top:12px">'
+      +'<textarea id="iv-ans-'+i+'" placeholder="모의 답변을 입력해 보세요 (실제 말하듯이 작성)" style="width:100%;min-height:72px;padding:10px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.55;box-sizing:border-box;resize:vertical">'+esc((p&&p.answer)||'')+'</textarea>'
+      +'<div style="display:flex;gap:8px;margin-top:7px;align-items:center;flex-wrap:wrap"><button class="btn" style="padding:7px 14px;font-size:12px" onclick="ivFeedback('+i+')">AI 피드백 받기</button><span id="iv-msg-'+i+'" style="font-size:11px;color:var(--ink-mute)"></span></div>'
+      +'<div id="iv-fb-'+i+'">'+(fb?ivFbHtml(fb):'')+'</div>'
+      +'</div></div></div></div>';
+  }).join('');
+}
+function ivFbHtml(fb){
+  var sc=(fb.score!=null)?Number(fb.score):null;
+  return '<div style="margin-top:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:12px;line-height:1.6">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px"><b style="color:var(--ink)">면접관 피드백</b>'+(sc!=null?'<span style="font-family:\'JetBrains Mono\',monospace;font-weight:700;color:'+(sc>=7?'var(--safe)':(sc>=4?'#c8a24a':'var(--risk)'))+'">'+sc+'/10</span>':'')+'</div>'
+    +(fb.good?'<div><b style="font-size:11px;color:var(--safe)">잘한 점</b> · '+esc(fb.good)+'</div>':'')
+    +(fb.improve?'<div style="margin-top:3px"><b style="font-size:11px;color:var(--risk)">보완점</b> · '+esc(fb.improve)+'</div>':'')
+    +(fb.logic?'<div style="margin-top:3px;color:var(--ink-dim)">논리·구조 · '+esc(fb.logic)+'</div>':'')
+    +(fb.content?'<div style="color:var(--ink-dim)">내용 · '+esc(fb.content)+'</div>':'')
+    +((fb.tips&&fb.tips.length)?'<div style="margin-top:5px">보강 포인트 · '+fb.tips.filter(Boolean).map(function(t){return esc(t);}).join(' · ')+'</div>':'')
+    +(fb.followup?'<div style="margin-top:5px;color:var(--ink-mute)">↳ 예상 꼬리질문 · '+esc(fb.followup)+'</div>':'')
+    +'</div>';
+}
+async function ivFeedback(i){
+  var set=window._ivSet; var s=window._activeStudent;
+  if(!set||!s||!sb){alert('질문 세트를 먼저 불러오세요.');return;}
+  var ta=document.getElementById('iv-ans-'+i); var msg=document.getElementById('iv-msg-'+i);
+  var ans=(ta&&ta.value||'').trim();
+  if(ans.length<10){ if(msg){msg.style.color='var(--risk)';msg.textContent='답변을 조금 더 작성해 주세요.';} return; }
+  if(msg){msg.style.color='var(--ink-mute)';msg.textContent='면접관이 평가 중…';}
+  try{
+    var q=(set.questions||[])[i]||{};
+    var gye=await resolveField(s.target_major);
+    var d=await callAI('interview_feedback',{question:q.q||'',intent:q.intent||'',answer:ans,career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||'')});
+    var fb=JSON.parse(d.text);
+    var ins=await sb.from('interview_practice').insert({set_id:set.id,student_id:s.id,q_index:i,answer:ans,feedback:fb});
+    if(ins.error)console.error('[iv practice]',ins.error);
+    var box=document.getElementById('iv-fb-'+i); if(box)box.innerHTML=ivFbHtml(fb);
+    if(msg)msg.textContent='';
+  }catch(e){ if(msg){msg.style.color='var(--risk)';msg.textContent='피드백 실패: '+esc(e.message||e);} }
+}
+window.renderInterview=renderInterview; window.genInterview=genInterview; window.ivFeedback=ivFeedback; window.ivTab=ivTab; window.ivFbHtml=ivFbHtml;
+
 async function renderCurri(){
   const body=document.getElementById('curri-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
