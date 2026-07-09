@@ -237,11 +237,34 @@
 
   .studentview-banner{background:linear-gradient(90deg,rgba(91,141,239,.16),transparent);border:1px solid rgba(91,141,239,.3);border-radius:10px;padding:10px 15px;font-size:12px;color:#a9c4f5;margin-bottom:18px;display:flex;align-items:center;gap:9px}
 
+  .menu-btn{display:none;width:38px;height:38px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);place-items:center;cursor:pointer;flex:none;margin-right:10px}
+  .menu-btn svg{width:18px;height:18px}
+  #navback{display:none;position:fixed;inset:0;background:rgba(8,20,12,.45);z-index:1250;backdrop-filter:blur(2px)}
+
   @media(max-width:960px){
-    .app{grid-template-columns:1fr}.side{display:none}
+    .app{grid-template-columns:1fr}
+    .side{position:fixed;left:0;top:0;bottom:0;height:100dvh;width:min(280px,84vw);z-index:1300;transform:translateX(-105%);transition:transform .22s ease;box-shadow:4px 0 30px rgba(10,30,18,.18)}
+    body.nav-open .side{transform:translateX(0)}
+    body.nav-open #navback{display:block}
+    .menu-btn{display:grid}
     .g4,.g3{grid-template-columns:repeat(2,1fr)}.g2,.intake-grid,.topic-grid,.sr{grid-template-columns:1fr}
     .radar-wrap{flex-direction:column}
     .rm{grid-template-columns:64px 1fr 1fr 1fr;font-size:10px}
+    .topbar{padding:10px 12px;flex-wrap:wrap;gap:8px}
+    .content{padding:18px 14px calc(70px + env(safe-area-inset-bottom))}
+    #dbstat,#acadname{display:none!important}
+    .studenttag{margin-left:6px;padding:5px 9px}
+    .studenttag select{max-width:120px!important}
+    .card{padding:14px;overflow-x:auto}
+    .h1{font-size:27px}
+  }
+  @media(max-width:640px){
+    .g4,.g3{grid-template-columns:1fr}
+    input,select,textarea{font-size:16px!important}
+    .roletoggle button{padding:8px 10px;font-size:11px}
+    .content table{min-width:520px}
+    .topbar .crumbs{max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .h1{font-size:24px}
   }
 </style>
 <style>
@@ -288,6 +311,12 @@
   #v-essaybatch .eb-reason{font-size:12px;line-height:1.7;color:var(--ink-dim,#8ba99a);margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))}
   #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
 </style>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#f4f7f4">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="아르케">
+<link rel="apple-touch-icon" href="/icon-180.png">
 </head>
 <body>
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
@@ -357,11 +386,13 @@
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
   </aside>
+  <div id="navback" onclick="toggleNav(false)"></div>
 
   <!-- MAIN -->
   <main>
     <div class="topbar">
       <div style="display:flex;align-items:center">
+        <button class="menu-btn" onclick="toggleNav()" aria-label="메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
         <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="selectStudent(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
@@ -2969,6 +3000,11 @@ window.EB = EB;
 window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자료 조회 비활성)');};
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
+</script>
+<script>
+function toggleNav(force){var b=document.body;var on=(force===undefined)?!b.classList.contains('nav-open'):force;b.classList.toggle('nav-open',on);}
+(function(){var s=document.querySelector('.side');if(s)s.addEventListener('click',function(e){if(e.target.closest('.nav')&&window.innerWidth<=960)toggleNav(false);});})();
+if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}
 </script>
 </body>
 </html>
