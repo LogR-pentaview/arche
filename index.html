@@ -382,22 +382,22 @@
       <section class="view on" id="v-home">
         <div class="eyebrow">Consulting Cockpit</div>
         <div class="h1">컨설팅 홈</div>
-        <div class="sub">담당 학생 24명 · 2026 수시 시즌 D-142</div>
+        <div class="sub" id="home-sub">담당 학생 0명</div>
         <div class="grid g4" style="margin-bottom:16px">
-          <div class="card kpi"><div class="lab">담당 학생</div><div class="num">24</div><div class="delta up mono">▲ 3 이번 달</div></div>
-          <div class="card kpi"><div class="lab">평균 합격 가능성</div><div class="num">71<small>%</small></div><div class="delta up mono">▲ 4.2%p</div></div>
-          <div class="card kpi"><div class="lab">자료 입력 대기</div><div class="num">2</div><div class="delta down mono">프로파일 미완</div></div>
-          <div class="card kpi"><div class="lab">누적 합격 실적</div><div class="num">96<small>%</small></div><div class="delta mono" style="color:var(--gold)">14년 트랙레코드</div></div>
+          <div class="card kpi"><div class="lab">담당 학생</div><div class="num" id="hk-count">0</div><div class="delta up mono" id="hk-new"></div></div>
+          <div class="card kpi"><div class="lab">이번 달 신규</div><div class="num" id="hk-month">0</div><div class="delta mono" style="color:var(--ink-mute)">최근 30일 등록</div></div>
+          <div class="card kpi"><div class="lab">프로파일 미완</div><div class="num" id="hk-incomplete">0</div><div class="delta down mono" id="hk-incomplete-note"></div></div>
+          <div class="card kpi"><div class="lab">학생부 활용 동의</div><div class="num" id="hk-consent">0</div><div class="delta mono" style="color:var(--gold)" id="hk-consent-note"></div></div>
         </div>
         <div class="card pad0">
           <table>
-            <thead><tr><th>학생</th><th>1지망</th><th>내신</th><th>모평 백분위</th><th>합격 신호</th><th>프로파일</th></tr></thead>
+            <thead><tr><th>학생</th><th>1지망</th><th>진로</th><th>학년</th><th>프로파일</th></tr></thead>
             <tbody id="home-stu-tbody">
-              <tr><td colspan="6" style="color:var(--ink-mute);padding:18px;text-align:center">[학생 관리]에서 학생을 등록하세요.</td></tr>
+              <tr><td colspan="5" style="color:var(--ink-mute);padding:18px;text-align:center">[학생 관리]에서 학생을 등록하세요.</td></tr>
             </tbody>
           </table>
         </div>
-        <div class="note">※ 학원 엔진은 NEIS·세특 지침 대상이 아니므로 내신 등급·백분위·합격 가능성을 <b style="color:var(--ink)">직접 노출</b>합니다.</div>
+        
       </section>
 
       <!-- 2. INTAKE -->
@@ -1493,6 +1493,42 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 window._students=[];
 window._editId=null;
 window.toggleFolder=function(k){var e=document.getElementById('fold-'+k);var a=document.getElementById('arrow-'+k);if(e){var open=e.style.display!=='none';e.style.display=open?'none':'block';if(a)a.textContent=open?'▸':'▾';}};
+function renderHomeKPI(){
+  var st=window._students||[];
+  var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  // 수시 D-day (매년 9월 둘째 주 초 접수 가정: 9/8)
+  var now=new Date(); var y=now.getFullYear();
+  var susi=new Date(y,8,8); if(susi<now)susi=new Date(y+1,8,8);
+  var dday=Math.ceil((susi-now)/86400000);
+  var hy=susi.getFullYear()+1; // 학년도
+  var sub=document.getElementById('home-sub');
+  if(sub)sub.textContent='담당 학생 '+st.length+'명 · '+hy+'학년도 수시 시즌 D-'+dday;
+  set('hk-count',st.length);
+  var mAgo=new Date(Date.now()-30*86400000);
+  var nw=st.filter(function(s){return s.created_at&&new Date(s.created_at)>mAgo;}).length;
+  set('hk-month',nw);
+  var ne=document.getElementById('hk-new'); if(ne)ne.textContent=nw>0?('▲ '+nw+' 최근 30일'):'';
+  var inc=st.filter(function(s){return !s.target_univ||!s.target_major||!s.career;}).length;
+  set('hk-incomplete',inc);
+  var nn=document.getElementById('hk-incomplete-note'); if(nn)nn.textContent=inc>0?'목표대학·학과·진로 미입력':'모든 프로파일 완료';
+  var cs=st.filter(function(s){return s.consent_record;}).length;
+  set('hk-consent',cs);
+  var cn=document.getElementById('hk-consent-note'); if(cn)cn.textContent=st.length?('전체 '+st.length+'명 중'):'';
+  // 홈 테이블
+  var tb=document.getElementById('home-stu-tbody');
+  if(tb){
+    if(!st.length){tb.innerHTML='<tr><td colspan="5" style="color:var(--ink-mute);padding:18px;text-align:center">[학생 관리]에서 학생을 등록하세요.</td></tr>';}
+    else{
+      tb.innerHTML=st.slice(0,10).map(function(s){
+        var done=(s.target_univ&&s.target_major&&s.career);
+        return '<tr style="cursor:pointer" onclick="selectStudent(\''+s.id+'\')"><td><b style="color:var(--ink)">'+esc(s.name||'-')+'</b></td>'+
+          '<td>'+esc(s.target_univ||'-')+(s.target_major?' '+esc(s.target_major):'')+'</td>'+
+          '<td>'+esc(s.career||'-')+'</td><td>'+esc(s.grade||'-')+'</td>'+
+          '<td>'+(done?'<span style="color:var(--safe);font-size:12px">완료</span>':'<span style="color:var(--risk);font-size:12px">미완</span>')+'</td></tr>';
+      }).join('');
+    }
+  }
+}
 async function loadStudents(){
   const list=document.getElementById('st-list'); if(!list)return;
   if(!sb){list.innerHTML='<div style="color:var(--risk)">DB 미로드</div>';return;}
@@ -1500,7 +1536,7 @@ async function loadStudents(){
   if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   window._students=data||[];
   document.getElementById('st-count').textContent=window._students.length;
-  const kpi=document.querySelector('#v-home .kpi .num'); if(kpi) kpi.textContent=window._students.length; populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
+  renderHomeKPI(); populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 학생이 없습니다. 좌측에서 등록하세요.</div>';return;}
   var order=['고3','고2','고1','N수','미지정'];
   var g={}; window._students.forEach(function(s){var k=s.grade||'미지정';(g[k]=g[k]||[]).push(s);});
