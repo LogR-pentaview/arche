@@ -309,6 +309,18 @@
       <button id="au-login" style="flex:1;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
       <button id="au-signup" style="flex:1;padding:11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:9px;font-weight:500;cursor:pointer">회원가입</button>
     </div>
+    <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+      <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#c8a24a);border:1px dashed var(--gold,#c8a24a);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
+      <div id="guest-form" style="display:none;margin-top:10px">
+        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생부 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
+        <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+        <input id="gu-org" type="text" placeholder="학원명 (선택)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+        <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:4px;cursor:pointer"><input id="gu-privacy" type="checkbox" style="margin-top:2px">체험 서비스 제공을 위한 개인정보(이메일·입력 데이터) 수집·이용에 동의합니다. 체험 중 업로드한 학생부 등 데이터는 체험 만료 시 삭제 요청할 수 있습니다. (필수)</label>
+        <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input id="gu-mkt" type="checkbox" style="margin-top:2px">도입 안내 등 마케팅 정보 수신에 동의합니다. (선택)</label>
+        <button onclick="guestSignup()" id="gu-btn" style="width:100%;padding:11px;background:var(--gold,#c8a24a);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">체험 계정 발급 & 시작</button>
+        <div id="gu-msg" style="min-height:14px;font-size:12px;color:var(--risk);margin-top:6px"></div>
+      </div>
+    </div>
   </div>
 </div>
 <div class="app">
@@ -981,9 +993,10 @@ const ADMIN=(function(){
   function kv(o){return '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-dim)">'+Object.keys(o).map(function(k){return '<div>'+esc(k)+' <b class="mono" style="color:var(--ink)">'+o[k]+'</b></div>';}).join('')+'</div>';}
   async function tab(t){
     document.querySelectorAll('#adm-tabs button').forEach(function(b){b.className='btn ghost';});
-    var idx={academies:0,golden:1,admission:2,stats:3,billing:4,account:5}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
+    var idx={academies:0,golden:1,admission:2,stats:3,billing:4,guests:5,account:6}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
     var body=$('#adm-body');
     if(t==='account'){ body.innerHTML=''; renderAccount(); return; }
+    if(t==='guests'){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>'; renderGuests(); return; }
     if(t==='billing'){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>'; renderBillingAdmin(); return; }
     body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>';
     var d=await call(t);
@@ -1081,7 +1094,59 @@ const ADMIN=(function(){
     if(m){m.style.color='var(--safe)';m.textContent='완료 · 성공 '+r.charged+' / 실패 '+r.failed+' (대상 '+r.total+')';}
     renderBillingAdmin();
   }
-  return {tab,init,changePw,doUpload,approve,charge,runDue};
+  async function guestCall(payload){
+    var sess=(await sb.auth.getSession()).data.session; if(!sess)return{error:'로그인 필요'};
+    var r=await fetch(SB_URL+'/functions/v1/guest-api',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify(payload)});
+    return await r.json();
+  }
+  async function renderGuests(){
+    var body=$('#adm-body');
+    var d=await guestCall({action:'leads'});
+    if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
+    var issueBox='<div class="card" style="margin-bottom:14px"><div class="sectionhead"><span class="idx">🎫</span><h3>게스트 수동 발급</h3></div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
+      '<input id="ag-email" placeholder="이메일 (선택·리드용)" style="flex:1;min-width:180px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<input id="ag-org" placeholder="학원명 (선택)" style="flex:1;min-width:140px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<button class="btn" onclick="ADMIN.createGuest()">발급</button></div>'+
+      '<div id="ag-msg" style="font-size:12px;color:var(--ink-mute)"></div></div>';
+    var rows=(d.rows||[]).map(function(l){
+      var c=l.credits||{}; var used=Object.keys(c).filter(function(k){return k!=='eval_essay';});
+      var total=0,left=0; used.forEach(function(k){left+=(c[k]||0);total++;});
+      var exp=l.expires_at?l.expires_at.slice(0,10):'-';
+      var expired=l.expires_at&&new Date(l.expires_at)<new Date();
+      return '<div class="card" style="margin-bottom:8px;padding:12px 14px;cursor:pointer" onclick="ADMIN.guestDetail(\''+(l.academy_id||'')+'\',\''+esc(l.login_id)+'\')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+
+        '<div><b style="color:var(--ink)">'+esc(l.login_id)+'</b> <span style="font-size:10px;color:'+(expired?'var(--risk)':'var(--safe)')+'">'+(expired?'만료':'유효 ~'+exp)+'</span> <span style="font-size:10px;color:var(--ink-mute)">'+(l.issued_by==='admin'?'수동발급':'셀프신청')+'</span>'+
+        '<div style="font-size:11px;color:var(--ink-dim);margin-top:2px">'+esc(l.email||'-')+(l.org_name?' · '+esc(l.org_name):'')+' · 학생 '+l.students+'명 · 마케팅동의 '+(l.consent_marketing?'O':'X')+'</div></div>'+
+        '<div style="font-size:11px;color:var(--gold,#c8a24a)">남은 크레딧 '+left+'</div></div></div>';
+    }).join('')||'<div style="color:var(--ink-mute);padding:12px">발급된 게스트 없음</div>';
+    body.innerHTML=issueBox+'<div class="card"><div class="sectionhead"><span class="idx">📋</span><h3>게스트 리드 '+(d.rows||[]).length+'건</h3></div>'+rows+'</div>';
+  }
+  async function createGuest(){
+    var m=$('#ag-msg'); m.textContent='발급 중…';
+    var d=await guestCall({action:'admin_create',email:($('#ag-email').value||'').trim()||null,org_name:($('#ag-org').value||'').trim()||null});
+    if(d.error){m.style.color='var(--risk)';m.textContent=d.error;return;}
+    m.style.color='var(--safe)';
+    m.innerHTML='발급 완료 — 아이디: <b>'+esc(d.login_id)+'</b> · 비밀번호: <b>'+esc(d.password)+'</b> · ~'+(d.expires_at||'').slice(0,10)+' <button onclick="navigator.clipboard.writeText(\'아르케 체험 계정\\n아이디: '+esc(d.login_id)+'\\n비밀번호: '+esc(d.password)+'\\n로그인: https://arche.penta-view.com (이메일 칸에 '+esc(d.login_id)+'@demo.penta-view.com 입력)\')" style="padding:3px 8px;font-size:11px;cursor:pointer;border:1px solid var(--line);border-radius:5px;background:transparent;color:var(--ink)">복사</button>';
+    renderGuests_refresh();
+  }
+  async function renderGuests_refresh(){ /* 발급 메시지 유지한 채 목록만 새로고침 생략 — 탭 재클릭 시 갱신 */ }
+  async function guestDetail(aid,loginId){
+    if(!aid)return;
+    var body=$('#adm-body');
+    body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>';
+    var d=await guestCall({action:'guest_detail',academy_id:aid});
+    if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
+    var sl=(d.students||[]).map(function(x){
+      var s=x.student;
+      var mets=(x.metrics||[]).map(function(mm){return '<div style="font-size:11px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line)"><b>'+esc(mm.metric_type||'')+'</b> · '+(mm.measured_at||'').slice(0,10)+'<br><span style="color:var(--ink-mute)">'+esc(JSON.stringify(mm.payload||{}).slice(0,300))+'…</span></div>';}).join('')||'<div style="font-size:11px;color:var(--ink-mute)">분석 결과 없음</div>';
+      return '<div class="card" style="margin-bottom:10px"><b style="color:var(--ink)">'+esc(s.name||'-')+'</b> <span style="font-size:11px;color:var(--ink-mute)">'+esc(s.school||'')+' · '+esc(s.target_univ||'')+' '+esc(s.target_major||'')+'</span>'+
+        '<div style="font-size:11px;color:var(--ink-dim);margin:4px 0">디자인 항목 '+x.design_items+'건 · 면접셋 '+x.interview_sets+'건</div>'+mets+'</div>';
+    }).join('')||'<div style="color:var(--ink-mute)">학생 없음</div>';
+    body.innerHTML='<button class="btn ghost" onclick="ADMIN.tab(\'guests\')" style="margin-bottom:12px">← 게스트 목록</button>'+
+      '<div class="card"><div class="sectionhead"><span class="idx">🎫</span><h3>'+esc(loginId)+' 체험 데이터</h3></div>'+sl+'</div>';
+  }
+  return {tab,init,changePw,doUpload,approve,charge,runDue,createGuest,guestDetail};
   async function approve(id,ok){ var r=await callBody({action:'approve',academy_id:id,approved:ok}); if(r.error)return alert('실패: '+r.error); tab('academies'); }
 })();
 window.ADMIN=ADMIN;
@@ -1123,6 +1188,7 @@ window.ADMIN=ADMIN;
           <button class="btn ghost" onclick="ADMIN.tab('admission')">입시자료</button>
           <button class="btn ghost" onclick="ADMIN.tab('stats')">통계</button>
           <button class="btn ghost" onclick="ADMIN.tab('billing')">결제</button>
+          <button class="btn ghost" onclick="ADMIN.tab('guests')">게스트</button>
           <button class="btn ghost" onclick="ADMIN.tab('account')">계정 설정</button>
         </div>
         <div id="adm-body"><div style="color:var(--ink-mute);padding:20px">불러오는 중…</div></div>
@@ -1282,7 +1348,12 @@ async function enterApp(session){
   const ac=await ensureAcademy(u);
   window._academy=ac;
   var isAdmin=false, approved=true;
-  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved;} }
+  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null;} }
+  if(window._demo && window._demo.expires && new Date(window._demo.expires)<new Date()){
+    await sb.auth.signOut();
+    gate.style.display='flex';
+    return msg('체험 기간(7일)이 만료되었습니다. 도입 문의: penta-view.com');
+  }
   if(!isAdmin && approved===false){
     await sb.auth.signOut();
     gate.style.display='flex';
@@ -1301,7 +1372,48 @@ async function enterApp(session){
     var ad=document.querySelector('.nav[data-v="admin"]'); if(ad)go(ad);
     return;
   }
+  if(window._demo) setupDemoMode();
   loadStudents();
+}
+/* ===== 게스트 체험 모드 ===== */
+var DEMO_TASK_LABEL={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',design_record:'학생부 디자인',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백'};
+function toggleGuestForm(){var f=document.getElementById('guest-form');if(f)f.style.display=(f.style.display==='none')?'block':'none';}
+async function guestSignup(){
+  var m=document.getElementById('gu-msg'), btn=document.getElementById('gu-btn');
+  var email=(document.getElementById('gu-email').value||'').trim();
+  if(!email||email.indexOf('@')<1){m.textContent='이메일을 입력하세요.';return;}
+  if(!document.getElementById('gu-privacy').checked){m.textContent='개인정보 수집·이용 동의(필수)가 필요합니다.';return;}
+  btn.disabled=true;btn.textContent='발급 중…';m.style.color='var(--ink-mute)';m.textContent='';
+  try{
+    var r=await fetch(SB_URL+'/functions/v1/guest-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'self_signup',email:email,org_name:(document.getElementById('gu-org').value||'').trim(),consent_privacy:true,consent_marketing:document.getElementById('gu-mkt').checked})});
+    var d=await r.json();
+    if(!r.ok||d.error){m.style.color='var(--risk)';m.textContent=d.error||'발급 실패';btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
+    alert('체험 계정이 발급되었습니다.\n\n아이디: '+d.login_id+'\n비밀번호: '+d.password+'\n유효기간: '+(d.expires_at||'').slice(0,10)+'까지\n\n※ 이 정보를 꼭 메모해 두세요. 지금 바로 로그인합니다.');
+    var {data:sd,error:se}=await sb.auth.signInWithPassword({email:d.auth_email,password:d.password});
+    if(se){m.style.color='var(--risk)';m.textContent='자동 로그인 실패: '+se.message;btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
+    enterApp(sd.session);
+  }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';}
+}
+function setupDemoMode(){
+  document.body.classList.add('demo-mode');
+  // 게스트에게 불필요·위험한 메뉴 숨김 (설정=키 입력, 관리자 등)
+  ['settings','admin','essaybatch'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  updateDemoBanner();
+}
+function updateDemoBanner(){
+  if(!window._demo)return;
+  var b=document.getElementById('demo-banner');
+  if(!b){
+    b=document.createElement('div');b.id='demo-banner';
+    b.style.cssText='position:sticky;top:0;z-index:900;background:linear-gradient(90deg,#fff7e6,#fdf3d8);border-bottom:1px solid var(--gold,#c8a24a);padding:8px 16px;font-size:12px;color:#6b5416;display:flex;align-items:center;gap:10px;flex-wrap:wrap';
+    var main=document.querySelector('main')||document.body;
+    main.insertBefore(b,main.firstChild);
+  }
+  var c=window._demo.credits||{};
+  var left=Object.keys(DEMO_TASK_LABEL).filter(function(k){return (c[k]||0)>0;}).map(function(k){return DEMO_TASK_LABEL[k]+' '+c[k]+'회';});
+  b.innerHTML='<b>🎫 체험 모드</b><span>'+(left.length?('남은 체험: '+left.join(' · ')):'체험 횟수를 모두 사용했습니다')+'</span>'+
+    '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
+    '<a href="mailto:contact@penta-view.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#c8a24a);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
 async function enterStudentApp(session){
   gate.style.display='none';
@@ -1435,6 +1547,7 @@ async function addStudent(){
   const m=document.getElementById('st-msg');
   const name=document.getElementById('st-name').value.trim();
   if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
+  if(window._demo && !window._editId && (window._students||[]).length>=2){m.style.color='var(--risk)';m.textContent='체험 모드에서는 학생을 최대 2명까지 등록할 수 있습니다. 구독 시 무제한 등록 가능합니다.';return;}
   if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드 — 새로고침.';return;}
   const {data:acs}=await sb.from('academies').select('id').limit(1);
   const acid=acs&&acs[0]&&acs[0].id;
@@ -2322,7 +2435,13 @@ async function callAI(task,payload){
   if(!sb) throw new Error('DB 미로드');
   var sess=(await sb.auth.getSession()).data.session;
   var res=await fetch(SB_URL+'/functions/v1/arche-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({task:task,payload:payload})});
-  var d=await res.json(); if(!res.ok) throw new Error(d.error||'AI 오류'); return d;
+  var d=await res.json();
+  if(!res.ok){
+    if(d.demo_exhausted||d.demo_expired){ throw new Error(d.error||'체험 횟수 소진'); }
+    throw new Error(d.error||'AI 오류');
+  }
+  if(d.demo_credits&&window._demo){ window._demo.credits=d.demo_credits; updateDemoBanner(); }
+  return d;
 }
 window.callAI=callAI;
 async function careernet(action,query){
