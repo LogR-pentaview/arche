@@ -748,6 +748,10 @@
         <div class="eyebrow">High School Admission</div>
         <div class="h1">고입 컨설팅 <span style="font-size:12px;color:var(--gold);vertical-align:middle;letter-spacing:.05em">특목고 · 자사고</span></div>
         <div class="sub">지원가능 학교 리스트업(내신 환산) + 학생부 활동·진로 기반 성향 매칭</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+          <select id="gp-student" onchange="gpSelectStudent(this.value)" style="min-width:220px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">— 학생 선택 —</option></select>
+          <span id="gp-autofill-msg" style="font-size:11.5px;color:var(--ink-mute)">학생을 선택하면 저장된 성취도·활동자료가 자동으로 채워집니다.</span>
+        </div>
         <div class="grid g2" style="margin-top:16px;align-items:start">
           <div class="card">
             <div style="font-weight:700;margin-bottom:10px">① 조건 · 중학 성취도</div>
@@ -3265,10 +3269,25 @@ async function renderBaseCon(){
 
 /* ===== 고입 컨설팅 ===== */
 window.renderGoip=function(){
-  var s=window._activeStudent;
-  var c=document.getElementById('gp-career');
-  if(c&&!c.value&&s&&s.career)c.value=s.career;
+  loadGStudents().then(function(){ goipAutoFill(); });
 };
+function gpSelectStudent(id){ if(!id)return; selectGStudent(id); goipAutoFill(); }
+// 활성 학생의 저장된 성취도(middle_school_grades)·활동자료(student_setech)를 자동 연동
+async function goipAutoFill(){
+  var s=window._gactive; var am=document.getElementById('gp-autofill-msg');
+  if(!s||!sb){if(am)am.textContent='학생을 선택하면 저장된 성취도·활동자료가 자동으로 채워집니다.';return;}
+  if(am)am.textContent=s.name+' — 저장 자료 불러오는 중…';
+  var c=document.getElementById('gp-career'); if(c&&!c.value&&s.career)c.value=s.career;
+  var nG=0;
+  try{
+    var g=await sb.from('middle_school_grades').select('semester,subject,achievement').eq('student_id',s.id);
+    (g.data||[]).forEach(function(r){var el=document.getElementById('gp-'+r.subject+'-'+r.semester);if(el){el.value=r.achievement;nG++;}});
+  }catch(e){}
+  var rec=document.getElementById('gp-record'); var nA=0;
+  if(rec&&!rec.value.trim()){ nA=await goipCompose(true); }
+  else if(rec&&rec.value.trim()){ nA=-1; }
+  if(am)am.textContent=s.name+' — 성취도 '+nG+'건'+(nA>=0?' · 활동 '+nA+'건 자동 연동됨':' · 활동자료 유지')+(nG||nA>0?'':' (자료 입력에서 [일괄 저장] 후 다시 선택)');
+}
 function goipTypes(){var a=[];document.querySelectorAll('#gp-types input:checked').forEach(function(x){a.push(x.value);});return a;}
 function goipGrades(){
   var subs=['영어','수학','과학','국어','사회'],sems=['2-1','2-2','3-1','3-2'],g=[];
@@ -3297,9 +3316,10 @@ async function goipShortlist(){
       +'</div>';
   }).join('')||'<div style="color:var(--ink-mute);font-size:12px">해당 조건의 학교가 없습니다.</div>';
 }
-async function goipCompose(){
-  var m=document.getElementById('gp-msg2');var s=requireActive(m);if(!s||!sb)return;
-  m.style.color='var(--ink-mute)';m.textContent='활동자료 수집 중…';
+async function goipCompose(silent){
+  var m=document.getElementById('gp-msg2');var s=window._gactive||window._activeStudent;
+  if(!s||!sb){if(!silent&&m){m.style.color='var(--risk)';m.textContent='먼저 상단에서 학생을 선택하세요.';}return 0;}
+  if(!silent&&m){m.style.color='var(--ink-mute)';m.textContent='활동자료 수집 중…';}
   var parts=[];
   try{
     var se=await sb.from('student_setech').select('subject,area,text').eq('student_id',s.id).limit(30);
@@ -3309,10 +3329,11 @@ async function goipCompose(){
     var co=await sb.from('consultations').select('career,activities,memo').eq('student_id',s.id).limit(10);
     (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담·활동] '+x.activities.slice(0,250));if(x.memo)parts.push('[상담메모] '+x.memo.slice(0,200));});
   }catch(e){}
-  if(!parts.length){m.style.color='var(--risk)';m.textContent='수집할 자료가 없습니다 — 직접 입력해 주세요.';return;}
+  if(!parts.length){if(!silent&&m){m.style.color='var(--risk)';m.textContent='수집할 자료가 없습니다 — 자료 입력에서 [일괄 저장] 후 이용하거나 직접 입력해 주세요.';}return 0;}
   document.getElementById('gp-record').value=parts.join('\n');
   var cin=document.getElementById('gp-career'); if(cin&&!cin.value&&s.career)cin.value=s.career;
-  m.style.color='var(--safe)';m.textContent=parts.length+'건 수집 — 검토·수정 후 매칭하세요.';
+  if(!silent&&m){m.style.color='var(--safe)';m.textContent=parts.length+'건 수집 — 검토·수정 후 매칭하세요.';}
+  return parts.length;
 }
 async function goipStyleMatch(){
   var m=document.getElementById('gp-msg2'),box=document.getElementById('gp-match');
@@ -3421,7 +3442,7 @@ function selectGStudent(id){
 function fillGoipPickers(){
   var cur=window._gactive?window._gactive.id:'';
   var opts='<option value="">— 학생 선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');
-  ['gin-student','gcon-student'].forEach(function(id){var el=document.getElementById(id);if(el){el.innerHTML=opts;el.value=cur;}});
+  ['gin-student','gcon-student','gp-student'].forEach(function(id){var el=document.getElementById(id);if(el){el.innerHTML=opts;el.value=cur;}});
 }
 
 /* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
@@ -3504,8 +3525,8 @@ async function gintakeParse(){
       }
       failed.push(i+1); done++; prog();
     }
-    // 동시 3개 병렬 실행 (순차 대비 최대 3배 단축)
-    var CONC=3, cursor=0;
+    // 동시 5개 병렬 실행
+    var CONC=5, cursor=0;
     async function worker(){ while(cursor<total){ var i=cursor++; await runJob(i); } }
     var ws=[]; for(var w=0;w<Math.min(CONC,total);w++)ws.push(worker());
     await Promise.all(ws);
@@ -3560,9 +3581,15 @@ async function saveGParsed(){
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
   var acadId=s.academy_id||null;
   try{
+    // 재저장 대비: 기존 파싱 데이터 교체 (중복 방지)
+    var d1=await sb.from('middle_school_grades').delete().eq('student_id',s.id);
+    if(d1.error)throw new Error('성취도 초기화: '+d1.error.message);
+    var d2=await sb.from('student_setech').delete().eq('student_id',s.id).eq('source','goip_parsed');
+    if(d2.error)throw new Error('생기부 초기화: '+d2.error.message);
     // 성취도
     var gr=(o.grades||[]).map(function(g){var row={student_id:s.id,semester:g.sem,subject:g.subject,achievement:g.ach};if(acadId)row.academy_id=acadId;return row;});
-    if(gr.length)await sb.from('middle_school_grades').insert(gr);
+    if(gr.length){var r1=await sb.from('middle_school_grades').insert(gr);
+      if(r1.error)throw new Error('성취도 저장: '+r1.error.message);}
     // 생기부 내용 → student_setech
     var rows=[];
     (o.autonomous||[]).forEach(function(x){rows.push({student_id:s.id,area:'자율',subject:'자율활동',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
@@ -3571,8 +3598,9 @@ async function saveGParsed(){
     (o.subject_detail||[]).forEach(function(x){rows.push({student_id:s.id,area:'과세특',subject:x.subject||null,grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
     (o.behavior||[]).forEach(function(x){rows.push({student_id:s.id,area:'행발',subject:'행동특성',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
     (o.reading||[]).forEach(function(x){var books=(x.books||[]).map(function(b){return (b.title||'')+(b.author?'('+b.author+')':'');}).join(', ');rows.push({student_id:s.id,area:'독서',subject:x.subject||'독서활동',grade:x.grade||null,text:(books?books+' — ':'')+(x.summary||''),source:'goip_parsed'});});
-    if(rows.length)await sb.from('student_setech').insert(rows);
-    m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 생기부 '+rows.length+'건). 성향 매칭·상담에 활용됩니다.';
+    if(rows.length){var r2=await sb.from('student_setech').insert(rows);
+      if(r2.error)throw new Error('생기부 저장: '+r2.error.message);}
+    m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 생기부 '+rows.length+'건). 지원가능·성향매칭에 자동 연동됩니다.';
   }catch(e){ m.style.color='var(--risk)';m.textContent='저장 실패: '+e.message; }
 }
 
