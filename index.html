@@ -1907,6 +1907,16 @@ function toast(msg,ok){
 }
 window.toast=toast;
 window.syncTopbarPicker=syncTopbarPicker;
+/* AI 응답 JSON 관대 파싱: 코드펜스·앞뒤 잡음·잘림 일부 복구 */
+function safeJson(t){
+  if(!t)return null;
+  t=String(t).replace(/^```json\s*/i,'').replace(/```\s*$/i,'').trim();
+  try{return JSON.parse(t);}catch(e){}
+  var a=t.indexOf('{'),b=t.lastIndexOf('}');
+  if(a>=0&&b>a){try{return JSON.parse(t.slice(a,b+1));}catch(e){}}
+  return null;
+}
+window.safeJson=safeJson;
 
 /* ===== 자료 입력 · 진단 ===== */
 function requireActive(m){ if(!window._activeStudent){ if(m){m.style.color='var(--risk)';m.textContent='먼저 [학생 관리]에서 학생을 활성화하세요.';} return null;} return window._activeStudent; }
@@ -2745,7 +2755,7 @@ async function aiAutofill(){
     prog();
     async function runJob(i){
       for(var att=0;att<2;att++){
-        try{ var d=await callAI('parse_record',jobs[i]); var obj=null;try{obj=JSON.parse(d.text);}catch(e){}
+        try{ var d=await callAI('parse_record',jobs[i]); var obj=safeJson(d.text);
           if(obj){results[i]=obj;done++;prog();return;} }catch(e){}
       }
       failed.push(i+1);done++;prog();
@@ -3409,7 +3419,7 @@ async function goipStyleMatch(){
   var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_style_match',payload:{types:types,region:document.getElementById('gp-region').value,career:career,record_text:rec}}});
   var data=r.data,error=r.error;
   if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
-  var res=null;try{res=JSON.parse(data.text);}catch(e){}
+  var res=safeJson(data.text);
   if(!res){m.style.color='var(--risk)';m.textContent='응답 해석 실패 — 다시 시도하세요.';return;}
   m.style.color='var(--safe)';m.textContent='매칭 완료 (성향 적합도 — 합격 예측 아님)';
   var gc={'높음':'var(--safe)','보통':'var(--reach)','낮음':'var(--risk)'};
@@ -3610,7 +3620,7 @@ async function gintakeParse(){
           var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_parse_record',payload:jobs[i]}});
           var data=r.data,error=r.error;
           if(!error&&data&&!data.error){
-            var obj=null;try{obj=JSON.parse(data.text);}catch(e){}
+            var obj=safeJson(data.text);
             if(obj){results[i]=obj;done++;prog();return;}
           }
         }catch(e){}
@@ -3782,7 +3792,7 @@ async function gesGenBlueprint(){
     var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_essay_blueprint',payload:{school_name:school,career:s.career||'',record_text:ctx,student_id:s.id}}});
     var data=r.data,error=r.error;
     if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'생성 실패');return;}
-    var obj=null;try{obj=JSON.parse(data.text);}catch(e){}
+    var obj=safeJson(data.text);
     if(!obj||!obj.blueprint){m.style.color='var(--risk)';m.textContent='설계도 파싱 실패 — 다시 시도하세요.';return;}
     // 기존 초기화 후 문항별 저장
     await sb.from('goip_essay_drafts').delete().eq('student_id',s.id).eq('school_name',school);
@@ -3929,7 +3939,7 @@ async function gesEvaluate(id){
     var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_eval_essay',payload:{school_name:it.school_name,career:s.career||'',answers:[{no:it.q_no,text:draft}]}}});
     var data=r.data,error=r.error;
     if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'평가 실패');await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id);return;}
-    var ev=null;try{ev=JSON.parse(data.text);}catch(e){}
+    var ev=safeJson(data.text);
     if(!ev){m.style.color='var(--risk)';m.textContent='평가 파싱 실패';await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id);return;}
     await sb.from('goip_essay_drafts').update({eval:ev,status:'evaluated',version:(it.version||0)+1,updated_at:new Date().toISOString()}).eq('id',id);
     m.style.color='var(--safe)';m.textContent='평가 완료 · 진단 확인 후 학생이 재수정하거나 완료 처리하세요.';
