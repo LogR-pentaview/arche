@@ -401,7 +401,7 @@
     <div class="topbar">
       <div style="display:flex;align-items:center">
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="selectStudent(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
+        <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -1465,7 +1465,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling();}
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1863,10 +1863,39 @@ function selectStudent(id){
 }
 function fillStudentPickers(){
   var opts='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
-  var td=document.getElementById('topbar-student'); if(td){var v=window._activeStudent?window._activeStudent.id:'';td.innerHTML=opts;td.value=v;}
+  if(window._topbarMode!=='goip'){var td=document.getElementById('topbar-student'); if(td){var v=window._activeStudent?window._activeStudent.id:'';td.innerHTML=opts;td.value=v;}}
   var ip=document.getElementById('intake-student'); if(ip){var v2=ip.value;ip.innerHTML='<option value="">— 학생 선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+'</option>';}).join('');ip.value=v2;}
 }
 window.fillStudentPickers=fillStudentPickers;
+/* topbar 활성 학생 — 대입/고입 트랙 인식 */
+window._topbarMode='dae';
+function topbarSelect(id){ if(window._topbarMode==='goip'){ if(id)selectGStudent(id); } else { selectStudent(id); } }
+async function syncTopbarPicker(v){
+  var mode=(typeof GOIP_VIEWS!=='undefined'&&GOIP_VIEWS.indexOf(v)>=0)?'goip':'dae';
+  window._topbarMode=mode;
+  var td=document.getElementById('topbar-student'); if(!td)return;
+  if(mode==='goip'){
+    if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
+    var cur=window._gactive?window._gactive.id:'';
+    td.innerHTML='<option value="">— 미선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
+    td.value=cur;
+  } else {
+    var v2=(window._activeStudent&&(window._students||[]).some(function(x){return x.id===window._activeStudent.id;}))?window._activeStudent.id:'';
+    td.innerHTML='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
+    td.value=v2;
+  }
+}
+/* 저장 등 결과 토스트 알림 */
+function toast(msg,ok){
+  var t=document.getElementById('arche-toast');
+  if(!t){t=document.createElement('div');t.id='arche-toast';t.style.cssText='position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:opacity .3s;pointer-events:none';document.body.appendChild(t);}
+  t.style.background=ok===false?'#b3261e':'var(--gold)';
+  t.style.color=ok===false?'#fff':'#1a1204';
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(window._toastT); window._toastT=setTimeout(function(){t.style.opacity='0';},2800);
+}
+window.toast=toast;
+window.syncTopbarPicker=syncTopbarPicker;
 
 /* ===== 자료 입력 · 진단 ===== */
 function requireActive(m){ if(!window._activeStudent){ if(m){m.style.color='var(--risk)';m.textContent='먼저 [학생 관리]에서 학생을 활성화하세요.';} return null;} return window._activeStudent; }
@@ -2666,7 +2695,7 @@ async function uploadRecord(file){
       } else {
         m.style.color='var(--ink-mute)'; m.textContent='스캔(이미지) PDF 감지 · 페이지 이미지화 중… (잠시)';
         window._recText='';
-        window._recImages=await renderPdfImages(pdf,25,1000);
+        window._recImages=await renderPdfImages(pdf,30,1600,true);
         var b2=document.getElementById('rec-ai'); b2.disabled=false; b2.style.opacity='1';
         m.style.color='var(--safe)';m.textContent='스캔 PDF '+window._recImages.length+'p 준비됨. [AI 자동정리]로 비전 분석하세요.';
       }
@@ -2686,19 +2715,40 @@ function showAiLoading(){
   o._ti=setInterval(function(){var e=document.getElementById('ai-timer');if(e)e.textContent=((Date.now()-t0)/1000).toFixed(1)+'s';},100);
 }
 function hideAiLoading(){var o=document.getElementById('ai-loading');if(o){clearInterval(o._si);clearInterval(o._ti);o.remove();}}
+function mergeDaeParsed(a,b){
+  a=a||{}; b=b||{};
+  ['courses','setech','changche','haengbal'].forEach(function(k){a[k]=(a[k]||[]).concat(b[k]||[]);});
+  if(a.courses&&a.courses.length){var seen={};a.courses=a.courses.filter(function(c){var k=(c.subject||'')+'|'+(c.sem||'');if(seen[k])return false;seen[k]=1;return true;});}
+  return a;
+}
 async function aiAutofill(){
   var m=document.getElementById('rec-msg'); var hasImg=window._recImages&&window._recImages.length; if(!window._recText&&!hasImg){m.style.color='var(--risk)';m.textContent='추출된 텍스트/이미지가 없습니다.';return;}
-  m.style.color='var(--ink-mute)';m.textContent='AI 분석 중…';
   showAiLoading();
   try{
-    var payload=hasImg?{images:window._recImages}:{text:window._recText.slice(0,12000)};
-    var d=await callAI('parse_record',payload);
-    var obj={}; try{obj=JSON.parse(d.text);}catch(e){m.style.color='var(--risk)';m.textContent='AI 응답 파싱 실패';return;}
+    // 배치 구성: 스캔은 4장씩, 텍스트는 11,000자 청크 — 절단 없이 전량 분석
+    var jobs=[];
+    if(hasImg){ var imgs=window._recImages,B=4; for(var bi=0;bi<Math.ceil(imgs.length/B);bi++)jobs.push({images:imgs.slice(bi*B,(bi+1)*B)}); }
+    else { var t=window._recText,LIM=11000; while(t.length){ if(t.length<=LIM){jobs.push({text:t});break;} var cut=t.lastIndexOf('\n',LIM); if(cut<LIM*0.5)cut=LIM; jobs.push({text:t.slice(0,cut)}); t=t.slice(cut); } }
+    var total=jobs.length,done=0,failed=[],results=new Array(total);
+    function prog(){ m.style.color='var(--ink-mute)';m.textContent='AI 분석 중… ('+done+'/'+total+' 배치 완료)'; var se=document.getElementById('ai-step'); if(se)se.textContent='생기부 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…'; }
+    prog();
+    async function runJob(i){
+      for(var att=0;att<2;att++){
+        try{ var d=await callAI('parse_record',jobs[i]); var obj=null;try{obj=JSON.parse(d.text);}catch(e){}
+          if(obj){results[i]=obj;done++;prog();return;} }catch(e){}
+      }
+      failed.push(i+1);done++;prog();
+    }
+    var CONC=5,cursor=0; async function worker(){while(cursor<total){var i=cursor++;await runJob(i);}}
+    var ws=[];for(var w=0;w<Math.min(CONC,total);w++)ws.push(worker()); await Promise.all(ws);
+    var obj={}; for(var ri=0;ri<total;ri++)if(results[ri])obj=mergeDaeParsed(obj,results[ri]);
+    if(!obj||!Object.keys(obj).length){m.style.color='var(--risk)';m.textContent='AI 응답 파싱 실패 — 다시 시도하세요.';return;}
     if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade))};}); renderCourses(); }
     window._parsedSetech=obj.setech||[]; window._parsedChangche=obj.changche||[]; window._parsedHaengbal=obj.haengbal||[];
     var se=window._parsedSetech;
     document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 세특 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">세특 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 세특 없음</div>';
-    m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/세특 확인 후 저장하세요.';
+    if(failed.length){ m.style.color='var(--reach)';m.textContent='자동정리 완료 · 배치 '+failed.join(', ')+' 실패(내용 일부 누락 가능) · 확인 후 저장하세요.'; }
+    else { m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/세특 확인 후 저장하세요.'; }
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; } finally { hideAiLoading(); }
 }
 async function saveParsedSetech(){
@@ -2710,8 +2760,8 @@ async function saveParsedSetech(){
   (window._parsedHaengbal||[]).forEach(function(x){rows.push({student_id:s.id,subject:'행동특성',area:'행발세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
   if(!rows.length)return;
   var {error}=await sb.from('student_setech').insert(rows);
-  if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
-  m.style.color='var(--safe)';m.textContent='세특 '+rows.length+'건 저장 (교과+창체+행발).'; loadSetech();
+  if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);toast('저장 실패: '+error.message,false);return;}
+  m.style.color='var(--safe)';m.textContent='세특 '+rows.length+'건 저장 (교과+창체+행발).'; toast('세특 '+rows.length+'건 저장 완료',true); loadSetech();
 }
 
 /* ===== AI (학원 자체 키 · 엣지함수) ===== */
@@ -3433,9 +3483,10 @@ async function delGStudent(id){
 }
 function selectGStudent(id){
   var s=(window._gstudents||[]).find(function(x){return x.id===id;}); if(!s)return;
-  window._gactive=s; window._activeStudent=s; // 공유 헬퍼(requireActive/goipCompose) 호환
+  window._gactive=s; // 대입 활성(_activeStudent)과 분리 유지
   fillGoipPickers();
   renderGStudents();
+  if(window._topbarMode==='goip'){var td=document.getElementById('topbar-student');if(td)td.value=s.id;}
   var gw=document.getElementById('gin-who'); if(gw)gw.textContent=s.name+' 활성';
   var cw=document.getElementById('gcon-who'); if(cw)cw.textContent=s.name+' 활성';
 }
@@ -3601,7 +3652,8 @@ async function saveGParsed(){
     if(rows.length){var r2=await sb.from('student_setech').insert(rows);
       if(r2.error)throw new Error('생기부 저장: '+r2.error.message);}
     m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 생기부 '+rows.length+'건). 지원가능·성향매칭에 자동 연동됩니다.';
-  }catch(e){ m.style.color='var(--risk)';m.textContent='저장 실패: '+e.message; }
+    toast('저장 완료 — 성취도 '+gr.length+'건 · 생기부 '+rows.length+'건',true);
+  }catch(e){ m.style.color='var(--risk)';m.textContent='저장 실패: '+e.message; toast('저장 실패: '+e.message,false); }
 }
 
 /* ===== 고입 상담 관리 ===== */
