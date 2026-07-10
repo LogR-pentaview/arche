@@ -742,6 +742,7 @@
           <select id="ges-student" onchange="gesSelect(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 학생 선택 —</option></select>
           <select id="ges-school" class="goip-con-only" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 지원 학교 —</option></select>
           <button class="btn goip-con-only" onclick="gesGenBlueprint()">설계도 생성</button>
+          <button class="btn goip-con-only" onclick="gesSendAll()" style="background:var(--gold);color:#1a1204">전체 학생에게 전달</button>
           <button class="btn ghost" onclick="gesLoad()">불러오기</button>
         </div>
         <div id="ges-msg" style="font-size:12px;margin-top:8px"></div>
@@ -4176,7 +4177,10 @@ function gesRender(items){
     // 상태별 액션 (컨설턴트 전용)
     if(!isStu && it.status==='blueprint'){
       html+='<div style="display:flex;gap:7px"><button onclick="gesSaveBpEdit(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">메모 저장</button>'
-        +'<button onclick="gesOpenToStudent(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--gold);color:#1a1204;border:none;border-radius:8px;font-weight:700;cursor:pointer">설계 확정 · 학생에게 열기</button></div>';
+        +'<button onclick="gesOpenToStudent(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--gold);color:#1a1204;border:none;border-radius:8px;font-weight:700;cursor:pointer">이 문항 학생에게 전달</button></div>';
+    }
+    if(!isStu && it.status!=='blueprint'){
+      html+='<div style="font-size:11px;color:var(--safe);margin-top:4px">✓ 학생에게 전달됨</div>';
     }
     if(isStu && it.status==='blueprint'){
       html+='<div style="font-size:11.5px;color:var(--ink-mute)">아직 선생님이 설계를 확정하지 않았습니다. 확정되면 여기서 작성할 수 있어요.</div>';
@@ -4246,8 +4250,30 @@ async function gesSaveBpEdit(id){
   var m=document.getElementById('ges-msg');m.style.color='var(--safe)';m.textContent='설계 메모 저장됨.';
 }
 async function gesOpenToStudent(id){
-  var v=document.getElementById('ges-bpedit-'+id).value.trim();
+  var el=document.getElementById('ges-bpedit-'+id);
+  var v=el?el.value.trim():'';
   await sb.from('goip_essay_drafts').update({blueprint_edit:v,status:'blueprint_ok',sent:true,updated_at:new Date().toISOString()}).eq('id',id);
+  if(window.toast)toast('학생에게 전달되었습니다',true);
+  gesLoad();
+}
+// 아직 확정 전(blueprint)인 문항 전체를 한 번에 전달
+async function gesSendAll(){
+  var s=window._gactive; var m=document.getElementById('ges-msg');
+  if(!s||!sb){if(m){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';}return;}
+  var school=document.getElementById('ges-school').value;
+  var q=sb.from('goip_essay_drafts').select('id,blueprint_edit').eq('student_id',s.id).eq('status','blueprint');
+  if(school)q=q.eq('school_name',school);
+  var r=await q; var rows=(r.data||[]);
+  if(!rows.length){if(m){m.style.color='var(--ink-mute)';m.textContent='전달할 새 설계도가 없습니다 (이미 전달했거나 설계도를 먼저 생성하세요).';}return;}
+  // 화면에 편집 중인 메모가 있으면 함께 반영
+  for(var i=0;i<rows.length;i++){
+    var el=document.getElementById('ges-bpedit-'+rows[i].id);
+    var v=el?el.value.trim():(rows[i].blueprint_edit||'');
+    var up=await sb.from('goip_essay_drafts').update({blueprint_edit:v,status:'blueprint_ok',sent:true,updated_at:new Date().toISOString()}).eq('id',rows[i].id);
+    if(up.error){if(m){m.style.color='var(--risk)';m.textContent='전달 실패: '+up.error.message;}toast('전달 실패: '+up.error.message,false);return;}
+  }
+  if(m){m.style.color='var(--safe)';m.textContent=rows.length+'개 문항을 학생에게 전달했습니다.';}
+  toast(rows.length+'개 문항 학생에게 전달 완료',true);
   gesLoad();
 }
 async function gesSaveDraft(id){
