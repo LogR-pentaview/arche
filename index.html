@@ -39,6 +39,25 @@
   .nav:hover{background:var(--panel-2);color:var(--ink)}
   .nav.on{background:linear-gradient(90deg,rgba(245,179,1,.14),rgba(245,179,1,.02));color:var(--ink);border-color:rgba(245,179,1,.28)}
   .nav.on svg{opacity:1;color:var(--gold)}
+  /* 트랙 그룹(접이식) */
+  .navgroup{margin-top:4px}
+  .navgroup>.grouphead{display:flex;align-items:center;gap:10px;padding:10px 11px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:700;color:var(--ink);transition:.15s;border:1px solid transparent;user-select:none}
+  .navgroup>.grouphead svg.gi{width:16px;height:16px;flex:none}
+  .navgroup>.grouphead .gcaret{margin-left:auto;width:14px;height:14px;transition:transform .18s;opacity:.6}
+  .navgroup.open>.grouphead .gcaret{transform:rotate(90deg)}
+  .navgroup.dae>.grouphead{color:var(--lime)}
+  .navgroup.dae>.grouphead svg.gi{color:var(--lime)}
+  .navgroup.goip>.grouphead{color:var(--gold)}
+  .navgroup.goip>.grouphead svg.gi{color:var(--gold)}
+  .navgroup>.grouphead:hover{background:var(--panel-2)}
+  .navsub{overflow:hidden;max-height:0;transition:max-height .22s ease;display:flex;flex-direction:column;gap:2px}
+  .navgroup.open>.navsub{max-height:640px}
+  .navsub .nav{font-size:12.5px;padding:8px 11px 8px 30px;position:relative}
+  .navsub .nav::before{content:"";position:absolute;left:17px;top:50%;width:5px;height:5px;border-radius:50%;background:var(--line);transform:translateY(-50%)}
+  .navsub .nav.on::before{background:var(--gold)}
+  .nav .soon{margin-left:auto;font-size:8.5px;letter-spacing:.08em;color:var(--ink-mute);background:var(--panel-3);border-radius:20px;padding:2px 7px;white-space:nowrap}
+  .nav.disabled{opacity:.55;cursor:default}
+  .nav.disabled:hover{background:transparent;color:var(--ink-dim)}
   .side .foot{margin-top:auto;padding:12px 10px 4px;border-top:1px solid var(--line-soft);display:flex;align-items:center;gap:10px}
   .avatar{width:32px;height:32px;border-radius:8px;background:var(--panel-3);display:grid;place-items:center;font-family:'Bebas Neue';color:var(--lime);font-size:16px}
   .side .foot .who{font-size:12px}.side .foot .who small{display:block;color:var(--ink-mute);font-size:10px}
@@ -237,34 +256,11 @@
 
   .studentview-banner{background:linear-gradient(90deg,rgba(91,141,239,.16),transparent);border:1px solid rgba(91,141,239,.3);border-radius:10px;padding:10px 15px;font-size:12px;color:#a9c4f5;margin-bottom:18px;display:flex;align-items:center;gap:9px}
 
-  .menu-btn{display:none;width:38px;height:38px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);place-items:center;cursor:pointer;flex:none;margin-right:10px}
-  .menu-btn svg{width:18px;height:18px}
-  #navback{display:none;position:fixed;inset:0;background:rgba(8,20,12,.45);z-index:1250;backdrop-filter:blur(2px)}
-
   @media(max-width:960px){
-    .app{grid-template-columns:1fr}
-    .side{position:fixed;left:0;top:0;bottom:0;height:100dvh;width:min(280px,84vw);z-index:1300;transform:translateX(-105%);transition:transform .22s ease;box-shadow:4px 0 30px rgba(10,30,18,.18)}
-    body.nav-open .side{transform:translateX(0)}
-    body.nav-open #navback{display:block}
-    .menu-btn{display:grid}
+    .app{grid-template-columns:1fr}.side{display:none}
     .g4,.g3{grid-template-columns:repeat(2,1fr)}.g2,.intake-grid,.topic-grid,.sr{grid-template-columns:1fr}
     .radar-wrap{flex-direction:column}
     .rm{grid-template-columns:64px 1fr 1fr 1fr;font-size:10px}
-    .topbar{padding:10px 12px;flex-wrap:wrap;gap:8px}
-    .content{padding:18px 14px calc(70px + env(safe-area-inset-bottom))}
-    #dbstat,#acadname{display:none!important}
-    .studenttag{margin-left:6px;padding:5px 9px}
-    .studenttag select{max-width:120px!important}
-    .card{padding:14px;overflow-x:auto}
-    .h1{font-size:27px}
-  }
-  @media(max-width:640px){
-    .g4,.g3{grid-template-columns:1fr}
-    input,select,textarea{font-size:16px!important}
-    .roletoggle button{padding:8px 10px;font-size:11px}
-    .content table{min-width:520px}
-    .topbar .crumbs{max-width:44vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-    .h1{font-size:24px}
   }
 </style>
 <style>
@@ -311,12 +307,6 @@
   #v-essaybatch .eb-reason{font-size:12px;line-height:1.7;color:var(--ink-dim,#8ba99a);margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))}
   #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
 </style>
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#f4f7f4">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="아르케">
-<link rel="apple-touch-icon" href="/icon-180.png">
 </head>
 <body>
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
@@ -361,24 +351,43 @@
       <div class="tag">PentaView · 입시 컨설팅 엔진</div>
     </div></div>
 
-    <div class="navlabel">컨설팅</div>
     <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
-    <div class="nav" data-v="students" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 6.5a3 3 0 010 5.4M18 20c0-2.3-1-4.3-2.5-5.4"/></svg> 학생 관리</div>
-    <div class="nav" data-v="intake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/><rect x="3" y="3" width="18" height="18" rx="3"/></svg> 학생 자료 입력</div>
-    <div class="nav" data-v="consult" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> 상담 기록</div>
+    <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> 학생 기본 상담</div>
 
-    <div class="navlabel">진단</div>
-    <div class="nav" data-v="diag" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 학생 진단</div>
-    <div class="nav" data-v="arche" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg> 합격 역설계</div>
-    <div class="nav" data-v="curri" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 이수과목 검증</div>
+    <!-- 대입 컨설팅 그룹 -->
+    <div class="navgroup dae" id="grp-dae">
+      <div class="grouphead" onclick="toggleGroup('dae')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg> 대입 컨설팅<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="navsub">
+        <div class="nav" data-v="students" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> 학생 관리</div>
+        <div class="nav" data-v="intake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg> 학생 자료 입력</div>
+        <div class="nav" data-v="consult" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> 상담 기록</div>
+        <div class="nav" data-v="diag" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 학생 진단</div>
+        <div class="nav" data-v="arche" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg> 합격 역설계</div>
+        <div class="nav" data-v="curri" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 이수과목 검증</div>
+        <div class="nav" data-v="roadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
+        <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 학생부 디자인</div>
+        <div class="nav" data-v="iv" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg> 면접 준비</div>
+        <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg> 컨설팅 리포트</div>
+      </div>
+    </div>
 
-    <div class="navlabel">설계 · 성장</div>
-    <div class="nav" data-v="roadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
-    <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3M8 6l4-3 4 3"/></svg> 학생부 디자인</div>
-    <div class="nav" data-v="iv" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4M8 22h8"/></svg> 면접 준비</div>
+    <!-- 고입 컨설팅 그룹 -->
+    <div class="navgroup goip" id="grp-goip">
+      <div class="grouphead" onclick="toggleGroup('goip')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg> 고입 컨설팅<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="navsub">
+        <div class="nav" data-v="gstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> 학생 관리</div>
+        <div class="nav" data-v="gintake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg> 학생 자료 입력</div>
+        <div class="nav" data-v="gconsult" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> 상담 관리</div>
+        <div class="nav disabled" data-soon="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> 학생 진단 <span class="soon">준비중</span></div>
+        <div class="nav" data-v="goip" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg> 지원가능·성향 매칭</div>
+        <div class="nav disabled" data-soon="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵 <span class="soon">준비중</span></div>
+        <div class="nav disabled" data-soon="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 학생부 디자인 <span class="soon">준비중</span></div>
+        <div class="nav" data-v="gessay" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7"/></svg> 자소서 준비</div>
+        <div class="nav disabled" data-soon="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg> 면접 준비 <span class="soon">준비중</span></div>
+      </div>
+    </div>
 
-    <div class="navlabel">아웃풋</div>
-    <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7M9 17h5"/></svg>  컨설팅 리포트</div>
+    <div class="navlabel" style="margin-top:8px">시스템</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
     <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회</div>
     <div class="nav" data-v="admin" id="nav-admin" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg> 관리자 콘솔</div>
@@ -386,13 +395,11 @@
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
   </aside>
-  <div id="navback" onclick="toggleNav(false)"></div>
 
   <!-- MAIN -->
   <main>
     <div class="topbar">
       <div style="display:flex;align-items:center">
-        <button class="menu-btn" onclick="toggleNav()" aria-label="메뉴"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
         <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="selectStudent(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
@@ -414,6 +421,32 @@
         <div class="eyebrow">Consulting Cockpit</div>
         <div class="h1">컨설팅 홈</div>
         <div class="sub" id="home-sub">담당 학생 0명</div>
+
+        <div class="grid" style="grid-template-columns:1fr 1fr;margin:18px 0 22px">
+          <div class="card trackcard" onclick="enterTrack('dae')" style="cursor:pointer;border-left:3px solid var(--lime)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--lime)" stroke-width="1.6"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg>
+              <div style="font-size:17px;font-weight:800;color:var(--ink)">대입 컨설팅</div>
+            </div>
+            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">진단 · 합격 역설계 · 이수과목 검증 · 성장 로드맵 · 학생부 디자인 · 면접 · 리포트</div>
+            <div style="display:flex;gap:16px;margin-top:12px">
+              <div><span class="mono" id="hk-dae-count" style="font-size:22px;font-weight:800;color:var(--lime)">0</span><span style="font-size:11px;color:var(--ink-mute);margin-left:4px">명</span></div>
+              <div style="font-size:11px;color:var(--ink-mute);align-self:flex-end">고1~고3</div>
+            </div>
+          </div>
+          <div class="card trackcard" onclick="enterTrack('goip')" style="cursor:pointer;border-left:3px solid var(--gold)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>
+              <div style="font-size:17px;font-weight:800;color:var(--ink)">고입 컨설팅 <span style="font-size:10px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 8px;vertical-align:middle">특목·자사고</span></div>
+            </div>
+            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">지원가능 리스트업(내신 환산) · 학생부 성향 매칭 · 자소서 · 면접 <span style="color:var(--ink-mute)">(일부 준비중)</span></div>
+            <div style="display:flex;gap:16px;margin-top:12px">
+              <div><span class="mono" id="hk-goip-count" style="font-size:22px;font-weight:800;color:var(--gold)">0</span><span style="font-size:11px;color:var(--ink-mute);margin-left:4px">명</span></div>
+              <div style="font-size:11px;color:var(--ink-mute);align-self:flex-end">중2~중3</div>
+            </div>
+          </div>
+        </div>
+
         <div class="grid g4" style="margin-bottom:16px">
           <div class="card kpi"><div class="lab">담당 학생</div><div class="num" id="hk-count">0</div><div class="delta up mono" id="hk-new"></div></div>
           <div class="card kpi"><div class="lab">이번 달 신규</div><div class="num" id="hk-month">0</div><div class="delta mono" style="color:var(--ink-mute)">최근 30일 등록</div></div>
@@ -429,6 +462,41 @@
           </table>
         </div>
         
+      </section>
+
+      <!-- 학생 기본 상담 -->
+      <section class="view" id="v-basecon">
+        <div class="eyebrow">Intake Consultation</div>
+        <div class="h1">학생 기본 상담</div>
+        <div class="sub">학생·학부모 상담 내용을 저장하면 학년에 따라 대입/고입 트랙으로 유입됩니다.</div>
+        <div class="grid g2" style="margin-top:18px;align-items:start">
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:12px">신규 상담 기록</div>
+            <input id="bc-name" placeholder="학생 이름" style="width:100%;margin-bottom:9px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="display:flex;gap:8px;margin-bottom:9px">
+              <select id="bc-grade" onchange="baseconTrackHint()" style="flex:1;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+                <option value="">학년 선택</option>
+                <option value="중2">중2</option><option value="중3">중3</option>
+                <option value="고1">고1</option><option value="고2">고2</option><option value="고3">고3</option>
+                <option value="N수">N수</option>
+              </select>
+              <select id="bc-kind" style="width:120px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+                <option value="학생">학생 상담</option><option value="학부모">학부모 상담</option>
+              </select>
+            </div>
+            <div id="bc-track-hint" style="font-size:11.5px;margin-bottom:9px;color:var(--ink-mute)">학년을 선택하면 유입 트랙이 표시됩니다.</div>
+            <input id="bc-career" placeholder="희망 진로·관심 분야" style="width:100%;margin-bottom:9px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="bc-target" placeholder="희망 학교·학과 (예: 대원외고 / 서울대 경영)" style="width:100%;margin-bottom:9px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <textarea id="bc-memo" rows="4" placeholder="상담 내용 메모" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+            <button class="btn" onclick="saveBaseCon()">상담 저장</button>
+            <div id="bc-msg" style="font-size:12px;margin-top:8px"></div>
+          </div>
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:12px">최근 기본 상담</div>
+            <div id="bc-list"><div style="color:var(--ink-mute);font-size:12px">저장된 기본 상담이 없습니다.</div></div>
+          </div>
+        </div>
+        <div class="note">※ 중2·중3은 고입 트랙, 고1 이상은 대입 트랙으로 분류됩니다. 정식 학생 등록은 각 트랙의 [학생 관리]에서 진행합니다.</div>
       </section>
 
       <!-- 2. INTAKE -->
@@ -589,6 +657,129 @@
         </div>
         <div class="note">※ 커트라인 DB = 대표님 골든 시드 데이터 연동 지점. 목표 3지망 입력 시 자동 산출.</div>
         </div>
+      </section>
+
+      <!-- 고입 학생 관리 -->
+      <section class="view" id="v-gstudents">
+        <div class="eyebrow">GOIP · Student Management</div>
+        <div class="h1">고입 학생 관리</div>
+        <div class="sub">특목고·자사고 지망 중학생을 등록·관리합니다.</div>
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
+            <div class="sectionhead"><span class="idx" style="background:var(--gold)">＋</span><h3>학생 등록</h3></div>
+            <input id="gst-name" placeholder="이름 *" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="gst-school" placeholder="출신 중학교" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <select id="gst-grade" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년</option><option>중2</option><option>중3</option></select>
+              <select id="gst-type" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">지망 유형</option><option>외고</option><option>국제고</option><option>자사고</option><option>과학고</option><option>영재학교</option></select>
+            </div>
+            <input id="gst-target" placeholder="목표 학교 (예: 대원외고)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="gst-career" placeholder="희망 진로" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="gst-interest" placeholder="관심 분야 (예: 국제관계, AI)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent"> 생기부 활용 동의</label>
+            <div id="gst-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
+            <button onclick="addGStudent()" style="width:100%;padding:11px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
+          </div>
+          <div>
+            <h3 style="font-size:14px;color:var(--ink);margin:2px 0 12px">고입 수강생 <span id="gst-count" class="mono" style="font-size:12px;color:var(--gold)">0</span></h3>
+            <div id="gst-list" style="display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute)">로그인 후 표시됩니다.</div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 고입 학생 자료 입력 -->
+      <section class="view" id="v-gintake">
+        <div class="eyebrow">GOIP · Data Intake</div>
+        <div class="h1">고입 학생 자료 입력</div>
+        <div class="sub" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span>학생 선택</span>
+          <select id="gin-student" onchange="gintakeSelect(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 학생 선택 —</option></select>
+          <b id="gin-who" style="color:var(--gold)"></b>
+        </div>
+        <div class="card" style="margin-top:18px">
+          <div style="font-weight:700;margin-bottom:8px">중학 생기부 업로드 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">PDF · 이미지 · 스캔본 지원</span></div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-bottom:10px">업로드하면 성취도(영어·수학·과학·국어·사회) + 자율·동아리·진로·과세특·행발·<b>독서활동</b>을 자동 추출합니다.</div>
+          <input type="file" id="gin-file" accept=".pdf,image/*" onchange="gintakeUpload(this.files[0])" style="font-size:12px;margin-bottom:8px">
+          <div id="gin-msg" style="font-size:12px;margin-top:6px"></div>
+        </div>
+        <div id="gin-result" style="margin-top:16px"></div>
+      </section>
+
+      <!-- 고입 상담 관리 -->
+      <section class="view" id="v-gconsult">
+        <div class="eyebrow">GOIP · Consultation</div>
+        <div class="h1">고입 상담 관리</div>
+        <div class="sub" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span>학생 선택</span>
+          <select id="gcon-student" onchange="gconSelect(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 학생 선택 —</option></select>
+          <b id="gcon-who" style="color:var(--gold)"></b>
+        </div>
+        <div style="display:flex;gap:8px;margin:14px 0">
+          <select id="gcon-kind" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="student">학생 상담</option><option value="parent">학부모 상담</option></select>
+        </div>
+        <div class="fieldrow">
+          <input id="gcon-target" placeholder="희망 학교" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          <input id="gcon-career" placeholder="희망 진로" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+        </div>
+        <textarea id="gcon-act" rows="4" placeholder="현재 활동 현황 (자율·동아리·진로·독서 등)" style="width:100%;margin:10px 0;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+        <textarea id="gcon-memo" rows="3" placeholder="상담 메모 (자유)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+        <button onclick="saveGCon()" style="padding:10px 18px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
+        <div id="gcon-msg" style="font-size:12px;margin-top:8px"></div>
+        <div id="gcon-list" style="margin-top:20px"></div>
+      </section>
+
+      <!-- 고입 자소서 준비 -->
+      <section class="view" id="v-gessay">
+        <div class="eyebrow">GOIP · Self-Introduction Letter</div>
+        <div class="h1">고입 자소서 준비</div>
+        <div class="sub">설계도 → 컨설턴트 확인 → 학생 작성 → 평가·퇴고 루프. 완성 문장 대필은 하지 않습니다(설계·진단·소재 매핑만).</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
+          <select id="ges-student" onchange="gesSelect(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 학생 선택 —</option></select>
+          <select id="ges-school" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 지원 학교 —</option></select>
+          <button class="btn" onclick="gesGenBlueprint()">설계도 생성</button>
+          <button class="btn ghost" onclick="gesLoad()">불러오기</button>
+        </div>
+        <div id="ges-msg" style="font-size:12px;margin-top:8px"></div>
+        <div id="ges-body" style="margin-top:16px"></div>
+      </section>
+
+      <!-- 4.5 GOIP CONSULTING -->
+      <section class="view" id="v-goip">
+        <div class="eyebrow">High School Admission</div>
+        <div class="h1">고입 컨설팅 <span style="font-size:12px;color:var(--gold);vertical-align:middle;letter-spacing:.05em">특목고 · 자사고</span></div>
+        <div class="sub">지원가능 학교 리스트업(내신 환산) + 학생부 활동·진로 기반 성향 매칭</div>
+        <div class="grid g2" style="margin-top:16px;align-items:start">
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:10px">① 조건 · 중학 성취도</div>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <select id="gp-region" style="flex:1;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">지역(시·도) 선택</option><option value="서울">서울</option><option value="부산">부산</option><option value="대구">대구</option><option value="인천">인천</option><option value="광주">광주</option><option value="대전">대전</option><option value="울산">울산</option><option value="세종">세종</option><option value="경기">경기</option><option value="강원">강원</option><option value="충북">충북</option><option value="충남">충남</option><option value="전북">전북</option><option value="전남">전남</option><option value="경북">경북</option><option value="경남">경남</option><option value="제주">제주</option></select>
+            </div>
+            <div id="gp-types" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;font-size:12.5px;color:var(--ink-dim)">
+              <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="외고"> 외고</label>
+              <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="국제고"> 국제고</label>
+              <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="자사고"> 자사고</label>
+              <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="과학고"> 과학고</label>
+              <label style="display:flex;align-items:center;gap:5px"><input type="checkbox" value="영재학교"> 영재학교</label>
+            </div>
+            <table style="width:100%;border-collapse:collapse;margin-bottom:12px"><thead><tr><th></th><th style="font-size:10.5px;color:var(--ink-mute);font-weight:500;padding:3px">2-1</th><th style="font-size:10.5px;color:var(--ink-mute);font-weight:500;padding:3px">2-2</th><th style="font-size:10.5px;color:var(--ink-mute);font-weight:500;padding:3px">3-1</th><th style="font-size:10.5px;color:var(--ink-mute);font-weight:500;padding:3px">3-2</th></tr></thead><tbody><tr><td style="padding:3px 6px;font-size:12px;color:var(--ink-dim);white-space:nowrap">영어</td><td style="padding:3px"><select id="gp-영어-2-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-영어-2-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-영어-3-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-영어-3-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td></tr><tr><td style="padding:3px 6px;font-size:12px;color:var(--ink-dim);white-space:nowrap">수학</td><td style="padding:3px"><select id="gp-수학-2-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-수학-2-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-수학-3-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-수학-3-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td></tr><tr><td style="padding:3px 6px;font-size:12px;color:var(--ink-dim);white-space:nowrap">과학</td><td style="padding:3px"><select id="gp-과학-2-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-과학-2-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-과학-3-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-과학-3-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td></tr><tr><td style="padding:3px 6px;font-size:12px;color:var(--ink-dim);white-space:nowrap">국어</td><td style="padding:3px"><select id="gp-국어-2-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-국어-2-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-국어-3-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-국어-3-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td></tr><tr><td style="padding:3px 6px;font-size:12px;color:var(--ink-dim);white-space:nowrap">사회</td><td style="padding:3px"><select id="gp-사회-2-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-사회-2-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-사회-3-1" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td><td style="padding:3px"><select id="gp-사회-3-2" style="width:100%;padding:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px"><option value="">-</option><option>A</option><option>B</option><option>C</option><option>D</option><option>E</option></select></td></tr></tbody></table>
+            <div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:10px">외고·국제고는 영어만 반영. 미입력 학기는 자유학기 규정으로 자동 대체됩니다.</div>
+            <button class="btn" onclick="goipShortlist()">지원가능 리스트업</button>
+            <div id="gp-msg" style="font-size:12px;margin-top:8px"></div>
+            <div id="gp-shortlist" style="margin-top:10px"></div>
+          </div>
+          <div class="card">
+            <div style="font-weight:700;margin-bottom:10px">② 성향 매칭 <span style="font-size:10px;color:#fff;background:var(--violet);border-radius:20px;padding:2px 8px;vertical-align:middle">AI</span></div>
+            <input id="gp-career" placeholder="희망 진로 (예: 국제기구 외교관)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <textarea id="gp-record" rows="9" placeholder="생기부 활동 요약 — [활동자료 불러오기]로 자동 구성하거나 직접 입력 (자율·동아리·진로·세특·독서·행발)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+            <div style="display:flex;gap:8px">
+              <button class="btn ghost" onclick="goipCompose()">활동자료 불러오기</button>
+              <button class="btn" onclick="goipStyleMatch()">AI 성향 매칭</button>
+            </div>
+            <div id="gp-msg2" style="font-size:12px;margin-top:8px"></div>
+            <div id="gp-match" style="margin-top:10px"></div>
+          </div>
+        </div>
+        <div class="note">※ 밴드·적합도는 참고용 근사 추정이며 합격 예측이 아닙니다 — 최종 판단은 컨설턴트가 합니다. 성적 데이터는 서버 환산식으로, 성향 매칭은 학교 공시 특색사업·브로슈어 기반으로 산출됩니다.</div>
       </section>
 
       <!-- 5. CURRI CHECK -->
@@ -1253,14 +1444,24 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",students:"학생 관리",intake:"학생 자료 입력",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",essaybatch:"자소서 채점",admin_data:"입시자료 조회",settings:"설정"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gessay:"고입 · 자소서 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정"};
+const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','iv','report'];
+const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gessay'];
+function toggleGroup(g){
+  var el=document.getElementById('grp-'+g); if(!el)return;
+  el.classList.toggle('open');
+}
 function go(el){
+  if(el.classList.contains('disabled')){ alert('준비 중인 기능입니다.'); return; }
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
+  // 소속 그룹 자동 펼침
+  if(DAE_VIEWS.indexOf(v)>=0){var d=document.getElementById('grp-dae');if(d)d.classList.add('open');}
+  if(GOIP_VIEWS.indexOf(v)>=0){var g=document.getElementById('grp-goip');if(g)g.classList.add('open');}
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
-  document.getElementById('v-'+v).classList.add('on');
-  document.getElementById('crumb').textContent=crumbMap[v];window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling();}
+  var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
+  document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling();}
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1545,6 +1746,9 @@ function renderHomeKPI(){
   var cs=st.filter(function(s){return s.consent_record;}).length;
   set('hk-consent',cs);
   var cn=document.getElementById('hk-consent-note'); if(cn)cn.textContent=st.length?('전체 '+st.length+'명 중'):'';
+  // 트랙별 카운트 (학년 기준: 중2·중3 = 고입, 그 외 = 대입)
+  set('hk-dae-count',st.length);
+  if(sb){sb.from('students').select('id',{count:'exact',head:true}).eq('admission_track','고입').then(function(r){set('hk-goip-count',(r&&r.count)||0);});}
   // 홈 테이블
   var tb=document.getElementById('home-stu-tbody');
   if(tb){
@@ -1563,7 +1767,7 @@ function renderHomeKPI(){
 async function loadStudents(){
   const list=document.getElementById('st-list'); if(!list)return;
   if(!sb){list.innerHTML='<div style="color:var(--risk)">DB 미로드</div>';return;}
-  const {data,error}=await sb.from('students').select('*').order('created_at',{ascending:false});
+  const {data,error}=await sb.from('students').select('*').or('admission_track.is.null,admission_track.neq.고입').order('created_at',{ascending:false});
   if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   window._students=data||[];
   document.getElementById('st-count').textContent=window._students.length;
@@ -2415,15 +2619,24 @@ async function saveCompetency(){
 /* ===== 학생부 업로드 · PDF 추출 · AI 자동정리 ===== */
 window._recText=''; window._parsedSetech=[];
 window._recImages=[];
-async function renderPdfImages(pdf,maxPages,scaleW){
+async function renderPdfImages(pdf,maxPages,scaleW,enhance){
   var out=[]; var n=Math.min(pdf.numPages,maxPages);
+  var maxScale=enhance?3:2, q=enhance?0.72:0.55;
   for(var i=1;i<=n;i++){
     var pg=await pdf.getPage(i);
-    var vp=pg.getViewport({scale:1}); var scale=scaleW/vp.width; if(scale>2)scale=2;
+    var vp=pg.getViewport({scale:1}); var scale=scaleW/vp.width; if(scale>maxScale)scale=maxScale;
     var v=pg.getViewport({scale:scale});
     var cv=document.createElement('canvas'); cv.width=v.width; cv.height=v.height;
     await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise;
-    out.push(cv.toDataURL('image/jpeg',0.55).split(',')[1]);
+    if(enhance){
+      // 저해상도 스캔 판독률 향상: 흑백 + 대비 보정
+      try{
+        var cv2=document.createElement('canvas'); cv2.width=cv.width; cv2.height=cv.height;
+        var cx2=cv2.getContext('2d'); cx2.filter='grayscale(1) contrast(1.18) brightness(1.04)';
+        cx2.drawImage(cv,0,0); cv=cv2;
+      }catch(e){}
+    }
+    out.push(cv.toDataURL('image/jpeg',q).split(',')[1]);
   }
   return out;
 }
@@ -2997,14 +3210,622 @@ window.EB = EB;
 // 골든시드 채점 = 내부 전용. 대입 운영 화면엔 숨김.
 // URL ?internal=1 또는 콘솔 archeInternal() 로만 노출.
 // 골든시드 채점(essaybatch)은 특목고 자소서 기능 준비 전까지 완전 숨김 — 내부 노출에서도 제외.
+
+/* ===== 트랙 진입 · 홈 카드 ===== */
+function enterTrack(t){
+  if(t==='dae'){ var d=document.getElementById('grp-dae'); if(d)d.classList.add('open'); jump('students'); }
+  else { var g=document.getElementById('grp-goip'); if(g)g.classList.add('open'); jump('goip'); }
+}
+
+/* ===== 학생 기본 상담 ===== */
+function baseconTrackHint(){
+  var g=document.getElementById('bc-grade').value; var h=document.getElementById('bc-track-hint');
+  if(!h)return;
+  if(!g){h.style.color='var(--ink-mute)';h.textContent='학년을 선택하면 유입 트랙이 표시됩니다.';return;}
+  if(g.indexOf('중')>=0){h.style.color='var(--gold)';h.textContent='→ 고입 컨설팅 트랙으로 분류됩니다.';}
+  else{h.style.color='var(--lime)';h.textContent='→ 대입 컨설팅 트랙으로 분류됩니다.';}
+}
+async function saveBaseCon(){
+  var m=document.getElementById('bc-msg'); if(!sb){m.style.color='var(--risk)';m.textContent='연결 오류';return;}
+  var name=document.getElementById('bc-name').value.trim();
+  var grade=document.getElementById('bc-grade').value;
+  if(!name||!grade){m.style.color='var(--risk)';m.textContent='이름과 학년은 필수입니다.';return;}
+  var track=grade.indexOf('중')>=0?'고입':'대입';
+  var row={name:name,grade:grade,track:track,kind:document.getElementById('bc-kind').value,
+    career:document.getElementById('bc-career').value.trim()||null,
+    target:document.getElementById('bc-target').value.trim()||null,
+    memo:document.getElementById('bc-memo').value.trim()||null};
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var r=await sb.from('base_consultations').insert(row);
+  if(r.error){
+    // 테이블 미존재 등 — 안내만
+    m.style.color='var(--risk)';m.textContent='저장 실패: '+esc(r.error.message)+' (base_consultations 테이블 필요)';return;
+  }
+  m.style.color='var(--safe)';m.textContent=track+' 트랙으로 저장되었습니다.';
+  ['bc-name','bc-career','bc-target','bc-memo'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('bc-grade').value=''; baseconTrackHint(); renderBaseCon();
+}
+async function renderBaseCon(){
+  var box=document.getElementById('bc-list'); if(!box||!sb)return;
+  var r=await sb.from('base_consultations').select('*').order('created_at',{ascending:false}).limit(20);
+  if(r.error){box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">기록을 불러올 수 없습니다. (base_consultations 테이블 미생성 시 설정 필요)</div>';return;}
+  var d=r.data||[];
+  if(!d.length){box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 기본 상담이 없습니다.</div>';return;}
+  box.innerHTML=d.map(function(x){
+    var col=x.track==='고입'?'var(--gold)':'var(--lime)';
+    return '<div style="border:1px solid var(--line-soft);border-radius:9px;padding:9px 11px;margin-bottom:7px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+esc(x.name)+' <span style="font-size:11px;color:var(--ink-mute);font-weight:400">'+esc(x.grade||'')+'·'+esc(x.kind||'')+'</span></b>'
+      +'<span style="font-size:10px;font-weight:700;color:#fff;background:'+col+';border-radius:20px;padding:2px 8px">'+esc(x.track||'')+'</span></div>'
+      +(x.career?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">진로: '+esc(x.career)+'</div>':'')
+      +(x.target?'<div style="font-size:11.5px;color:var(--ink-dim)">목표: '+esc(x.target)+'</div>':'')
+      +(x.memo?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:3px">'+esc(x.memo)+'</div>':'')
+      +'</div>';
+  }).join('');
+}
+
+/* ===== 고입 컨설팅 ===== */
+window.renderGoip=function(){
+  var s=window._activeStudent;
+  var c=document.getElementById('gp-career');
+  if(c&&!c.value&&s&&s.career)c.value=s.career;
+};
+function goipTypes(){var a=[];document.querySelectorAll('#gp-types input:checked').forEach(function(x){a.push(x.value);});return a;}
+function goipGrades(){
+  var subs=['영어','수학','과학','국어','사회'],sems=['2-1','2-2','3-1','3-2'],g=[];
+  subs.forEach(function(su){sems.forEach(function(se){var el=document.getElementById('gp-'+su+'-'+se);if(el&&el.value)g.push({sem:se,subject:su,ach:el.value});});});
+  return g;
+}
+async function goipShortlist(){
+  var m=document.getElementById('gp-msg'),box=document.getElementById('gp-shortlist');
+  if(!sb){m.style.color='var(--risk)';m.textContent='연결 오류';return;}
+  var types=goipTypes(); if(!types.length){m.style.color='var(--risk)';m.textContent='학교 유형을 선택하세요.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='환산 중…';box.innerHTML='';
+  var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_shortlist',payload:{types:types,region:document.getElementById('gp-region').value,grades:goipGrades()}}});
+  var data=r.data,error=r.error;
+  if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
+  m.style.color='var(--safe)';m.textContent=data.count+'개교 조회 · 밴드는 근사 추정';
+  var bc={'안정':'var(--safe)','적정':'var(--lime)','도전':'var(--reach)','위험':'var(--risk)'};
+  box.innerHTML=(data.results||[]).map(function(x){
+    var cv=x.conversion||{};var band=cv.ok?(cv.band||''):'환산불가';var col=bc[band]||'var(--ink-mute)';
+    var score=cv.ok?(cv.score!=null?cv.score+(cv.total?' / '+cv.total:''):''):(cv.reason||'');
+    return '<div style="border:1px solid var(--line-soft);border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+esc(x.name)+'</b>'
+      +'<span style="font-size:11px;font-weight:700;color:'+col+'">'+esc(band)+'</span></div>'
+      +'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">'+esc(x.school_type)+' · '+esc(x.region)+' · '+esc(x.scope)+' 모집'+(score?' · 환산 '+esc(String(score)):'')+'</div>'
+      +'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">1단계 '+esc(x.stage1||'-')+' → 2단계 '+esc(x.stage2||'-')+'</div>'
+      +(x.key_programs&&x.key_programs.length?'<div style="font-size:11px;color:var(--gold);margin-top:3px">'+x.key_programs.map(esc).join(' · ')+'</div>':'')
+      +'</div>';
+  }).join('')||'<div style="color:var(--ink-mute);font-size:12px">해당 조건의 학교가 없습니다.</div>';
+}
+async function goipCompose(){
+  var m=document.getElementById('gp-msg2');var s=requireActive(m);if(!s||!sb)return;
+  m.style.color='var(--ink-mute)';m.textContent='활동자료 수집 중…';
+  var parts=[];
+  try{
+    var se=await sb.from('student_setech').select('subject,area,text').eq('student_id',s.id).limit(30);
+    (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'세특')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
+    var di=await sb.from('design_items').select('subject,title,goal,submission').eq('student_id',s.id).limit(20);
+    (di.data||[]).forEach(function(x){parts.push('[디자인'+(x.subject?'·'+x.subject:'')+'] '+(x.title||'')+(x.goal?' — '+x.goal:'')+(x.submission?' / 수행: '+x.submission.slice(0,200):''));});
+    var co=await sb.from('consultations').select('career,activities,memo').eq('student_id',s.id).limit(10);
+    (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담·활동] '+x.activities.slice(0,250));if(x.memo)parts.push('[상담메모] '+x.memo.slice(0,200));});
+  }catch(e){}
+  if(!parts.length){m.style.color='var(--risk)';m.textContent='수집할 자료가 없습니다 — 직접 입력해 주세요.';return;}
+  document.getElementById('gp-record').value=parts.join('\n');
+  var cin=document.getElementById('gp-career'); if(cin&&!cin.value&&s.career)cin.value=s.career;
+  m.style.color='var(--safe)';m.textContent=parts.length+'건 수집 — 검토·수정 후 매칭하세요.';
+}
+async function goipStyleMatch(){
+  var m=document.getElementById('gp-msg2'),box=document.getElementById('gp-match');
+  if(!sb){m.style.color='var(--risk)';m.textContent='연결 오류';return;}
+  var career=document.getElementById('gp-career').value.trim();
+  var rec=document.getElementById('gp-record').value.trim();
+  if(!rec&&!career){m.style.color='var(--risk)';m.textContent='희망 진로 또는 활동 요약을 입력하세요.';return;}
+  var types=goipTypes(); if(!types.length){m.style.color='var(--risk)';m.textContent='좌측에서 학교 유형을 선택하세요.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='AI 성향 매칭 중… (20~40초)';box.innerHTML='';
+  var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_style_match',payload:{types:types,region:document.getElementById('gp-region').value,career:career,record_text:rec}}});
+  var data=r.data,error=r.error;
+  if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
+  var res=null;try{res=JSON.parse(data.text);}catch(e){}
+  if(!res){m.style.color='var(--risk)';m.textContent='응답 해석 실패 — 다시 시도하세요.';return;}
+  m.style.color='var(--safe)';m.textContent='매칭 완료 (성향 적합도 — 합격 예측 아님)';
+  var gc={'높음':'var(--safe)','보통':'var(--reach)','낮음':'var(--risk)'};
+  var html='';
+  if(res.student_style){
+    html+='<div style="background:var(--panel-2);border-radius:10px;padding:10px 12px;margin-bottom:10px">'
+      +'<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:4px">학생 성향 분석</div>'
+      +'<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">'+esc(res.student_style.summary||'')+'</div>'
+      +((res.student_style.traits||[]).length?'<div style="margin-top:7px">'+res.student_style.traits.map(function(t){return '<span style="display:inline-block;font-size:10.5px;background:var(--panel-3);border-radius:20px;padding:2px 9px;margin:0 4px 4px 0;color:var(--ink-dim)">'+esc(t)+'</span>';}).join('')+'</div>':'')+'</div>';
+  }
+  html+=(res.matches||[]).map(function(x){
+    var col=gc[x.grade]||'var(--lime)';
+    return '<div style="border:1px solid var(--line-soft);border-radius:10px;padding:11px 13px;margin-bottom:9px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><b style="font-size:13px">'+esc(x.name)+'</b><span style="font-size:11px;font-weight:700;color:'+col+'">'+esc(x.grade||'')+' · '+(x.fit!=null?esc(String(x.fit)):'-')+'</span></div>'
+      +'<div style="height:5px;background:var(--panel-3);border-radius:4px;margin-bottom:9px"><div style="height:5px;border-radius:4px;width:'+Math.max(0,Math.min(100,Number(x.fit)||0))+'%;background:'+col+'"></div></div>'
+      +(x.reasons||[]).map(function(rs){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:6px;line-height:1.5">• <b style="color:var(--ink)">'+esc(rs.school_program||'')+'</b> ↔ '+esc(rs.student_evidence||'')+'<div style="color:var(--ink-mute);margin-left:11px">'+esc(rs.connect||'')+'</div></div>';}).join('')
+      +(x.caution?'<div style="font-size:11px;color:var(--reach);margin-top:5px">보완 포인트 — '+esc(x.caution)+'</div>':'')
+      +'</div>';
+  }).join('');
+  if(res.summary_note)html+='<div class="note" style="margin-top:4px">'+esc(res.summary_note)+'</div>';
+  if(data.no_profile&&data.no_profile.length)html+='<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">특색 데이터 수집 중(이번 매칭 제외): '+data.no_profile.map(esc).join(', ')+'</div>';
+  box.innerHTML=html;
+}
+
+
+/* ===== 고입 학생 관리 ===== */
+window._gstudents=[];
+window._gactive=null;
+async function loadGStudents(){
+  if(!sb)return;
+  var r=await sb.from('students').select('*').eq('admission_track','고입').order('created_at',{ascending:false});
+  if(r.error){var l=document.getElementById('gst-list');if(l)l.innerHTML='<div style="color:var(--risk)">'+esc(r.error.message)+'</div>';return;}
+  window._gstudents=r.data||[];
+  fillGoipPickers();
+}
+window.renderGStudents=async function(){
+  await loadGStudents();
+  var list=document.getElementById('gst-list'); if(!list)return;
+  var st=window._gstudents;
+  document.getElementById('gst-count').textContent=st.length;
+  if(!st.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 고입 학생이 없습니다.</div>';return;}
+  list.innerHTML=st.map(function(s){
+    var act=(window._gactive&&window._gactive.id===s.id);
+    return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line-soft)')+';border-radius:12px;padding:13px 15px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px;color:var(--ink)">'+esc(s.name||'-')+'</b>'
+      +'<span style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'')+(s.target_school_type?' · '+esc(s.target_school_type):'')+'</span></div>'
+      +'<div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+'</div>'
+      +(s.career?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px">진로: '+esc(s.career)+'</div>':'')
+      +'<div style="margin-top:7px;display:flex;gap:6px">'
+      +'<button onclick="event.stopPropagation();selectGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--ink-dim)">활성화</button>'
+      +'<button onclick="event.stopPropagation();delGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--risk)">삭제</button>'
+      +'</div></div>';
+  }).join('');
+};
+async function addGStudent(){
+  var m=document.getElementById('gst-msg'); if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드';return;}
+  var name=document.getElementById('gst-name').value.trim();
+  if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
+  var acs=await sb.from('academies').select('id').limit(1);
+  var acadId=acs.data&&acs.data[0]&&acs.data[0].id;
+  if(!acadId){m.style.color='var(--risk)';m.textContent='학원 정보 없음.';return;}
+  var row={name:name,admission_track:'고입',academy_id:acadId,
+    school:document.getElementById('gst-school').value.trim()||null,
+    grade:document.getElementById('gst-grade').value||null,
+    target_school_type:document.getElementById('gst-type').value||null,
+    target_school:document.getElementById('gst-target').value.trim()||null,
+    career:document.getElementById('gst-career').value.trim()||null,
+    interest:document.getElementById('gst-interest').value.trim()||null,
+    consent_record:document.getElementById('gst-consent').checked};
+  if(acadId)row.academy_id=acadId;
+  m.style.color='var(--ink-mute)';m.textContent='등록 중…';
+  var r=await sb.from('students').insert(row);
+  if(r.error){m.style.color='var(--risk)';m.textContent=esc(r.error.message);return;}
+  m.style.color='var(--safe)';m.textContent='등록 완료.';
+  ['gst-name','gst-school','gst-target','gst-career','gst-interest'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('gst-grade').value='';document.getElementById('gst-type').value='';document.getElementById('gst-consent').checked=false;
+  renderGStudents();
+}
+async function delGStudent(id){
+  if(!sb||!confirm('삭제하시겠습니까? 관련 자료도 함께 삭제됩니다.'))return;
+  await sb.from('students').delete().eq('id',id);
+  if(window._gactive&&window._gactive.id===id)window._gactive=null;
+  renderGStudents();
+}
+function selectGStudent(id){
+  var s=(window._gstudents||[]).find(function(x){return x.id===id;}); if(!s)return;
+  window._gactive=s; window._activeStudent=s; // 공유 헬퍼(requireActive/goipCompose) 호환
+  fillGoipPickers();
+  renderGStudents();
+  var gw=document.getElementById('gin-who'); if(gw)gw.textContent=s.name+' 활성';
+  var cw=document.getElementById('gcon-who'); if(cw)cw.textContent=s.name+' 활성';
+}
+function fillGoipPickers(){
+  var cur=window._gactive?window._gactive.id:'';
+  var opts='<option value="">— 학생 선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');
+  ['gin-student','gcon-student'].forEach(function(id){var el=document.getElementById(id);if(el){el.innerHTML=opts;el.value=cur;}});
+}
+
+/* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
+window.renderGIntake=function(){ loadGStudents().then(function(){ if(window._gactive){var w=document.getElementById('gin-who');if(w)w.textContent=window._gactive.name+' 활성';} }); };
+function gintakeSelect(id){ selectGStudent(id); }
+async function gintakeUpload(file){
+  var m=document.getElementById('gin-msg'); var s=window._gactive;
+  if(!s){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';return;}
+  if(!file||!sb)return;
+  window._gRecText=''; window._gRecImages=[];
+  if(/\.pdf$/i.test(file.name)&&window.pdfjsLib){
+    m.style.color='var(--ink-mute)';m.textContent='PDF 텍스트 추출 중…';
+    try{
+      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      var buf=await file.arrayBuffer();
+      var pdf=await pdfjsLib.getDocument({data:buf}).promise; var t='';
+      for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i);var c=await pg.getTextContent();t+=c.items.map(function(x){return x.str;}).join(' ')+'\n';}
+      if(t.trim().length>=100){ window._gRecText=t; m.style.color='var(--safe)';m.textContent='텍스트 추출 완료 ('+t.length+'자). 분석을 시작합니다…'; }
+      else { m.style.color='var(--ink-mute)';m.textContent='스캔 PDF 감지 · 페이지 이미지화 중…'; window._gRecImages=await renderPdfImages(pdf,30,1600,true); m.textContent='스캔 '+window._gRecImages.length+'p 준비 · 분석을 시작합니다…'; }
+    }catch(e){ m.style.color='var(--risk)';m.textContent='PDF 처리 실패: '+e.message; return; }
+  } else if(/^image\//.test(file.type)){
+    m.style.color='var(--ink-mute)';m.textContent='이미지 처리 중…';
+    var b64=await new Promise(function(res,rej){var rd=new FileReader();rd.onload=function(){res(String(rd.result).split(',')[1]);};rd.onerror=rej;rd.readAsDataURL(file);});
+    window._gRecImages=[b64];
+  } else { m.style.color='var(--risk)';m.textContent='PDF 또는 이미지 파일만 지원합니다.';return; }
+  await gintakeParse();
+}
+function mergeParsed(a,b){
+  a=a||{}; b=b||{};
+  ['grades','autonomous','club','career_act','subject_detail','behavior','reading'].forEach(function(k){
+    a[k]=(a[k]||[]).concat(b[k]||[]);
+  });
+  if(!a.attendance&&b.attendance)a.attendance=b.attendance;
+  // 성취도 중복 제거(학기+과목 기준, 먼저 나온 값 우선)
+  if(a.grades&&a.grades.length){
+    var seen={};
+    a.grades=a.grades.filter(function(g){var k=(g.sem||'')+'|'+(g.subject||'');if(seen[k])return false;seen[k]=1;return true;});
+  }
+  return a;
+}
+async function gintakeParse(){
+  var m=document.getElementById('gin-msg'); var box=document.getElementById('gin-result');
+  var hasImg=window._gRecImages&&window._gRecImages.length;
+  if(!window._gRecText&&!hasImg){m.style.color='var(--risk)';m.textContent='추출된 자료가 없습니다.';return;}
+  if(window.showAiLoading)showAiLoading();
+  try{
+    var merged={};
+    // 배치(이미지 4장 또는 텍스트 청크) 목록 구성
+    var jobs=[];
+    if(hasImg){
+      var imgs=window._gRecImages; var BATCH=4;
+      for(var bi=0;bi<Math.ceil(imgs.length/BATCH);bi++)jobs.push({images:imgs.slice(bi*BATCH,(bi+1)*BATCH)});
+    } else {
+      // 긴 텍스트도 절단 없이 전량 분석: 11,000자 청크(줄 경계) 분할
+      var t=window._gRecText, LIM=11000;
+      while(t.length){
+        if(t.length<=LIM){jobs.push({text:t});break;}
+        var cut=t.lastIndexOf('\n',LIM); if(cut<LIM*0.5)cut=LIM;
+        jobs.push({text:t.slice(0,cut)}); t=t.slice(cut);
+      }
+    }
+    var total=jobs.length, done=0, failed=[];
+    function prog(){
+      m.style.color='var(--ink-mute)';m.textContent='AI 생기부 분석 중… ('+done+'/'+total+' 배치 완료)';
+      var stepEl=document.getElementById('ai-step'); if(stepEl)stepEl.textContent='생기부 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…';
+    }
+    prog();
+    var results=new Array(total);
+    async function runJob(i){
+      // 실패 또는 JSON 해석 실패 시 1회 재시도
+      for(var att=0;att<2;att++){
+        try{
+          var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_parse_record',payload:jobs[i]}});
+          var data=r.data,error=r.error;
+          if(!error&&data&&!data.error){
+            var obj=null;try{obj=JSON.parse(data.text);}catch(e){}
+            if(obj){results[i]=obj;done++;prog();return;}
+          }
+        }catch(e){}
+      }
+      failed.push(i+1); done++; prog();
+    }
+    // 동시 3개 병렬 실행 (순차 대비 최대 3배 단축)
+    var CONC=3, cursor=0;
+    async function worker(){ while(cursor<total){ var i=cursor++; await runJob(i); } }
+    var ws=[]; for(var w=0;w<Math.min(CONC,total);w++)ws.push(worker());
+    await Promise.all(ws);
+    for(var ri=0;ri<total;ri++)if(results[ri])merged=mergeParsed(merged,results[ri]);
+    if(!merged||!Object.keys(merged).length){m.style.color='var(--risk)';m.textContent='응답 파싱 실패 — 다시 시도하세요.';if(window.hideAiLoading)hideAiLoading();return;}
+    window._gParseWarn=failed.length?('배치 '+failed.join(', ')+' 실패 — 해당 페이지 내용 누락 가능'):'';
+    window._gParsed=merged;
+    renderGParsed(merged);
+    var cnt=(merged.grades||[]).length+(merged.autonomous||[]).length+(merged.club||[]).length+(merged.career_act||[]).length+(merged.subject_detail||[]).length+(merged.behavior||[]).length+(merged.reading||[]).length;
+    if(window._gParseWarn){ m.style.color='var(--reach)';m.textContent='분석 완료 ('+cnt+'개 항목) · '+window._gParseWarn+' · 확인 후 [일괄 저장]하세요.'; }
+    else { m.style.color='var(--safe)';m.textContent='분석 완료 ('+cnt+'개 항목) · 아래에서 확인 후 [일괄 저장]하세요.'; }
+  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; }
+  finally{ if(window.hideAiLoading)hideAiLoading(); }
+}
+function renderGParsed(o){
+  var box=document.getElementById('gin-result'); if(!box)return;
+  function chip(t){return '<span style="display:inline-block;font-size:11px;background:var(--panel-3);border-radius:6px;padding:3px 9px;margin:0 5px 5px 0;color:var(--ink-dim)">'+esc(t)+'</span>';}
+  var h='';
+  // 성취도
+  var gr=o.grades||[];
+  h+='<div class="card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:8px">교과 성취도 <span style="font-size:11px;color:var(--ink-mute)">'+gr.length+'건</span></div>';
+  h+=gr.length?('<div>'+gr.map(function(g){return chip(g.sem+' '+g.subject+' '+g.ach);}).join('')+'</div>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 성취도 없음</div>';
+  if(o.attendance&&(o.attendance.absent||o.attendance.late||o.attendance.note))h+='<div style="font-size:12px;color:var(--ink-dim);margin-top:6px">출결: 결석 '+(o.attendance.absent||0)+' · 지각 '+(o.attendance.late||0)+(o.attendance.note?' · '+esc(o.attendance.note):'')+'</div>';
+  h+='</div>';
+  // 활동 영역
+  function sec(title,arr,fmt){
+    if(!arr||!arr.length)return '';
+    return '<div class="card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:8px">'+title+' <span style="font-size:11px;color:var(--ink-mute)">'+arr.length+'건</span></div>'
+      +arr.map(fmt).join('')+'</div>';
+  }
+  var fA=function(x){return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--line);padding:2px 0 6px 8px;margin-bottom:4px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+esc(x.summary||'')+'</div>';};
+  h+=sec('자율활동',o.autonomous,fA);
+  h+=sec('동아리활동',o.club,function(x){return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--line);padding:2px 0 6px 8px;margin-bottom:4px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+(x.name?'<b>'+esc(x.name)+'</b> — ':'')+esc(x.summary||'')+'</div>';});
+  h+=sec('진로활동',o.career_act,fA);
+  h+=sec('과목별 세특',o.subject_detail,function(x){return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--line);padding:2px 0 6px 8px;margin-bottom:4px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+(x.subject?'<b>'+esc(x.subject)+'</b>: ':'')+esc(x.summary||'')+'</div>';});
+  h+=sec('행동특성·종합의견',o.behavior,fA);
+  // 독서활동
+  var rd=o.reading||[];
+  if(rd.length){
+    h+='<div class="card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:8px">독서활동 <span style="font-size:11px;color:var(--ink-mute)">'+rd.length+'건</span></div>';
+    h+=rd.map(function(x){
+      var books=(x.books||[]).map(function(b){return esc(b.title||'')+(b.author?' ('+esc(b.author)+')':'');}).join(', ');
+      return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--gold);padding:2px 0 6px 8px;margin-bottom:5px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+(x.subject?'['+esc(x.subject)+'] ':'')+(books?'<b>'+books+'</b>':'')+(x.summary?'<div style="color:var(--ink-mute);margin-top:2px">'+esc(x.summary)+'</div>':'')+'</div>';
+    }).join('')+'</div>';
+  }
+  h+='<button onclick="saveGParsed()" style="padding:10px 18px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">전체 일괄 저장</button>';
+  box.innerHTML=h;
+}
+async function saveGParsed(){
+  var m=document.getElementById('gin-msg'); var s=window._gactive; var o=window._gParsed;
+  if(!s||!sb||!o){m.style.color='var(--risk)';m.textContent='저장할 데이터가 없습니다.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var acadId=s.academy_id||null;
+  try{
+    // 성취도
+    var gr=(o.grades||[]).map(function(g){var row={student_id:s.id,semester:g.sem,subject:g.subject,achievement:g.ach};if(acadId)row.academy_id=acadId;return row;});
+    if(gr.length)await sb.from('middle_school_grades').insert(gr);
+    // 생기부 내용 → student_setech
+    var rows=[];
+    (o.autonomous||[]).forEach(function(x){rows.push({student_id:s.id,area:'자율',subject:'자율활동',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
+    (o.club||[]).forEach(function(x){rows.push({student_id:s.id,area:'동아리',subject:x.name||'동아리',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
+    (o.career_act||[]).forEach(function(x){rows.push({student_id:s.id,area:'진로',subject:'진로활동',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
+    (o.subject_detail||[]).forEach(function(x){rows.push({student_id:s.id,area:'과세특',subject:x.subject||null,grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
+    (o.behavior||[]).forEach(function(x){rows.push({student_id:s.id,area:'행발',subject:'행동특성',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
+    (o.reading||[]).forEach(function(x){var books=(x.books||[]).map(function(b){return (b.title||'')+(b.author?'('+b.author+')':'');}).join(', ');rows.push({student_id:s.id,area:'독서',subject:x.subject||'독서활동',grade:x.grade||null,text:(books?books+' — ':'')+(x.summary||''),source:'goip_parsed'});});
+    if(rows.length)await sb.from('student_setech').insert(rows);
+    m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 생기부 '+rows.length+'건). 성향 매칭·상담에 활용됩니다.';
+  }catch(e){ m.style.color='var(--risk)';m.textContent='저장 실패: '+e.message; }
+}
+
+/* ===== 고입 상담 관리 ===== */
+window.renderGConsult=function(){ loadGStudents().then(function(){ if(window._gactive){var w=document.getElementById('gcon-who');if(w)w.textContent=window._gactive.name+' 활성';} renderGConList(); }); };
+function gconSelect(id){ selectGStudent(id); renderGConList(); }
+async function saveGCon(){
+  var m=document.getElementById('gcon-msg'); var s=window._gactive;
+  if(!s||!sb){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';return;}
+  var row={student_id:s.id,kind:document.getElementById('gcon-kind').value,
+    target_univ:document.getElementById('gcon-target').value.trim()||null,
+    career:document.getElementById('gcon-career').value.trim()||null,
+    activities:document.getElementById('gcon-act').value.trim()||null,
+    memo:document.getElementById('gcon-memo').value.trim()||null};
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var r=await sb.from('consultations').insert(row);
+  if(r.error){m.style.color='var(--risk)';m.textContent=esc(r.error.message);return;}
+  m.style.color='var(--safe)';m.textContent='상담 저장 완료.';
+  ['gcon-target','gcon-career','gcon-act','gcon-memo'].forEach(function(i){document.getElementById(i).value='';});
+  renderGConList();
+}
+async function renderGConList(){
+  var box=document.getElementById('gcon-list'); var s=window._gactive;
+  if(!box)return;
+  if(!s){box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 상담 이력이 표시됩니다.</div>';return;}
+  var r=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
+  var d=(r.data||[]);
+  if(!d.length){box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 상담이 없습니다.</div>';return;}
+  box.innerHTML=d.map(function(c){
+    return '<div style="border:1px solid var(--line-soft);border-radius:9px;padding:10px 12px;margin-bottom:8px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:12.5px">'+(c.kind==='parent'?'학부모':'학생')+' 상담</b>'
+      +'<span style="font-size:10.5px;color:var(--ink-mute)">'+(c.created_at?new Date(c.created_at).toLocaleDateString('ko-KR'):'')+'</span></div>'
+      +(c.target_univ?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">희망: '+esc(c.target_univ)+(c.career?' · '+esc(c.career):'')+'</div>':'')
+      +(c.activities?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:2px">'+esc(c.activities)+'</div>':'')
+      +(c.memo?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px">'+esc(c.memo)+'</div>':'')
+      +'<button onclick="delGCon(\''+c.id+'\')" style="font-size:10.5px;padding:3px 8px;margin-top:6px;background:transparent;border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--risk)">삭제</button>'
+      +'</div>';
+  }).join('');
+}
+async function delGCon(id){ if(!sb||!confirm('삭제하시겠습니까?'))return; await sb.from('consultations').delete().eq('id',id); renderGConList(); }
+
+
+/* ===== 고입 자소서 준비 (협업 루프) ===== */
+window._gesSchools=[];
+window.renderGEssay=async function(){
+  await loadGStudents(); // window._gstudents 채움
+  var sel=document.getElementById('ges-student');
+  if(sel){var cur=window._gactive?window._gactive.id:'';sel.innerHTML='<option value="">— 학생 선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');sel.value=cur;}
+  if(!window._gesSchools.length && sb){
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_schools',payload:{}}});
+    if(r.data&&r.data.schools)window._gesSchools=r.data.schools;
+  }
+  var ss=document.getElementById('ges-school');
+  if(ss){var pref=window._gactive&&window._gactive.target_school?window._gactive.target_school:'';
+    ss.innerHTML='<option value="">— 지원 학교 —</option>'+(window._gesSchools||[]).map(function(x){return '<option value="'+esc(x.name)+'"'+(x.name===pref?' selected':'')+'>'+esc(x.name)+' ('+esc(x.school_type)+')</option>';}).join('');}
+  if(window._gactive)gesLoad();
+};
+function gesSelect(id){ selectGStudent(id); var ss=document.getElementById('ges-school'); if(ss&&window._gactive&&window._gactive.target_school)ss.value=window._gactive.target_school; document.getElementById('ges-body').innerHTML=''; gesLoad(); }
+function gesCtx(){
+  // 활성 학생 생기부 요약 텍스트 구성 (성향매칭 goipCompose와 동일 소스)
+  return (async function(){
+    var s=window._gactive; if(!s)return '';
+    var parts=[];
+    try{
+      var se=await sb.from('student_setech').select('area,subject,text').eq('student_id',s.id).limit(40);
+      (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
+      var co=await sb.from('consultations').select('activities,memo').eq('student_id',s.id).limit(10);
+      (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담] '+x.activities.slice(0,250));});
+    }catch(e){}
+    return parts.join('\n');
+  })();
+}
+async function gesGenBlueprint(){
+  var m=document.getElementById('ges-msg'); var s=window._gactive;
+  var school=document.getElementById('ges-school').value;
+  if(!s){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';return;}
+  if(!school){m.style.color='var(--risk)';m.textContent='지원 학교를 선택하세요.';return;}
+  var existing=await sb.from('goip_essay_drafts').select('id').eq('student_id',s.id).eq('school_name',school).limit(1);
+  if(existing.data&&existing.data.length){ if(!confirm('이미 '+school+' 자소서 작업이 있습니다. 설계도를 새로 생성하면 기존 문항이 초기화됩니다. 계속할까요?'))return; }
+  m.style.color='var(--ink-mute)';m.textContent='생기부 자료 수집 중…';
+  var ctx=await gesCtx();
+  if(!ctx){m.style.color='var(--risk)';m.textContent='생기부 자료가 없습니다. [학생 자료 입력]에서 먼저 업로드하세요.';return;}
+  if(window.showAiLoading)showAiLoading();
+  m.textContent='설계도 생성 중… (수십 초)';
+  try{
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_essay_blueprint',payload:{school_name:school,career:s.career||'',record_text:ctx,student_id:s.id}}});
+    var data=r.data,error=r.error;
+    if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'생성 실패');return;}
+    var obj=null;try{obj=JSON.parse(data.text);}catch(e){}
+    if(!obj||!obj.blueprint){m.style.color='var(--risk)';m.textContent='설계도 파싱 실패 — 다시 시도하세요.';return;}
+    // 기존 초기화 후 문항별 저장
+    await sb.from('goip_essay_drafts').delete().eq('student_id',s.id).eq('school_name',school);
+    var acadId=s.academy_id||null;
+    // 템플릿 문항 정보(프롬프트·글자수) 매칭용 — 학교 개별 우선, 없으면 유형(국제고→외고) 폴백
+    var tmplQ={};
+    try{
+      var sc=(window._gesSchools||[]).find(function(x){return x.name===school;});
+      var stype=sc?sc.school_type:'';
+      var lookType=(stype==='국제고')?'외고':stype;
+      // 학교 개별 school_id 매칭 우선
+      var tById=await sb.from('essay_templates').select('questions').eq('active',true).eq('school_id',sc?sc.id:'00000000-0000-0000-0000-000000000000');
+      var rowsT=(tById.data&&tById.data.length)?tById.data:null;
+      if(!rowsT){ var tByType=await sb.from('essay_templates').select('questions').eq('active',true).is('school_id',null).eq('school_type',lookType); rowsT=tByType.data||[]; }
+      (rowsT||[]).forEach(function(t){ (t.questions||[]).forEach(function(qq){ if(qq.no!=null && tmplQ[qq.no]==null)tmplQ[qq.no]=qq; }); });
+    }catch(e){}
+    var rows=(obj.blueprint||[]).map(function(bp){
+      var tq2=tmplQ[bp.no]||{};
+      return {academy_id:acadId,student_id:s.id,school_name:school,q_no:bp.no||0,q_area:bp.area||tq2.area||'',q_prompt:tq2.prompt||'',max_chars:tq2.max_chars||null,blueprint:bp,status:'blueprint',version:0,sent:false};
+    });
+    if(rows.length)await sb.from('goip_essay_drafts').insert(rows);
+    window._gesGaps=obj.gaps||[];
+    m.style.color='var(--safe)';m.textContent='설계도 '+rows.length+'문항 생성 · 확인 후 학생에게 열어주세요.';
+    gesLoad();
+  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; }
+  finally{ if(window.hideAiLoading)hideAiLoading(); }
+}
+async function gesLoad(){
+  var s=window._gactive; var body=document.getElementById('ges-body');
+  var school=document.getElementById('ges-school').value;
+  if(!s||!body)return;
+  var q=sb.from('goip_essay_drafts').select('*').eq('student_id',s.id).order('q_no',{ascending:true});
+  if(school)q=q.eq('school_name',school);
+  var r=await q;
+  var d=(r.data||[]);
+  if(!d.length){body.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:16px">아직 자소서 작업이 없습니다. 지원 학교를 선택하고 [설계도 생성]을 누르세요.</div>';return;}
+  gesRender(d);
+}
+var GES_STATUS={blueprint:{t:'설계도',c:'var(--ink-mute)'},blueprint_ok:{t:'설계 확정·학생공유',c:'var(--blue)'},drafting:{t:'학생 작성중',c:'var(--reach)'},submitted:{t:'학생 제출',c:'var(--violet)'},evaluated:{t:'평가완료',c:'var(--lime)'},done:{t:'완료',c:'var(--safe)'}};
+function gesRender(items){
+  var body=document.getElementById('ges-body'); var s=window._gactive;
+  var gaps=window._gesGaps||[];
+  var html='';
+  if(gaps.length)html+='<div class="card" style="margin-bottom:14px;border-left:3px solid var(--reach)"><div style="font-weight:700;font-size:12.5px;margin-bottom:5px;color:var(--reach)">소재 보강 필요</div>'+gaps.map(function(g){return '<div style="font-size:12px;color:var(--ink-dim)">• '+esc(g)+'</div>';}).join('')+'</div>';
+  items.forEach(function(it){
+    var st=GES_STATUS[it.status]||GES_STATUS.blueprint;
+    var bp=it.blueprint||{};
+    html+='<div class="card" style="margin-bottom:14px">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:14px">문항 '+it.q_no+' <span style="font-size:11px;color:var(--ink-mute);font-weight:400">'+esc(it.q_area||bp.area||'')+'</span></b>'
+      +'<span style="font-size:11px;font-weight:700;color:'+st.c+'">'+st.t+(it.version?' · v'+it.version:'')+'</span></div>';
+    if(it.q_prompt)html+='<div style="font-size:12px;color:var(--ink-dim);background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-bottom:10px;line-height:1.5">'+esc(it.q_prompt)+(it.max_chars?' <span style="color:var(--ink-mute)">('+it.max_chars+'자)</span>':'')+'</div>';
+    // 설계도
+    if(bp.structure){
+      html+='<div style="background:var(--panel-2);border-radius:9px;padding:10px 12px;margin-bottom:10px">';
+      html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:5px">문단 설계</div>';
+      html+='<ol style="margin:0 0 8px 16px;font-size:12px;color:var(--ink-dim);line-height:1.6">'+(bp.structure||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>';
+      if(bp.materials&&bp.materials.length){html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:6px 0 4px">활용 소재</div>'+bp.materials.map(function(mt){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:3px">• <b>['+esc(mt.source||'')+']</b> '+esc(mt.item||'')+' <span style="color:var(--ink-mute)">→ '+esc(mt.use||'')+'</span></div>';}).join('');}
+      if(bp.school_links&&bp.school_links.length){html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin:6px 0 4px">학교 프로그램 연결</div>'+bp.school_links.map(function(l){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:3px">• <b>'+esc(l.program||'')+'</b> — '+esc(l.connect||'')+'</div>';}).join('');}
+      if(bp.caution)html+='<div style="font-size:11px;color:var(--reach);margin-top:6px">주의 — '+esc(bp.caution)+'</div>';
+      html+='</div>';
+    }
+    // 컨설턴트 설계 메모
+    html+='<textarea id="ges-bpedit-'+it.id+'" rows="2" placeholder="컨설턴트 설계 보완 메모 (학생에게 함께 전달됨)" style="width:100%;margin-bottom:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.blueprint_edit||'')+'</textarea>';
+    // 상태별 액션
+    if(it.status==='blueprint'){
+      html+='<div style="display:flex;gap:7px"><button onclick="gesSaveBpEdit(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">메모 저장</button>'
+        +'<button onclick="gesOpenToStudent(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--gold);color:#1a1204;border:none;border-radius:8px;font-weight:700;cursor:pointer">설계 확정 · 학생에게 열기</button></div>';
+    }
+    // 학생 작성 영역 (blueprint_ok 이후 표시)
+    if(['blueprint_ok','drafting','submitted','evaluated','done'].indexOf(it.status)>=0){
+      html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:10px 0 4px">학생 작성'+(it.max_chars?' (권장 '+it.max_chars+'자)':'')+'</div>';
+      html+='<textarea id="ges-draft-'+it.id+'" rows="6" placeholder="학생이 자기 문장으로 작성 (컨설턴트도 대필 아닌 첨삭 방향으로만)" style="width:100%;margin-bottom:6px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical">'+esc(it.draft||'')+'</textarea>';
+      html+='<div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="ges-cnt-'+it.id+'" style="font-size:11px;color:var(--ink-mute)"></span>'
+        +'<button onclick="gesSaveDraft(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">초안 저장</button>'
+        +'<button onclick="gesEvaluate(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">평가 요청</button>';
+      if(it.status==='evaluated')html+='<button onclick="gesMarkDone(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--safe);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">이 문항 완료</button>';
+      if(it.status==='done')html+='<button onclick="gesReopen(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">재수정</button>';
+      html+='</div>';
+    }
+    // 평가 결과
+    if(it.eval){
+      var ev=it.eval;
+      html+='<div style="background:var(--panel-2);border-radius:9px;padding:10px 12px;margin-top:10px">';
+      html+='<div style="font-size:11px;color:var(--lime);font-weight:700;margin-bottom:5px">AI 평가 (v'+it.version+')</div>';
+      if(ev.axes){var ax=ev.axes;html+='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px">'+[['activity','활동'],['thinking','사고'],['values','가치관'],['vision','비전']].map(function(a){var v=ax[a[0]];var sc=(v&&v.score!=null)?v.score:(typeof v==='number'?v:'-');return '<span style="font-size:11px;color:var(--ink-dim)">'+a[1]+' <b style="color:var(--ink)">'+sc+'</b></span>';}).join('')+'</div>';}
+      if(ev.exclusions&&ev.exclusions.length)html+='<div style="font-size:11.5px;color:var(--risk);margin-bottom:5px">배제사항: '+ev.exclusions.map(function(x){return esc(x.category||'')+(x.quote?'("'+esc(x.quote)+'")':'');}).join(', ')+'</div>';
+      var pq=(ev.per_question&&ev.per_question[0])?ev.per_question[0]:null;
+      if(pq){
+        if(pq.diagnosis)html+='<div style="font-size:12px;color:var(--ink-dim);margin-bottom:4px"><b>진단:</b> '+esc(pq.diagnosis)+'</div>';
+        if(pq.alt&&pq.alt.length)html+='<div style="font-size:12px;color:var(--ink-dim)"><b>재구성 방향:</b><ul style="margin:2px 0 0 16px">'+pq.alt.map(function(a){return '<li>'+esc(a)+'</li>';}).join('')+'</ul></div>';
+      }
+      if(ev.overall)html+='<div style="font-size:12px;color:var(--ink-mute);margin-top:5px">'+esc(ev.overall)+'</div>';
+      if(ev.next_step)html+='<div style="font-size:12px;color:var(--gold);margin-top:4px">다음 집중: '+esc(ev.next_step)+'</div>';
+      html+='</div>';
+    }
+    // 컨설턴트 피드백
+    if(['submitted','evaluated','done'].indexOf(it.status)>=0){
+      html+='<textarea id="ges-fb-'+it.id+'" rows="2" placeholder="컨설턴트 피드백 (학생에게 전달)" style="width:100%;margin-top:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.feedback||'')+'</textarea>';
+      html+='<button onclick="gesSaveFb(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;margin-top:5px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">피드백 저장</button>';
+    }
+    html+='</div>';
+  });
+  // 완료 요약
+  var done=items.filter(function(x){return x.status==='done';}).length;
+  html+='<div class="note">진행: '+done+'/'+items.length+' 문항 완료 · 이 도구는 설계·평가·소재 매핑만 제공하며 완성 문장을 대필하지 않습니다.</div>';
+  body.innerHTML=html;
+  // 글자수 카운터 바인딩
+  items.forEach(function(it){
+    var ta=document.getElementById('ges-draft-'+it.id); var cnt=document.getElementById('ges-cnt-'+it.id);
+    if(ta&&cnt){var upd=function(){cnt.textContent=ta.value.length+'자'+(it.max_chars?' / '+it.max_chars:'');};upd();ta.addEventListener('input',upd);}
+  });
+}
+async function gesSaveBpEdit(id){
+  var v=document.getElementById('ges-bpedit-'+id).value.trim();
+  await sb.from('goip_essay_drafts').update({blueprint_edit:v,updated_at:new Date().toISOString()}).eq('id',id);
+  var m=document.getElementById('ges-msg');m.style.color='var(--safe)';m.textContent='설계 메모 저장됨.';
+}
+async function gesOpenToStudent(id){
+  var v=document.getElementById('ges-bpedit-'+id).value.trim();
+  await sb.from('goip_essay_drafts').update({blueprint_edit:v,status:'blueprint_ok',sent:true,updated_at:new Date().toISOString()}).eq('id',id);
+  gesLoad();
+}
+async function gesSaveDraft(id){
+  var v=document.getElementById('ges-draft-'+id).value;
+  var cur=await sb.from('goip_essay_drafts').select('status').eq('id',id).limit(1);
+  var st=(cur.data&&cur.data[0]&&cur.data[0].status);
+  var newst=(st==='blueprint_ok'||st==='drafting')?'drafting':st;
+  await sb.from('goip_essay_drafts').update({draft:v,status:newst,updated_at:new Date().toISOString()}).eq('id',id);
+  var m=document.getElementById('ges-msg');m.style.color='var(--safe)';m.textContent='초안 저장됨.';
+}
+async function gesEvaluate(id){
+  var m=document.getElementById('ges-msg'); var s=window._gactive;
+  var draft=document.getElementById('ges-draft-'+id).value.trim();
+  if(!draft){m.style.color='var(--risk)';m.textContent='작성된 초안이 없습니다.';return;}
+  var row=await sb.from('goip_essay_drafts').select('*').eq('id',id).limit(1);
+  var it=row.data&&row.data[0]; if(!it)return;
+  // 먼저 초안 저장 + submitted
+  await sb.from('goip_essay_drafts').update({draft:draft,status:'submitted',updated_at:new Date().toISOString()}).eq('id',id);
+  if(window.showAiLoading)showAiLoading();
+  m.style.color='var(--ink-mute)';m.textContent='AI 평가 중… (수십 초)';
+  try{
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_eval_essay',payload:{school_name:it.school_name,career:s.career||'',answers:[{no:it.q_no,text:draft}]}}});
+    var data=r.data,error=r.error;
+    if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'평가 실패');await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id);return;}
+    var ev=null;try{ev=JSON.parse(data.text);}catch(e){}
+    if(!ev){m.style.color='var(--risk)';m.textContent='평가 파싱 실패';await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id);return;}
+    await sb.from('goip_essay_drafts').update({eval:ev,status:'evaluated',version:(it.version||0)+1,updated_at:new Date().toISOString()}).eq('id',id);
+    m.style.color='var(--safe)';m.textContent='평가 완료 · 진단 확인 후 학생이 재수정하거나 완료 처리하세요.';
+    gesLoad();
+  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id); }
+  finally{ if(window.hideAiLoading)hideAiLoading(); }
+}
+async function gesSaveFb(id){
+  var v=document.getElementById('ges-fb-'+id).value.trim();
+  await sb.from('goip_essay_drafts').update({feedback:v,updated_at:new Date().toISOString()}).eq('id',id);
+  var m=document.getElementById('ges-msg');m.style.color='var(--safe)';m.textContent='피드백 저장됨.';
+}
+async function gesMarkDone(id){ await sb.from('goip_essay_drafts').update({status:'done',updated_at:new Date().toISOString()}).eq('id',id); gesLoad(); }
+async function gesReopen(id){ await sb.from('goip_essay_drafts').update({status:'evaluated',updated_at:new Date().toISOString()}).eq('id',id); gesLoad(); }
+
 window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자료 조회 비활성)');};
+// 초기: 모든 그룹 접힘 — 메뉴 이동/홈 카드 클릭 시에만 해당 그룹 펼침
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
-</script>
-<script>
-function toggleNav(force){var b=document.body;var on=(force===undefined)?!b.classList.contains('nav-open'):force;b.classList.toggle('nav-open',on);}
-(function(){var s=document.querySelector('.side');if(s)s.addEventListener('click',function(e){if(e.target.closest('.nav')&&window.innerWidth<=960)toggleNav(false);});})();
-if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/sw.js').catch(function(){});});}
 </script>
 </body>
 </html>
