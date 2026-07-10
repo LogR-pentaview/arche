@@ -117,6 +117,7 @@
   @media(max-width:640px){.diag-penta-wrap{grid-template-columns:1fr!important}}
   @keyframes spin{to{transform:rotate(360deg)}}
   body.student-mode #dist-box,body.student-mode #design-actions,body.student-mode #v-sr .sub,body.student-mode #design-priority,body.student-mode #iv-actions{display:none!important}
+  body.student-mode #gdg-student,body.student-mode #grm-student,body.student-mode #gds-student,body.student-mode #gp-student,body.student-mode #ges-student,body.student-mode .goip-con-only{display:none!important}
   .pane{display:none}.pane.on{display:block}
 
   /* ===== INTAKE ===== */
@@ -739,8 +740,8 @@
         <div class="sub">설계도 → 컨설턴트 확인 → 학생 작성 → 평가·퇴고 루프. 완성 문장 대필은 하지 않습니다(설계·진단·소재 매핑만).</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
           <select id="ges-student" onchange="gesSelect(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 학생 선택 —</option></select>
-          <select id="ges-school" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 지원 학교 —</option></select>
-          <button class="btn" onclick="gesGenBlueprint()">설계도 생성</button>
+          <select id="ges-school" class="goip-con-only" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 지원 학교 —</option></select>
+          <button class="btn goip-con-only" onclick="gesGenBlueprint()">설계도 생성</button>
           <button class="btn ghost" onclick="gesLoad()">불러오기</button>
         </div>
         <div id="ges-msg" style="font-size:12px;margin-top:8px"></div>
@@ -1703,17 +1704,34 @@ async function enterStudentApp(session){
   var {data:sd}=await sb.from('students').select('*').limit(1);
   var me=sd&&sd[0];
   if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); }
-  // 컨설턴트 전용 메뉴 숨김 (home은 학생 홈으로 재활용)
-  var hide=['students','intake','settings','admin_data','essaybatch','admin'];
-  hide.forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
-  // 상단 뷰토글·활성학생 숨김
+  var isGoip=me&&me.admission_track==='고입';
+  window._stuTrack=isGoip?'goip':'dae';
+  if(isGoip){ window._gactive=me; }
+  // 상단 뷰토글·활성학생·크럼 숨김
   var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
   var stg=document.getElementById('topbar-studenttag'); if(stg)stg.style.display='none';
   var cb=document.getElementById('topbar-crumbs'); if(cb)cb.style.display='none';
-  var cr=document.getElementById('crumb'); // 아르케·컨설팅홈 크럼
-  // [학생 진단] → [나의 진단 내용]
-  var dn=document.querySelector('.nav[data-v="diag"]'); if(dn){dn.innerHTML=dn.innerHTML.replace('학생 진단','나의 진단 내용');}
-  // 학생 홈 렌더
+
+  if(isGoip){
+    // 고입 학생: 대입 그룹 + 대입 전용 메뉴 전부 숨김, 고입 메뉴 중 학생용만 노출
+    var d=document.getElementById('grp-dae'); if(d)d.style.display='none';
+    var bc=document.querySelector('.nav[data-v="basecon"]'); if(bc)bc.style.display='none';
+    // 고입 컨설턴트 전용(학생관리·자료입력·상담관리) 숨김, 학생 노출 메뉴만 유지
+    ['gstudents','gintake','gconsult'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+    // 고입 학생 진단 메뉴명 → 나의 진단
+    var gd=document.querySelector('.nav[data-v="gdiag"]'); if(gd)gd.innerHTML=gd.innerHTML.replace('학생 진단','나의 진단');
+    // 고입 그룹 항상 펼침
+    var gg=document.getElementById('grp-goip'); if(gg)gg.classList.add('open');
+    // 면접 준비(고입)는 준비중 표시 유지 (이미 disabled)
+  } else {
+    // 대입 학생: 기존 동작
+    var dn=document.querySelector('.nav[data-v="diag"]'); if(dn){dn.innerHTML=dn.innerHTML.replace('학생 진단','나의 진단 내용');}
+    var gpg=document.getElementById('grp-goip'); if(gpg)gpg.style.display='none';
+    var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
+  }
+  // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김
+  ['students','intake','settings','admin_data','essaybatch','admin'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+
   renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
   var mustChange=sa&&sa[0]&&sa[0].must_change;
@@ -1727,7 +1745,17 @@ async function enterStudentApp(session){
 function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
   var s=window._activeStudent||{};
-  var menus=[['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','학생부 디자인','앞으로 할 것·수행 관리'],['iv','면접 준비','예상 질문·모의 답변 연습'],['report','컨설팅 리포트','종합 리포트']];
+  var menus;
+  if(window._stuTrack==='goip'){
+    v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
+      '<div class="grid g3" style="margin-top:20px">'+
+      [['gdiag','나의 진단','활동 4축·교과 강약점'],['goip','지원가능·성향 매칭','내신 환산·학교 스타일 적합'],['groadmap','성장 로드맵','시기별 준비 계획'],['gdesign','학생부 디자인','앞으로 할 활동 설계'],['gessay','자소서 준비','설계도·작성·평가 루프']].map(function(m){
+        return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+
+      '<div class="card" style="opacity:.55"><div style="font-size:15px;font-weight:700;color:var(--ink-mute);margin-bottom:5px">면접 준비 <span style="font-size:10px;color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:1px 8px">준비중</span></div><div style="font-size:12px;color:var(--ink-dim)">곧 제공됩니다</div></div>'+
+      '</div>';
+    return;
+  }
+  menus=[['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','학생부 디자인','앞으로 할 것·수행 관리'],['iv','면접 준비','예상 질문·모의 답변 연습'],['report','컨설팅 리포트','종합 리포트']];
   v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.target_univ||'')+' '+esc(s.target_major||'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
     '<div class="grid g3" style="margin-top:20px">'+menus.map(function(m){return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+'</div>';
 }
@@ -3399,6 +3427,7 @@ async function renderBaseCon(){
 
 /* ===== 고입 컨설팅 ===== */
 window.renderGoip=function(){
+  if(window._role==='stu'){ goipAutoFill(); return; }
   loadGStudents().then(function(){ goipAutoFill(); });
 };
 function gpSelectStudent(id){ if(!id)return; selectGStudent(id); goipAutoFill(); }
@@ -3847,7 +3876,7 @@ function gCard(title,inner,accent){
 function gLines(arr,pre){return (arr||[]).map(function(x){return '<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6">'+(pre||'• ')+esc(typeof x==='string'?x:JSON.stringify(x))+'</div>';}).join('');}
 
 /* ===== 고입 학생 진단 ===== */
-window.renderGDiag=function(){ loadGStudents(); };
+window.renderGDiag=function(){ if(window._role==='stu'){autoRunGoipStu('gdg-student','runGDiag');return;} loadGStudents(); };
 async function runGDiag(){
   var m=document.getElementById('gdg-msg'),box=document.getElementById('gdg-result');
   var s=window._gactive; if(!s){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';return;}
@@ -3889,7 +3918,7 @@ async function runGDiag(){
 }
 
 /* ===== 고입 성장 로드맵 ===== */
-window.renderGRoadmap=function(){ loadGStudents().then(async function(){ await gLoadSchoolsOnce(); gTargetOpts('grm-school'); }); };
+window.renderGRoadmap=function(){ if(window._role==='stu'){gLoadSchoolsOnce().then(function(){gTargetOpts('grm-school');});return;} loadGStudents().then(async function(){ await gLoadSchoolsOnce(); gTargetOpts('grm-school'); }); };
 async function runGRoadmap(){
   var m=document.getElementById('grm-msg'),box=document.getElementById('grm-result');
   var s=window._gactive; if(!s){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';return;}
@@ -3921,7 +3950,7 @@ async function runGRoadmap(){
 }
 
 /* ===== 고입 학생부 디자인 (활동 설계 — 세특 대필 금지) ===== */
-window.renderGDesign=function(){ loadGStudents().then(async function(){ await gLoadSchoolsOnce(); gTargetOpts('gds-school'); }); };
+window.renderGDesign=function(){ if(window._role==='stu'){gLoadSchoolsOnce().then(function(){gTargetOpts('gds-school');});return;} loadGStudents().then(async function(){ await gLoadSchoolsOnce(); gTargetOpts('gds-school'); }); };
 async function runGDesign(){
   var m=document.getElementById('gds-msg'),box=document.getElementById('gds-result');
   var s=window._gactive; if(!s){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';return;}
@@ -3948,7 +3977,7 @@ async function runGDesign(){
         +(it.output?'<div style="font-size:11.5px;color:var(--gold);margin-top:6px">산출물: '+esc(it.output)+'</div>':'')
         +(it.link?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:3px">연결: '+esc(it.link)+'</div>':'')
         +'</div>';}).join('');
-    h+='<button class="btn" onclick="saveGDesign()" style="margin-top:4px">설계 전체 저장</button> <span id="gds-save-msg" style="font-size:12px"></span>';
+    h+=(window._role==='stu')?'':'<button class="btn" onclick="saveGDesign()" style="margin-top:4px">설계 전체 저장</button> <span id="gds-save-msg" style="font-size:12px"></span>';
     box.innerHTML=h;
     m.style.color='var(--safe)';m.textContent=o.items.length+'개 활동 설계 완료 — 검토 후 저장하세요.';
   }catch(e){m.style.color='var(--risk)';m.textContent='실패: '+e.message;}
@@ -3968,7 +3997,7 @@ async function saveGDesign(){
 /* ===== 고입 자소서 준비 (협업 루프) ===== */
 window._gesSchools=[];
 window.renderGEssay=async function(){
-  await loadGStudents(); // window._gstudents 채움
+  if(window._role!=='stu'){ await loadGStudents(); } // 컨설턴트만 전체 목록
   var sel=document.getElementById('ges-student');
   if(sel){var cur=window._gactive?window._gactive.id:'';sel.innerHTML='<option value="">— 학생 선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');sel.value=cur;}
   if(!window._gesSchools.length && sb){
@@ -3978,8 +4007,15 @@ window.renderGEssay=async function(){
   var ss=document.getElementById('ges-school');
   if(ss){var pref=window._gactive&&window._gactive.target_school?window._gactive.target_school:'';
     ss.innerHTML='<option value="">— 지원 학교 —</option>'+(window._gesSchools||[]).map(function(x){return '<option value="'+esc(x.name)+'"'+(x.name===pref?' selected':'')+'>'+esc(x.name)+' ('+esc(x.school_type)+')</option>';}).join('');}
+  // 학생 모드: 자소서 생성/삭제 등 컨설턴트 조작 숨김
+  if(window._role==='stu'){ var gcb=document.getElementById('ges-con-actions'); if(gcb)gcb.style.display='none'; }
   if(window._gactive)gesLoad();
 };
+// 학생 모드에서 특정 고입 도구를 바로 실행(자기 자신 대상)
+function autoRunGoipStu(pickerId,runFn){
+  var p=document.getElementById(pickerId); if(p)p.style.display='none';
+  if(window[runFn])window[runFn]();
+}
 function gesSelect(id){ selectGStudent(id); var ss=document.getElementById('ges-school'); if(ss&&window._gactive&&window._gactive.target_school)ss.value=window._gactive.target_school; document.getElementById('ges-body').innerHTML=''; gesLoad(); }
 function gesCtx(){
   // 활성 학생 생기부 요약 텍스트 구성 (성향매칭 goipCompose와 동일 소스)
@@ -4049,12 +4085,13 @@ async function gesLoad(){
   if(school)q=q.eq('school_name',school);
   var r=await q;
   var d=(r.data||[]);
-  if(!d.length){body.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:16px">아직 자소서 작업이 없습니다. 지원 학교를 선택하고 [설계도 생성]을 누르세요.</div>';return;}
+  if(!d.length){body.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:16px">'+(window._role==='stu'?'아직 선생님이 자소서 설계를 시작하지 않았습니다. 준비되면 여기에 표시됩니다.':'아직 자소서 작업이 없습니다. 지원 학교를 선택하고 [설계도 생성]을 누르세요.')+'</div>';return;}
   gesRender(d);
 }
 var GES_STATUS={blueprint:{t:'설계도',c:'var(--ink-mute)'},blueprint_ok:{t:'설계 확정·학생공유',c:'var(--blue)'},drafting:{t:'학생 작성중',c:'var(--reach)'},submitted:{t:'학생 제출',c:'var(--violet)'},evaluated:{t:'평가완료',c:'var(--lime)'},done:{t:'완료',c:'var(--safe)'}};
 function gesRender(items){
   var body=document.getElementById('ges-body'); var s=window._gactive;
+  var isStu=(window._role==='stu');
   var gaps=window._gesGaps||[];
   var html='';
   if(gaps.length)html+='<div class="card" style="margin-bottom:14px;border-left:3px solid var(--reach)"><div style="font-weight:700;font-size:12.5px;margin-bottom:5px;color:var(--reach)">소재 보강 필요</div>'+gaps.map(function(g){return '<div style="font-size:12px;color:var(--ink-dim)">• '+esc(g)+'</div>';}).join('')+'</div>';
@@ -4075,12 +4112,19 @@ function gesRender(items){
       if(bp.caution)html+='<div style="font-size:11px;color:var(--reach);margin-top:6px">주의 — '+esc(bp.caution)+'</div>';
       html+='</div>';
     }
-    // 컨설턴트 설계 메모
-    html+='<textarea id="ges-bpedit-'+it.id+'" rows="2" placeholder="컨설턴트 설계 보완 메모 (학생에게 함께 전달됨)" style="width:100%;margin-bottom:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.blueprint_edit||'')+'</textarea>';
-    // 상태별 액션
-    if(it.status==='blueprint'){
+    // 컨설턴트 설계 메모 (학생은 읽기만)
+    if(isStu){
+      if(it.blueprint_edit)html+='<div style="font-size:12px;color:var(--ink-dim);background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-bottom:8px"><b style="color:var(--gold)">선생님 메모:</b> '+esc(it.blueprint_edit)+'</div>';
+    } else {
+      html+='<textarea id="ges-bpedit-'+it.id+'" rows="2" placeholder="컨설턴트 설계 보완 메모 (학생에게 함께 전달됨)" style="width:100%;margin-bottom:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.blueprint_edit||'')+'</textarea>';
+    }
+    // 상태별 액션 (컨설턴트 전용)
+    if(!isStu && it.status==='blueprint'){
       html+='<div style="display:flex;gap:7px"><button onclick="gesSaveBpEdit(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">메모 저장</button>'
         +'<button onclick="gesOpenToStudent(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--gold);color:#1a1204;border:none;border-radius:8px;font-weight:700;cursor:pointer">설계 확정 · 학생에게 열기</button></div>';
+    }
+    if(isStu && it.status==='blueprint'){
+      html+='<div style="font-size:11.5px;color:var(--ink-mute)">아직 선생님이 설계를 확정하지 않았습니다. 확정되면 여기서 작성할 수 있어요.</div>';
     }
     // 학생 작성 영역 (blueprint_ok 이후 표시)
     if(['blueprint_ok','drafting','submitted','evaluated','done'].indexOf(it.status)>=0){
@@ -4111,8 +4155,12 @@ function gesRender(items){
     }
     // 컨설턴트 피드백
     if(['submitted','evaluated','done'].indexOf(it.status)>=0){
-      html+='<textarea id="ges-fb-'+it.id+'" rows="2" placeholder="컨설턴트 피드백 (학생에게 전달)" style="width:100%;margin-top:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.feedback||'')+'</textarea>';
-      html+='<button onclick="gesSaveFb(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;margin-top:5px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">피드백 저장</button>';
+      if(isStu){
+        if(it.feedback)html+='<div style="font-size:12px;color:var(--ink-dim);background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-top:8px"><b style="color:var(--gold)">선생님 피드백:</b> '+esc(it.feedback)+'</div>';
+      } else {
+        html+='<textarea id="ges-fb-'+it.id+'" rows="2" placeholder="컨설턴트 피드백 (학생에게 전달)" style="width:100%;margin-top:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.feedback||'')+'</textarea>';
+        html+='<button onclick="gesSaveFb(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;margin-top:5px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">피드백 저장</button>';
+      }
     }
     html+='</div>';
   });
