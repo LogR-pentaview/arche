@@ -1819,6 +1819,12 @@ async function loadStudents(){
   const {data,error}=await sb.from('students').select('*').or('admission_track.is.null,admission_track.neq.고입').order('created_at',{ascending:false});
   if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   window._students=data||[];
+  // 학생별 로그인 아이디 매핑 (student_accounts)
+  try{
+    var ids=window._students.map(function(s){return s.id;});
+    if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id,must_change').in('student_id',ids);
+      window._stuAcct={};(acc.data||[]).forEach(function(a){window._stuAcct[a.student_id]=a;});}
+  }catch(e){window._stuAcct={};}
   document.getElementById('st-count').textContent=window._students.length;
   renderHomeKPI(); populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 학생이 없습니다. 좌측에서 등록하세요.</div>';return;}
@@ -1828,12 +1834,17 @@ async function loadStudents(){
   var out=order.filter(function(k){return g[k];}).map(function(k){
     var rows=g[k].map(function(s){
       var on=s.id===actId;
+      var acct=(window._stuAcct||{})[s.id];
+      var idBadge=acct?'<span style="font-size:10.5px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:700">'+esc(acct.login_id)+'</span>'+(acct.must_change?'<span style="font-size:9.5px;color:var(--ink-mute);margin-left:4px">(초기 pw 0000)</span>':''):'';
+      var acctBtn=acct
+        ?'<button onclick="copyStuId(\''+esc(acct.login_id)+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">ID 복사</button>'
+        :'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">계정 생성</button>';
       return '<div onclick="selectStudent(\''+s.id+'\')" style="background:var(--panel);border:1px solid '+(on?'var(--lime)':'var(--line)')+';border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 14px;cursor:pointer">'+
-        '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
+        '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+idBadge+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
         '<div style="font-size:11px;color:var(--ink-dim);margin-top:2px">'+esc(s.school||'')+(s.target_univ?' · '+esc(s.target_univ)+' '+esc(s.target_major||''):'')+(s.career?' · 진로:'+esc(s.career):'')+'</div></div>'+
         '<div style="display:flex;gap:5px" onclick="event.stopPropagation()">'+
           '<button onclick="editStudent(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">수정</button>'+
-          '<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">계정</button>'+
+          acctBtn+
           '<button onclick="delStudent(\''+s.id+'\')" style="padding:5px 8px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">삭제</button>'+
         '</div></div>';
     }).join('');
@@ -1849,9 +1860,16 @@ async function createStudentAccount(id,code){
   var d=await r.json();
   if(d.need_code){ var c=prompt('학원 고유기호를 설정하세요 (영문/숫자, 예: PV). 이후 학생 ID는 이 기호+번호로 자동생성됩니다.'); if(!c)return; return createStudentAccount(id,c.toUpperCase()); }
   if(d.error)return alert('실패: '+d.error);
-  if(d.existed)return alert('이미 계정 있음 · 아이디: '+d.login_id);
+  if(d.existed){refreshStudentLists();return alert('이미 계정 있음 · 아이디: '+d.login_id);}
   alert('계정 생성 완료\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n(학생이 로그인 후 비밀번호 변경)');
+  refreshStudentLists();
 }
+function refreshStudentLists(){ if(window.loadStudents)loadStudents(); if(window.renderGStudents&&document.getElementById('v-gstudents')&&document.getElementById('v-gstudents').classList.contains('on'))renderGStudents(); }
+async function copyStuId(lid){
+  try{await navigator.clipboard.writeText(lid);}catch(e){}
+  if(window.toast)toast('아이디 복사됨: '+lid+' (초기 pw 0000)',true);
+}
+window.copyStuId=copyStuId;
 async function editStudent(id){
   var s=(window._students||[]).find(function(x){return x.id===id;}); if(!s)return;
   window._editId=id;
@@ -3502,15 +3520,27 @@ window.renderGStudents=async function(){
   var st=window._gstudents;
   document.getElementById('gst-count').textContent=st.length;
   if(!st.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 고입 학생이 없습니다.</div>';return;}
+  // 계정 아이디 매핑
+  window._gstuAcct={};
+  try{var ids=st.map(function(s){return s.id;});
+    if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id,must_change').in('student_id',ids);
+      (acc.data||[]).forEach(function(a){window._gstuAcct[a.student_id]=a;});}
+  }catch(e){}
   list.innerHTML=st.map(function(s){
     var act=(window._gactive&&window._gactive.id===s.id);
+    var acct=window._gstuAcct[s.id];
+    var idBadge=acct?'<span style="font-size:10.5px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:700">'+esc(acct.login_id)+'</span>'+(acct.must_change?'<span style="font-size:9.5px;color:var(--ink-mute);margin-left:4px">(pw 0000)</span>':''):'';
+    var acctBtn=acct
+      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--gold);border-radius:6px;cursor:pointer;color:var(--gold)">ID 복사</button>'
+      :'<button onclick="event.stopPropagation();createStudentAccount(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--gold);border-radius:6px;cursor:pointer;color:var(--gold)">계정 생성</button>';
     return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line-soft)')+';border-radius:12px;padding:13px 15px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px;color:var(--ink)">'+esc(s.name||'-')+'</b>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px;color:var(--ink)">'+esc(s.name||'-')+idBadge+'</b>'
       +'<span style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'')+(s.target_school_type?' · '+esc(s.target_school_type):'')+'</span></div>'
       +'<div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+'</div>'
       +(s.career?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px">진로: '+esc(s.career)+'</div>':'')
       +'<div style="margin-top:7px;display:flex;gap:6px">'
       +'<button onclick="event.stopPropagation();selectGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--ink-dim)">활성화</button>'
+      +acctBtn
       +'<button onclick="event.stopPropagation();delGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--risk)">삭제</button>'
       +'</div></div>';
   }).join('');
