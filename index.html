@@ -1386,8 +1386,9 @@ const ADMIN=(function(){
   function kv(o){return '<div style="display:flex;flex-wrap:wrap;gap:16px;font-size:13px;color:var(--ink-dim)">'+Object.keys(o).map(function(k){return '<div>'+esc(k)+' <b class="mono" style="color:var(--ink)">'+o[k]+'</b></div>';}).join('')+'</div>';}
   async function tab(t){
     document.querySelectorAll('#adm-tabs button').forEach(function(b){b.className='btn ghost';});
-    var idx={academies:0,golden:1,admission:2,stats:3,billing:4,guests:5,account:6}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
+    var idx={academies:0,golden:1,admission:2,stats:3,billing:4,guests:5,integrity:6,account:7}[t]; var bs=document.querySelectorAll('#adm-tabs button'); if(bs[idx])bs[idx].className='btn';
     var body=$('#adm-body');
+    if(t==='integrity'){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>'; renderIntegrity(); return; }
     if(t==='account'){ body.innerHTML=''; renderAccount(); return; }
     if(t==='guests'){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>'; renderGuests(); return; }
     if(t==='billing'){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">불러오는 중…</div>'; renderBillingAdmin(); return; }
@@ -1423,6 +1424,24 @@ const ADMIN=(function(){
     } else if(t==='account'){
       body.innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div><div class="card" style="max-width:520px;margin-top:16px"><div class="sectionhead"><span class="idx">AI</span><h3>관리자 Gemini API 키 (플랫폼 공용)</h3></div><div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">이 키는 <b>관리자 API 사용</b>을 선택한 모든 학원의 AI 분석에 쓰이는 <b>플랫폼 공용 키</b>입니다. aistudio.google.com에서 발급한 키를 입력하세요. 서버(엣지함수)에서만 사용됩니다.</div><input id="adm-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><div id="adm-keymsg" style="min-height:14px;font-size:12px;margin:8px 0"></div><div style="display:flex;gap:8px"><button class="btn" onclick="ADMIN.saveKey()">저장</button><button class="btn ghost" onclick="ADMIN.testKey()">연결 테스트</button></div><div id="adm-keytest" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div></div>'; ADMIN.loadKey();
     }
+  }
+  async function renderIntegrity(){
+    var body=$('#adm-body');
+    var r=await sb.rpc('admin_flagged_slots');
+    if(r.error){ body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(r.error.message||'오류')+'</div>'; return; }
+    var rows=r.data; if(rows&&rows.error){ body.innerHTML='<div style="color:var(--risk);padding:20px">권한 없음(관리자 전용)</div>'; return; }
+    rows=rows||[];
+    var head='<div style="font-size:12px;color:var(--ink-mute);margin-bottom:12px;line-height:1.6">창체(진로·동아리·자율) 지문이 기존 등록본과 <b>겹침 35% 미만</b>이라 <b>슬롯 재활용</b>이 의심된 사례입니다. 컨설턴트가 사유 입력 후 진행한 건은 <b>사유입력 진행됨</b>으로 표시됩니다.</div>';
+    if(!rows.length){ body.innerHTML=head+'<div class="card" style="padding:16px;color:var(--ink-mute)">플래그된 슬롯이 없습니다. ✓</div>'; return; }
+    body.innerHTML=head+rows.map(function(x){
+      var pct=Math.round((x.overlap||0)*100);
+      var ov=x.overridden?'<span style="font-size:10px;color:#8a6d1c;background:#fdf3d8;border:1px solid #c8a24a;border-radius:10px;padding:1px 8px;margin-left:6px">사유입력 진행됨</span>':'<span style="font-size:10px;color:#fff;background:var(--risk);border-radius:10px;padding:1px 8px;margin-left:6px">차단됨</span>';
+      return '<div class="card" style="margin-bottom:8px;padding:12px 14px">'
+        +'<div><b style="color:var(--ink)">'+esc(x.student||'-')+'</b> <span style="font-size:11px;color:var(--ink-mute)">'+esc(x.academy||'-')+' ('+esc(x.code||'-')+') · '+esc(x.track||'')+'</span>'+ov+'</div>'
+        +'<div style="font-size:11px;color:var(--ink-dim);margin-top:4px">창체 겹침 <b style="color:var(--risk)">'+pct+'%</b> · 검증 '+(x.verify_count||0)+'회 · 최근 '+((x.last_verified_at||'').slice(0,16).replace('T',' '))+'</div>'
+        +(x.note?'<div style="font-size:11px;color:var(--ink-mute);margin-top:4px">사유: '+esc(x.note)+'</div>':'')
+        +'</div>';
+    }).join('');
   }
   function renderAccount(){
     $('#adm-body').innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div><div class="card" style="max-width:520px;margin-top:16px"><div class="sectionhead"><span class="idx">AI</span><h3>관리자 Gemini API 키 (플랫폼 공용)</h3></div><div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">이 키는 <b>관리자 API 사용</b>을 선택한 모든 학원의 AI 분석에 쓰이는 <b>플랫폼 공용 키</b>입니다. aistudio.google.com에서 발급한 키를 입력하세요. 서버(엣지함수)에서만 사용됩니다.</div><input id="adm-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><div id="adm-keymsg" style="min-height:14px;font-size:12px;margin:8px 0"></div><div style="display:flex;gap:8px"><button class="btn" onclick="ADMIN.saveKey()">저장</button><button class="btn ghost" onclick="ADMIN.testKey()">연결 테스트</button></div><div id="adm-keytest" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div></div>'; ADMIN.loadKey();
@@ -1711,6 +1730,7 @@ window.ADMIN=ADMIN;
           <button class="btn ghost" onclick="ADMIN.tab('stats')">통계</button>
           <button class="btn ghost" onclick="ADMIN.tab('billing')">결제</button>
           <button class="btn ghost" onclick="ADMIN.tab('guests')">게스트</button>
+          <button class="btn ghost" onclick="ADMIN.tab('integrity')">슬롯 무결성</button>
           <button class="btn ghost" onclick="ADMIN.tab('account')">계정 설정</button>
         </div>
         <div id="adm-body"><div style="color:var(--ink-mute);padding:20px">불러오는 중…</div></div>
@@ -3628,11 +3648,9 @@ async function renderPdfImages(pdf,maxPages,scaleW,enhance){
 }
 async function uploadRecord(file){
   var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!file||!sb)return;
-  var path=s.academy_id+'/'+s.id+'/'+Date.now()+'_'+file.name.replace(/[^\w.\-]/g,'_');
-  m.style.color='var(--ink-mute)';m.textContent='업로드 중…';
-  var up=await sb.storage.from('records').upload(path,file);
-  if(up.error){m.style.color='var(--risk)';m.textContent=up.error.message;return;}
-  await sb.from('student_records').insert({student_id:s.id,doc_type:'생활기록부',storage_path:path});
+  m.style.color='var(--ink-mute)';m.textContent='분석 준비 중…';
+  // 개인정보 보호: 원본 파일은 서버에 저장하지 않고, 브라우저 메모리에서 파싱에만 사용
+  try{ await sb.from('student_records').insert({student_id:s.id,doc_type:'생활기록부'}); }catch(e){}
   if(/\.pdf$/i.test(file.name)&&window.pdfjsLib){
     m.textContent='업로드 완료 · 텍스트 추출 중…';
     try{
@@ -3704,6 +3722,67 @@ async function aiAutofill(){
     else { m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/세특 확인 후 저장하세요.'; }
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; } finally { hideAiLoading(); }
 }
+/* ===== 슬롯 무결성 · 창체 지문 결속 (슬롯 재활용 방지) ===== */
+function _fnv32(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0;}return (h>>>0);}
+function changcheFingerprint(text){
+  var norm=(text||'').toLowerCase().replace(/[^0-9a-z가-힣]/g,'');
+  if(norm.length<12) return {features:[],count:0};
+  var K=5, seen={}, i;
+  for(i=0;i+K<=norm.length;i++){ seen[norm.slice(i,i+K)]=1; }
+  var hs=Object.keys(seen).map(_fnv32); hs.sort(function(a,b){return a-b;});
+  if(hs.length>600) hs=hs.slice(0,600);
+  return {features:hs.map(function(h){return h.toString(36);}), count:hs.length};
+}
+// 창체 텍스트 수집: 대입(_parsedChangche) / 고입(o.autonomous+club+career_act)
+function collectChangche(src){
+  var parts=[];
+  if(src&&src.mode==='goip'){
+    (src.o.autonomous||[]).forEach(function(x){parts.push(x.summary||'');});
+    (src.o.club||[]).forEach(function(x){parts.push((x.name||'')+' '+(x.summary||''));});
+    (src.o.career_act||[]).forEach(function(x){parts.push(x.summary||'');});
+  }else{
+    (window._parsedChangche||[]).forEach(function(x){parts.push((x.area||'')+' '+(x.summary||''));});
+  }
+  return parts.join(' ');
+}
+function _ovModal(msg){
+  return new Promise(function(resolve){
+    var wrap=document.createElement('div');
+    wrap.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px';
+    wrap.innerHTML='<div style="max-width:440px;width:100%;background:var(--panel,#12160f);border:1px solid var(--gold,#c8a24a);border-radius:14px;padding:22px">'
+      +'<div style="font-size:15px;font-weight:800;color:var(--risk,#e0564a);margin-bottom:8px">⚠ 슬롯 재활용 의심</div>'
+      +'<div style="font-size:13px;color:var(--ink-dim,#c7d2c2);line-height:1.6;margin-bottom:12px">'+msg+'</div>'
+      +'<div style="font-size:12px;color:var(--ink-mute,#8a978a);margin-bottom:6px">이 학생의 <b>갱신 자료가 맞다면</b> 사유를 입력하고 진행하세요. 진행 내역은 관리자에게 기록됩니다.</div>'
+      +'<textarea id="_ovnote" placeholder="예: 중3 2학기 생기부 마감본으로 교체" style="width:100%;height:58px;padding:9px;background:var(--panel-2,#0d1109);border:1px solid var(--line,#2a3324);border-radius:8px;color:var(--ink,#eaf3ee);font-size:12px;resize:none;margin-bottom:12px"></textarea>'
+      +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+      +'<button id="_ovcancel" style="padding:8px 16px;background:transparent;color:var(--ink-mute,#8a978a);border:1px solid var(--line,#2a3324);border-radius:8px;cursor:pointer;font-size:13px">취소(저장 안 함)</button>'
+      +'<button id="_ovok" style="padding:8px 16px;background:var(--risk,#e0564a);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">사유 확인·진행</button>'
+      +'</div></div>';
+    document.body.appendChild(wrap);
+    wrap.querySelector('#_ovcancel').onclick=function(){document.body.removeChild(wrap);resolve(null);};
+    wrap.querySelector('#_ovok').onclick=function(){var n=(wrap.querySelector('#_ovnote').value||'').trim();if(!n){wrap.querySelector('#_ovnote').style.borderColor='var(--risk,#e0564a)';return;}document.body.removeChild(wrap);resolve(n);};
+  });
+}
+// 저장 전 슬롯 검증. 반환 true=진행 / false=중단
+async function guardSlot(studentId, name, changcheText){
+  if(!sb||!studentId) return true;
+  var fp=changcheFingerprint(changcheText);
+  if(fp.count<20){ try{ await sb.rpc('check_bind_fingerprint',{p_student_id:studentId,p_name_hash:null,p_features:fp.features}); }catch(e){} return true; }
+  var res;
+  try{ var r=await sb.rpc('check_bind_fingerprint',{p_student_id:studentId,p_name_hash:null,p_features:fp.features}); if(r.error){console.warn('fp',r.error);return true;} res=r.data; }
+  catch(e){ console.warn('fp',e); return true; } // 인프라 오류 → fail-open(정상 저장)
+  if(!res) return true;
+  if(res.status==='mismatch'){
+    var pct=Math.round((res.overlap||0)*100);
+    var note=await _ovModal('이 슬롯에 이전 등록된 생기부와 <b>창체(진로·동아리·자율) 내용이 거의 겹치지 않습니다</b> (겹침 '+pct+'%). 다른 학생의 자료일 가능성이 높습니다.');
+    if(!note) return false;
+    try{ await sb.rpc('override_fingerprint',{p_student_id:studentId,p_note:note,p_name_hash:null,p_features:fp.features}); }catch(e){}
+    return true;
+  }
+  return true;
+}
+window.guardSlot=guardSlot;
+
 async function saveParsedSetech(){
   var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!sb)return;
   function _gt(x){var g=(x.grade!=null&&x.grade!==0)?x.grade:null;var t=(x.term!=null&&x.term!==0)?x.term:null;return g?(t?(g+'-'+t):(''+g)):null;}
@@ -3712,6 +3791,7 @@ async function saveParsedSetech(){
   (window._parsedChangche||[]).forEach(function(x){rows.push({student_id:s.id,subject:(x.area||'창체'),area:'창체세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
   (window._parsedHaengbal||[]).forEach(function(x){rows.push({student_id:s.id,subject:'행동특성',area:'행발세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
   if(!rows.length)return;
+  if(!(await guardSlot(s.id, s.name, collectChangche()))){ m.style.color='var(--ink-mute)'; m.textContent='저장이 중단되었습니다 (슬롯 재활용 의심).'; return; }
   var {error}=await sb.from('student_setech').insert(rows);
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);toast('저장 실패: '+error.message,false);return;}
   m.style.color='var(--safe)';m.textContent='세특 '+rows.length+'건 저장 (교과+창체+행발).'; toast('세특 '+rows.length+'건 저장 완료',true); loadSetech();
@@ -4755,6 +4835,7 @@ async function saveGParsed(){
   var m=document.getElementById('gin-msg'); var s=window._gactive; var o=window._gParsed;
   if(!s||!sb||!o){m.style.color='var(--risk)';m.textContent='저장할 데이터가 없습니다.';return;}
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  if(!(await guardSlot(s.id, s.name, collectChangche({mode:'goip',o:o})))){ m.style.color='var(--ink-mute)'; m.textContent='저장이 중단되었습니다 (슬롯 재활용 의심).'; return; }
   var acadId=s.academy_id||null;
   try{
     // 재저장 대비: 기존 파싱 데이터 교체 (중복 방지)
