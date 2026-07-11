@@ -1669,7 +1669,7 @@ window.ADMIN=ADMIN;
           <div id="tm-list" style="margin-top:8px"></div>
         </div>
         <div id="billing-card" style="max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
-          <div class="sectionhead"><span class="idx">$</span><h3>구독 · 결제 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 기본료 20만 + 학생당 4만/월</span></h3></div>
+          <div class="sectionhead"><span class="idx">$</span><h3>구독 · 결제 <span id="billing-plan-label" style="font-size:11px;color:var(--ink-mute);font-weight:400">· 기본료 20만 + 학생당 4만/월</span></h3></div>
           <div id="billing-body" style="font-size:13px;color:var(--ink-dim);margin-top:8px">불러오는 중…</div>
         </div>
       </section>
@@ -3488,6 +3488,8 @@ async function renderBilling(){
   try{
     var d=await billingCall('status');
     var s=d.subscription||{}; var active=s.status==='active';
+    var plbl=document.getElementById('billing-plan-label');
+    if(plbl){ var baseMan=Math.round((s.plan_base||0)/10000); plbl.textContent='· 기본료 '+baseMan+'만 + '+(window._isB2C?'자녀':'학생')+'당 4만/월'; }
     var statusBadge=active
       ? '<span style="font-size:11px;font-weight:700;color:#fff;background:var(--safe);padding:2px 9px;border-radius:20px">구독중</span>'
       : (s.status==='canceled'?'<span style="font-size:11px;font-weight:700;color:#fff;background:var(--risk);padding:2px 9px;border-radius:20px">해지됨</span>':'<span style="font-size:11px;font-weight:700;color:var(--ink-dim);border:1px solid var(--line);padding:2px 9px;border-radius:20px">미등록</span>');
@@ -3495,11 +3497,11 @@ async function renderBilling(){
       +(s.card_number_masked?'<span style="font-size:12px;color:var(--ink-dim)">'+esc(s.card_company||'')+' '+esc(s.card_number_masked)+'</span>':'')+'</div>';
     // 청구 요약
     html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">'
-      +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">재원 학생</div><div style="font-size:18px;font-weight:800;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+d.student_count+'명</div></div>'
+      +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">'+(window._isB2C?'등록한 자녀':'재원 학생')+'</div><div style="font-size:18px;font-weight:800;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+d.student_count+'명</div></div>'
       +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">이번 달 청구액</div><div style="font-size:18px;font-weight:800;color:#173a27;font-family:\'JetBrains Mono\',monospace">'+won(d.current_amount)+'</div></div>'
       +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">다음 청구일</div><div style="font-size:15px;font-weight:700;color:var(--ink);margin-top:3px">'+dfmt(s.next_charge_at)+'</div></div>'
       +'</div>';
-    html+='<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">산식: 기본료 '+won(s.plan_base)+' + 학생 '+d.student_count+'명 × '+won(s.per_student)+' = <b style="color:var(--ink)">'+won(d.current_amount)+'</b></div>';
+    html+='<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">산식: 기본료 '+won(s.plan_base)+' + '+(window._isB2C?'자녀 ':'학생 ')+d.student_count+'명 × '+won(s.per_student)+' = <b style="color:var(--ink)">'+won(d.current_amount)+'</b></div>';
     // 버튼
     html+='<div id="billing-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap">';
     html+='<button class="btn" onclick="registerCard()">'+(active?'카드 변경':'카드 등록')+'</button>';
@@ -4932,7 +4934,7 @@ function gesRender(items){
       html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:5px">문단 설계</div>';
       html+='<ol style="margin:0 0 8px 16px;font-size:12px;color:var(--ink-dim);line-height:1.6">'+(bp.structure||[]).map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ol>';
       if(bp.materials&&bp.materials.length){html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:6px 0 4px">활용 소재</div>'+bp.materials.map(function(mt){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:3px">• <b>['+esc(mt.source||'')+']</b> '+esc(mt.item||'')+' <span style="color:var(--ink-mute)">→ '+esc(mt.use||'')+'</span></div>';}).join('');}
-      if(bp.school_links&&bp.school_links.length){html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin:6px 0 4px">학교 프로그램 연결</div>'+bp.school_links.map(function(l){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:3px">• <b>'+esc(l.program||'')+'</b> — '+esc(l.connect||'')+'</div>';}).join('');}
+      if(bp.school_links&&bp.school_links.length){html+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin:6px 0 4px">지원 학교(<b>'+esc(it.school_name||'')+'</b>) 프로그램 연결</div>'+bp.school_links.map(function(l){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:3px">• <b>'+esc(l.program||'')+'</b> — '+esc(l.connect||'')+'</div>';}).join('');}
       if(bp.caution)html+='<div style="font-size:11px;color:var(--reach);margin-top:6px">주의 — '+esc(bp.caution)+'</div>';
       html+='</div>';
     }
