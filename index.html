@@ -1385,11 +1385,13 @@ const ADMIN=(function(){
       var total=0,left=0; used.forEach(function(k){left+=(c[k]||0);total++;});
       var exp=l.expires_at?l.expires_at.slice(0,10):'-';
       var expired=l.expires_at&&new Date(l.expires_at)<new Date();
+      var converted=!!l.converted_at||l.is_demo===false;
+      var stBadge=converted?'<span style="font-size:10px;color:#fff;background:var(--safe);border-radius:5px;padding:1px 7px">정회원 전환됨'+(l.converted_at?' '+l.converted_at.slice(0,10):'')+'</span>':'<span style="font-size:10px;color:'+(expired?'var(--risk)':'var(--safe)')+'">'+(expired?'만료':'유효 ~'+exp)+'</span>';
       return '<div class="card" style="margin-bottom:8px;padding:12px 14px;cursor:pointer" onclick="ADMIN.guestDetail(\''+(l.academy_id||'')+'\',\''+esc(l.login_id)+'\')">'+
         '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">'+
-        '<div><b style="color:var(--ink)">'+esc(l.login_id)+'</b> <span style="font-size:10px;color:'+(expired?'var(--risk)':'var(--safe)')+'">'+(expired?'만료':'유효 ~'+exp)+'</span> <span style="font-size:10px;color:var(--ink-mute)">'+(l.issued_by==='admin'?'수동발급':'셀프신청')+'</span>'+
+        '<div><b style="color:var(--ink)">'+esc(l.login_id)+'</b> '+stBadge+' <span style="font-size:10px;color:var(--ink-mute)">'+(l.issued_by==='admin'?'수동발급':'셀프신청')+'</span>'+
         '<div style="font-size:11px;color:var(--ink-dim);margin-top:2px">'+esc(l.email||'-')+(l.org_name?' · '+esc(l.org_name):'')+' · 학생 '+l.students+'명 · 마케팅동의 '+(l.consent_marketing?'O':'X')+'</div></div>'+
-        '<div style="font-size:11px;color:var(--gold,#c8a24a)">남은 크레딧 '+left+'</div></div></div>';
+        (converted?'':'<div style="font-size:11px;color:var(--gold,#c8a24a)">남은 크레딧 '+left+'/15</div>')+'</div></div>';
     }).join('')||'<div style="color:var(--ink-mute);padding:12px">발급된 게스트 없음</div>';
     body.innerHTML=issueBox+'<div class="card"><div class="sectionhead"><span class="idx">📋</span><h3>게스트 리드 '+(d.rows||[]).length+'건</h3></div>'+rows+'</div>';
   }
@@ -1414,10 +1416,31 @@ const ADMIN=(function(){
       return '<div class="card" style="margin-bottom:10px"><b style="color:var(--ink)">'+esc(s.name||'-')+'</b> <span style="font-size:11px;color:var(--ink-mute)">'+esc(s.school||'')+' · '+esc(s.target_univ||'')+' '+esc(s.target_major||'')+'</span>'+
         '<div style="font-size:11px;color:var(--ink-dim);margin:4px 0">디자인 항목 '+x.design_items+'건 · 면접셋 '+x.interview_sets+'건</div>'+mets+'</div>';
     }).join('')||'<div style="color:var(--ink-mute)">학생 없음</div>';
+    var convBox='<div class="card" style="margin-bottom:14px;border-left:3px solid var(--safe)"><div class="sectionhead"><span class="idx">⭐</span><h3>정회원 전환</h3></div>'+
+      '<div style="font-size:12px;color:var(--ink-dim);margin-bottom:8px">체험 중 입력한 학생·분석·상담 데이터를 그대로 유지한 채 정식 회원으로 전환합니다. 만료·크레딧 제한이 해제되며, 별도 사용허가 없이 즉시 이용 가능합니다.</div>'+
+      '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
+      '<input id="cv-name" placeholder="학원명 변경 (비우면 유지)" style="flex:1;min-width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<input id="cv-email" placeholder="새 로그인 이메일 (비우면 기존 유지)" style="flex:1;min-width:180px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<input id="cv-pw" placeholder="새 비밀번호 (선택)" style="flex:1;min-width:120px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<button class="btn" style="background:var(--safe)" onclick="ADMIN.convertGuest(\''+aid+'\',\''+esc(loginId)+'\')">정회원 전환</button></div>'+
+      '<div id="cv-msg" style="font-size:12px;color:var(--ink-mute)"></div></div>';
     body.innerHTML='<button class="btn ghost" onclick="ADMIN.tab(\'guests\')" style="margin-bottom:12px">← 게스트 목록</button>'+
+      convBox+
       '<div class="card"><div class="sectionhead"><span class="idx">🎫</span><h3>'+esc(loginId)+' 체험 데이터</h3></div>'+sl+'</div>';
   }
-  return {tab,init,changePw,doUpload,approve,charge,runDue,createGuest,guestDetail};
+  async function convertGuest(aid,loginId){
+    var m=$('#cv-msg');
+    var name=($('#cv-name').value||'').trim();
+    var email=($('#cv-email').value||'').trim();
+    var pw=($('#cv-pw').value||'').trim();
+    if(!confirm(loginId+' 게스트를 정회원으로 전환할까요?\n· 데이터는 그대로 유지됩니다\n· 만료·크레딧 제한 해제\n'+(email?'· 로그인 이메일 → '+email:'· 로그인 이메일 유지 ('+loginId+'@demo.penta-view.com)')))return;
+    m.style.color='var(--ink-mute)';m.textContent='전환 중…';
+    var d=await guestCall({action:'convert_guest',academy_id:aid,academy_name:name||null,new_email:email||null,new_password:pw||null});
+    if(d.error){m.style.color='var(--risk)';m.textContent=d.error;return;}
+    m.style.color='var(--safe)';
+    m.innerHTML='✓ 정회원 전환 완료 — '+esc(d.name||'')+(d.auth_email?' · 로그인: <b>'+esc(d.auth_email)+'</b>':' · 기존 게스트 아이디로 계속 로그인')+(pw?' · 새 비밀번호 적용됨':'');
+  }
+  return {tab,init,changePw,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest};
   async function approve(id,ok){ var r=await callBody({action:'approve',academy_id:id,approved:ok}); if(r.error)return alert('실패: '+r.error); tab('academies'); }
 })();
 window.ADMIN=ADMIN;
@@ -1691,8 +1714,12 @@ function updateDemoBanner(){
     main.insertBefore(b,main.firstChild);
   }
   var c=window._demo.credits||{};
+  var INIT={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3};
+  var total=0,remain=0;
+  Object.keys(INIT).forEach(function(k){total+=INIT[k];var v=(c[k]!=null)?c[k]:INIT[k];remain+=Math.max(0,Math.min(v,INIT[k]));});
+  var used=total-remain;
   var left=Object.keys(DEMO_TASK_LABEL).filter(function(k){return (c[k]||0)>0;}).map(function(k){return DEMO_TASK_LABEL[k]+' '+c[k]+'회';});
-  b.innerHTML='<b>🎫 체험 모드</b><span>'+(left.length?('남은 체험: '+left.join(' · ')):'체험 횟수를 모두 사용했습니다')+'</span>'+
+  b.innerHTML='<b>🎫 체험 모드</b><b style="color:#8a6d1c">크레딧 '+remain+'/'+total+' 남음'+(used?' ('+used+' 사용)':'')+'</b><span title="'+left.join(' · ')+'">'+(left.length?('세부: '+left.join(' · ')):'체험 크레딧을 모두 사용했습니다')+'</span>'+
     '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
     '<a href="mailto:contact@penta-view.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#c8a24a);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
@@ -4144,7 +4171,7 @@ async function gesLoad(){
   if(!d.length){body.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:16px">'+(window._role==='stu'?'아직 선생님이 자소서 설계를 시작하지 않았습니다. 준비되면 여기에 표시됩니다.':'아직 자소서 작업이 없습니다. 지원 학교를 선택하고 [설계도 생성]을 누르세요.')+'</div>';return;}
   gesRender(d);
 }
-var GES_STATUS={blueprint:{t:'설계도',c:'var(--ink-mute)'},blueprint_ok:{t:'설계 확정·학생공유',c:'var(--blue)'},drafting:{t:'학생 작성중',c:'var(--reach)'},submitted:{t:'학생 제출',c:'var(--violet)'},evaluated:{t:'평가완료',c:'var(--lime)'},done:{t:'완료',c:'var(--safe)'}};
+var GES_STATUS={blueprint:{t:'설계도',c:'var(--ink-mute)'},blueprint_ok:{t:'설계 확정·학생공유',c:'var(--blue)'},drafting:{t:'학생 작성중',c:'var(--reach)'},submitted:{t:'제출됨·검토 대기',c:'var(--violet)'},evaluated:{t:'평가완료·피드백 작성',c:'var(--lime)'},returned:{t:'반송·재작성',c:'var(--reach)'},done:{t:'완료',c:'var(--safe)'}};
 function gesRender(items){
   var body=document.getElementById('ges-body'); var s=window._gactive;
   var isStu=(window._role==='stu');
@@ -4188,30 +4215,42 @@ function gesRender(items){
     // 작성 영역 (blueprint_ok 이후)
     if(['blueprint_ok','drafting','submitted','evaluated','done'].indexOf(it.status)>=0){
       if(isStu){
-        // 학생: 직접 작성 + 평가 요청
-        html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:10px 0 4px">내 작성'+(it.max_chars?' (권장 '+it.max_chars+'자)':'')+'</div>';
-        html+='<textarea id="ges-draft-'+it.id+'" rows="6" placeholder="설계도를 참고해 내 문장으로 직접 작성하세요" style="width:100%;margin-bottom:6px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical">'+esc(it.draft||'')+'</textarea>';
-        html+='<div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="ges-cnt-'+it.id+'" style="font-size:11px;color:var(--ink-mute)"></span>'
-          +'<button onclick="gesSaveDraft(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">초안 저장</button>'
-          +'<button onclick="gesEvaluate(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">평가 요청</button></div>';
+        var editable=['blueprint_ok','drafting','returned'].indexOf(it.status)>=0;
+        var nextRound=(it.round||0)+1;
+        if(editable){
+          // 학생: 작성 → 저장/제출 (AI 평가는 컨설턴트만 실행)
+          html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:10px 0 4px">'+(it.round?nextRound+'차본 작성':'내 작성')+(it.max_chars?' (권장 '+it.max_chars+'자)':'')+'</div>';
+          html+='<textarea id="ges-draft-'+it.id+'" rows="6" placeholder="설계도'+(it.round?'와 선생님 피드백':'')+'을 참고해 내 문장으로 직접 작성하세요" style="width:100%;margin-bottom:6px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical">'+esc(it.draft||'')+'</textarea>';
+          html+='<div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap"><span id="ges-cnt-'+it.id+'" style="font-size:11px;color:var(--ink-mute)"></span>'
+            +'<button onclick="gesSaveDraft(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">저장</button>'
+            +'<button onclick="gesSubmit(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--gold);color:#1a1204;border:none;border-radius:8px;font-weight:700;cursor:pointer">선생님께 '+nextRound+'차본 제출</button></div>';
+        } else {
+          // 학생: 제출됨/검토중/완료 — 읽기 전용
+          if(it.draft){
+            html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:10px 0 4px">내 제출본'+(it.round?' ('+it.round+'차, '+it.draft.length+'자)':'')+'</div>';
+            html+='<div style="white-space:pre-wrap;font-size:12.5px;color:var(--ink-dim);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;line-height:1.6">'+esc(it.draft)+'</div>';
+          }
+          if(it.status==='submitted'||it.status==='evaluated')html+='<div style="font-size:11.5px;color:var(--violet);margin-top:6px">✓ 제출 완료 — 선생님이 검토 중입니다. 피드백이 오면 다음 차수를 작성할 수 있어요.</div>';
+          if(it.status==='done')html+='<div style="font-size:11.5px;color:var(--safe);margin-top:6px">✓ 최종 완성된 문항입니다.</div>';
+        }
       } else {
-        // 컨설턴트: 학생 작성본 읽기 전용
+        // 컨설턴트: 학생 제출본 확인 → AI 평가 → 피드백·반송/완료
         if(it.draft){
-          html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:10px 0 4px">학생 작성본 '+(it.draft?'('+it.draft.length+'자)':'')+'</div>';
+          html+='<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin:10px 0 4px">학생 제출본'+(it.round?' ('+it.round+'차, '+it.draft.length+'자)':' ('+it.draft.length+'자)')+'</div>';
           html+='<div style="white-space:pre-wrap;font-size:12.5px;color:var(--ink-dim);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:9px 11px;line-height:1.6">'+esc(it.draft)+'</div>';
         } else {
-          html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0 4px">설계를 학생에게 전달했습니다. 학생이 작성하면 여기에 표시됩니다.</div>';
+          html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0 4px">설계를 학생에게 전달했습니다. 학생이 제출하면 여기에 표시됩니다.</div>';
         }
-        // 완료/재수정만 컨설턴트가 제어
-        if(it.status==='evaluated')html+='<div style="margin-top:6px"><button onclick="gesMarkDone(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--safe);color:#fff;border:none;border-radius:8px;font-weight:700;cursor:pointer">이 문항 완료 처리</button></div>';
-        if(it.status==='done')html+='<div style="margin-top:6px"><button onclick="gesReopen(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">재수정 열기</button></div>';
+        if(it.status==='submitted')html+='<div style="margin-top:8px"><button onclick="gesEvaluate(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">AI 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">4축·배제사항 기준 평가 (API 사용)</span></div>';
+        if(it.status==='returned')html+='<div style="font-size:11.5px;color:var(--reach);margin-top:6px">↩ '+(it.round||1)+'차본 반송됨 — 학생이 '+((it.round||1)+1)+'차본을 작성 중입니다.</div>';
+        if(it.status==='done')html+='<div style="margin-top:6px"><button onclick="gesReopen(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">재수정 열기(학생에게 반송)</button></div>';
       }
     }
-    // 평가 결과
-    if(it.eval){
+    // 평가 결과 (학생은 반송·완료 후에만 열람)
+    if(it.eval && (!isStu || ['returned','done'].indexOf(it.status)>=0)){
       var ev=it.eval;
       html+='<div style="background:var(--panel-2);border-radius:9px;padding:10px 12px;margin-top:10px">';
-      html+='<div style="font-size:11px;color:var(--lime);font-weight:700;margin-bottom:5px">AI 평가 (v'+it.version+')</div>';
+      html+='<div style="font-size:11px;color:var(--lime);font-weight:700;margin-bottom:5px">AI 평가 ('+(it.round||it.version||1)+'차본)</div>';
       if(ev.axes){var ax=ev.axes;html+='<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:6px">'+[['activity','활동'],['thinking','사고'],['values','가치관'],['vision','비전']].map(function(a){var v=ax[a[0]];var sc=(v&&v.score!=null)?v.score:(typeof v==='number'?v:'-');return '<span style="font-size:11px;color:var(--ink-dim)">'+a[1]+' <b style="color:var(--ink)">'+sc+'</b></span>';}).join('')+'</div>';}
       if(ev.exclusions&&ev.exclusions.length)html+='<div style="font-size:11.5px;color:var(--risk);margin-bottom:5px">배제사항: '+ev.exclusions.map(function(x){return esc(x.category||'')+(x.quote?'("'+esc(x.quote)+'")':'');}).join(', ')+'</div>';
       var pq=(ev.per_question&&ev.per_question[0])?ev.per_question[0]:null;
@@ -4223,13 +4262,36 @@ function gesRender(items){
       if(ev.next_step)html+='<div style="font-size:12px;color:var(--gold);margin-top:4px">다음 집중: '+esc(ev.next_step)+'</div>';
       html+='</div>';
     }
+    // 버전 이력 (양쪽 공통)
+    var hist=it.drafts_history||[];
+    if(hist.length>((it.status==='submitted'||it.status==='evaluated')?1:0)){
+      var past=(it.status==='submitted'||it.status==='evaluated')?hist.slice(0,-1):hist.slice();
+      if(it.status==='done'&&past.length)past=past.slice(0,-1);
+      if(past.length){
+        html+='<details style="margin-top:10px"><summary style="font-size:11.5px;color:var(--ink-mute);cursor:pointer">이전 버전 이력 ('+past.length+'건)</summary>';
+        past.slice().reverse().forEach(function(h){
+          html+='<div style="background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-top:6px">'
+            +'<div style="font-size:11px;color:var(--ink-mute);font-weight:700;margin-bottom:4px">'+(h.round||'?')+'차본'+(h.submitted_at?' · '+String(h.submitted_at).slice(0,10):'')+'</div>'
+            +'<div style="white-space:pre-wrap;font-size:11.5px;color:var(--ink-dim);line-height:1.5;max-height:120px;overflow:auto">'+esc(h.draft||'')+'</div>'
+            +(h.feedback?'<div style="font-size:11px;color:var(--gold);margin-top:5px"><b>피드백:</b> '+esc(h.feedback)+'</div>':'')
+            +'</div>';
+        });
+        html+='</details>';
+      }
+    }
     // 컨설턴트 피드백
-    if(['submitted','evaluated','done'].indexOf(it.status)>=0){
+    if(['submitted','evaluated','returned','done'].indexOf(it.status)>=0){
       if(isStu){
         if(it.feedback)html+='<div style="font-size:12px;color:var(--ink-dim);background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-top:8px"><b style="color:var(--gold)">선생님 피드백:</b> '+esc(it.feedback)+'</div>';
       } else {
-        html+='<textarea id="ges-fb-'+it.id+'" rows="2" placeholder="컨설턴트 피드백 (학생에게 전달)" style="width:100%;margin-top:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.feedback||'')+'</textarea>';
-        html+='<button onclick="gesSaveFb(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;margin-top:5px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">피드백 저장</button>';
+        html+='<textarea id="ges-fb-'+it.id+'" rows="2" placeholder="컨설턴트 피드백 (반송 시 학생에게 전달)" style="width:100%;margin-top:8px;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.feedback||'')+'</textarea>';
+        html+='<div style="display:flex;gap:7px;margin-top:5px;flex-wrap:wrap">'
+          +'<button onclick="gesSaveFb(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">피드백 저장</button>';
+        if(it.status==='evaluated'){
+          html+='<button onclick="gesReturn(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--reach);color:#1a1204;border:none;border-radius:7px;font-weight:700;cursor:pointer">학생에게 반송 (다음 차수 작성)</button>'
+            +'<button onclick="gesMarkDone(\''+it.id+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--safe);color:#fff;border:none;border-radius:7px;font-weight:700;cursor:pointer">최종 완성 처리</button>';
+        }
+        html+='</div>';
       }
     }
     html+='</div>';
@@ -4277,34 +4339,67 @@ async function gesSendAll(){
   gesLoad();
 }
 async function gesSaveDraft(id){
+  var m=document.getElementById('ges-msg');
   var v=document.getElementById('ges-draft-'+id).value;
   var cur=await sb.from('goip_essay_drafts').select('status').eq('id',id).limit(1);
   var st=(cur.data&&cur.data[0]&&cur.data[0].status);
-  var newst=(st==='blueprint_ok'||st==='drafting')?'drafting':st;
-  await sb.from('goip_essay_drafts').update({draft:v,status:newst,updated_at:new Date().toISOString()}).eq('id',id);
-  var m=document.getElementById('ges-msg');m.style.color='var(--safe)';m.textContent='초안 저장됨.';
+  if(['blueprint_ok','drafting','returned'].indexOf(st)<0){m.style.color='var(--risk)';m.textContent='지금은 수정할 수 없는 상태입니다.';return;}
+  var newst=(st==='blueprint_ok')?'drafting':st;
+  var up=await sb.from('goip_essay_drafts').update({draft:v,status:newst,updated_at:new Date().toISOString()}).eq('id',id);
+  if(up.error){m.style.color='var(--risk)';m.textContent='저장 실패: '+up.error.message;return;}
+  m.style.color='var(--safe)';m.textContent='저장됨. 완성되면 [선생님께 제출]을 누르세요.';
+}
+async function gesSubmit(id){
+  var m=document.getElementById('ges-msg');
+  var v=document.getElementById('ges-draft-'+id).value.trim();
+  if(!v){m.style.color='var(--risk)';m.textContent='작성 내용이 없습니다.';return;}
+  var row=await sb.from('goip_essay_drafts').select('*').eq('id',id).limit(1);
+  var it=row.data&&row.data[0]; if(!it)return;
+  if(['blueprint_ok','drafting','returned'].indexOf(it.status)<0){m.style.color='var(--risk)';m.textContent='지금은 제출할 수 없는 상태입니다.';return;}
+  var nr=(it.round||0)+1;
+  if(!confirm(nr+'차본을 선생님께 제출할까요? 제출 후에는 선생님이 돌려줄 때까지 수정할 수 없습니다.'))return;
+  var hist=Array.isArray(it.drafts_history)?it.drafts_history.slice():[];
+  hist.push({round:nr,draft:v,submitted_at:new Date().toISOString()});
+  var up=await sb.from('goip_essay_drafts').update({draft:v,drafts_history:hist,round:nr,version:nr,status:'submitted',updated_at:new Date().toISOString()}).eq('id',id);
+  if(up.error){m.style.color='var(--risk)';m.textContent='제출 실패: '+up.error.message;return;}
+  m.style.color='var(--safe)';m.textContent=nr+'차본 제출 완료. 선생님 검토 후 피드백이 도착합니다.';
+  gesLoad();
 }
 async function gesEvaluate(id){
   var m=document.getElementById('ges-msg'); var s=window._gactive;
-  var draft=document.getElementById('ges-draft-'+id).value.trim();
-  if(!draft){m.style.color='var(--risk)';m.textContent='작성된 초안이 없습니다.';return;}
+  if(window._role==='stu'){m.style.color='var(--risk)';m.textContent='평가는 선생님만 실행할 수 있습니다.';return;}
   var row=await sb.from('goip_essay_drafts').select('*').eq('id',id).limit(1);
   var it=row.data&&row.data[0]; if(!it)return;
-  // 먼저 초안 저장 + submitted
-  await sb.from('goip_essay_drafts').update({draft:draft,status:'submitted',updated_at:new Date().toISOString()}).eq('id',id);
+  if(!it.draft){m.style.color='var(--risk)';m.textContent='학생 제출본이 없습니다.';return;}
   if(window.showAiLoading)showAiLoading();
   m.style.color='var(--ink-mute)';m.textContent='AI 평가 중… (수십 초)';
   try{
-    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_eval_essay',payload:{school_name:it.school_name,career:s.career||'',answers:[{no:it.q_no,text:draft}]}}});
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_eval_essay',payload:{school_name:it.school_name,career:(s&&s.career)||'',answers:[{no:it.q_no,text:it.draft}]}}});
     var data=r.data,error=r.error;
-    if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'평가 실패');await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id);return;}
+    if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'평가 실패');return;}
     var ev=safeJson(data.text);
-    if(!ev){m.style.color='var(--risk)';m.textContent='평가 파싱 실패';await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id);return;}
-    await sb.from('goip_essay_drafts').update({eval:ev,status:'evaluated',version:(it.version||0)+1,updated_at:new Date().toISOString()}).eq('id',id);
-    m.style.color='var(--safe)';m.textContent='평가 완료 · 진단 확인 후 학생이 재수정하거나 완료 처리하세요.';
+    if(!ev){m.style.color='var(--risk)';m.textContent='평가 파싱 실패';return;}
+    var hist=Array.isArray(it.drafts_history)?it.drafts_history.slice():[];
+    if(hist.length)hist[hist.length-1].eval={axes:ev.axes||null,overall:ev.overall||''};
+    await sb.from('goip_essay_drafts').update({eval:ev,drafts_history:hist,status:'evaluated',updated_at:new Date().toISOString()}).eq('id',id);
+    m.style.color='var(--safe)';m.textContent='평가 완료 · 피드백 작성 후 [학생에게 반송] 또는 [최종 완성 처리] 하세요.';
     gesLoad();
-  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; await sb.from('goip_essay_drafts').update({status:'drafting'}).eq('id',id); }
+  }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; }
   finally{ if(window.hideAiLoading)hideAiLoading(); }
+}
+async function gesReturn(id){
+  var m=document.getElementById('ges-msg');
+  var fbEl=document.getElementById('ges-fb-'+id);
+  var fb=fbEl?fbEl.value.trim():'';
+  if(!fb && !confirm('피드백 없이 반송할까요? 학생은 AI 평가만 보고 다음 차수를 작성합니다.'))return;
+  var row=await sb.from('goip_essay_drafts').select('drafts_history,round').eq('id',id).limit(1);
+  var it=row.data&&row.data[0]; if(!it)return;
+  var hist=Array.isArray(it.drafts_history)?it.drafts_history.slice():[];
+  if(hist.length)hist[hist.length-1].feedback=fb;
+  var up=await sb.from('goip_essay_drafts').update({feedback:fb,drafts_history:hist,status:'returned',updated_at:new Date().toISOString()}).eq('id',id);
+  if(up.error){m.style.color='var(--risk)';m.textContent='반송 실패: '+up.error.message;return;}
+  m.style.color='var(--safe)';m.textContent='반송 완료 — 학생이 '+((it.round||1)+1)+'차본을 작성할 수 있습니다.';
+  gesLoad();
 }
 async function gesSaveFb(id){
   var v=document.getElementById('ges-fb-'+id).value.trim();
@@ -4312,7 +4407,7 @@ async function gesSaveFb(id){
   var m=document.getElementById('ges-msg');m.style.color='var(--safe)';m.textContent='피드백 저장됨.';
 }
 async function gesMarkDone(id){ await sb.from('goip_essay_drafts').update({status:'done',updated_at:new Date().toISOString()}).eq('id',id); gesLoad(); }
-async function gesReopen(id){ await sb.from('goip_essay_drafts').update({status:'evaluated',updated_at:new Date().toISOString()}).eq('id',id); gesLoad(); }
+async function gesReopen(id){ await sb.from('goip_essay_drafts').update({status:'returned',updated_at:new Date().toISOString()}).eq('id',id); gesLoad(); }
 
 window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자료 조회 비활성)');};
 // 초기: 모든 그룹 접힘 — 메뉴 이동/홈 카드 클릭 시에만 해당 그룹 펼침
