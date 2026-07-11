@@ -1417,11 +1417,12 @@ const ADMIN=(function(){
         '<div style="font-size:11px;color:var(--ink-dim);margin:4px 0">디자인 항목 '+x.design_items+'건 · 면접셋 '+x.interview_sets+'건</div>'+mets+'</div>';
     }).join('')||'<div style="color:var(--ink-mute)">학생 없음</div>';
     var convBox='<div class="card" style="margin-bottom:14px;border-left:3px solid var(--safe)"><div class="sectionhead"><span class="idx">⭐</span><h3>정회원 전환</h3></div>'+
-      '<div style="font-size:12px;color:var(--ink-dim);margin-bottom:8px">체험 중 입력한 학생·분석·상담 데이터를 그대로 유지한 채 정식 회원으로 전환합니다. 만료·크레딧 제한이 해제되며, 별도 사용허가 없이 즉시 이용 가능합니다.</div>'+
+      '<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">체험 중 입력한 학생·분석·상담 데이터를 그대로 유지한 채 정식 회원으로 전환합니다. 만료·크레딧 제한이 해제되며, 별도 사용허가 없이 즉시 이용 가능합니다.</div>'+
+      '<div style="font-size:11.5px;color:var(--ink-mute);background:var(--panel-2);border-radius:8px;padding:8px 10px;margin-bottom:8px">현재 로그인 <b style="color:var(--ink-dim)">'+esc(loginId)+'@demo.penta-view.com</b> · 아래를 <b>모두 비워두면</b> 기존 아이디·비밀번호 그대로 사용합니다. 학원이 자체 이메일로 바꾸길 원할 때만 입력하세요.</div>'+
       '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'+
       '<input id="cv-name" placeholder="학원명 변경 (비우면 유지)" style="flex:1;min-width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
-      '<input id="cv-email" placeholder="새 로그인 이메일 (비우면 기존 유지)" style="flex:1;min-width:180px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
-      '<input id="cv-pw" placeholder="새 비밀번호 (선택)" style="flex:1;min-width:120px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<input id="cv-email" placeholder="새 이메일 (선택 · 비우면 기존 유지)" style="flex:1;min-width:180px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
+      '<input id="cv-pw" placeholder="새 비밀번호 (선택 · 비우면 기존 유지)" style="flex:1;min-width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'+
       '<button class="btn" style="background:var(--safe)" onclick="ADMIN.convertGuest(\''+aid+'\',\''+esc(loginId)+'\')">정회원 전환</button></div>'+
       '<div id="cv-msg" style="font-size:12px;color:var(--ink-mute)"></div></div>';
     body.innerHTML='<button class="btn ghost" onclick="ADMIN.tab(\'guests\')" style="margin-bottom:12px">← 게스트 목록</button>'+
@@ -1433,7 +1434,7 @@ const ADMIN=(function(){
     var name=($('#cv-name').value||'').trim();
     var email=($('#cv-email').value||'').trim();
     var pw=($('#cv-pw').value||'').trim();
-    if(!confirm(loginId+' 게스트를 정회원으로 전환할까요?\n· 데이터는 그대로 유지됩니다\n· 만료·크레딧 제한 해제\n'+(email?'· 로그인 이메일 → '+email:'· 로그인 이메일 유지 ('+loginId+'@demo.penta-view.com)')))return;
+    if(!confirm(loginId+' 게스트를 정회원으로 전환할까요?\n· 데이터는 그대로 유지됩니다\n· 만료·크레딧 제한 해제\n'+(email?'· 로그인 이메일 → '+email:'· 로그인 이메일 유지: '+loginId+'@demo.penta-view.com')+'\n'+(pw?'· 비밀번호 새로 변경':'· 비밀번호 기존 유지')))return;
     m.style.color='var(--ink-mute)';m.textContent='전환 중…';
     var d=await guestCall({action:'convert_guest',academy_id:aid,academy_name:name||null,new_email:email||null,new_password:pw||null});
     if(d.error){m.style.color='var(--risk)';m.textContent=d.error;return;}
