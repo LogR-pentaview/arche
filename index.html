@@ -2194,7 +2194,7 @@ function updateDemoBanner(){
   var left=Object.keys(DEMO_TASK_LABEL).filter(function(k){return (c[k]||0)>0;}).map(function(k){return DEMO_TASK_LABEL[k]+' '+c[k]+'회';});
   b.innerHTML='<b>🎫 체험 모드</b><b style="color:#8a6d1c">크레딧 '+remain+'/'+total+' 남음'+(used?' ('+used+' 사용)':'')+'</b><span title="'+left.join(' · ')+'">'+(left.length?('세부: '+left.join(' · ')):'체험 크레딧을 모두 사용했습니다')+'</span>'+
     '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
-    '<a href="mailto:contact@penta-view.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#c8a24a);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
+    '<a href="mailto:gwkim06@gmail.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#c8a24a);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
 async function enterStudentApp(session){
   if(!(await ensureConsent(session.user,'student'))){ return; }
