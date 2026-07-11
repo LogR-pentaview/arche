@@ -628,6 +628,24 @@
               </div>
               <div id="nd-msg" style="min-height:14px;font-size:12px;margin-top:6px"></div>
             </div>
+
+            <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:20px;grid-column:1/-1">
+              <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">04</span><h3>추가 자료 <span style="font-size:11px;color:var(--ink-mute)">· 아직 학생부에 없는 탐구보고서·실험자료 등 (자소서·면접 활용)</span></h3></div>
+              <div style="font-size:12px;color:var(--ink-mute);margin-bottom:12px">컨설턴트·학부모와 함께 작성해 둔 탐구보고서·실험 자료·수행평가 결과물을 저장해 두면, <b style="color:var(--ink)">자소서 설계도·면접 예상문항 생성 시 자동으로 근거 자료로 반영</b>됩니다. 파일에서 텍스트를 추출하거나 직접 붙여넣으세요.</div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+                <select id="ex-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험자료</option><option>수행평가</option><option>대회</option><option>독서</option><option>기타</option></select>
+                <input id="ex-title" placeholder="자료 제목 (예: 효소 활성 실험 보고서)" style="flex:1;min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+              </div>
+              <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+                <input type="file" id="ex-file" accept=".pdf,.docx,.txt,.md" onchange="extraPickFile('dae')" style="font-size:12px;color:var(--ink-dim)">
+                <span style="font-size:11px;color:var(--ink-mute)">PDF·DOCX·TXT 자동 추출 (HWP는 내용 붙여넣기)</span>
+                <input type="hidden" id="ex-fname">
+              </div>
+              <textarea id="ex-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+              <div id="ex-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
+              <button onclick="saveExtra('dae')" style="padding:10px 18px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">추가 자료 저장</button>
+              <div id="ex-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 저장된 추가 자료가 표시됩니다.</div></div>
+            </div>
           </section>
 
       <!-- 3. DIAG -->
@@ -721,6 +739,24 @@
           </div>
         </div>
         <div id="gin-result" style="margin-top:16px"></div>
+
+        <div class="card" style="margin-top:16px">
+          <div style="font-weight:700;margin-bottom:6px">추가 자료 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 생기부에 없는 탐구보고서·실험자료 등 (자소서·면접 활용)</span></div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-bottom:12px">컨설턴트·학부모와 함께 준비한 활동 결과물을 저장하면, <b style="color:var(--ink)">자소서 설계도·면접 예상문항 생성 시 근거 자료로 자동 반영</b>됩니다.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
+            <select id="gex-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험자료</option><option>수행평가</option><option>대회</option><option>독서</option><option>기타</option></select>
+            <input id="gex-title" placeholder="자료 제목" style="flex:1;min-width:180px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+            <input type="file" id="gex-file" accept=".pdf,.docx,.txt,.md" onchange="extraPickFile('goip')" style="font-size:12px;color:var(--ink-dim)">
+            <span style="font-size:11px;color:var(--ink-mute)">PDF·DOCX·TXT 자동 추출 (HWP는 내용 붙여넣기)</span>
+            <input type="hidden" id="gex-fname">
+          </div>
+          <textarea id="gex-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+          <div id="gex-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
+          <button onclick="saveExtra('goip')" style="padding:10px 18px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">추가 자료 저장</button>
+          <div id="gex-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 저장된 추가 자료가 표시됩니다.</div></div>
+        </div>
       </section>
 
       <!-- 고입 상담 관리 -->
@@ -2258,6 +2294,7 @@ function selectStudent(id){
   var td=document.getElementById('topbar-student'); if(td)td.value=id;
   var sv=document.getElementById('v-students'); if(sv&&sv.classList.contains('on')&&window.loadStudents)loadStudents();
   if(window.refreshIntake)refreshIntake(); if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
+  if(window.loadExtra)loadExtra('dae');
 }
 function fillStudentPickers(){
   var opts='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
@@ -2314,6 +2351,89 @@ window.safeJson=safeJson;
 
 /* ===== 자료 입력 · 진단 ===== */
 function requireActive(m){ if(!window._activeStudent){ if(m){m.style.color='var(--risk)';m.textContent='먼저 [학생 관리]에서 학생을 활성화하세요.';} return null;} return window._activeStudent; }
+
+/* ===== 추가 자료 (미기재 자산) — 대입/고입 공통 ===== */
+function extraActive(track){ return track==='goip'?window._gactive:window._activeStudent; }
+async function extractExtraText(file){
+  var name=(file.name||'').toLowerCase();
+  try{
+    if(/\.(txt|md)$/.test(name)){ return await file.text(); }
+    if(/\.docx$/.test(name)&&window.mammoth){ var buf=await file.arrayBuffer(); var r=await window.mammoth.extractRawText({arrayBuffer:buf}); return (r&&r.value)||''; }
+    if(/\.pdf$/.test(name)&&window.pdfjsLib){
+      var ab=await file.arrayBuffer(); var pdf=await window.pdfjsLib.getDocument({data:ab}).promise; var out=[];
+      for(var p=1;p<=pdf.numPages;p++){ var pg=await pdf.getPage(p); var tc=await pg.getTextContent(); out.push(tc.items.map(function(i){return i.str;}).join(' ')); }
+      return out.join('\n');
+    }
+  }catch(e){ throw e; }
+  return '';
+}
+async function extraPickFile(track){
+  var pfx=track==='goip'?'gex':'ex'; var f=document.getElementById(pfx+'-file').files[0]; var m=document.getElementById(pfx+'-msg');
+  if(!f)return;
+  m.style.color='var(--ink-mute)';m.textContent='텍스트 추출 중…';
+  try{
+    var t=await extractExtraText(f);
+    if(t&&t.trim()){ document.getElementById(pfx+'-content').value=t.trim().slice(0,20000); m.style.color='var(--safe)';m.textContent='추출 완료 ('+t.trim().length+'자) · 확인 후 저장하세요.'; }
+    else { m.style.color='var(--gold,#c8a24a)';m.textContent='자동 추출이 안 되는 형식(HWP 등)입니다 — 내용을 직접 붙여넣어 주세요.'; }
+    document.getElementById(pfx+'-fname').value=f.name;
+  }catch(e){ m.style.color='var(--risk)';m.textContent='추출 실패: '+(e.message||e); }
+}
+async function saveExtra(track){
+  var pfx=track==='goip'?'gex':'ex'; var m=document.getElementById(pfx+'-msg'); var s=extraActive(track);
+  if(!s){ if(m){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';} return; }
+  var content=(document.getElementById(pfx+'-content').value||'').trim();
+  var title=(document.getElementById(pfx+'-title').value||'').trim();
+  if(!content){ m.style.color='var(--risk)';m.textContent='자료 내용을 입력하거나 파일에서 추출하세요.'; return; }
+  var payload={ student_id:s.id, track:(track==='goip'?'고입':'대입'), category:document.getElementById(pfx+'-cat').value, title:title||null, content:content, file_name:(document.getElementById(pfx+'-fname').value||null), source:(window._isB2C?'parent':'consultant') };
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var ins=await sb.from('student_extra_materials').insert(payload);
+  if(ins.error){ m.style.color='var(--risk)';m.textContent=esc(ins.error.message); return; }
+  m.style.color='var(--safe)';m.textContent='저장 완료 — 자소서·면접 생성 시 자동 반영됩니다.';
+  if(window.toast)toast('추가 자료 저장됨');
+  document.getElementById(pfx+'-title').value='';document.getElementById(pfx+'-content').value='';document.getElementById(pfx+'-fname').value='';
+  try{document.getElementById(pfx+'-file').value='';}catch(e){}
+  loadExtra(track);
+}
+async function loadExtra(track){
+  var pfx=track==='goip'?'gex':'ex'; var box=document.getElementById(pfx+'-list'); if(!box)return; var s=extraActive(track);
+  if(!s||!sb){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 저장된 추가 자료가 표시됩니다.</div>'; return; }
+  box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">불러오는 중…</div>';
+  var q=await sb.from('student_extra_materials').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
+  if(q.error){ box.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(q.error.message)+'</div>'; return; }
+  var rows=q.data||[];
+  if(!rows.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">아직 등록된 추가 자료가 없습니다. 학생부에 없는 탐구보고서·실험자료 등을 넣어두면 자소서·면접에 활용됩니다.</div>'; return; }
+  box.innerHTML=rows.map(function(r){
+    var badge='<span style="font-size:10px;font-weight:700;color:var(--gold,#c8a24a);background:rgba(200,162,74,.14);border-radius:5px;padding:1px 7px">'+esc(r.category||'기타')+'</span>';
+    var src=r.source==='parent'?' · 학부모':(r.source==='student'?' · 학생':'');
+    var prev=esc((r.content||'').slice(0,140))+((r.content||'').length>140?'…':'');
+    var canDel=window._role!=='stu';
+    return '<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">'+badge+
+      '<b style="font-size:12.5px">'+esc(r.title||'(제목 없음)')+'</b>'+
+      '<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">'+(r.created_at||'').slice(0,10)+src+'</span>'+
+      (canDel?'<button onclick="delExtra(\''+r.id+'\',\''+track+'\')" style="border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:15px;line-height:1">×</button>':'')+
+      '</div>'+
+      (r.file_name?'<div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:3px">📎 '+esc(r.file_name)+'</div>':'')+
+      '<div style="font-size:11.5px;color:var(--ink-dim);line-height:1.5">'+prev+'</div></div>';
+  }).join('');
+}
+async function delExtra(id,track){
+  if(!confirm('이 추가 자료를 삭제할까요?'))return;
+  var d=await sb.from('student_extra_materials').delete().eq('id',id);
+  if(d.error){ if(window.toast)toast('삭제 실패: '+d.error.message,false); return; }
+  if(window.toast)toast('삭제됨'); loadExtra(track);
+}
+window.saveExtra=saveExtra;window.loadExtra=loadExtra;window.delExtra=delExtra;window.extraPickFile=extraPickFile;
+async function extraCtx(studentId){
+  if(!sb||!studentId)return '';
+  try{
+    var q=await sb.from('student_extra_materials').select('category,title,content').eq('student_id',studentId).order('created_at',{ascending:false}).limit(20);
+    var rows=q.data||[];
+    if(!rows.length)return '';
+    return '\n[추가 자료 · 아직 학생부에 미기재된 탐구·실험·수행 결과물]\n'+rows.map(function(r){return '· ['+(r.category||'기타')+'] '+(r.title||'')+': '+String(r.content||'').slice(0,600);}).join('\n');
+  }catch(e){ return ''; }
+}
+window.extraCtx=extraCtx;
 function populateIntakePicker(){
   var sel=document.getElementById('intake-student'); if(!sel)return;
   var cur=window._activeStudent?window._activeStudent.id:'';
@@ -2642,6 +2762,7 @@ async function genDesign(phase){
     var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
     var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||{};
     var gye=await resolveField(s.target_major);
+    var _exTxt=await extraCtx(s.id);
     var cnTxt=''; var cn=await careernet('major_search',(s.target_major||''));
     if(cn&&cn.items&&cn.items[0]){ var it0=cn.items[0]; cnTxt='[커리어넷 학과정보] 계열:'+(it0.series||'')+' / 학과:'+(it0.major||'')+' / 개설:'+(it0.facil||'').slice(0,150); }
     // 세특 없으면 상담내용 반영
@@ -2692,7 +2813,7 @@ async function genInterview(){
     var conTxt=(cq.data||[]).map(function(c){return '[상담] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / '+(c.activities||'')+' / '+(c.memo||'');}).join('\n').slice(0,1000);
     var gye=await resolveField(s.target_major);
     genStep('면접관 관점의 질문을 구성 중…');
-    var d=await callAI('interview_prep',{qtype:_ivType,career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(diTxt?'\n[활동 설계·실적]\n'+diTxt:'')+(conTxt?'\n'+conTxt:'')});
+    var d=await callAI('interview_prep',{qtype:_ivType,career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(diTxt?'\n[활동 설계·실적]\n'+diTxt:'')+(conTxt?'\n'+conTxt:'')+(_exTxt||'')});
     var o=JSON.parse(d.text);
     var qval = o.sections ? {sections:o.sections} : (o.questions||[]);
     var empty = o.sections ? !(o.sections||[]).some(function(x){return (x.items||[]).length;}) : !(qval.length);
@@ -4224,7 +4345,7 @@ function fillGoipPickers(){
 
 /* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
 window.renderGIntake=function(){ loadGStudents().then(function(){ if(window._gactive){var w=document.getElementById('gin-who');if(w)w.textContent=window._gactive.name+' 활성';} }); };
-function gintakeSelect(id){ selectGStudent(id); gintakeLoadSaved(true); }
+function gintakeSelect(id){ selectGStudent(id); gintakeLoadSaved(true); if(window.loadExtra)loadExtra('goip'); }
 // 저장된 성취도·활동자료를 파싱 포맷으로 역구성해 표시
 async function gintakeLoadSaved(silent){
   var m=document.getElementById('gin-msg'); var s=window._gactive;
@@ -4839,6 +4960,7 @@ async function runGInterview(){
   }
   m.style.color='var(--ink-mute)';m.textContent='생기부 자료 수집 중…';
   var ctx=await gctxAll();
+  var _exG=await extraCtx(s.id); if(ctx&&_exG)ctx.record=(ctx.record||'')+_exG;
   if(!ctx||!ctx.record){m.style.color='var(--risk)';m.textContent='저장된 생기부 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.';return;}
   if(window.showAiLoading)showAiLoading();
   m.textContent='면접 문항 생성 중… (수십 초)';
@@ -4886,6 +5008,7 @@ function gesCtx(){
       (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
       var co=await sb.from('consultations').select('activities,memo').eq('student_id',s.id).limit(10);
       (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담] '+x.activities.slice(0,250));});
+      var _ex=await extraCtx(s.id); if(_ex)parts.push(_ex);
     }catch(e){}
     return parts.join('\n');
   })();
