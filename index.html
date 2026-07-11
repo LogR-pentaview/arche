@@ -385,6 +385,7 @@
         <div class="nav" data-v="groadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
         <div class="nav" data-v="gdesign" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 학생부 디자인</div>
         <div class="nav" data-v="gessay" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7"/></svg> 자소서 준비</div>
+        <div class="nav" data-v="ginterview" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 1v11"/><rect x="9" y="1" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v4M8 23h8"/></svg> 면접 준비</div>
         <div class="nav disabled" data-soon="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg> 면접 준비 <span class="soon">준비중</span></div>
       </div>
     </div>
@@ -750,6 +751,19 @@
         <div id="ges-body" style="margin-top:16px"></div>
       </section>
 
+      <!-- 고입 면접 준비 -->
+      <section class="view" id="v-ginterview">
+        <div class="eyebrow">GOIP · Interview Prep</div>
+        <div class="h1">고입 면접 준비</div>
+        <div class="sub">지원 학교를 선택하면 그 학교의 면접 형태·기출 경향과 학생 생기부를 결합해 예상 문항을 생성합니다. 과학고·영재학교는 제공하지 않습니다.</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
+          <select id="giv-school" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 지원 학교 선택 —</option></select>
+          <button class="btn goip-con-only" onclick="runGInterview()">예상 문항 생성</button>
+          <span id="giv-msg" style="font-size:12px;color:var(--ink-mute)"></span>
+        </div>
+        <div id="giv-result" style="margin-top:16px"></div>
+      </section>
+
       <!-- 4.4a GOIP DIAG -->
       <section class="view" id="v-gdiag">
         <div class="eyebrow">GOIP · Diagnosis</div>
@@ -839,6 +853,14 @@
         <div class="sub">목표 계열·학과 진학에 통상 요구되는 이수과목 대비 학생의 실제 이수 현황 점검 (계열 통념 기준 근사)</div>
         <div style="display:flex;gap:10px;margin:8px 0 16px"><button class="btn" onclick="genCurri()">AI 이수 위계 검증</button><button class="btn ghost" onclick="renderCurri()">불러오기</button></div>
         <div id="curri-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 이수 위계 검증]</b>을 누르면 목표 계열 기준 이수 점검 결과가 나옵니다.</div></div>
+
+        <div style="margin-top:28px;border-top:1px solid var(--line);padding-top:20px">
+          <div class="eyebrow">Course Selection Roadmap</div>
+          <div style="font-size:16px;font-weight:800;color:var(--ink);margin:4px 0 4px">선택과목 로드맵</div>
+          <div class="sub">고교학점제(2022 개정) 기준 — 남은 학기에 이수할 선택과목을 목표 계열·학과 권장과목 DB로 역산 설계</div>
+          <div style="display:flex;gap:10px;margin:8px 0 16px"><button class="btn" onclick="genCourseRoadmap()">AI 선택과목 로드맵 생성</button><button class="btn ghost" onclick="renderCourseRoadmap()">불러오기</button></div>
+          <div id="croad-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[AI 선택과목 로드맵 생성]</b>을 누르면 남은 학기별 이수 설계가 나옵니다.</div></div>
+        </div>
       </section>
 
       <!-- 6. ROADMAP -->
@@ -1648,7 +1670,7 @@ window.ADMIN=ADMIN;
 <script>
 const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gessay:"고입 · 자소서 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','iv','report'];
-const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gessay'];
+const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gessay','ginterview'];
 function toggleGroup(g){
   var el=document.getElementById('grp-'+g); if(!el)return;
   el.classList.toggle('open');
@@ -1663,7 +1685,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'&&window.renderGDesign)renderGDesign(); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'&&window.renderGDesign)renderGDesign(); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1819,7 +1841,7 @@ async function enterApp(session){
   loadStudents();
 }
 /* ===== 게스트 체험 모드 ===== */
-var DEMO_TASK_LABEL={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',design_record:'학생부 디자인',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백'};
+var DEMO_TASK_LABEL={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'학생부 디자인',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백'};
 function toggleGuestForm(){var f=document.getElementById('guest-form');if(f)f.style.display=(f.style.display==='none')?'block':'none';}
 async function guestSignup(){
   var m=document.getElementById('gu-msg'), btn=document.getElementById('gu-btn');
@@ -1853,7 +1875,7 @@ function updateDemoBanner(){
     main.insertBefore(b,main.firstChild);
   }
   var c=window._demo.credits||{};
-  var INIT={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3};
+  var INIT={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,course_roadmap:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3};
   var total=0,remain=0;
   Object.keys(INIT).forEach(function(k){total+=INIT[k];var v=(c[k]!=null)?c[k]:INIT[k];remain+=Math.max(0,Math.min(v,INIT[k]));});
   var used=total-remain;
@@ -2720,6 +2742,52 @@ async function genCurri(){
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'curri',payload:o});
     renderCurri();
   }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">검증 실패: '+esc(e.message)+'</div>'; }
+}
+async function renderCourseRoadmap(){
+  const body=document.getElementById('croad-body'); if(!body)return;
+  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  const s=window._activeStudent;
+  const {data}=await sb.from('student_metrics').select('payload,measured_at').eq('student_id',s.id).eq('metric_type','course_roadmap').order('measured_at',{ascending:false}).limit(1);
+  const d=(data&&data[0]&&data[0].payload)||null;
+  if(!d){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 로드맵이 없습니다. <b>[AI 선택과목 로드맵 생성]</b>을 눌러주세요.</div>'; return; }
+  var TC={'일반선택':'var(--ink-dim)','진로선택':'var(--gold,#c8a24a)','융합선택':'#4a90d9'};
+  var PC={'필수':'var(--risk)','권장':'var(--gold,#c8a24a)','보완':'var(--ink-mute)'};
+  var h='';
+  (d.phases||[]).forEach(function(ph){
+    h+='<div class="card" style="margin-bottom:12px;padding:16px 18px">';
+    h+='<div style="font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px"><span style="color:var(--gold)">'+esc(ph.sem||'')+'</span> 학기 이수 설계</div>';
+    (ph.subjects||[]).forEach(function(sub){
+      h+='<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)">';
+      h+='<div style="flex-shrink:0;min-width:120px"><b style="font-size:13px;color:var(--ink)">'+esc(sub.name||'')+'</b><div style="font-size:10.5px;color:'+(TC[sub.type]||'var(--ink-mute)')+';margin-top:2px">'+esc(sub.type||'')+'</div></div>';
+      h+='<span style="flex-shrink:0;font-size:10.5px;font-weight:700;color:'+(PC[sub.priority]||'var(--ink-mute)')+';border:1px solid currentColor;border-radius:10px;padding:1px 8px;margin-top:2px">'+esc(sub.priority||'-')+'</span>';
+      h+='<div style="font-size:12px;color:var(--ink-dim);line-height:1.6">'+esc(sub.why||'')+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  });
+  if(d.cautions&&d.cautions.length)h+='<div class="flag-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div>'+d.cautions.map(esc).join('<br>')+'</div></div>';
+  if(d.alternatives&&d.alternatives.length){
+    h+='<div class="card" style="margin-top:10px;padding:14px 16px"><div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:6px">미개설 시 대안</div>'+d.alternatives.map(function(a){return '<div style="font-size:12px;color:var(--ink-dim);line-height:1.7">· <b>'+esc(a['if']||'')+'</b> 미개설 → '+esc(a.then||'')+'</div>';}).join('')+'</div>';
+  }
+  if(d.summary)h+='<div class="card" style="margin-top:10px;padding:14px 16px;border-left:3px solid var(--safe)"><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7">'+esc(d.summary)+'</div></div>';
+  body.innerHTML=h||'<div style="color:var(--ink-mute);padding:20px">결과 없음</div>';
+}
+async function genCourseRoadmap(){
+  const body=document.getElementById('croad-body'); const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(body)body.innerHTML='<div style="color:var(--ink-mute);padding:20px">선택과목 로드맵 생성 중… (수십 초)</div>';
+  try{
+    var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+    var courseArr=((mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[]);
+    var courses=courseArr.map(function(c){return c.subject;}).filter(Boolean).join(', ');
+    // 현재 학기 추정: 이수 과목의 최대 sem
+    var term=s.grade?String(s.grade):'';
+    var sems=courseArr.map(function(c){return c.sem;}).filter(Boolean).sort();
+    if(sems.length)term=(term?term+'학년 · ':'')+'이수기록 최종학기 '+sems[sems.length-1];
+    var d=await callAI('course_roadmap',{field:majorToField(s.target_major),career:(s.target_major||''),target:(s.target_univ||''),courses:courses,term:term});
+    var o=JSON.parse(d.text);
+    await sb.from('student_metrics').insert({student_id:s.id,metric_type:'course_roadmap',payload:o});
+    renderCourseRoadmap();
+  }catch(e){ if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message)+'</div>'; }
 }
 async function renderTopics(){
   const body=document.getElementById('topic-body'); if(!body)return;
@@ -4387,6 +4455,75 @@ async function runGDesign(){
 
 /* ===== 고입 자소서 준비 (협업 루프) ===== */
 window._gesSchools=[];
+window.renderGInterview=async function(){
+  if(window._role!=='stu'){ await loadGStudents(); }
+  if(window.syncTopbarPicker)syncTopbarPicker('ginterview');
+  // 학교 목록 (과고·영재학교 제외)
+  if(!window._gesSchools||!window._gesSchools.length){
+    try{var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_schools',payload:{}}});
+      if(r.data&&r.data.schools)window._gesSchools=r.data.schools;}catch(e){}
+  }
+  var ss=document.getElementById('giv-school');
+  if(ss){
+    var pref=window._gactive&&window._gactive.target_school?window._gactive.target_school:'';
+    var list=(window._gesSchools||[]).filter(function(x){return x.school_type!=='과학고'&&x.school_type!=='영재학교';});
+    ss.innerHTML='<option value="">— 지원 학교 선택 —</option>'+list.map(function(x){return '<option value="'+esc(x.name)+'"'+(x.name===pref?' selected':'')+'>'+esc(x.name)+' ('+esc(x.school_type)+')</option>';}).join('');
+  }
+  var box=document.getElementById('giv-result');
+  if(!window._gactive){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">탑바에서 학생을 먼저 선택하세요.</div>';return;}
+  // 최근 생성 이력
+  try{
+    var h=await sb.from('goip_interviews').select('id,school_name,result,created_at').eq('student_id',window._gactive.id).order('created_at',{ascending:false}).limit(1);
+    if(h.data&&h.data[0]&&h.data[0].result){
+      box.innerHTML='<div style="font-size:11.5px;color:var(--ink-mute);margin-bottom:8px">최근 생성: '+esc(h.data[0].school_name)+' · '+esc((h.data[0].created_at||'').slice(0,16).replace('T',' '))+'</div>'+gIvHtml(h.data[0].result,h.data[0].school_name);
+      return;
+    }
+  }catch(e){}
+  box.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._role==='stu'?'아직 선생님이 면접 문항을 생성하지 않았습니다.':'지원 학교를 선택하고 [예상 문항 생성]을 누르세요.')+'</div>';
+};
+async function runGInterview(){
+  var m=document.getElementById('giv-msg'),box=document.getElementById('giv-result');
+  var s=window._gactive; if(!s){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';return;}
+  var school=document.getElementById('giv-school').value;
+  if(!school){m.style.color='var(--risk)';m.textContent='지원 학교를 선택하세요.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='생기부 자료 수집 중…';
+  var ctx=await gctxAll();
+  if(!ctx||!ctx.record){m.style.color='var(--risk)';m.textContent='저장된 생기부 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.';return;}
+  if(window.showAiLoading)showAiLoading();
+  m.textContent='면접 문항 생성 중… (수십 초)';
+  try{
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_interview',payload:{school_name:school,career:s.career||ctx.career,grade:s.grade||ctx.grade,record_text:ctx.record,student_id:s.id}}});
+    var data=r.data,error=r.error;
+    if(error||!data||data.error){
+      m.style.color='var(--risk)';
+      m.textContent=esc((data&&data.error)||(error&&error.message)||'생성 실패');
+      return;
+    }
+    var o=safeJson(data.text);
+    if(!o){m.style.color='var(--risk)';m.textContent='응답 파싱 실패 — 다시 시도하세요.';return;}
+    m.style.color='var(--safe)';m.textContent='생성 완료'+(data.has_dedicated_data?' (전용 면접 자료 반영)':' (입시요강 기반)');
+    box.innerHTML=gIvHtml(o,school);
+  }catch(e){m.style.color='var(--risk)';m.textContent='오류: '+esc(e.message||String(e));}
+  finally{if(window.hideAiLoading)hideAiLoading();}
+}
+function gIvHtml(o,school){
+  var h='';
+  if(o.format_summary)h+='<div class="card" style="margin-bottom:12px;border-left:3px solid var(--gold)"><div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:6px">'+esc(school||'')+' 면접 형태</div><div style="font-size:13px;color:var(--ink-dim);line-height:1.65">'+esc(o.format_summary)+'</div></div>';
+  (o.sections||[]).forEach(function(sec){
+    h+='<div style="font-size:13.5px;font-weight:800;color:var(--ink);margin:16px 0 8px">'+esc(sec.label||'')+'</div>';
+    (sec.items||[]).forEach(function(q,i){
+      h+='<div class="card" style="margin-bottom:10px;padding:14px 16px">';
+      h+='<div style="display:flex;gap:8px;align-items:flex-start"><span style="flex-shrink:0;font-size:11px;color:#fff;background:var(--gold);border-radius:50%;width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;font-weight:700">'+(i+1)+'</span><div style="font-size:13.5px;font-weight:700;color:var(--ink);line-height:1.55">'+esc(q.q||'')+'</div></div>';
+      if(q.source||q.basis)h+='<div style="font-size:11.5px;color:var(--ink-mute);margin:8px 0 0 28px">출제 근거: '+esc(q.source||'')+(q.basis?' — '+esc(q.basis):'')+'</div>';
+      if(q.intent)h+='<div style="font-size:11.5px;color:var(--ink-mute);margin:3px 0 0 28px">평가 요소: '+esc(q.intent)+'</div>';
+      if(q.guide&&q.guide.length)h+='<div style="margin:8px 0 0 28px;padding:9px 12px;background:var(--panel-2);border-radius:8px"><div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:4px">답변 구성 가이드</div>'+q.guide.map(function(g){return '<div style="font-size:12px;color:var(--ink-dim);line-height:1.6">· '+esc(g)+'</div>';}).join('')+'</div>';
+      if(q.followups&&q.followups.length)h+='<div style="margin:7px 0 0 28px;font-size:11.5px;color:var(--ink-mute)">예상 꼬리질문: '+q.followups.map(esc).join(' / ')+'</div>';
+      h+='</div>';
+    });
+  });
+  if(o.prep_tips&&o.prep_tips.length)h+='<div class="card" style="margin-top:12px;border-left:3px solid var(--safe)"><div style="font-size:12px;color:var(--safe);font-weight:700;margin-bottom:6px">이 학교 맞춤 대비 팁</div>'+o.prep_tips.map(function(t){return '<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7">· '+esc(t)+'</div>';}).join('')+'</div>';
+  return h||'<div style="color:var(--ink-mute);padding:16px">결과 없음</div>';
+}
 window.renderGEssay=async function(){
   if(window._role!=='stu'){ await loadGStudents(); } // 컨설턴트만 전체 목록
   var sel=document.getElementById('ges-student');
