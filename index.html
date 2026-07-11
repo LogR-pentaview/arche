@@ -353,6 +353,7 @@
         <div id="gu-msg" style="min-height:14px;font-size:12px;color:var(--risk);margin-top:6px"></div>
       </div>
     </div>
+    <div style="text-align:center;margin-top:14px;font-size:10.5px;color:var(--ink-mute)"><a href="#" onclick="showPolicyDoc('privacy');return false" style="color:var(--ink-mute);text-decoration:underline">개인정보처리방침</a> · <a href="#" onclick="showPolicyDoc('terms');return false" style="color:var(--ink-mute);text-decoration:underline">이용약관</a></div>
   </div>
 </div>
 <div class="app">
@@ -2016,6 +2017,101 @@ function setLoginRole(r){
 try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(e){}
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
+/* ===== 개인정보/이용 동의 게이트 ===== */
+var POLICY_VER='2026.07.13';
+function policyPrivacyHTML(){ return `
+<h2 style="font-size:16px;color:var(--ink);margin:0 0 4px">개인정보 처리방침</h2>
+<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-07-13 · 서비스: 아르케(Arche) · 운영: 로그.알 (대표 김기욱)</div>
+<p><b>1. 수집하는 개인정보 항목</b></p>
+<ul>
+<li>계정: 이메일, 비밀번호(암호화 저장), 학원명·코드, 역할</li>
+<li>학생 정보: 이름, 학교, 학년, 희망 대학·학과·진로, 지원 트랙</li>
+<li>학생부 분석 결과: 생활기록부에서 <b>파싱된</b> 세부능력·특기사항(세특)·창의적체험활동·행동특성·독서 텍스트, 성적·성취도, 진단·리포트 결과</li>
+<li>결제(유료 이용 시): 구독·결제 내역 (카드정보는 토스페이먼츠가 처리하며 당사는 보관하지 않음)</li>
+</ul>
+<p style="background:rgba(127,184,0,.08);border-left:3px solid var(--lime);padding:8px 10px;border-radius:6px"><b>학생부 원본 파일은 서버에 저장하지 않습니다.</b> 업로드하신 파일은 회원 기기(브라우저)에서 분석에만 사용되며, 분석에 필요한 파싱 결과만 저장됩니다.</p>
+<p><b>2. 개인정보의 이용 목적</b></p>
+<ul><li>입시 컨설팅 분석·리포트·학생부 설계 등 서비스 제공</li><li>회원 인증·계정 관리, 결제·정산</li><li>서비스 품질 개선 및 통계(개인 식별 불가 형태)</li></ul>
+<p><b>3. 보유 및 이용 기간</b></p>
+<ul><li>회원 탈퇴 또는 계약 종료 시까지 보유하며, 목적 달성 시 지체 없이 파기합니다.</li><li>관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다.</li></ul>
+<p><b>4. 처리위탁</b> — 서비스 제공을 위해 아래에 처리를 위탁합니다.</p>
+<ul>
+<li>Google LLC (Gemini API): 생활기록부 텍스트·이미지의 AI 분석·문자인식(OCR). 스캔본 분석 시 이미지가 전송되며, 처리 목적 외 저장·이용되지 않습니다. (국외 처리 포함)</li>
+<li>Supabase Inc.: 데이터베이스·서버 인프라 (리전: 서울)</li>
+<li>Vercel Inc.: 웹 호스팅</li>
+<li>토스페이먼츠(주): 결제 처리 (유료 이용 시)</li>
+</ul>
+<p><b>5. 제3자 제공</b> — 원칙적으로 제공하지 않으며, 법령에 근거하거나 정보주체의 동의가 있는 경우에 한합니다.</p>
+<p><b>6. 정보주체의 권리</b> — 언제든지 개인정보의 열람·정정·삭제·처리정지를 요구할 수 있습니다. (요청: 개인정보 보호책임자 연락처)</p>
+<p><b>7. 미성년자(만 14세 미만)</b> — 만 14세 미만 아동의 개인정보는 <b>법정대리인(보호자)의 동의</b>가 있어야 처리합니다. 학원(B2B) 이용 시 학원은 학생 등록 전 보호자 동의를 확보한 것으로 하며, 학부모(B2C) 이용 시 회원 본인이 법정대리인으로서 동의합니다.</p>
+<p><b>8. 개인정보 보호책임자</b> — 성명: 김기욱(대표) · 이메일: gwkim06@gmail.com · 전화: 010-2557-5342</p>
+<p><b>9. 사업자 정보</b> — 상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임)</p>
+<p style="font-size:11px;color:var(--ink-mute)">※ 본 방침은 법령·서비스 변경에 따라 개정될 수 있으며, 개정 시 앱 내 고지 후 재동의를 받을 수 있습니다.</p>
+`; }
+function policyTermsHTML(){ return `
+<h2 style="font-size:16px;color:var(--ink);margin:0 0 4px">서비스 이용약관</h2>
+<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-07-13</div>
+<p><b>제1조(목적)</b> 본 약관은 로그.알(브랜드 '펜타뷰', 이하 '회사')이 제공하는 입시 컨설팅 지원 서비스 '아르케'의 이용 조건·절차 및 회원과 회사의 권리·의무를 규정합니다.</p>
+<p><b>제2조(서비스 내용)</b> 회사는 학생부 분석, 진단, 학생부 설계, 자기소개서 설계·평가, 면접 준비, 리포트 등 컨설팅 보조 도구를 제공합니다. 본 서비스는 컨설팅을 <b>보조</b>하며, 최종 판단과 책임은 이용자(학원·컨설턴트)에게 있습니다.</p>
+<p><b>제3조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않습니다. 자기소개서는 설계도(방향·소재) 방식으로만 제공되며, 이용자는 관련 법령과 각 전형의 규정을 준수해야 합니다.</p>
+<p><b>제4조(슬롯·계정)</b> 학생당 과금 구조에서 하나의 학생 슬롯을 다른 학생 자료로 재활용하는 행위는 금지되며, 적발 시 이용 제한 및 정산 소급이 이루어질 수 있습니다.</p>
+<p><b>제5조(요금·결제)</b> 이용요금은 기본료와 학생 수 기준 요금으로 구성되며, 상세 내역은 별도 안내에 따릅니다.</p>
+<p><b>제6조(책임의 제한)</b> 회사는 AI 분석 결과의 정확성·합격을 보장하지 않으며, 결과는 참고 자료입니다. 회사는 관계 법령이 허용하는 범위에서 책임을 부담합니다.</p>
+<p style="font-size:11px;color:var(--ink-mute)">※ 본 약관은 개정될 수 있으며, 개정 시 앱 내 고지합니다.</p>
+<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
+`; }
+window.showPolicyDoc=function(kind){
+  var ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;z-index:100002;background:rgba(4,8,3,.82);display:flex;align-items:center;justify-content:center;padding:18px';
+  ov.innerHTML='<div style="max-width:640px;width:100%;max-height:82vh;overflow:auto;background:var(--panel,#12160f);border:1px solid var(--line,#2a3324);border-radius:14px;padding:22px;font-size:12.5px;color:var(--ink-dim,#c7d2c2);line-height:1.65">'
+    +(kind==='terms'?policyTermsHTML():policyPrivacyHTML())
+    +'<div style="text-align:right;margin-top:14px"><button id="_pdclose" style="padding:8px 18px;background:var(--lime,#7fb800);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">닫기</button></div></div>';
+  document.body.appendChild(ov);
+  ov.querySelector('#_pdclose').onclick=function(){document.body.removeChild(ov);};
+  ov.onclick=function(e){if(e.target===ov)document.body.removeChild(ov);};
+};
+async function hasConsent(uid){
+  try{ var r=await sb.from('user_consents').select('id').eq('uid',uid).eq('policy_version',POLICY_VER).limit(1); return !!(r.data&&r.data.length); }catch(e){ return false; }
+}
+async function ensureConsent(user, role){
+  if(!sb||!user) return true;
+  if(await hasConsent(user.id)) return true;
+  return await showConsentGate(user, role);
+}
+function showConsentGate(user, role){
+  return new Promise(function(resolve){
+    var w=document.createElement('div'); w.id='consent-gate';
+    w.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(4,8,3,.94);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto';
+    var row=function(id,req,label,linkid,linktxt){return '<label style="display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border:1px solid var(--line,#2a3324);border-radius:10px;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="'+id+'" style="margin-top:2px;accent-color:var(--lime,#7fb800)"><span style="flex:1;font-size:13px;color:var(--ink,#eaf3ee)"><b style="color:'+(req?'var(--risk,#e0564a)':'var(--ink-mute,#8a978a)')+'">['+(req?'필수':'선택')+']</b> '+label+(linkid?' <a href="#" id="'+linkid+'" style="color:var(--gold,#c8a24a);text-decoration:underline;font-size:12px">'+linktxt+'</a>':'')+'</span></label>';};
+    w.innerHTML='<div style="max-width:520px;width:100%;background:var(--panel,#12160f);border:1px solid var(--gold,#c8a24a);border-radius:16px;padding:24px">'
+      +'<div style="font-size:17px;font-weight:800;color:var(--ink,#eaf3ee);margin-bottom:4px">아르케 이용을 위한 동의</div>'
+      +'<div style="font-size:12px;color:var(--ink-mute,#8a978a);margin-bottom:16px;line-height:1.6">서비스 이용을 위해 아래 내용에 동의해 주세요. 학생부 <b>원본 파일은 서버에 저장되지 않으며</b>, 분석에 필요한 정보만 안전하게 처리됩니다.</div>'
+      +'<label style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(127,184,0,.07);border:1px solid var(--lime,#7fb800);border-radius:10px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="cg-all" style="accent-color:var(--lime,#7fb800)"><span style="font-size:13px;font-weight:700;color:var(--ink,#eaf3ee)">전체 동의</span></label>'
+      +row('cg-terms',true,'서비스 이용약관에 동의합니다.','cg-view-terms','전문 보기')
+      +row('cg-priv',true,'개인정보 수집·이용 및 처리위탁에 동의합니다.','cg-view-priv','전문 보기')
+      +row('cg-opt',false,'통계·품질개선(개인 식별 불가 형태) 목적 활용에 동의합니다.','','')
+      +'<div style="font-size:11px;color:var(--ink-mute,#8a978a);margin:6px 0 14px;line-height:1.6">※ 만 14세 미만 학생은 법정대리인(보호자)의 동의가 필요합니다. 학원 이용 시 학원이 보호자 동의를 확보한 것으로 간주됩니다.</div>'
+      +'<div style="display:flex;gap:8px;justify-content:flex-end">'
+      +'<button id="cg-cancel" style="padding:9px 16px;background:transparent;color:var(--ink-mute,#8a978a);border:1px solid var(--line,#2a3324);border-radius:9px;cursor:pointer;font-size:13px">동의 안 함(로그아웃)</button>'
+      +'<button id="cg-ok" disabled style="padding:9px 18px;background:var(--lime,#7fb800);color:#0a1a05;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;opacity:.5">동의하고 시작</button>'
+      +'</div></div>';
+    document.body.appendChild(w);
+    var q=function(id){return w.querySelector('#'+id);};
+    function upd(){ var req=q('cg-terms').checked&&q('cg-priv').checked; q('cg-ok').disabled=!req; q('cg-ok').style.opacity=req?'1':'.5'; }
+    q('cg-all').onclick=function(){var c=this.checked;['cg-terms','cg-priv','cg-opt'].forEach(function(id){q(id).checked=c;});upd();};
+    ['cg-terms','cg-priv','cg-opt'].forEach(function(id){q(id).onchange=upd;});
+    q('cg-view-priv').onclick=function(e){e.preventDefault();showPolicyDoc('privacy');};
+    q('cg-view-terms').onclick=function(e){e.preventDefault();showPolicyDoc('terms');};
+    q('cg-cancel').onclick=async function(){ document.body.removeChild(w); try{await sb.auth.signOut();}catch(e){} try{gate.style.display='flex';}catch(e){} resolve(false); };
+    q('cg-ok').onclick=async function(){
+      var items={terms:true,privacy:true,benchmark:q('cg-opt').checked};
+      try{ await sb.from('user_consents').upsert({uid:user.id,role:role,policy_version:POLICY_VER,items:items,user_agent:(navigator.userAgent||'').slice(0,300)},{onConflict:'uid,policy_version'}); }catch(e){ console.warn('consent',e); }
+      document.body.removeChild(w); resolve(true);
+    };
+    upd();
+  });
+}
+
 async function enterApp(session){
   var u=session.user;
   window._myUid=u.id;
@@ -2039,6 +2135,7 @@ async function enterApp(session){
     return msg('가입 신청이 접수되었습니다. 관리자 승인 후 이용 가능합니다.');
   }
   window._isAdmin=isAdmin;
+  if(!isAdmin){ if(!(await ensureConsent(u,(window._isB2C?'parent':'consultant')))) return; }
   document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+u.email+(isAdmin?' · 관리자':'');
   gate.style.display='none';
   try{ applyB2CLabels(); }catch(e){}
@@ -2100,6 +2197,7 @@ function updateDemoBanner(){
     '<a href="mailto:contact@penta-view.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#c8a24a);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
 async function enterStudentApp(session){
+  if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
   document.body.classList.add('student-mode');
   window._role='stu';
