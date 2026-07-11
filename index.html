@@ -1282,13 +1282,14 @@ const ADMIN=(function(){
           :'<span style="font-size:10px;color:#fff;background:var(--safe);border-radius:10px;padding:1px 8px">정회원</span>');
         var apBadge=(a.is_admin||a.is_demo)?'':(ap?'':'<span style="font-size:10px;color:var(--risk);margin-left:4px">승인대기</span>');
         var expTxt=a.is_demo&&a.demo_expires_at?' · 만료 '+a.demo_expires_at.slice(0,10):'';
+        var apiBadge=a.is_admin?'':(a.key_mode==='own'?'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border:1px solid #4a90d9;border-radius:10px;padding:1px 8px;margin-left:4px">자체 API</span>':'<span style="font-size:10px;color:#7a5c00;background:#fdf6e3;border:1px solid #c8a24a;border-radius:10px;padding:1px 8px;margin-left:4px">관리자 API</span>');
         var btns='';
         if(!a.is_admin){
           if(!ap&&!a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>';
           if(a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',false,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:var(--safe);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">정회원 전환</button>';
           else btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',true,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">체험으로 전환</button>';
         }
-        return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div onclick="admOpenAcademy(\''+a.id+'\')" style="flex:1;cursor:pointer"><b style="color:var(--ink)">'+esc(a.name||'-')+'</b> '+kindBadge+apBadge+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명 · '+(a.created_at||'').slice(0,10)+expTxt+'</div></div><span style="display:flex;gap:6px">'+btns+'</span></div>';
+        return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div onclick="admOpenAcademy(\''+a.id+'\')" style="flex:1;cursor:pointer"><b style="color:var(--ink)">'+esc(a.name||'-')+'</b> '+kindBadge+apiBadge+apBadge+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명 · '+(a.created_at||'').slice(0,10)+expTxt+'</div></div><span style="display:flex;gap:6px">'+btns+'</span></div>';
       }).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
     } else if(t==='golden'){
       body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field))+uploadBox('golden_documents','year,univ,doctype,field,chars,text_body,source_file');
@@ -1566,15 +1567,28 @@ window.ADMIN=ADMIN;
       <section class="view" id="v-settings">
         <div class="eyebrow">Settings</div>
         <div class="h1">설정</div>
-        <div class="sub">학원 Gemini API 키 · AI 분석(생기부 파싱·탐구주제·리포트 코멘트)에 사용됩니다</div>
-        <div style="max-width:520px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
-          <div class="sectionhead"><span class="idx">AI</span><h3>Gemini API 키 (학원별)</h3></div>
-          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">aistudio.google.com에서 발급한 키를 입력하세요. 학원별로 저장되고 <b>서버(엣지함수)에서만</b> 사용됩니다.</div>
-          <input id="set-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-          <div id="set-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
+        <div class="sub">AI 분석에 사용할 Gemini API 키 방식을 선택하세요</div>
+        <div style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
+          <div class="sectionhead"><span class="idx">AI</span><h3>AI 엔진 · API 키 설정</h3></div>
+          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:14px">AI 분석(생기부 파싱·진단·탐구주제·리포트 등)에 사용할 Gemini 키 방식입니다.</div>
+          <div id="km-toggle" style="display:flex;gap:10px;margin-bottom:14px">
+            <label id="km-platform" style="flex:1;cursor:pointer;border:2px solid var(--lime);border-radius:11px;padding:13px 15px;background:rgba(127,184,0,.06)">
+              <div style="display:flex;align-items:center;gap:8px"><input type="radio" name="keymode" value="platform" onchange="onKeyMode(this.value)" style="accent-color:var(--lime)"><b style="font-size:13.5px">관리자 API 사용</b></div>
+              <div style="font-size:11.5px;color:var(--ink-mute);margin-top:5px;padding-left:24px">별도 키 없이 바로 이용 · 기본료 <b>20만원</b>/월</div>
+            </label>
+            <label id="km-own" style="flex:1;cursor:pointer;border:2px solid var(--line);border-radius:11px;padding:13px 15px">
+              <div style="display:flex;align-items:center;gap:8px"><input type="radio" name="keymode" value="own" onchange="onKeyMode(this.value)" style="accent-color:var(--lime)"><b style="font-size:13.5px">자체 API 사용</b></div>
+              <div style="font-size:11.5px;color:var(--ink-mute);margin-top:5px;padding-left:24px">학원 키 등록 · 기본료 <b>15만원</b>/월</div>
+            </label>
+          </div>
+          <div id="km-key-box" style="display:none">
+            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">aistudio.google.com에서 발급한 키를 입력하세요. <b>서버에서만</b> 사용되며 화면에 노출되지 않습니다.</div>
+            <input id="set-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          </div>
+          <div id="set-msg" style="min-height:14px;font-size:12px;margin:10px 0"></div>
           <div style="display:flex;gap:8px">
-            <button onclick="saveApiKey()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">저장</button>
-            <button onclick="testAI()" style="padding:10px 18px;background:transparent;border:1px solid var(--line);color:var(--ink-dim);border-radius:9px;cursor:pointer">연결 테스트</button>
+            <button onclick="saveKeyMode()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">저장</button>
+            <button id="km-test-btn" onclick="testAI()" style="padding:10px 18px;background:transparent;border:1px solid var(--line);color:var(--ink-dim);border-radius:9px;cursor:pointer;display:none">연결 테스트</button>
           </div>
           <div id="set-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div>
         </div>
@@ -3051,21 +3065,52 @@ window.pickMajor=function(major,series){
   document.getElementById('st-major').value=major;
   document.getElementById('major-results').innerHTML='<div style="font-size:11px;color:var(--safe);padding:4px">선택: '+esc(major)+' ('+esc(series)+')</div>';
 };
-async function loadApiKey(){
-  if(!sb)return; var el=document.getElementById('set-gemini'); if(!el)return;
-  var {data}=await sb.from('academies').select('gemini_api_key').limit(1);
-  if(data&&data[0]&&data[0].gemini_api_key) el.value=data[0].gemini_api_key;
+function onKeyMode(mode){
+  var box=document.getElementById('km-key-box');
+  var testBtn=document.getElementById('km-test-btn');
+  var pl=document.getElementById('km-platform'), ow=document.getElementById('km-own');
+  if(box)box.style.display=(mode==='own')?'block':'none';
+  if(testBtn)testBtn.style.display=(mode==='own')?'inline-block':'none';
+  if(pl)pl.style.borderColor=(mode==='platform')?'var(--lime)':'var(--line)';
+  if(pl)pl.style.background=(mode==='platform')?'rgba(127,184,0,.06)':'transparent';
+  if(ow)ow.style.borderColor=(mode==='own')?'var(--lime)':'var(--line)';
+  if(ow)ow.style.background=(mode==='own')?'rgba(127,184,0,.06)':'transparent';
 }
-async function saveApiKey(){
+async function loadApiKey(){
+  if(!sb)return;
+  var {data}=await sb.from('academies').select('key_mode,gemini_api_key').limit(1);
+  var row=data&&data[0]||{};
+  var mode=row.key_mode||'platform';
+  var radio=document.querySelector('input[name="keymode"][value="'+mode+'"]');
+  if(radio)radio.checked=true;
+  onKeyMode(mode);
+  var el=document.getElementById('set-gemini');
+  if(el&&row.gemini_api_key)el.value=row.gemini_api_key;
+}
+async function saveKeyMode(){
   var m=document.getElementById('set-msg'); if(!sb){m.textContent='DB 미로드';return;}
   var {data:acs}=await sb.from('academies').select('id').limit(1); var id=acs&&acs[0]&&acs[0].id;
   if(!id){m.style.color='var(--risk)';m.textContent='학원 정보 없음';return;}
-  var key=document.getElementById('set-gemini').value.trim();
+  var sel=document.querySelector('input[name="keymode"]:checked');
+  var mode=sel?sel.value:'platform';
+  var upd={key_mode:mode};
+  if(mode==='own'){
+    var key=document.getElementById('set-gemini').value.trim();
+    if(!key){m.style.color='var(--risk)';m.textContent='자체 API 사용 시 Gemini 키를 입력하세요.';return;}
+    upd.gemini_api_key=key;
+  } else {
+    // 관리자 키 사용 선택 시 자체 키 제거
+    upd.gemini_api_key=null;
+  }
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
-  var {error}=await sb.from('academies').update({gemini_api_key:key||null}).eq('id',id);
+  var {error}=await sb.from('academies').update(upd).eq('id',id);
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
-  m.style.color='var(--safe)';m.textContent='저장 완료.';
+  m.style.color='var(--safe)';m.textContent=(mode==='own'?'자체 API 키로 저장되었습니다 (기본료 15만원).':'관리자 API 사용으로 저장되었습니다 (기본료 20만원).');
+  // 요금제 반영을 위해 결제 카드 새로고침
+  if(window.renderBilling)renderBilling();
 }
+// 하위호환
+async function saveApiKey(){ return saveKeyMode(); }
 async function testAI(){
   var t=document.getElementById('set-test'); t.style.color='var(--ink-dim)'; t.textContent='테스트 중…';
   try{ await callAI('report_comment',{metrics:{naesin:1.4,note:'연결테스트'}}); t.style.color='var(--safe)'; t.textContent='연결 성공 · Gemini 응답 수신'; }
