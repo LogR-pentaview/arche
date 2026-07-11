@@ -331,6 +331,7 @@
     </div>
     <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
       <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#c8a24a);border:1px dashed var(--gold,#c8a24a);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
+<div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
         <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생부 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
         <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -1273,7 +1274,22 @@ const ADMIN=(function(){
     var d=await call(t);
     if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
     if(t==='academies'){
-      body.innerHTML=(d.rows||[]).map(function(a){var ap=a.approved!==false;var st=a.is_admin?'<span style="font-size:10px;color:var(--gold)">관리자</span>':(ap?'<span style="font-size:10px;color:var(--safe)">승인됨</span>':'<span style="font-size:10px;color:var(--risk)">승인대기</span>');var btn=a.is_admin?'':(ap?'<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',false)" style="padding:4px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">승인취소</button>':'<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>');return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div onclick="admOpenAcademy(\''+a.id+'\')" style="flex:1;cursor:pointer"><b style="color:var(--ink)">'+esc(a.name||'-')+'</b> '+st+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명 · '+(a.created_at||'').slice(0,10)+'</div></div>'+btn+'</div>';}).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
+      body.innerHTML=(d.rows||[]).map(function(a){
+        var ap=a.approved!==false;
+        var kind=a.is_admin?'admin':(a.is_demo?'demo':'member');
+        var kindBadge=a.is_admin?'<span style="font-size:10px;color:#fff;background:var(--gold);border-radius:10px;padding:1px 8px">관리자</span>'
+          :(a.is_demo?'<span style="font-size:10px;color:#8a6d1c;background:#fdf3d8;border:1px solid var(--gold,#c8a24a);border-radius:10px;padding:1px 8px">체험</span>'
+          :'<span style="font-size:10px;color:#fff;background:var(--safe);border-radius:10px;padding:1px 8px">정회원</span>');
+        var apBadge=(a.is_admin||a.is_demo)?'':(ap?'':'<span style="font-size:10px;color:var(--risk);margin-left:4px">승인대기</span>');
+        var expTxt=a.is_demo&&a.demo_expires_at?' · 만료 '+a.demo_expires_at.slice(0,10):'';
+        var btns='';
+        if(!a.is_admin){
+          if(!ap&&!a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>';
+          if(a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',false,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:var(--safe);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">정회원 전환</button>';
+          else btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',true,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">체험으로 전환</button>';
+        }
+        return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div onclick="admOpenAcademy(\''+a.id+'\')" style="flex:1;cursor:pointer"><b style="color:var(--ink)">'+esc(a.name||'-')+'</b> '+kindBadge+apBadge+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명 · '+(a.created_at||'').slice(0,10)+expTxt+'</div></div><span style="display:flex;gap:6px">'+btns+'</span></div>';
+      }).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
     } else if(t==='golden'){
       body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field))+uploadBox('golden_documents','year,univ,doctype,field,chars,text_body,source_file');
     } else if(t==='admission'){
@@ -1412,7 +1428,9 @@ const ADMIN=(function(){
     if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
     var sl=(d.students||[]).map(function(x){
       var s=x.student;
-      var mets=(x.metrics||[]).map(function(mm){return '<div style="font-size:11px;color:var(--ink-dim);padding:4px 0;border-bottom:1px solid var(--line)"><b>'+esc(mm.metric_type||'')+'</b> · '+(mm.measured_at||'').slice(0,10)+'<br><span style="color:var(--ink-mute)">'+esc(JSON.stringify(mm.payload||{}).slice(0,300))+'…</span></div>';}).join('')||'<div style="font-size:11px;color:var(--ink-mute)">분석 결과 없음</div>';
+      var mets=(x.metrics||[]).map(function(mm){
+        return '<div style="font-size:11.5px;color:var(--ink-dim);padding:6px 0;border-bottom:1px solid var(--line)"><b style="color:var(--ink)">'+esc(metricLabel(mm.metric_type))+'</b> <span style="color:var(--ink-mute);font-size:10.5px">'+(mm.measured_at||'').slice(0,10)+'</span><div style="margin-top:3px">'+fmtMetric(mm.metric_type,mm.payload||{})+'</div></div>';
+      }).join('')||'<div style="font-size:11px;color:var(--ink-mute)">분석 결과 없음</div>';
       return '<div class="card" style="margin-bottom:10px"><b style="color:var(--ink)">'+esc(s.name||'-')+'</b> <span style="font-size:11px;color:var(--ink-mute)">'+esc(s.school||'')+' · '+esc(s.target_univ||'')+' '+esc(s.target_major||'')+'</span>'+
         '<div style="font-size:11px;color:var(--ink-dim);margin:4px 0">디자인 항목 '+x.design_items+'건 · 면접셋 '+x.interview_sets+'건</div>'+mets+'</div>';
     }).join('')||'<div style="color:var(--ink-mute)">학생 없음</div>';
@@ -1448,9 +1466,59 @@ const ADMIN=(function(){
     m.innerHTML='✓ 정회원 전환 완료 — '+esc(d.name||'')+' · 로그인: <b>'+esc(d.auth_email||'')+'</b>'+note+(pw?' · 새 비밀번호 적용됨':'')+(d.kept_demo?'<br><span style="color:var(--reach)">⚠ 아직 demo.penta-view.com 도메인입니다. 실제 이메일로 바꾸려면 이메일을 입력해 다시 전환하세요.</span>':'');
     setTimeout(function(){ADMIN.tab('guests');},1800);
   }
-  return {tab,init,changePw,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest};
+  return {tab,init,changePw,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest,setDemo};
   async function approve(id,ok){ var r=await callBody({action:'approve',academy_id:id,approved:ok}); if(r.error)return alert('실패: '+r.error); tab('academies'); }
+  async function setDemo(id,toDemo,name){
+    var msg=toDemo?((name||'이 학원')+'을 체험 상태로 되돌릴까요?\n· 7일 만료·크레딧 제한이 다시 적용됩니다\n· 데이터는 유지됩니다'):((name||'이 학원')+'을 정회원으로 전환할까요?\n· 만료·크레딧 제한 해제');
+    if(!confirm(msg))return;
+    var r=await callBody({action:'set_demo',academy_id:id,is_demo:toDemo});
+    if(r.error)return alert('실패: '+r.error);
+    tab('academies');
+  }
 })();
+
+/* ===== 체험 데이터 metric 가독화 ===== */
+function metricLabel(t){
+  var M={naesin:'내신 성적',comp5:'5역량 진단',cog:'인지 역량',qual4:'정성 4축',univ_reco:'대학 추천',topics:'탐구 주제',curri:'이수과목 검증',report:'리포트 코멘트'};
+  return M[t]||t||'분석';
+}
+function num1(v){ return (v==null||isNaN(v))?'-':(Math.round(v*10)/10); }
+function fmtMetric(t,p){
+  try{
+    p=p||{};
+    if(t==='comp5'||t==='cog'){
+      var axes=[['academic','학업'],['inquiry','탐구'],['convergence','융합'],['community','공동체'],['problem','문제해결']];
+      var parts=axes.filter(function(a){return p[a[0]]!=null;}).map(function(a){return '<span style="display:inline-block;margin:2px 8px 2px 0"><span style="color:var(--ink-mute)">'+a[1]+'</span> <b style="color:var(--ink)">'+num1(p[a[0]])+'</b></span>';});
+      if(!parts.length)return '<span style="color:var(--ink-mute);font-size:11px">아직 산출값 없음 (모두 null)</span>';
+      return parts.join('');
+    }
+    if(t==='qual4'){
+      var q=p.qual||p; var ax=[['activity','활동'],['thinking','사고'],['values','가치관'],['vision','비전']];
+      var parts=ax.filter(function(a){return q[a[0]]!=null;}).map(function(a){var v=q[a[0]];var sc=(v&&v.score!=null)?v.score:v;return '<span style="margin-right:8px"><span style="color:var(--ink-mute)">'+a[1]+'</span> <b>'+num1(sc)+'</b></span>';});
+      return parts.length?parts.join(''):'<span style="color:var(--ink-mute);font-size:11px">산출값 없음</span>';
+    }
+    if(t==='naesin'){
+      var w=p.weighted_overall; var byS=p.by_semester||{};
+      var semN=Object.keys(byS).length;
+      if(w==null&&!semN)return '<span style="color:var(--ink-mute);font-size:11px">아직 성적 미입력</span>';
+      return '<span style="color:var(--ink-mute)">단위가중 평균</span> <b>'+num1(w)+'</b>'+(semN?' <span style="color:var(--ink-mute)">· 학기 '+semN+'개</span>':'');
+    }
+    if(t==='univ_reco'){
+      var arr=Array.isArray(p)?p:(p.list||p.items||[]);
+      if(!arr.length)return '<span style="color:var(--ink-mute);font-size:11px">추천 없음</span>';
+      return arr.slice(0,4).map(function(u){return '<span style="display:block">• '+esc(u.name||'')+' '+esc(u.major||'')+' <span style="color:var(--ink-mute)">('+esc(u.pos||'')+')</span></span>';}).join('');
+    }
+    if(t==='topics'){
+      var arr=Array.isArray(p)?p:(p.list||p.items||[]);
+      if(!arr.length)return '<span style="color:var(--ink-mute);font-size:11px">주제 없음</span>';
+      return arr.slice(0,4).map(function(u){return '<span style="display:block">• '+esc(u.title||u.question||'')+'</span>';}).join('');
+    }
+    // 기타: 주요 키만 요약
+    var keys=Object.keys(p).filter(function(k){return p[k]!=null&&typeof p[k]!=='object';}).slice(0,6);
+    if(!keys.length)return '<span style="color:var(--ink-mute);font-size:11px">요약할 값 없음</span>';
+    return keys.map(function(k){return '<span style="margin-right:8px"><span style="color:var(--ink-mute)">'+esc(k)+'</span> '+esc(String(p[k]).slice(0,30))+'</span>';}).join('');
+  }catch(e){ return '<span style="color:var(--ink-mute);font-size:11px">표시 오류</span>'; }
+}
 window.ADMIN=ADMIN;
 </script>
 <!--OLD_REPORT
@@ -1511,6 +1579,18 @@ window.ADMIN=ADMIN;
           <div id="set-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div>
         </div>
 
+        <div id="team-card" style="max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px;display:none">
+          <div class="sectionhead"><span class="idx">팀</span><h3>컨설턴트 팀 관리 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 원장 전용</span></h3></div>
+          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">소속 컨설턴트를 추가하면 각자 계정으로 로그인합니다. 컨설턴트는 <b>자신이 등록한 학생만</b> 볼 수 있고, 원장은 전체를 봅니다.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <input id="tm-name" placeholder="이름 (선택)" style="width:120px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="tm-email" placeholder="컨설턴트 이메일" style="flex:1;min-width:170px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="tm-pw" placeholder="임시 비밀번호 (선택)" style="width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <button onclick="tmCreate()" style="padding:9px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">추가</button>
+          </div>
+          <div id="tm-msg" style="min-height:14px;font-size:12px;margin:6px 0"></div>
+          <div id="tm-list" style="margin-top:8px"></div>
+        </div>
         <div id="billing-card" style="max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
           <div class="sectionhead"><span class="idx">$</span><h3>구독 · 결제 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 기본료 20만 + 학생당 4만/월</span></h3></div>
           <div id="billing-body" style="font-size:13px;color:var(--ink-dim);margin-top:8px">불러오는 중…</div>
@@ -1541,7 +1621,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'&&window.renderGDesign)renderGDesign(); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'&&window.renderCurri)renderCurri(); if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'&&window.renderGDesign)renderGDesign(); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
 }
 function jump(v){document.querySelector('.nav[data-v="'+v+'"]').click();}
 function sub(btn){
@@ -1626,17 +1706,25 @@ const auP=()=>document.getElementById('au-pw').value;
 function msg(t,ok){auMsg.textContent=t;auMsg.style.color=ok?'var(--safe)':'var(--risk)';}
 
 async function ensureAcademy(user){
+  // 1) 내가 소유한(원장) 학원
   let {data:acs}=await sb.from('academies').select('id,name').eq('owner_uid',user.id).limit(1);
   let ac=acs&&acs[0];
-  if(!ac){
-    const nm=(document.getElementById('au-name').value.trim())
-      || (user.user_metadata&&user.user_metadata.academy_name)
-      || (user.email.split('@')[0]+' 학원');
-    const {data:ins,error}=await sb.from('academies').insert({name:nm}).select('id,name').single();
-    if(error){console.error('[academy]',error);return null;}
-    ac=ins;
+  if(ac){ window._isOwner=true; window._myRole='owner'; return ac; }
+  // 2) 소속 컨설턴트(academy_users)로 연결된 학원
+  var {data:au}=await sb.from('academy_users').select('academy_id,role').eq('uid',user.id).limit(1);
+  if(au&&au[0]){
+    var {data:ac2}=await sb.from('academies').select('id,name').eq('id',au[0].academy_id).limit(1);
+    if(ac2&&ac2[0]){ window._isOwner=(au[0].role==='owner'); window._myRole=au[0].role||'consultant'; return ac2[0]; }
   }
-  return ac;
+  // 3) 신규 가입(원장) — 학원 생성 후 academy_users에 owner로 등록
+  const nm=(document.getElementById('au-name')&&document.getElementById('au-name').value.trim())
+    || (user.user_metadata&&user.user_metadata.academy_name)
+    || (user.email.split('@')[0]+' 학원');
+  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id}).select('id,name').single();
+  if(error){console.error('[academy]',error);return null;}
+  window._isOwner=true; window._myRole='owner';
+  try{ await sb.from('academy_users').insert({academy_id:ins.id,uid:user.id,email:user.email,role:'owner'}); }catch(e){}
+  return ins;
 }
 window._loginRole='con';
 function setLoginRole(r){
@@ -1653,6 +1741,7 @@ var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 async function enterApp(session){
   var u=session.user;
+  window._myUid=u.id;
   var role=(u.user_metadata&&u.user_metadata.role)||'con';
   window._appRole=role;
   if(role==='student'){ return enterStudentApp(session); }
@@ -1829,7 +1918,17 @@ document.getElementById('au-signup').onclick=async()=>{
   else msg('확인 메일을 보냈습니다. 인증 후 로그인하세요.',true);
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.reload();};
-if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } });
+if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ window._sessionUid=data.session.user.id; enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } });
+// 같은 브라우저 다중 로그인 감지 (탭 간 localStorage 공유로 계정이 뒤바뀌는 경우)
+if(sb) sb.auth.onAuthStateChange(function(event,session){
+  var newUid=session&&session.user&&session.user.id;
+  if(event==='SIGNED_IN'&&window._sessionUid&&newUid&&newUid!==window._sessionUid){
+    alert('다른 탭에서 다른 계정으로 로그인되어 이 창의 세션이 변경되었습니다.\n\n같은 브라우저에서는 한 계정만 유지됩니다. 여러 역할(관리자·컨설턴트·학생)을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.\n\n확인을 누르면 새 계정으로 새로고침합니다.');
+    location.reload(); return;
+  }
+  if(event==='SIGNED_OUT'){ window._sessionUid=null; }
+  if(newUid)window._sessionUid=newUid;
+});
 
 /* ===== 학생 관리 ===== */
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -1878,7 +1977,9 @@ function renderHomeKPI(){
 async function loadStudents(){
   const list=document.getElementById('st-list'); if(!list)return;
   if(!sb){list.innerHTML='<div style="color:var(--risk)">DB 미로드</div>';return;}
-  const {data,error}=await sb.from('students').select('*').or('admission_track.is.null,admission_track.neq.고입').order('created_at',{ascending:false});
+  var _q=sb.from('students').select('*').or('admission_track.is.null,admission_track.neq.고입');
+  if(window._isOwner===false && window._myUid){ _q=_q.eq('consultant_uid',window._myUid); }
+  const {data,error}=await _q.order('created_at',{ascending:false});
   if(error){list.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   window._students=data||[];
   // 학생별 로그인 아이디 매핑 (student_accounts)
@@ -1965,7 +2066,7 @@ async function addStudent(){
   m.style.color='var(--ink-mute)';m.textContent=window._editId?'수정 중…':'등록 중…';
   var err;
   if(window._editId){ const r=await sb.from('students').update(row).eq('id',window._editId); err=r.error; }
-  else { const r=await sb.from('students').insert(row); err=r.error; }
+  else { if(window._myUid)row.consultant_uid=window._myUid; const r=await sb.from('students').insert(row); err=r.error; }
   if(err){m.style.color='var(--risk)';m.textContent=esc(err.message);return;}
   m.style.color='var(--safe)';m.textContent=window._editId?'수정 완료.':'등록 완료.';
   window._editId=null; var sb2=document.getElementById('st-submit'); if(sb2)sb2.textContent='등록';
@@ -2976,6 +3077,55 @@ async function testAI(){
 var TOSS_CLIENT_KEY="test_ck_ALnQvDd2VJYmLewOane3Mj7X41mN";
 function won(n){ return (n==null?'-':Number(n).toLocaleString('ko-KR')+'원'); }
 function dfmt(s){ if(!s)return '-'; try{return new Date(s).toISOString().slice(0,10);}catch(e){return '-';} }
+/* ===== 컨설턴트 팀 관리 (원장 전용) ===== */
+async function teamCall(action,extra){
+  var sess=(await sb.auth.getSession()).data.session;
+  var r=await fetch(SB_URL+'/functions/v1/academy-team',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify(Object.assign({action:action},extra||{}))});
+  var d=await r.json(); if(!r.ok)throw new Error(d.error||('HTTP '+r.status)); return d;
+}
+async function loadTeam(){
+  var card=document.getElementById('team-card'); if(!card)return;
+  // 원장(소유자)만 노출
+  if(window._isOwner!==true || window._role==='stu'){ card.style.display='none'; return; }
+  card.style.display='';
+  var list=document.getElementById('tm-list'); if(list)list.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
+  try{
+    var d=await teamCall('list');
+    var rows=(d.members||[]).map(function(m){
+      var tag=m.is_owner?'<span style="font-size:10px;color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:1px 8px">원장</span>':'<span style="font-size:10px;color:var(--blue);border:1px solid var(--blue);border-radius:10px;padding:1px 8px">컨설턴트</span>';
+      var btns=m.is_owner?'':'<span style="display:flex;gap:6px"><button onclick="tmResetPw(\''+m.uid+'\',\''+esc(m.email)+'\')" style="font-size:11px;padding:5px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">비번 재발급</button><button onclick="tmRemove(\''+m.uid+'\',\''+esc(m.email)+'\')" style="font-size:11px;padding:5px 10px;background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--risk)">삭제</button></span>';
+      return '<div class="card" style="margin-bottom:8px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div><b style="color:var(--ink)">'+esc(m.email)+'</b> '+tag+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">담당 학생 '+m.students+'명</div></div>'+btns+'</div>';
+    }).join('');
+    if(list)list.innerHTML=rows||'<div style="font-size:12px;color:var(--ink-mute)">아직 소속 컨설턴트가 없습니다.</div>';
+  }catch(e){ if(list)list.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(e.message)+'</div>'; }
+}
+async function tmCreate(){
+  var m=document.getElementById('tm-msg');
+  var email=(document.getElementById('tm-email').value||'').trim();
+  var name=(document.getElementById('tm-name').value||'').trim();
+  var pw=(document.getElementById('tm-pw').value||'').trim();
+  if(!email){m.style.color='var(--risk)';m.textContent='이메일을 입력하세요.';return;}
+  m.style.color='var(--ink-mute)';m.textContent='생성 중…';
+  try{
+    var d=await teamCall('create_consultant',{email:email,name:name||null,password:pw||null});
+    m.style.color='var(--safe)';
+    m.innerHTML='✓ 컨설턴트 추가 — 이메일 <b>'+esc(d.email)+'</b> · 임시 비밀번호 <b>'+esc(d.password)+'</b> <button onclick="navigator.clipboard.writeText(\'아르케 컨설턴트 계정\\n이메일: '+esc(d.email)+'\\n비밀번호: '+esc(d.password)+'\\n로그인: https://arche.penta-view.com (컨설턴트 탭)\')" style="padding:3px 8px;font-size:11px;cursor:pointer;border:1px solid var(--line);border-radius:5px;background:transparent;color:var(--ink)">복사</button>';
+    document.getElementById('tm-email').value='';document.getElementById('tm-name').value='';document.getElementById('tm-pw').value='';
+    loadTeam();
+  }catch(e){ m.style.color='var(--risk)';m.textContent=e.message; }
+}
+async function tmResetPw(uid,email){
+  var m=document.getElementById('tm-msg');
+  if(!confirm(email+' 의 비밀번호를 새로 발급할까요?'))return;
+  try{ var d=await teamCall('reset_password',{uid:uid}); m.style.color='var(--safe)'; m.innerHTML='✓ '+esc(email)+' 새 비밀번호: <b>'+esc(d.password)+'</b>'; }
+  catch(e){ m.style.color='var(--risk)';m.textContent=e.message; }
+}
+async function tmRemove(uid,email){
+  var m=document.getElementById('tm-msg');
+  if(!confirm(email+' 컨설턴트를 삭제할까요?\n담당 학생은 원장(나)에게 회수됩니다.'))return;
+  try{ await teamCall('remove_consultant',{uid:uid}); m.style.color='var(--ink-dim)';m.textContent=email+' 삭제됨. 담당 학생은 원장에게 회수되었습니다.'; loadTeam(); }
+  catch(e){ m.style.color='var(--risk)';m.textContent=e.message; }
+}
 async function billingCall(action,extra){
   var sess=(await sb.auth.getSession()).data.session;
   var r=await fetch(SB_URL+'/functions/v1/toss-billing',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify(Object.assign({action:action},extra||{}))});
@@ -3588,7 +3738,9 @@ window._gstudents=[];
 window._gactive=null;
 async function loadGStudents(){
   if(!sb)return;
-  var r=await sb.from('students').select('*').eq('admission_track','고입').order('created_at',{ascending:false});
+  var _gq=sb.from('students').select('*').eq('admission_track','고입');
+  if(window._isOwner===false && window._myUid){ _gq=_gq.eq('consultant_uid',window._myUid); }
+  var r=await _gq.order('created_at',{ascending:false});
   if(r.error){var l=document.getElementById('gst-list');if(l)l.innerHTML='<div style="color:var(--risk)">'+esc(r.error.message)+'</div>';return;}
   window._gstudents=r.data||[];
   fillGoipPickers();
@@ -3640,6 +3792,7 @@ async function addGStudent(){
     interest:document.getElementById('gst-interest').value.trim()||null,
     consent_record:document.getElementById('gst-consent').checked};
   if(acadId)row.academy_id=acadId;
+  if(window._myUid)row.consultant_uid=window._myUid;
   m.style.color='var(--ink-mute)';m.textContent='등록 중…';
   var r=await sb.from('students').insert(row);
   if(r.error){m.style.color='var(--risk)';m.textContent=esc(r.error.message);return;}
