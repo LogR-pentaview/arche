@@ -517,10 +517,10 @@
       <section class="view" id="v-students">
         <div class="eyebrow">Student Management</div>
         <div class="h1 pg-title" data-b2c="자녀 관리">학생 관리</div>
-        <div class="sub">우리 학원 수강생을 등록·관리합니다 · 데이터는 학원별로 격리(RLS)됩니다</div>
+        <div class="sub" data-b2c-sub="자녀 정보를 등록·관리합니다">우리 학원 수강생을 등록·관리합니다 · 데이터는 학원별로 격리(RLS)됩니다</div>
         <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
-            <div class="sectionhead"><span class="idx">＋</span><h3>학생 등록</h3></div>
+            <div class="sectionhead"><span class="idx">＋</span><h3 class="lbl-b2c" data-b2c="자녀 등록">학생 등록</h3></div>
             <input id="st-name" placeholder="이름 *" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-school" placeholder="학교" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -677,10 +677,10 @@
       <section class="view" id="v-gstudents">
         <div class="eyebrow">GOIP · Student Management</div>
         <div class="h1 pg-title" data-b2c="고입 자녀 관리">고입 학생 관리</div>
-        <div class="sub">특목고·자사고 지망 중학생을 등록·관리합니다.</div>
+        <div class="sub" data-b2c-sub="특목고·자사고 지망 자녀 정보를 등록·관리합니다.">특목고·자사고 지망 중학생을 등록·관리합니다.</div>
         <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
-            <div class="sectionhead"><span class="idx" style="background:var(--gold)">＋</span><h3>학생 등록</h3></div>
+            <div class="sectionhead"><span class="idx" style="background:var(--gold)">＋</span><h3 class="lbl-b2c" data-b2c="자녀 등록">학생 등록</h3></div>
             <input id="gst-name" placeholder="이름 *" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-school" placeholder="출신 중학교" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div style="display:flex;gap:8px;margin-bottom:10px">
@@ -695,7 +695,7 @@
             <button onclick="addGStudent()" style="width:100%;padding:11px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
           <div>
-            <h3 style="font-size:14px;color:var(--ink);margin:2px 0 12px">고입 수강생 <span id="gst-count" class="mono" style="font-size:12px;color:var(--gold)">0</span></h3>
+            <h3 class="lbl-b2c-wrap" style="font-size:14px;color:var(--ink);margin:2px 0 12px"><span class="lbl-b2c" data-b2c="등록 자녀 현황">고입 수강생</span> <span id="gst-count" class="mono" style="font-size:12px;color:var(--gold)">0</span></h3>
             <div id="gst-list" style="display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute)">로그인 후 표시됩니다.</div></div>
           </div>
         </div>
@@ -1854,6 +1854,14 @@ function applyB2CLabels(){
   document.querySelectorAll('.list-title[data-b2c] .lt-text').forEach(function(el){ el.textContent='등록한 자녀'; });
   // 3) 상담 구분(학생/학부모) select 숨김 — 학부모 본인이므로 불필요
   document.querySelectorAll('.con-kind-sel').forEach(function(el){ el.style.display='none'; });
+  // 3-1) 학생 등록/수강생 등 개별 라벨 (lbl-b2c)
+  document.querySelectorAll('.lbl-b2c[data-b2c]').forEach(function(el){
+    if(el.dataset.b2cDone)return; el.textContent=el.dataset.b2c; el.dataset.b2cDone='1';
+  });
+  // 3-2) sub 문구
+  document.querySelectorAll('[data-b2c-sub]').forEach(function(el){ el.textContent=el.dataset.b2cSub; });
+  // 3-3) 자녀 기본 정보 입력 메뉴 숨김 (학부모는 자녀 관리에서 바로 등록)
+  var bcNav=document.querySelector('.nav[data-v="basecon"]'); if(bcNav)bcNav.style.display='none';
   // 4) 기본정보 화면 개별 라벨
   var t=document.getElementById('bc-title'); if(t)t.textContent='자녀 기본 정보 입력';
   var nl=document.getElementById('bc-newlabel'); if(nl)nl.textContent='자녀 기본 정보';
@@ -2154,7 +2162,7 @@ async function loadStudents(){
   }catch(e){window._stuAcct={};}
   document.getElementById('st-count').textContent=window._students.length;
   renderHomeKPI(); populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
-  if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 학생이 없습니다. 좌측에서 등록하세요.</div>';return;}
+  if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">'+(window._isB2C?'등록된 자녀가 없습니다. 좌측에서 등록하세요.':'등록된 학생이 없습니다. 좌측에서 등록하세요.')+'</div>';return;}
   var order=['고3','고2','고1','N수','미지정'];
   var g={}; window._students.forEach(function(s){var k=s.grade||'미지정';(g[k]=g[k]||[]).push(s);});
   var actId=window._activeStudent?window._activeStudent.id:'';
@@ -4142,7 +4150,7 @@ window.renderGStudents=async function(){
   var list=document.getElementById('gst-list'); if(!list)return;
   var st=window._gstudents;
   document.getElementById('gst-count').textContent=st.length;
-  if(!st.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">등록된 고입 학생이 없습니다.</div>';return;}
+  if(!st.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">'+(window._isB2C?'등록된 자녀가 없습니다.':'등록된 고입 학생이 없습니다.')+'</div>';return;}
   // 계정 아이디 매핑
   window._gstuAcct={};
   try{var ids=st.map(function(s){return s.id;});
