@@ -853,6 +853,24 @@
           <span id="gds-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
         <div id="gds-result" style="margin-top:18px"></div>
+
+        <div class="card goip-con-only" style="margin-top:20px">
+          <div style="font-weight:700;margin-bottom:6px">학생 작성 자료 · 성취도 평가 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 생기부에 없는 탐구·실험 보고서를 업로드하면 워크북 방식으로 성취도를 평가합니다</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <select id="gwb-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험보고서</option><option>수행평가</option><option>소논문</option><option>기타</option></select>
+            <input id="gwb-subject" placeholder="과목/영역" style="width:140px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="gwb-title" placeholder="자료 제목" style="flex:1;min-width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+            <input type="file" id="gwb-file" accept=".pdf,.docx,.txt,.md" onchange="wbPick('goip')" style="font-size:12px;color:var(--ink-dim)">
+            <span style="font-size:11px;color:var(--ink-mute)">PDF·DOCX·TXT 자동 추출 (HWP는 내용 붙여넣기)</span>
+            <input type="hidden" id="gwb-fname">
+          </div>
+          <textarea id="gwb-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+          <div id="gwb-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
+          <button onclick="wbSave('goip')" style="padding:10px 18px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">자료 저장</button>
+          <div id="gwb-list" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div></div>
+        </div>
       </section>
 
       <!-- 4.5 GOIP CONSULTING -->
@@ -966,6 +984,24 @@
         </div>
         <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[① 주요과목 탐구]</b>부터 생성하세요. 과목당 학기 1개(연 2개)로, 진로·학과로 이어지는 연계 서사로 설계됩니다. 이후 <b>[② 창체활동]</b>을 추가 생성합니다.</div></div>
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
+
+        <div class="card goip-con-only" style="margin-top:20px">
+          <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">평가</span><h3>학생 작성 자료 · 성취도 평가 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 학생부에 없는 탐구·실험 보고서를 업로드하면 워크북 방식으로 성취도를 평가합니다</span></h3></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <select id="wb-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험보고서</option><option>수행평가</option><option>소논문</option><option>기타</option></select>
+            <input id="wb-subject" placeholder="과목/영역 (예: 생명과학)" style="width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="wb-title" placeholder="자료 제목" style="flex:1;min-width:160px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
+            <input type="file" id="wb-file" accept=".pdf,.docx,.txt,.md" onchange="wbPick('dae')" style="font-size:12px;color:var(--ink-dim)">
+            <span style="font-size:11px;color:var(--ink-mute)">PDF·DOCX·TXT 자동 추출 (HWP는 내용 붙여넣기)</span>
+            <input type="hidden" id="wb-fname">
+          </div>
+          <textarea id="wb-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+          <div id="wb-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
+          <button onclick="wbSave('dae')" style="padding:10px 18px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">자료 저장</button>
+          <div id="wb-list" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div></div>
+        </div>
       </section>
 
       <!-- 면접 준비 -->
@@ -1740,7 +1776,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'&&window.renderGDesign)renderGDesign(); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'&&window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'&&window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   window._curView=v;
 }
@@ -2301,7 +2337,7 @@ function selectStudent(id){
   var td=document.getElementById('topbar-student'); if(td)td.value=id;
   var sv=document.getElementById('v-students'); if(sv&&sv.classList.contains('on')&&window.loadStudents)loadStudents();
   if(window.refreshIntake)refreshIntake(); if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
-  if(window.loadExtra)loadExtra('dae');
+  if(window.loadExtra)loadExtra('dae'); if(window.wbLoad)wbLoad('dae');
 }
 function fillStudentPickers(){
   var opts='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
@@ -2441,6 +2477,159 @@ async function extraCtx(studentId){
   }catch(e){ return ''; }
 }
 window.extraCtx=extraCtx;
+
+/* ===== 학생 작성 자료 성취도 평가 (워크북 방식) — 대입/고입 공통 ===== */
+function wbActive(track){ return track==='goip'?window._gactive:window._activeStudent; }
+async function wbPick(track){
+  var pfx=track==='goip'?'gwb':'wb'; var f=document.getElementById(pfx+'-file').files[0]; var m=document.getElementById(pfx+'-msg');
+  if(!f)return;
+  m.style.color='var(--ink-mute)';m.textContent='텍스트 추출 중…';
+  try{
+    var t=await extractExtraText(f);
+    if(t&&t.trim()){ document.getElementById(pfx+'-content').value=t.trim().slice(0,20000); m.style.color='var(--safe)';m.textContent='추출 완료 ('+t.trim().length+'자)'; }
+    else { m.style.color='var(--gold,#c8a24a)';m.textContent='자동 추출 불가 형식 — 내용을 직접 붙여넣어 주세요.'; }
+    document.getElementById(pfx+'-fname').value=f.name;
+  }catch(e){ m.style.color='var(--risk)';m.textContent='추출 실패: '+(e.message||e); }
+}
+async function wbSave(track){
+  var pfx=track==='goip'?'gwb':'wb'; var m=document.getElementById(pfx+'-msg'); var s=wbActive(track);
+  if(!s){ if(m){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';} return; }
+  var content=(document.getElementById(pfx+'-content').value||'').trim();
+  var title=(document.getElementById(pfx+'-title').value||'').trim();
+  if(!content){ m.style.color='var(--risk)';m.textContent='자료 내용을 입력하거나 파일에서 추출하세요.'; return; }
+  var payload={ student_id:s.id, track:(track==='goip'?'고입':'대입'), category:document.getElementById(pfx+'-cat').value,
+    title:title||null, subject:(document.getElementById(pfx+'-subject').value||'').trim()||null,
+    career:(s.career||s.target_major||null), content:content, file_name:(document.getElementById(pfx+'-fname').value||null),
+    source:(window._isB2C?'parent':'consultant') };
+  m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+  var ins=await sb.from('student_extra_materials').insert(payload);
+  if(ins.error){ m.style.color='var(--risk)';m.textContent=esc(ins.error.message); return; }
+  m.style.color='var(--safe)';m.textContent='저장 완료 — [성취도 평가]로 성적표를 생성하세요.';
+  if(window.toast)toast('자료 저장됨');
+  ['title','content','subject','fname'].forEach(function(k){var el=document.getElementById(pfx+'-'+k);if(el)el.value='';});
+  try{document.getElementById(pfx+'-file').value='';}catch(e){}
+  wbLoad(track);
+}
+async function wbLoad(track){
+  var pfx=track==='goip'?'gwb':'wb'; var box=document.getElementById(pfx+'-list'); if(!box)return; var s=wbActive(track);
+  if(!s||!sb){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div>'; return; }
+  box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">불러오는 중…</div>';
+  var q=await sb.from('student_extra_materials').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
+  if(q.error){ box.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(q.error.message)+'</div>'; return; }
+  window._wbRows=q.data||[];
+  if(!window._wbRows.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">아직 업로드한 자료가 없습니다. 학생이 작성한 탐구·실험 보고서를 올리고 [성취도 평가]를 실행하세요.</div>'; return; }
+  var isStu=window._role==='stu';
+  box.innerHTML=window._wbRows.map(function(r){
+    var badge='<span style="font-size:10px;font-weight:700;color:var(--gold,#c8a24a);background:rgba(200,162,74,.14);border-radius:5px;padding:1px 7px">'+esc(r.category||'자료')+'</span>';
+    var head='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+badge+
+      '<b style="font-size:13px">'+esc(r.title||'(제목 없음)')+'</b>'+
+      (r.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(r.subject)+'</span>':'')+
+      '<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">'+(r.created_at||'').slice(0,10)+'</span>'+
+      (isStu?'':'<button onclick="wbDel(\''+r.id+'\',\''+track+'\')" style="border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:15px;line-height:1">×</button>')+
+      '</div>';
+    var actions='', sheet='';
+    if(r.evaluation){
+      var ev=(typeof r.evaluation==='string')?JSON.parse(r.evaluation):r.evaluation;
+      sheet=wbSheetHtml(r,ev,false);
+      actions='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
+        (isStu?'':'<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">재평가</button>')+
+        '<button onclick="wbPdf(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:7px;cursor:pointer;font-weight:700">평가지 PDF 다운로드</button></div>';
+    } else {
+      actions=isStu?'<div style="font-size:11.5px;color:var(--ink-mute)">아직 평가 전입니다.</div>'
+        :'<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:12px;padding:8px 14px;background:var(--lime,#2b9457);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">성취도 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">워크북 방식 · API 사용</span>';
+    }
+    return '<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px" id="wb-item-'+r.id+'">'+head+actions+sheet+'</div>';
+  }).join('');
+}
+async function wbEval(id,track){
+  var row=(window._wbRows||[]).find(function(x){return x.id===id;}); if(!row)return;
+  var host=document.getElementById('wb-item-'+id);
+  var av=wbActive(track);
+  if(window.showAiLoading)showAiLoading();
+  try{
+    var r=await sb.functions.invoke('arche-eval',{body:{payload:{text:row.content,title:row.title,subject:row.subject,career:(row.career||(av&&(av.career||av.target_major))||'')}}});
+    if(window.hideAiLoading)hideAiLoading();
+    var data=r.data,error=r.error;
+    if(error||!data||data.error){ if(window.toast)toast('평가 실패: '+esc((data&&data.error)||(error&&error.message)||'오류'),false); return; }
+    var ev; try{ ev=JSON.parse(data.text); }catch(e){ if(window.toast)toast('평가 결과 파싱 실패',false); return; }
+    var up=await sb.from('student_extra_materials').update({evaluation:ev,evaluated_at:new Date().toISOString()}).eq('id',id);
+    if(up.error){ if(window.toast)toast('저장 실패: '+up.error.message,false); return; }
+    if(window.toast)toast('성취도 평가 완료');
+    wbLoad(track);
+  }catch(e){ if(window.hideAiLoading)hideAiLoading(); if(window.toast)toast('평가 오류: '+(e.message||e),false); }
+}
+async function wbDel(id,track){
+  if(!confirm('이 자료와 평가를 삭제할까요?'))return;
+  var d=await sb.from('student_extra_materials').delete().eq('id',id);
+  if(d.error){ if(window.toast)toast('삭제 실패: '+d.error.message,false); return; }
+  if(window.toast)toast('삭제됨'); wbLoad(track);
+}
+function wbCogRadar(cog,size){
+  size=size||150; var cx=size/2,cy=size/2,rad=size*0.36;
+  var axes=['비판성','개념치환','논리추론','연결지성','회복탄력성'];
+  var pts=axes.map(function(a,i){ var ang=-Math.PI/2+i*2*Math.PI/5; var v=Math.max(0,Math.min(1,(cog&&cog[a])||0)); return [cx+Math.cos(ang)*rad*v, cy+Math.sin(ang)*rad*v, cx+Math.cos(ang)*rad, cy+Math.sin(ang)*rad, ang]; });
+  var grid=[0.25,0.5,0.75,1].map(function(g){ return '<polygon points="'+axes.map(function(a,i){var ang=-Math.PI/2+i*2*Math.PI/5;return (cx+Math.cos(ang)*rad*g)+','+(cy+Math.sin(ang)*rad*g);}).join(' ')+'" fill="none" stroke="#e0e4de" stroke-width="1"/>'; }).join('');
+  var shape='<polygon points="'+pts.map(function(p){return p[0]+','+p[1];}).join(' ')+'" fill="rgba(179,128,31,.20)" stroke="#b3801f" stroke-width="1.6"/>';
+  var labels=pts.map(function(p,i){ var lx=cx+Math.cos(p[4])*(rad+14), ly=cy+Math.sin(p[4])*(rad+14); return '<text x="'+lx+'" y="'+ly+'" font-size="9" fill="#5a6b60" text-anchor="middle" dominant-baseline="middle">'+axes[i]+'</text>'; }).join('');
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'">'+grid+shape+labels+'</svg>';
+}
+function wbSheetHtml(mat,ev,forPrint){
+  var A=(ev&&ev.achievement)||{}; var cog=(ev&&ev.cog)||{}; var cr=(ev&&ev.cog_reasons)||{};
+  var lvlColor={A:'#2b9457',B:'#4a9a3a',C:'#b3801f',D:'#d0902a',E:'#cf5a4a'}[A.level]||'#b3801f';
+  var bd=forPrint?'#ddd':'var(--line)'; var mut=forPrint?'#777':'var(--ink-mute)'; var ink=forPrint?'#1a2820':'var(--ink)'; var dim=forPrint?'#445':'var(--ink-dim)';
+  var h='<div style="border-top:1px solid '+bd+';margin-top:10px;padding-top:12px">';
+  // 성취수준 밴드
+  h+='<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">'+
+     '<div style="width:52px;height:52px;border-radius:12px;background:'+lvlColor+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:800;flex:none">'+esc(A.level||'-')+'</div>'+
+     '<div><div style="font-size:12px;color:'+mut+'">종합 성취수준</div><div style="font-size:15px;font-weight:800;color:'+ink+'">'+esc(A.summary||'')+' <span style="font-family:monospace;color:'+lvlColor+'">'+(A.score!=null?A.score+'점':'')+'</span></div></div></div>';
+  // 인지지표 + 레이더
+  h+='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-bottom:12px">';
+  h+='<div style="flex:none">'+wbCogRadar(cog,150)+'</div>';
+  h+='<div style="flex:1;min-width:200px">';
+  ['비판성','개념치환','논리추론','연결지성','회복탄력성'].forEach(function(k){
+    var v=Math.round(((cog[k]||0))*100);
+    h+='<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:'+dim+'"><span>'+k+'</span><b style="color:'+ink+'">'+v+'</b></div>'+
+       '<div style="height:5px;background:'+(forPrint?'#eee':'var(--panel-2)')+';border-radius:4px;overflow:hidden"><div style="height:100%;width:'+v+'%;background:#b3801f"></div></div>'+
+       (cr[k]?'<div style="font-size:10px;color:'+mut+';margin-top:2px">'+esc(cr[k])+'</div>':'')+'</div>';
+  });
+  h+='</div></div>';
+  // 세부 평가축
+  if(ev.dimensions&&ev.dimensions.length){
+    h+='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px">';
+    ev.dimensions.forEach(function(d){ h+='<div style="border:1px solid '+bd+';border-radius:8px;padding:8px 10px"><div style="display:flex;justify-content:space-between"><span style="font-size:11.5px;font-weight:700;color:'+ink+'">'+esc(d.name)+'</span><b style="font-family:monospace;color:#b3801f">'+esc(d.score)+'/10</b></div><div style="font-size:10.5px;color:'+mut+';margin-top:2px">'+esc(d.note||'')+'</div></div>'; });
+    h+='</div>';
+  }
+  // 골든문장
+  if(ev.golden_sentences&&ev.golden_sentences.length){
+    h+='<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:'+ink+';margin-bottom:6px">주목 문장</div>';
+    ev.golden_sentences.forEach(function(g){ h+='<div style="border-left:3px solid #b3801f;padding:4px 10px;margin-bottom:6px"><div style="font-size:12px;color:'+ink+';font-style:italic">"'+esc(g.sentence||'')+'"</div><div style="font-size:11px;color:'+mut+';margin-top:2px">→ '+esc(g.comment||'')+'</div></div>'; });
+    h+='</div>';
+  }
+  // 강점/보완/다음
+  function block(t,v,c){ return v?'<div style="margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:'+c+'">'+t+'</span> <span style="font-size:12px;color:'+dim+'">'+esc(v)+'</span></div>':''; }
+  h+=block('강점',ev.strengths,'#2b9457')+block('보완점',ev.improvements,'#d0902a')+block('다음 심화',ev.next,'#2f6fd0');
+  if(ev.narrative)h+='<div style="margin-top:8px;background:'+(forPrint?'#f7f9f6':'var(--panel-2)')+';border-radius:8px;padding:10px 12px;font-size:12px;color:'+dim+';line-height:1.65">'+esc(ev.narrative)+'</div>';
+  h+='</div>';
+  return h;
+}
+function wbPdf(id,track){
+  var row=(window._wbRows||[]).find(function(x){return x.id===id;}); if(!row||!row.evaluation)return;
+  var ev=(typeof row.evaluation==='string')?JSON.parse(row.evaluation):row.evaluation;
+  var s=wbActive(track); var who=s?(s.name||''):'';
+  var when=(row.evaluated_at||'').slice(0,10);
+  var sheet=wbSheetHtml(row,ev,true);
+  var win=window.open('','_blank'); if(!win){alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.');return;}
+  var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>성취도 평가지 · '+esc(row.title||'')+'</title>'+
+    '<style>@page{size:A4;margin:16mm}body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#1a2820;padding:8px 4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:20px;margin:0 0 2px}.meta{font-size:12px;color:#667;margin-bottom:4px}.rule{height:2px;background:#12211a;margin:8px 0 4px}.foot{margin-top:18px;font-size:10px;color:#889;border-top:1px solid #ddd;padding-top:8px}b{color:#1a2820}</style></head><body>'+
+    '<h1>학생 작성 자료 성취도 평가지</h1>'+
+    '<div class="meta">학생: <b>'+esc(who)+'</b> · 자료: <b>'+esc(row.title||'')+'</b>'+(row.subject?' ('+esc(row.subject)+')':'')+' · 평가일: '+esc(when)+'</div>'+
+    '<div class="rule"></div>'+sheet+
+    '<div class="foot">ARCHE · PentaView 입시 컨설팅 엔진 · 본 평가지는 컨설팅 참고용이며 학교생활기록부 공식 기재문이 아닙니다. AI 분석 결과로 확정 평가가 아닙니다.</div>'+
+    '<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},350);}</scr'+'ipt>'+
+    '</body></html>';
+  win.document.open(); win.document.write(doc); win.document.close();
+}
+window.wbPick=wbPick;window.wbSave=wbSave;window.wbLoad=wbLoad;window.wbEval=wbEval;window.wbDel=wbDel;window.wbPdf=wbPdf;
 function populateIntakePicker(){
   var sel=document.getElementById('intake-student'); if(!sel)return;
   var cur=window._activeStudent?window._activeStudent.id:'';
@@ -4353,6 +4542,7 @@ function fillGoipPickers(){
 /* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
 window.renderGIntake=function(){ loadGStudents().then(function(){ if(window._gactive){var w=document.getElementById('gin-who');if(w)w.textContent=window._gactive.name+' 활성';} }); };
 function gintakeSelect(id){ selectGStudent(id); gintakeLoadSaved(true); if(window.loadExtra)loadExtra('goip'); }
+function selectGStudentWb(){ if(window.wbLoad)wbLoad('goip'); }
 // 저장된 성취도·활동자료를 파싱 포맷으로 역구성해 표시
 async function gintakeLoadSaved(silent){
   var m=document.getElementById('gin-msg'); var s=window._gactive;
