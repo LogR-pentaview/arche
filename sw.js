@@ -1,5 +1,7 @@
 // 아르케 PWA Service Worker
-const CACHE = 'arche-v1';
+// 배포 시 index.html의 APP_VERSION과 함께 이 버전 문자열을 올려주세요.
+const SW_VERSION = '2026.07.11.1';
+const CACHE = 'arche-' + SW_VERSION;
 const CORE = ['/', '/index.html'];
 
 self.addEventListener('install', (e) => {
@@ -9,8 +11,15 @@ self.addEventListener('install', (e) => {
 
 self.addEventListener('activate', (e) => {
   e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
+});
+
+// 클라이언트에서 [업데이트] 시 대기 중인 SW 즉시 활성화
+self.addEventListener('message', (e) => {
+  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('fetch', (e) => {
@@ -19,7 +28,7 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   // Supabase/API/외부는 항상 네트워크 (캐시하지 않음)
   if (url.origin !== self.location.origin) return;
-  // HTML 문서: 네트워크 우선, 실패 시 캐시 (오프라인 대비)
+  // HTML 문서: 네트워크 우선, 실패 시 캐시 (오프라인 대비) — 새 배포가 즉시 반영되도록
   if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     e.respondWith(
       fetch(req).then((res) => {

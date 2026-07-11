@@ -408,6 +408,12 @@
     <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
 
     <div class="foot"><div class="avatar">K</div><div class="who">김기욱 원장<small>로그·알 입시연구소</small></div></div>
+    <div id="ver-box" style="padding:8px 10px 2px;display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+      <span class="mono" style="font-size:9.5px;color:var(--ink-mute)">v<span id="ver-cur"></span></span>
+      <button id="ver-check" onclick="checkUpdate()" style="font-size:10px;padding:3px 9px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--ink-dim);cursor:pointer">최신버전 확인</button>
+      <button id="ver-apply" onclick="applyUpdate()" style="display:none;font-size:10px;padding:3px 9px;border:none;border-radius:6px;background:var(--gold);color:#1a1204;font-weight:700;cursor:pointer">업데이트</button>
+      <span id="ver-msg" style="font-size:9.5px;color:var(--ink-mute);width:100%"></span>
+    </div>
   </aside>
 
   <!-- MAIN -->
@@ -1828,6 +1834,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#5b8def'});
 
 /* ===== Supabase 연동 ===== */
+window.APP_VERSION="2026.07.11.1";
 const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
 let sb=null;
@@ -5336,6 +5343,61 @@ window.addEventListener('appinstalled', function(){ var b=document.getElementByI
 window.addEventListener('load', function(){
   try{ if(!history.state){ history.replaceState({v:window._curView||'diag'},'',location.hash||'#diag'); } }catch(e){}
 });
+// ===== 앱 버전 확인 / 업데이트 =====
+(function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION||'-'; })();
+async function checkUpdate(){
+  var m=document.getElementById('ver-msg'), ap=document.getElementById('ver-apply');
+  if(m){m.style.color='var(--ink-mute)';m.textContent='서버 버전 확인 중…';}
+  try{
+    var r=await fetch(location.origin+'/index.html?nocache='+Date.now(),{cache:'no-store'});
+    var t=await r.text();
+    var mm=t.match(/APP_VERSION\s*=\s*"([^"]+)"/);
+    var latest=mm?mm[1]:null;
+    if(!latest){ if(m){m.style.color='var(--risk)';m.textContent='버전 정보를 읽지 못했습니다.';} return; }
+    window._latestVer=latest;
+    if(latest===window.APP_VERSION){
+      if(m){m.style.color='var(--safe)';m.textContent='최신 버전입니다 (v'+latest+')';}
+      if(ap)ap.style.display='none';
+      // SW도 갱신 체크
+      if(navigator.serviceWorker){ navigator.serviceWorker.getRegistration().then(function(reg){ if(reg)reg.update(); }); }
+    } else {
+      if(m){m.style.color='var(--gold,#c8a24a)';m.textContent='새 버전 v'+latest+' 이 있습니다. [업데이트]를 누르세요.';}
+      if(ap)ap.style.display='inline-block';
+    }
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='확인 실패: '+(e.message||e);} }
+}
+async function applyUpdate(){
+  var m=document.getElementById('ver-msg');
+  if(m){m.style.color='var(--ink-mute)';m.textContent='캐시 정리 후 새 버전을 불러옵니다…';}
+  try{
+    if(window.caches){ var keys=await caches.keys(); await Promise.all(keys.map(function(k){return caches.delete(k);})); }
+    if(navigator.serviceWorker){
+      var reg=await navigator.serviceWorker.getRegistration();
+      if(reg){ if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'}); await reg.update(); }
+    }
+  }catch(e){}
+  location.reload();
+}
+window.checkUpdate=checkUpdate;window.applyUpdate=applyUpdate;
+// SW가 새 버전으로 교체되면 자동 새로고침 (업데이트 적용 직후)
+if(navigator.serviceWorker){
+  var _swReloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){ if(_swReloaded)return; _swReloaded=true; });
+  // 백그라운드에서 새 SW 발견 시 안내 토스트
+  navigator.serviceWorker.getRegistration().then(function(reg){
+    if(!reg)return;
+    reg.addEventListener('updatefound',function(){
+      var nw=reg.installing; if(!nw)return;
+      nw.addEventListener('statechange',function(){
+        if(nw.state==='installed'&&navigator.serviceWorker.controller){
+          if(window.toast)toast('새 버전이 준비되었습니다 — 사이드바 [업데이트]를 눌러주세요');
+          var ap=document.getElementById('ver-apply'); if(ap)ap.style.display='inline-block';
+          var m=document.getElementById('ver-msg'); if(m){m.style.color='var(--gold,#c8a24a)';m.textContent='새 버전 준비됨 — [업데이트]를 누르세요.';}
+        }
+      });
+    });
+  });
+}
 </script>
 </body>
 </html>
