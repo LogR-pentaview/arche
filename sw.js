@@ -1,28 +1,41 @@
-/* Arche PWA Service Worker — index는 network-first(배포 즉시 반영), 아이콘 등 정적만 캐시 */
+// 아르케 PWA Service Worker
 const CACHE = 'arche-v1';
-const STATIC = ['/manifest.json','/icon-192.png','/icon-512.png','/icon-180.png'];
+const CORE = ['/', '/index.html'];
 
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting()));
+self.addEventListener('install', (e) => {
+  self.skipWaiting();
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(CORE).catch(() => {})));
 });
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
+
+self.addEventListener('activate', (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())
+  );
 });
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  if (e.request.method !== 'GET') return;
-  // API·외부 도메인은 서비스워커 개입 없이 통과
-  if (url.origin !== location.origin) return;
-  // 페이지 이동: network-first, 오프라인 시 캐시 폴백
-  if (e.request.mode === 'navigate') {
+
+self.addEventListener('fetch', (e) => {
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const url = new URL(req.url);
+  // Supabase/API/외부는 항상 네트워크 (캐시하지 않음)
+  if (url.origin !== self.location.origin) return;
+  // HTML 문서: 네트워크 우선, 실패 시 캐시 (오프라인 대비)
+  if (req.mode === 'navigate' || (req.headers.get('accept') || '').includes('text/html')) {
     e.respondWith(
-      fetch(e.request).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put('/', cp)); return r; })
-        .catch(() => caches.match('/'))
+      fetch(req).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(req, copy).catch(() => {}));
+        return res;
+      }).catch(() => caches.match(req).then((r) => r || caches.match('/index.html')))
     );
     return;
   }
-  // 정적 리소스: cache-first
-  if (STATIC.includes(url.pathname)) {
-    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-  }
+  // 그 외 동일 출처 정적 자원: 캐시 우선
+  e.respondWith(
+    caches.match(req).then((cached) => cached || fetch(req).then((res) => {
+      const copy = res.clone();
+      caches.open(CACHE).then((c) => c.put(req, copy).catch(() => {}));
+      return res;
+    }).catch(() => cached))
+  );
 });
