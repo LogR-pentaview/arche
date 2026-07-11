@@ -1298,11 +1298,11 @@ const ADMIN=(function(){
     } else if(t==='stats'){
       body.innerHTML=card('사용 통계',kv({학생:d.students,계정:d.accounts,분석건수:d.analyses}))+card('학년 분포',kv(d.by_grade));
     } else if(t==='account'){
-      body.innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div>';
+      body.innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div><div class="card" style="max-width:520px;margin-top:16px"><div class="sectionhead"><span class="idx">AI</span><h3>관리자 Gemini API 키 (플랫폼 공용)</h3></div><div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">이 키는 <b>관리자 API 사용</b>을 선택한 모든 학원의 AI 분석에 쓰이는 <b>플랫폼 공용 키</b>입니다. aistudio.google.com에서 발급한 키를 입력하세요. 서버(엣지함수)에서만 사용됩니다.</div><input id="adm-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><div id="adm-keymsg" style="min-height:14px;font-size:12px;margin:8px 0"></div><div style="display:flex;gap:8px"><button class="btn" onclick="ADMIN.saveKey()">저장</button><button class="btn ghost" onclick="ADMIN.testKey()">연결 테스트</button></div><div id="adm-keytest" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div></div>'; ADMIN.loadKey();
     }
   }
   function renderAccount(){
-    $('#adm-body').innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div>';
+    $('#adm-body').innerHTML='<div class="card" style="max-width:420px"><div class="sectionhead"><span class="idx">🔒</span><h3>비밀번호 변경</h3></div><input id="adm-newpw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px"><button class="btn" onclick="ADMIN.changePw()">변경</button><div id="adm-pwmsg" style="font-size:12px;margin-top:8px"></div></div><div class="card" style="max-width:520px;margin-top:16px"><div class="sectionhead"><span class="idx">AI</span><h3>관리자 Gemini API 키 (플랫폼 공용)</h3></div><div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">이 키는 <b>관리자 API 사용</b>을 선택한 모든 학원의 AI 분석에 쓰이는 <b>플랫폼 공용 키</b>입니다. aistudio.google.com에서 발급한 키를 입력하세요. 서버(엣지함수)에서만 사용됩니다.</div><input id="adm-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><div id="adm-keymsg" style="min-height:14px;font-size:12px;margin:8px 0"></div><div style="display:flex;gap:8px"><button class="btn" onclick="ADMIN.saveKey()">저장</button><button class="btn ghost" onclick="ADMIN.testKey()">연결 테스트</button></div><div id="adm-keytest" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div></div>'; ADMIN.loadKey();
   }
   async function changePw(){
     var np=($('#adm-newpw').value||'').trim(); var m=$('#adm-pwmsg');
@@ -1310,6 +1310,34 @@ const ADMIN=(function(){
     var {error}=await sb.auth.updateUser({password:np});
     if(error){m.style.color='var(--risk)';m.textContent=error.message;return;}
     m.style.color='var(--safe)';m.textContent='변경 완료.';
+  }
+  async function loadKey(){
+    if(!sb)return; var el=document.getElementById('adm-gemini'); if(!el)return;
+    var {data}=await sb.from('academies').select('gemini_api_key').eq('is_admin',true).limit(1);
+    if(data&&data[0]&&data[0].gemini_api_key) el.value=data[0].gemini_api_key;
+  }
+  async function saveKey(){
+    var m=document.getElementById('adm-keymsg'); if(!sb){m.textContent='DB 미로드';return;}
+    var {data:acs}=await sb.from('academies').select('id').eq('is_admin',true).limit(1);
+    var id=acs&&acs[0]&&acs[0].id;
+    if(!id){m.style.color='var(--risk)';m.textContent='관리자 학원을 찾을 수 없습니다.';return;}
+    var key=(document.getElementById('adm-gemini').value||'').trim();
+    if(!key){m.style.color='var(--risk)';m.textContent='키를 입력하세요.';return;}
+    m.style.color='var(--ink-mute)';m.textContent='저장 중…';
+    var {error}=await sb.from('academies').update({gemini_api_key:key}).eq('id',id);
+    if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
+    m.style.color='var(--safe)';m.textContent='관리자 키 저장 완료. 이제 관리자 API 사용 학원에서 AI가 작동합니다.';
+  }
+  async function testKey(){
+    var t=document.getElementById('adm-keytest'); t.style.color='var(--ink-dim)';t.textContent='테스트 중…';
+    try{
+      var {data:sess}=await sb.auth.getSession();
+      var tok=sess&&sess.session&&sess.session.access_token;
+      var r=await fetch(SB_URL+'/functions/v1/arche-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:'parse_record',payload:{text:'연결테스트'}})});
+      var d=await r.json();
+      if(d.error){t.style.color='var(--risk)';t.textContent='실패: '+d.error;}
+      else{t.style.color='var(--safe)';t.textContent='연결 정상 (모델: '+(d.model||'-')+')';}
+    }catch(e){t.style.color='var(--risk)';t.textContent='오류: '+e.message;}
   }
   function uploadBox(table,hint){
     return '<div class="card"><div class="sectionhead"><span class="idx">＋</span><h3>데이터 추가 · '+table+'</h3></div>'+
@@ -1467,7 +1495,7 @@ const ADMIN=(function(){
     m.innerHTML='✓ 정회원 전환 완료 — '+esc(d.name||'')+' · 로그인: <b>'+esc(d.auth_email||'')+'</b>'+note+(pw?' · 새 비밀번호 적용됨':'')+(d.kept_demo?'<br><span style="color:var(--reach)">⚠ 아직 demo.penta-view.com 도메인입니다. 실제 이메일로 바꾸려면 이메일을 입력해 다시 전환하세요.</span>':'');
     setTimeout(function(){ADMIN.tab('guests');},1800);
   }
-  return {tab,init,changePw,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest,setDemo};
+  return {tab,init,changePw,loadKey,saveKey,testKey,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest,setDemo};
   async function approve(id,ok){ var r=await callBody({action:'approve',academy_id:id,approved:ok}); if(r.error)return alert('실패: '+r.error); tab('academies'); }
   async function setDemo(id,toDemo,name){
     var msg=toDemo?((name||'이 학원')+'을 체험 상태로 되돌릴까요?\n· 7일 만료·크레딧 제한이 다시 적용됩니다\n· 데이터는 유지됩니다'):((name||'이 학원')+'을 정회원으로 전환할까요?\n· 만료·크레딧 제한 해제');
