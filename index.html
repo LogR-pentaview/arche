@@ -323,19 +323,17 @@
   <div style="width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 26px">
     <div style="font-family:'Bebas Neue';font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
     <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
-    <div class="roletoggle" id="login-role" style="margin-bottom:14px;width:100%">
-      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">컨설턴트</button>
+    <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
+      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
+      <button data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
+    <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
     <input id="au-sid" type="text" placeholder="학생 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <div id="au-acctype" class="roletoggle" style="display:none;margin-bottom:10px;width:100%">
-      <button class="on" data-at="b2b" onclick="setAcctType('b2b')" style="flex:1">학원</button>
-      <button data-at="b2c" onclick="setAcctType('b2c')" style="flex:1">학부모</button>
-    </div>
     <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
@@ -1847,23 +1845,36 @@ async function ensureAcademy(user){
 }
 window._acctType='b2b';
 window._signupMode=false;
-function setAcctType(t){
-  window._acctType=t;
-  document.querySelectorAll('#au-acctype button').forEach(b=>b.classList.toggle('on',b.dataset.at===t));
-  var nm=document.getElementById('au-name');
-  if(nm)nm.placeholder=(t==='b2c')?'보호자 성함 또는 학생 이름 (필수)':'학원명 (회원가입 시 필수)';
-}
+function setAcctType(t){ window._acctType=t; }
 window._loginRole='con';
 function setLoginRole(r){
   window._loginRole=r;
+  // 학원=b2b, 학부모=b2c 로 account_type 자동 결정
+  window._acctType=(r==='parent')?'b2c':'b2b';
   document.querySelectorAll('#login-role button').forEach(b=>b.classList.toggle('on',b.dataset.lr===r));
-  var stu=r==='stu', adm=r==='adm';
+  var stu=r==='stu', adm=r==='adm', parent=r==='parent', con=r==='con';
+  var emailLogin=(con||parent);
   document.getElementById('au-sid').style.display=stu?'block':'none';
   document.getElementById('au-adm').style.display=adm?'block':'none';
-  document.getElementById('au-email').style.display=(stu||adm)?'none':'block';
-  document.getElementById('au-name').style.display=(stu||adm)?'none':'block';
-  document.getElementById('au-signup').style.display=(stu||adm)?'none':'block';
+  document.getElementById('au-email').style.display=emailLogin?'block':'none';
+  document.getElementById('au-pw').style.display=stu?'block':'block';
+  document.getElementById('au-name').style.display=emailLogin?'block':'none';
+  document.getElementById('au-signup').style.display=emailLogin?'block':'none';
+  // 이름 입력란 라벨
+  var nm=document.getElementById('au-name');
+  if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명 (가입 시 필수)';
+  // 역할별 안내문
+  var desc=document.getElementById('login-role-desc');
+  if(desc){
+    desc.textContent = con?'학원·교습소 · 팀 운영 가능':
+      parent?'개인 학부모 · 자녀 직접 관리 (월 15만~)':
+      stu?'학원/학부모가 발급한 학생 계정':
+      '플랫폼 관리자 전용';
+  }
+  var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
 }
+// 초기 진입 시 기본(학원) 안내 표시
+try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(e){}
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 async function enterApp(session){
@@ -2038,17 +2049,11 @@ document.getElementById('au-login').onclick=async()=>{
 };
 document.getElementById('au-signup').onclick=async()=>{
   if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
-  // 컨설턴트 로그인 화면에서만: 첫 클릭 시 계정유형 토글을 펼쳐 선택 유도
-  var atBox=document.getElementById('au-acctype');
-  if(window._loginRole==='con' && atBox && atBox.style.display==='none'){
-    atBox.style.display='flex'; window._signupMode=true;
-    setAcctType(window._acctType||'b2b');
-    return msg('가입 유형(학원/학부모)을 선택하고 정보를 입력한 뒤 다시 [회원가입]을 눌러주세요.',true);
-  }
+  var isParent=(window._loginRole==='parent');
   var nmv=document.getElementById('au-name').value.trim();
-  if(!nmv)return msg(window._acctType==='b2c'?'성함(또는 학생 이름)을 입력하세요.':'학원명을 입력하세요.');
+  if(!nmv)return msg(isParent?'성함(또는 학생 이름)을 입력하세요.':'학원명을 입력하세요.');
   msg('가입 중…',true);
-  const {data,error}=await sb.auth.signUp({email:auE(),password:auP(),options:{data:{academy_name:nmv,account_type:(window._acctType||'b2b')}}});
+  const {data,error}=await sb.auth.signUp({email:auE(),password:auP(),options:{data:{academy_name:nmv,account_type:(isParent?'b2c':'b2b')}}});
   if(error)return msg(error.message);
   if(data.session) enterApp(data.session);
   else msg('확인 메일을 보냈습니다. 인증 후 로그인하세요.',true);
