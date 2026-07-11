@@ -3660,12 +3660,25 @@ async function goipShortlist(){
   if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
   m.style.color='var(--safe)';m.textContent=data.count+'개교 조회 · 밴드는 근사 추정';
   var bc={'안정':'var(--safe)','적정':'var(--lime)','도전':'var(--reach)','위험':'var(--risk)'};
-  box.innerHTML=(data.results||[]).map(function(x){
+  var bandOrder=['안정','적정','도전','위험','환산불가'];
+  var results=(data.results||[]);
+  // 밴드별 개수 요약 바
+  var counts={}; results.forEach(function(x){var cv=x.conversion||{};var b=cv.ok?(cv.band||'환산불가'):'환산불가';counts[b]=(counts[b]||0)+1;});
+  var total=results.length;
+  var summaryBar='';
+  if(total){
+    summaryBar='<div style="display:flex;height:10px;border-radius:6px;overflow:hidden;margin-bottom:6px">'
+      +bandOrder.filter(function(b){return counts[b];}).map(function(b){var w=counts[b]/total*100;return '<div style="width:'+w+'%;background:'+(bc[b]||'var(--ink-mute)')+'" title="'+b+' '+counts[b]+'교"></div>';}).join('')+'</div>'
+      +'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">'+bandOrder.filter(function(b){return counts[b];}).map(function(b){return '<span style="font-size:11px;color:var(--ink-dim)"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+(bc[b]||'var(--ink-mute)')+';margin-right:4px"></span>'+esc(b)+' <b>'+counts[b]+'</b></span>';}).join('')+'</div>';
+  }
+  // 밴드순 정렬
+  var sorted=results.slice().sort(function(a,b){var ba=(a.conversion&&a.conversion.band)||'환산불가',bb=(b.conversion&&b.conversion.band)||'환산불가';return bandOrder.indexOf(ba)-bandOrder.indexOf(bb);});
+  box.innerHTML=summaryBar+sorted.map(function(x){
     var cv=x.conversion||{};var band=cv.ok?(cv.band||''):'환산불가';var col=bc[band]||'var(--ink-mute)';
     var score=cv.ok?(cv.score!=null?cv.score+(cv.total?' / '+cv.total:''):''):(cv.reason||'');
-    return '<div style="border:1px solid var(--line-soft);border-radius:10px;padding:10px 12px;margin-bottom:8px">'
+    return '<div style="border:1px solid var(--line-soft);border-left:4px solid '+col+';border-radius:10px;padding:10px 12px;margin-bottom:8px">'
       +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+esc(x.name)+'</b>'
-      +'<span style="font-size:11px;font-weight:700;color:'+col+'">'+esc(band)+'</span></div>'
+      +'<span style="font-size:11px;font-weight:700;color:#fff;background:'+col+';border-radius:20px;padding:2px 10px">'+esc(band)+'</span></div>'
       +'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">'+esc(x.school_type)+' · '+esc(x.region)+' · '+esc(x.scope)+' 모집'+(score?' · 환산 '+esc(String(score)):'')+'</div>'
       +'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">1단계 '+esc(x.stage1||'-')+' → 2단계 '+esc(x.stage2||'-')+'</div>'
       +(x.key_programs&&x.key_programs.length?'<div style="font-size:11px;color:var(--gold);margin-top:3px">'+x.key_programs.map(esc).join(' · ')+'</div>':'')
@@ -3700,14 +3713,16 @@ function gMatchHtml(res,noProfile){
       +'<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">'+esc(res.student_style.summary||'')+'</div>'
       +((res.student_style.traits||[]).length?'<div style="margin-top:7px">'+res.student_style.traits.map(function(t){return '<span style="display:inline-block;font-size:10.5px;background:var(--panel-3);border-radius:20px;padding:2px 9px;margin:0 4px 4px 0;color:var(--ink-dim)">'+esc(t)+'</span>';}).join('')+'</div>':'')+'</div>';
   }
-  html+=(res.matches||[]).map(function(x){
+  var sorted=(res.matches||[]).slice().sort(function(a,b){return (Number(b.fit)||0)-(Number(a.fit)||0);});
+  html+=sorted.map(function(x){
     var col=gc[x.grade]||'var(--lime)';
-    return '<div style="border:1px solid var(--line-soft);border-radius:10px;padding:11px 13px;margin-bottom:9px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><b style="font-size:13px">'+esc(x.name)+'</b><span style="font-size:11px;font-weight:700;color:'+col+'">'+esc(x.grade||'')+' · '+(x.fit!=null?esc(String(x.fit)):'-')+'</span></div>'
-      +'<div style="height:5px;background:var(--panel-3);border-radius:4px;margin-bottom:9px"><div style="height:5px;border-radius:4px;width:'+Math.max(0,Math.min(100,Number(x.fit)||0))+'%;background:'+col+'"></div></div>'
-      +(x.reasons||[]).map(function(rs){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:6px;line-height:1.5">• <b style="color:var(--ink)">'+esc(rs.school_program||'')+'</b> ↔ '+esc(rs.student_evidence||'')+'<div style="color:var(--ink-mute);margin-left:11px">'+esc(rs.connect||'')+'</div></div>';}).join('')
-      +(x.caution?'<div style="font-size:11px;color:var(--reach);margin-top:5px">보완 포인트 — '+esc(x.caution)+'</div>':'')
-      +'</div>';
+    var fit=Math.max(0,Math.min(100,Number(x.fit)||0));
+    return '<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;gap:14px;align-items:flex-start">'
+      +'<div style="flex:0 0 auto;text-align:center">'+gGauge(fit,100,'적합도',col)+'<div style="font-size:10.5px;font-weight:700;color:'+col+';margin-top:2px">'+esc(x.grade||'')+'</div></div>'
+      +'<div style="flex:1;min-width:0"><b style="font-size:13.5px">'+esc(x.name)+'</b>'
+      +'<div style="margin-top:6px">'+(x.reasons||[]).map(function(rs){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:6px;line-height:1.5">• <b style="color:var(--ink)">'+esc(rs.school_program||'')+'</b> ↔ '+esc(rs.student_evidence||'')+'<div style="color:var(--ink-mute);margin-left:11px">'+esc(rs.connect||'')+'</div></div>';}).join('')+'</div>'
+      +(x.caution?'<div style="font-size:11px;color:var(--reach);margin-top:3px;background:var(--panel-2);border-radius:7px;padding:6px 9px">보완 — '+esc(x.caution)+'</div>':'')
+      +'</div></div>';
   }).join('');
   if(res.summary_note)html+='<div class="note" style="margin-top:4px">'+esc(res.summary_note)+'</div>';
   if(noProfile&&noProfile.length)html+='<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">특색 데이터 수집 중(이번 매칭 제외): '+noProfile.map(esc).join(', ')+'</div>';
@@ -4073,6 +4088,51 @@ async function gLoadSchoolsOnce(){
   try{var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_schools',payload:{}}});
     if(r.data&&r.data.schools)window._gesSchools=r.data.schools;}catch(e){}
 }
+/* ===== 고입 시각화 헬퍼 (SVG 레이더·게이지·바) ===== */
+function gRadar(axes,size){
+  // axes: [{label, score(0~10)}]
+  size=size||220; var cx=size/2, cy=size/2, R=size*0.36, n=axes.length;
+  if(n<3)return '';
+  function pt(i,r){var ang=-Math.PI/2+i*2*Math.PI/n;return [cx+r*Math.cos(ang),cy+r*Math.sin(ang)];}
+  var grid='';
+  [0.25,0.5,0.75,1].forEach(function(f){
+    var pts=axes.map(function(_,i){var p=pt(i,R*f);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+    grid+='<polygon points="'+pts+'" fill="none" stroke="var(--line)" stroke-width="1" opacity="0.6"/>';
+  });
+  var spokes='',labels='';
+  axes.forEach(function(a,i){
+    var pe=pt(i,R); spokes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+pe[0].toFixed(1)+'" y2="'+pe[1].toFixed(1)+'" stroke="var(--line)" stroke-width="1" opacity="0.6"/>';
+    var pl=pt(i,R+16); var anch=(Math.abs(pl[0]-cx)<8)?'middle':(pl[0]>cx?'start':'end');
+    labels+='<text x="'+pl[0].toFixed(1)+'" y="'+(pl[1]+4).toFixed(1)+'" font-size="11" fill="var(--ink-dim)" text-anchor="'+anch+'">'+esc(a.label)+'</text>';
+    labels+='<text x="'+pl[0].toFixed(1)+'" y="'+(pl[1]+17).toFixed(1)+'" font-size="10" fill="var(--gold)" font-weight="700" text-anchor="'+anch+'">'+(Math.round((a.score||0)*10)/10)+'</text>';
+  });
+  var dataPts=axes.map(function(a,i){var p=pt(i,R*Math.max(0,Math.min(10,a.score||0))/10);return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ');
+  return '<svg viewBox="0 0 '+size+' '+size+'" style="width:100%;max-width:'+size+'px;display:block;margin:0 auto">'
+    +grid+spokes
+    +'<polygon points="'+dataPts+'" fill="var(--gold)" fill-opacity="0.22" stroke="var(--gold)" stroke-width="2"/>'
+    +axes.map(function(a,i){var p=pt(i,R*Math.max(0,Math.min(10,a.score||0))/10);return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3" fill="var(--gold)"/>';}).join('')
+    +labels+'</svg>';
+}
+function gGauge(val,max,label,col){
+  // 반원형 게이지 0~max
+  max=max||100; col=col||'var(--lime)'; var pct=Math.max(0,Math.min(1,(Number(val)||0)/max));
+  var w=120,h=68,cx=w/2,cy=60,r=48;
+  var a0=Math.PI, a1=Math.PI*(1-pct);
+  var x0=cx+r*Math.cos(a0),y0=cy+r*Math.sin(a0)*-1;
+  var x1=cx+r*Math.cos(a1),y1=cy+r*Math.sin(a1)*-1;
+  var bg='M '+(cx-r)+' '+cy+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+cy;
+  var fg='M '+x0.toFixed(1)+' '+y0.toFixed(1)+' A '+r+' '+r+' 0 0 1 '+x1.toFixed(1)+' '+y1.toFixed(1);
+  return '<svg viewBox="0 0 '+w+' '+h+'" style="width:120px;height:68px">'
+    +'<path d="'+bg+'" fill="none" stroke="var(--panel-3)" stroke-width="9" stroke-linecap="round"/>'
+    +'<path d="'+fg+'" fill="none" stroke="'+col+'" stroke-width="9" stroke-linecap="round"/>'
+    +'<text x="'+cx+'" y="52" font-size="19" font-weight="800" fill="var(--ink)" text-anchor="middle">'+(Math.round(Number(val)||0))+'</text>'
+    +'<text x="'+cx+'" y="65" font-size="9" fill="var(--ink-mute)" text-anchor="middle">'+esc(label||'')+'</text></svg>';
+}
+function gBar(label,score,max,col){
+  max=max||10; col=col||'var(--gold)'; var pct=Math.max(0,Math.min(100,(Number(score)||0)/max*100));
+  return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><b>'+esc(label)+'</b><span style="color:'+col+';font-weight:700">'+(Math.round((Number(score)||0)*10)/10)+'/'+max+'</span></div>'
+    +'<div style="height:7px;background:var(--panel-3);border-radius:4px"><div style="height:7px;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width .4s"></div></div></div>';
+}
 function gCard(title,inner,accent){
   return '<div class="card" style="margin-bottom:14px'+(accent?';border-left:3px solid '+accent:'')+'"><div style="font-weight:700;font-size:13px;margin-bottom:8px">'+title+'</div>'+inner+'</div>';
 }
@@ -4107,15 +4167,23 @@ function gActionBar(has,runFn,extraSelId,dt){
 function gDiagHtml(o){
   var h='';
   if(o.academic){var a=o.academic;
-    h+=gCard('교과 진단','<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">'+esc(a.summary||'')+'</div>'
-      +((a.strengths||[]).length?'<div style="font-size:11px;color:var(--safe);font-weight:700;margin-bottom:3px">강점</div>'+gLines(a.strengths):'')
-      +((a.risks||[]).length?'<div style="font-size:11px;color:var(--risk);font-weight:700;margin:8px 0 3px">관리 필요</div>'+gLines(a.risks):''));}
+    var swBox='';
+    if((a.strengths||[]).length||(a.risks||[]).length){
+      swBox='<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px">';
+      if((a.strengths||[]).length)swBox+='<div style="flex:1;min-width:140px;background:rgba(46,160,110,.08);border:1px solid var(--safe);border-radius:9px;padding:9px 11px"><div style="font-size:11px;color:var(--safe);font-weight:700;margin-bottom:4px">✓ 강점</div>'+(a.strengths||[]).map(function(x){return '<div style="font-size:11.5px;color:var(--ink-dim);line-height:1.5;margin-bottom:3px">'+esc(x)+'</div>';}).join('')+'</div>';
+      if((a.risks||[]).length)swBox+='<div style="flex:1;min-width:140px;background:rgba(217,84,79,.07);border:1px solid var(--risk);border-radius:9px;padding:9px 11px"><div style="font-size:11px;color:var(--risk);font-weight:700;margin-bottom:4px">△ 관리 필요</div>'+(a.risks||[]).map(function(x){return '<div style="font-size:11.5px;color:var(--ink-dim);line-height:1.5;margin-bottom:3px">'+esc(x)+'</div>';}).join('')+'</div>';
+      swBox+='</div>';
+    }
+    h+=gCard('교과 진단','<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6">'+esc(a.summary||'')+'</div>'+swBox);}
   if(o.axes){var axN={activity:'활동',thinking:'사고',values:'가치',vision:'비전'};
-    var rows=Object.keys(axN).map(function(k){var v=o.axes[k]||{};var sc=Number(v.score)||0;
-      return '<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px"><b>'+axN[k]+'</b><span style="color:var(--gold);font-weight:700">'+sc+'/10</span></div>'
-        +'<div style="height:6px;background:var(--panel-3);border-radius:3px;margin:4px 0"><div style="height:6px;width:'+(sc*10)+'%;background:var(--gold);border-radius:3px"></div></div>'
-        +'<div style="font-size:11.5px;color:var(--ink-mute)">'+esc(v.note||'')+'</div></div>';}).join('');
-    h+=gCard('활동 4축 진단',rows);}
+    var axArr=Object.keys(axN).map(function(k){return {label:axN[k],score:Number((o.axes[k]||{}).score)||0};});
+    var avg=axArr.reduce(function(a,b){return a+b.score;},0)/(axArr.length||1);
+    var notes=Object.keys(axN).map(function(k){var v=o.axes[k]||{};return v.note?'<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:5px;line-height:1.5"><b style="color:var(--gold)">'+axN[k]+'</b> '+esc(v.note)+'</div>':'';}).join('');
+    var inner='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center">'
+      +'<div style="flex:0 0 auto">'+gRadar(axArr,210)+'</div>'
+      +'<div style="flex:1;min-width:180px"><div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">4축 평균 <b style="color:var(--gold);font-size:16px">'+(Math.round(avg*10)/10)+'</b>/10</div>'+notes+'</div>'
+      +'</div>';
+    h+=gCard('활동 4축 진단',inner);}
   if(o.fit)h+=gCard('목표 적합성','<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6;margin-bottom:6px">'+esc(o.fit.target_type_fit||'')+'</div>'+gLines(o.fit.evidence));
   if((o.priorities||[]).length)h+=gCard('보완 우선순위',(o.priorities||[]).map(function(pr,i){
     return '<div style="border:1px solid var(--line-soft);border-radius:9px;padding:9px 11px;margin-bottom:8px"><b style="font-size:12.5px;color:var(--gold)">'+(i+1)+'. '+esc(pr.title||'')+'</b>'
@@ -4155,12 +4223,18 @@ async function runGDiag(){
 function gRoadmapHtml(o){
   var h='';
   if(o.summary)h+=gCard('로드맵 개요','<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6">'+esc(o.summary)+'</div>','var(--gold)');
-  h+=(o.phases||[]).map(function(ph,i){var t=ph.tasks||{};
-    function sec(name,arr,col){return (arr&&arr.length)?'<div style="margin-top:7px"><span style="font-size:10.5px;font-weight:700;color:'+col+'">'+name+'</span>'+gLines(arr,'— ')+'</div>':'';}
-    return '<div class="card" style="margin-bottom:12px;border-left:3px solid var(--lime)">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13.5px">'+(i+1)+'. '+esc(ph.period||'')+'</b><span style="font-size:11px;color:var(--ink-mute)">'+esc(ph.focus||'')+'</span></div>'
-      +sec('교과',t['교과'],'var(--lime)')+sec('탐구활동',t['탐구활동'],'var(--gold)')+sec('독서',t['독서'],'var(--blue)')+sec('기타',t['기타'],'var(--violet)')
-      +(ph.milestone?'<div style="font-size:11.5px;color:var(--safe);margin-top:8px">◎ 마일스톤: '+esc(ph.milestone)+'</div>':'')+'</div>';}).join('');
+  var phN=(o.phases||[]).length;
+  h+='<div style="position:relative;padding-left:22px">'+(o.phases||[]).map(function(ph,i){var t=ph.tasks||{};
+    function sec(name,arr,col){return (arr&&arr.length)?'<div style="margin-top:6px"><span style="display:inline-block;font-size:10px;font-weight:700;color:#fff;background:'+col+';border-radius:5px;padding:1px 7px;margin-bottom:2px">'+name+'</span>'+arr.map(function(x){return '<div style="font-size:11.5px;color:var(--ink-dim);line-height:1.5;margin-left:2px">— '+esc(typeof x==='string'?x:JSON.stringify(x))+'</div>';}).join('')+'</div>':'';}
+    var isLast=(i===phN-1);
+    return '<div style="position:relative;margin-bottom:14px">'
+      +'<div style="position:absolute;left:-22px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--lime);border:2px solid var(--panel);z-index:1"></div>'
+      +(isLast?'':'<div style="position:absolute;left:-16px;top:14px;bottom:-14px;width:2px;background:var(--line)"></div>')
+      +'<div class="card" style="margin:0">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px"><b style="font-size:13.5px;color:var(--lime)">'+esc(ph.period||('단계 '+(i+1)))+'</b><span style="font-size:11px;color:var(--ink-mute)">'+esc(ph.focus||'')+'</span></div>'
+      +sec('교과',t['교과'],'var(--lime)')+sec('탐구활동',t['탐구활동'],'var(--gold,#c8a24a)')+sec('독서',t['독서'],'var(--blue)')+sec('기타',t['기타'],'var(--violet)')
+      +(ph.milestone?'<div style="font-size:11.5px;color:var(--safe);margin-top:8px;background:rgba(46,160,110,.08);border-radius:7px;padding:6px 9px">◎ 마일스톤: '+esc(ph.milestone)+'</div>':'')
+      +'</div></div>';}).join('')+'</div>';
   if((o.key_risks||[]).length)h+=gCard('주의사항',gLines(o.key_risks),'var(--risk)');
   return h;
 }
