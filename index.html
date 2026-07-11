@@ -332,6 +332,10 @@
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <div id="au-acctype" class="roletoggle" style="display:none;margin-bottom:10px;width:100%">
+      <button class="on" data-at="b2b" onclick="setAcctType('b2b')" style="flex:1">학원</button>
+      <button data-at="b2c" onclick="setAcctType('b2c')" style="flex:1">학부모</button>
+    </div>
     <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
@@ -1314,6 +1318,8 @@ const ADMIN=(function(){
         var apBadge=(a.is_admin||a.is_demo)?'':(ap?'':'<span style="font-size:10px;color:var(--risk);margin-left:4px">승인대기</span>');
         var expTxt=a.is_demo&&a.demo_expires_at?' · 만료 '+a.demo_expires_at.slice(0,10):'';
         var apiBadge=a.is_admin?'':(a.key_mode==='own'?'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border:1px solid #4a90d9;border-radius:10px;padding:1px 8px;margin-left:4px">자체 API</span>':'<span style="font-size:10px;color:#7a5c00;background:#fdf6e3;border:1px solid #c8a24a;border-radius:10px;padding:1px 8px;margin-left:4px">관리자 API</span>');
+        var typeBadge=(a.account_type==='b2c')?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border:1px solid #a05bc8;border-radius:10px;padding:1px 8px;margin-left:4px">학부모</span>':'';
+        apiBadge=typeBadge+apiBadge;
         var btns='';
         if(!a.is_admin){
           if(!ap&&!a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>';
@@ -1627,7 +1633,7 @@ window.ADMIN=ADMIN;
         <div class="eyebrow">Settings</div>
         <div class="h1">설정</div>
         <div class="sub">AI 분석에 사용할 Gemini API 키 방식을 선택하세요</div>
-        <div style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
+        <div id="apikey-card" style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
           <div class="sectionhead"><span class="idx">AI</span><h3>AI 엔진 · API 키 설정</h3></div>
           <div style="font-size:12px;color:var(--ink-mute);margin-bottom:14px">AI 분석(생기부 파싱·진단·탐구주제·리포트 등)에 사용할 Gemini 키 방식입니다.</div>
           <div id="km-toggle" style="display:flex;gap:10px;margin-bottom:14px">
@@ -1832,11 +1838,20 @@ async function ensureAcademy(user){
   const nm=(document.getElementById('au-name')&&document.getElementById('au-name').value.trim())
     || (user.user_metadata&&user.user_metadata.academy_name)
     || (user.email.split('@')[0]+' 학원');
-  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id}).select('id,name').single();
+  var acctype=(user.user_metadata&&user.user_metadata.account_type)||'b2b';
+  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id,account_type:acctype}).select('id,name,account_type').single();
   if(error){console.error('[academy]',error);return null;}
   window._isOwner=true; window._myRole='owner';
   try{ await sb.from('academy_users').insert({academy_id:ins.id,uid:user.id,email:user.email,role:'owner'}); }catch(e){}
   return ins;
+}
+window._acctType='b2b';
+window._signupMode=false;
+function setAcctType(t){
+  window._acctType=t;
+  document.querySelectorAll('#au-acctype button').forEach(b=>b.classList.toggle('on',b.dataset.at===t));
+  var nm=document.getElementById('au-name');
+  if(nm)nm.placeholder=(t==='b2c')?'보호자 성함 또는 학생 이름 (필수)':'학원명 (회원가입 시 필수)';
 }
 window._loginRole='con';
 function setLoginRole(r){
@@ -1861,7 +1876,8 @@ async function enterApp(session){
   const ac=await ensureAcademy(u);
   window._academy=ac;
   var isAdmin=false, approved=true;
-  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null;} }
+  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits,account_type').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._acctTypeCur=ar[0].account_type||'b2b'; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null;} }
+  window._isB2C=(window._acctTypeCur==='b2c');
   if(window._demo && window._demo.expires && new Date(window._demo.expires)<new Date()){
     await sb.auth.signOut();
     gate.style.display='flex';
@@ -2022,9 +2038,17 @@ document.getElementById('au-login').onclick=async()=>{
 };
 document.getElementById('au-signup').onclick=async()=>{
   if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
-  if(!document.getElementById('au-name').value.trim())return msg('학원명을 입력하세요.');
+  // 컨설턴트 로그인 화면에서만: 첫 클릭 시 계정유형 토글을 펼쳐 선택 유도
+  var atBox=document.getElementById('au-acctype');
+  if(window._loginRole==='con' && atBox && atBox.style.display==='none'){
+    atBox.style.display='flex'; window._signupMode=true;
+    setAcctType(window._acctType||'b2b');
+    return msg('가입 유형(학원/학부모)을 선택하고 정보를 입력한 뒤 다시 [회원가입]을 눌러주세요.',true);
+  }
+  var nmv=document.getElementById('au-name').value.trim();
+  if(!nmv)return msg(window._acctType==='b2c'?'성함(또는 학생 이름)을 입력하세요.':'학원명을 입력하세요.');
   msg('가입 중…',true);
-  const {data,error}=await sb.auth.signUp({email:auE(),password:auP(),options:{data:{academy_name:document.getElementById('au-name').value.trim()}}});
+  const {data,error}=await sb.auth.signUp({email:auE(),password:auP(),options:{data:{academy_name:nmv,account_type:(window._acctType||'b2b')}}});
   if(error)return msg(error.message);
   if(data.session) enterApp(data.session);
   else msg('확인 메일을 보냈습니다. 인증 후 로그인하세요.',true);
@@ -3344,6 +3368,16 @@ function onKeyMode(mode){
 }
 async function loadApiKey(){
   if(!sb)return;
+  var sub=document.querySelector('#v-settings .sub');
+  var apiCard=document.getElementById('apikey-card');
+  // B2C(학부모): API 키 선택 불가 — 관리자 키 고정. 카드 숨김 + 안내.
+  if(window._isB2C){
+    if(apiCard)apiCard.style.display='none';
+    var tc=document.getElementById('team-card'); if(tc)tc.style.display='none';
+    if(sub)sub.textContent='구독 및 결제를 관리하세요';
+    return;
+  }
+  if(apiCard)apiCard.style.display='';
   var {data}=await sb.from('academies').select('key_mode,gemini_api_key').limit(1);
   var row=data&&data[0]||{};
   var mode=row.key_mode||'platform';
@@ -3396,8 +3430,8 @@ async function teamCall(action,extra){
 }
 async function loadTeam(){
   var card=document.getElementById('team-card'); if(!card)return;
-  // 원장(소유자)만 노출
-  if(window._isOwner!==true || window._role==='stu'){ card.style.display='none'; return; }
+  // 원장(소유자)만 노출 · B2C(학부모)는 팀 기능 없음
+  if(window._isOwner!==true || window._role==='stu' || window._isB2C){ card.style.display='none'; return; }
   card.style.display='';
   var list=document.getElementById('tm-list'); if(list)list.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
   try{
