@@ -860,8 +860,9 @@
         <div id="gds-result" style="margin-top:14px"></div>
         <div id="gdesign-body" style="margin-top:16px"></div>
 
-        <div class="card goip-con-only" style="margin-top:20px">
+        <div class="card" style="margin-top:20px">
           <div style="font-weight:700;margin-bottom:6px">학생 작성 자료 · 성취도 평가 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 생기부에 없는 탐구·실험 보고서를 업로드하면 워크북 방식으로 성취도를 평가합니다</span></div>
+          <div class="goip-con-only">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
             <select id="gwb-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험보고서</option><option>수행평가</option><option>소논문</option><option>기타</option></select>
             <input id="gwb-subject" placeholder="과목/영역" style="width:140px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -875,6 +876,7 @@
           <textarea id="gwb-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
           <div id="gwb-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
           <button onclick="wbSave('goip')" style="padding:10px 18px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">자료 저장</button>
+          </div>
           <div id="gwb-list" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div></div>
         </div>
       </section>
@@ -991,8 +993,9 @@
         <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[① 주요과목 탐구]</b>부터 생성하세요. 과목당 학기 1개(연 2개)로, 진로·학과로 이어지는 연계 서사로 설계됩니다. 이후 <b>[② 창체활동]</b>을 추가 생성합니다.</div></div>
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
 
-        <div class="card goip-con-only" style="margin-top:20px">
+        <div class="card" style="margin-top:20px">
           <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">평가</span><h3>학생 작성 자료 · 성취도 평가 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 학생부에 없는 탐구·실험 보고서를 업로드하면 워크북 방식으로 성취도를 평가합니다</span></h3></div>
+          <div class="goip-con-only">
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
             <select id="wb-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험보고서</option><option>수행평가</option><option>소논문</option><option>기타</option></select>
             <input id="wb-subject" placeholder="과목/영역 (예: 생명과학)" style="width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -1006,6 +1009,7 @@
           <textarea id="wb-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
           <div id="wb-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
           <button onclick="wbSave('dae')" style="padding:10px 18px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">자료 저장</button>
+          </div>
           <div id="wb-list" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div></div>
         </div>
       </section>
@@ -2485,7 +2489,7 @@ async function extraCtx(studentId){
 window.extraCtx=extraCtx;
 
 /* ===== 학생 작성 자료 성취도 평가 (워크북 방식) — 대입/고입 공통 ===== */
-function wbActive(track){ return track==='goip'?window._gactive:window._activeStudent; }
+function wbActive(track){ return track==='goip'?(window._gactive||(window._role==='stu'?window._activeStudent:null)):window._activeStudent; }
 async function wbPick(track){
   var pfx=track==='goip'?'gwb':'wb'; var f=document.getElementById(pfx+'-file').files[0]; var m=document.getElementById(pfx+'-msg');
   if(!f)return;
@@ -2518,32 +2522,37 @@ async function wbSave(track){
 }
 async function wbLoad(track){
   var pfx=track==='goip'?'gwb':'wb'; var box=document.getElementById(pfx+'-list'); if(!box)return; var s=wbActive(track);
-  if(!s||!sb){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div>'; return; }
+  var isStu=window._role==='stu';
+  if(!s||!sb){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">'+(isStu?'':'학생을 선택하면 업로드한 자료·평가가 표시됩니다.')+'</div>'; return; }
   box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">불러오는 중…</div>';
   var q=await sb.from('student_extra_materials').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
   if(q.error){ box.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(q.error.message)+'</div>'; return; }
   window._wbRows=q.data||[];
-  if(!window._wbRows.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">아직 업로드한 자료가 없습니다. 학생이 작성한 탐구·실험 보고서를 올리고 [성취도 평가]를 실행하세요.</div>'; return; }
-  var isStu=window._role==='stu';
-  box.innerHTML=window._wbRows.map(function(r){
+  var rows=isStu?window._wbRows.filter(function(r){return !!r.evaluation;}):window._wbRows;
+  if(!rows.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">'+(isStu?'아직 선생님이 평가한 자료가 없습니다.':'아직 업로드한 자료가 없습니다. 학생이 작성한 탐구·실험 보고서를 올리고 [성취도 평가]를 실행하세요.')+'</div>'; return; }
+  var LC={A:'#2b9457',B:'#4a9a3a',C:'#b3801f',D:'#d0902a',E:'#cf5a4a'};
+  box.innerHTML=rows.map(function(r){
+    var ev=r.evaluation?((typeof r.evaluation==='string')?JSON.parse(r.evaluation):r.evaluation):null;
+    var lvl=ev&&ev.achievement?ev.achievement.level:null;
     var badge='<span style="font-size:10px;font-weight:700;color:var(--gold,#c8a24a);background:rgba(200,162,74,.14);border-radius:5px;padding:1px 7px">'+esc(r.category||'자료')+'</span>';
-    var head='<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+badge+
+    var lvlBadge=lvl?'<span style="font-size:11px;font-weight:800;color:#fff;background:'+(LC[lvl]||'#b3801f')+';border-radius:6px;padding:1px 8px">'+esc(lvl)+'</span>':(isStu?'':'<span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line);border-radius:5px;padding:1px 7px">평가 전</span>');
+    var head='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'+badge+
       '<b style="font-size:13px">'+esc(r.title||'(제목 없음)')+'</b>'+
       (r.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(r.subject)+'</span>':'')+
-      '<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">'+(r.created_at||'').slice(0,10)+'</span>'+
+      lvlBadge+
+      '<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">'+(r.evaluated_at||r.created_at||'').slice(0,10)+'</span>'+
       (isStu?'':'<button onclick="wbDel(\''+r.id+'\',\''+track+'\')" style="border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:15px;line-height:1">×</button>')+
       '</div>';
-    var actions='', sheet='';
-    if(r.evaluation){
-      var ev=(typeof r.evaluation==='string')?JSON.parse(r.evaluation):r.evaluation;
-      sheet=wbSheetHtml(r,ev,false);
-      actions='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">'+
-        (isStu?'':'<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">재평가</button>')+
-        '<button onclick="wbPdf(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:7px;cursor:pointer;font-weight:700">평가지 PDF 다운로드</button></div>';
-    } else {
-      actions=isStu?'<div style="font-size:11.5px;color:var(--ink-mute)">아직 평가 전입니다.</div>'
-        :'<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:12px;padding:8px 14px;background:var(--lime,#2b9457);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">성취도 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">워크북 방식 · API 사용</span>';
+    var actions='<div style="display:flex;gap:8px;flex-wrap:wrap">';
+    if(ev){
+      actions+='<button id="wb-btn-'+r.id+'" onclick="wbToggleSheet(\''+r.id+'\')" style="font-size:11.5px;padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">평가지 보기</button>'+
+        '<button onclick="wbPdf(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:7px;cursor:pointer;font-weight:700">평가지 PDF 다운로드</button>'+
+        (isStu?'':'<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">재평가</button>');
+    } else if(!isStu){
+      actions+='<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:12px;padding:8px 14px;background:var(--lime,#2b9457);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">성취도 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">워크북 방식 · API 사용</span>';
     }
+    actions+='</div>';
+    var sheet=ev?'<div id="wb-sheet-'+r.id+'" style="display:none">'+wbSheetHtml(r,ev,false)+'</div>':'';
     return '<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px" id="wb-item-'+r.id+'">'+head+actions+sheet+'</div>';
   }).join('');
 }
@@ -2636,6 +2645,7 @@ function wbPdf(id,track){
   win.document.open(); win.document.write(doc); win.document.close();
 }
 window.wbPick=wbPick;window.wbSave=wbSave;window.wbLoad=wbLoad;window.wbEval=wbEval;window.wbDel=wbDel;window.wbPdf=wbPdf;
+window.wbToggleSheet=function(id){var e=document.getElementById('wb-sheet-'+id);var b=document.getElementById('wb-btn-'+id);if(!e)return;var open=e.style.display!=='none';e.style.display=open?'none':'block';if(b)b.textContent=open?'평가지 보기':'평가지 닫기';};
 function populateIntakePicker(){
   var sel=document.getElementById('intake-student'); if(!sel)return;
   var cur=window._activeStudent?window._activeStudent.id:'';
