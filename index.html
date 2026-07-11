@@ -2729,7 +2729,8 @@ async function renderCurri(){
   var RC={'필수':'var(--risk)','권장':'var(--gold,#c8a24a)','-':'var(--ink-mute)'};
   var SC={'이수':'var(--safe)','미이수':'var(--risk)','미상':'var(--ink-mute)'};
   var rows=(d.items||[]).map(function(x){return '<tr><td class="lab">'+esc(x.subject||'')+'</td><td class="chk" style="color:'+(RC[x.need]||'var(--ink-mute)')+'">'+esc(x.need||'-')+'</td><td class="chk" style="color:'+(SC[x.status]||'var(--ink-mute)')+'">'+esc(x.status||'미상')+'</td><td class="chk">'+esc(x.risk||'-')+'</td></tr>';}).join('');
-  body.innerHTML='<div class="card pad0" style="padding:18px"><table class="mtx"><thead><tr><th style="text-align:left">과목</th><th>구분</th><th>이수여부</th><th>위험도</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(d.summary?'<div class="flag-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div>'+esc(d.summary)+'</div></div>':'');
+  var curBadge=d.curriculum?'<div style="font-size:11px;color:var(--gold);margin-bottom:8px">적용 교육과정: <b>'+esc(d.curriculum)+'</b></div>':'';
+  body.innerHTML=curBadge+'<div class="card pad0" style="padding:18px"><table class="mtx"><thead><tr><th style="text-align:left">과목</th><th>구분</th><th>이수여부</th><th>위험도</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(d.summary?'<div class="flag-warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9L2 18a2 2 0 001.7 3h16.6a2 2 0 001.7-3L13.7 3.9a2 2 0 00-3.4 0z"/></svg><div>'+esc(d.summary)+'</div></div>':'');
 }
 async function genCurri(){
   const body=document.getElementById('curri-body'); const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
