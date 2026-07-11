@@ -118,6 +118,7 @@
   @keyframes spin{to{transform:rotate(360deg)}}
   body.student-mode #dist-box,body.student-mode #design-actions,body.student-mode #v-sr .sub,body.student-mode #design-priority,body.student-mode #iv-actions{display:none!important}
   body.student-mode #gdg-student,body.student-mode #grm-student,body.student-mode #gds-student,body.student-mode #gp-student,body.student-mode #ges-student,body.student-mode .goip-con-only{display:none!important}
+  body.student-mode #iv-actions{display:none!important}
   .pane{display:none}.pane.on{display:block}
 
   /* ===== INTAKE ===== */
@@ -386,7 +387,7 @@
         <div class="nav" data-v="gdesign" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 학생부 디자인</div>
         <div class="nav" data-v="gessay" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7"/></svg> 자소서 준비</div>
         <div class="nav" data-v="ginterview" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 1v11"/><rect x="9" y="1" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v4M8 23h8"/></svg> 면접 준비</div>
-        <div class="nav disabled" data-soon="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg> 면접 준비 <span class="soon">준비중</span></div>
+        
       </div>
     </div>
 
@@ -442,7 +443,7 @@
               <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>
               <div style="font-size:17px;font-weight:800;color:var(--ink)">고입 컨설팅 <span style="font-size:10px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 8px;vertical-align:middle">특목·자사고</span></div>
             </div>
-            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">지원가능 리스트업(내신 환산) · 학생부 성향 매칭 · 자소서 · 면접 <span style="color:var(--ink-mute)">(일부 준비중)</span></div>
+            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">지원가능 리스트업(내신 환산) · 학생부 성향 매칭 · 자소서 · 면접</div>
             <div style="display:flex;gap:16px;margin-top:12px">
               <div><span class="mono" id="hk-goip-count" style="font-size:22px;font-weight:800;color:var(--gold)">0</span><span style="font-size:11px;color:var(--ink-mute);margin-left:4px">명</span></div>
               <div style="font-size:11px;color:var(--ink-mute);align-self:flex-end">중2~중3</div>
@@ -1938,7 +1939,7 @@ function renderStudentHome(){
       '<div class="grid g3" style="margin-top:20px">'+
       [['gdiag','나의 진단','활동 4축·교과 강약점'],['goip','지원가능·성향 매칭','내신 환산·학교 스타일 적합'],['groadmap','성장 로드맵','시기별 준비 계획'],['gdesign','학생부 디자인','앞으로 할 활동 설계'],['gessay','자소서 준비','설계도·작성·평가 루프']].map(function(m){
         return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+
-      '<div class="card" style="opacity:.55"><div style="font-size:15px;font-weight:700;color:var(--ink-mute);margin-bottom:5px">면접 준비 <span style="font-size:10px;color:var(--gold);border:1px solid var(--gold);border-radius:20px;padding:1px 8px">준비중</span></div><div style="font-size:12px;color:var(--ink-dim)">곧 제공됩니다</div></div>'+
+      '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\'ginterview\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">면접 준비 ›</div><div style="font-size:12px;color:var(--ink-dim)">예상 문항·답변 연습 루프</div></div>'+
       '</div>';
     return;
   }
@@ -2570,6 +2571,9 @@ function ivTab(btn,t){
 }
 async function genInterview(){
   var s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(window._ivSet&&window._ivSet.status&&window._ivSet.status!=='done'){
+    if(!confirm('진행 중인 '+IV_LABEL[_ivType]+' 세트가 있습니다. 새로 생성하면 기존 세트는 완료 처리됩니다. 계속할까요?'))return;
+  }
   showGen(true, IV_LABEL[_ivType]+' 면접 예상 질문을 설계하고 있어요…');
   try{
     genStep('학생 자료를 불러오는 중…');
@@ -2587,8 +2591,8 @@ async function genInterview(){
     var empty = o.sections ? !(o.sections||[]).some(function(x){return (x.items||[]).length;}) : !(qval.length);
     if(empty)throw new Error('질문 생성 결과가 비어있습니다.');
     genStep('질문 세트를 저장하는 중…');
-    await sb.from('interview_sets').delete().eq('student_id',s.id).eq('qtype',_ivType);
-    var ins=await sb.from('interview_sets').insert({student_id:s.id,qtype:_ivType,questions:qval});
+    await sb.from('interview_sets').update({status:'done'}).eq('student_id',s.id).eq('qtype',_ivType).neq('status','done');
+    var ins=await sb.from('interview_sets').insert({student_id:s.id,qtype:_ivType,questions:qval,status:'draft'});
     if(ins.error)throw new Error(ins.error.message);
     _ivStep=0; showGen(false); renderInterview();
   }catch(e){ showGen(false); var b=document.getElementById('iv-body'); if(b)b.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
@@ -2609,20 +2613,87 @@ async function renderInterview(){
   var body=document.getElementById('iv-body'); if(!body)return;
   var s=window._activeStudent;
   if(!s||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
-  var r=await sb.from('interview_sets').select('*').eq('student_id',s.id).eq('qtype',_ivType).order('created_at',{ascending:false}).limit(1);
-  var set=r.data&&r.data[0];
+  var set=null;
+  var a=await sb.from('interview_sets').select('*').eq('student_id',s.id).eq('qtype',_ivType).neq('status','done').order('created_at',{ascending:false}).limit(1);
+  if(a.data&&a.data[0])set=a.data[0];
+  if(!set){var b2=await sb.from('interview_sets').select('*').eq('student_id',s.id).eq('qtype',_ivType).order('created_at',{ascending:false}).limit(1); if(b2.data&&b2.data[0])set=b2.data[0];}
   var flat=set?ivFlatten(set.questions):[];
   if(!set||!flat.length){
     body.innerHTML='<div style="color:var(--ink-mute);padding:20px">'+(window._role==='stu'?'아직 준비된 '+IV_LABEL[_ivType]+' 질문이 없습니다. 컨설턴트 선생님께 문의하세요.':'[예상 질문 생성]을 눌러 '+IV_LABEL[_ivType]+' 면접 질문 세트를 만드세요.')+'</div>';
+    window._ivSet=null; window._ivFlat=[]; return;
+  }
+  // 학생에게는 draft 세트 비노출
+  if(window._role==='stu'&&set.status==='draft'){
+    body.innerHTML='<div style="color:var(--ink-mute);padding:20px">선생님이 '+IV_LABEL[_ivType]+' 질문을 준비 중입니다.</div>';
     window._ivSet=null; window._ivFlat=[]; return;
   }
   window._ivSet=set; window._ivFlat=flat;
   var pr=await sb.from('interview_practice').select('*').eq('set_id',set.id).order('created_at',{ascending:false});
   var prMap={}; (pr.data||[]).forEach(function(p){ if(prMap[p.q_index]===undefined)prMap[p.q_index]=p; });
   window._ivPr=prMap;
+  var bar=ivStatusBar(set,flat,prMap);
   var isStep = !!(set.questions&&set.questions.sections);
-  if(isStep) renderIvStepper(flat,prMap);
-  else renderIvList(flat,prMap);
+  if(isStep) renderIvStepper(flat,prMap,bar);
+  else renderIvList(flat,prMap,bar);
+}
+var IV_ST={draft:'작성 중 (전달 전)',sent:'학생 답변 대기',answered:'학생 답변 제출됨 — 코멘트 필요',commented:'학생 수정 대기',done:'완료'};
+var IV_ST_STU={sent:'답변을 작성해 제출하세요',answered:'제출 완료 — 선생님 확인 중',commented:'선생님 코멘트 도착 — 답변을 수정해 다시 제출하세요',done:'완료'};
+function ivStatusBar(set,flat,prMap){
+  var st=set.status||'sent',isStu=(window._role==='stu');
+  var lbl=isStu?(IV_ST_STU[st]||st):(IV_ST[st]||st);
+  var col=st==='done'?'var(--safe)':(st==='answered'?'#c8a24a':'var(--ink-dim)');
+  var h='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">';
+  h+='<span style="font-size:11px;font-weight:700;color:'+col+';border:1px solid currentColor;border-radius:12px;padding:2px 10px">'+esc(IV_LABEL[_ivType])+' · '+esc(lbl)+' · '+(set.round||1)+'회차</span>';
+  if(!isStu){
+    if(st==='draft')h+='<button class="btn" style="font-size:12px;padding:6px 14px" onclick="ivSend()">학생에게 전달</button>';
+    if(st==='answered')h+='<button class="btn" style="font-size:12px;padding:6px 14px" onclick="ivSendComments()">코멘트 학생에게 전달</button>';
+    if(st==='answered'||st==='commented')h+='<button class="btn ghost" style="font-size:12px;padding:6px 14px" onclick="ivComplete()">이 세트 완료</button>';
+  } else {
+    if(st==='sent'||st==='commented')h+='<button class="btn" style="font-size:12px;padding:6px 14px" onclick="ivSubmit()">'+(st==='commented'?'수정 답변 제출':'답변 제출')+'</button>';
+  }
+  h+='<span id="iv-flow-msg" style="font-size:12px;color:var(--ink-mute)"></span></div>';
+  return h;
+}
+async function ivSend(){
+  var set=window._ivSet; if(!set)return;
+  var {error}=await sb.from('interview_sets').update({status:'sent',updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error)renderInterview();
+}
+async function ivSubmit(){
+  var set=window._ivSet; if(!set)return;
+  var flat=window._ivFlat||[],prMap=window._ivPr||{},saved=0;
+  // 화면에 열린 답변 textarea 저장 (스텝형은 현재 문항만 열려있으므로 있는 것만)
+  for(var i=0;i<flat.length;i++){
+    var el=document.getElementById('iv-ans-'+i);
+    if(el&&el.value.trim()){
+      var p=prMap[i];
+      if(p){await sb.from('interview_practice').update({answer:el.value.trim()}).eq('id',p.id);}
+      else{await sb.from('interview_practice').insert({set_id:set.id,student_id:set.student_id,q_index:i,answer:el.value.trim()});}
+      saved++;
+    }
+  }
+  var pr=await sb.from('interview_practice').select('q_index,answer').eq('set_id',set.id);
+  var answered=(pr.data||[]).filter(function(p){return p.answer&&p.answer.trim();}).length;
+  if(!answered){alert('답변을 하나 이상 작성해 주세요. (각 문항에서 답변 입력 후 [AI 피드백 받기]를 누르거나 이 버튼으로 일괄 저장됩니다)');return;}
+  if(answered<flat.length&&!confirm((flat.length-answered)+'개 문항이 미작성입니다. 이대로 제출할까요?'))return;
+  var {error}=await sb.from('interview_sets').update({status:'answered',updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error)renderInterview();
+}
+async function ivSendComments(){
+  var set=window._ivSet; if(!set)return;
+  var flat=window._ivFlat||[],cmt=Object.assign({},set.comments||{});
+  for(var i=0;i<flat.length;i++){
+    var el=document.getElementById('iv-c-'+i);
+    if(el){var v=el.value.trim(); if(v)cmt[String(i)]={text:v,updated_at:new Date().toISOString()}; else delete cmt[String(i)];}
+  }
+  var {error}=await sb.from('interview_sets').update({comments:cmt,status:'commented',round:(set.round||1)+1,updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error)renderInterview();
+}
+async function ivComplete(){
+  var set=window._ivSet; if(!set)return;
+  if(!confirm('이 세트를 완료 처리할까요? 완료 후 새 질문 세트를 생성할 수 있습니다.'))return;
+  var {error}=await sb.from('interview_sets').update({status:'done',updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error)renderInterview();
 }
 // 배지
 function ivBadges(it){
@@ -2642,22 +2713,43 @@ function ivCardInner(it,i,prMap){
     +(it.intent?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:2px">출제 의도 · '+esc(it.intent)+'</div>':'')
     +((it.guide&&it.guide.length)?'<div style="margin-top:9px;font-size:12px;color:var(--ink-dim)"><b style="color:var(--ink);font-size:11.5px">답변 구성 가이드</b><ul style="margin:4px 0 0;padding-left:18px">'+it.guide.map(function(g){return '<li style="margin-bottom:2px">'+esc(g)+'</li>';}).join('')+'</ul></div>':'')
     +((it.followups&&it.followups.length)?'<div style="margin-top:7px;font-size:11.5px;color:var(--ink-mute)">예상 꼬리질문 · '+it.followups.map(function(f){return esc(f);}).join(' / ')+'</div>':'')
-    +'<div style="margin-top:12px">'
-    +'<textarea id="iv-ans-'+i+'" placeholder="모의 답변을 입력해 보세요 (실제 말하듯이 작성)" style="width:100%;min-height:76px;padding:10px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.55;box-sizing:border-box;resize:vertical">'+esc((p&&p.answer)||'')+'</textarea>'
-    +'<div style="display:flex;gap:8px;margin-top:7px;align-items:center;flex-wrap:wrap"><button class="btn" style="padding:7px 14px;font-size:12px" onclick="ivFeedback('+i+')">AI 피드백 받기</button><span id="iv-msg-'+i+'" style="font-size:11px;color:var(--ink-mute)"></span></div>'
-    +'<div id="iv-fb-'+i+'">'+(fb?ivFbHtml(fb):'')+'</div>'
-    +'</div>';
+    +ivAnswerZone(it,i,p,fb);
+}
+// 역할·상태별 답변/코멘트 영역
+function ivAnswerZone(it,i,p,fb){
+  var set=window._ivSet||{},st=set.status||'sent',isStu=(window._role==='stu');
+  var cmt=(set.comments||{})[String(i)];
+  var canAnswer=isStu&&(st==='sent'||st==='commented');
+  var canComment=!isStu&&st==='answered';
+  var h='<div style="margin-top:12px">';
+  if(canAnswer){
+    h+='<textarea id="iv-ans-'+i+'" placeholder="모의 답변을 입력해 보세요 (실제 말하듯이 작성)" style="width:100%;min-height:76px;padding:10px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.55;box-sizing:border-box;resize:vertical">'+esc((p&&p.answer)||'')+'</textarea>';
+    h+='<div style="display:flex;gap:8px;margin-top:7px;align-items:center;flex-wrap:wrap"><button class="btn" style="padding:7px 14px;font-size:12px" onclick="ivFeedback('+i+')">AI 피드백 받기</button><span id="iv-msg-'+i+'" style="font-size:11px;color:var(--ink-mute)"></span></div>';
+  } else if(p&&p.answer){
+    h+='<div style="padding:10px 12px;background:rgba(90,160,80,.07);border:1px solid rgba(90,160,80,.25);border-radius:8px"><div style="font-size:11px;color:var(--safe);font-weight:700;margin-bottom:4px">학생 답변</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.65;white-space:pre-wrap">'+esc(p.answer)+'</div></div>';
+  } else if(!isStu&&(st==='sent')){
+    h+='<div style="font-size:11.5px;color:var(--ink-mute)">학생 답변 대기 중</div>';
+  }
+  h+='<div id="iv-fb-'+i+'">'+(fb?ivFbHtml(fb):'')+'</div>';
+  if(canComment){
+    h+='<div style="margin-top:8px"><div style="font-size:11px;color:#c8a24a;font-weight:700;margin-bottom:4px">코멘트 작성</div><textarea id="iv-c-'+i+'" rows="2" placeholder="답변 보완 방향 코멘트 (비우면 통과 처리)" style="width:100%;padding:8px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;box-sizing:border-box;resize:vertical">'+esc((cmt&&cmt.text)||'')+'</textarea></div>';
+  } else if(cmt&&cmt.text){
+    h+='<div style="margin-top:8px;padding:9px 12px;background:rgba(200,162,74,.08);border:1px solid rgba(200,162,74,.3);border-radius:8px"><div style="font-size:11px;color:#c8a24a;font-weight:700;margin-bottom:4px">선생님 코멘트</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.65;white-space:pre-wrap">'+esc(cmt.text)+'</div></div>';
+  }
+  h+='</div>';
+  return h;
 }
 // 리스트형 (전공기초·인성)
-function renderIvList(flat,prMap){
+function renderIvList(flat,prMap,bar){
   var body=document.getElementById('iv-body');
-  body.innerHTML=flat.map(function(it,i){
+  body.innerHTML=(bar||'')+flat.map(function(it,i){
     return '<div class="card" style="margin-bottom:12px;padding:16px 18px"><div style="display:flex;gap:12px;align-items:flex-start"><span style="font-family:\'JetBrains Mono\',monospace;font-size:12px;font-weight:700;color:#c8a24a;padding-top:2px">Q'+(i+1)+'</span><div style="flex:1;min-width:0">'+ivCardInner(it,i,prMap)+'</div></div></div>';
   }).join('');
 }
 // 스텝형 (서류기반)
-function renderIvStepper(flat,prMap){
+function renderIvStepper(flat,prMap,bar){
   var body=document.getElementById('iv-body');
+  window._ivBar=bar!==undefined?bar:(window._ivBar||'');
   var n=flat.length; if(_ivStep<0)_ivStep=0; if(_ivStep>n-1)_ivStep=n-1;
   var it=flat[_ivStep];
   var cleared=flat.filter(function(_x,i){return prMap[i];}).length;
@@ -2667,7 +2759,7 @@ function renderIvStepper(flat,prMap){
     return '<button onclick="ivGo('+i+')" title="'+(i+1)+'" style="width:'+(cur?'26px':'11px')+';height:11px;border-radius:6px;border:none;cursor:pointer;background:'+(cur?'#c8a24a':(done?'#4a8a5e':'var(--line)'))+';transition:.15s"></button>';
   }).join('');
   var pct=Math.round((cleared/n)*100);
-  body.innerHTML=
+  body.innerHTML=(window._ivBar||'')+
     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">'
     +'<div style="font-size:12.5px;color:var(--ink-dim)"><b style="color:var(--ink)">'+esc(it.section||'')+'</b> · 질문 '+(_ivStep+1)+' / '+n+' <span style="color:var(--ink-mute)">· 완료 '+cleared+'</span></div>'
     +'<div style="display:flex;gap:5px;align-items:center">'+dots+'</div></div>'
@@ -2682,7 +2774,16 @@ function renderIvStepper(flat,prMap){
 }
 function ivGo(i){
   var n=(window._ivFlat||[]).length; if(i<0||i>n-1)return;
+  // 스텝 이동 전 현재 답변 임시 저장 (학생 편집 중일 때)
+  var el=document.getElementById('iv-ans-'+_ivStep);
+  if(el&&window._ivSet){var v=el.value; var pm=window._ivPr||{}; if(!pm[_ivStep])pm[_ivStep]={_local:1,answer:v}; else pm[_ivStep].answer=v; window._ivPr=pm; if(v&&v.trim())ivSaveDraft(_ivStep,v.trim());}
   _ivStep=i; renderIvStepper(window._ivFlat,window._ivPr||{});
+}
+async function ivSaveDraft(i,txt){
+  try{var set=window._ivSet;if(!set)return;var pm=window._ivPr||{};var p=pm[i];
+    if(p&&p.id){await sb.from('interview_practice').update({answer:txt}).eq('id',p.id);}
+    else{var ins=await sb.from('interview_practice').insert({set_id:set.id,student_id:set.student_id,q_index:i,answer:txt}).select();if(ins.data&&ins.data[0])pm[i]=ins.data[0];}
+  }catch(e){}
 }
 function ivFbHtml(fb){
   var sc=(fb.score!=null)?Number(fb.score):null;
@@ -2708,16 +2809,16 @@ async function ivFeedback(i){
     var gye=await resolveField(s.target_major);
     var d=await callAI('interview_feedback',{question:q.q||'',intent:q.intent||'',answer:ans,career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||'')});
     var fb=JSON.parse(d.text);
-    var ins=await sb.from('interview_practice').insert({set_id:set.id,student_id:s.id,q_index:i,answer:ans,feedback:fb});
+    var ins=await sb.from('interview_practice').insert({set_id:set.id,student_id:s.id,q_index:i,answer:ans,feedback:fb}).select();
     if(ins.error)console.error('[iv practice]',ins.error);
-    if(!window._ivPr)window._ivPr={}; window._ivPr[i]={answer:ans,feedback:fb};
+    if(!window._ivPr)window._ivPr={}; window._ivPr[i]=(ins.data&&ins.data[0])||{answer:ans,feedback:fb};
     var box=document.getElementById('iv-fb-'+i); if(box)box.innerHTML=ivFbHtml(fb);
     if(msg){msg.style.color='var(--safe)';msg.textContent='✓ 완료 — [다음]으로 진행하세요.';}
     // 스텝형이면 진행 도트 갱신 위해 현재 스텝 재렌더 (답변·피드백 유지됨)
     if(set.questions&&set.questions.sections){ setTimeout(function(){ renderIvStepper(flat,window._ivPr); },600); }
   }catch(e){ if(msg){msg.style.color='var(--risk)';msg.textContent='피드백 실패: '+esc(e.message||e);} }
 }
-window.renderInterview=renderInterview; window.genInterview=genInterview; window.ivFeedback=ivFeedback; window.ivTab=ivTab; window.ivGo=ivGo;
+window.renderInterview=renderInterview; window.genInterview=genInterview; window.ivFeedback=ivFeedback; window.ivTab=ivTab; window.ivGo=ivGo; window.ivSend=ivSend; window.ivSubmit=ivSubmit; window.ivSendComments=ivSendComments; window.ivComplete=ivComplete;
 
 async function renderCurri(){
   const body=document.getElementById('curri-body'); if(!body)return;
