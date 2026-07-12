@@ -1901,7 +1901,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#5b8def'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.11.1";
+window.APP_VERSION="2026.07.12.1";
 const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
 let sb=null;
@@ -5277,6 +5277,10 @@ window.renderGInterview=async function(){
     box.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._role==='stu'?'아직 선생님이 면접 문항을 준비하지 않았습니다.':'지원 학교를 선택하고 [예상 문항 생성]을 누르세요.')+'</div>';
     return;
   }
+  if(window._role==='stu'&&(cur.status||'draft')==='draft'){
+    box.innerHTML='<div style="color:var(--ink-mute);padding:16px">선생님이 면접 문항을 준비 중입니다. 전달되면 여기에 표시됩니다.</div>';
+    window._gIvCur=null; return;
+  }
   box.innerHTML=gIvFlow(cur);
 };
 var GIV_ST={draft:'작성 중 (전달 전)',sent:'학생 답변 대기',answered:'학생 답변 제출됨 — 코멘트 필요',commented:'학생 수정 대기',done:'완료'};
@@ -5496,6 +5500,7 @@ async function gesLoad(){
   if(school)q=q.eq('school_name',school);
   var r=await q;
   var d=(r.data||[]);
+  if(window._role==='stu')d=d.filter(function(x){return x.status!=='blueprint';}); // 미전달 설계도는 학생에게 비노출
   if(!d.length){body.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:16px">'+(window._role==='stu'?'아직 선생님이 자소서 설계를 시작하지 않았습니다. 준비되면 여기에 표시됩니다.':'아직 자소서 작업이 없습니다. 지원 학교를 선택하고 [설계도 생성]을 누르세요.')+'</div>';return;}
   gesRender(d);
 }
@@ -5541,7 +5546,7 @@ function gesRender(items){
       html+='<div style="font-size:11.5px;color:var(--ink-mute)">아직 선생님이 설계를 확정하지 않았습니다. 확정되면 여기서 작성할 수 있어요.</div>';
     }
     // 작성 영역 (blueprint_ok 이후)
-    if(['blueprint_ok','drafting','submitted','evaluated','done'].indexOf(it.status)>=0){
+    if(['blueprint_ok','drafting','submitted','evaluated','returned','done'].indexOf(it.status)>=0){
       if(isStu){
         var editable=['blueprint_ok','drafting','returned'].indexOf(it.status)>=0;
         var nextRound=(it.round||0)+1;
