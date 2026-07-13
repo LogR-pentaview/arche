@@ -1385,7 +1385,7 @@ const ADMIN=(function(){
     var goip=stus.filter(function(s){return s.admission_track==='고입';});
     // 매출
     var sub=d.subscription||null; var rev=d.revenue||{total:0,count:0,last:null};
-    var monthly=sub?((sub.plan_base||0)+(sub.per_student||0)*stus.length):null;
+    var monthly=sub?((sub.plan_base||0)+(sub.per_student||0)*Math.max(stus.length-1,0)):null;
     var subTxt=sub?('<b style="color:'+(sub.status==='active'?'var(--safe)':'var(--risk)')+'">'+(sub.status==='active'?'구독중':esc(sub.status||'-'))+'</b>'+(sub.card_number_masked?' · '+esc(sub.card_company||'')+' '+esc(sub.card_number_masked):'')+(sub.next_charge_at?' · 다음청구 '+sub.next_charge_at.slice(0,10):'')):'<span style="color:var(--ink-mute)">구독 미등록</span>';
     // API 사용 (30일)
     var u=d.usage||{calls:0,prompt_tokens:0,output_tokens:0,days:30};
@@ -1804,7 +1804,7 @@ window.ADMIN=ADMIN;
           <div id="tm-list" style="margin-top:8px"></div>
         </div>
         <div id="billing-card" style="max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
-          <div class="sectionhead"><span class="idx">$</span><h3>구독 · 결제 <span id="billing-plan-label" style="font-size:11px;color:var(--ink-mute);font-weight:400">· 기본료 20만 + 학생당 4만/월</span></h3></div>
+          <div class="sectionhead"><span class="idx">$</span><h3>구독 · 결제 <span id="billing-plan-label" style="font-size:11px;color:var(--ink-mute);font-weight:400">· 기본료 20만 (1명 포함) + 추가 1명당 4만/월</span></h3></div>
           <div id="billing-body" style="font-size:13px;color:var(--ink-dim);margin-top:8px">불러오는 중…</div>
         </div>
       </section>
@@ -1927,7 +1927,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#5b8def'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.12.3";
+window.APP_VERSION="2026.07.12.4";
 const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
 let sb=null;
@@ -4097,7 +4097,7 @@ async function renderBilling(){
     var d=await billingCall('status');
     var s=d.subscription||{}; var active=s.status==='active';
     var plbl=document.getElementById('billing-plan-label');
-    if(plbl){ var baseMan=Math.round((s.plan_base||0)/10000); plbl.textContent='· 기본료 '+baseMan+'만 + '+(window._isB2C?'자녀':'학생')+'당 4만/월'; }
+    if(plbl){ var baseMan=Math.round((s.plan_base||0)/10000); plbl.textContent='· 기본료 '+baseMan+'만 (1명 포함) + 추가 '+(window._isB2C?'자녀':'학생')+'당 4만/월'; }
     var statusBadge=active
       ? '<span style="font-size:11px;font-weight:700;color:#fff;background:var(--safe);padding:2px 9px;border-radius:20px">구독중</span>'
       : (s.status==='canceled'?'<span style="font-size:11px;font-weight:700;color:#fff;background:var(--risk);padding:2px 9px;border-radius:20px">해지됨</span>':'<span style="font-size:11px;font-weight:700;color:var(--ink-dim);border:1px solid var(--line);padding:2px 9px;border-radius:20px">미등록</span>');
@@ -4109,7 +4109,8 @@ async function renderBilling(){
       +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">이번 달 청구액</div><div style="font-size:18px;font-weight:800;color:#173a27;font-family:\'JetBrains Mono\',monospace">'+won(d.current_amount)+'</div></div>'
       +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:11px 13px"><div style="font-size:10.5px;color:var(--ink-mute)">다음 청구일</div><div style="font-size:15px;font-weight:700;color:var(--ink);margin-top:3px">'+dfmt(s.next_charge_at)+'</div></div>'
       +'</div>';
-    html+='<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">산식: 기본료 '+won(s.plan_base)+' + '+(window._isB2C?'자녀 ':'학생 ')+d.student_count+'명 × '+won(s.per_student)+' = <b style="color:var(--ink)">'+won(d.current_amount)+'</b></div>';
+    var billableN=Math.max((d.student_count||0)-1,0);
+    html+='<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">산식: 기본료 '+won(s.plan_base)+' (1명 포함) + 추가 '+(window._isB2C?'자녀 ':'학생 ')+billableN+'명 × '+won(s.per_student)+' = <b style="color:var(--ink)">'+won(d.current_amount)+'</b></div>';
     // 버튼
     html+='<div id="billing-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div><div style="display:flex;gap:8px;flex-wrap:wrap">';
     html+='<button class="btn" onclick="registerCard()">'+(active?'카드 변경':'카드 등록')+'</button>';
