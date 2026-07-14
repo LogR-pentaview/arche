@@ -403,7 +403,7 @@
     </div>
 
     <div class="navlabel" style="margin-top:8px">시스템</div>
-    <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
+    <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 자소서 일괄 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
     <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회</div>
     <div class="nav" data-v="admin" id="nav-admin" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg> 관리자 콘솔</div>
     <div class="nav" data-v="settings" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 00-.1-1l2-1.6-2-3.4-2.4 1a7 7 0 00-1.7-1L14.5 2h-4l-.3 2.6a7 7 0 00-1.7 1l-2.4-1-2 3.4 2 1.6a7 7 0 000 2l-2 1.6 2 3.4 2.4-1a7 7 0 001.7 1l.3 2.6h4l.3-2.6a7 7 0 001.7-1l2.4 1 2-3.4-2-1.6a7 7 0 00.1-1z"/></svg> 설정</div>
@@ -694,7 +694,7 @@
             <div class="marker" style="left:22%"><div class="flag">합격 커트라인 1.22</div></div><div class="marker now" style="left:12%"><div class="flag">현재 1.42</div></div></div>
           <div class="at-foot"><div class="metric"><small>필요 상승폭</small><b style="color:var(--risk)">-0.20등급</b></div><div class="metric"><small>결정 변수</small><b>3-1학기 성적</b></div><div class="metric"><small>권장</small><b style="color:var(--reach)">면접 대비 집중</b></div></div>
         </div>
-        <div class="note">※ 커트라인 DB = 대표님 골든 시드 데이터 연동 지점. 목표 3지망 입력 시 자동 산출.</div>
+        <div class="note">※ 커트라인 DB = 로그·알 입시연구소의 노하우 기반 분석값. 목표 3지망 입력 시 자동 산출.</div>
         </div>
       </section>
 
@@ -1154,7 +1154,7 @@
               <div class="uni" id="rp-uni"><div style="color:#999;font-size:12px;grid-column:1/-1">[진단]에서 AI 분석 실행 시 추천 6선이 생성됩니다.</div></div>
             </div>
             <div class="sec"><div class="sec-h"><span class="no">06</span><h3>합격 역설계 · 성장 로드맵</h3></div>
-              <div id="rp-reverse" style="color:#3a3f36">합격선(골든시드) 적재 후, 목표 대학 대비 현재 위치와 필요 상승폭을 자동 산출합니다. 탐구 설계는 학생이 실제 수행할 주제·구조를 제안합니다(대필 아님).</div>
+              <div id="rp-reverse" style="color:#3a3f36">합격선 적재 후, 목표 대학 대비 현재 위치와 필요 상승폭을 자동 산출합니다. 탐구 설계는 학생이 실제 수행할 주제·구조를 제안합니다(대필 아님).</div>
             </div>
             <div class="note2">※ 현행 대입 기준 반영: 교내수상·개인봉사·독서활동·자율동아리 등 <b>대입 미반영 항목은 평가에서 제외</b>했습니다. 세특은 읽기·분석 용도이며 문구 생성/대필이 아닙니다.</div>
           </div>
@@ -1752,7 +1752,7 @@ window.ADMIN=ADMIN;
         <div class="sub">엔진 운영 · 학원/DB/통계 관리</div>
         <div style="display:flex;gap:8px;margin:16px 0;flex-wrap:wrap" id="adm-tabs">
           <button class="btn" onclick="ADMIN.tab('academies')">학원 관리</button>
-          <button class="btn ghost" onclick="ADMIN.tab('golden')">골든시드</button>
+          <button class="btn ghost" onclick="ADMIN.tab('golden')" style="display:none">골든시드</button>
           <button class="btn ghost" onclick="ADMIN.tab('admission')">입시자료</button>
           <button class="btn ghost" onclick="ADMIN.tab('stats')">통계</button>
           <button class="btn ghost" onclick="ADMIN.tab('billing')">결제</button>
@@ -1927,7 +1927,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#5b8def'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.12.4";
+window.APP_VERSION="2026.07.12.7";
 const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
 let sb=null;
@@ -2761,7 +2761,7 @@ function wbSheetHtml(mat,ev,forPrint){
     ev.dimensions.forEach(function(d){ h+='<div style="border:1px solid '+bd+';border-radius:8px;padding:8px 10px"><div style="display:flex;justify-content:space-between"><span style="font-size:11.5px;font-weight:700;color:'+ink+'">'+esc(d.name)+'</span><b style="font-family:monospace;color:#b3801f">'+esc(d.score)+'/10</b></div><div style="font-size:10.5px;color:'+mut+';margin-top:2px">'+esc(d.note||'')+'</div></div>'; });
     h+='</div>';
   }
-  // 골든문장
+  // 주목 문장(우수 문장 하이라이트)
   if(ev.golden_sentences&&ev.golden_sentences.length){
     h+='<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:'+ink+';margin-bottom:6px">주목 문장</div>';
     ev.golden_sentences.forEach(function(g){ h+='<div style="border-left:3px solid #b3801f;padding:4px 10px;margin-bottom:6px"><div style="font-size:12px;color:'+ink+';font-style:italic">"'+esc(g.sentence||'')+'"</div><div style="font-size:11px;color:'+mut+';margin-top:2px">→ '+esc(g.comment||'')+'</div></div>'; });
@@ -3652,7 +3652,7 @@ async function renderArche(){
     var pk=POS[u.pos]||POS.fit;
     return '<div class="arche-target"><div class="at-head"><div class="at-uni">'+esc(u.name||'')+' '+esc(u.major||'')+' <span>· '+esc(u.type||'')+'</span></div><div class="at-verdict" style="color:'+pk[1]+'">'+pk[0]+'</div></div><div class="at-foot"><div class="metric"><small>포지션</small><b style="color:'+pk[1]+'">'+pk[0]+'</b></div><div class="metric" style="flex:2"><small>근거</small><b style="font-weight:500;font-size:12px">'+esc(u.basis||'')+'</b></div></div></div>';
   }).join('');
-  body.innerHTML=rows+'<div class="note">※ 계열·내신 기반 근사 추정(골든시드 연동). 정밀 합격커트라인은 admission_cutlines 적재 후 표기됩니다.</div>'+(growth||'');
+  body.innerHTML=rows+'<div class="note">※ 계열·내신 기반 근사 추정(로그·알 입시연구소의 노하우 기반). 정밀 합격커트라인은 admission_cutlines 적재 후 표기됩니다.</div>'+(growth||'');
 }
 async function renderDiag(){
   const who=document.getElementById('diag-who'), body=document.getElementById('diag-body'); if(!body)return;
@@ -3668,7 +3668,7 @@ async function renderDiag(){
   var qualCard='';
   if(q4){
     var qrows=QAX.map(function(a){var o=q4[a[0]]||{};var sc=(o&&o.score!=null)?Number(o.score):null;var nt=(o&&o.note)||'';return '<div style="padding:10px 0;border-bottom:1px solid var(--line-soft,rgba(234,243,238,.06))"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><b style="color:var(--ink)">'+a[1]+'</b><b class="mono" style="color:var(--gold,#c8a24a)">'+(sc!=null?sc:'—')+'<span style="color:var(--ink-mute);font-weight:400">/10</span></b></div>'+(nt?'<div style="font-size:11px;line-height:1.6;color:var(--ink-mute)">'+esc(nt)+'</div>':'')+'</div>';}).join('');
-    qualCard='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">02</span><h3>정성평가 4축 근거 <span style="font-size:11px;color:var(--ink-mute)">· 골든시드 합격사례 렌즈</span></h3></div>'+qrows+'</div>';
+    qualCard='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">02</span><h3>정성평가 4축 근거 <span style="font-size:11px;color:var(--ink-mute)">· 로그·알 입시연구소의 노하우 기반 분석</span></h3></div>'+qrows+'</div>';
   }
   var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체'],['convergence','융합창의역량','과세특·창체'],['community','공동체역량','자율·행발'],['problem','문제해결역량','전체 세특']];
   var vals=COMP.map(function(c){return {key:c[1],src:c[2],v:(p[c[0]]!=null?Number(p[c[0]]):0),note:(p.reasons&&p.reasons[c[0]])||''};});
@@ -4231,11 +4231,11 @@ async function renderReport(){
     document.getElementById('rp-diag').innerHTML='<div style="color:#999;font-size:12px">5역량 산출 후 표시됩니다.</div>';
   }
 
-  // ③-2 정성평가 4축 (골든시드 판단 렌즈)
+  // ③-2 정성평가 4축 (로그·알 입시연구소의 노하우 기반)
   var Q4=[['activity','활동'],['thinking','사고'],['values','가치관형성'],['vision','비전']];
   var hasQ4=Q4.some(function(c){return q4[c[0]]&&q4[c[0]].note;});
   if(hasQ4){
-    document.getElementById('rp-qual4').innerHTML='<div style="font-size:11px;font-weight:800;color:#173a27;letter-spacing:.02em;margin-bottom:8px">정성평가 4축 <span style="color:#8a8574;font-weight:400">· 골든시드 합격사례 특징 대비 · 세특 기반 근거</span></div>'+Q4.map(function(c){var o=q4[c[0]]||{};var sc=(o.score!=null?Number(o.score):null);return '<div class="diag-row" style="border-left:2px solid var(--gold,#c8a24a);padding-left:10px;margin-bottom:6px"><div class="dk">'+c[1]+'<small>'+(sc!=null?sc.toFixed(1):'—')+'/10</small></div><div class="dt">'+esc(o.note||'')+'</div></div>';}).join('');
+    document.getElementById('rp-qual4').innerHTML='<div style="font-size:11px;font-weight:800;color:#173a27;letter-spacing:.02em;margin-bottom:8px">정성평가 4축 <span style="color:#8a8574;font-weight:400">· 로그·알 입시연구소의 노하우 기반 · 세특 기반 근거</span></div>'+Q4.map(function(c){var o=q4[c[0]]||{};var sc=(o.score!=null?Number(o.score):null);return '<div class="diag-row" style="border-left:2px solid var(--gold,#c8a24a);padding-left:10px;margin-bottom:6px"><div class="dk">'+c[1]+'<small>'+(sc!=null?sc.toFixed(1):'—')+'/10</small></div><div class="dt">'+esc(o.note||'')+'</div></div>';}).join('');
   }else{
     document.getElementById('rp-qual4').innerHTML='';
   }
@@ -4258,7 +4258,7 @@ async function renderReport(){
   document.getElementById('rp-uni').innerHTML=(reco.length)?reco.slice(0,6).map(function(u,i){return '<div class="ucard"><div class="urank">'+String(i+1).padStart(2,'0')+'</div><div class="uname">'+esc(u.name||'')+'</div><div class="umajor">'+esc(u.major||'')+'</div><div class="urow"><span class="pos '+(u.pos||'fit')+'">'+(posLab[u.pos]||'적정')+'</span><span class="utype">'+esc(u.type||'')+'</span></div><div class="ubasis">'+esc(u.basis||'')+'</div></div>';}).join(''):'<div style="color:#999;font-size:12px;grid-column:1/-1">[진단]에서 AI 분석 실행 시 추천 6선이 생성됩니다.</div>';
 
   // ⑥ 역설계
-  if(hasComp){var srt2=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});var tp=srt2[0],lw=srt2[srt2.length-1];document.getElementById('rp-reverse').innerHTML='<b>'+esc(s.target_univ||'목표 대학')+'</b> 기준 합격선(골든시드) 적재 후 현재 위치와 필요 상승폭을 자동 산출합니다. 최상위 <b>'+tp.key+'</b>를 지렛대로, 병목 <b>'+lw.key+'</b> 보완을 위한 탐구 주제·이수과목 로드맵을 학생이 실제 수행할 구조로 제안합니다(대필 아님).';}
+  if(hasComp){var srt2=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});var tp=srt2[0],lw=srt2[srt2.length-1];document.getElementById('rp-reverse').innerHTML='<b>'+esc(s.target_univ||'목표 대학')+'</b> 기준 합격선 적재 후 현재 위치와 필요 상승폭을 자동 산출합니다. 최상위 <b>'+tp.key+'</b>를 지렛대로, 병목 <b>'+lw.key+'</b> 보완을 위한 탐구 주제·이수과목 로드맵을 학생이 실제 수행할 구조로 제안합니다(대필 아님).';}
 }
 
 /* ===== 재설계 리포트 헬퍼 ===== */
@@ -4514,9 +4514,9 @@ const EB = (function(){
   return { run, csv, saveAll, setRef, sb, init };
 })();
 window.EB = EB;
-// 골든시드 채점 = 내부 전용. 대입 운영 화면엔 숨김.
+// 자소서 일괄 채점 = 내부 전용. 대입 운영 화면엔 숨김.
 // URL ?internal=1 또는 콘솔 archeInternal() 로만 노출.
-// 골든시드 채점(essaybatch)은 특목고 자소서 기능 준비 전까지 완전 숨김 — 내부 노출에서도 제외.
+// 자소서 일괄 채점(essaybatch)은 특목고 자소서 기능 준비 전까지 완전 숨김 — 내부 노출에서도 제외.
 
 /* ===== 트랙 진입 · 홈 카드 ===== */
 function enterTrack(t){
@@ -5619,6 +5619,18 @@ function gesRender(items){
       if(pq){
         if(pq.diagnosis)html+='<div style="font-size:12px;color:var(--ink-dim);margin-bottom:4px"><b>진단:</b> '+esc(pq.diagnosis)+'</div>';
         if(pq.alt&&pq.alt.length)html+='<div style="font-size:12px;color:var(--ink-dim)"><b>재구성 방향:</b><ul style="margin:2px 0 0 16px">'+pq.alt.map(function(a){return '<li>'+esc(a)+'</li>';}).join('')+'</ul></div>';
+        if(pq.sentence_feedback&&pq.sentence_feedback.length){
+          html+='<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px"><div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:5px">문장별 정밀 교정 ('+(it.round||1)+'차 이상)</div>';
+          pq.sentence_feedback.forEach(function(sf){
+            html+='<div style="background:var(--panel);border-left:2px solid var(--gold,#c8a24a);border-radius:0 7px 7px 0;padding:6px 10px;margin-bottom:6px">'
+              +(sf.quote?'<div style="font-size:11.5px;color:var(--ink);font-style:italic;margin-bottom:3px">"'+esc(sf.quote)+'"</div>':'')
+              +(sf.issue?'<div style="font-size:11.5px;color:var(--risk)"><b>짚을 점:</b> '+esc(sf.issue)+'</div>':'')
+              +(sf.direction?'<div style="font-size:11.5px;color:var(--ink-dim)"><b>수정 방향:</b> '+esc(sf.direction)+'</div>':'')
+              +(sf.why?'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(sf.why)+'</div>':'')
+              +'</div>';
+          });
+          html+='<div style="font-size:10.5px;color:var(--ink-mute)">※ 방향 제시입니다. 문장은 학생이 직접 고쳐 씁니다.</div></div>';
+        }
       }
       if(ev.overall)html+='<div style="font-size:12px;color:var(--ink-mute);margin-top:5px">'+esc(ev.overall)+'</div>';
       if(ev.next_step)html+='<div style="font-size:12px;color:var(--gold);margin-top:4px">다음 집중: '+esc(ev.next_step)+'</div>';
@@ -5736,7 +5748,8 @@ async function gesEvaluate(id){
   if(window.showAiLoading)showAiLoading();
   m.style.color='var(--ink-mute)';m.textContent='AI 평가 중… (수십 초)';
   try{
-    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_eval_essay',payload:{school_name:it.school_name,career:(s&&s.career)||'',answers:[{no:it.q_no,text:it.draft}]}}});
+    var evalRound=(it.round||0)+1; // 이번 제출본의 차수 (반송 없이 첫 제출=1차)
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_eval_essay',payload:{school_name:it.school_name,career:(s&&s.career)||'',round:evalRound,answers:[{no:it.q_no,text:it.draft}]}}});
     var data=r.data,error=r.error;
     if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'평가 실패');return;}
     var ev=safeJson(data.text);
