@@ -584,8 +584,9 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px" class="stu-grid">
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;grid-column:1/-1">
             <div class="sectionhead"><span class="idx">00</span><h3>학생부 업로드 · AI 자동정리 <span style="font-size:11px;color:var(--ink-mute)">(PDF)</span></h3></div>
-            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">PDF 학교생활기록부를 올리면 텍스트 추출 → AI가 이수과목·세특을 자동 정리합니다. (HWP는 PDF로 변환 후 업로드)</div>
-            <input type="file" id="rec-file" accept="application/pdf,.pdf" onchange="uploadRecord(this.files[0])" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">학생부 파일을 올리면 AI가 이수과목·성적·세특을 자동 정리합니다. 폰으로 찍은 여러 장을 한 번에 올려도 됩니다. AI가 확실히 읽지 못한 값은 성적표에서 노란색으로 표시되니 직접 확인·수정하세요.</div>
+            <input type="file" id="rec-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="uploadRecords(this.files)" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="font-size:11px;color:var(--ink-mute);margin-top:5px">PDF·이미지(여러 장 동시 선택 가능·폰 촬영본 OK)·DOCX·XLSX·TXT 지원 · 한글(HWP)은 PDF로 내보내 업로드</div>
             <div id="rec-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
             <button id="rec-ai" onclick="aiAutofill()" disabled style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer;opacity:.55">AI 자동정리</button>
             <div id="rec-setech" style="margin-top:12px"></div>
@@ -623,6 +624,7 @@
                 <button onclick="addCourseRow()" style="padding:8px 14px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ink-dim);font-size:12px;cursor:pointer">+ 행 추가</button>
                 <button onclick="_courses=[];renderCourses()" style="padding:8px 14px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ink-mute);font-size:12px;cursor:pointer">비우기</button>
               </div>
+              <div id="nd-uncertain" style="display:none;font-size:11.5px;line-height:1.5;color:var(--ink-dim);background:rgba(240,200,60,.08);border:1px solid rgba(217,165,32,.4);border-radius:8px;padding:8px 11px;margin-bottom:10px"></div>
               <div style="overflow:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">
                 <thead><tr>
                   <th style="text-align:left;padding:6px;color:var(--ink-mute);font-weight:600;border-bottom:1px solid var(--line)">과목</th>
@@ -746,7 +748,8 @@
         <div class="card" style="margin-top:18px">
           <div style="font-weight:700;margin-bottom:8px">중학 생기부 업로드 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">PDF · 이미지 · 스캔본 지원</span></div>
           <div style="font-size:12px;color:var(--ink-dim);margin-bottom:10px">업로드하면 성취도(영어·수학·과학·국어·사회) + 자율·동아리·진로·과세특·행발·<b>독서활동</b>을 자동 추출합니다.</div>
-          <input type="file" id="gin-file" accept=".pdf,image/*" onchange="gintakeUpload(this.files[0])" style="font-size:12px;margin-bottom:8px">
+          <input type="file" id="gin-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="gintakeUpload(this.files)" style="font-size:12px;margin-bottom:4px">
+          <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">PDF·이미지(여러 장 동시 선택·폰 촬영 OK)·DOCX·XLSX·TXT · 한글은 PDF로 내보내 업로드</div>
           <div id="gin-msg" style="font-size:12px;margin-top:6px"></div>
           <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft)">
             <button class="btn ghost" onclick="gintakeLoadSaved()" style="font-size:12px">저장된 자료 불러오기</button>
@@ -1936,7 +1939,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#5b8def'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.16.1";
+window.APP_VERSION="2026.07.16.3";
 const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
 let sb=null;
@@ -2816,7 +2819,7 @@ async function loadNaesinCourses(){
   if(!window._activeStudent||!sb)return;
   var r=await sb.from('student_metrics').select('payload').eq('student_id',window._activeStudent.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
   var p=(r.data&&r.data[0]&&r.data[0].payload)||null;
-  if(p&&Array.isArray(p.courses)&&p.courses.length){ window._courses=p.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade))};}); }
+  if(p&&Array.isArray(p.courses)&&p.courses.length){ window._courses=p.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade)),uncertain:Array.isArray(c.uncertain)?c.uncertain:[]};}); }
   else { window._courses=[]; }
   if(window.renderCourses)renderCourses();
 }
@@ -3698,18 +3701,29 @@ async function renderDiag(){
 window._courses=[]; window._naesin=null;
 const SEMS=['1-1','1-2','2-1','2-2','3-1'];
 function _cell(){return "width:100%;padding:5px 7px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px";}
+function _cellU(u){ return u ? "width:100%;padding:5px 7px;background:rgba(240,200,60,.18);border:1px solid #d9a520;border-radius:6px;color:var(--ink);font-size:12px" : _cell(); }
+function _clrU(i,f,el){ try{ var a=window._courses[i]&&window._courses[i].uncertain; if(a){var k=a.indexOf(f); if(k>=0)a.splice(k,1);} if(el){el.style.background='var(--panel-2)'; el.style.borderColor='var(--line)';} refreshUncertainNote(); }catch(e){} }
 function courseRowHTML(c,i){
   var td='padding:4px 5px;border-bottom:1px solid rgba(255,255,255,.05)';
   var opts=SEMS.map(function(s){return '<option '+(c.sem===s?'selected':'')+'>'+s+'</option>';}).join('');
+  var u=Array.isArray(c.uncertain)?c.uncertain:[];
+  var uS=u.indexOf('subject')>=0, uU=u.indexOf('unit')>=0, uG=u.indexOf('grade')>=0;
   return '<tr>'+
-    '<td style="'+td+'"><input value="'+esc(c.subject||'')+'" oninput="_courses['+i+'].subject=this.value" style="'+_cell()+'"></td>'+
+    '<td style="'+td+'"><input value="'+esc(c.subject||'')+'" oninput="_courses['+i+'].subject=this.value;_clrU('+i+',\'subject\',this)" style="'+_cellU(uS)+'"></td>'+
     '<td style="'+td+'"><select onchange="_courses['+i+'].sem=this.value;computeNaesin()" style="'+_cell()+'">'+opts+'</select></td>'+
-    '<td style="'+td+'"><input type="number" value="'+(c.unit==null?'':c.unit)+'" oninput="_courses['+i+'].unit=this.value===\'\'?null:Number(this.value);computeNaesin()" style="'+_cell()+';text-align:right"></td>'+
-    '<td style="'+td+'"><input type="number" value="'+(c.grade==null?'':c.grade)+'" oninput="_courses['+i+'].grade=this.value===\'\'?null:Number(this.value);computeNaesin()" style="'+_cell()+';text-align:right"></td>'+
+    '<td style="'+td+'"><input type="number" value="'+(c.unit==null?'':c.unit)+'" oninput="_courses['+i+'].unit=this.value===\'\'?null:Number(this.value);_clrU('+i+',\'unit\',this);computeNaesin()" style="'+_cellU(uU)+';text-align:right"></td>'+
+    '<td style="'+td+'"><input type="number" value="'+(c.grade==null?'':c.grade)+'" oninput="_courses['+i+'].grade=this.value===\'\'?null:Number(this.value);_clrU('+i+',\'grade\',this);computeNaesin()" style="'+_cellU(uG)+';text-align:right"></td>'+
     '<td style="'+td+'"><button onclick="_courses.splice('+i+',1);renderCourses()" style="background:none;border:none;color:var(--ink-mute);cursor:pointer;font-size:15px">\u00d7</button></td></tr>';
 }
-function renderCourses(){ var b=document.getElementById('nd-body'); if(!b)return; b.innerHTML=window._courses.map(courseRowHTML).join(''); computeNaesin(); }
-function addCourseRow(){ window._courses.push({subject:'',sem:'3-1',unit:null,grade:null}); renderCourses(); }
+// 노란색(불확실) 셀 개수 안내 갱신
+function refreshUncertainNote(){
+  var el=document.getElementById('nd-uncertain'); if(!el)return;
+  var n=0; (window._courses||[]).forEach(function(c){ if(Array.isArray(c.uncertain))n+=c.uncertain.length; });
+  if(n>0){ el.style.display='block'; el.innerHTML='<b style="color:#e8b923">노란색 '+n+'칸</b> = AI가 확실히 읽지 못한 값입니다. 원본과 대조해 <b>직접 확인·수정</b>하세요. (수정하면 표시가 사라집니다)'; }
+  else { el.style.display='none'; }
+}
+function renderCourses(){ var b=document.getElementById('nd-body'); if(!b)return; b.innerHTML=window._courses.map(courseRowHTML).join(''); computeNaesin(); refreshUncertainNote(); }
+function addCourseRow(){ window._courses.push({subject:'',sem:'3-1',unit:null,grade:null,uncertain:[]}); renderCourses(); }
 function parseNaesin(){
   var raw=document.getElementById('nd-paste').value||''; var cur='3-1';
   raw.split(/\n/).map(function(l){return l.trim();}).filter(Boolean).forEach(function(l){
@@ -3719,7 +3733,7 @@ function parseNaesin(){
     if(!subj||ints.length<2)return;
     var unit=ints.find(function(n){return Number.isInteger(n)&&n>=1&&n<=8;});
     var grade=ints.slice().reverse().find(function(n){return Number.isInteger(n)&&n>=1&&n<=9;});
-    window._courses.push({subject:subj,sem:cur,unit:(unit==null?null:unit),grade:(grade==null?null:grade)});
+    window._courses.push({subject:subj,sem:cur,unit:(unit==null?null:unit),grade:(grade==null?null:grade),uncertain:[]});
   });
   renderCourses();
 }
@@ -3768,10 +3782,11 @@ window._recText=''; window._parsedSetech=[];
 window._recImages=[];
 async function renderPdfImages(pdf,maxPages,scaleW,enhance){
   var out=[]; var n=Math.min(pdf.numPages,maxPages);
-  var maxScale=enhance?3:2, q=enhance?0.72:0.55;
+  // 판독 정확도 최우선: 해상도·품질 상향(작은 숫자·성취도·석차등급 판독률↑)
+  var maxScale=enhance?4:2.5, q=enhance?0.9:0.72;
   for(var i=1;i<=n;i++){
     var pg=await pdf.getPage(i);
-    var vp=pg.getViewport({scale:1}); var scale=scaleW/vp.width; if(scale>maxScale)scale=maxScale;
+    var vp=pg.getViewport({scale:1}); var scale=scaleW/vp.width; if(scale>maxScale)scale=maxScale; if(scale<1.5)scale=1.5;
     var v=pg.getViewport({scale:scale});
     var cv=document.createElement('canvas'); cv.width=v.width; cv.height=v.height;
     await pg.render({canvasContext:cv.getContext('2d'),viewport:v}).promise;
@@ -3779,7 +3794,7 @@ async function renderPdfImages(pdf,maxPages,scaleW,enhance){
       // 저해상도 스캔 판독률 향상: 흑백 + 대비 보정
       try{
         var cv2=document.createElement('canvas'); cv2.width=cv.width; cv2.height=cv.height;
-        var cx2=cv2.getContext('2d'); cx2.filter='grayscale(1) contrast(1.18) brightness(1.04)';
+        var cx2=cv2.getContext('2d'); cx2.filter='grayscale(1) contrast(1.25) brightness(1.03)';
         cx2.drawImage(cv,0,0); cv=cv2;
       }catch(e){}
     }
@@ -3787,32 +3802,93 @@ async function renderPdfImages(pdf,maxPages,scaleW,enhance){
   }
   return out;
 }
-async function uploadRecord(file){
-  var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!file||!sb)return;
-  m.style.color='var(--ink-mute)';m.textContent='분석 준비 중…';
+// 이미지 파일(폰 촬영·스캔 이미지)을 판독용 base64로 전처리: 과대 이미지 축소 + 흑백·대비 보정
+async function fileToProcessedB64(file){
+  var dataUrl=await new Promise(function(res,rej){var rd=new FileReader();rd.onload=function(){res(String(rd.result));};rd.onerror=rej;rd.readAsDataURL(file);});
+  var img=await new Promise(function(res,rej){var im=new Image();im.onload=function(){res(im);};im.onerror=rej;im.src=dataUrl;});
+  var MAXEDGE=2200; var w=img.naturalWidth||img.width, h=img.naturalHeight||img.height;
+  var sc=1; var long=Math.max(w,h); if(long>MAXEDGE)sc=MAXEDGE/long; // 축소만(확대 안 함)
+  var cw=Math.round(w*sc), ch=Math.round(h*sc);
+  var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch;
+  var cx=cv.getContext('2d');
+  try{ cx.filter='grayscale(1) contrast(1.22) brightness(1.03)'; }catch(e){}
+  cx.drawImage(img,0,0,cw,ch);
+  return cv.toDataURL('image/jpeg',0.9).split(',')[1];
+}
+// SheetJS 지연 로드(엑셀 업로드 시에만)
+function loadSheetJS(){
+  return new Promise(function(res,rej){
+    if(window.XLSX)return res(window.XLSX);
+    var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+    s.onload=function(){res(window.XLSX);}; s.onerror=function(){rej(new Error('엑셀 라이브러리 로드 실패'));};
+    document.head.appendChild(s);
+  });
+}
+// 다양한 형식 → 판독 재료(text/images) 통합 추출. files: FileList/배열
+async function extractRecordSources(files, onStep){
+  var texts=[], images=[], skipped=[], hwpFiles=[];
+  var arr=Array.prototype.slice.call(files||[]);
+  function step(msg){ if(onStep)onStep(msg); }
+  for(var fi=0; fi<arr.length; fi++){
+    var f=arr[fi]; var name=(f.name||'').toLowerCase();
+    try{
+      if(/\.pdf$/i.test(name) || f.type==='application/pdf'){
+        step('PDF 처리 중… ('+(fi+1)+'/'+arr.length+')');
+        pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        var buf=await f.arrayBuffer(); var pdf=await pdfjsLib.getDocument({data:buf}).promise; var t='';
+        for(var pi=1;pi<=pdf.numPages;pi++){var pg=await pdf.getPage(pi);var c=await pg.getTextContent();t+=c.items.map(function(x){return x.str;}).join(' ')+'\n';}
+        if(t.trim().length>=100){ texts.push(t); }
+        else { step('스캔 PDF 이미지화 중… ('+(fi+1)+'/'+arr.length+')'); var im=await renderPdfImages(pdf,30,2100,true); images=images.concat(im); }
+      } else if(/^image\//.test(f.type) || /\.(jpe?g|png|webp|heic|heif|gif|bmp)$/i.test(name)){
+        step('이미지 전처리 중… ('+(fi+1)+'/'+arr.length+')');
+        try{ images.push(await fileToProcessedB64(f)); }
+        catch(e){ // 전처리 실패 시 원본 그대로
+          var raw=await new Promise(function(res,rej){var rd=new FileReader();rd.onload=function(){res(String(rd.result).split(',')[1]);};rd.onerror=rej;rd.readAsDataURL(f);});
+          images.push(raw);
+        }
+      } else if(/\.docx$/i.test(name) && window.mammoth){
+        step('DOCX 텍스트 추출 중…'); var ab=await f.arrayBuffer(); var r=await window.mammoth.extractRawText({arrayBuffer:ab}); if(r&&r.value)texts.push(r.value);
+      } else if(/\.xlsx$/i.test(name) || /\.xls$/i.test(name)){
+        step('엑셀 텍스트 추출 중…'); var XL=await loadSheetJS(); var ab2=await f.arrayBuffer(); var wb=XL.read(ab2,{type:'array'});
+        var xt=''; wb.SheetNames.forEach(function(sn){ xt+='['+sn+']\n'+XL.utils.sheet_to_csv(wb.Sheets[sn])+'\n'; }); if(xt.trim())texts.push(xt);
+      } else if(/\.(txt|md|csv)$/i.test(name)){
+        step('텍스트 파일 읽는 중…'); texts.push(await f.text());
+      } else if(/\.(hwp|hwpx)$/i.test(name)){
+        hwpFiles.push(f.name);
+      } else { skipped.push(f.name); }
+    }catch(e){ skipped.push(f.name+'(오류)'); }
+  }
+  return {text:texts.join('\n\n'), images:images, skipped:skipped, hwpFiles:hwpFiles};
+}
+// 하위호환 래퍼 (단일 파일 호출도 처리)
+async function uploadRecord(file){ return uploadRecords(file?[file]:[]); }
+async function uploadRecords(files){
+  var m=document.getElementById('rec-msg'); var s=requireActive(m);
+  var arr=Array.prototype.slice.call(files||[]);
+  if(!s||!arr.length||!sb)return;
+  m.style.color='var(--ink-mute)';m.textContent='분석 준비 중… ('+arr.length+'개 파일)';
   // 개인정보 보호: 원본 파일은 서버에 저장하지 않고, 브라우저 메모리에서 파싱에만 사용
   try{ await sb.from('student_records').insert({student_id:s.id,doc_type:'생활기록부'}); }catch(e){}
-  if(/\.pdf$/i.test(file.name)&&window.pdfjsLib){
-    m.textContent='업로드 완료 · 텍스트 추출 중…';
-    try{
-      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      var buf=await file.arrayBuffer();
-      var pdf=await pdfjsLib.getDocument({data:buf}).promise; var t='';
-      for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i);var c=await pg.getTextContent();t+=c.items.map(function(x){return x.str;}).join(' ')+'\n';}
-      if(t.trim().length>=100){
-        window._recText=t; window._recImages=[];
-        var np=document.getElementById('nd-paste'); if(np) np.value=t.slice(0,5000);
-        var b=document.getElementById('rec-ai'); b.disabled=false; b.style.opacity='1';
-        m.style.color='var(--safe)';m.textContent='추출 완료 ('+t.length+'자). [AI 자동정리] 누르거나 아래 표에서 직접 확인.';
-      } else {
-        m.style.color='var(--ink-mute)'; m.textContent='스캔(이미지) PDF 감지 · 페이지 이미지화 중… (잠시)';
-        window._recText='';
-        window._recImages=await renderPdfImages(pdf,30,1600,true);
-        var b2=document.getElementById('rec-ai'); b2.disabled=false; b2.style.opacity='1';
-        m.style.color='var(--safe)';m.textContent='스캔 PDF '+window._recImages.length+'p 준비됨. [AI 자동정리]로 비전 분석하세요.';
-      }
-    }catch(e){ m.style.color='var(--risk)';m.textContent='PDF 추출 실패: '+e.message; }
-  } else { m.style.color='var(--safe)';m.textContent='업로드 완료 (자동추출은 PDF만).'; }
+  try{
+    var src=await extractRecordSources(arr,function(msg){ m.style.color='var(--ink-mute)';m.textContent=msg; });
+    window._recText=src.text||''; window._recImages=src.images||[];
+    if(src.hwpFiles&&src.hwpFiles.length){
+      m.style.color='var(--risk)';
+      m.innerHTML='한글 파일('+esc(src.hwpFiles.join(', '))+')은 브라우저에서 정확히 읽을 수 없습니다. 한글에서 <b>파일 → PDF로 저장</b> 후 그 PDF를 올려주세요. (판독 신뢰도 확보를 위해 권장)';
+      if(!window._recText&&!window._recImages.length)return;
+    }
+    if(!window._recText&&!window._recImages.length){
+      m.style.color='var(--risk)';m.textContent='읽을 수 있는 내용이 없습니다.'+(src.skipped.length?(' 지원 안 되는 파일: '+esc(src.skipped.join(', '))):'');
+      return;
+    }
+    var np=document.getElementById('nd-paste'); if(np&&window._recText) np.value=window._recText.slice(0,5000);
+    var b=document.getElementById('rec-ai'); if(b){b.disabled=false;b.style.opacity='1';}
+    var parts=[];
+    if(window._recImages.length)parts.push('이미지/스캔 '+window._recImages.length+'장');
+    if(window._recText)parts.push('텍스트 '+window._recText.length+'자');
+    var warn=src.skipped.length?(' · 제외: '+esc(src.skipped.join(', '))):'';
+    m.style.color='var(--safe)';m.textContent='준비 완료 ('+parts.join(' + ')+'). [AI 자동정리]를 누르세요.'+warn;
+  }catch(e){ m.style.color='var(--risk)';m.textContent='처리 실패: '+(e.message||e); }
 }
 function showAiLoading(){
   var o=document.getElementById('ai-loading'); if(o)o.remove();
@@ -3839,7 +3915,7 @@ async function aiAutofill(){
   try{
     // 배치 구성: 스캔은 4장씩, 텍스트는 11,000자 청크 — 절단 없이 전량 분석
     var jobs=[];
-    if(hasImg){ var imgs=window._recImages,B=4; for(var bi=0;bi<Math.ceil(imgs.length/B);bi++)jobs.push({images:imgs.slice(bi*B,(bi+1)*B)}); }
+    if(hasImg){ var imgs=window._recImages,B=2; for(var bi=0;bi<Math.ceil(imgs.length/B);bi++)jobs.push({images:imgs.slice(bi*B,(bi+1)*B)}); }
     else { var t=window._recText,LIM=11000; while(t.length){ if(t.length<=LIM){jobs.push({text:t});break;} var cut=t.lastIndexOf('\n',LIM); if(cut<LIM*0.5)cut=LIM; jobs.push({text:t.slice(0,cut)}); t=t.slice(cut); } }
     var total=jobs.length,done=0,failed=[],results=new Array(total);
     function prog(){ m.style.color='var(--ink-mute)';m.textContent='AI 분석 중… ('+done+'/'+total+' 배치 완료)'; var se=document.getElementById('ai-step'); if(se)se.textContent='생기부 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…'; }
@@ -3855,7 +3931,7 @@ async function aiAutofill(){
     var ws=[];for(var w=0;w<Math.min(CONC,total);w++)ws.push(worker()); await Promise.all(ws);
     var obj={}; for(var ri=0;ri<total;ri++)if(results[ri])obj=mergeDaeParsed(obj,results[ri]);
     if(!obj||!Object.keys(obj).length){m.style.color='var(--risk)';m.textContent='AI 응답 파싱 실패 — 다시 시도하세요.';return;}
-    if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade))};}); renderCourses(); }
+    if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade)),uncertain:Array.isArray(c.uncertain)?c.uncertain:[]};}); renderCourses(); }
     window._parsedSetech=obj.setech||[]; window._parsedChangche=obj.changche||[]; window._parsedHaengbal=obj.haengbal||[];
     var se=window._parsedSetech;
     document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 세특 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">세특 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 세특 없음</div>';
@@ -4854,26 +4930,24 @@ async function gintakeLoadSaved(silent){
     if(m){m.style.color='var(--safe)';m.textContent='저장된 자료 표시 ('+cnt+'건).';}
   }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='불러오기 실패: '+e.message;} }
 }
-async function gintakeUpload(file){
+async function gintakeUpload(files){
   var m=document.getElementById('gin-msg'); var s=window._gactive;
   if(!s){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';return;}
-  if(!file||!sb)return;
+  var arr=Array.prototype.slice.call((files&&files.length!==undefined)?files:(files?[files]:[]));
+  if(!arr.length||!sb)return;
   window._gRecText=''; window._gRecImages=[];
-  if(/\.pdf$/i.test(file.name)&&window.pdfjsLib){
-    m.style.color='var(--ink-mute)';m.textContent='PDF 텍스트 추출 중…';
-    try{
-      pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      var buf=await file.arrayBuffer();
-      var pdf=await pdfjsLib.getDocument({data:buf}).promise; var t='';
-      for(var i=1;i<=pdf.numPages;i++){var pg=await pdf.getPage(i);var c=await pg.getTextContent();t+=c.items.map(function(x){return x.str;}).join(' ')+'\n';}
-      if(t.trim().length>=100){ window._gRecText=t; m.style.color='var(--safe)';m.textContent='텍스트 추출 완료 ('+t.length+'자). 분석을 시작합니다…'; }
-      else { m.style.color='var(--ink-mute)';m.textContent='스캔 PDF 감지 · 페이지 이미지화 중…'; window._gRecImages=await renderPdfImages(pdf,30,1600,true); m.textContent='스캔 '+window._gRecImages.length+'p 준비 · 분석을 시작합니다…'; }
-    }catch(e){ m.style.color='var(--risk)';m.textContent='PDF 처리 실패: '+e.message; return; }
-  } else if(/^image\//.test(file.type)){
-    m.style.color='var(--ink-mute)';m.textContent='이미지 처리 중…';
-    var b64=await new Promise(function(res,rej){var rd=new FileReader();rd.onload=function(){res(String(rd.result).split(',')[1]);};rd.onerror=rej;rd.readAsDataURL(file);});
-    window._gRecImages=[b64];
-  } else { m.style.color='var(--risk)';m.textContent='PDF 또는 이미지 파일만 지원합니다.';return; }
+  try{
+    var src=await extractRecordSources(arr,function(msg){ m.style.color='var(--ink-mute)';m.textContent=msg; });
+    window._gRecText=src.text||''; window._gRecImages=src.images||[];
+    if(src.hwpFiles&&src.hwpFiles.length){
+      m.style.color='var(--risk)';
+      m.innerHTML='한글 파일('+esc(src.hwpFiles.join(', '))+')은 브라우저에서 정확히 읽을 수 없습니다. 한글에서 <b>파일 → PDF로 저장</b> 후 올려주세요.';
+      if(!window._gRecText&&!window._gRecImages.length)return;
+    }
+    if(!window._gRecText&&!window._gRecImages.length){ m.style.color='var(--risk)';m.textContent='읽을 수 있는 내용이 없습니다.'+(src.skipped.length?(' 제외: '+esc(src.skipped.join(', '))):''); return; }
+    var parts=[]; if(window._gRecImages.length)parts.push('이미지/스캔 '+window._gRecImages.length+'장'); if(window._gRecText)parts.push('텍스트 '+window._gRecText.length+'자');
+    m.style.color='var(--safe)';m.textContent='준비 완료 ('+parts.join(' + ')+'). 분석을 시작합니다…';
+  }catch(e){ m.style.color='var(--risk)';m.textContent='처리 실패: '+(e.message||e); return; }
   await gintakeParse();
 }
 function mergeParsed(a,b){
@@ -4899,7 +4973,7 @@ async function gintakeParse(){
     // 배치(이미지 4장 또는 텍스트 청크) 목록 구성
     var jobs=[];
     if(hasImg){
-      var imgs=window._gRecImages; var BATCH=4;
+      var imgs=window._gRecImages; var BATCH=2;
       for(var bi=0;bi<Math.ceil(imgs.length/BATCH);bi++)jobs.push({images:imgs.slice(bi*BATCH,(bi+1)*BATCH)});
     } else {
       // 긴 텍스트도 절단 없이 전량 분석: 11,000자 청크(줄 경계) 분할
