@@ -3,271 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>아르케 · 로그인</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<title>아르케 · 영업매니저 관리 (관리자)</title>
+<link rel="stylesheet" href="/shared/tokens.css">
 <style>
-  :root{
-    --bg:#f4f7f4; --panel:#ffffff; --panel-2:#f0f4f0;
-    --line:rgba(20,80,40,.14);
-    --ink:#16241c; --ink-dim:#41564a; --ink-mute:#6d8377;
-    --lime:#2fa860; --gold:#c8871a; --risk:#e05353; --safe:#2e9e56;
-  }
-  *{ box-sizing:border-box; }
-  body{ margin:0; font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--ink);
-        min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; -webkit-font-smoothing:antialiased; }
-  .card{ width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:30px 26px; }
-  .brand{ font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:.9; letter-spacing:.02em; }
-  .brand .dot{ color:var(--gold); }
-  .mono{ font-size:10px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; margin:4px 0 20px; }
-  input{ width:100%; margin-bottom:10px; padding:11px 13px; background:var(--panel-2); border:1px solid var(--line);
-         border-radius:9px; color:var(--ink); font-size:14px; font-family:inherit; }
-  .msg{ min-height:16px; font-size:12px; color:var(--risk); margin:4px 0 10px; line-height:1.5; }
-  .msg.ok{ color:var(--safe); }
-  .btn{ width:100%; padding:12px; background:var(--lime); color:#fff; border:none; border-radius:9px; font-weight:700;
-        cursor:pointer; font-size:14px; font-family:inherit; }
-  .btn:disabled{ opacity:.6; cursor:default; }
-  .hint{ font-size:10.5px; color:var(--ink-mute); text-align:center; margin-top:14px; line-height:1.6; }
-  .badge{ display:inline-block; font-size:10px; color:var(--gold); border:1px solid var(--gold); border-radius:8px; padding:1px 7px; margin-left:6px; }
-  .link{ display:block; text-align:center; font-size:12px; color:var(--gold); cursor:pointer; text-decoration:underline; margin-top:12px; }
-  .section-title{ font-size:13px; font-weight:700; margin-bottom:10px; }
-  .toggle{ display:flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; margin-bottom:12px; }
-  .toggle button{ flex:1; background:transparent; border:none; color:var(--ink-dim); font-family:inherit; font-size:13px; padding:9px; cursor:pointer; }
-  .toggle button.on{ background:var(--gold); color:#1a1200; font-weight:700; }
-  .notice{ font-size:11px; color:var(--ink-dim); background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:10px 12px; margin-bottom:10px; line-height:1.55; }
-  #signupForm,#mgrForm{ display:none; }
+  body{ min-height:100vh; padding:24px 30px 60px; max-width:1100px; margin:0 auto; }
+  .h1{ font-family:'Bebas Neue'; font-size:30px; margin:0 0 2px; }
+  .sub{ color:var(--ink-dim); font-size:13px; margin-bottom:22px; }
+  .card{ background:var(--panel); border:1px solid var(--line-soft); border-radius:14px; padding:18px; margin-bottom:18px; }
+  .card h3{ font-size:15px; margin:0 0 12px; }
+  table{ width:100%; border-collapse:collapse; }
+  th{ text-align:left; font-size:10px; letter-spacing:.08em; color:var(--ink-mute); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line); }
+  td{ padding:11px 10px; font-size:13px; border-bottom:1px solid var(--line-soft); vertical-align:top; }
+  .pill{ font-size:11px; padding:2px 9px; border-radius:20px; white-space:nowrap; }
+  .pill.pending{ background:#fdf6e3; color:#7a5c00; }
+  .pill.approved{ background:#e5f5ea; color:var(--safe); }
+  .pill.rejected{ background:#fde8e8; color:var(--risk); }
+  .pill.verified{ background:#e5f5ea; color:var(--safe); }
+  .pill.requested{ background:#fdf6e3; color:#7a5c00; }
+  .btn{ padding:6px 12px; border:none; border-radius:7px; font-weight:700; cursor:pointer; font-size:12px; font-family:inherit; }
+  .btn.approve{ background:var(--lime); color:#fff; }
+  .btn.reject{ background:transparent; color:var(--risk); border:1px solid var(--line); }
+  .btn.verify{ background:var(--gold); color:#1a1200; }
+  .btn:disabled{ opacity:.5; }
+  input.codein{ width:110px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-size:12px; background:var(--panel-2); color:var(--ink); font-family:inherit; }
+  .muted{ color:var(--ink-mute); }
+  .center{ display:flex; align-items:center; justify-content:center; min-height:80vh; text-align:center; }
+  .bank{ font-size:12px; color:var(--ink-dim); line-height:1.5; }
+  .back{ font-size:12px; color:var(--gold); text-decoration:underline; cursor:pointer; }
 </style>
 </head>
 <body>
+<div id="gate" class="center"><div class="muted">불러오는 중…</div></div>
+
+<div id="app" style="display:none">
+  <div class="h1">영업매니저 관리</div>
+  <div class="sub">가입 신청 승인·코드 발행 및 정산 계좌 확인 <span class="back" onclick="location.href='/admin'">← 관리자 콘솔</span></div>
+
   <div class="card">
-    <div class="brand">ARCHE<span class="dot">.</span></div>
-    <div class="mono">학원 컨설팅 엔진 <span class="badge">new</span></div>
-
-    <!-- ===== 로그인 ===== -->
-    <div id="loginForm">
-      <input id="email" type="text" placeholder="이메일 또는 아이디" autocomplete="username">
-      <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
-      <div id="msg" class="msg"></div>
-      <button id="loginBtn" class="btn">로그인</button>
-      <div class="hint">
-        로그인하면 계정에 맞는 화면으로 자동 이동합니다.<br>
-        (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사 · 매니저 → 영업)
-      </div>
-      <span class="link" onclick="showView('signup')">회원가입 (학원 · 학부모) →</span>
-      <span class="link" onclick="showView('mgr')">영업매니저로 가입 신청 →</span>
-    </div>
-
-    <!-- ===== 회원가입 (학원/학부모) ===== -->
-    <div id="signupForm">
-      <div class="section-title">회원가입</div>
-      <div class="toggle">
-        <button id="t-b2b" class="on" onclick="setType('b2b')">학원</button>
-        <button id="t-b2c" onclick="setType('b2c')">학부모</button>
-      </div>
-      <input id="s-name" type="text" placeholder="학원명">
-      <input id="s-email" type="email" placeholder="이메일" autocomplete="email">
-      <input id="s-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
-      <input id="s-refcode" type="text" placeholder="영업매니저 코드 (선택)" autocomplete="off" style="margin-bottom:4px">
-      <div id="s-refstatus" style="font-size:11px;min-height:14px;margin-bottom:8px;color:var(--ink-mute)">코드 미입력 시 본사로 귀속됩니다.</div>
-      <div id="s-msg" class="msg"></div>
-      <button id="signupBtn" class="btn">가입하기</button>
-      <div class="notice">
-        📩 가입하면 입력하신 이메일로 <b>인증 메일</b>이 발송됩니다.<br>
-        메일의 <b>인증 링크를 클릭해야 가입이 완료</b>되며, 이후 로그인할 수 있습니다.<br>
-        (메일이 안 보이면 스팸함도 확인해주세요.)
-      </div>
-      <span class="link" onclick="showView('login')">← 로그인으로 돌아가기</span>
-    </div>
-
-    <!-- ===== 매니저 셀프 가입 ===== -->
-    <div id="mgrForm">
-      <div class="section-title">영업매니저 가입 신청</div>
-      <input id="m-name" type="text" placeholder="이름">
-      <input id="m-email" type="email" placeholder="이메일" autocomplete="email">
-      <input id="m-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
-      <div id="m-msg" class="msg"></div>
-      <button id="mgrBtn" class="btn">가입 신청</button>
-      <div class="notice">
-        📩 가입하면 <b>인증 메일</b>이 발송됩니다. 메일 인증 후,<br>
-        <b>본사(관리자) 승인</b>이 완료되면 영업 화면을 이용할 수 있습니다.
-      </div>
-      <span class="link" onclick="showView('login')">← 로그인으로 돌아가기</span>
+    <h3>매니저 목록</h3>
+    <div style="overflow-x:auto">
+      <table>
+        <thead><tr><th>매니저</th><th>상태</th><th>코드</th><th>회원</th><th>계좌</th><th>처리</th></tr></thead>
+        <tbody id="rows"><tr><td colspan="6" class="muted">불러오는 중…</td></tr></tbody>
+      </table>
     </div>
   </div>
+</div>
 
-<!-- ===== 외부 라이브러리 ===== -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- ===== 공통 (shared) · 반드시 이 순서 ===== -->
 <script src="/shared/config.js"></script>
 <script src="/shared/supabase.js"></script>
 <script src="/shared/ai.js"></script>
 <script src="/shared/auth.js"></script>
-
-<!-- ===== 이 페이지 전용 ===== -->
 <script>
-  var msg  = document.getElementById('msg');
-  var sMsg = document.getElementById('s-msg');
-  var mMsg = document.getElementById('m-msg');
-  var btn       = document.getElementById('loginBtn');
-  var signupBtn = document.getElementById('signupBtn');
-  var mgrBtn    = document.getElementById('mgrBtn');
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
 
-  function setMsg(el,t,ok){ el.textContent = t||''; el.className = 'msg'+(ok?' ok':''); }
-  function showView(v){
-    document.getElementById('loginForm').style.display  = (v==='login')  ? 'block':'none';
-    document.getElementById('signupForm').style.display = (v==='signup') ? 'block':'none';
-    document.getElementById('mgrForm').style.display    = (v==='mgr')    ? 'block':'none';
-  }
-  window.showView = showView;
-
-  /* 학원/학부모 선택 */
-  var signupType = 'b2b';
-  function setType(t){
-    signupType = t;
-    document.getElementById('t-b2b').className = (t==='b2b')?'on':'';
-    document.getElementById('t-b2c').className = (t==='b2c')?'on':'';
-    document.getElementById('s-name').placeholder = (t==='b2b') ? '학원명' : '성함 (또는 학생 이름)';
-  }
-  window.setType = setType;
-
-  /* 아이디 → 이메일 변환 (기존 규칙과 동일) */
-  var ADMIN_EMAIL = 'admin@arche.penta-view.com';
-  var STU_EMAIL_DOMAIN = 'stu.penta-view.com';
-  function normalizeId(input){
-    var v = (input||'').trim();
-    if(v.indexOf('@') > 0) return v;
-    var low = v.toLowerCase();
-    if(low === 'admin') return ADMIN_EMAIL;
-    return low + '@' + STU_EMAIL_DOMAIN;
-  }
-
-  /* 이미 로그인돼 있으면 자동 이동 */
-  (async function(){
-    try{
-      var s = await getSession();
-      if(s){
-        var r = await routeByRole(s);
-        if(r && !r.ok && r.reason==='manager_pending'){
-          setMsg(msg,'매니저 승인 대기 중입니다. 본사 승인 후 이용 가능합니다.');
-        }
-      }
-    }catch(e){}
+  (async function init(){
+    var session = await getSession();
+    if(!session){ location.replace('/login'); return; }
+    var info = await resolveRole(session.user);
+    if(!info.isAdmin){
+      document.getElementById('gate').innerHTML = '<div><div class="h1" style="font-size:22px">접근 권한 없음</div><p class="muted">관리자 전용 페이지입니다.</p></div>';
+      return;
+    }
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='block';
+    load();
   })();
 
-  /* 로그인 */
-  async function doLogin(){
-    var raw = (document.getElementById('email').value||'').trim();
-    var pw = document.getElementById('pw').value||'';
-    if(!raw || !pw){ setMsg(msg,'이메일(또는 아이디)과 비밀번호를 입력하세요.'); return; }
-    var email = normalizeId(raw);
-    btn.disabled = true; setMsg(msg,'로그인 중…');
-    try{
-      var session = await signIn(email, pw);
-      var r = await routeByRole(session);
-      if(r && r.ok){ setMsg(msg,'로그인 성공 — 이동 중…', true); }
-      else if(r && r.reason==='manager_pending'){ btn.disabled=false; setMsg(msg,'매니저 승인 대기 중입니다. 본사 승인 후 이용 가능합니다.'); }
-      else { btn.disabled=false; setMsg(msg,'이동할 화면을 찾지 못했습니다. 관리자에게 문의하세요.'); }
-    }catch(e){
-      btn.disabled = false;
-      var m = (e.message||''+e);
-      if(/Email not confirmed/i.test(m)) m = '이메일 인증이 아직 안 됐습니다. 받은 인증 메일의 링크를 클릭한 뒤 로그인해주세요.';
-      setMsg(msg,'로그인 실패: ' + m);
-    }
-  }
-
-  /* 매니저 코드 실시간 확인 */
-  var refManagerId = null;
-  var refTimer = null;
-  var refStatusEl = document.getElementById('s-refstatus');
-  async function checkRefCode(){
-    var code = (document.getElementById('s-refcode').value||'').trim();
-    refManagerId = null;
-    if(!code){ refStatusEl.style.color='var(--ink-mute)'; refStatusEl.textContent='코드 미입력 시 본사로 귀속됩니다.'; return; }
-    refStatusEl.style.color='var(--ink-mute)'; refStatusEl.textContent='확인 중…';
-    try{
-      var r = await sb.rpc('lookup_manager_by_code', { p_code: code });
-      if(r.error) throw r.error;
-      if(r.data && r.data.length){
-        refManagerId = r.data[0].id;
-        refStatusEl.style.color='var(--safe)';
-        refStatusEl.textContent='✓ 담당 매니저 ' + r.data[0].name + ' 확인됨';
-      } else {
-        refStatusEl.style.color='var(--risk)';
-        refStatusEl.textContent='코드를 확인할 수 없습니다. 다시 확인해주세요.';
+  async function load(){
+    var r = await sb.rpc('admin_list_managers');
+    var tb = document.getElementById('rows');
+    if(r.error){ tb.innerHTML='<tr><td colspan="6" class="muted">오류: '+esc(r.error.message)+'</td></tr>'; return; }
+    var rows = r.data||[];
+    if(!rows.length){ tb.innerHTML='<tr><td colspan="6" class="muted">등록된 매니저가 없습니다.</td></tr>'; return; }
+    tb.innerHTML = rows.map(function(m){
+      var stat = '<span class="pill '+esc(m.status)+'">'+({pending:'대기',approved:'승인',rejected:'반려'})[m.status]+'</span>';
+      var code = m.ref_code ? '<b>'+esc(m.ref_code)+'</b>' : (m.status==='pending'
+        ? '<input class="codein" id="code-'+m.id+'" placeholder="희망:'+esc(m.desired_code||'자동')+'" value="'+esc(m.desired_code||'')+'">'
+        : '<span class="muted">—</span>');
+      // 계좌
+      var bank = '<span class="muted">미제출</span>';
+      if(m.bank_name){
+        var bstat = m.bank_status==='verified' ? '<span class="pill verified">확인됨</span>' : '<span class="pill requested">확인대기</span>';
+        bank = '<div class="bank">'+esc(m.bank_name)+' '+esc(m.account_no)+'<br>'+esc(m.holder_name)+' '+bstat+'</div>';
+        if(m.bank_status!=='verified') bank += '<button class="btn verify" style="margin-top:6px" onclick="verifyBank(\''+m.id+'\')">계좌 확인완료</button>';
       }
-    }catch(e){
-      refStatusEl.style.color='var(--risk)';
-      refStatusEl.textContent='코드 확인 오류 — 비워두면 본사로 귀속됩니다.';
-    }
-  }
-  document.getElementById('s-refcode').addEventListener('input', function(){
-    clearTimeout(refTimer); refTimer = setTimeout(checkRefCode, 450);
-  });
+      // 처리
+      var act = '';
+      if(m.status==='pending'){
+        act = '<button class="btn approve" onclick="approve(\''+m.id+'\')">승인+코드발행</button> '
+            + '<button class="btn reject" onclick="reject(\''+m.id+'\')">반려</button>';
+      } else if(m.status==='approved'){
+        act = '<span class="muted" style="font-size:11px">승인 완료</span>';
+      } else { act = '<span class="muted" style="font-size:11px">반려됨</span>'; }
 
-  /* 회원가입 (학원/학부모) */
-  async function doSignup(){
-    var name = (document.getElementById('s-name').value||'').trim();
-    var email = (document.getElementById('s-email').value||'').trim();
-    var pw = document.getElementById('s-pw').value||'';
-    if(!name || !email || !pw){ setMsg(sMsg, (signupType==='b2b'?'학원명':'성함')+'·이메일·비밀번호를 모두 입력하세요.'); return; }
-    if(pw.length < 6){ setMsg(sMsg,'비밀번호는 6자 이상이어야 합니다.'); return; }
-
-    signupBtn.disabled = true; setMsg(sMsg,'가입 중…');
-    try{
-      var meta = { academy_name:name, account_type:signupType };
-      if(refManagerId) meta.referred_by = refManagerId;   // 매니저 귀속 (서버 트리거가 검증·적용)
-      var up = await sb.auth.signUp({ email: email, password: pw, options:{ data: meta } });
-      if(up.error) throw new Error(up.error.message);
-
-      if(up.data && up.data.session){
-        // 이메일 인증 불필요 설정 → 바로 로그인 상태
-        setMsg(sMsg,'가입 완료 — 이동 중…', true);
-        await routeByRole(up.data.session);
-      } else {
-        // 인증 메일 발송됨
-        setMsg(sMsg,'📩 '+email+' 로 인증 메일을 보냈습니다. 메일의 인증 링크를 클릭하면 가입이 완료됩니다. 이후 로그인해주세요.', true);
-        signupBtn.disabled = false;
-      }
-    }catch(e){
-      signupBtn.disabled = false;
-      setMsg(sMsg,'가입 실패: ' + (e.message || e));
-    }
+      return '<tr><td><b>'+esc(m.name||'-')+'</b><br><span class="muted" style="font-size:11px">'+esc(m.email||'')+'</span></td>'
+        + '<td>'+stat+'</td><td>'+code+'</td><td>'+(m.member_count||0)+'명</td><td>'+bank+'</td><td>'+act+'</td></tr>';
+    }).join('');
   }
 
-  /* 매니저 셀프 가입 */
-  async function doMgrSignup(){
-    var name = (document.getElementById('m-name').value||'').trim();
-    var email = (document.getElementById('m-email').value||'').trim();
-    var pw = document.getElementById('m-pw').value||'';
-    if(!name || !email || !pw){ setMsg(mMsg,'이름·이메일·비밀번호를 모두 입력하세요.'); return; }
-    if(pw.length < 6){ setMsg(mMsg,'비밀번호는 6자 이상이어야 합니다.'); return; }
-
-    mgrBtn.disabled = true; setMsg(mMsg,'가입 신청 중…');
-    try{
-      var up = await sb.auth.signUp({ email: email, password: pw, options:{ data:{ role:'manager', manager_name:name } } });
-      if(up.error) throw new Error(up.error.message);
-
-      var session = (await sb.auth.getSession()).data.session;
-      if(!session){ try{ session = await signIn(email, pw); }catch(e){} }
-      if(!session){
-        setMsg(mMsg,'📩 '+email+' 로 인증 메일을 보냈습니다. 메일 인증 후 다시 로그인하면 신청이 접수됩니다.', true);
-        mgrBtn.disabled = false; return;
-      }
-
-      var ins = await sb.from('sales_managers').insert({ uid: session.user.id, name: name });
-      if(ins.error){ setMsg(mMsg,'가입 처리: ' + ins.error.message); mgrBtn.disabled = false; return; }
-
-      setMsg(mMsg,'가입 신청 완료! 본사 승인 후 이용 가능합니다.', true);
-    }catch(e){
-      mgrBtn.disabled = false;
-      setMsg(mMsg,'가입 실패: ' + (e.message || e));
-    }
-  }
-
-  btn.addEventListener('click', doLogin);
-  document.getElementById('pw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
-  signupBtn.addEventListener('click', doSignup);
-  mgrBtn.addEventListener('click', doMgrSignup);
+  window.approve = async function(id){
+    var el = document.getElementById('code-'+id);
+    var desired = el ? (el.value||'').trim() : null;
+    var r = await sb.rpc('approve_manager', { p_manager_id: id, p_desired: desired || null });
+    if(r.error){ alert('승인 실패: '+r.error.message); return; }
+    var code = (r.data && r.data[0] && r.data[0].ref_code) || '';
+    alert('승인 완료 · 발행 코드: ' + code);
+    load();
+  };
+  window.reject = async function(id){
+    if(!confirm('이 매니저 가입을 반려할까요?')) return;
+    var r = await sb.rpc('reject_manager', { p_manager_id: id });
+    if(r.error){ alert('반려 실패: '+r.error.message); return; }
+    load();
+  };
+  window.verifyBank = async function(id){
+    if(!confirm('계좌확인서를 대조하셨나요? 확인 완료 처리합니다.')) return;
+    var r = await sb.rpc('verify_manager_bank', { p_manager_id: id });
+    if(r.error){ alert('처리 실패: '+r.error.message); return; }
+    load();
+  };
 </script>
 </body>
 </html>
