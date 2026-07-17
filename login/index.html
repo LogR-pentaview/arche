@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아르케 · 로그인</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f4f7f4; --panel:#ffffff; --panel-2:#f0f4f0;
+    --line:rgba(20,80,40,.14);
+    --ink:#16241c; --ink-dim:#41564a; --ink-mute:#6d8377;
+    --lime:#2fa860; --gold:#c8871a; --risk:#e05353; --safe:#2e9e56;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--ink);
+        min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; -webkit-font-smoothing:antialiased; }
+  .card{ width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:30px 26px; }
+  .brand{ font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:.9; letter-spacing:.02em; }
+  .brand .dot{ color:var(--gold); }
+  .mono{ font-size:10px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; margin:4px 0 20px; }
+  input{ width:100%; margin-bottom:10px; padding:11px 13px; background:var(--panel-2); border:1px solid var(--line);
+         border-radius:9px; color:var(--ink); font-size:14px; font-family:inherit; }
+  #msg{ min-height:16px; font-size:12px; color:var(--risk); margin:4px 0 10px; }
+  .btn{ width:100%; padding:12px; background:var(--lime); color:#fff; border:none; border-radius:9px; font-weight:700;
+        cursor:pointer; font-size:14px; font-family:inherit; }
+  .btn:disabled{ opacity:.6; cursor:default; }
+  .hint{ font-size:10.5px; color:var(--ink-mute); text-align:center; margin-top:14px; line-height:1.6; }
+  .badge{ display:inline-block; font-size:10px; color:var(--gold); border:1px solid var(--gold); border-radius:8px; padding:1px 7px; margin-left:6px; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="brand">ARCHE<span class="dot">.</span></div>
+    <div class="mono">학원 컨설팅 엔진 · 로그인 <span class="badge">new</span></div>
+
+    <input id="email" type="email" placeholder="이메일" autocomplete="email">
+    <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
+    <div id="msg"></div>
+    <button id="loginBtn" class="btn">로그인</button>
+
+    <div class="hint">
+      로그인하면 계정에 맞는 화면으로 자동 이동합니다.<br>
+      (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사)
+    </div>
+  </div>
+
+<!-- ===== 외부 라이브러리 ===== -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<!-- ===== 공통 (shared) · 반드시 이 순서 ===== -->
+<script src="/shared/config.js"></script>
+<script src="/shared/supabase.js"></script>
+<script src="/shared/ai.js"></script>
+<script src="/shared/auth.js"></script>
+
+<!-- ===== 이 페이지 전용: 로그인 처리 ===== -->
+<script>
+  var msg = document.getElementById('msg');
+  var btn = document.getElementById('loginBtn');
+  var emailEl = document.getElementById('email');
+  var pwEl = document.getElementById('pw');
+
+  function showMsg(t){ msg.textContent = t || ''; }
+
+  /* 이미 로그인돼 있으면 바로 알맞은 앱으로 이동 */
+  (async function(){
+    try{
+      var s = await getSession();
+      if(s){ showMsg('이미 로그인됨 — 이동 중…'); routeByRole(s); }
+    }catch(e){ /* 무시 */ }
+  })();
+
+  async function doLogin(){
+    var email = (emailEl.value||'').trim();
+    var pw = pwEl.value||'';
+    if(!email || !pw){ showMsg('이메일과 비밀번호를 입력하세요.'); return; }
+
+    btn.disabled = true; showMsg('로그인 중…');
+    try{
+      var session = await signIn(email, pw);   // shared/auth.js
+      showMsg('로그인 성공 — 이동 중…');
+      routeByRole(session);                     // 역할 판별 후 자동 이동
+    }catch(e){
+      btn.disabled = false;
+      showMsg('로그인 실패: ' + (e.message || e));
+    }
+  }
+
+  btn.addEventListener('click', doLogin);
+  pwEl.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+</script>
+</body>
+</html>
