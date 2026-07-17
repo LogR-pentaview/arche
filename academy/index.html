@@ -937,6 +937,7 @@
           <button class="btn" onclick="genGDesign('subject')">① 교과 탐구활동 생성</button>
           <button class="btn" onclick="genGDesign('changche')">② 창체·비교과 활동 생성</button>
           <button class="btn ghost" onclick="renderDesign()">불러오기</button>
+          <span id="goip-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span>
         </div>
         <div id="gds-result" style="margin-top:14px"></div>
         <div id="gdesign-body" style="margin-top:16px"></div>
@@ -1062,7 +1063,7 @@
         <div class="eyebrow">Student Record Design</div>
         <div class="h1">학생부 디자인</div>
         <div class="sub">진로·학과에 맞춰 앞으로 학생부에서 채워갈 방향을 과목·창체별로 설계 (대필 아님 · 방향 가이드)</div>
-        <div id="design-actions" style="display:flex;gap:10px;margin:8px 0 16px;flex-wrap:wrap"><button class="btn" onclick="genDesign('subject')">① 주요과목 탐구 생성</button><button class="btn" onclick="genDesign('changche')">② 창체활동 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button></div>
+        <div id="design-actions" style="display:flex;gap:10px;margin:8px 0 16px;flex-wrap:wrap"><button class="btn" onclick="genDesign('subject')">① 주요과목 탐구 생성</button><button class="btn" onclick="genDesign('changche')">② 창체활동 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button><span id="dae-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span></div>
         <div class="card" id="dist-box" style="margin-bottom:14px;padding:14px">
           <div class="sectionhead" style="margin-bottom:8px"><span class="idx">직접</span><h3>컨설턴트 직접 활동 배포 <span style="font-size:11px;color:var(--ink-mute)">· 활동지 파일을 학생에게 전송</span></h3></div>
           <div class="fieldrow"><input id="dist-subj" placeholder="탐구 대상 과목/영역" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><input id="dist-title" placeholder="탐구 주제" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
@@ -1915,7 +1916,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews)renderHqNews(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews)renderHqNews(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -3316,11 +3317,64 @@ function showGen(on,msg){
   else { m.style.display='none'; }
 }
 function genStep(t){ var e=document.getElementById('gen-step'); if(e)e.textContent=t; }
+/* ===== 학생부 디자인: 월 생성 제한 + 학생 간 중복 회피 ===== */
+var DESIGN_MONTH_LIMIT=2;
+async function designGenGuard(s){
+  try{
+    var now=new Date(); var ms=new Date(now.getFullYear(),now.getMonth(),1).toISOString();
+    var r=await sb.from('design_gen_log').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('created_at',ms);
+    var n=r.count||0;
+    if(n>=DESIGN_MONTH_LIMIT){
+      alert('이 학생의 이번 달 학생부 디자인 생성 횟수('+DESIGN_MONTH_LIMIT+'회)를 모두 사용했습니다.\n\n· 다음 달 1일에 초기화됩니다.\n· 어뷰징 방지를 위해 학생당 월 '+DESIGN_MONTH_LIMIT+'회(주요과목+창체 합산)로 제한됩니다.\n· 개별 항목만 바꾸려면 각 항목의 [재생성] 버튼을 이용하세요.');
+      return false;
+    }
+    return true;
+  }catch(e){ return true; }
+}
+async function logDesignGen(s,track,phase){
+  try{ await sb.from('design_gen_log').insert({academy_id:s.academy_id||null,student_id:s.id,track:track,phase:phase}); }catch(e){}
+  try{ showDesignQuota(track); }catch(e){}
+}
+async function showDesignQuota(track){
+  var s=(track==='goip')?window._gactive:window._activeStudent;
+  var el=document.getElementById(track==='goip'?'goip-quota':'dae-quota'); if(!el)return;
+  if(!s||!sb){el.textContent='';return;}
+  try{
+    var now=new Date(); var ms=new Date(now.getFullYear(),now.getMonth(),1).toISOString();
+    var r=await sb.from('design_gen_log').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('created_at',ms);
+    var n=r.count||0;
+    el.textContent='이번 달 생성 '+n+'/'+DESIGN_MONTH_LIMIT+(n>=DESIGN_MONTH_LIMIT?' · 소진(다음달 1일 초기화)':'');
+    el.style.color=(n>=DESIGN_MONTH_LIMIT)?'var(--risk)':'var(--ink-mute)';
+  }catch(e){ el.textContent=''; }
+}
+window.showDesignQuota=showDesignQuota;
+async function otherStudentTopics(s,track){
+  try{
+    var acadId=s.academy_id; if(!acadId||!sb)return '';
+    var myUniv=(track==='goip')?(s.target_school||''):(s.target_univ||'');
+    var myCareer=(s.target_major||s.career||''); var myGrade=String(s.grade||'');
+    if(!myUniv||!myCareer)return '';
+    var rr=await sb.from('students').select('id,grade,career,target_major,target_univ,target_school').eq('academy_id',acadId).neq('id',s.id).limit(400);
+    var peers=(rr.data||[]).filter(function(x){
+      var xu=(track==='goip')?(x.target_school||''):(x.target_univ||'');
+      var xc=(x.target_major||x.career||'');
+      return xu&&xu===myUniv && String(x.grade||'')===myGrade && xc&&xc===myCareer;
+    });
+    if(!peers.length)return '';
+    var ids=peers.map(function(x){return x.id;});
+    var di=await sb.from('design_items').select('title').in('student_id',ids).limit(80);
+    var titles=Array.from(new Set((di.data||[]).map(function(d){return (d.title||'').trim();}).filter(Boolean))).slice(0,30);
+    if(!titles.length)return '';
+    return '\n\n★★[중복 회피 · 필수] 같은 학원에서 같은 학교·학년·진로를 가진 다른 학생들이 이미 아래 주제로 학생부 디자인을 받았다. 신뢰 유지를 위해 이 학생에게는 아래와 주제·소재·접근·탐구방법·목차가 겹치지 않는 완전히 다른 설계를 제시하라(진로가 같아도 관점·소재·산출물을 확실히 차별화):\n'+titles.map(function(t){return '- '+t;}).join('\n');
+  }catch(e){ return ''; }
+}
+window._designTrack=window._designTrack||'dae';
 async function genDesign(phase){
   phase=phase||'subject';
   if((window._designTrack||'dae')==='goip'){ return genGDesignItems(phase); }
   const body=document.getElementById('design-body');
   const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(!(await designGenGuard(s)))return;
   showGen(true, phase==='changche'?'창체활동을 설계하고 있어요…':'주요과목 탐구활동을 설계하고 있어요…');
   try{
     genStep('학생 자료를 불러오는 중…');
@@ -3341,8 +3395,9 @@ async function genDesign(phase){
       conTxt=(cq.data||[]).map(function(c){return '['+(c.kind==='parent'?'학부모상담':'학생상담')+'] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / 활동현황:'+(c.activities||'')+' / 메모:'+(c.memo||'');}).join('\n');
     }
     var major=(subjList.length?subjList:['국어','영어','수학','과학','사회']);
+    var avoidTxt=await otherStudentTopics(s,'dae');
     genStep(phase==='changche'?'창체 4영역 활동을 구성 중…':'과목 간 연계 서사를 구성 중…');
-    var d=await callAI('design_record',{phase:phase,subjects:major.join(','),career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:'')+(cnTxt?'\n'+cnTxt:''),qual:q4});
+    var d=await callAI('design_record',{phase:phase,subjects:major.join(','),career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(conTxt?'\n[상담내용]\n'+conTxt:'')+(cnTxt?'\n'+cnTxt:'')+avoidTxt,qual:q4});
     var o=JSON.parse(d.text);
     genStep('설계를 저장하는 중…');
     if(o.done&&o.done.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{done:o.done||[],priority:o.priority||'',narrative:o.narrative||''}}); }
@@ -3351,6 +3406,7 @@ async function genDesign(phase){
     else { await sb.from('design_items').delete().eq('student_id',s.id).eq('area','과세특'); }
     var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||(phase==='changche'?'자율':'과세특'),title:t.title||'',goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),seq:t.seq||0,status:'예정',sent:false};});
     if(todo.length)await sb.from('design_items').insert(todo);
+    await logDesignGen(s,'dae',phase);
     showGen(false);
     renderDesign(); if(window.renderTopics)renderTopics();
   }catch(e){ showGen(false); if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
@@ -3359,14 +3415,16 @@ window._designTrack=window._designTrack||'dae';
 async function genGDesignItems(phase){
   phase=phase||'subject';
   var s=window._gactive; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  if(!(await designGenGuard(s)))return;
   showGen(true, phase==='changche'?'창체·비교과 활동을 설계하고 있어요…':'교과 탐구활동을 설계하고 있어요…');
   try{
     genStep('학생 자료를 불러오는 중…');
     var ctx=await gctxAll();
     if(!ctx||(!ctx.record&&!ctx.career)){ showGen(false); alert('저장된 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.'); return; }
     var tschEl=document.getElementById('gds-school'); var tsch=tschEl?tschEl.value:'';
+    var avoidTxt=await otherStudentTopics(s,'goip');
     genStep('활동 설계를 구성 중…');
-    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_design',payload:{grade:ctx.grade,career:ctx.career,target:tsch||ctx.target,target_school:tsch||null,record_text:ctx.record}}});
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_design',payload:{grade:ctx.grade,career:ctx.career,target:tsch||ctx.target,target_school:tsch||null,record_text:(ctx.record||'')+avoidTxt}}});
     if(r.error||!r.data||r.data.error){ showGen(false); alert((r.data&&r.data.error)||(r.error&&r.error.message)||'생성 실패'); return; }
     var o=safeJson(r.data.text); var items=(o&&o.items)||[];
     if(!items.length){ showGen(false); alert('생성 결과가 비었습니다. 다시 시도하세요.'); return; }
@@ -3387,6 +3445,7 @@ async function genGDesignItems(phase){
       return {student_id:s.id,grade:String(it.grade||ctx.grade||''),sem:'',subject:it.subject||'',area:(it.area||'교과탐구'),title:it.title||'',goal:it.goal||'',detail:detail,outline:outline,seq:(typeof it.seq==='number'?it.seq:i),status:'예정',sent:false};
     });
     if(rows.length)await sb.from('design_items').insert(rows);
+    await logDesignGen(s,'goip',phase);
     if(o.narrative){ try{ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{narrative:o.narrative,priority:o.priority||''}}); }catch(e){} }
     showGen(false);
     window._designTrack='goip'; renderDesign();
