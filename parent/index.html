@@ -11,7 +11,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIwIiBmaWxsPSIjMTIxNjBmIi8+PHRleHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjMwMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2M4YTI0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=">
-<title>아르케 · 학부모</title>
+<title>아르케 · 학원</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -436,7 +436,7 @@
         <button id="mnav-btn" onclick="toggleMobileNav()" aria-label="메뉴" style="display:none;background:transparent;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;cursor:pointer;margin-right:10px;color:var(--ink);font-size:17px;flex:none">☰</button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
         <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
-        <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
+        <div id="dbstat" class="mono" style="display:none;margin-left:14px;font-size:10.5px;color:var(--ink-mute);align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
         <span id="acadname" class="mono" style="font-size:11px;color:var(--ink-dim)"></span>
