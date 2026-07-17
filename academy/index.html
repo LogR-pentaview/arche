@@ -368,6 +368,7 @@
 
     <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
+    <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="자녀 관리">학생 관리</span></div>
 
     <!-- 대입 컨설팅 그룹 -->
     <div class="navgroup dae" id="grp-dae">
@@ -443,6 +444,14 @@
         <div class="eyebrow">Consulting Cockpit</div>
         <div class="h1">컨설팅 홈</div>
         <div class="sub" id="home-sub">담당 학생 0명</div>
+
+        <div onclick="goView('allstudents')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,rgba(127,184,0,.12),rgba(127,184,0,.04));border:1px solid rgba(127,184,0,.3);border-radius:12px;padding:16px 20px;margin-top:18px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div style="width:38px;height:38px;border-radius:10px;background:var(--lime);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0a1a05" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            <div><div style="font-weight:700;color:var(--ink);font-size:14.5px" data-b2c="자녀 등록·관리">학생 등록·관리</div><div style="font-size:12px;color:var(--ink-mute)">여기서 학생을 등록하면 아이디가 자동 생성되고, 학년에 따라 고입/대입이 자동 구분됩니다</div></div>
+          </div>
+          <div style="color:var(--lime);font-size:20px;flex-shrink:0">→</div>
+        </div>
 
         <div class="grid" style="grid-template-columns:1fr 1fr;margin:18px 0 22px">
           <div class="card trackcard" onclick="enterTrack('dae')" style="cursor:pointer;border-left:3px solid var(--lime)">
@@ -522,6 +531,37 @@
       </section>
 
       <!-- 2. INTAKE -->
+      <section class="view" id="v-allstudents">
+        <div class="eyebrow">Student Management</div>
+        <div class="h1" data-b2c="자녀 관리">학생 관리</div>
+        <div class="sub" data-b2c-sub="자녀를 등록·관리합니다 · 학년에 따라 고입/대입이 자동 구분됩니다">학생을 한 곳에서 등록·관리합니다 · 학년에 따라 고입/대입이 자동 구분됩니다</div>
+        <div style="background:rgba(127,184,0,.07);border:1px solid rgba(127,184,0,.25);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:12.5px;color:var(--ink-dim);line-height:1.7">
+          <b style="color:var(--ink)">쉽게 등록하기</b><br>
+          <b>①</b> 이름·지역·성별·<b>학년</b> 입력 → [등록] &nbsp;→&nbsp; <b>②</b> 학생 <b>로그인 아이디 자동 생성</b> &nbsp;→&nbsp; <b>③</b> [열기]로 자료 입력(생기부 업로드)으로 이동<br>
+          <span style="color:var(--ink-mute);font-size:11.5px">※ 중학생(중1~중3)은 <b>고입</b>, 고등학생(고1~N수)은 <b>대입</b>으로 자동 분류됩니다.</span>
+        </div>
+        <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
+          <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
+            <div class="sectionhead"><span class="idx">＋</span><h3 data-b2c="자녀 등록">학생 등록</h3></div>
+            <input id="as-name" placeholder="이름 *" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="as-school" placeholder="학교" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <select id="as-region" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">지역(시·도) *</option><option>서울</option><option>부산</option><option>대구</option><option>인천</option><option>광주</option><option>대전</option><option>울산</option><option>세종</option><option>경기</option><option>강원</option><option>충북</option><option>충남</option><option>전북</option><option>전남</option><option>경북</option><option>경남</option><option>제주</option></select>
+              <select id="as-gender" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">성별 *</option><option value="남">남</option><option value="여">여</option></select>
+            </div>
+            <select id="as-grade" style="width:100%;margin-bottom:10px;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년 * · 고입/대입 자동 구분</option><optgroup label="중학생 → 고입"><option>중1</option><option>중2</option><option>중3</option></optgroup><optgroup label="고등학생 → 대입"><option>고1</option><option>고2</option><option>고3</option><option>N수</option></optgroup></select>
+            <input id="as-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
+            <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
+            <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
+          </div>
+          <div>
+            <h3 style="font-size:14px;color:var(--ink);margin:2px 0 12px"><span data-b2c="등록한 자녀">전체 학생</span> <span id="as-count" class="mono" style="font-size:12px;color:var(--lime)">0</span></h3>
+            <div id="as-list"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
+          </div>
+        </div>
+      </section>
       <section class="view" id="v-students">
         <div class="eyebrow">Student Management</div>
         <div class="h1 pg-title" data-b2c="자녀 관리">학생 관리</div>
@@ -1835,7 +1875,7 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"학생 관리",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gessay','ginterview'];
 function toggleGroup(g){
@@ -1852,7 +1892,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   window._curView=v;
 }
@@ -2455,7 +2495,75 @@ async function createStudentAccount(id,code){
   alert('계정 생성 완료\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n(학생이 로그인 후 비밀번호 변경)');
   refreshStudentLists();
 }
-function refreshStudentLists(){ if(window.loadStudents)loadStudents(); if(window.renderGStudents&&document.getElementById('v-gstudents')&&document.getElementById('v-gstudents').classList.contains('on'))renderGStudents(); }
+function refreshStudentLists(){ if(window.loadStudents)loadStudents(); if(window.renderGStudents&&document.getElementById('v-gstudents')&&document.getElementById('v-gstudents').classList.contains('on'))renderGStudents(); if(window.renderAllStudents&&document.getElementById('v-allstudents')&&document.getElementById('v-allstudents').classList.contains('on'))renderAllStudents(); }
+
+/* ===== 통합 학생 관리 (대입/고입 자동 분기 · 계정 자동생성) ===== */
+async function renderAllStudents(){
+  var list=document.getElementById('as-list'); if(!list)return;
+  if(!sb){list.innerHTML='<div style="color:var(--risk)">DB 미로드 — 새로고침</div>';return;}
+  var _q=sb.from('students').select('*');
+  if(window._isOwner===false && window._myUid){ _q=_q.eq('consultant_uid',window._myUid); }
+  var res=await _q.order('created_at',{ascending:false});
+  if(res.error){list.innerHTML='<div style="color:var(--risk)">'+esc(res.error.message)+'</div>';return;}
+  window._allStudents=res.data||[];
+  try{ var ids=window._allStudents.map(function(s){return s.id;});
+    window._allAcct={};
+    if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id').in('student_id',ids);(acc.data||[]).forEach(function(a){window._allAcct[a.student_id]=a;});}
+  }catch(e){window._allAcct={};}
+  var cnt=document.getElementById('as-count'); if(cnt)cnt.textContent=window._allStudents.length;
+  if(!window._allStudents.length){ list.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._isB2C?'등록된 자녀가 없습니다. 왼쪽에서 등록하세요.':'등록된 학생이 없습니다. 왼쪽에서 등록하세요.')+'</div>'; return; }
+  list.innerHTML=window._allStudents.map(function(s){
+    var goip=s.admission_track==='고입';
+    var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 7px">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 7px">대입</span>';
+    var acct=window._allAcct&&window._allAcct[s.id];
+    var acctLbl=acct?('<span style="color:var(--safe)">아이디 '+esc(acct.login_id)+'</span>'):'<span style="color:var(--ink-mute)">계정 없음</span>';
+    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px">'
+      +'<div style="display:flex;align-items:center;gap:9px;min-width:0">'+badge+'<div style="min-width:0"><div style="font-weight:600;color:var(--ink);font-size:13.5px">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+' · '+acctLbl+'</div></div></div>'
+      +'<div style="display:flex;gap:6px;flex-shrink:0">'
+      +'<button onclick="openStudentUnified(\''+s.id+'\')" style="padding:6px 12px;background:var(--lime);color:#0a1a05;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">열기 →</button>'
+      +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;font-size:11px;cursor:pointer">계정</button>')
+      +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:6px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">삭제</button>'
+      +'</div></div>';
+  }).join('');
+}
+function openStudentUnified(id){
+  var s=(window._allStudents||[]).find(function(x){return x.id===id;}); if(!s)return;
+  if(s.admission_track==='고입'){ window._gactive=s; if(window._gstudents&&!window._gstudents.find(function(x){return x.id===id;}))window._gstudents.push(s); goView('gintake'); }
+  else { window._activeStudent=s; if(window._students&&!window._students.find(function(x){return x.id===id;}))window._students.push(s); goView('intake'); }
+}
+async function addAllStudent(){
+  var m=document.getElementById('as-msg');
+  var name=document.getElementById('as-name').value.trim();
+  if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
+  var reg=document.getElementById('as-region').value, gen=document.getElementById('as-gender').value, grade=document.getElementById('as-grade').value;
+  if(!reg||!gen){m.style.color='var(--risk)';m.textContent='지역과 성별은 필수입니다 — 대학·전형 매칭에 사용됩니다.';return;}
+  if(!grade){m.style.color='var(--risk)';m.textContent='학년을 선택하세요 (고입/대입 자동 구분).';return;}
+  if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드 — 새로고침';return;}
+  if(window._demo && (window._allStudents||[]).length>=2){m.style.color='var(--risk)';m.textContent='체험 모드에서는 최대 2명까지 등록할 수 있습니다.';return;}
+  var track=grade.indexOf('중')>=0?'고입':'대입';
+  var acs=await sb.from('academies').select('id').limit(1); var acid=acs.data&&acs.data[0]&&acs.data[0].id;
+  if(!acid){m.style.color='var(--risk)';m.textContent='학원 정보 없음';return;}
+  var row={academy_id:acid,name:name,region:reg,gender:gen,grade:grade,admission_track:track,
+    school:document.getElementById('as-school').value.trim()||null,
+    career:document.getElementById('as-career').value.trim()||null,
+    interest:document.getElementById('as-interest').value.trim()||null,
+    consent_record:document.getElementById('as-consent').checked };
+  if(window._myUid)row.consultant_uid=window._myUid;
+  m.style.color='var(--ink-mute)';m.textContent='등록 중…';
+  var r=await sb.from('students').insert(row).select('id').single();
+  if(r.error){m.style.color='var(--risk)';m.textContent=esc(r.error.message);return;}
+  var newId=r.data&&r.data.id;
+  m.style.color='var(--safe)';m.textContent='등록 완료 ('+track+'). 학생 로그인 계정을 생성합니다…';
+  ['as-name','as-school','as-career','as-interest'].forEach(function(i){document.getElementById(i).value='';});
+  document.getElementById('as-grade').value='';document.getElementById('as-region').value='';document.getElementById('as-gender').value='';document.getElementById('as-consent').checked=false;
+  renderAllStudents();
+  if(newId && window.createStudentAccount){ try{ await createStudentAccount(newId); }catch(e){} }
+}
+function delAllStudent(id){
+  if(!sb||!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·설계 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
+  sb.from('students').delete().eq('id',id).then(function(r){ if(r.error){alert(r.error.message);return;} renderAllStudents(); });
+}
+window.renderAllStudents=renderAllStudents;window.openStudentUnified=openStudentUnified;window.addAllStudent=addAllStudent;window.delAllStudent=delAllStudent;
 async function copyStuId(lid){
   try{await navigator.clipboard.writeText(lid);}catch(e){}
   if(window.toast)toast('아이디 복사됨: '+lid+' (초기 pw 0000)',true);
