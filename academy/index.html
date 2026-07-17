@@ -2345,7 +2345,7 @@ document.getElementById('au-signup').onclick=async()=>{
   if(data.session) enterApp(data.session);
   else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='확인 메일을 보냈습니다. 인증 후 로그인하세요.<br><span style="color:var(--gold,#c8a24a);font-size:11.5px;line-height:1.5">⚠️ 인증 메일은 Supabase(해외 서버)에서 발송됩니다. 메일이 안 보이면 <b>스팸함·프로모션함</b>을 꼭 확인하세요.</span>'; }
 };
-document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.reload();};
+document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.replace('/login');};
 if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ window._sessionUid=data.session.user.id; enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } });
 // 같은 브라우저 다중 로그인 감지 (탭 간 localStorage 공유로 계정이 뒤바뀌는 경우)
 if(sb) sb.auth.onAuthStateChange(function(event,session){
@@ -2495,18 +2495,21 @@ async function addStudent(){
     interest:document.getElementById('st-interest').value.trim()||null,
     consent_record:document.getElementById('st-consent').checked,
     benchmark_opt_in:(window._isB2C ? document.getElementById('st-bench').checked : false)};
-  m.style.color='var(--ink-mute)';m.textContent=window._editId?'수정 중…':'등록 중…';
-  var err;
-  if(window._editId){ const r=await sb.from('students').update(row).eq('id',window._editId); err=r.error; }
-  else { if(window._myUid)row.consultant_uid=window._myUid; const r=await sb.from('students').insert(row); err=r.error; }
+  var wasEdit=!!window._editId;
+  m.style.color='var(--ink-mute)';m.textContent=wasEdit?'수정 중…':'등록 중…';
+  var err, newId=null;
+  if(wasEdit){ const r=await sb.from('students').update(row).eq('id',window._editId); err=r.error; }
+  else { if(window._myUid)row.consultant_uid=window._myUid; const r=await sb.from('students').insert(row).select('id').single(); err=r.error; newId=r.data&&r.data.id; }
   if(err){m.style.color='var(--risk)';m.textContent=esc(err.message);return;}
-  m.style.color='var(--safe)';m.textContent=window._editId?'수정 완료.':'등록 완료.';
+  m.style.color='var(--safe)';m.textContent=wasEdit?'수정 완료.':'등록 완료. 학생 로그인 계정을 생성합니다…';
   window._editId=null; var sb2=document.getElementById('st-submit'); if(sb2)sb2.textContent='등록';
   ['st-name','st-school','st-univ','st-major','st-career','st-interest'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('st-grade').value='';document.getElementById('st-track').value='';
   document.getElementById('st-region').value='';document.getElementById('st-gender').value='';
   document.getElementById('st-consent').checked=false;document.getElementById('st-bench').checked=false;
   loadStudents();
+  // 신규 등록 시 학생 로그인 계정(아이디) 자동 생성 — 첫 학생만 학원 고유기호 1회 입력, 이후 자동
+  if(!wasEdit && newId && window.createStudentAccount){ try{ await createStudentAccount(newId); }catch(e){} }
 }
 async function delStudent(id){
   if(!sb)return; if(!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·학생부 설계·자소서·면접 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
@@ -4878,12 +4881,14 @@ async function addGStudent(){
   if(acadId)row.academy_id=acadId;
   if(window._myUid)row.consultant_uid=window._myUid;
   m.style.color='var(--ink-mute)';m.textContent='등록 중…';
-  var r=await sb.from('students').insert(row);
+  var r=await sb.from('students').insert(row).select('id').single();
   if(r.error){m.style.color='var(--risk)';m.textContent=esc(r.error.message);return;}
-  m.style.color='var(--safe)';m.textContent='등록 완료.';
+  var gNewId=r.data&&r.data.id;
+  m.style.color='var(--safe)';m.textContent='등록 완료. 학생 로그인 계정을 생성합니다…';
   ['gst-name','gst-school','gst-target','gst-career','gst-interest'].forEach(function(i){document.getElementById(i).value='';});
   document.getElementById('gst-grade').value='';document.getElementById('gst-type').value='';document.getElementById('gst-region').value='';document.getElementById('gst-gender').value='';document.getElementById('gst-consent').checked=false;
   renderGStudents();
+  if(gNewId && window.createStudentAccount){ try{ await createStudentAccount(gNewId); }catch(e){} }
 }
 async function delGStudent(id){
   if(!sb||!confirm('삭제하시겠습니까? 관련 자료도 함께 삭제됩니다.'))return;
