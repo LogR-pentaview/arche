@@ -543,7 +543,7 @@
             <div id="major-results" style="margin-bottom:10px"></div>
             <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent"> 생기부 활용 동의</label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <label id="st-bench-row" style="display:none;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여 <small style="color:var(--ink-mute)">· 개인 식별정보를 완전히 제거한 통계에만 활용</small></label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button id="st-submit" onclick="addStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -725,7 +725,7 @@
             <input id="gst-target" placeholder="목표 학교 (예: 대원외고)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-career" placeholder="희망 진로" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-interest" placeholder="관심 분야 (예: 국제관계, AI)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent"> 생기부 활용 동의</label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="gst-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addGStudent()" style="width:100%;padding:11px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
@@ -2503,7 +2503,7 @@ async function addStudent(){
   loadStudents();
 }
 async function delStudent(id){
-  if(!sb)return; if(!confirm('삭제하시겠습니까? 관련 자료도 함께 삭제됩니다.'))return;
+  if(!sb)return; if(!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·학생부 설계·자소서·면접 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
   const {error}=await sb.from('students').delete().eq('id',id);
   if(error){alert(error.message);return;} loadStudents();
 }
