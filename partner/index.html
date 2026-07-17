@@ -4,66 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>아르케 · 영업매니저</title>
-<link rel="stylesheet" href="/shared/tokens.css">
+<link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" rel="stylesheet">
 <style>
-  body{ min-height:100vh; background:#f6f8f6; }
-  .wrap{ display:grid; grid-template-columns:224px 1fr; min-height:100vh; }
-  .side{ background:#fff; border-right:1px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; gap:1px; position:sticky; top:0; height:100vh; overflow-y:auto; }
-  .side .logo{ font-family:'Bebas Neue'; font-size:28px; padding:2px 8px 0; letter-spacing:.02em; }
-  .side .logo b{ color:var(--gold); font-weight:400; }
-  .side .tag{ font-size:9px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; padding:0 8px 16px; }
-  .nav{ display:flex; align-items:center; gap:11px; padding:10px 11px; border-radius:10px; cursor:pointer; color:var(--ink-dim); font-size:13.5px; user-select:none; transition:.12s; }
-  .nav svg{ width:17px; height:17px; flex:none; opacity:.7; }
-  .nav:hover{ background:var(--panel-2); color:var(--ink); }
-  .nav.on{ background:rgba(200,135,26,.10); color:var(--ink); font-weight:600; }
-  .nav.on svg{ opacity:1; color:var(--gold); }
-  .navlabel{ font-size:9px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; padding:15px 11px 6px; }
-  .side .foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--line); }
-  .side .foot .who{ display:flex; align-items:center; gap:9px; }
-  .side .foot .av{ width:32px; height:32px; border-radius:9px; background:rgba(200,135,26,.14); color:var(--gold); display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue'; font-size:16px; }
-  .side .foot b{ font-size:12.5px; } .side .foot small{ display:block; color:var(--ink-mute); font-size:10px; }
-  .lo{ margin-top:11px; width:100%; padding:9px; background:transparent; color:var(--ink-dim); border:1px solid var(--line); border-radius:9px; font-size:12px; cursor:pointer; font-family:inherit; }
-  .lo:hover{ background:var(--panel-2); }
-  .main{ padding:28px 34px 60px; max-width:1040px; }
-  .h1{ font-family:'Bebas Neue'; font-size:32px; margin:0 0 2px; letter-spacing:.01em; }
-  .sub{ color:var(--ink-dim); font-size:13px; margin-bottom:24px; }
-  .codecard{ background:#fff; border:1px solid var(--line); border-left:3px solid var(--gold); border-radius:0 14px 14px 0; padding:18px 22px; display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:22px; }
-  .codecard .lab{ font-size:12px; color:var(--ink-dim); }
-  .codecard .code{ font-family:'Bebas Neue'; font-size:36px; letter-spacing:.05em; color:var(--gold); margin-top:2px; }
-  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:13px; margin-bottom:16px; }
-  .kpi{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:16px 18px; }
-  .kpi .lab{ font-size:12px; color:var(--ink-dim); display:flex; align-items:center; gap:6px; }
-  .kpi .lab svg{ width:14px; height:14px; opacity:.6; }
-  .kpi .num{ font-family:'Bebas Neue'; font-size:34px; line-height:1; margin-top:8px; }
-  .kpi .num small{ font-size:13px; color:var(--ink-mute); font-family:'Noto Sans KR'; margin-left:2px; }
-  .kpi .delta{ font-size:11px; color:var(--ink-mute); margin-top:6px; }
-  .card{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:14px; }
-  .card h3{ font-size:14px; margin:0 0 14px; font-weight:600; }
-  table{ width:100%; border-collapse:collapse; }
-  th{ text-align:left; font-size:10px; letter-spacing:.06em; color:var(--ink-mute); text-transform:uppercase; padding:0 10px 10px; border-bottom:1px solid var(--line); }
-  td{ padding:12px 10px; font-size:13px; border-bottom:1px solid var(--line-soft); }
-  tbody tr:last-child td{ border-bottom:0; }
-  .nm{ font-weight:600; }
-  .badge{ font-size:10px; border-radius:20px; padding:2px 9px; }
-  .b-paid{ background:#e5f5ea; color:var(--safe); } .b-trial{ background:#f0f0ec; color:var(--ink-mute); }
-  .b-b2c{ background:#f3e8fa; color:#7a3ca0; } .b-b2b{ background:#e5f0fa; color:#2d6da6; }
-  .b-r50{ background:#fdf3d8; color:#8a6d1c; } .b-r35{ background:#eef3e8; color:#4a6d1c; }
-  .b-verified{ background:#e5f5ea; color:var(--safe); } .b-req{ background:#fdf6e3; color:#7a5c00; }
-  input{ width:100%; padding:11px 13px; background:#fff; border:1px solid var(--line); border-radius:10px; color:var(--ink); font-size:13px; margin-bottom:10px; font-family:inherit; }
-  input:focus{ outline:none; border-color:var(--gold); }
-  .btn{ padding:10px 18px; background:var(--lime); color:#fff; border:none; border-radius:10px; font-weight:700; cursor:pointer; font-size:13px; font-family:inherit; }
-  .btn.gold{ background:var(--gold); color:#fff; } .btn:disabled{ opacity:.6; }
-  .bankstatus{ font-size:12px; padding:9px 13px; border-radius:10px; margin-bottom:12px; }
-  .bankstatus.verified{ background:#e5f5ea; color:var(--safe); } .bankstatus.requested{ background:#fdf6e3; color:#7a5c00; }
-  .muted{ color:var(--ink-mute); font-size:13px; }
+  :root{
+    --surface-0:#eef0eb; --surface-1:#f5f6f2; --surface-2:#ffffff;
+    --border:rgba(22,26,22,.11); --radius:8px;
+    --text-primary:#1d211d; --text-secondary:#5f5e5a; --text-muted:#9a9a94;
+    --bg-accent:#E6F1FB; --text-accent:#185FA5;
+    --bg-success:#E1F5EE; --text-success:#0F6E56;
+    --bg-danger:#FCEBEB; --text-danger:#A32D2D;
+    --bg-warn:#FAEEDA; --text-warn:#854F0B;
+    --font-sans:'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&family=JetBrains+Mono&display=swap');
+  *{ box-sizing:border-box; }
+  body{ margin:0; min-height:100vh; background:var(--surface-0); font-family:var(--font-sans); color:var(--text-primary); -webkit-font-smoothing:antialiased; }
+  .wrap{ display:grid; grid-template-columns:196px 1fr; min-height:100vh; }
+  .side{ background:var(--surface-1); border-right:.5px solid var(--border); padding:14px 11px; display:flex; flex-direction:column; gap:3px; position:sticky; top:0; height:100vh; overflow-y:auto; }
+  .brand{ padding:6px 8px 16px; display:flex; align-items:center; gap:8px; }
+  .brand .av{ width:28px; height:28px; border-radius:7px; background:var(--bg-accent); color:var(--text-accent); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; }
+  .brand .nm{ font-size:13.5px; font-weight:500; } .brand .ro{ font-size:10px; color:var(--text-muted); }
+  .nav{ display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:var(--radius); color:var(--text-secondary); font-size:13px; cursor:pointer; user-select:none; }
+  .nav i{ font-size:18px; }
+  .nav:hover{ background:var(--surface-2); color:var(--text-primary); }
+  .nav.on{ background:var(--bg-accent); color:var(--text-accent); font-weight:500; }
+  .side .foot{ margin-top:auto; padding:12px 8px 4px; border-top:.5px solid var(--border); }
+  .side .foot .nm{ font-size:12px; font-weight:500; } .side .foot .cd{ font-size:10px; color:var(--text-muted); font-family:var(--font-mono); margin-top:1px; }
+  .lo{ margin-top:11px; width:100%; padding:8px; background:var(--surface-2); color:var(--text-secondary); border:.5px solid var(--border); border-radius:var(--radius); font-size:12px; cursor:pointer; font-family:inherit; }
+  .lo:hover{ color:var(--text-primary); }
+  .main{ padding:20px 26px 50px; background:var(--surface-2); min-height:100vh; }
+  .head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
+  .head h2{ font-size:19px; font-weight:500; margin:0; }
+  .head .date{ font-size:11px; color:var(--text-muted); }
+  .codebar{ display:flex; align-items:center; justify-content:space-between; gap:12px; background:var(--bg-accent); border-radius:var(--radius); padding:13px 16px; margin-bottom:16px; flex-wrap:wrap; }
+  .codebar .lab{ font-size:11px; color:var(--text-accent); opacity:.85; }
+  .codebar .code{ font-size:26px; font-weight:500; color:var(--text-accent); font-family:var(--font-mono); letter-spacing:.03em; }
+  .copybtn{ padding:7px 14px; background:var(--text-accent); color:#fff; border:none; border-radius:var(--radius); font-size:12px; font-weight:500; cursor:pointer; font-family:inherit; }
+  .kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:11px; margin-bottom:18px; }
+  .kpi{ background:var(--surface-1); border-radius:var(--radius); padding:12px 14px; }
+  .kpi .lab{ font-size:12px; color:var(--text-secondary); }
+  .kpi .val{ font-size:23px; font-weight:500; margin-top:4px; }
+  .kpi .val small{ font-size:12px; color:var(--text-muted); font-weight:400; }
+  .kpi .sub{ font-size:11px; color:var(--text-secondary); margin-top:2px; }
+  .kpi .sub.up{ color:var(--text-success); } .kpi .sub.dn{ color:var(--text-danger); }
+  .grid2{ display:grid; grid-template-columns:minmax(0,1.55fr) minmax(0,1fr); gap:16px; }
+  .secttl{ font-size:13px; font-weight:500; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+  .secttl i{ font-size:15px; color:var(--text-accent); }
+  .tbox{ border:.5px solid var(--border); border-radius:12px; overflow:hidden; }
+  table{ width:100%; border-collapse:collapse; font-size:12.5px; }
+  thead tr{ background:var(--surface-1); color:var(--text-secondary); text-align:left; }
+  th{ padding:8px 10px; font-weight:500; }
+  td{ padding:9px 10px; border-top:.5px solid var(--border); }
+  .pill{ font-size:11px; padding:2px 8px; border-radius:20px; }
+  .p-succ{ background:var(--bg-success); color:var(--text-success); } .p-acc{ background:var(--bg-accent); color:var(--text-accent); }
+  .p-warn{ background:var(--bg-warn); color:var(--text-warn); } .p-mut{ background:var(--surface-1); color:var(--text-muted); }
+  .listbox{ border:.5px solid var(--border); border-radius:12px; padding:2px 14px; }
+  .li{ padding:10px 0; border-bottom:.5px solid var(--border); } .li:last-child{ border-bottom:0; }
+  .li .t{ font-size:12.5px; } .li .m{ font-size:11px; color:var(--text-muted); margin-top:2px; }
+  .li .bd{ font-size:12px; color:var(--text-secondary); margin-top:4px; white-space:pre-wrap; line-height:1.6; }
+  .li a{ color:var(--text-accent); font-size:12px; text-decoration:none; }
+  .note{ font-size:11px; color:var(--text-muted); margin-top:6px; }
+  .card{ background:var(--surface-2); border:.5px solid var(--border); border-radius:12px; padding:18px; }
+  input{ width:100%; padding:10px 12px; background:var(--surface-2); border:.5px solid var(--border); border-radius:var(--radius); color:var(--text-primary); font-size:13px; margin-bottom:10px; font-family:inherit; }
+  input:focus{ outline:none; border-color:var(--text-accent); }
+  .btn{ padding:10px 16px; background:var(--text-accent); color:#fff; border:none; border-radius:var(--radius); font-weight:500; cursor:pointer; font-size:13px; font-family:inherit; }
+  .btn:disabled{ opacity:.6; }
+  .bankst{ font-size:12px; padding:9px 12px; border-radius:var(--radius); margin-bottom:12px; }
+  .bankst.v{ background:var(--bg-success); color:var(--text-success); } .bankst.r{ background:var(--bg-warn); color:var(--text-warn); }
+  .muted{ color:var(--text-muted); font-size:13px; }
+  .empty{ text-align:center; padding:28px; color:var(--text-muted); font-size:13px; }
   .center{ display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; text-align:center; }
-  .postlist .post{ padding:13px 0; border-bottom:1px solid var(--line-soft); }
-  .postlist .post:last-child{ border-bottom:0; }
-  .postlist .post .t{ font-size:13.5px; font-weight:600; }
-  .postlist .post .m{ font-size:11px; color:var(--ink-mute); margin-top:3px; }
-  .postlist .post .bd{ font-size:12.5px; color:var(--ink-dim); margin-top:6px; white-space:pre-wrap; line-height:1.6; }
-  .postlist .post a{ color:var(--gold); font-size:12px; }
-  .empty{ text-align:center; padding:30px; color:var(--ink-mute); font-size:13px; }
+  @media(max-width:720px){ .grid2{ grid-template-columns:1fr; } .wrap{ grid-template-columns:1fr; } .side{ position:static; height:auto; } }
 </style>
 </head>
 <body>
@@ -71,22 +83,16 @@
 
 <div id="app" class="wrap" style="display:none">
   <aside class="side">
-    <div class="logo">ARCHE<b>.</b></div>
-    <div class="tag">영업매니저</div>
-    <div class="nav on" data-t="dash" onclick="go('dash')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/></svg> 대시보드</div>
-    <div class="navlabel">영업</div>
-    <div class="nav" data-t="members" onclick="go('members')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3.2 3.2 0 010 6"/><path d="M18 14c2.5.5 4 2.7 4 6"/></svg> 내 회원</div>
-    <div class="nav" data-t="commission" onclick="go('commission')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg> 매출·커미션</div>
-    <div class="navlabel">본사</div>
-    <div class="nav" data-t="sales" onclick="go('sales')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v12H5.2L4 17.5z"/><path d="M8 9h8M8 12h5"/></svg> 영업지원 자료</div>
-    <div class="nav" data-t="notice" onclick="go('notice')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 5l9-2v14l-9-2z"/><path d="M10 5H6a2 2 0 00-2 2v3a2 2 0 002 2h4"/><path d="M7 15v4"/></svg> 본사 소식</div>
-    <div class="nav" data-t="news" onclick="go('news')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h13v14H5a2 2 0 01-2-2V6"/><path d="M17 8h3v9a2 2 0 01-2 2"/><path d="M7 8h6M7 11h6M7 14h4"/></svg> 입시 뉴스</div>
-    <div class="navlabel">정산</div>
-    <div class="nav" data-t="bank" onclick="go('bank')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M2 10h20"/></svg> 정산 계좌</div>
-    <div class="foot">
-      <div class="who"><div class="av" id="mgr-av">M</div><div><b id="mgr-name">매니저</b><small id="mgr-code">코드 —</small></div></div>
-      <button class="lo" onclick="doLogout()">로그아웃</button>
-    </div>
+    <div class="brand"><div class="av">A</div><div><div class="nm">아르케</div><div class="ro">영업매니저</div></div></div>
+    <div class="nav on" data-t="dash" onclick="go('dash')"><i class="ti ti-layout-dashboard"></i>대시보드</div>
+    <div class="nav" data-t="members" onclick="go('members')"><i class="ti ti-users"></i>내 회원</div>
+    <div class="nav" data-t="commission" onclick="go('commission')"><i class="ti ti-coin"></i>매출·커미션</div>
+    <div class="nav" data-t="sales" onclick="go('sales')"><i class="ti ti-file-text"></i>영업지원 자료</div>
+    <div class="nav" data-t="notice" onclick="go('notice')"><i class="ti ti-speakerphone"></i>본사 소식</div>
+    <div class="nav" data-t="news" onclick="go('news')"><i class="ti ti-news"></i>입시 뉴스</div>
+    <div class="nav" data-t="bank" onclick="go('bank')"><i class="ti ti-building-bank"></i>정산 계좌</div>
+    <div class="foot"><div class="nm" id="mgr-name">매니저</div><div class="cd" id="mgr-code">코드 —</div>
+      <button class="lo" onclick="doLogout()">로그아웃</button></div>
   </aside>
   <main class="main" id="panel"><div class="muted">불러오는 중…</div></main>
 </div>
@@ -100,8 +106,9 @@
   var MGR=null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   function won(n){ return '₩'+Number(n||0).toLocaleString(); }
+  function ymd(s){ return String(s||'').slice(5,10).replace('-','.'); }
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.copyCode = function(){ if(!MGR||!MGR.ref_code)return; navigator.clipboard.writeText(MGR.ref_code).then(function(){ var b=document.getElementById('copyBtn'); if(b){var t=b.textContent;b.textContent='복사됨 ✓';setTimeout(function(){b.textContent=t;},1500);} }); };
+  window.copyCode = function(){ if(!MGR||!MGR.ref_code)return; navigator.clipboard.writeText(MGR.ref_code).then(function(){ var b=document.getElementById('copyBtn'); if(b){var t=b.textContent;b.textContent='복사됨';setTimeout(function(){b.textContent=t;},1400);} }); };
 
   (async function init(){
    try{
@@ -109,26 +116,25 @@
     if(!session){ location.replace('/login'); return; }
     var r = await sb.from('sales_managers').select('id,name,ref_code,status').eq('uid',session.user.id).limit(1);
     if(r.error || !r.data || !r.data.length){
-      document.getElementById('gate').innerHTML='<div><div class="h1" style="font-size:22px">영업매니저 계정이 아닙니다</div><p class="muted">승인된 영업매니저 전용입니다.</p><button class="btn" onclick="doLogout()">로그아웃</button></div>'; return;
+      document.getElementById('gate').innerHTML='<div><h2>영업매니저 계정이 아닙니다</h2><p class="muted">승인된 영업매니저 전용입니다.</p><button class="btn" onclick="doLogout()">로그아웃</button></div>'; return;
     }
-    MGR = r.data[0];
+    MGR=r.data[0];
     if(MGR.status!=='approved'){
-      var lbl = MGR.status==='rejected'?'가입이 반려되었습니다.':'가입 신청이 접수되었습니다. 본사 승인 후 이용 가능합니다.';
-      document.getElementById('gate').innerHTML='<div><div class="h1" style="font-size:22px">승인 대기 중</div><p class="muted">'+lbl+'</p><button class="btn" onclick="doLogout()">로그아웃</button></div>'; return;
+      var lbl=MGR.status==='rejected'?'가입이 반려되었습니다.':'가입 신청이 접수되었습니다. 본사 승인 후 이용 가능합니다.';
+      document.getElementById('gate').innerHTML='<div><h2>승인 대기 중</h2><p class="muted">'+lbl+'</p><button class="btn" onclick="doLogout()">로그아웃</button></div>'; return;
     }
     document.getElementById('gate').style.display='none';
     document.getElementById('app').style.display='grid';
-    document.getElementById('mgr-name').textContent = MGR.name||'매니저';
-    document.getElementById('mgr-code').textContent = MGR.ref_code?('코드 '+MGR.ref_code):'코드 발행 대기';
-    document.getElementById('mgr-av').textContent = (MGR.name||'M').slice(0,1);
+    document.getElementById('mgr-name').textContent=MGR.name||'매니저';
+    document.getElementById('mgr-code').textContent=MGR.ref_code?('귀속코드 '+MGR.ref_code):'코드 발행 대기';
     go('dash');
    }catch(e){
-    document.getElementById('gate').innerHTML='<div><div class="h1" style="font-size:22px">불러오기 오류</div><p class="muted">'+(e&&e.message||e)+'</p><button class="btn" onclick="doLogout()">로그아웃</button></div>';
+    document.getElementById('gate').innerHTML='<div><h2>불러오기 오류</h2><p class="muted">'+(e&&e.message||e)+'</p><button class="btn" onclick="doLogout()">로그아웃</button></div>';
     document.getElementById('gate').style.display='flex';
    }
   })();
 
-  window.go = function(t){
+  window.go=function(t){
     document.querySelectorAll('.nav').forEach(function(n){ n.classList.toggle('on', n.dataset.t===t); });
     var p=document.getElementById('panel'); p.innerHTML='<div class="muted">불러오는 중…</div>';
     if(t==='dash') return renderDash(p);
@@ -140,99 +146,128 @@
     if(t==='bank') return renderBank(p);
   };
 
-  async function renderDash(p){
-    var codeHtml = MGR.ref_code
-      ? '<div><div class="lab">내 영업코드 · 회원가입 시 안내하세요</div><div class="code">'+esc(MGR.ref_code)+'</div></div><button class="btn gold" id="copyBtn" onclick="copyCode()">복사</button>'
-      : '<div><div class="lab">내 영업코드</div><div class="code" style="font-size:20px;color:var(--ink-mute)">발행 대기</div></div>';
-    p.innerHTML = '<div class="h1">대시보드</div><div class="sub">'+new Date().toISOString().slice(0,10)+' 기준</div>'
-      + '<div class="codecard">'+codeHtml+'</div>'
-      + '<div class="kpis" id="kpis"><div class="muted">불러오는 중…</div></div>'
-      + '<div class="card"><h3>최근 본사 소식</h3><div class="postlist" id="dash-notice"><div class="muted" style="font-size:12px">불러오는 중…</div></div></div>';
-    var r = await sb.rpc('my_manager_summary');
-    var s = (r.data && r.data[0]) || {total:0,paid:0,trial:0,commission:0};
-    var conv = (s.total>0) ? Math.round((s.paid/s.total)*100) : 0;
-    document.getElementById('kpis').innerHTML =
-        kpi('관리 회원',(s.total||0),'명','유료 '+(s.paid||0)+' · 체험 '+(s.trial||0))
-      + kpi('이번달 예상 커미션', won(s.commission), '', '구독료 기준', true)
-      + kpi('유료 전환율', conv, '%', (s.paid||0)+' / '+(s.total||0))
-      + kpi('정산 계좌', s.bank_status==='verified'?'확인':(s.bank_status?'대기':'미등록'), '', '', false, true);
-    var pr = await sb.from('hq_posts').select('title,created_at').eq('published',true).eq('category','notice').order('created_at',{ascending:false}).limit(3);
-    var dn = document.getElementById('dash-notice'); var rows=(pr&&pr.data)||[];
-    dn.innerHTML = rows.length ? rows.map(function(x){return '<div class="post"><div class="t">'+esc(x.title)+'</div><div class="m">'+String(x.created_at||'').slice(0,10)+'</div></div>';}).join('') : '<div class="muted" style="font-size:12px">새 소식이 없습니다.</div>';
+  function pill(x){
+    if(!x.subscribed) return '<span class="pill p-mut">체험/대기</span>';
+    var cls = x.rate_pct===50 ? 'p-acc' : 'p-succ';
+    return '<span class="pill '+cls+'">유료 '+x.months_active+'개월</span>';
   }
-  function kpi(lab,val,unit,delta,isMoney,isText){
-    var num = isMoney||isText ? '<div class="num" style="font-size:'+(isMoney?'24px':'26px')+'">'+val+'</div>' : '<div class="num">'+val+'<small>'+unit+'</small></div>';
-    return '<div class="kpi"><div class="lab">'+lab+'</div>'+num+(delta?'<div class="delta">'+delta+'</div>':'<div class="delta">&nbsp;</div>')+'</div>';
+
+  async function renderDash(p){
+    var code = MGR.ref_code
+      ? '<div><div class="lab">내 영업코드 · 회원가입 시 안내하세요</div><div class="code">'+esc(MGR.ref_code)+'</div></div><button class="copybtn" id="copyBtn" onclick="copyCode()">복사</button>'
+      : '<div><div class="lab">내 영업코드</div><div class="code" style="font-size:18px">발행 대기</div></div>';
+    p.innerHTML =
+      '<div class="head"><h2>대시보드</h2><span class="date">'+new Date().toISOString().slice(0,10)+' 기준</span></div>'
+      + '<div class="codebar">'+code+'</div>'
+      + '<div class="kpis" id="kpis"><div class="muted">불러오는 중…</div></div>'
+      + '<div class="grid2">'
+      + '<section><div class="secttl">내 회원 현황</div><div class="tbox" id="memtbl"><div class="muted" style="padding:14px">불러오는 중…</div></div>'
+      + '<div class="note">50% = 유치 초기 2개월 · 이후 35% · 연 4개월+ 유지 시 연말 배당 5%</div></section>'
+      + '<div style="display:flex;flex-direction:column;gap:16px">'
+      + '<section><div class="secttl"><i class="ti ti-speakerphone"></i>본사 소식</div><div class="listbox" id="d-notice"><div class="muted" style="font-size:12px;padding:6px 0">불러오는 중…</div></div></section>'
+      + '<section><div class="secttl"><i class="ti ti-news"></i>입시 뉴스·이슈</div><div class="listbox" id="d-news"><div class="muted" style="font-size:12px;padding:6px 0">불러오는 중…</div></div></section>'
+      + '</div></div>';
+
+    var sr = await sb.rpc('my_manager_summary');
+    var s = (sr.data && sr.data[0]) || {total:0,paid:0,trial:0,commission:0};
+    var conv = s.total>0 ? Math.round((s.paid/s.total)*100) : 0;
+    document.getElementById('kpis').innerHTML =
+        '<div class="kpi"><div class="lab">관리 회원</div><div class="val">'+(s.total||0)+'<small> 명</small></div><div class="sub">유료 '+(s.paid||0)+' · 체험 '+(s.trial||0)+'</div></div>'
+      + '<div class="kpi"><div class="lab">이번 달 예상 커미션</div><div class="val">'+won(s.commission)+'</div><div class="sub">구독료 기준</div></div>'
+      + '<div class="kpi"><div class="lab">유료 전환율</div><div class="val">'+conv+'<small> %</small></div><div class="sub">체험→유료</div></div>'
+      + '<div class="kpi"><div class="lab">이탈 위험</div><div class="val" style="color:var(--text-danger)">'+(s.trial||0)+'<small> 명</small></div><div class="sub">체험·만료 임박</div></div>';
+
+    var cr = await sb.rpc('my_commission');
+    var rows = (cr.data||[]).slice(0,6);
+    var mt = document.getElementById('memtbl');
+    if(!rows.length){ mt.innerHTML='<div class="empty">아직 귀속 회원이 없습니다.</div>'; }
+    else {
+      mt.innerHTML='<table><thead><tr><th style="width:34%">회원</th><th style="width:22%">유형</th><th style="width:24%">상태</th><th style="width:20%;text-align:right">커미션</th></tr></thead><tbody>'
+        + rows.map(function(x){
+          var type=x.account_type==='b2c'?'학부모':'학원';
+          var rate = x.subscribed ? '<span style="color:'+(x.rate_pct===50?'var(--text-accent)':'var(--text-secondary)')+'">'+x.rate_pct+'%</span>' : '<span class="muted">—</span>';
+          return '<tr><td>'+esc(x.member_name||'-')+'</td><td style="color:var(--text-secondary)">'+type+'</td><td>'+pill(x)+'</td><td style="text-align:right">'+rate+'</td></tr>';
+        }).join('') + '</tbody></table>';
+    }
+
+    loadList('d-notice','notice'); loadList('d-news','news');
+  }
+  async function loadList(id,cat){
+    var r=await sb.from('hq_posts').select('title,category,created_at').eq('published',true).eq('category',cat).order('created_at',{ascending:false}).limit(3);
+    var el=document.getElementById(id); if(!el)return; var rows=(r&&r.data)||[];
+    var catlab={notice:'공지',sales:'자료',news:'뉴스'}[cat];
+    el.innerHTML = rows.length ? rows.map(function(x){return '<div class="li"><div class="t">'+esc(x.title)+'</div><div class="m">'+catlab+' · '+ymd(x.created_at)+'</div></div>';}).join('') : '<div class="muted" style="font-size:12px;padding:8px 0">등록된 항목이 없습니다.</div>';
   }
 
   async function renderMembers(p){
-    p.innerHTML='<div class="h1">내 회원</div><div class="sub">내 코드로 가입한 학원·학부모 회원</div><div class="card" id="ml"><div class="muted">불러오는 중…</div></div>';
-    var r = await sb.rpc('my_referred_members'); var el=document.getElementById('ml');
-    if(r.error){ el.innerHTML='<div class="muted">오류</div>'; return; }
+    p.innerHTML='<div class="head"><h2>내 회원</h2></div><div class="tbox" id="ml"><div class="muted" style="padding:14px">불러오는 중…</div></div>';
+    var r=await sb.rpc('my_referred_members'); var el=document.getElementById('ml');
+    if(r.error){ el.innerHTML='<div class="muted" style="padding:14px">오류</div>'; return; }
     var rows=r.data||[];
-    if(!rows.length){ el.innerHTML='<div class="empty">아직 귀속된 회원이 없습니다.<br>회원가입 시 내 영업코드를 안내하세요.</div>'; return; }
+    if(!rows.length){ el.innerHTML='<div class="empty">아직 귀속된 회원이 없습니다. 회원가입 시 내 영업코드를 안내하세요.</div>'; return; }
     el.innerHTML='<table><thead><tr><th>회원</th><th>유형</th><th>상태</th><th>가입일</th></tr></thead><tbody>'+rows.map(function(a){
-      var type=a.account_type==='b2c'?'<span class="badge b-b2c">학부모</span>':'<span class="badge b-b2b">학원</span>';
-      var stat=(a.approved&&!a.is_demo)?'<span class="badge b-paid">유료</span>':'<span class="badge b-trial">체험/대기</span>';
-      return '<tr><td class="nm">'+esc(a.name||'-')+'</td><td>'+type+'</td><td>'+stat+'</td><td class="muted" style="font-size:12px">'+String(a.created_at||'').slice(0,10)+'</td></tr>';
+      var type=a.account_type==='b2c'?'학부모':'학원';
+      var st=(a.approved&&!a.is_demo)?'<span class="pill p-succ">유료</span>':'<span class="pill p-mut">체험/대기</span>';
+      return '<tr><td>'+esc(a.name||'-')+'</td><td style="color:var(--text-secondary)">'+type+'</td><td>'+st+'</td><td class="muted">'+ymd(a.created_at)+'</td></tr>';
     }).join('')+'</tbody></table>';
   }
 
   async function renderCommission(p){
-    p.innerHTML='<div class="h1">매출·커미션</div><div class="sub">첫 2개월 50% → 이후 35% · 킬러콘텐츠 제외</div><div id="cl"><div class="muted">불러오는 중…</div></div>';
-    var r = await sb.rpc('my_commission'); var el=document.getElementById('cl');
+    p.innerHTML='<div class="head"><h2>매출·커미션</h2><span class="date">첫 2개월 50% → 이후 35%</span></div><div id="cl"><div class="muted">불러오는 중…</div></div>';
+    var r=await sb.rpc('my_commission'); var el=document.getElementById('cl');
     if(r.error){ el.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>'; return; }
     var rows=r.data||[]; var total=rows.reduce(function(s,x){return s+(x.commission||0);},0);
-    var head='<div class="kpis" style="grid-template-columns:repeat(2,1fr);max-width:440px">'+kpi('이번달 예상 커미션',won(total),'',rows.length+'명 대상',true)+kpi('회원 수',rows.length,'명','')+'</div>';
-    if(!rows.length){ el.innerHTML=head+'<div class="card"><div class="empty">귀속 회원이 없습니다.</div></div>'; return; }
-    el.innerHTML=head+'<div class="card"><h3>회원별 내역</h3><table><thead><tr><th>회원</th><th>유형</th><th>구독</th><th>요율</th><th style="text-align:right">커미션</th></tr></thead><tbody>'+rows.map(function(x){
-      var type=x.account_type==='b2c'?'<span class="badge b-b2c">학부모</span>':'<span class="badge b-b2b">학원</span>';
-      if(!x.subscribed) return '<tr><td class="nm">'+esc(x.member_name||'-')+'</td><td>'+type+'</td><td class="muted" colspan="3" style="font-size:12px">미구독 (커미션 0)</td></tr>';
-      var rate=x.rate_pct===50?'<span class="badge b-r50">50%</span>':'<span class="badge b-r35">35%</span>';
-      return '<tr><td class="nm">'+esc(x.member_name||'-')+'</td><td>'+type+'</td><td class="muted" style="font-size:12px">월 '+won(x.monthly_amount)+' · '+x.months_active+'개월차</td><td>'+rate+'</td><td style="text-align:right;font-weight:600">'+won(x.commission)+'</td></tr>';
-    }).join('')+'</tbody></table></div><div class="muted" style="font-size:11px">실제 결제(구독) 기준으로 계산됩니다. 결제 연동 전에는 예상치입니다.</div>';
+    var head='<div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:420px">'
+      +'<div class="kpi"><div class="lab">이번 달 예상 커미션</div><div class="val">'+won(total)+'</div><div class="sub">'+rows.length+'명 대상</div></div>'
+      +'<div class="kpi"><div class="lab">회원 수</div><div class="val">'+rows.length+'<small> 명</small></div><div class="sub">&nbsp;</div></div></div>';
+    if(!rows.length){ el.innerHTML=head+'<div class="tbox"><div class="empty">귀속 회원이 없습니다.</div></div>'; return; }
+    el.innerHTML=head+'<div class="tbox"><table><thead><tr><th>회원</th><th>유형</th><th>구독</th><th>단계</th><th style="text-align:right">커미션</th></tr></thead><tbody>'+rows.map(function(x){
+      var type=x.account_type==='b2c'?'학부모':'학원';
+      if(!x.subscribed) return '<tr><td>'+esc(x.member_name||'-')+'</td><td style="color:var(--text-secondary)">'+type+'</td><td class="muted" colspan="3">미구독 (커미션 0)</td></tr>';
+      return '<tr><td>'+esc(x.member_name||'-')+'</td><td style="color:var(--text-secondary)">'+type+'</td><td class="muted">월 '+won(x.monthly_amount)+' · '+x.months_active+'개월차</td><td>'+pill(x)+'</td><td style="text-align:right;font-weight:500">'+won(x.commission)+'</td></tr>';
+    }).join('')+'</tbody></table></div><div class="note">실제 결제(구독) 기준으로 계산됩니다. 결제 연동 전에는 예상치입니다.</div>';
   }
 
   async function renderPosts(p,cat,title,desc){
-    p.innerHTML='<div class="h1">'+esc(title)+'</div><div class="sub">'+esc(desc)+'</div><div id="pl"><div class="muted">불러오는 중…</div></div>';
-    var r = await sb.from('hq_posts').select('title,body,link_url,pinned,created_at').eq('published',true).eq('category',cat).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(50);
+    p.innerHTML='<div class="head"><h2>'+esc(title)+'</h2></div><div class="muted" style="margin:-8px 0 14px">'+esc(desc)+'</div><div id="pl"><div class="muted">불러오는 중…</div></div>';
+    var r=await sb.from('hq_posts').select('title,body,link_url,pinned,created_at').eq('published',true).eq('category',cat).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(50);
     var el=document.getElementById('pl');
     if(r.error){ el.innerHTML='<div class="muted">오류</div>'; return; }
     var rows=r.data||[];
-    if(!rows.length){ el.innerHTML='<div class="card"><div class="empty">등록된 항목이 없습니다.</div></div>'; return; }
-    el.innerHTML='<div class="card postlist">'+rows.map(function(x){
+    if(!rows.length){ el.innerHTML='<div class="tbox"><div class="empty">등록된 항목이 없습니다.</div></div>'; return; }
+    el.innerHTML='<div class="listbox">'+rows.map(function(x){
       var pin=x.pinned?'📌 ':'';
       var link=x.link_url?'<div style="margin-top:6px"><a href="'+esc(x.link_url)+'" target="_blank" rel="noopener">자료 열기 →</a></div>':'';
       var body=x.body?'<div class="bd">'+esc(x.body)+'</div>':'';
-      return '<div class="post"><div class="t">'+pin+esc(x.title)+'</div><div class="m">'+String(x.created_at||'').slice(0,10)+'</div>'+body+link+'</div>';
+      return '<div class="li"><div class="t" style="font-weight:500">'+pin+esc(x.title)+'</div><div class="m">'+ymd(x.created_at)+'</div>'+body+link+'</div>';
     }).join('')+'</div>';
   }
 
   async function renderBank(p){
-    p.innerHTML='<div class="h1">정산 계좌</div><div class="sub">영업비를 받을 계좌를 등록하면 관리자가 확인합니다</div>'
-      + '<div class="card" style="max-width:460px"><div id="bank-status"></div>'
+    p.innerHTML='<div class="head"><h2>정산 계좌</h2></div><div class="muted" style="margin:-8px 0 14px">영업비를 받을 계좌를 등록하면 관리자가 확인합니다</div>'
+      + '<div class="card" style="max-width:440px"><div id="bank-status"></div>'
       + '<input id="b-bank" placeholder="은행명 (예: 국민은행)"><input id="b-acc" placeholder="계좌번호"><input id="b-holder" placeholder="예금주명">'
       + '<div id="b-msg" style="font-size:12px;min-height:16px;margin-bottom:8px"></div>'
       + '<button class="btn" id="b-btn" onclick="saveBank()">계좌 확인요청 보내기</button>'
-      + '<div class="muted" style="font-size:11px;margin-top:12px;line-height:1.6">· 관리자가 계좌확인서를 대조한 뒤 확인 완료 처리합니다.<br>· 계좌를 수정하면 다시 확인 대기 상태가 됩니다. (원본 파일은 저장되지 않습니다)</div></div>';
-    var r = await sb.from('manager_bank_accounts').select('bank_name,account_no,holder_name,status').eq('manager_id',MGR.id).limit(1);
+      + '<div class="note" style="margin-top:12px;line-height:1.6">· 관리자가 계좌확인서를 대조한 뒤 확인 완료 처리합니다.<br>· 계좌를 수정하면 다시 확인 대기 상태가 됩니다.</div></div>';
+    var r=await sb.from('manager_bank_accounts').select('bank_name,account_no,holder_name,status').eq('manager_id',MGR.id).limit(1);
     var d=(r.data&&r.data[0])||null; var box=document.getElementById('bank-status');
     if(d){
       document.getElementById('b-bank').value=d.bank_name||''; document.getElementById('b-acc').value=d.account_no||''; document.getElementById('b-holder').value=d.holder_name||'';
-      if(d.status==='verified'){ box.className='bankstatus verified'; box.textContent='✓ 확인 완료된 계좌입니다.'; document.getElementById('b-btn').textContent='계좌 수정 (재확인 필요)'; }
-      else { box.className='bankstatus requested'; box.textContent='⏳ 확인 대기 중입니다.'; document.getElementById('b-btn').textContent='계좌 확인요청 다시 보내기'; }
+      if(d.status==='verified'){ box.className='bankst v'; box.textContent='✓ 확인 완료된 계좌입니다.'; document.getElementById('b-btn').textContent='계좌 수정 (재확인 필요)'; }
+      else { box.className='bankst r'; box.textContent='⏳ 확인 대기 중입니다.'; document.getElementById('b-btn').textContent='계좌 확인요청 다시 보내기'; }
     }
   }
-  window.saveBank = async function(){
+  window.saveBank=async function(){
     var bank=(document.getElementById('b-bank').value||'').trim(), acc=(document.getElementById('b-acc').value||'').trim(), hold=(document.getElementById('b-holder').value||'').trim();
     var m=document.getElementById('b-msg');
-    if(!bank||!acc||!hold){ m.style.color='var(--risk)'; m.textContent='은행명·계좌번호·예금주를 모두 입력하세요.'; return; }
-    document.getElementById('b-btn').disabled=true; m.style.color='var(--ink-mute)'; m.textContent='전송 중…';
+    if(!bank||!acc||!hold){ m.style.color='var(--text-danger)'; m.textContent='은행명·계좌번호·예금주를 모두 입력하세요.'; return; }
+    document.getElementById('b-btn').disabled=true; m.style.color='var(--text-muted)'; m.textContent='전송 중…';
     try{
       var r=await sb.from('manager_bank_accounts').upsert({manager_id:MGR.id,bank_name:bank,account_no:acc,holder_name:hold},{onConflict:'manager_id'});
       if(r.error) throw r.error;
-      m.style.color='var(--safe)'; m.textContent='확인요청을 보냈습니다.'; renderBank(document.getElementById('panel'));
-    }catch(e){ m.style.color='var(--risk)'; m.textContent='오류: '+(e.message||e); }
+      m.style.color='var(--text-success)'; m.textContent='확인요청을 보냈습니다.'; renderBank(document.getElementById('panel'));
+    }catch(e){ m.style.color='var(--text-danger)'; m.textContent='오류: '+(e.message||e); }
     finally{ document.getElementById('b-btn').disabled=false; }
   };
 </script>
