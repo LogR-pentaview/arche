@@ -544,7 +544,7 @@
             <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent"> 생기부 활용 동의</label>
-            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여</label>
+            <label id="st-bench-row" style="display:none;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여 <small style="color:var(--ink-mute)">· 개인 식별정보를 완전히 제거한 통계에만 활용</small></label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button id="st-submit" onclick="addStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
@@ -2010,6 +2010,8 @@ function applyB2CLabels(){
   document.querySelectorAll('[data-b2c-sub]').forEach(function(el){ el.textContent=el.dataset.b2cSub; });
   // 3-3) 자녀 기본 정보 입력 메뉴 숨김 (학부모는 자녀 관리에서 바로 등록)
   var bcNav=document.querySelector('.nav[data-v="basecon"]'); if(bcNav)bcNav.style.display='none';
+  // 3-4) 익명 벤치마크 동의는 학부모(법정대리인 본인 동의) 모드에서만 노출 — 학원(B2B)은 미제공
+  var benchRow=document.getElementById('st-bench-row'); if(benchRow)benchRow.style.display='flex';
   // 4) 기본정보 화면 개별 라벨
   var t=document.getElementById('bc-title'); if(t)t.textContent='자녀 기본 정보 입력';
   var nl=document.getElementById('bc-newlabel'); if(nl)nl.textContent='자녀 기본 정보';
@@ -2486,7 +2488,7 @@ async function addStudent(){
     career:document.getElementById('st-career').value.trim()||null,
     interest:document.getElementById('st-interest').value.trim()||null,
     consent_record:document.getElementById('st-consent').checked,
-    benchmark_opt_in:document.getElementById('st-bench').checked};
+    benchmark_opt_in:(window._isB2C ? document.getElementById('st-bench').checked : false)};
   m.style.color='var(--ink-mute)';m.textContent=window._editId?'수정 중…':'등록 중…';
   var err;
   if(window._editId){ const r=await sb.from('students').update(row).eq('id',window._editId); err=r.error; }
