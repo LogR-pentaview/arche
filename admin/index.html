@@ -7,39 +7,53 @@
 <link rel="stylesheet" href="/shared/tokens.css">
 <style>
   body{ min-height:100vh; }
-  .wrap{ display:grid; grid-template-columns:210px 1fr; min-height:100vh; }
-  .side{ background:var(--shell); border-right:1px solid var(--line); padding:22px 14px; display:flex; flex-direction:column; gap:2px; }
+  .wrap{ display:grid; grid-template-columns:212px 1fr; min-height:100vh; }
+  .side{ background:var(--shell); border-right:1px solid var(--line); padding:22px 13px; display:flex; flex-direction:column; gap:1px; position:sticky; top:0; height:100vh; overflow-y:auto; }
   .side .logo{ font-family:'Bebas Neue'; font-size:27px; padding:2px 8px 0; }
   .side .logo b{ color:var(--gold); font-weight:400; }
-  .side .tag{ font-size:9px; letter-spacing:.14em; color:var(--ink-mute); text-transform:uppercase; padding:0 8px 16px; }
-  .nav{ display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:9px; cursor:pointer; color:var(--ink-dim); font-size:13px; text-decoration:none; }
+  .side .tag{ font-size:9px; letter-spacing:.14em; color:var(--ink-mute); text-transform:uppercase; padding:0 8px 14px; }
+  .nav{ display:flex; align-items:center; gap:10px; padding:9px 11px; border-radius:9px; cursor:pointer; color:var(--ink-dim); font-size:13px; user-select:none; }
   .nav:hover{ background:var(--panel-2); color:var(--ink); }
-  .nav.on{ background:linear-gradient(90deg,rgba(245,179,1,.12),transparent); color:var(--ink); font-weight:500; }
+  .nav.on{ background:linear-gradient(90deg,rgba(245,179,1,.14),transparent); color:var(--ink); font-weight:600; }
   .nav .b{ margin-left:auto; font-size:10px; background:var(--risk); color:#fff; border-radius:20px; padding:1px 7px; }
+  .navlabel{ font-size:9px; letter-spacing:.14em; color:var(--ink-mute); text-transform:uppercase; padding:14px 10px 5px; }
   .side .foot{ margin-top:auto; padding-top:14px; border-top:1px solid var(--line); }
   .side .foot b{ font-size:12px; } .side .foot small{ display:block; color:var(--ink-mute); font-size:10px; }
-  .lo{ margin-top:12px; width:100%; padding:9px; background:transparent; color:var(--ink-dim); border:1px solid var(--line); border-radius:8px; font-size:12px; cursor:pointer; font-family:inherit; }
-  .main{ padding:26px 34px 60px; max-width:1150px; }
-  .h1{ font-family:'Bebas Neue'; font-size:32px; margin:0 0 2px; letter-spacing:.01em; }
-  .sub{ color:var(--ink-dim); font-size:13px; margin-bottom:26px; }
-  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:14px; }
-  .kpi{ background:var(--panel); border:1px solid var(--line-soft); border-radius:16px; padding:18px 20px; }
+  .lo{ margin-top:10px; width:100%; padding:8px; background:transparent; color:var(--ink-dim); border:1px solid var(--line); border-radius:8px; font-size:12px; cursor:pointer; font-family:inherit; }
+  .main{ padding:24px 32px 60px; max-width:1150px; }
+  .h1{ font-family:'Bebas Neue'; font-size:30px; margin:0 0 2px; }
+  .sub{ color:var(--ink-dim); font-size:13px; margin-bottom:22px; }
+  .kpis{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:16px; }
+  .kpi{ background:var(--panel); border:1px solid var(--line-soft); border-radius:16px; padding:17px 19px; }
   .kpi .lab{ font-size:12px; color:var(--ink-dim); }
-  .kpi .num{ font-family:'Bebas Neue'; font-size:40px; line-height:1; margin-top:8px; }
-  .kpi .num small{ font-size:15px; color:var(--ink-mute); font-family:'Noto Sans KR'; }
-  .alert{ display:flex; gap:12px; margin-bottom:26px; flex-wrap:wrap; }
-  .chip{ display:flex; align-items:center; gap:8px; background:#fdf6e3; border:1px solid #e5c96a; color:#7a5c00; border-radius:12px; padding:10px 16px; font-size:13px; text-decoration:none; }
+  .kpi .num{ font-family:'Bebas Neue'; font-size:38px; line-height:1; margin-top:7px; }
+  .kpi .num small{ font-size:14px; color:var(--ink-mute); font-family:'Noto Sans KR'; }
+  .alert{ display:flex; gap:12px; margin-bottom:22px; flex-wrap:wrap; }
+  .chip{ display:flex; align-items:center; gap:8px; background:#fdf6e3; border:1px solid #e5c96a; color:#7a5c00; border-radius:12px; padding:9px 15px; font-size:13px; text-decoration:none; cursor:pointer; }
   .chip b{ font-size:15px; }
-  .chip.ok{ background:#e5f5ea; border-color:#8fd4a8; color:var(--safe); }
-  .eyebrow{ font-size:10px; letter-spacing:.18em; color:var(--gold); text-transform:uppercase; margin:22px 0 12px; }
-  .cards{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-  .mcard{ background:var(--panel); border:1px solid var(--line-soft); border-radius:16px; padding:20px; text-decoration:none; color:var(--ink); transition:.15s; display:block; }
-  .mcard:hover{ border-color:var(--gold); transform:translateY(-2px); }
-  .mcard .ico{ width:38px; height:38px; border-radius:11px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; margin-bottom:12px; font-size:19px; }
-  .mcard h3{ font-size:15px; margin:0 0 4px; }
-  .mcard p{ font-size:12px; color:var(--ink-mute); margin:0; line-height:1.5; }
+  .chip.ok{ background:#e5f5ea; border-color:#8fd4a8; color:var(--safe); cursor:default; }
+  .card{ background:var(--panel); border:1px solid var(--line-soft); border-radius:14px; padding:18px; margin-bottom:14px; }
+  .card h3{ font-size:15px; margin:0 0 12px; }
+  .row{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:11px 13px; border:1px solid var(--line-soft); border-radius:11px; margin-bottom:8px; }
+  .row .nm{ font-weight:600; font-size:14px; }
+  .row .meta{ font-size:11px; color:var(--ink-mute); margin-top:2px; }
+  .badge{ font-size:10px; border-radius:10px; padding:1px 8px; margin-left:4px; }
+  .b-admin{ background:var(--gold); color:#fff; } .b-demo{ background:#fdf3d8; color:#8a6d1c; border:1px solid var(--gold); }
+  .b-member{ background:var(--safe); color:#fff; } .b-wait{ color:var(--risk); border:1px solid var(--risk); }
+  .b-b2c{ background:#f3e8fa; color:#7a3ca0; border:1px solid #a05bc8; }
+  .b-paid{ background:#e5f5ea; color:var(--safe); } .b-trial{ background:var(--panel-3); color:var(--ink-mute); }
+  .b-pending{ background:#fdf6e3; color:#7a5c00; } .b-approved{ background:#e5f5ea; color:var(--safe); } .b-rejected{ background:#fde8e8; color:var(--risk); }
+  .b-verified{ background:#e5f5ea; color:var(--safe); } .b-req{ background:#fdf6e3; color:#7a5c00; }
+  .btn{ padding:6px 12px; border:none; border-radius:7px; font-weight:700; cursor:pointer; font-size:12px; font-family:inherit; }
+  .btn.g{ background:var(--lime); color:#fff; } .btn.o{ background:transparent; color:var(--ink-dim); border:1px solid var(--line); } .btn.gold{ background:var(--gold); color:#1a1200; }
+  .btn:disabled{ opacity:.5; }
+  input.ci{ width:110px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; font-size:12px; background:var(--panel-2); color:var(--ink); font-family:inherit; }
+  .muted{ color:var(--ink-mute); font-size:13px; }
   .center{ display:flex; align-items:center; justify-content:center; min-height:80vh; text-align:center; }
-  .muted{ color:var(--ink-mute); }
+  .soon{ background:var(--panel); border:1px dashed var(--line); border-radius:14px; padding:40px; text-align:center; color:var(--ink-mute); }
+  .filt{ display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden; margin-bottom:14px; }
+  .filt button{ background:transparent; border:none; padding:7px 14px; font-size:12px; color:var(--ink-dim); cursor:pointer; font-family:inherit; }
+  .filt button.on{ background:var(--panel-2); color:var(--ink); font-weight:600; }
 </style>
 </head>
 <body>
@@ -49,61 +63,25 @@
   <aside class="side">
     <div class="logo">ARCHE<b>.</b></div>
     <div class="tag">본사 관리자</div>
-    <a class="nav on">대시보드</a>
-    <a class="nav" href="/admin/console">학원·학부모 관리</a>
-    <a class="nav" href="/admin/partners">영업매니저 관리<span class="b" id="nav-mgr-b" style="display:none">0</span></a>
-    <a class="nav" href="/admin/console">결제·구독</a>
-    <a class="nav" href="/admin/console">입시 자료</a>
-    <a class="nav" href="/admin/console">API 키</a>
-    <a class="nav" href="/admin/console">슬롯 무결성</a>
+    <div class="nav on" data-t="dash" onclick="go('dash')">대시보드</div>
+    <div class="navlabel">회원</div>
+    <div class="nav" data-t="acad" onclick="go('acad')">학원 회원</div>
+    <div class="nav" data-t="parent" onclick="go('parent')">학부모 회원</div>
+    <div class="navlabel">영업</div>
+    <div class="nav" data-t="mgr" onclick="go('mgr')">영업매니저<span class="b" id="nb-mgr" style="display:none">0</span></div>
+    <div class="nav" data-t="commission" onclick="go('commission')">커미션·정산</div>
+    <div class="navlabel">운영</div>
+    <div class="nav" data-t="admission" onclick="go('admission')">입시 자료</div>
+    <div class="nav" data-t="apikey" onclick="go('apikey')">API 키</div>
+    <div class="nav" data-t="slot" onclick="go('slot')">슬롯 무결성</div>
+    <div class="nav" data-t="billing" onclick="go('billing')">결제</div>
     <div class="foot">
       <b id="who">관리자</b><small>로그·알 입시연구소</small>
       <button class="lo" onclick="doLogout()">로그아웃</button>
     </div>
   </aside>
 
-  <main class="main">
-    <div class="h1">본사 대시보드</div>
-    <div class="sub" id="today"></div>
-
-    <!-- 처리 대기 알림 -->
-    <div class="alert" id="alerts"></div>
-
-    <div class="kpis">
-      <div class="kpi"><div class="lab">학원 회원</div><div class="num" id="k-acad">0<small> 곳</small></div></div>
-      <div class="kpi"><div class="lab">학부모 회원</div><div class="num" id="k-parent">0<small> 명</small></div></div>
-      <div class="kpi"><div class="lab">영업매니저</div><div class="num" id="k-mgr">0<small> 명</small></div></div>
-      <div class="kpi"><div class="lab">전체 학생</div><div class="num" id="k-stu">0<small> 명</small></div></div>
-    </div>
-
-    <div class="eyebrow">관리 메뉴</div>
-    <div class="cards">
-      <a class="mcard" href="/admin/partners">
-        <div class="ico">🧑‍💼</div><h3>영업매니저 관리</h3>
-        <p>가입 승인 · 영업코드 발행 · 정산계좌 확인</p>
-      </a>
-      <a class="mcard" href="/admin/console">
-        <div class="ico">🏫</div><h3>학원·학부모 관리</h3>
-        <p>회원 승인 · 상세 · 계정 관리</p>
-      </a>
-      <a class="mcard" href="/admin/console">
-        <div class="ico">💳</div><h3>결제·구독</h3>
-        <p>구독 현황 · 결제 관리</p>
-      </a>
-      <a class="mcard" href="/admin/console">
-        <div class="ico">📚</div><h3>입시 자료</h3>
-        <p>대입·고입 요강 · 입결 · 면접</p>
-      </a>
-      <a class="mcard" href="/admin/console">
-        <div class="ico">🔑</div><h3>API 키</h3>
-        <p>본사 마스터 키 · 학원 자체 키 상태</p>
-      </a>
-      <a class="mcard" href="/admin/console">
-        <div class="ico">🛡️</div><h3>슬롯 무결성</h3>
-        <p>중복 의심 · 상습 계정 모니터링</p>
-      </a>
-    </div>
-  </main>
+  <main class="main" id="panel"><div class="muted">불러오는 중…</div></main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -112,7 +90,19 @@
 <script src="/shared/ai.js"></script>
 <script src="/shared/auth.js"></script>
 <script>
+  var SUMMARY = null;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
+
+  // admin-api 엣지함수 호출 (옛 콘솔과 동일 백엔드 재사용)
+  async function adminApi(payload){
+    var s = await getSession();
+    var r = await fetch(FN_BASE + '/admin-api', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(s?s.access_token:'')},
+      body: JSON.stringify(payload)
+    });
+    return await r.json();
+  }
 
   (async function init(){
    try{
@@ -126,28 +116,141 @@
     document.getElementById('gate').style.display='none';
     document.getElementById('app').style.display='grid';
     document.getElementById('who').textContent = session.user.email || '관리자';
-    document.getElementById('today').textContent = new Date().toISOString().slice(0,10) + ' 기준';
-
-    var r = await sb.rpc('admin_dashboard_summary');
-    var s = (r.data && r.data[0]) || {};
-    var set=function(id,v,u){ document.getElementById(id).innerHTML = (v||0)+'<small> '+u+'</small>'; };
-    set('k-acad', s.academies, '곳');
-    set('k-parent', s.parents, '명');
-    set('k-mgr', s.managers, '명');
-    set('k-stu', s.students, '명');
-
-    // 처리 대기 알림
-    var al = document.getElementById('alerts'); var html='';
-    if((s.managers_pending||0)>0) html += '<a class="chip" href="/admin/partners">매니저 승인 대기 <b>'+s.managers_pending+'</b></a>';
-    if((s.bank_pending||0)>0) html += '<a class="chip" href="/admin/partners">정산계좌 확인 대기 <b>'+s.bank_pending+'</b></a>';
-    if(!html) html = '<div class="chip ok">✓ 처리 대기 항목 없음</div>';
-    al.innerHTML = html;
-    if((s.managers_pending||0)>0){ var b=document.getElementById('nav-mgr-b'); b.style.display='inline'; b.textContent=s.managers_pending; }
+    go('dash');
    }catch(e){
     document.getElementById('gate').innerHTML = '<div><div class="h1" style="font-size:22px">불러오기 오류</div><p class="muted">'+(e&&e.message||e)+'</p><button class="lo" style="max-width:160px" onclick="doLogout()">로그아웃</button></div>';
     document.getElementById('gate').style.display='flex';
    }
   })();
+
+  window.go = function(t){
+    document.querySelectorAll('.nav').forEach(function(n){ n.classList.toggle('on', n.dataset.t===t); });
+    var p = document.getElementById('panel');
+    p.innerHTML = '<div class="muted">불러오는 중…</div>';
+    if(t==='dash') return renderDash(p);
+    if(t==='acad') return renderMembers(p, 'b2b');
+    if(t==='parent') return renderMembers(p, 'b2c');
+    if(t==='mgr') return renderManagers(p);
+    if(t==='commission') return renderCommission(p);
+    if(t==='slot') return renderSlot(p);
+    // 순차 이식 예정
+    p.innerHTML = '<div class="h1">'+({admission:'입시 자료',apikey:'API 키',billing:'결제'})[t]+'</div><div class="sub">본사 운영 관리</div>'
+      + '<div class="soon">이 기능은 순차 이식 중입니다.<br>다음 단계에서 이 자리에 채워집니다. (기능은 현재 정상 작동하며 곧 여기로 통합됩니다)</div>';
+  };
+
+  // ===== 대시보드 =====
+  async function renderDash(p){
+    var r = await sb.rpc('admin_dashboard_summary');
+    var s = (r.data && r.data[0]) || {}; SUMMARY = s;
+    var alerts = '';
+    if((s.managers_pending||0)>0) alerts += '<div class="chip" onclick="go(\'mgr\')">매니저 승인 대기 <b>'+s.managers_pending+'</b></div>';
+    if((s.bank_pending||0)>0) alerts += '<div class="chip" onclick="go(\'mgr\')">정산계좌 확인 대기 <b>'+s.bank_pending+'</b></div>';
+    if(!alerts) alerts = '<div class="chip ok">✓ 처리 대기 항목 없음</div>';
+    var b = document.getElementById('nb-mgr');
+    if((s.managers_pending||0)>0){ b.style.display='inline'; b.textContent=s.managers_pending; } else b.style.display='none';
+    p.innerHTML =
+      '<div class="h1">본사 대시보드</div><div class="sub">'+new Date().toISOString().slice(0,10)+' 기준</div>'
+      + '<div class="alert">'+alerts+'</div>'
+      + '<div class="kpis">'
+      + '<div class="kpi"><div class="lab">학원 회원</div><div class="num">'+(s.academies||0)+'<small> 곳</small></div></div>'
+      + '<div class="kpi"><div class="lab">학부모 회원</div><div class="num">'+(s.parents||0)+'<small> 명</small></div></div>'
+      + '<div class="kpi"><div class="lab">영업매니저</div><div class="num">'+(s.managers||0)+'<small> 명</small></div></div>'
+      + '<div class="kpi"><div class="lab">전체 학생</div><div class="num">'+(s.students||0)+'<small> 명</small></div></div>'
+      + '</div>';
+  }
+
+  // ===== 학원/학부모 회원 =====
+  async function renderMembers(p, type){
+    var title = type==='b2c' ? '학부모 회원' : '학원 회원';
+    p.innerHTML = '<div class="h1">'+title+'</div><div class="sub">회원 승인·상태 관리</div><div id="mlist"><div class="muted">불러오는 중…</div></div>';
+    var d = await adminApi({action:'academies'});
+    var list = document.getElementById('mlist');
+    if(d.error){ list.innerHTML='<div class="muted">오류: '+esc(d.error)+'</div>'; return; }
+    var rows = (d.rows||[]).filter(function(a){
+      if(a.is_admin) return false;
+      return type==='b2c' ? a.account_type==='b2c' : a.account_type!=='b2c';
+    });
+    if(!rows.length){ list.innerHTML='<div class="muted">회원이 없습니다.</div>'; return; }
+    list.innerHTML = rows.map(function(a){
+      var ap = a.approved!==false;
+      var kind = a.is_demo ? '<span class="badge b-demo">체험</span>' : (ap?'<span class="badge b-member">정회원</span>':'<span class="badge b-wait">승인대기</span>');
+      var btns='';
+      if(!ap && !a.is_demo) btns += '<button class="btn g" onclick="mApprove(\''+a.id+'\')">승인</button> ';
+      if(a.is_demo) btns += '<button class="btn g" onclick="mDemo(\''+a.id+'\',false)">정회원 전환</button>';
+      else btns += '<button class="btn o" onclick="mDemo(\''+a.id+'\',true)">체험 전환</button>';
+      return '<div class="row"><div><div class="nm">'+esc(a.name||'-')+' '+kind+'</div>'
+        + '<div class="meta">코드 '+esc(a.code||'-')+' · 학생 '+(a.students||0)+'명 · '+String(a.created_at||'').slice(0,10)+'</div></div>'
+        + '<div style="display:flex;gap:6px">'+btns+'</div></div>';
+    }).join('');
+  }
+  window.mApprove = async function(id){ var r=await adminApi({action:'approve',academy_id:id,approved:true}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
+  window.mDemo = async function(id,toDemo){ var r=await adminApi({action:'set_demo',academy_id:id,is_demo:toDemo}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
+
+  // ===== 영업매니저 =====
+  async function renderManagers(p){
+    p.innerHTML = '<div class="h1">영업매니저 관리</div><div class="sub">가입 승인·코드 발행·정산 계좌 확인</div><div id="mgrlist"><div class="muted">불러오는 중…</div></div>';
+    var r = await sb.rpc('admin_list_managers');
+    var list = document.getElementById('mgrlist');
+    if(r.error){ list.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>'; return; }
+    var rows = r.data||[];
+    if(!rows.length){ list.innerHTML='<div class="muted">등록된 매니저가 없습니다.</div>'; return; }
+    list.innerHTML = rows.map(function(m){
+      var stat = '<span class="badge b-'+esc(m.status)+'">'+({pending:'대기',approved:'승인',rejected:'반려'})[m.status]+'</span>';
+      var code = m.ref_code ? '코드 <b>'+esc(m.ref_code)+'</b>' : (m.status==='pending'
+        ? '<input class="ci" id="code-'+m.id+'" placeholder="희망:'+esc(m.desired_code||'자동')+'" value="'+esc(m.desired_code||'')+'">' : '—');
+      var bank='';
+      if(m.bank_name){
+        var bs = m.bank_status==='verified' ? '<span class="badge b-verified">확인됨</span>' : '<span class="badge b-req">확인대기</span>';
+        bank = '<div class="meta">💳 '+esc(m.bank_name)+' '+esc(m.account_no)+' / '+esc(m.holder_name)+' '+bs+'</div>';
+        if(m.bank_status!=='verified') bank += '<button class="btn gold" style="margin-top:5px" onclick="vBank(\''+m.id+'\')">계좌 확인완료</button>';
+      }
+      var act='';
+      if(m.status==='pending') act = '<button class="btn g" onclick="aApprove(\''+m.id+'\')">승인+코드발행</button> <button class="btn o" onclick="aReject(\''+m.id+'\')">반려</button>';
+      return '<div class="row"><div style="flex:1"><div class="nm">'+esc(m.name||'-')+' '+stat+'</div>'
+        + '<div class="meta">'+esc(m.email||'')+' · '+code+' · 회원 '+(m.member_count||0)+'명</div>'+bank+'</div>'
+        + '<div style="display:flex;gap:6px">'+act+'</div></div>';
+    }).join('');
+  }
+  window.aApprove = async function(id){
+    var el=document.getElementById('code-'+id); var desired = el?(el.value||'').trim():null;
+    var r=await sb.rpc('approve_manager',{p_manager_id:id,p_desired:desired||null});
+    if(r.error)return alert('승인 실패: '+r.error.message);
+    alert('승인 완료 · 코드: '+((r.data&&r.data[0]&&r.data[0].ref_code)||'')); go('mgr');
+  };
+  window.aReject = async function(id){ if(!confirm('반려할까요?'))return; var r=await sb.rpc('reject_manager',{p_manager_id:id}); if(r.error)return alert('실패: '+r.error.message); go('mgr'); };
+  window.vBank = async function(id){ if(!confirm('계좌확인서를 대조하셨나요? 확인완료 처리합니다.'))return; var r=await sb.rpc('verify_manager_bank',{p_manager_id:id}); if(r.error)return alert('실패: '+r.error.message); go('mgr'); };
+
+  // ===== 커미션·정산 (기본) =====
+  async function renderCommission(p){
+    p.innerHTML = '<div class="h1">커미션·정산</div><div class="sub">매니저별 귀속 회원·정산 현황</div><div id="clist"><div class="muted">불러오는 중…</div></div>';
+    var r = await sb.rpc('admin_list_managers');
+    var list = document.getElementById('clist');
+    if(r.error){ list.innerHTML='<div class="muted">오류</div>'; return; }
+    var rows = (r.data||[]).filter(function(m){return m.status==='approved';});
+    if(!rows.length){ list.innerHTML='<div class="muted">승인된 매니저가 없습니다.</div>'; return; }
+    list.innerHTML = '<div class="card"><h3>매니저별 귀속 회원</h3>'
+      + rows.map(function(m){
+        return '<div class="row"><div><div class="nm">'+esc(m.name||'-')+' <span class="meta">'+esc(m.ref_code||'')+'</span></div>'
+          + '<div class="meta">정산계좌 '+(m.bank_status==='verified'?'확인됨':(m.bank_name?'확인대기':'미등록'))+'</div></div>'
+          + '<div style="text-align:right"><b style="font-size:18px;font-family:\'Bebas Neue\'">'+(m.member_count||0)+'</b><div class="meta">귀속 회원</div></div></div>';
+      }).join('')
+      + '</div><div class="soon">커미션 금액 자동 계산(구독 매출 × 요율)은 결제 연동 후 이 자리에 추가됩니다.</div>';
+  }
+
+  // ===== 슬롯 무결성 =====
+  async function renderSlot(p){
+    p.innerHTML = '<div class="h1">슬롯 무결성</div><div class="sub">창체 지문 기반 슬롯 재활용 의심 모니터링</div><div id="slist"><div class="muted">불러오는 중…</div></div>';
+    var r = await sb.rpc('admin_flagged_slots');
+    var list = document.getElementById('slist');
+    if(r.error){ list.innerHTML='<div class="muted">오류: '+esc(r.error.message||'')+'</div>'; return; }
+    var rows = r.data||[];
+    if(!rows.length){ list.innerHTML='<div class="card" style="color:var(--ink-mute)">플래그된 슬롯이 없습니다. ✓</div>'; return; }
+    list.innerHTML = rows.map(function(x){
+      var pct=Math.round((x.overlap||0)*100);
+      var ov = x.overridden ? '<span class="badge b-demo">사유입력 진행됨</span>' : '<span class="badge" style="background:var(--risk);color:#fff">차단됨</span>';
+      return '<div class="row"><div><div class="nm">'+esc(x.student_name||x.student_id||'-')+' '+ov+'</div><div class="meta">기존과 겹침 '+pct+'%</div></div></div>';
+    }).join('');
+  }
 </script>
 </body>
 </html>
