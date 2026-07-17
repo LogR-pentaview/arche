@@ -1,6 +1,236 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>partner</title></head>
-<body style="font-family:sans-serif;padding:40px">
-<h2>매니저 페이지 (임시)</h2>
-<button onclick="localStorage.clear();location.href='/login'">로그아웃</button>
-</body></html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>아르케 · 영업매니저</title>
+<link rel="stylesheet" href="/shared/tokens.css">
+<style>
+  body{ min-height:100vh; }
+  .wrap{ display:grid; grid-template-columns:200px 1fr; min-height:100vh; }
+  .side{ background:var(--shell); border-right:1px solid var(--line); padding:20px 12px; display:flex; flex-direction:column; gap:3px; }
+  .side .logo{ font-family:'Bebas Neue'; font-size:26px; padding:4px 8px 2px; }
+  .side .logo b{ color:var(--gold); font-weight:400; }
+  .side .tag{ font-size:9px; letter-spacing:.14em; color:var(--ink-mute); text-transform:uppercase; padding:0 8px 14px; }
+  .nav{ display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:9px; cursor:pointer; color:var(--ink-dim); font-size:13px; }
+  .nav:hover{ background:var(--panel-2); color:var(--ink); }
+  .nav.on{ background:var(--panel-2); color:var(--ink); font-weight:500; }
+  .side .foot{ margin-top:auto; padding-top:12px; border-top:1px solid var(--line); font-size:12px; }
+  .side .foot small{ display:block; color:var(--ink-mute); font-size:10px; margin-top:2px; }
+  .main{ padding:24px 30px 60px; max-width:1100px; }
+  .h1{ font-family:'Bebas Neue'; font-size:30px; margin:0 0 2px; }
+  .sub{ color:var(--ink-dim); font-size:13px; margin-bottom:22px; }
+  .kpis{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:22px; }
+  .kpi{ background:var(--panel); border:1px solid var(--line-soft); border-radius:14px; padding:16px 18px; }
+  .kpi .lab{ font-size:12px; color:var(--ink-dim); }
+  .kpi .num{ font-family:'Bebas Neue'; font-size:38px; line-height:1; margin-top:6px; }
+  .kpi .num small{ font-size:14px; color:var(--ink-dim); font-family:'Noto Sans KR'; }
+  .card{ background:var(--panel); border:1px solid var(--line-soft); border-radius:14px; padding:18px; margin-bottom:18px; }
+  .card h3{ font-size:15px; margin:0 0 12px; }
+  table{ width:100%; border-collapse:collapse; }
+  th{ text-align:left; font-size:10px; letter-spacing:.08em; color:var(--ink-mute); text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line); }
+  td{ padding:11px 10px; font-size:13px; border-bottom:1px solid var(--line-soft); }
+  .pill{ font-size:11px; padding:2px 9px; border-radius:20px; }
+  .pill.paid{ background:#e5f5ea; color:var(--safe); }
+  .pill.trial{ background:var(--panel-3); color:var(--ink-mute); }
+  .pill.b2c{ background:#f3e8fa; color:#7a3ca0; }
+  .pill.b2b{ background:#e5f0fa; color:#2d6da6; }
+  input{ width:100%; padding:10px 12px; background:var(--panel-2); border:1px solid var(--line); border-radius:9px; color:var(--ink); font-size:13px; margin-bottom:9px; font-family:inherit; }
+  .btn{ padding:10px 18px; background:var(--lime); color:#fff; border:none; border-radius:9px; font-weight:700; cursor:pointer; font-size:13px; font-family:inherit; }
+  .btn:disabled{ opacity:.6; }
+  .bankstatus{ font-size:12px; padding:8px 12px; border-radius:9px; margin-bottom:10px; }
+  .bankstatus.verified{ background:#e5f5ea; color:var(--safe); }
+  .bankstatus.requested{ background:#fdf6e3; color:#7a5c00; }
+  .center{ display:flex; align-items:center; justify-content:center; min-height:100vh; padding:20px; text-align:center; }
+  .center .box{ max-width:420px; }
+  .muted{ color:var(--ink-mute); font-size:13px; }
+  .newslist div{ padding:9px 0; border-bottom:1px solid var(--line-soft); font-size:13px; }
+  .newslist div:last-child{ border-bottom:0; }
+  .newslist small{ display:block; color:var(--ink-mute); font-size:11px; margin-top:2px; }
+</style>
+</head>
+<body>
+
+<!-- 로딩/상태 -->
+<div id="gate" class="center"><div class="box"><div class="muted">불러오는 중…</div></div></div>
+
+<!-- 대시보드 -->
+<div id="app" class="wrap" style="display:none">
+  <aside class="side">
+    <div class="logo">ARCHE<b>.</b></div>
+    <div class="tag">영업매니저</div>
+    <div class="nav on">대시보드</div>
+    <div class="nav">내 회원</div>
+    <div class="nav">매출·커미션</div>
+    <div class="nav">본사 영업지원</div>
+    <div class="nav">본사 소식</div>
+    <div class="nav">입시 뉴스</div>
+    <div class="foot">
+      <b id="mgr-name">매니저</b>
+      <small id="mgr-code">귀속코드 —</small>
+      <small style="margin-top:8px;cursor:pointer;color:var(--gold)" onclick="doLogout()">로그아웃</small>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="h1">대시보드</div>
+    <div class="sub" id="today"></div>
+
+    <div class="card" id="code-card" style="background:linear-gradient(90deg,rgba(245,179,1,.10),rgba(245,179,1,.02));border-color:rgba(245,179,1,.3);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+      <div>
+        <div class="lab" style="font-size:12px;color:var(--ink-dim)">내 영업코드 <span class="muted" style="font-size:11px">· 회원가입 시 안내하세요</span></div>
+        <div id="myCode" style="font-family:'Bebas Neue';font-size:34px;letter-spacing:.04em;color:var(--gold);margin-top:2px">—</div>
+      </div>
+      <button class="btn" id="copyCodeBtn" onclick="copyCode()" style="background:var(--gold);color:#1a1200">복사</button>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><div class="lab">관리 회원</div><div class="num" id="k-total">0<small> 명</small></div></div>
+      <div class="kpi"><div class="lab">유료</div><div class="num" id="k-paid">0<small> 명</small></div></div>
+      <div class="kpi"><div class="lab">체험</div><div class="num" id="k-trial">0<small> 명</small></div></div>
+    </div>
+
+    <div class="card">
+      <h3>내 회원 현황</h3>
+      <div style="overflow-x:auto">
+        <table>
+          <thead><tr><th>회원</th><th>유형</th><th>상태</th><th>가입일</th></tr></thead>
+          <tbody id="members"><tr><td colspan="4" class="muted">불러오는 중…</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>영업비 정산 계좌</h3>
+      <div id="bank-status"></div>
+      <input id="b-bank" type="text" placeholder="은행명 (예: 국민은행)">
+      <input id="b-acc" type="text" placeholder="계좌번호">
+      <input id="b-holder" type="text" placeholder="예금주명">
+      <div id="b-msg" style="font-size:12px;min-height:16px;margin-bottom:8px"></div>
+      <button class="btn" id="b-btn" onclick="saveBank()">계좌 확인요청 보내기</button>
+      <div class="muted" style="font-size:11px;margin-top:10px;line-height:1.5">
+        · 관리자가 계좌확인서를 대조한 뒤 <b>확인 완료</b> 처리합니다.<br>
+        · 계좌를 수정하면 다시 <b>확인 대기</b> 상태가 됩니다. (원본 파일은 저장되지 않습니다)
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+      <div class="card"><h3>본사 소식</h3><div class="newslist">
+        <div>파트너 정책 안내<small>공지 · 준비 중</small></div>
+        <div>영업 자료 배포 예정<small>자료 · 준비 중</small></div>
+      </div></div>
+      <div class="card"><h3>입시 뉴스·이슈</h3><div class="newslist">
+        <div>입시 뉴스 연동 예정<small>준비 중</small></div>
+      </div></div>
+    </div>
+  </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/config.js"></script>
+<script src="/shared/supabase.js"></script>
+<script src="/shared/ai.js"></script>
+<script src="/shared/auth.js"></script>
+<script>
+  var MGR = null;   // 내 매니저 행
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+  function gate(html){ document.getElementById('gate').innerHTML = '<div class="box">'+html+'</div>'; }
+  window.doLogout = async function(){ await signOut(); location.replace('/login'); };
+  window.copyCode = function(){
+    if(!MGR || !MGR.ref_code) return;
+    navigator.clipboard.writeText(MGR.ref_code).then(function(){
+      var b=document.getElementById('copyCodeBtn'); var t=b.textContent; b.textContent='복사됨 ✓'; setTimeout(function(){b.textContent=t;},1500);
+    });
+  };
+
+  (async function init(){
+    var session = await getSession();
+    if(!session){ location.replace('/login'); return; }
+
+    // 내 매니저 행
+    var r = await sb.from('sales_managers').select('id,name,ref_code,status').eq('uid', session.user.id).limit(1);
+    if(r.error || !r.data || !r.data.length){
+      gate('<div class="h1" style="font-size:22px">영업매니저 계정이 아닙니다</div><p class="muted">이 화면은 승인된 영업매니저 전용입니다.</p><button class="btn" onclick="doLogout()">로그아웃</button>');
+      return;
+    }
+    MGR = r.data[0];
+
+    if(MGR.status !== 'approved'){
+      var label = MGR.status==='rejected' ? '가입이 반려되었습니다.' : '가입 신청이 접수되었습니다. 본사 승인 후 이용 가능합니다.';
+      gate('<div class="h1" style="font-size:22px">승인 대기 중</div><p class="muted">'+label+'</p><button class="btn" onclick="doLogout()">로그아웃</button>');
+      return;
+    }
+
+    // 승인됨 → 대시보드
+    document.getElementById('gate').style.display='none';
+    document.getElementById('app').style.display='grid';
+    document.getElementById('mgr-name').textContent = MGR.name || '매니저';
+    document.getElementById('mgr-code').textContent = MGR.ref_code ? ('코드 ' + MGR.ref_code) : '코드 발행 대기';
+    // 상단 코드 카드
+    var codeEl = document.getElementById('myCode');
+    if(MGR.ref_code){ codeEl.textContent = MGR.ref_code; }
+    else { codeEl.textContent = '발행 대기'; codeEl.style.fontSize='22px'; codeEl.style.color='var(--ink-mute)'; document.getElementById('copyCodeBtn').style.display='none'; }
+    document.getElementById('today').textContent = new Date().toISOString().slice(0,10) + ' 기준';
+
+    loadSummary(); loadMembers(); loadBank();
+  })();
+
+  async function loadSummary(){
+    var r = await sb.rpc('my_manager_summary');
+    var s = (r.data && r.data[0]) || {total:0,paid:0,trial:0};
+    document.getElementById('k-total').innerHTML = (s.total||0)+'<small> 명</small>';
+    document.getElementById('k-paid').innerHTML  = (s.paid||0)+'<small> 명</small>';
+    document.getElementById('k-trial').innerHTML = (s.trial||0)+'<small> 명</small>';
+  }
+
+  async function loadMembers(){
+    var r = await sb.rpc('my_referred_members');
+    var tb = document.getElementById('members');
+    if(r.error){ tb.innerHTML = '<tr><td colspan="4" class="muted">불러오기 오류</td></tr>'; return; }
+    var rows = r.data || [];
+    if(!rows.length){ tb.innerHTML = '<tr><td colspan="4" class="muted">아직 귀속된 회원이 없습니다. 회원가입 시 귀속코드를 안내하세요.</td></tr>'; return; }
+    tb.innerHTML = rows.map(function(a){
+      var type = a.account_type==='b2c' ? '<span class="pill b2c">학부모</span>' : '<span class="pill b2b">학원</span>';
+      var stat = (a.approved && !a.is_demo) ? '<span class="pill paid">유료</span>' : '<span class="pill trial">체험/대기</span>';
+      return '<tr><td>'+esc(a.name||'-')+'</td><td>'+type+'</td><td>'+stat+'</td><td>'+String(a.created_at||'').slice(0,10)+'</td></tr>';
+    }).join('');
+  }
+
+  async function loadBank(){
+    var r = await sb.from('manager_bank_accounts').select('bank_name,account_no,holder_name,status').eq('manager_id', MGR.id).limit(1);
+    var box = document.getElementById('bank-status');
+    var d = (r.data && r.data[0]) || null;
+    if(d){
+      document.getElementById('b-bank').value = d.bank_name||'';
+      document.getElementById('b-acc').value = d.account_no||'';
+      document.getElementById('b-holder').value = d.holder_name||'';
+      if(d.status==='verified'){ box.className='bankstatus verified'; box.textContent='✓ 확인 완료된 계좌입니다.'; document.getElementById('b-btn').textContent='계좌 수정 (재확인 필요)'; }
+      else { box.className='bankstatus requested'; box.textContent='⏳ 확인 대기 중입니다. 관리자 검토 후 확정됩니다.'; document.getElementById('b-btn').textContent='계좌 확인요청 다시 보내기'; }
+    } else {
+      box.className=''; box.textContent='';
+    }
+  }
+
+  window.saveBank = async function(){
+    var bank = (document.getElementById('b-bank').value||'').trim();
+    var acc  = (document.getElementById('b-acc').value||'').trim();
+    var hold = (document.getElementById('b-holder').value||'').trim();
+    var m = document.getElementById('b-msg');
+    if(!bank || !acc || !hold){ m.style.color='var(--risk)'; m.textContent='은행명·계좌번호·예금주를 모두 입력하세요.'; return; }
+    document.getElementById('b-btn').disabled = true; m.style.color='var(--ink-mute)'; m.textContent='전송 중…';
+    try{
+      var payload = { manager_id: MGR.id, bank_name: bank, account_no: acc, holder_name: hold };
+      var r = await sb.from('manager_bank_accounts').upsert(payload, { onConflict: 'manager_id' });
+      if(r.error) throw r.error;
+      m.style.color='var(--safe)'; m.textContent='확인요청을 보냈습니다. 관리자 확인을 기다려주세요.';
+      loadBank();
+    }catch(e){
+      m.style.color='var(--risk)'; m.textContent='오류: ' + (e.message||e);
+    } finally {
+      document.getElementById('b-btn').disabled = false;
+    }
+  };
+</script>
+</body>
+</html>
