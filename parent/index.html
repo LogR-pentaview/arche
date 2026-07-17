@@ -543,8 +543,8 @@
             <div id="major-results" style="margin-bottom:10px"></div>
             <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent"> 생기부 활용 동의</label>
-            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여</label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
+            <label id="st-bench-row" style="display:none;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여 <small style="color:var(--ink-mute)">· 개인 식별정보를 완전히 제거한 통계에만 활용</small></label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button id="st-submit" onclick="addStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
@@ -725,7 +725,7 @@
             <input id="gst-target" placeholder="목표 학교 (예: 대원외고)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-career" placeholder="희망 진로" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-interest" placeholder="관심 분야 (예: 국제관계, AI)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent"> 생기부 활용 동의</label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="gst-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addGStudent()" style="width:100%;padding:11px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
@@ -1824,6 +1824,7 @@ window.ADMIN=ADMIN;
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/config.js"></script>
 <script src="https://js.tosspayments.com/v1/payment"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -1940,8 +1941,7 @@ line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'�
 
 /* ===== Supabase 연동 ===== */
 window.APP_VERSION="2026.07.16.3";
-const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
-const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
+/* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
 else { console.error('[arche] supabase-js 미로드 (CDN 차단?)'); }
@@ -2010,6 +2010,8 @@ function applyB2CLabels(){
   document.querySelectorAll('[data-b2c-sub]').forEach(function(el){ el.textContent=el.dataset.b2cSub; });
   // 3-3) 자녀 기본 정보 입력 메뉴 숨김 (학부모는 자녀 관리에서 바로 등록)
   var bcNav=document.querySelector('.nav[data-v="basecon"]'); if(bcNav)bcNav.style.display='none';
+  // 3-4) 익명 벤치마크 동의는 학부모(법정대리인 본인 동의) 모드에서만 노출 — 학원(B2B)은 미제공
+  var benchRow=document.getElementById('st-bench-row'); if(benchRow)benchRow.style.display='flex';
   // 4) 기본정보 화면 개별 라벨
   var t=document.getElementById('bc-title'); if(t)t.textContent='자녀 기본 정보 입력';
   var nl=document.getElementById('bc-newlabel'); if(nl)nl.textContent='자녀 기본 정보';
@@ -2486,7 +2488,7 @@ async function addStudent(){
     career:document.getElementById('st-career').value.trim()||null,
     interest:document.getElementById('st-interest').value.trim()||null,
     consent_record:document.getElementById('st-consent').checked,
-    benchmark_opt_in:document.getElementById('st-bench').checked};
+    benchmark_opt_in:(window._isB2C ? document.getElementById('st-bench').checked : false)};
   m.style.color='var(--ink-mute)';m.textContent=window._editId?'수정 중…':'등록 중…';
   var err;
   if(window._editId){ const r=await sb.from('students').update(row).eq('id',window._editId); err=r.error; }
@@ -2501,7 +2503,7 @@ async function addStudent(){
   loadStudents();
 }
 async function delStudent(id){
-  if(!sb)return; if(!confirm('삭제하시겠습니까? 관련 자료도 함께 삭제됩니다.'))return;
+  if(!sb)return; if(!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·학생부 설계·자소서·면접 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
   const {error}=await sb.from('students').delete().eq('id',id);
   if(error){alert(error.message);return;} loadStudents();
 }
@@ -3693,7 +3695,7 @@ async function renderDiag(){
   var bars=vals.map(function(x){return '<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);margin-bottom:3px"><span>'+x.key+' <small style="color:var(--ink-mute)">· '+x.src+'</small></span><b class="mono" style="color:var(--gold,#c8a24a)">'+x.v.toFixed(1)+'<span style="color:var(--ink-mute);font-weight:400">/10</span></b></div><div style="height:6px;background:var(--panel-2);border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:'+(x.v*10)+'%;background:linear-gradient(90deg,#4a8a5e,var(--gold,#c8a24a))"></i></div>'+(x.note?'<div style="font-size:11px;line-height:1.6;color:var(--ink-mute);margin-top:4px;padding-left:2px">↳ '+esc(x.note)+'</div>':'')+'</div>';}).join('');
   body.innerHTML='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">01</span><h3>5역량 인지 프로파일 <span style="font-size:11px;color:var(--ink-mute)">· '+(p.source==='ai_estimate'?'AI 추정치(보정 가능) · 50점 만점':'컨설턴트 입력 · 50점 만점')+'</span></h3></div><div class="diag-penta-wrap" style="display:grid;grid-template-columns:280px 1fr;gap:20px;align-items:center"><svg id="diag-penta" viewBox="0 0 360 340" style="max-width:290px;width:100%;display:block;margin:0 auto"></svg><div>'+bars+'<div style="text-align:right;font-size:12px;color:var(--ink-dim);margin-top:6px">종합 <b class="mono" style="color:var(--ink);font-size:16px">'+total.toFixed(1)+'</b><span style="color:var(--ink-mute)">/50</span></div></div></div></div>'+qualCard+
     '<div class="card"><div class="sectionhead"><span class="idx">03</span><h3>성적</h3></div><div style="display:flex;gap:28px;font-size:14px;color:var(--ink-dim)"><div>내신 평균 <b style="color:var(--ink)">'+(p.naesin!=null?p.naesin:'—')+'</b></div><div>모평 백분위 <b style="color:var(--ink)">'+(p.mopyeong!=null?p.mopyeong:'—')+'</b></div></div></div>';
-  if(window.renderPentagon)renderPentagon(document.getElementById('diag-penta'),vals.map(function(x){return {key:x.key,v:x.v};}),{label:'#eaf3ee',grid:'rgba(255,255,255,.16)',val:'#F5B301',stroke:'#F5B301',dot:'#B4F03C',dotFill:'#0d1f14',f0:'#F5B301',f1:'#0d2b1e'});
+  if(window.renderPentagon)renderPentagon(document.getElementById('diag-penta'),vals.map(function(x){return {key:x.key,v:x.v};}),{label:'#1c3a29',grid:'rgba(28,58,41,.16)',val:'#a8760f',stroke:'#c8871a',dot:'#1c3a29',dotFill:'#ffffff',f0:'#e0b94e',f1:'#8bad5c'});
 }
 
 
@@ -4122,7 +4124,7 @@ async function testAI(){
 
 /* ===== 구독·결제 (토스페이먼츠 빌링) ===== */
 // ⚠️ 자동결제(빌링) 계약 완료 후 발급된 '클라이언트 키'로 교체하세요. (아래는 토스 문서 테스트 키)
-var TOSS_CLIENT_KEY="test_ck_ALnQvDd2VJYmLewOane3Mj7X41mN";
+/* TOSS_CLIENT_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 function won(n){ return (n==null?'-':Number(n).toLocaleString('ko-KR')+'원'); }
 function dfmt(s){ if(!s)return '-'; try{return new Date(s).toISOString().slice(0,10);}catch(e){return '-';} }
 /* ===== 컨설턴트 팀 관리 (원장 전용) ===== */
