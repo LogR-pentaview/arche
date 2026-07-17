@@ -266,8 +266,16 @@
 
   .studentview-banner{background:linear-gradient(90deg,rgba(91,141,239,.16),transparent);border:1px solid rgba(91,141,239,.3);border-radius:10px;padding:10px 15px;font-size:12px;color:#a9c4f5;margin-bottom:18px;display:flex;align-items:center;gap:9px}
 
+  #mnav-btn{display:none}
+  #mnav-backdrop{display:none;position:fixed;inset:0;background:rgba(10,20,12,.42);z-index:120}
+  #mnav-backdrop.open{display:block}
   @media(max-width:960px){
-    .app{grid-template-columns:1fr}.side{display:none}
+    .app{grid-template-columns:1fr}
+    .side{position:fixed;left:0;top:0;height:100vh;width:252px;z-index:130;transform:translateX(-100%);transition:transform .25s ease;box-shadow:3px 0 24px rgba(0,0,0,.18)}
+    .side.open{transform:translateX(0)}
+    #mnav-btn{display:flex!important}
+    main{padding:16px 14px!important}
+    .topbar{padding:12px 14px}
     .g4,.g3{grid-template-columns:repeat(2,1fr)}.g2,.intake-grid,.topic-grid,.sr{grid-template-columns:1fr}
     .radar-wrap{flex-direction:column}
     .rm{grid-template-columns:64px 1fr 1fr 1fr;font-size:10px}
@@ -358,6 +366,7 @@
   </div>
 </div>
 <div class="app">
+<div id="mnav-backdrop" onclick="toggleMobileNav()"></div>
 
   <!-- SIDEBAR -->
   <aside class="side">
@@ -424,6 +433,7 @@
   <main>
     <div class="topbar">
       <div style="display:flex;align-items:center">
+        <button id="mnav-btn" onclick="toggleMobileNav()" aria-label="메뉴" style="display:none;background:transparent;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;cursor:pointer;margin-right:10px;color:var(--ink);font-size:17px;flex:none">☰</button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
         <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
         <div id="dbstat" class="mono" style="margin-left:14px;font-size:10.5px;color:var(--ink-mute);display:flex;align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
@@ -1907,8 +1917,14 @@ function go(el){
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
   if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews)renderHqNews(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.renderBilling)renderBilling(); if(window.loadTeam)loadTeam();}
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
+  try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
 }
+function toggleMobileNav(){
+  var s=document.querySelector('.side'); var b=document.getElementById('mnav-backdrop');
+  if(!s)return; var open=s.classList.toggle('open'); if(b)b.classList.toggle('open',open);
+}
+window.toggleMobileNav=toggleMobileNav;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
 function goView(v){
   var el=document.querySelector('.nav[data-v="'+v+'"]');
@@ -1999,7 +2015,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#5b8def'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.16.3";
+window.APP_VERSION="2026.07.17.1";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -6077,7 +6093,8 @@ async function checkUpdate(){
   var m=document.getElementById('ver-msg'), ap=document.getElementById('ver-apply');
   if(m){m.style.color='var(--ink-mute)';m.textContent='서버 버전 확인 중…';}
   try{
-    var r=await fetch(location.origin+'/index.html?nocache='+Date.now(),{cache:'no-store'});
+    var _base=location.origin+location.pathname.replace(/\/+$/,'');
+    var r=await fetch(_base+'?nocache='+Date.now(),{cache:'no-store'});
     var t=await r.text();
     var mm=t.match(/APP_VERSION\s*=\s*"([^"]+)"/);
     var latest=mm?mm[1]:null;
