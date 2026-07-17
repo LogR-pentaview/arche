@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>아르케 · 영업매니저</title>
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <style>
   :root{
     --surface-0:#eef0eb; --surface-1:#f5f6f2; --surface-2:#ffffff;
@@ -92,6 +93,7 @@
     <div class="nav" data-t="news" onclick="go('news')"><i class="ti ti-news"></i>입시 뉴스</div>
     <div class="nav" data-t="bank" onclick="go('bank')"><i class="ti ti-building-bank"></i>정산 계좌</div>
     <div class="nav" data-t="requests" onclick="go('requests')"><i class="ti ti-message-2"></i>본사에 요청·의견</div>
+    <div class="nav" data-t="mypost" onclick="go('mypost')"><i class="ti ti-send"></i>내 회원에게 소식</div>
     <div class="foot"><div class="nm" id="mgr-name">매니저</div><div class="cd" id="mgr-code">코드 —</div>
       <button class="lo" onclick="doLogout()">로그아웃</button></div>
   </aside>
@@ -110,6 +112,8 @@
   function ymd(s){ return String(s||'').slice(5,10).replace('-','.'); }
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
   window.copyCode = function(){ if(!MGR||!MGR.ref_code)return; navigator.clipboard.writeText(MGR.ref_code).then(function(){ var b=document.getElementById('copyBtn'); if(b){var t=b.textContent;b.textContent='복사됨';setTimeout(function(){b.textContent=t;},1400);} }); };
+  window.copyRefUrl = function(){ var i=document.getElementById('refUrl'); if(!i)return; navigator.clipboard.writeText(i.value).then(function(){ i.style.borderColor='var(--text-success)'; setTimeout(function(){i.style.borderColor='';},1200); }); };
+  window.downloadQR = function(){ if(!window._qrCanvas){ alert('QR이 아직 생성되지 않았습니다. 잠시 후 다시 시도하세요.'); return; } var a=document.createElement('a'); a.href=window._qrCanvas.toDataURL('image/png'); a.download='arche-추천QR-'+(MGR&&MGR.ref_code||'')+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
 
   (async function init(){
    try{
@@ -146,6 +150,7 @@
     if(t==='news') return renderPosts(p,'news','입시 뉴스','입시 관련 소식입니다.');
     if(t==='bank') return renderBank(p);
     if(t==='requests') return renderRequests(p);
+    if(t==='mypost') return renderMyPosts(p);
   };
 
   function pill(x){
@@ -161,6 +166,16 @@
     p.innerHTML =
       '<div class="head"><h2>대시보드</h2><span class="date">'+new Date().toISOString().slice(0,10)+' 기준</span></div>'
       + '<div class="codebar">'+code+'</div>'
+      + (MGR.ref_code ? '<div class="card" style="margin-bottom:16px"><div style="font-size:13px;font-weight:500;margin-bottom:10px"><i class="ti ti-qrcode" style="color:var(--text-accent)"></i> 내 추천 링크 · QR <span style="font-size:11px;color:var(--text-muted);font-weight:400">— SNS·홍보영상에 함께 올리세요</span></div>'
+        + '<div style="display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start">'
+        + '<div style="flex:1;min-width:230px">'
+        + '<div style="font-size:11.5px;color:var(--text-secondary);margin-bottom:6px">이 링크(또는 QR)로 접속·가입하면 <b>자동으로 내 영업으로 귀속</b>됩니다.</div>'
+        + '<div style="display:flex;gap:8px"><input id="refUrl" readonly style="flex:1;font-size:12px;font-family:var(--font-mono);margin-bottom:0"><button class="copybtn" onclick="copyRefUrl()">복사</button></div>'
+        + '<div style="font-size:11px;color:var(--text-muted);margin-top:10px;line-height:1.6">본사 홍보영상 링크와 <b>이 추천 링크·QR을 함께</b> 게시하세요. 영상을 본 사람이 링크/QR로 가입하면 내 실적으로 인정됩니다.</div>'
+        + '</div>'
+        + '<div style="text-align:center"><div id="qrBox" style="width:150px;height:150px;background:#fff;border:.5px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text-muted)">QR 생성 중…</div>'
+        + '<button class="btn" style="margin-top:8px;padding:6px 14px;font-size:12px" onclick="downloadQR()">QR 다운로드</button></div>'
+        + '</div></div>' : '')
       + '<div class="kpis" id="kpis"><div class="muted">불러오는 중…</div></div>'
       + '<div class="grid2">'
       + '<section><div class="secttl">내 회원 현황</div><div class="tbox" id="memtbl"><div class="muted" style="padding:14px">불러오는 중…</div></div>'
@@ -169,6 +184,20 @@
       + '<section><div class="secttl"><i class="ti ti-speakerphone"></i>본사 소식</div><div class="listbox" id="d-notice"><div class="muted" style="font-size:12px;padding:6px 0">불러오는 중…</div></div></section>'
       + '<section><div class="secttl"><i class="ti ti-news"></i>입시 뉴스·이슈</div><div class="listbox" id="d-news"><div class="muted" style="font-size:12px;padding:6px 0">불러오는 중…</div></div></section>'
       + '</div></div>';
+
+    // 추천 링크 · QR 생성
+    if(MGR.ref_code){
+      var refUrl = location.origin + '/login?ref=' + encodeURIComponent(MGR.ref_code);
+      var ru=document.getElementById('refUrl'); if(ru)ru.value=refUrl;
+      var qb=document.getElementById('qrBox');
+      if(qb && window.QRCode && window.QRCode.toCanvas){
+        var cv=document.createElement('canvas');
+        window.QRCode.toCanvas(cv, refUrl, {width:150,margin:1,color:{dark:'#1d211d',light:'#ffffff'}}, function(err){
+          if(err){ qb.textContent='QR 생성 실패'; return; }
+          qb.innerHTML=''; qb.appendChild(cv); window._qrCanvas=cv;
+        });
+      } else if(qb){ qb.textContent='QR 라이브러리 미로드'; }
+    }
 
     var sr = await sb.rpc('my_manager_summary');
     var s = (sr.data && sr.data[0]) || {total:0,paid:0,trial:0,commission:0};
@@ -314,6 +343,50 @@
       loadRequests();
     }catch(e){m.style.color='var(--text-danger)';m.textContent='오류: '+(e.message||e);}
     finally{document.getElementById('rq-btn').disabled=false;}
+  };
+
+  async function renderMyPosts(p){
+    p.innerHTML='<div class="head"><h2>내 회원에게 소식</h2></div>'
+      +'<div class="muted" style="margin:-8px 0 14px">내가 유치한 회원(학원·학부모)에게 교육 이슈·뉴스·홍보영상을 전합니다. 회원의 <b>본사 소식</b> 화면에 표시됩니다.</div>'
+      +'<div class="card" style="max-width:580px;margin-bottom:18px">'
+      +'<input id="mp-title" placeholder="제목" style="margin-bottom:10px">'
+      +'<textarea id="mp-body" placeholder="내용 (선택)" style="width:100%;min-height:90px;padding:10px 12px;border:.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;background:var(--surface-2);color:var(--text-primary);margin-bottom:10px"></textarea>'
+      +'<input id="mp-link" placeholder="영상/링크 URL (선택 · 유튜브 등)" style="margin-bottom:10px">'
+      +'<div id="mp-msg" style="font-size:12px;min-height:16px;margin-bottom:6px"></div>'
+      +'<button class="btn" id="mp-btn" onclick="submitMyPost()">회원에게 발송</button></div>'
+      +'<div id="mp-list"><div class="muted">불러오는 중…</div></div>';
+    loadMyPosts();
+  }
+  async function loadMyPosts(){
+    var el=document.getElementById('mp-list'); if(!el)return;
+    var r=await sb.from('manager_posts').select('id,title,body,link_url,created_at').eq('manager_id',MGR.id).order('created_at',{ascending:false}).limit(50);
+    if(r.error){el.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>';return;}
+    var rows=r.data||[];
+    if(!rows.length){el.innerHTML='<div class="empty">아직 발송한 소식이 없습니다.</div>';return;}
+    el.innerHTML=rows.map(function(x){
+      var link=x.link_url?('<div style="margin-top:6px"><a href="'+esc(x.link_url)+'" target="_blank" rel="noopener" style="color:var(--text-accent);font-size:12px">링크 열기 →</a></div>'):'';
+      var body=x.body?('<div style="font-size:12.5px;color:var(--text-secondary);margin-top:4px;white-space:pre-wrap;line-height:1.6">'+esc(x.body)+'</div>'):'';
+      return '<div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px"><div style="font-weight:500;font-size:14px">'+esc(x.title)+'</div><span class="muted" style="font-size:11px;margin-left:auto">'+ymd(x.created_at)+'</span><button onclick="delMyPost(\''+x.id+'\')" style="padding:3px 8px;background:transparent;color:var(--text-muted);border:.5px solid var(--border);border-radius:6px;font-size:11px;cursor:pointer">삭제</button></div>'+body+link+'</div>';
+    }).join('');
+  }
+  window.submitMyPost=async function(){
+    var title=(document.getElementById('mp-title').value||'').trim(), body=(document.getElementById('mp-body').value||'').trim(), link=(document.getElementById('mp-link').value||'').trim();
+    var m=document.getElementById('mp-msg');
+    if(!title){m.style.color='var(--text-danger)';m.textContent='제목을 입력하세요.';return;}
+    document.getElementById('mp-btn').disabled=true;m.style.color='var(--text-muted)';m.textContent='발송 중…';
+    try{
+      var r=await sb.from('manager_posts').insert({manager_id:MGR.id,title:title,body:body||null,link_url:link||null});
+      if(r.error)throw r.error;
+      m.style.color='var(--text-success)';m.textContent='발송되었습니다. 내 회원의 본사 소식에 표시됩니다.';
+      document.getElementById('mp-title').value='';document.getElementById('mp-body').value='';document.getElementById('mp-link').value='';
+      loadMyPosts();
+    }catch(e){m.style.color='var(--text-danger)';m.textContent='오류: '+(e.message||e);}
+    finally{document.getElementById('mp-btn').disabled=false;}
+  };
+  window.delMyPost=async function(id){
+    if(!confirm('이 소식을 삭제할까요?'))return;
+    var r=await sb.from('manager_posts').delete().eq('id',id);
+    if(r.error){alert(r.error.message);return;} loadMyPosts();
   };
 </script>
 </body>
