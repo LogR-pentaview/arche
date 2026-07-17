@@ -91,6 +91,7 @@
     <div class="nav" data-t="mgr" onclick="go('mgr')"><i class="ti ti-user-star"></i>영업매니저<span class="b" id="nb-mgr" style="display:none">0</span></div>
     <div class="nav" data-t="commission" onclick="go('commission')"><i class="ti ti-coin"></i>커미션·정산</div>
     <div class="nav" data-t="posts" onclick="go('posts')"><i class="ti ti-speakerphone"></i>공지·자료 배포</div>
+    <div class="nav" data-t="mreq" onclick="go('mreq')"><i class="ti ti-message-2"></i>매니저 요청<span class="b" id="nb-mreq" style="display:none">0</span></div>
     <div class="navlabel">운영</div>
     <div class="nav" data-t="admission" onclick="go('admission')"><i class="ti ti-database"></i>입시 자료</div>
     <div class="nav" data-t="apikey" onclick="go('apikey')"><i class="ti ti-key"></i>API 키</div>
@@ -152,6 +153,7 @@
     if(t==='mgr') return renderManagers(p);
     if(t==='commission') return renderCommission(p);
     if(t==='posts') return renderPosts(p);
+    if(t==='mreq') return renderMReq(p);
     if(t==='slot') return renderSlot(p);
     if(t==='admission') return renderAdmission(p);
     if(t==='apikey') return renderApiKey(p);
@@ -427,6 +429,41 @@
 
   // ===== 공지·자료 배포 =====
   var CAT_LABEL = { notice:'공지', sales:'영업자료', news:'입시뉴스' };
+
+  // ===== 매니저 요청·의견 =====
+  async function renderMReq(p){
+    p.innerHTML='<div class="h1">매니저 요청·의견</div><div class="sub">영업매니저가 보낸 요청·의견·문의입니다. 답변을 남기면 매니저 화면에 표시됩니다.</div><div id="mreq-list"><div class="muted">불러오는 중…</div></div>';
+    var r=await sb.from('manager_requests').select('id,category,title,body,status,reply,replied_at,created_at,sales_managers(name,ref_code)').order('created_at',{ascending:false}).limit(100);
+    var el=document.getElementById('mreq-list');
+    if(r.error){el.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>';return;}
+    var rows=r.data||[];
+    if(!rows.length){el.innerHTML='<div class="soon">받은 요청이 없습니다.</div>';return;}
+    var catLab={request:'요청',opinion:'의견',question:'문의'};
+    var stLab={open:'대기',answered:'답변완료',closed:'종료'};
+    var stCls={open:'b-pending',answered:'b-approved',closed:'b-trial'};
+    el.innerHTML=rows.map(function(x){
+      var mgr=x.sales_managers||{};
+      var reply=x.reply?('<div style="margin-top:8px;padding:9px 11px;background:var(--bg-accent);border-radius:8px;font-size:12.5px"><b style="color:var(--text-accent);font-size:11px">기존 답변 · '+String(x.replied_at||'').slice(0,10)+'</b></div>'):'';
+      var replyBox='<div style="margin-top:8px"><textarea id="rp-'+x.id+'" placeholder="답변 입력" style="width:100%;min-height:64px;padding:8px 10px;border:.5px solid var(--border);border-radius:8px;font-size:12.5px;font-family:inherit;background:var(--surface-2);color:var(--text-primary)">'+(x.reply?esc(x.reply):'')+'</textarea><div style="display:flex;gap:6px;margin-top:5px"><button class="btn g" onclick="replyMReq(\''+x.id+'\')">답변 저장</button>'+(x.status!=='closed'?'<button class="btn o" onclick="closeMReq(\''+x.id+'\')">종료</button>':'')+'</div></div>';
+      return '<div class="card"><div style="display:flex;align-items:center;gap:6px;margin-bottom:5px"><span class="badge b-b2c">'+(catLab[x.category]||x.category)+'</span><span class="badge '+(stCls[x.status]||'b-trial')+'">'+(stLab[x.status]||x.status)+'</span><span class="muted" style="margin-left:auto;font-size:11px">'+esc(mgr.name||'-')+' ('+esc(mgr.ref_code||'')+') · '+String(x.created_at||'').slice(0,10)+'</span></div>'
+        +'<div style="font-weight:500;font-size:14px">'+esc(x.title)+'</div><div style="font-size:12.5px;color:var(--text-secondary);margin-top:4px;white-space:pre-wrap;line-height:1.6">'+esc(x.body)+'</div>'+reply+replyBox+'</div>';
+    }).join('');
+  }
+  window.replyMReq=async function(id){
+    var t=document.getElementById('rp-'+id); if(!t)return; var v=(t.value||'').trim();
+    if(!v){alert('답변 내용을 입력하세요');return;}
+    var s=await getSession();
+    var r=await sb.from('manager_requests').update({reply:v,status:'answered',replied_at:new Date().toISOString(),replied_by:s.user.id}).eq('id',id);
+    if(r.error){alert('오류: '+r.error.message);return;}
+    renderMReq(document.getElementById('panel'));
+  };
+  window.closeMReq=async function(id){
+    if(!confirm('이 요청을 종료 처리할까요?'))return;
+    var r=await sb.from('manager_requests').update({status:'closed'}).eq('id',id);
+    if(r.error){alert('오류: '+r.error.message);return;}
+    renderMReq(document.getElementById('panel'));
+  };
+
   async function renderPosts(p){
     p.innerHTML = '<div class="h1">공지·자료 배포</div><div class="sub">작성하면 영업매니저 화면에 자동 게시됩니다 (공지·영업자료·입시뉴스)</div>'
       + '<div class="card" style="max-width:640px"><h3>새 글 작성</h3>'
