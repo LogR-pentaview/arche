@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>아르케 · 관리자</title>
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="아르케 관리자">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.24.0/dist/tabler-icons.min.css" rel="stylesheet">
 <style>
   :root{
@@ -74,13 +80,24 @@
   .filt button{ background:var(--surface-2); border:none; padding:7px 14px; font-size:12px; color:var(--text-secondary); cursor:pointer; font-family:inherit; }
   .filt button.on{ background:var(--bg-accent); color:var(--text-accent); font-weight:500; }
   h2,h3{ font-weight:500; }
-  @media(max-width:720px){ .wrap{ grid-template-columns:1fr; } .side{ position:static; height:auto; } }
+  #mnav-btn{display:none}
+  #mnav-backdrop{display:none;position:fixed;inset:0;background:rgba(20,26,22,.4);z-index:120}
+  #mnav-backdrop.open{display:block}
+  @media(max-width:720px){
+    .wrap{ grid-template-columns:1fr; }
+    .side{ position:fixed; left:0; top:0; height:100vh; width:236px; z-index:130; transform:translateX(-100%); transition:transform .25s ease; box-shadow:3px 0 24px rgba(0,0,0,.18); }
+    .side.open{ transform:translateX(0); }
+    #mnav-btn{ display:flex!important; }
+    .main{ padding:54px 16px 40px; }
+  }
 </style>
 </head>
 <body>
 <div id="gate" class="center"><div class="muted">불러오는 중…</div></div>
 
 <div id="app" class="wrap" style="display:none">
+  <button id="mnav-btn" onclick="toggleMobileNav()" aria-label="메뉴" style="display:none;position:fixed;top:12px;left:12px;z-index:140;width:38px;height:38px;background:var(--surface-2);border:.5px solid var(--border);border-radius:9px;align-items:center;justify-content:center;cursor:pointer;font-size:18px;color:var(--text-primary);box-shadow:0 2px 8px rgba(0,0,0,.1)">☰</button>
+  <div id="mnav-backdrop" onclick="toggleMobileNav()"></div>
   <aside class="side">
     <div class="brand"><div class="av">A</div><div><div class="nm">아르케</div><div class="ro">본사 관리자</div></div></div>
     <div class="nav on" data-t="dash" onclick="go('dash')"><i class="ti ti-layout-dashboard"></i>대시보드</div>
@@ -98,7 +115,9 @@
     <div class="nav" data-t="slot" onclick="go('slot')"><i class="ti ti-shield-check"></i>슬롯 무결성</div>
     <div class="nav" data-t="billing" onclick="go('billing')"><i class="ti ti-credit-card"></i>결제</div>
     <div class="foot"><b id="who">관리자</b><small>로그·알 입시연구소</small>
-      <button class="lo" onclick="doLogout()">로그아웃</button></div>
+      <button class="lo" onclick="doLogout()">로그아웃</button>
+      <div style="margin-top:9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono)">v<span id="ver-cur">-</span></span><button onclick="checkAppUpdate()" style="font-size:10px;padding:3px 8px;border:.5px solid var(--border);border-radius:6px;background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit">최신확인</button><button id="ver-apply" onclick="applyAppUpdate()" style="display:none;font-size:10px;padding:3px 8px;border:none;border-radius:6px;background:var(--text-accent);color:#fff;cursor:pointer;font-family:inherit">업데이트</button></div>
+      <div id="ver-msg" style="font-size:10px;margin-top:4px;min-height:12px"></div></div>
   </aside>
   <main class="main" id="panel"><div class="muted">불러오는 중…</div></main>
 </div>
@@ -113,6 +132,29 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
+  window.APP_VERSION="2026.07.17.1";
+  (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
+  window.checkAppUpdate=async function(){
+    var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
+    if(m){m.style.color='var(--text-muted)';m.textContent='확인 중…';}
+    try{
+      var base=location.origin+location.pathname.replace(/\/+$/,'');
+      var r=await fetch(base+'?nocache='+Date.now(),{cache:'no-store'});
+      var t=await r.text();
+      var mm=t.match(/APP_VERSION\s*=\s*"([^"]+)"/);
+      var latest=mm?mm[1]:null;
+      if(!latest){if(m){m.style.color='var(--text-danger)';m.textContent='버전 정보 없음';}return;}
+      if(latest===window.APP_VERSION){if(m){m.style.color='var(--text-success)';m.textContent='최신 버전 (v'+latest+')';}if(ap)ap.style.display='none';}
+      else{if(m){m.style.color='var(--text-warn)';m.textContent='새 버전 v'+latest+' 있음 → [업데이트]';}if(ap)ap.style.display='inline-block';}
+    }catch(e){if(m){m.style.color='var(--text-danger)';m.textContent='확인 실패';}}
+  };
+  window.applyAppUpdate=async function(){
+    var m=document.getElementById('ver-msg'); if(m){m.style.color='var(--text-muted)';m.textContent='업데이트 중…';}
+    try{ if(window.caches){var keys=await caches.keys();await Promise.all(keys.map(function(k){return caches.delete(k);}));}
+      if(navigator.serviceWorker){var reg=await navigator.serviceWorker.getRegistration();if(reg){if(reg.waiting)reg.waiting.postMessage({type:'SKIP_WAITING'});await reg.update();}}
+    }catch(e){}
+    location.reload();
+  };
 
   // admin-api 엣지함수 호출 (옛 콘솔과 동일 백엔드 재사용)
   async function adminApi(payload){
@@ -143,7 +185,9 @@
    }
   })();
 
+  window.toggleMobileNav = function(){ var s=document.querySelector('.side'); var b=document.getElementById('mnav-backdrop'); if(!s)return; var open=s.classList.toggle('open'); if(b)b.classList.toggle('open',open); };
   window.go = function(t){
+    try{ if(window.innerWidth<=720){ var _s=document.querySelector('.side'); var _b=document.getElementById('mnav-backdrop'); if(_s)_s.classList.remove('open'); if(_b)_b.classList.remove('open'); } }catch(e){}
     document.querySelectorAll('.nav').forEach(function(n){ n.classList.toggle('on', n.dataset.t===t); });
     var p = document.getElementById('panel');
     p.innerHTML = '<div class="muted">불러오는 중…</div>';
@@ -538,5 +582,6 @@
     }).join('');
   }
 </script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js").catch(function(){});});}</script>
 </body>
 </html>
