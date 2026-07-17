@@ -133,9 +133,11 @@
     if(t==='mgr') return renderManagers(p);
     if(t==='commission') return renderCommission(p);
     if(t==='slot') return renderSlot(p);
-    // 순차 이식 예정
-    p.innerHTML = '<div class="h1">'+({admission:'입시 자료',apikey:'API 키',billing:'결제'})[t]+'</div><div class="sub">본사 운영 관리</div>'
-      + '<div class="soon">이 기능은 순차 이식 중입니다.<br>다음 단계에서 이 자리에 채워집니다. (기능은 현재 정상 작동하며 곧 여기로 통합됩니다)</div>';
+    if(t==='admission') return renderAdmission(p);
+    if(t==='apikey') return renderApiKey(p);
+    // 순차 이식 예정 (결제)
+    p.innerHTML = '<div class="h1">결제</div><div class="sub">구독·결제 관리</div>'
+      + '<div class="soon">이 기능은 순차 이식 중입니다.<br>다음 단계에서 이 자리에 채워집니다. (현재 /admin/console 에서 작동)</div>';
   };
 
   // ===== 대시보드 =====
@@ -237,8 +239,79 @@
       + '</div><div class="soon">커미션 금액 자동 계산(구독 매출 × 요율)은 결제 연동 후 이 자리에 추가됩니다.</div>';
   }
 
+  // ===== 입시 자료 =====
+  async function renderAdmission(p){
+    p.innerHTML = '<div class="h1">입시 자료</div><div class="sub">대입·고입 요강·입결·골든시드 DB 현황</div><div id="adlist"><div class="muted">불러오는 중…</div></div>';
+    var d = await adminApi({action:'admission'});
+    var g = await adminApi({action:'golden'});
+    var list = document.getElementById('adlist');
+    var kv = function(title,o){
+      if(!o || typeof o!=='object') return '';
+      var items = Object.keys(o).filter(function(k){return typeof o[k]!=='object';})
+        .map(function(k){ return '<div class="row"><div class="nm" style="font-size:13px">'+esc(k)+'</div><b style="font-family:\'Bebas Neue\';font-size:18px">'+esc(o[k])+'</b></div>'; }).join('');
+      return '<div class="card"><h3>'+title+'</h3>'+(items||'<div class="muted">데이터 없음</div>')+'</div>';
+    };
+    var html = '';
+    if(d && !d.error) html += kv('입시자료 DB', d);
+    if(g && !g.error){
+      if(typeof g.total!=='undefined') html += '<div class="card"><h3>골든시드 총 '+esc(g.total)+'건</h3>'+
+        (g.by_doctype?Object.keys(g.by_doctype).map(function(k){return '<div class="row"><div class="nm" style="font-size:13px">'+esc(k)+'</div><b>'+esc(g.by_doctype[k])+'</b></div>';}).join(''):'')+'</div>';
+    }
+    list.innerHTML = html || '<div class="muted">불러올 자료가 없습니다.</div>';
+  }
+
+  // ===== API 키 =====
+  async function renderApiKey(p){
+    p.innerHTML = '<div class="h1">API 키</div><div class="sub">본사 마스터 Gemini 키 · 관리자 비밀번호</div>'
+      + '<div class="card" style="max-width:560px"><h3>관리자 Gemini API 키 (플랫폼 공용)</h3>'
+      + '<div class="muted" style="margin-bottom:10px">「관리자 API 사용」 학원들의 AI 분석에 쓰이는 공용 키입니다. aistudio.google.com 발급 키를 입력하세요. 서버에서만 사용됩니다.</div>'
+      + '<input id="ak-gemini" type="password" placeholder="AIza..." style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;font-family:inherit">'
+      + '<div id="ak-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>'
+      + '<div style="display:flex;gap:8px"><button class="btn g" onclick="akSave()">저장</button><button class="btn o" onclick="akTest()">연결 테스트</button></div>'
+      + '<div id="ak-test" style="font-size:12px;color:var(--ink-dim);margin-top:10px"></div></div>'
+      + '<div class="card" style="max-width:420px"><h3>관리자 비밀번호 변경</h3>'
+      + '<input id="ak-pw" type="password" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;font-family:inherit">'
+      + '<div style="margin-top:8px"><button class="btn g" onclick="akPw()">변경</button></div>'
+      + '<div id="ak-pwmsg" style="font-size:12px;margin-top:8px"></div></div>';
+    // 기존 키 로드
+    try{
+      var d = await sb.from('academies').select('gemini_api_key').eq('is_admin',true).limit(1);
+      if(d.data && d.data[0] && d.data[0].gemini_api_key) document.getElementById('ak-gemini').value = d.data[0].gemini_api_key;
+    }catch(e){}
+  }
+  window.akSave = async function(){
+    var m=document.getElementById('ak-msg');
+    var a = await sb.from('academies').select('id').eq('is_admin',true).limit(1);
+    var id = a.data && a.data[0] && a.data[0].id;
+    if(!id){ m.style.color='var(--risk)'; m.textContent='관리자 학원을 찾을 수 없습니다.'; return; }
+    var key=(document.getElementById('ak-gemini').value||'').trim();
+    if(!key){ m.style.color='var(--risk)'; m.textContent='키를 입력하세요.'; return; }
+    m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
+    var r = await sb.from('academies').update({gemini_api_key:key}).eq('id',id);
+    if(r.error){ m.style.color='var(--risk)'; m.textContent=r.error.message; return; }
+    m.style.color='var(--safe)'; m.textContent='저장 완료. 관리자 API 사용 학원에서 AI가 작동합니다.';
+  };
+  window.akTest = async function(){
+    var t=document.getElementById('ak-test'); t.style.color='var(--ink-dim)'; t.textContent='테스트 중…';
+    try{
+      var s = await getSession();
+      var r = await fetch(FN_BASE+'/arche-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(s?s.access_token:'')},body:JSON.stringify({task:'parse_record',payload:{text:'연결테스트'}})});
+      var d = await r.json();
+      if(d.error){ t.style.color='var(--risk)'; t.textContent='실패: '+d.error; }
+      else { t.style.color='var(--safe)'; t.textContent='연결 정상 (모델: '+(d.model||'-')+')'; }
+    }catch(e){ t.style.color='var(--risk)'; t.textContent='오류: '+e.message; }
+  };
+  window.akPw = async function(){
+    var m=document.getElementById('ak-pwmsg'); var np=(document.getElementById('ak-pw').value||'');
+    if(np.length<4){ m.style.color='var(--risk)'; m.textContent='4자 이상 입력하세요.'; return; }
+    var r = await sb.auth.updateUser({password:np});
+    if(r.error){ m.style.color='var(--risk)'; m.textContent=r.error.message; return; }
+    m.style.color='var(--safe)'; m.textContent='변경 완료.';
+  };
+
   // ===== 슬롯 무결성 =====
   async function renderSlot(p){
+    p.innerHTML = '<div class="h1">슬롯 무결성</div><div class="sub">창체 지문 기반 슬롯 재활용 의심 모니터링</div><div id="slist"><div class="muted">불러오는 중…</div></div>';
     p.innerHTML = '<div class="h1">슬롯 무결성</div><div class="sub">창체 지문 기반 슬롯 재활용 의심 모니터링</div><div id="slist"><div class="muted">불러오는 중…</div></div>';
     var r = await sb.rpc('admin_flagged_slots');
     var list = document.getElementById('slist');
