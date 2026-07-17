@@ -67,8 +67,8 @@
     <div class="nav">입시 뉴스</div>
     <div class="foot">
       <b id="mgr-name">매니저</b>
-      <small id="mgr-code">귀속코드 —</small>
-      <small style="margin-top:8px;cursor:pointer;color:var(--gold)" onclick="doLogout()">로그아웃</small>
+      <small id="mgr-code">코드 —</small>
+      <button onclick="doLogout()" style="margin-top:12px;width:100%;padding:9px;background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;font-size:12px;cursor:pointer;font-family:inherit">로그아웃</button>
     </div>
   </aside>
 
@@ -145,6 +145,7 @@
   };
 
   (async function init(){
+   try{
     var session = await getSession();
     if(!session){ location.replace('/login'); return; }
 
@@ -174,6 +175,9 @@
     document.getElementById('today').textContent = new Date().toISOString().slice(0,10) + ' 기준';
 
     loadSummary(); loadMembers(); loadBank();
+   }catch(e){
+    gate('<div class="h1" style="font-size:22px">불러오기 오류</div><p class="muted">잠시 후 다시 시도하거나 로그아웃 후 재로그인해주세요.<br><span style="font-size:11px">'+(e&&e.message||e)+'</span></p><button class="btn" onclick="doLogout()">로그아웃</button>');
+   }
   })();
 
   async function loadSummary(){
