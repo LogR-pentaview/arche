@@ -135,9 +135,8 @@
     if(t==='slot') return renderSlot(p);
     if(t==='admission') return renderAdmission(p);
     if(t==='apikey') return renderApiKey(p);
-    // 순차 이식 예정 (결제)
-    p.innerHTML = '<div class="h1">결제</div><div class="sub">구독·결제 관리</div>'
-      + '<div class="soon">이 기능은 순차 이식 중입니다.<br>다음 단계에서 이 자리에 채워집니다. (현재 /admin/console 에서 작동)</div>';
+    if(t==='billing') return renderBilling(p);
+    p.innerHTML = '<div class="muted">알 수 없는 탭</div>';
   };
 
   // ===== 대시보드 =====
@@ -307,6 +306,53 @@
     var r = await sb.auth.updateUser({password:np});
     if(r.error){ m.style.color='var(--risk)'; m.textContent=r.error.message; return; }
     m.style.color='var(--safe)'; m.textContent='변경 완료.';
+  };
+
+  // ===== 결제 =====
+  function won(n){ return '₩'+Number(n||0).toLocaleString(); }
+  function billBadge(s){
+    if(s==='active') return '<span class="badge b-paid">구독중</span>';
+    if(s==='paused') return '<span class="badge b-req">일시정지</span>';
+    return '<span class="badge b-trial">'+esc(s||'-')+'</span>';
+  }
+  async function renderBilling(p){
+    p.innerHTML = '<div class="h1">결제</div><div class="sub">구독 현황·자동청구 관리</div><div id="blist"><div class="muted">불러오는 중…</div></div>';
+    var d = await adminApi({action:'billing_overview'});
+    var list = document.getElementById('blist');
+    if(d.error){ list.innerHTML='<div class="muted">오류: '+esc(d.error)+'</div>'; return; }
+    var head = '<div class="kpis" style="grid-template-columns:repeat(3,1fr)">'
+      + '<div class="kpi"><div class="lab">구독중 학원</div><div class="num">'+(d.active_count||0)+'<small> / '+(d.total_academies||0)+'</small></div></div>'
+      + '<div class="kpi"><div class="lab">월 반복매출(MRR)</div><div class="num" style="font-size:26px">'+won(d.mrr)+'</div></div>'
+      + '<div class="kpi" style="display:flex;align-items:center;justify-content:center"><button class="btn g" onclick="bRunDue()">도래분 일괄청구</button></div>'
+      + '</div><div id="b-msg" style="font-size:12px;min-height:14px;margin:4px 0 12px"></div>';
+    var rows = (d.rows||[]).map(function(a){
+      var lp=a.last_payment;
+      var lpTxt = lp ? '최근 '+won(lp.amount)+' · '+String(lp.approved_at||lp.created_at||'').slice(0,10) : '납부 없음';
+      var card = a.card_number_masked ? (esc(a.card_company||'')+' '+esc(a.card_number_masked)) : '카드 미등록';
+      var btn = a.status==='active' ? '<button class="btn o" onclick="bCharge(\''+a.academy_id+'\',\''+esc(a.name)+'\')">지금 청구</button>' : '';
+      return '<div class="row"><div style="flex:1"><div class="nm">'+esc(a.name||'-')+' '+billBadge(a.status)+'</div>'
+        + '<div class="meta">'+card+' · 학생 '+(a.students||0)+'명 · 월 '+won(a.amount)+(a.next_charge_at?' · 다음청구 '+String(a.next_charge_at).slice(0,10):'')+'</div>'
+        + '<div class="meta">'+lpTxt+'</div></div>'+btn+'</div>';
+    }).join('') || '<div class="muted">학원 없음</div>';
+    list.innerHTML = head + rows;
+  }
+  window.bCharge = async function(id,name){
+    var m=document.getElementById('b-msg');
+    if(!confirm('['+name+'] 구독료를 지금 청구할까요?')) return;
+    m.style.color='var(--ink-mute)'; m.textContent=name+' 청구 중…';
+    var r = await adminApi({action:'billing_charge',academy_id:id});
+    if(r.error){ m.style.color='var(--risk)'; m.textContent=name+' 실패: '+r.error; return; }
+    m.style.color='var(--safe)'; m.textContent=name+' 청구 완료 · '+won(r.amount);
+    renderBilling(document.getElementById('panel'));
+  };
+  window.bRunDue = async function(){
+    var m=document.getElementById('b-msg');
+    if(!confirm('다음청구일이 도래한 모든 학원을 지금 일괄 청구할까요?')) return;
+    m.style.color='var(--ink-mute)'; m.textContent='일괄 청구 중…';
+    var r = await adminApi({action:'billing_run_due'});
+    if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error; return; }
+    m.style.color='var(--safe)'; m.textContent='일괄 청구 완료' + (typeof r.charged!=='undefined'?(' · '+r.charged+'건'):'');
+    renderBilling(document.getElementById('panel'));
   };
 
   // ===== 슬롯 무결성 =====
