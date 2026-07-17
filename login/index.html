@@ -21,12 +21,16 @@
   .mono{ font-size:10px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; margin:4px 0 20px; }
   input{ width:100%; margin-bottom:10px; padding:11px 13px; background:var(--panel-2); border:1px solid var(--line);
          border-radius:9px; color:var(--ink); font-size:14px; font-family:inherit; }
-  #msg{ min-height:16px; font-size:12px; color:var(--risk); margin:4px 0 10px; }
+  .msg{ min-height:16px; font-size:12px; color:var(--risk); margin:4px 0 10px; }
+  .msg.ok{ color:var(--safe); }
   .btn{ width:100%; padding:12px; background:var(--lime); color:#fff; border:none; border-radius:9px; font-weight:700;
         cursor:pointer; font-size:14px; font-family:inherit; }
   .btn:disabled{ opacity:.6; cursor:default; }
   .hint{ font-size:10.5px; color:var(--ink-mute); text-align:center; margin-top:14px; line-height:1.6; }
   .badge{ display:inline-block; font-size:10px; color:var(--gold); border:1px solid var(--gold); border-radius:8px; padding:1px 7px; margin-left:6px; }
+  .link{ display:block; text-align:center; font-size:12px; color:var(--gold); cursor:pointer; text-decoration:underline; margin-top:12px; }
+  .section-title{ font-size:13px; font-weight:700; margin-bottom:10px; }
+  #mgrForm{ display:none; }
 </style>
 </head>
 <body>
@@ -34,14 +38,29 @@
     <div class="brand">ARCHE<span class="dot">.</span></div>
     <div class="mono">학원 컨설팅 엔진 · 로그인 <span class="badge">new</span></div>
 
-    <input id="email" type="text" placeholder="이메일 또는 아이디" autocomplete="username">
-    <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
-    <div id="msg"></div>
-    <button id="loginBtn" class="btn">로그인</button>
+    <!-- ===== 로그인 ===== -->
+    <div id="loginForm">
+      <input id="email" type="text" placeholder="이메일 또는 아이디" autocomplete="username">
+      <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
+      <div id="msg" class="msg"></div>
+      <button id="loginBtn" class="btn">로그인</button>
+      <div class="hint">
+        로그인하면 계정에 맞는 화면으로 자동 이동합니다.<br>
+        (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사 · 매니저 → 영업)
+      </div>
+      <span class="link" onclick="showMgr(true)">영업매니저로 가입 신청 →</span>
+    </div>
 
-    <div class="hint">
-      로그인하면 계정에 맞는 화면으로 자동 이동합니다.<br>
-      (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사)
+    <!-- ===== 매니저 셀프 가입 ===== -->
+    <div id="mgrForm">
+      <div class="section-title">영업매니저 가입 신청</div>
+      <input id="m-name" type="text" placeholder="이름">
+      <input id="m-email" type="email" placeholder="이메일" autocomplete="email">
+      <input id="m-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
+      <div id="m-msg" class="msg"></div>
+      <button id="mgrBtn" class="btn">가입 신청</button>
+      <div class="hint">가입 신청 후 <b>본사(관리자) 승인</b>이 완료되면 영업 화면을 이용할 수 있습니다.</div>
+      <span class="link" onclick="showMgr(false)">← 로그인으로 돌아가기</span>
     </div>
   </div>
 
@@ -54,53 +73,103 @@
 <script src="/shared/ai.js"></script>
 <script src="/shared/auth.js"></script>
 
-<!-- ===== 이 페이지 전용: 로그인 처리 ===== -->
+<!-- ===== 이 페이지 전용 ===== -->
 <script>
   var msg = document.getElementById('msg');
+  var mMsg = document.getElementById('m-msg');
   var btn = document.getElementById('loginBtn');
-  var emailEl = document.getElementById('email');
-  var pwEl = document.getElementById('pw');
+  var mgrBtn = document.getElementById('mgrBtn');
 
-  function showMsg(t){ msg.textContent = t || ''; }
+  function showMsg(t, ok){ msg.textContent = t||''; msg.className = 'msg'+(ok?' ok':''); }
+  function showMMsg(t, ok){ mMsg.textContent = t||''; mMsg.className = 'msg'+(ok?' ok':''); }
+  function showMgr(on){
+    document.getElementById('loginForm').style.display = on ? 'none' : 'block';
+    document.getElementById('mgrForm').style.display   = on ? 'block' : 'none';
+  }
+  window.showMgr = showMgr;
 
-  /* 아이디를 이메일로 변환 (기존 로그인 규칙과 동일) */
+  /* 아이디 → 이메일 변환 (기존 규칙과 동일) */
   var ADMIN_EMAIL = 'admin@arche.penta-view.com';
   var STU_EMAIL_DOMAIN = 'stu.penta-view.com';
   function normalizeId(input){
     var v = (input||'').trim();
-    if(v.indexOf('@') > 0) return v;            // 이미 이메일 (학원·학부모)
+    if(v.indexOf('@') > 0) return v;
     var low = v.toLowerCase();
-    if(low === 'admin') return ADMIN_EMAIL;      // 관리자
-    return low + '@' + STU_EMAIL_DOMAIN;         // 학생 아이디 (예: PV0001)
+    if(low === 'admin') return ADMIN_EMAIL;
+    return low + '@' + STU_EMAIL_DOMAIN;
   }
 
-  /* 이미 로그인돼 있으면 바로 알맞은 앱으로 이동 */
+  /* 이미 로그인돼 있으면 자동 이동 (승인 대기면 안내) */
   (async function(){
     try{
       var s = await getSession();
-      if(s){ showMsg('이미 로그인됨 — 이동 중…'); routeByRole(s); }
-    }catch(e){ /* 무시 */ }
+      if(s){
+        var r = await routeByRole(s);
+        if(r && !r.ok && r.reason==='manager_pending'){
+          showMsg('매니저 승인 대기 중입니다. 본사 승인 후 이용 가능합니다.');
+        }
+      }
+    }catch(e){}
   })();
 
+  /* 로그인 */
   async function doLogin(){
-    var raw = (emailEl.value||'').trim();
-    var pw = pwEl.value||'';
+    var raw = (document.getElementById('email').value||'').trim();
+    var pw = document.getElementById('pw').value||'';
     if(!raw || !pw){ showMsg('이메일(또는 아이디)과 비밀번호를 입력하세요.'); return; }
-    var email = normalizeId(raw);              // admin·학생 아이디 → 이메일 변환
+    var email = normalizeId(raw);
 
     btn.disabled = true; showMsg('로그인 중…');
     try{
-      var session = await signIn(email, pw);   // shared/auth.js
-      showMsg('로그인 성공 — 이동 중…');
-      routeByRole(session);                     // 역할 판별 후 자동 이동
+      var session = await signIn(email, pw);
+      var r = await routeByRole(session);
+      if(r && r.ok){ showMsg('로그인 성공 — 이동 중…', true); }
+      else if(r && r.reason==='manager_pending'){
+        btn.disabled = false;
+        showMsg('매니저 승인 대기 중입니다. 본사 승인 후 이용 가능합니다.');
+      } else {
+        btn.disabled = false;
+        showMsg('이동할 화면을 찾지 못했습니다. 관리자에게 문의하세요.');
+      }
     }catch(e){
       btn.disabled = false;
       showMsg('로그인 실패: ' + (e.message || e));
     }
   }
 
+  /* 매니저 셀프 가입 */
+  async function doMgrSignup(){
+    var name = (document.getElementById('m-name').value||'').trim();
+    var email = (document.getElementById('m-email').value||'').trim();
+    var pw = document.getElementById('m-pw').value||'';
+    if(!name || !email || !pw){ showMMsg('이름·이메일·비밀번호를 모두 입력하세요.'); return; }
+    if(pw.length < 6){ showMMsg('비밀번호는 6자 이상이어야 합니다.'); return; }
+
+    mgrBtn.disabled = true; showMMsg('가입 신청 중…');
+    try{
+      var up = await sb.auth.signUp({ email: email, password: pw, options:{ data:{ role:'manager', manager_name:name } } });
+      if(up.error) throw new Error(up.error.message);
+
+      var session = (await sb.auth.getSession()).data.session;
+      if(!session){ try{ session = await signIn(email, pw); }catch(e){} }
+      if(!session){
+        showMMsg('가입되었습니다. 이메일 인증이 필요할 수 있습니다. 인증 후 로그인해주세요.', true);
+        mgrBtn.disabled = false; return;
+      }
+
+      var ins = await sb.from('sales_managers').insert({ uid: session.user.id, name: name });
+      if(ins.error){ showMMsg('가입 처리: ' + ins.error.message); mgrBtn.disabled = false; return; }
+
+      showMMsg('가입 신청 완료! 본사 승인 후 이용 가능합니다.', true);
+    }catch(e){
+      mgrBtn.disabled = false;
+      showMMsg('가입 실패: ' + (e.message || e));
+    }
+  }
+
   btn.addEventListener('click', doLogin);
-  pwEl.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  document.getElementById('pw').addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+  mgrBtn.addEventListener('click', doMgrSignup);
 </script>
 </body>
 </html>
