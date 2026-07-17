@@ -1824,6 +1824,7 @@ window.ADMIN=ADMIN;
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/config.js"></script>
 <script src="https://js.tosspayments.com/v1/payment"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
@@ -1940,8 +1941,7 @@ line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'�
 
 /* ===== Supabase 연동 ===== */
 window.APP_VERSION="2026.07.16.3";
-const SB_URL="https://dvxepjctjazobrkjrkdw.supabase.co";
-const SB_KEY="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개용 publishable key (RLS로 보호)
+/* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
 else { console.error('[arche] supabase-js 미로드 (CDN 차단?)'); }
@@ -4122,7 +4122,7 @@ async function testAI(){
 
 /* ===== 구독·결제 (토스페이먼츠 빌링) ===== */
 // ⚠️ 자동결제(빌링) 계약 완료 후 발급된 '클라이언트 키'로 교체하세요. (아래는 토스 문서 테스트 키)
-var TOSS_CLIENT_KEY="test_ck_ALnQvDd2VJYmLewOane3Mj7X41mN";
+/* TOSS_CLIENT_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 function won(n){ return (n==null?'-':Number(n).toLocaleString('ko-KR')+'원'); }
 function dfmt(s){ if(!s)return '-'; try{return new Date(s).toISOString().slice(0,10);}catch(e){return '-';} }
 /* ===== 컨설턴트 팀 관리 (원장 전용) ===== */
