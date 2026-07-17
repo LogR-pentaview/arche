@@ -206,6 +206,16 @@
     clearTimeout(refTimer); refTimer = setTimeout(checkRefCode, 450);
   });
 
+  /* 매니저 추천 링크: URL ?ref=코드 → 회원가입 폼 자동 전환 + 코드 자동입력·검증 */
+  try{
+    var _refParam = new URLSearchParams(location.search).get('ref');
+    if(_refParam){
+      showView('signup');
+      var _rc = document.getElementById('s-refcode');
+      if(_rc){ _rc.value = _refParam.trim().toUpperCase(); checkRefCode(); }
+    }
+  }catch(e){}
+
   /* 회원가입 (학원/학부모) */
   async function doSignup(){
     var name = (document.getElementById('s-name').value||'').trim();
