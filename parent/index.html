@@ -2348,8 +2348,8 @@ async function enterStudentApp(session){
     var gpg=document.getElementById('grp-goip'); if(gpg)gpg.style.display='none';
     var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
   }
-  // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김
-  ['students','intake','settings','admin_data','essaybatch','admin'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
+  ['students','intake','settings','admin_data','essaybatch','admin','hqnews'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
 
   renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
