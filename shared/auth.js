@@ -51,13 +51,14 @@ async function resolveRole(user) {
     academy: null
   };
 
-  /* 1) 영업매니저
-     (아직 DB 미구현 → 지금은 metadata 또는 sales_managers 테이블 있으면 인식.
-      테이블 없으면 자동으로 건너뜀 = 에러 안 남) */
-  if (meta.role === 'manager') { info.isManager = true; return info; }
+  /* 1) 영업매니저 — 승인된(approved) 경우만 매니저로 인정 */
+  info.managerStatus = null;
   try {
-    const { data: mgr } = await sb.from('sales_managers').select('uid').eq('uid', user.id).limit(1);
-    if (mgr && mgr[0]) { info.isManager = true; return info; }
+    const { data: mgr } = await sb.from('sales_managers').select('status').eq('uid', user.id).limit(1);
+    if (mgr && mgr[0]) {
+      info.managerStatus = mgr[0].status;
+      if (mgr[0].status === 'approved') info.isManager = true;
+    }
   } catch (e) { /* 테이블 미생성 시 무시 */ }
 
   /* 2) 학원 판별: 내가 소유한(원장) → 소속(컨설턴트) 순서 */
@@ -89,24 +90,31 @@ window.resolveRole = resolveRole;
 /* ---------- 역할 → 목적지 경로 ---------- */
 function pathForRole(info) {
   if (info.isAdmin)   return APP_PATHS.admin;
-  if (info.isManager) return APP_PATHS.partner;
+  if (info.isManager) return APP_PATHS.partner;   // 승인된 매니저
 
-  /* 학생은 소속에 따라: 학부모(b2c) 소속이면 parent, 학원(b2b) 소속이면 academy
-     ※ 학생 라우팅 최종 확정은 학생 흐름 만들 때 재점검 */
-  if (info.role === 'student') {
+  /* 소속 학원이 있거나 학생이면 → 트랙에 따라 */
+  if (info.academy || info.role === 'student') {
     return info.accountType === 'b2c' ? APP_PATHS.parent : APP_PATHS.academy;
   }
 
-  /* 원장·컨설턴트·학부모 */
+  /* 소속 없음 + 매니저 승인 대기 → 이동 보류(로그인 화면에서 안내) */
+  if (info.managerStatus === 'pending') return null;
+
+  /* 그 외(신규 원장 등)는 기본 학원으로 */
   return info.accountType === 'b2c' ? APP_PATHS.parent : APP_PATHS.academy;
 }
 window.pathForRole = pathForRole;
 
 
 /* ---------- 로그인 후: 판별해서 해당 앱으로 이동 ---------- */
+/* 반환: {ok:true, dest} 이동함 / {ok:false, reason} 이동 보류(승인 대기 등) */
 async function routeByRole(session) {
   const info = await resolveRole(session.user);
   const dest = pathForRole(info);
+  if (!dest) {
+    return { ok: false, reason: (info.managerStatus === 'pending' ? 'manager_pending' : 'unknown') };
+  }
   location.replace(dest);   // 뒤로가기로 로그인 화면에 안 돌아오게 replace 사용
+  return { ok: true, dest: dest };
 }
 window.routeByRole = routeByRole;
