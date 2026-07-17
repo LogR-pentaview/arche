@@ -3377,8 +3377,14 @@ async function genGDesignItems(phase){
     if(!sel.length)sel=items; // 분류가 애매하면 전체 저장
     await sb.from('design_items').delete().eq('student_id',s.id).in('area', isCh?CHANG:['교과탐구','과세특']);
     var rows=sel.map(function(it,i){
-      var detail=(Array.isArray(it.steps)?it.steps.map(function(x){return '· '+x;}).join('\n'):(it.steps||''))+(it.output?'\n[산출물] '+it.output:'')+(it.link?'\n[연결] '+it.link:'');
-      return {student_id:s.id,grade:String(it.grade||ctx.grade||''),sem:'',subject:it.subject||'',area:(it.area||'교과탐구'),title:it.title||'',goal:it.goal||'',detail:detail,outline:'',seq:i,status:'예정',sent:false};
+      var stepsTxt=(Array.isArray(it.steps)?it.steps.map(function(x){return '· '+x;}).join('\n'):(it.steps||''));
+      var detail=stepsTxt
+        +(it.method?'\n[탐구방법] '+it.method:'')
+        +(it.standard?'\n[연계 학습요소] '+it.standard:'')
+        +(it.output?'\n[산출물] '+it.output:'')
+        +(it.link?'\n[연결] '+it.link:'');
+      var outline=Array.isArray(it.outline)?it.outline.join('\n'):(it.outline||'');
+      return {student_id:s.id,grade:String(it.grade||ctx.grade||''),sem:'',subject:it.subject||'',area:(it.area||'교과탐구'),title:it.title||'',goal:it.goal||'',detail:detail,outline:outline,seq:(typeof it.seq==='number'?it.seq:i),status:'예정',sent:false};
     });
     if(rows.length)await sb.from('design_items').insert(rows);
     if(o.narrative){ try{ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{narrative:o.narrative,priority:o.priority||''}}); }catch(e){} }
