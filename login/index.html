@@ -34,7 +34,7 @@
     <div class="brand">ARCHE<span class="dot">.</span></div>
     <div class="mono">학원 컨설팅 엔진 · 로그인 <span class="badge">new</span></div>
 
-    <input id="email" type="email" placeholder="이메일" autocomplete="email">
+    <input id="email" type="text" placeholder="이메일 또는 아이디" autocomplete="username">
     <input id="pw" type="password" placeholder="비밀번호" autocomplete="current-password">
     <div id="msg"></div>
     <button id="loginBtn" class="btn">로그인</button>
@@ -63,6 +63,17 @@
 
   function showMsg(t){ msg.textContent = t || ''; }
 
+  /* 아이디를 이메일로 변환 (기존 로그인 규칙과 동일) */
+  var ADMIN_EMAIL = 'admin@arche.penta-view.com';
+  var STU_EMAIL_DOMAIN = 'stu.penta-view.com';
+  function normalizeId(input){
+    var v = (input||'').trim();
+    if(v.indexOf('@') > 0) return v;            // 이미 이메일 (학원·학부모)
+    var low = v.toLowerCase();
+    if(low === 'admin') return ADMIN_EMAIL;      // 관리자
+    return low + '@' + STU_EMAIL_DOMAIN;         // 학생 아이디 (예: PV0001)
+  }
+
   /* 이미 로그인돼 있으면 바로 알맞은 앱으로 이동 */
   (async function(){
     try{
@@ -72,9 +83,10 @@
   })();
 
   async function doLogin(){
-    var email = (emailEl.value||'').trim();
+    var raw = (emailEl.value||'').trim();
     var pw = pwEl.value||'';
-    if(!email || !pw){ showMsg('이메일과 비밀번호를 입력하세요.'); return; }
+    if(!raw || !pw){ showMsg('이메일(또는 아이디)과 비밀번호를 입력하세요.'); return; }
+    var email = normalizeId(raw);              // admin·학생 아이디 → 이메일 변환
 
     btn.disabled = true; showMsg('로그인 중…');
     try{
