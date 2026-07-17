@@ -114,14 +114,11 @@
       </div>
     </div>
 
+    <div class="card"><h3>본사 영업지원 자료</h3><div class="newslist" id="hq-sales"><div class="muted" style="font-size:12px">불러오는 중…</div></div></div>
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
-      <div class="card"><h3>본사 소식</h3><div class="newslist">
-        <div>파트너 정책 안내<small>공지 · 준비 중</small></div>
-        <div>영업 자료 배포 예정<small>자료 · 준비 중</small></div>
-      </div></div>
-      <div class="card"><h3>입시 뉴스·이슈</h3><div class="newslist">
-        <div>입시 뉴스 연동 예정<small>준비 중</small></div>
-      </div></div>
+      <div class="card"><h3>본사 소식</h3><div class="newslist" id="hq-notice"><div class="muted" style="font-size:12px">불러오는 중…</div></div></div>
+      <div class="card"><h3>입시 뉴스·이슈</h3><div class="newslist" id="hq-news"><div class="muted" style="font-size:12px">불러오는 중…</div></div></div>
     </div>
   </main>
 </div>
@@ -174,7 +171,7 @@
     else { codeEl.textContent = '발행 대기'; codeEl.style.fontSize='22px'; codeEl.style.color='var(--ink-mute)'; document.getElementById('copyCodeBtn').style.display='none'; }
     document.getElementById('today').textContent = new Date().toISOString().slice(0,10) + ' 기준';
 
-    loadSummary(); loadMembers(); loadBank();
+    loadSummary(); loadMembers(); loadBank(); loadPosts();
    }catch(e){
     gate('<div class="h1" style="font-size:22px">불러오기 오류</div><p class="muted">잠시 후 다시 시도하거나 로그아웃 후 재로그인해주세요.<br><span style="font-size:11px">'+(e&&e.message||e)+'</span></p><button class="btn" onclick="doLogout()">로그아웃</button>');
    }
@@ -214,6 +211,24 @@
     } else {
       box.className=''; box.textContent='';
     }
+  }
+
+  async function loadPosts(){
+    var r = await sb.from('hq_posts').select('category,title,body,link_url,pinned,created_at')
+      .eq('published', true).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(30);
+    var rows = (r && r.data) || [];
+    function fill(id, cat){
+      var el = document.getElementById(id); if(!el) return;
+      var items = rows.filter(function(x){ return x.category===cat; });
+      if(!items.length){ el.innerHTML = '<div class="muted" style="font-size:12px">등록된 항목이 없습니다.</div>'; return; }
+      el.innerHTML = items.map(function(x){
+        var pin = x.pinned ? '📌 ' : '';
+        var link = x.link_url ? ' <a href="'+esc(x.link_url)+'" target="_blank" rel="noopener" style="color:var(--gold);font-size:11px">[자료 열기]</a>' : '';
+        var body = x.body ? '<small>'+esc(x.body)+'</small>' : '';
+        return '<div>'+pin+esc(x.title)+link+'<small style="color:var(--ink-mute)">'+String(x.created_at||'').slice(0,10)+'</small>'+body+'</div>';
+      }).join('');
+    }
+    fill('hq-sales','sales'); fill('hq-notice','notice'); fill('hq-news','news');
   }
 
   window.saveBank = async function(){
