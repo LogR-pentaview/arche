@@ -91,6 +91,7 @@
     <div class="nav" data-t="notice" onclick="go('notice')"><i class="ti ti-speakerphone"></i>본사 소식</div>
     <div class="nav" data-t="news" onclick="go('news')"><i class="ti ti-news"></i>입시 뉴스</div>
     <div class="nav" data-t="bank" onclick="go('bank')"><i class="ti ti-building-bank"></i>정산 계좌</div>
+    <div class="nav" data-t="requests" onclick="go('requests')"><i class="ti ti-message-2"></i>본사에 요청·의견</div>
     <div class="foot"><div class="nm" id="mgr-name">매니저</div><div class="cd" id="mgr-code">코드 —</div>
       <button class="lo" onclick="doLogout()">로그아웃</button></div>
   </aside>
@@ -144,6 +145,7 @@
     if(t==='notice') return renderPosts(p,'notice','본사 소식','본사 공지사항입니다.');
     if(t==='news') return renderPosts(p,'news','입시 뉴스','입시 관련 소식입니다.');
     if(t==='bank') return renderBank(p);
+    if(t==='requests') return renderRequests(p);
   };
 
   function pill(x){
@@ -269,6 +271,49 @@
       m.style.color='var(--text-success)'; m.textContent='확인요청을 보냈습니다.'; renderBank(document.getElementById('panel'));
     }catch(e){ m.style.color='var(--text-danger)'; m.textContent='오류: '+(e.message||e); }
     finally{ document.getElementById('b-btn').disabled=false; }
+  };
+
+  async function renderRequests(p){
+    p.innerHTML='<div class="head"><h2>본사에 요청·의견</h2></div>'
+      +'<div class="muted" style="margin:-8px 0 14px">영업 관련 요청·의견·문의를 본사에 전달합니다. 본사 답변은 아래 목록에서 확인하세요.</div>'
+      +'<div class="card" style="max-width:580px;margin-bottom:18px">'
+      +'<div style="display:flex;gap:8px;margin-bottom:10px"><select id="rq-cat" style="flex:0 0 120px;padding:10px;border:.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;background:var(--surface-2);color:var(--text-primary)"><option value="request">요청</option><option value="opinion">의견</option><option value="question">문의</option></select>'
+      +'<input id="rq-title" placeholder="제목" style="flex:1;margin-bottom:0"></div>'
+      +'<textarea id="rq-body" placeholder="내용을 입력하세요 (영업 요청·개선 의견·문의 등)" style="width:100%;min-height:110px;padding:10px 12px;border:.5px solid var(--border);border-radius:var(--radius);font-size:13px;font-family:inherit;resize:vertical;background:var(--surface-2);color:var(--text-primary)"></textarea>'
+      +'<div id="rq-msg" style="font-size:12px;min-height:16px;margin:6px 0"></div>'
+      +'<button class="btn" id="rq-btn" onclick="submitRequest()">본사에 보내기</button></div>'
+      +'<div id="rq-list"><div class="muted">불러오는 중…</div></div>';
+    loadRequests();
+  }
+  async function loadRequests(){
+    var el=document.getElementById('rq-list'); if(!el)return;
+    var r=await sb.from('manager_requests').select('category,title,body,status,reply,replied_at,created_at').eq('manager_id',MGR.id).order('created_at',{ascending:false}).limit(50);
+    if(r.error){el.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>';return;}
+    var rows=r.data||[];
+    if(!rows.length){el.innerHTML='<div class="empty">아직 보낸 요청이 없습니다.</div>';return;}
+    var catLab={request:'요청',opinion:'의견',question:'문의'};
+    var stLab={open:'대기',answered:'답변완료',closed:'종료'};
+    var stCls={open:'p-warn',answered:'p-succ',closed:'p-mut'};
+    el.innerHTML=rows.map(function(x){
+      var reply=x.reply?('<div style="margin-top:10px;padding:10px 12px;background:var(--bg-accent);border-radius:var(--radius)"><div style="font-size:11px;color:var(--text-accent);font-weight:500;margin-bottom:4px">본사 답변 · '+ymd(x.replied_at)+'</div><div style="font-size:12.5px;white-space:pre-wrap;line-height:1.6">'+esc(x.reply)+'</div></div>'):'';
+      return '<div class="card" style="margin-bottom:10px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span class="pill p-acc">'+(catLab[x.category]||x.category)+'</span><span class="pill '+(stCls[x.status]||'p-mut')+'">'+(stLab[x.status]||x.status)+'</span><span class="muted" style="font-size:11px;margin-left:auto">'+ymd(x.created_at)+'</span></div>'
+        +'<div style="font-weight:500;font-size:14px">'+esc(x.title)+'</div>'
+        +'<div style="font-size:12.5px;color:var(--text-secondary);margin-top:5px;white-space:pre-wrap;line-height:1.6">'+esc(x.body)+'</div>'+reply+'</div>';
+    }).join('');
+  }
+  window.submitRequest=async function(){
+    var cat=document.getElementById('rq-cat').value, title=(document.getElementById('rq-title').value||'').trim(), body=(document.getElementById('rq-body').value||'').trim();
+    var m=document.getElementById('rq-msg');
+    if(!title||!body){m.style.color='var(--text-danger)';m.textContent='제목과 내용을 입력하세요.';return;}
+    document.getElementById('rq-btn').disabled=true; m.style.color='var(--text-muted)';m.textContent='전송 중…';
+    try{
+      var r=await sb.from('manager_requests').insert({manager_id:MGR.id,category:cat,title:title,body:body});
+      if(r.error)throw r.error;
+      m.style.color='var(--text-success)';m.textContent='전송되었습니다. 본사 확인 후 답변드립니다.';
+      document.getElementById('rq-title').value='';document.getElementById('rq-body').value='';
+      loadRequests();
+    }catch(e){m.style.color='var(--text-danger)';m.textContent='오류: '+(e.message||e);}
+    finally{document.getElementById('rq-btn').disabled=false;}
   };
 </script>
 </body>
