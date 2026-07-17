@@ -571,6 +571,7 @@
           <button onclick="hqFilter('all')" class="hqf on" data-f="all" style="background:transparent;border:none;padding:8px 16px;font-size:12.5px;color:var(--ink-dim);cursor:pointer;font-family:inherit">전체</button>
           <button onclick="hqFilter('notice')" class="hqf" data-f="notice" style="background:transparent;border:none;padding:8px 16px;font-size:12.5px;color:var(--ink-dim);cursor:pointer;font-family:inherit">공지</button>
           <button onclick="hqFilter('news')" class="hqf" data-f="news" style="background:transparent;border:none;padding:8px 16px;font-size:12.5px;color:var(--ink-dim);cursor:pointer;font-family:inherit">입시 뉴스</button>
+          <button onclick="hqFilter('manager')" class="hqf" data-f="manager" style="background:transparent;border:none;padding:8px 16px;font-size:12.5px;color:var(--ink-dim);cursor:pointer;font-family:inherit">담당 매니저</button>
         </div>
         <div id="hq-list" style="margin-top:14px"><div style="color:var(--ink-mute);padding:16px">불러오는 중…</div></div>
       </section>
@@ -2590,13 +2591,22 @@ function hqFilter(f){
 async function renderHqNews(){
   var box=document.getElementById('hq-list'); if(!box)return;
   if(!sb){box.innerHTML='<div style="color:var(--risk)">DB 미로드</div>';return;}
-  var cats=window._hqFilter==='all'?['notice','news']:[window._hqFilter];
-  var res=await sb.from('hq_posts').select('category,title,body,link_url,pinned,created_at').eq('published',true).in('category',cats).order('pinned',{ascending:false}).order('created_at',{ascending:false}).limit(60);
-  if(res.error){box.innerHTML='<div style="color:var(--risk)">'+hqEsc(res.error.message)+'</div>';return;}
-  var rows=res.data||[];
+  var rows=[];
+  var cats=window._hqFilter==='all'?['notice','news']:(window._hqFilter==='manager'?[]:[window._hqFilter]);
+  if(cats.length){
+    var res=await sb.from('hq_posts').select('category,title,body,link_url,pinned,created_at').eq('published',true).in('category',cats).order('created_at',{ascending:false}).limit(60);
+    if(res.error){box.innerHTML='<div style="color:var(--risk)">'+hqEsc(res.error.message)+'</div>';return;}
+    rows=(res.data||[]);
+  }
+  if(window._hqFilter==='all'||window._hqFilter==='manager'){
+    try{ var mp=await sb.from('manager_posts').select('title,body,link_url,created_at').eq('published',true).order('created_at',{ascending:false}).limit(30);
+      (mp.data||[]).forEach(function(x){ x.category='manager'; x.pinned=false; rows.push(x); });
+    }catch(e){}
+  }
+  rows.sort(function(a,b){ var pa=a.pinned?1:0,pb=b.pinned?1:0; if(pa!==pb)return pb-pa; return String(b.created_at||'').localeCompare(String(a.created_at||'')); });
   if(!rows.length){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">등록된 소식이 없습니다.</div>';return;}
-  var catLab={notice:'공지',news:'입시뉴스'};
-  var catCol={notice:'#c8871a',news:'#2f7de0'};
+  var catLab={notice:'공지',news:'입시뉴스',manager:'담당 매니저'};
+  var catCol={notice:'#c8871a',news:'#2f7de0',manager:'#7b5fef'};
   box.innerHTML=rows.map(function(p){
     var isVid=p.link_url && /youtu|youtube|vimeo|\.mp4|video/i.test(p.link_url);
     var link=p.link_url?('<div style="margin-top:10px"><a href="'+hqEsc(p.link_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--lime);color:#0a1a05;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none">'+(isVid?'▶ 영상 보기':'🔗 링크 열기')+'</a></div>'):'';
