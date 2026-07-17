@@ -113,7 +113,16 @@
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
   window.copyCode = function(){ if(!MGR||!MGR.ref_code)return; navigator.clipboard.writeText(MGR.ref_code).then(function(){ var b=document.getElementById('copyBtn'); if(b){var t=b.textContent;b.textContent='복사됨';setTimeout(function(){b.textContent=t;},1400);} }); };
   window.copyRefUrl = function(){ var i=document.getElementById('refUrl'); if(!i)return; navigator.clipboard.writeText(i.value).then(function(){ i.style.borderColor='var(--text-success)'; setTimeout(function(){i.style.borderColor='';},1200); }); };
-  window.downloadQR = function(){ if(!window._qrCanvas){ alert('QR이 아직 생성되지 않았습니다. 잠시 후 다시 시도하세요.'); return; } var a=document.createElement('a'); a.href=window._qrCanvas.toDataURL('image/png'); a.download='arche-추천QR-'+(MGR&&MGR.ref_code||'')+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); };
+  window.qrFallback = function(qb, url){
+    var src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=6&data='+encodeURIComponent(url);
+    qb.innerHTML='<img src="'+src+'" alt="추천 QR" style="width:150px;height:150px;border-radius:8px;display:block" onerror="this.parentNode.textContent=\'QR 생성 실패 — 링크를 직접 공유하세요\'">';
+    window._qrImgUrl=src; window._qrCanvas=null;
+  };
+  window.downloadQR = function(){
+    if(window._qrCanvas){ var a=document.createElement('a'); a.href=window._qrCanvas.toDataURL('image/png'); a.download='arche-추천QR-'+(MGR&&MGR.ref_code||'')+'.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a); return; }
+    if(window._qrImgUrl){ window.open(window._qrImgUrl+'&format=png','_blank'); return; }
+    alert('QR이 아직 생성되지 않았습니다. 잠시 후 다시 시도하세요.');
+  };
 
   (async function init(){
    try{
@@ -185,18 +194,25 @@
       + '<section><div class="secttl"><i class="ti ti-news"></i>입시 뉴스·이슈</div><div class="listbox" id="d-news"><div class="muted" style="font-size:12px;padding:6px 0">불러오는 중…</div></div></section>'
       + '</div></div>';
 
-    // 추천 링크 · QR 생성
+    // 추천 링크 · QR 생성 (라이브러리 우선, 실패 시 이미지 API 폴백)
     if(MGR.ref_code){
       var refUrl = location.origin + '/login?ref=' + encodeURIComponent(MGR.ref_code);
       var ru=document.getElementById('refUrl'); if(ru)ru.value=refUrl;
       var qb=document.getElementById('qrBox');
-      if(qb && window.QRCode && window.QRCode.toCanvas){
-        var cv=document.createElement('canvas');
-        window.QRCode.toCanvas(cv, refUrl, {width:150,margin:1,color:{dark:'#1d211d',light:'#ffffff'}}, function(err){
-          if(err){ qb.textContent='QR 생성 실패'; return; }
-          qb.innerHTML=''; qb.appendChild(cv); window._qrCanvas=cv;
-        });
-      } else if(qb){ qb.textContent='QR 라이브러리 미로드'; }
+      if(qb){
+        var madeCanvas=false;
+        if(window.QRCode && window.QRCode.toCanvas){
+          try{
+            var cv=document.createElement('canvas');
+            window.QRCode.toCanvas(cv, refUrl, {width:150,margin:1,color:{dark:'#1d211d',light:'#ffffff'}}, function(err){
+              if(err){ qrFallback(qb, refUrl); return; }
+              qb.innerHTML=''; qb.appendChild(cv); window._qrCanvas=cv; window._qrImgUrl=null;
+            });
+            madeCanvas=true;
+          }catch(e){ madeCanvas=false; }
+        }
+        if(!madeCanvas) qrFallback(qb, refUrl);
+      }
     }
 
     var sr = await sb.rpc('my_manager_summary');
