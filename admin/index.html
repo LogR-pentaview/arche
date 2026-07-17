@@ -70,6 +70,7 @@
     <div class="navlabel">영업</div>
     <div class="nav" data-t="mgr" onclick="go('mgr')">영업매니저<span class="b" id="nb-mgr" style="display:none">0</span></div>
     <div class="nav" data-t="commission" onclick="go('commission')">커미션·정산</div>
+    <div class="nav" data-t="posts" onclick="go('posts')">공지·자료 배포</div>
     <div class="navlabel">운영</div>
     <div class="nav" data-t="admission" onclick="go('admission')">입시 자료</div>
     <div class="nav" data-t="apikey" onclick="go('apikey')">API 키</div>
@@ -132,6 +133,7 @@
     if(t==='parent') return renderMembers(p, 'b2c');
     if(t==='mgr') return renderManagers(p);
     if(t==='commission') return renderCommission(p);
+    if(t==='posts') return renderPosts(p);
     if(t==='slot') return renderSlot(p);
     if(t==='admission') return renderAdmission(p);
     if(t==='apikey') return renderApiKey(p);
@@ -353,6 +355,66 @@
     if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error; return; }
     m.style.color='var(--safe)'; m.textContent='일괄 청구 완료' + (typeof r.charged!=='undefined'?(' · '+r.charged+'건'):'');
     renderBilling(document.getElementById('panel'));
+  };
+
+  // ===== 공지·자료 배포 =====
+  var CAT_LABEL = { notice:'공지', sales:'영업자료', news:'입시뉴스' };
+  async function renderPosts(p){
+    p.innerHTML = '<div class="h1">공지·자료 배포</div><div class="sub">작성하면 영업매니저 화면에 자동 게시됩니다 (공지·영업자료·입시뉴스)</div>'
+      + '<div class="card" style="max-width:640px"><h3>새 글 작성</h3>'
+      + '<div class="filt" id="pcat">'
+      + '<button class="on" data-c="notice" onclick="pSetCat(\'notice\')">공지</button>'
+      + '<button data-c="sales" onclick="pSetCat(\'sales\')">영업자료</button>'
+      + '<button data-c="news" onclick="pSetCat(\'news\')">입시뉴스</button></div>'
+      + '<input id="p-title" placeholder="제목" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px;font-family:inherit">'
+      + '<textarea id="p-body" rows="4" placeholder="내용" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px;font-family:inherit;resize:vertical"></textarea>'
+      + '<input id="p-link" placeholder="자료 링크 URL (선택 · 유튜브·드라이브 등)" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;margin-bottom:8px;font-family:inherit">'
+      + '<label style="font-size:12px;color:var(--ink-dim);display:flex;gap:6px;align-items:center;margin-bottom:10px"><input type="checkbox" id="p-pin"> 상단 고정</label>'
+      + '<div id="p-msg" style="font-size:12px;min-height:14px;margin-bottom:8px"></div>'
+      + '<button class="btn g" onclick="pSave()">게시</button></div>'
+      + '<div id="plist"><div class="muted">불러오는 중…</div></div>';
+    pLoad();
+  }
+  var pCat = 'notice';
+  window.pSetCat = function(c){ pCat=c; document.querySelectorAll('#pcat button').forEach(function(b){ b.classList.toggle('on', b.dataset.c===c); }); };
+  window.pSave = async function(){
+    var m=document.getElementById('p-msg');
+    var title=(document.getElementById('p-title').value||'').trim();
+    if(!title){ m.style.color='var(--risk)'; m.textContent='제목을 입력하세요.'; return; }
+    m.style.color='var(--ink-mute)'; m.textContent='게시 중…';
+    var s = await getSession();
+    var r = await sb.from('hq_posts').insert({
+      category: pCat, title: title,
+      body: (document.getElementById('p-body').value||'').trim() || null,
+      link_url: (document.getElementById('p-link').value||'').trim() || null,
+      pinned: document.getElementById('p-pin').checked,
+      created_by: s ? s.user.id : null
+    });
+    if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+    m.style.color='var(--safe)'; m.textContent='게시 완료.';
+    document.getElementById('p-title').value=''; document.getElementById('p-body').value=''; document.getElementById('p-link').value=''; document.getElementById('p-pin').checked=false;
+    pLoad();
+  };
+  async function pLoad(){
+    var list=document.getElementById('plist');
+    var r = await sb.from('hq_posts').select('id,category,title,body,link_url,pinned,created_at').order('created_at',{ascending:false}).limit(50);
+    if(r.error){ list.innerHTML='<div class="muted">목록 오류: '+esc(r.error.message)+'</div>'; return; }
+    var rows=r.data||[];
+    if(!rows.length){ list.innerHTML='<div class="muted" style="margin-top:14px">아직 게시글이 없습니다.</div>'; return; }
+    list.innerHTML = '<div class="card" style="margin-top:14px"><h3>게시글 ('+rows.length+')</h3>'
+      + rows.map(function(x){
+        var cat = '<span class="badge b-demo">'+esc(CAT_LABEL[x.category]||x.category)+'</span>';
+        var pin = x.pinned ? ' 📌' : '';
+        return '<div class="row"><div style="flex:1"><div class="nm" style="font-size:13px">'+esc(x.title)+pin+' '+cat+'</div>'
+          + '<div class="meta">'+String(x.created_at||'').slice(0,10)+(x.link_url?' · 링크 있음':'')+'</div></div>'
+          + '<button class="btn o" onclick="pDel(\''+x.id+'\')">삭제</button></div>';
+      }).join('') + '</div>';
+  }
+  window.pDel = async function(id){
+    if(!confirm('이 글을 삭제할까요?')) return;
+    var r = await sb.from('hq_posts').delete().eq('id',id);
+    if(r.error){ alert('삭제 실패: '+r.error.message); return; }
+    pLoad();
   };
 
   // ===== 슬롯 무결성 =====
