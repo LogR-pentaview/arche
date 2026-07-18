@@ -2753,8 +2753,12 @@ async function cbLoadLessons(){
       +'<button onclick="cbMove('+l.id+',1)" '+(la?'disabled':'')+' style="padding:1px 6px;font-size:10px;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);cursor:'+(la?'default':'pointer')+';opacity:'+(la?'.3':'1')+'">▼</button></div>'
       +'<div style="min-width:24px;text-align:center;font-weight:800;color:var(--gold,#c8a24a);font-size:14px">'+l.order_no+'</div>'
       +'<div style="flex:1;min-width:0"><b style="font-size:13px;color:var(--ink)">'+esc(l.title)+'</b>'
-      +(l.goal?'<div style="font-size:12px;color:var(--ink-dim);margin-top:4px;line-height:1.65">'+esc(l.goal)+'</div>':'')
-      +(l.guide?'<div id="cbg-'+l.id+'" style="display:none;font-size:12px;color:var(--ink-dim);margin-top:6px;line-height:1.7;white-space:pre-wrap;border-top:1px dashed var(--line);padding-top:6px">'+esc(l.guide)+'</div><div onclick="cbTog('+l.id+')" style="font-size:11px;color:var(--gold,#c8a24a);cursor:pointer;margin-top:5px">수행 지시 보기 ▾</div>':'<div style="font-size:11px;color:var(--risk);margin-top:4px">수행 지시 없음 — 재생성 필요</div>')
+      +(l.goal?'<div style="font-size:10.5px;color:var(--gold,#c8a24a);margin-top:6px">활동 목표</div><div style="font-size:12px;color:var(--ink-dim);margin-top:2px;line-height:1.7">'+esc(l.goal)+'</div>':'')
+      +((l.guide||l.outline)?('<div id="cbg-'+l.id+'" style="display:none;margin-top:7px;border-top:1px dashed var(--line);padding-top:7px">'
+        +(l.guide?'<div style="font-size:10.5px;color:var(--gold,#c8a24a);margin-bottom:2px">수행 가이드</div><div style="font-size:12px;color:var(--ink-dim);line-height:1.75;white-space:pre-wrap">'+esc(l.guide)+'</div>':'')
+        +(l.outline?'<div style="font-size:10.5px;color:var(--gold,#c8a24a);margin:8px 0 2px">탐구보고서 목차</div><div style="font-size:12px;color:var(--ink-dim);line-height:1.8;white-space:pre-line">'+esc(l.outline)+'</div>':'')
+        +'</div><div onclick="cbTog('+l.id+')" style="font-size:11px;color:var(--gold,#c8a24a);cursor:pointer;margin-top:5px">수행 지시 보기 ▾</div>')
+        :'<div style="font-size:11px;color:var(--risk);margin-top:4px">수행 지시 없음 — 재생성 필요</div>')
       +'</div>'
       +'<button onclick="cbRegen('+l.id+')" title="AI 재생성" style="padding:3px 8px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">↻</button>'
       +'<button onclick="cbDelLesson('+l.id+')" style="padding:3px 8px;background:transparent;color:var(--risk);border:1px solid var(--line);border-radius:6px;font-size:12px;cursor:pointer">×</button>'
@@ -2779,20 +2783,18 @@ async function cbGenLesson(name){
   var di=''; try{ var d=await sb.from('design_items').select('title,subject').eq('student_id',s.id).limit(20);
     di=(d.data||[]).map(function(x){return '· ['+(x.subject||'')+'] '+(x.title||'');}).join('\n'); }catch(e){}
   var career=(s.career||s.target_major||''), target=(window._designTrack==='goip')?(s.target_school||''):(s.target_univ||'');
-  var hint='[코스] '+cbCourse.title+' ('+(isSubj?'교과탐구형':'창체활동형')+')\n'
-    +'[이번 차시] '+(isSubj?('과목: '+name):('활동 영역: '+name))+'\n'
-    +'[이전 차시들 — 이어받아 심화]\n'+prev+'\n'
-    +(di?('[이 학생의 기존 활동 설계 — 중복 금지]\n'+di+'\n'):'')
-    +(ctxTxt?('[학생 자료]\n'+ctxTxt+'\n'):'')
-    +avoid+'\n'
-    +'★반드시: (1) 위 이전 차시·기존 설계와 주제가 겹치지 않게, (2) 희망진로('+career+')로 수렴하는 융합 관점으로, (3) 이전 차시를 이어받아 한 단계 심화되는 서사로 설계하라. 정확히 1개만.';
-  var d=await callAI('design_record',{phase:isSubj?'subject':'changche',subjects:(isSubj?name:''),career:career,
-    field:(window.majorToField?majorToField(s.target_major):''),target:target,term:(s.grade||''),context:hint,qual:{}});
-  var o=JSON.parse(d.text); var t=(o.todo||o.items||[])[0]||{};
+  // 전용 task(course_lesson): 학생부 디자인과 동일한 깊이(활동 목표 2~3문장 · 수행 가이드 5~8문장 · 탐구 질문 · 목차 5~6장)로 차시 1개 설계
+  var d=await callAI('course_lesson',{kind:isSubj?'subject':'changche',name:name,course:cbCourse.title,career:career,
+    field:(window.majorToField?majorToField(s.target_major):''),target:target,term:(s.grade||''),
+    prev:prev,existing:di,avoid:avoid,context:ctxTxt});
+  var o=JSON.parse(d.text); var t=o||{};
+  if(t.todo)t=(t.todo[0]||{}); else if(t.items)t=(t.items[0]||{});
   var steps=Array.isArray(t.steps)?t.steps.map(function(x){return '· '+x;}).join('\n'):'';
+  var qs=Array.isArray(t.questions)?t.questions.filter(Boolean):[];
   var guide=(t.detail||steps||'')
+    +(qs.length?'\n\n탐구 질문:\n'+qs.map(function(x){return '· '+x;}).join('\n'):'')
     +(t.method?'\n[탐구방법] '+t.method:'')
-    +(t.standard?'\n[연계 학습요소] '+t.standard:'')
+    +(t.standard?'\n[연계 성취기준·학습요소] '+t.standard:'')
     +(t.output?'\n[산출물] '+t.output:'')
     +(t.link?'\n[연결] '+t.link:'');
   var outline=Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||'');
@@ -2896,9 +2898,9 @@ async function cbStuLesson(lid,cid){
   cbCapInit();
   var ro=(sub.status==='submitted'||sub.status==='reviewed');
   var h='<div style="padding:12px 14px;border-top:1px solid var(--line)">';
-  if(l.goal)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">차시 목표</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;margin-bottom:9px">'+esc(l.goal)+'</div>';
-  if(l.guide)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 지시</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap;margin-bottom:9px">'+esc(l.guide)+'</div>';
-  if(l.outline)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">보고서 목차</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.8;white-space:pre-line;margin-bottom:9px">'+esc(l.outline)+'</div>';
+  if(l.goal)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">활동 목표</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;margin-bottom:9px">'+esc(l.goal)+'</div>';
+  if(l.guide)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap;margin-bottom:9px">'+esc(l.guide)+'</div>';
+  if(l.outline)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">탐구보고서 목차</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.8;white-space:pre-line;margin-bottom:9px">'+esc(l.outline)+'</div>';
   if(ro){
     h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--ink)">'+esc(sub.content||'')+'</div>';
     if(sub.verdict){var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 확인'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};var v=vm[sub.verdict]||vm.AUTHENTIC;
