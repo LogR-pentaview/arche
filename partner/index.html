@@ -261,12 +261,13 @@
 
     var sr = await sb.rpc('my_manager_summary');
     var s = (sr.data && sr.data[0]) || {total:0,paid:0,trial:0,commission:0};
+    var ctD = await sb.rpc('my_commission_totals'); var cts=(ctD.data&&ctD.data[0])||{this_month:0,cumulative:0,unpaid:0,dividend:0};
     var conv = s.total>0 ? Math.round((s.paid/s.total)*100) : 0;
     document.getElementById('kpis').innerHTML =
         '<div class="kpi"><div class="lab">관리 회원</div><div class="val">'+(s.total||0)+'<small> 명</small></div><div class="sub">유료 '+(s.paid||0)+' · 체험 '+(s.trial||0)+'</div></div>'
-      + '<div class="kpi"><div class="lab">이번 달 예상 커미션</div><div class="val">'+won(s.commission)+'</div><div class="sub">구독료 기준</div></div>'
-      + '<div class="kpi"><div class="lab">유료 전환율</div><div class="val">'+conv+'<small> %</small></div><div class="sub">체험→유료</div></div>'
-      + '<div class="kpi"><div class="lab">이탈 위험</div><div class="val" style="color:var(--text-danger)">'+(s.trial||0)+'<small> 명</small></div><div class="sub">체험·만료 임박</div></div>';
+      + '<div class="kpi"><div class="lab">이번 달 커미션</div><div class="val">'+won(cts.this_month)+'</div><div class="sub">실 결제 기준 · 누적 '+won(cts.cumulative)+'</div></div>'
+      + '<div class="kpi"><div class="lab">정산 대기</div><div class="val">'+won(cts.unpaid)+'</div><div class="sub">미정산 커미션</div></div>'
+      + '<div class="kpi"><div class="lab">유료 전환율</div><div class="val">'+conv+'<small> %</small></div><div class="sub">체험→유료</div></div>';
 
     var cr = await sb.rpc('my_commission');
     var rows = (cr.data||[]).slice(0,6);
@@ -304,19 +305,23 @@
   }
 
   async function renderCommission(p){
-    p.innerHTML='<div class="head"><h2>매출·커미션</h2><span class="date">첫 2개월 50% → 이후 35%</span></div><div id="cl"><div class="muted">불러오는 중…</div></div>';
-    var r=await sb.rpc('my_commission'); var el=document.getElementById('cl');
+    p.innerHTML='<div class="head"><h2>매출·커미션</h2><span class="date">1·2번째 결제 50% → 이후 35% · 연말 배당 5%</span></div><div id="cl"><div class="muted">불러오는 중…</div></div>';
+    var el=document.getElementById('cl');
+    var tD=await sb.rpc('my_commission_totals'); var t=(tD.data&&tD.data[0])||{this_month:0,cumulative:0,unpaid:0,dividend:0,member_count:0};
+    var r=await sb.rpc('my_commissions');
     if(r.error){ el.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>'; return; }
-    var rows=r.data||[]; var total=rows.reduce(function(s,x){return s+(x.commission||0);},0);
-    var head='<div class="kpis" style="grid-template-columns:repeat(2,minmax(0,1fr));max-width:420px">'
-      +'<div class="kpi"><div class="lab">이번 달 예상 커미션</div><div class="val">'+won(total)+'</div><div class="sub">'+rows.length+'명 대상</div></div>'
-      +'<div class="kpi"><div class="lab">회원 수</div><div class="val">'+rows.length+'<small> 명</small></div><div class="sub">&nbsp;</div></div></div>';
-    if(!rows.length){ el.innerHTML=head+'<div class="tbox"><div class="empty">귀속 회원이 없습니다.</div></div>'; return; }
-    el.innerHTML=head+'<div class="tbox"><table><thead><tr><th>회원</th><th>유형</th><th>구독</th><th>단계</th><th style="text-align:right">커미션</th></tr></thead><tbody>'+rows.map(function(x){
-      var type=x.account_type==='b2c'?'학부모':'학원';
-      if(!x.subscribed) return '<tr><td>'+esc(x.member_name||'-')+'</td><td style="color:var(--text-secondary)">'+type+'</td><td class="muted" colspan="3">미구독 (커미션 0)</td></tr>';
-      return '<tr><td>'+esc(x.member_name||'-')+'</td><td style="color:var(--text-secondary)">'+type+'</td><td class="muted">월 '+won(x.monthly_amount)+' · '+x.months_active+'개월차</td><td>'+pill(x)+'</td><td style="text-align:right;font-weight:500">'+won(x.commission)+'</td></tr>';
-    }).join('')+'</tbody></table></div><div class="note">실제 결제(구독) 기준으로 계산됩니다. 결제 연동 전에는 예상치입니다.</div>';
+    var rows=r.data||[];
+    var head='<div class="kpis" style="grid-template-columns:repeat(4,minmax(0,1fr))">'
+      +'<div class="kpi"><div class="lab">이번 달 커미션</div><div class="val">'+won(t.this_month)+'</div><div class="sub">실 결제 기준</div></div>'
+      +'<div class="kpi"><div class="lab">누적 커미션</div><div class="val">'+won(t.cumulative)+'</div><div class="sub">전체 기간</div></div>'
+      +'<div class="kpi"><div class="lab">정산 대기</div><div class="val">'+won(t.unpaid)+'</div><div class="sub">미정산</div></div>'
+      +'<div class="kpi"><div class="lab">연말 배당</div><div class="val">'+won(t.dividend)+'</div><div class="sub">누적</div></div></div>';
+    if(!rows.length){ el.innerHTML=head+'<div class="tbox" style="margin-top:14px"><div class="empty">아직 발생한 커미션이 없습니다. 유치 회원이 유료 결제하면 자동 기록됩니다.</div></div>'; return; }
+    el.innerHTML=head+'<div class="tbox" style="margin-top:14px"><table><thead><tr><th>발생일</th><th>회원</th><th>유형</th><th>기준액</th><th>율</th><th style="text-align:right">커미션</th><th>정산</th></tr></thead><tbody>'+rows.map(function(x){
+      var kind=x.kind==='dividend'?'<span class="pill p-acc">연말배당</span>':'<span class="pill p-mut">월 '+esc(x.period||'')+'</span>';
+      var paid=x.paid?'<span class="pill p-succ">완료</span>':'<span class="pill p-warn">대기</span>';
+      return '<tr><td class="muted">'+ymd(x.created_at)+'</td><td>'+esc(x.academy_name||'-')+'</td><td>'+kind+'</td><td class="muted">'+won(x.base_amount)+'</td><td style="color:var(--text-secondary)">'+Math.round((x.rate||0)*100)+'%</td><td style="text-align:right;font-weight:500">'+won(x.amount)+'</td><td>'+paid+'</td></tr>';
+    }).join('')+'</tbody></table></div><div class="note">커미션은 회원의 실제 유료 결제 시 자동 기록됩니다. 정산은 본사에서 처리합니다.</div>';
   }
 
   async function renderPosts(p,cat,title,desc){
