@@ -957,6 +957,7 @@
           <select id="gds-school" class="goip-con-only" style="min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">목표 학교 (선택)</option></select>
           <span id="gds-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
+        <div style="background:rgba(127,184,0,.08);border:1px solid rgba(127,184,0,.3);border-radius:11px;padding:13px 15px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:220px;font-size:12.5px;color:var(--ink-dim);line-height:1.65"><b style="color:var(--ink)">📚 코스 구성은 [코스웨어] 메뉴에서</b><br>코스명(예: 주요과목 탐구보고서)을 만들고 <b>1차시 국어 · 2차시 수학…</b> 처럼 차시를 직접 구성해 학생에게 배포합니다. 학생은 차시를 순서대로 진행합니다.</div><button class="btn" onclick="goView('courseware')">코스웨어 열기 →</button></div>
         <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
           <button class="btn" onclick="genGDesign('subject')">① 주요과목 탐구 2개 생성</button>
           <button class="btn" onclick="genGDesign('changche')">② 창체·비교과 2개 생성</button>
@@ -1095,6 +1096,7 @@
         <div class="eyebrow">Student Record Design</div>
         <div class="h1">학생부 디자인</div>
         <div class="sub">진로·학과에 맞춰 앞으로 학생부에서 채워갈 방향을 과목·창체별로 설계 (대필 아님 · 방향 가이드)</div>
+        <div style="background:rgba(127,184,0,.08);border:1px solid rgba(127,184,0,.3);border-radius:11px;padding:13px 15px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:220px;font-size:12.5px;color:var(--ink-dim);line-height:1.65"><b style="color:var(--ink)">📚 코스 구성은 [코스웨어] 메뉴에서</b><br>코스명(예: 주요과목 탐구보고서)을 만들고 <b>1차시 국어 · 2차시 수학…</b> 처럼 차시를 직접 구성해 학생에게 배포합니다. 학생은 차시를 순서대로 진행합니다.</div><button class="btn" onclick="goView('courseware')">코스웨어 열기 →</button></div>
         <div id="design-actions" style="display:flex;gap:10px;margin:8px 0 16px;flex-wrap:wrap"><button class="btn" onclick="genDesign('subject')">① 주요과목 탐구 생성</button><button class="btn" onclick="genDesign('changche')">② 창체활동 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button><button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button><span id="dae-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span></div>
         <div class="card" id="dist-box" style="margin-bottom:14px;padding:14px">
           <div class="sectionhead" style="margin-bottom:8px"><span class="idx">직접</span><h3>컨설턴트 직접 활동 배포 <span style="font-size:11px;color:var(--ink-mute)">· 활동지 파일을 학생에게 전송</span></h3></div>
@@ -3548,6 +3550,7 @@ async function renderDesign(){
             '<div style="display:flex;align-items:center;gap:10px">'+
               '<div style="flex:1;cursor:pointer" onclick="toggleDesignDetail('+it.id+')"><span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line-soft,rgba(234,243,238,.1));border-radius:5px;padding:1px 6px;margin-right:7px">'+esc(it.area||'')+'</span><b style="font-size:13px;color:var(--ink);font-weight:500">'+esc(it.subject||'')+' · '+esc(it.title||'')+'</b>'+appBadge+sentBadge+'</div>'+
               (stu?'<span style="font-size:11px;color:'+col+'">'+esc(it.status||'')+'</span>':'<select onchange="updateDesignStatus('+it.id+',this.value)" style="background:var(--panel-2);border:1px solid '+col+';color:'+col+';border-radius:6px;padding:3px 6px;font-size:11px">'+opts+'</select>')+
+              (stu?'':'<button onclick="delDesignItem('+it.id+')" title="이 활동 삭제" style="padding:3px 8px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:13px;line-height:1;cursor:pointer">×</button>')+
             '</div>'+
             '<div id="di-det-'+it.id+'" style="display:none;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))">'+
               (it.goal?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">활동 목표</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim);margin-bottom:8px">'+esc(it.goal)+'</div>':'')+
