@@ -290,40 +290,55 @@
   // ===== 커미션·정산 =====
   function won(n){ return '₩'+Number(n||0).toLocaleString(); }
   async function renderCommission(p){
-    p.innerHTML = '<div class="h1">커미션·정산</div><div class="sub">구독료 기준 · 첫 2개월 50% → 이후 35% · 킬러콘텐츠·본사직접인입 제외</div><div id="clist"><div class="muted">불러오는 중…</div></div>';
-    var r = await sb.rpc('manager_commission');
+    p.innerHTML = '<div class="h1">커미션·정산</div><div class="sub">실 결제 기준 · 1·2번째 결제 50% → 이후 35% · 연말 배당 5% · 킬러콘텐츠·본사직접인입 제외</div>'
+      + '<div id="clist"><div class="muted">불러오는 중…</div></div>';
+    var r = await sb.rpc('admin_commissions');
     var list = document.getElementById('clist');
     if(r.error){ list.innerHTML='<div class="muted">오류: '+esc(r.error.message)+'</div>'; return; }
     var rows = r.data||[];
-    if(!rows.length){ list.innerHTML='<div class="muted">귀속 회원이 있는 매니저가 없습니다.</div>'; return; }
-    // 매니저별 그룹
     var byMgr = {};
     rows.forEach(function(x){
-      if(!byMgr[x.manager_id]) byMgr[x.manager_id] = { name:x.manager_name, code:x.ref_code, members:[], total:0, revenue:0 };
-      byMgr[x.manager_id].members.push(x);
-      byMgr[x.manager_id].total += (x.commission||0);
-      byMgr[x.manager_id].revenue += (x.subscribed ? (x.monthly_amount||0) : 0);
+      if(!byMgr[x.manager_id]) byMgr[x.manager_id] = { name:x.manager_name, code:x.ref_code, items:[], total:0, unpaid:0, dividend:0 };
+      var g=byMgr[x.manager_id]; g.items.push(x); g.total+=(x.amount||0); if(!x.paid)g.unpaid+=(x.amount||0); if(x.kind==='dividend')g.dividend+=(x.amount||0);
     });
-    var totalCommission = rows.reduce(function(s,x){return s+(x.commission||0);},0);
-    var html = '<div class="kpis" style="grid-template-columns:repeat(2,1fr);max-width:520px">'
-      + '<div class="kpi"><div class="lab">이번 달 예상 커미션 합계</div><div class="num" style="font-size:26px">'+won(totalCommission)+'</div></div>'
-      + '<div class="kpi"><div class="lab">정산 대상 매니저</div><div class="num">'+Object.keys(byMgr).length+'<small> 명</small></div></div>'
-      + '</div>';
+    var totalAll = rows.reduce(function(s,x){return s+(x.amount||0);},0);
+    var unpaidAll = rows.reduce(function(s,x){return s+(x.paid?0:(x.amount||0));},0);
+    var thisYear = new Date().getFullYear();
+    var html = '<div class="kpis" style="grid-template-columns:repeat(3,1fr);max-width:640px">'
+      + '<div class="kpi"><div class="lab">누적 커미션 합계</div><div class="num" style="font-size:24px">'+won(totalAll)+'</div></div>'
+      + '<div class="kpi"><div class="lab">정산 대기</div><div class="num" style="font-size:24px">'+won(unpaidAll)+'</div></div>'
+      + '<div class="kpi"><div class="lab">정산 대상 매니저</div><div class="num">'+Object.keys(byMgr).length+'<small> 명</small></div></div></div>';
+    html += '<div style="margin:12px 0;display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      + '<button class="btn g" onclick="runDividends('+thisYear+')">연말 배당 계산 ('+thisYear+'년)</button>'
+      + '<span class="muted" style="font-size:11px">'+thisYear+'년: '+(thisYear===2026?'7~12월 3회+':'1~12월 4회+')+' 유료결제 회원 → 연매출 5% 배당 생성</span></div>';
+    if(!rows.length){ list.innerHTML=html+'<div class="soon">아직 발생한 커미션이 없습니다. 회원이 유료 결제하면 자동 기록됩니다.</div>'; return; }
     Object.keys(byMgr).forEach(function(mid){
       var m = byMgr[mid];
-      html += '<div class="card"><h3>'+esc(m.name||'-')+' <span class="meta" style="font-weight:400">'+esc(m.code||'')+' · 예상 커미션 '+won(m.total)+'</span></h3>'
-        + m.members.map(function(x){
-            var type = x.account_type==='b2c'?'<span class="badge b-b2c">학부모</span>':'<span class="badge b-trial">학원</span>';
-            var sub = x.subscribed
-              ? '월 '+won(x.monthly_amount)+' · '+x.months_active+'개월차 · 요율 '+x.rate_pct+'% → <b>'+won(x.commission)+'</b>'
-              : '<span class="muted">미구독 (커미션 0)</span>';
-            return '<div class="row"><div><div class="nm" style="font-size:13px">'+esc(x.member_name||'-')+' '+type+'</div><div class="meta">'+sub+'</div></div></div>';
-          }).join('')
-        + '</div>';
+      html += '<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h3 style="margin:0">'+esc(m.name||'-')+' <span class="meta" style="font-weight:400">'+esc(m.code||'')+'</span></h3>'
+        + '<div style="display:flex;gap:8px;align-items:center"><span style="font-size:12px;color:var(--text-secondary)">누적 <b>'+won(m.total)+'</b> · 미정산 <b style="color:var(--text-warn)">'+won(m.unpaid)+'</b></span>'
+        + (m.unpaid>0?'<button class="btn o" onclick="settleManager(\''+mid+'\',\''+esc(m.name||'')+'\','+m.unpaid+')">정산 완료 처리</button>':'')+'</div></div>'
+        + '<div style="margin-top:8px">'+m.items.slice(0,40).map(function(x){
+            var kind=x.kind==='dividend'?'<span class="badge b-b2c">연말배당 '+esc(x.period||'')+'</span>':'<span class="badge b-trial">월 '+esc(x.period||'')+'</span>';
+            var paid=x.paid?'<span class="badge b-approved">정산완료</span>':'<span class="badge b-pending">대기</span>';
+            return '<div class="row" style="justify-content:space-between"><div><span style="font-size:13px">'+esc(x.academy_name||'-')+'</span> '+kind+' <span class="muted" style="font-size:11px">'+Math.round((x.rate||0)*100)+'% · 기준 '+won(x.base_amount)+'</span></div><div style="display:flex;gap:8px;align-items:center"><b>'+won(x.amount)+'</b>'+paid+'</div></div>';
+          }).join('')+'</div></div>';
     });
-    html += '<div class="muted" style="font-size:11px;margin-top:6px">· 실제 결제(구독) 데이터 기준으로 계산됩니다. 결제 연동 전에는 예상치입니다.<br>· 회원-추천-회원 격려금(정액)은 별도 재량 지급으로 이 계산에 포함되지 않습니다.</div>';
     list.innerHTML = html;
   }
+  window.runDividends = async function(y){
+    if(!confirm(y+'년 연말 배당을 계산·생성할까요? (조건 충족 회원에게 배당 커미션이 추가됩니다)'))return;
+    var r=await sb.rpc('admin_run_dividends',{p_year:y});
+    if(r.error){ alert('오류: '+r.error.message); return; }
+    alert(y+'년 배당 '+(r.data||0)+'건 생성되었습니다.');
+    renderCommission(document.getElementById('panel'));
+  };
+  window.settleManager = async function(mid,name,amt){
+    if(!confirm('['+name+'] 미정산 커미션 '+won(amt)+'을 정산 완료 처리할까요?'))return;
+    var r=await sb.rpc('admin_settle_manager',{p_manager:mid});
+    if(r.error){ alert('오류: '+r.error.message); return; }
+    alert((r.data||0)+'건 정산 완료 처리되었습니다.');
+    renderCommission(document.getElementById('panel'));
+  };
 
   // ===== 입시 자료 =====
   async function renderAdmission(p){
