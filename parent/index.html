@@ -413,7 +413,6 @@
       </div>
     </div>
 
-    <div class="nav" data-v="courseware" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/></svg> 코스웨어</div>
     <div class="nav" data-v="hqnews" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></svg> 본사 소식</div>
     <div class="nav" data-v="billing" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> 구독·결제</div>
     <div class="navlabel" style="margin-top:8px">시스템</div>
@@ -586,12 +585,6 @@
             <div id="as-list"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
           </div>
         </div>
-      </section>
-      <section class="view" id="v-courseware">
-        <div class="eyebrow">Courseware</div>
-        <div class="h1">코스웨어</div>
-        <div class="sub" id="cwb-sub">코스를 만들고 차시를 구성해 학생에게 배포합니다 · 학생은 차시를 순차적으로 진행합니다</div>
-        <div id="cwb-body" style="margin-top:16px"><div style="color:var(--ink-mute);padding:16px">불러오는 중…</div></div>
       </section>
       <section class="view" id="v-hqnews">
         <div class="eyebrow">From HQ</div>
@@ -957,7 +950,6 @@
           <select id="gds-school" class="goip-con-only" style="min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">목표 학교 (선택)</option></select>
           <span id="gds-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
-        <div style="background:rgba(127,184,0,.08);border:1px solid rgba(127,184,0,.3);border-radius:11px;padding:13px 15px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:220px;font-size:12.5px;color:var(--ink-dim);line-height:1.65"><b style="color:var(--ink)">📚 코스 구성은 [코스웨어] 메뉴에서</b><br>코스명(예: 주요과목 탐구보고서)을 만들고 <b>1차시 국어 · 2차시 수학…</b> 처럼 차시를 직접 구성해 학생에게 배포합니다. 학생은 차시를 순서대로 진행합니다.</div><button class="btn" onclick="goView('courseware')">코스웨어 열기 →</button></div>
         <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
           <button class="btn" onclick="genGDesign('subject')">① 주요과목 탐구 2개 생성</button>
           <button class="btn" onclick="genGDesign('changche')">② 창체·비교과 2개 생성</button>
@@ -973,6 +965,7 @@
         </div>
         <div class="note" style="margin-top:8px">※ 버튼을 누를 때마다 <b>정확히 2개</b>가 <b>기존 항목에 이어서(중복 없이 다음 단계로)</b> 추가됩니다. 각 활동은 <b>차시별로 순차 진행</b>합니다 — 이전 차시를 제출해야 다음 차시가 열립니다.</div>
         <div id="gds-result" style="margin-top:14px"></div>
+        <div id="cwb-gdesign" style="margin:16px 0 18px"></div>
         <div id="gdesign-body" style="margin-top:16px"></div>
 
         <div class="card" style="margin-top:20px">
@@ -1096,7 +1089,6 @@
         <div class="eyebrow">Student Record Design</div>
         <div class="h1">학생부 디자인</div>
         <div class="sub">진로·학과에 맞춰 앞으로 학생부에서 채워갈 방향을 과목·창체별로 설계 (대필 아님 · 방향 가이드)</div>
-        <div style="background:rgba(127,184,0,.08);border:1px solid rgba(127,184,0,.3);border-radius:11px;padding:13px 15px;margin-bottom:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap"><div style="flex:1;min-width:220px;font-size:12.5px;color:var(--ink-dim);line-height:1.65"><b style="color:var(--ink)">📚 코스 구성은 [코스웨어] 메뉴에서</b><br>코스명(예: 주요과목 탐구보고서)을 만들고 <b>1차시 국어 · 2차시 수학…</b> 처럼 차시를 직접 구성해 학생에게 배포합니다. 학생은 차시를 순서대로 진행합니다.</div><button class="btn" onclick="goView('courseware')">코스웨어 열기 →</button></div>
         <div id="design-actions" style="display:flex;gap:10px;margin:8px 0 16px;flex-wrap:wrap"><button class="btn" onclick="genDesign('subject')">① 주요과목 탐구 생성</button><button class="btn" onclick="genDesign('changche')">② 창체활동 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button><button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button><span id="dae-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span></div>
         <div class="card" id="dist-box" style="margin-bottom:14px;padding:14px">
           <div class="sectionhead" style="margin-bottom:8px"><span class="idx">직접</span><h3>컨설턴트 직접 활동 배포 <span style="font-size:11px;color:var(--ink-mute)">· 활동지 파일을 학생에게 전송</span></h3></div>
@@ -1107,6 +1099,7 @@
           </div>
           <div id="dist-msg" style="font-size:11px;color:var(--ink-mute);margin-top:6px">※ 한글(hwp)·pdf·docx 등 업로드 가능. 전송 즉시 학생이 다운로드할 수 있습니다.</div>
         </div>
+        <div id="cwb-sr" style="margin-bottom:18px"></div>
         <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[① 주요과목 탐구]</b>부터 생성하세요. 과목당 학기 1개(연 2개)로, 진로·학과로 이어지는 연계 서사로 설계됩니다. 이후 <b>[② 창체활동]</b>을 추가 생성합니다.</div></div>
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
 
@@ -1917,7 +1910,7 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",courseware:"코스웨어"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gessay','ginterview'];
 function toggleGroup(g){
@@ -1934,7 +1927,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='courseware'&&window.renderCourseware)renderCourseware(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();}
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2628,337 +2621,6 @@ function delAllStudent(id){
 }
 window.renderAllStudents=renderAllStudents;window.openStudentUnified=openStudentUnified;window.addAllStudent=addAllStudent;window.delAllStudent=delAllStudent;
 
-/* ===================== 코스웨어 (Course Builder) =====================
-   컨설턴트: 코스 생성 → 차시 구성(순서 조정) → 학생 배포
-   학생: 배포된 코스 → 차시 순차 진행 (이전 차시 제출해야 다음 열림)
-   타이핑 캡처로 본인 작성 검증
-   ==================================================================== */
-var cbCourse=null, cbLessons=[], cbCap=null, cbCur=null;
-
-/* --- 타이핑 캡처 (일반고 엔진 이식) --- */
-function cbCapInit(){ cbCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
-function cbCapAttach(el){
-  if(!el||el._cbBound)return; el._cbBound=true;
-  el.addEventListener('keydown',function(e){
-    if(!cbCap)return; var now=Date.now(); if(now-cbCap.last>2000)cbCap.pc++; cbCap.last=now;
-    if(e.key==='Backspace'||e.key==='Delete')cbCap.bc++;
-    else if(e.key&&e.key.length===1)cbCap.kc++;
-  });
-  el.addEventListener('paste',function(e){
-    if(!cbCap)return; cbCap.paste++;
-    try{ var t=((e.clipboardData||window.clipboardData).getData('text'))||''; cbCap.pasteChars+=t.length; }catch(_){}
-  });
-  el.addEventListener('input',function(){ var c=document.getElementById('cb-cc'); if(c)c.textContent=(el.value||'').length+'자'; });
-}
-function cbCapMeta(t){
-  if(!cbCap)cbCapInit();
-  return {keyCount:cbCap.kc,backCount:cbCap.bc,pauseCount:cbCap.pc,pasteCount:cbCap.paste,pasteChars:cbCap.pasteChars,
-    totalMs:Date.now()-cbCap.start,charCount:(t||'').length,saves:cbCap.saves,startedAt:new Date(cbCap.start).toISOString()};
-}
-function cbCheat(tm){
-  if(!tm)return '';
-  var kc=tm.keyCount||0,cc=tm.charCount||0,p=tm.pasteCount||0,pc=tm.pasteChars||0,f=[];
-  if(cc>50&&kc<cc*0.4)f.push('키입력('+kc+')이 글자수('+cc+') 대비 비정상적으로 적음 → 외부 복사/AI 생성 의심');
-  if(pc>0&&pc>cc*0.5)f.push('붙여넣은 글자('+pc+')가 전체의 절반 이상 → 대량 복사 의심');
-  if(p>3)f.push('붙여넣기 '+p+'회');
-  return f.join('; ');
-}
-async function cbAcadId(){
-  if(window._acadId)return window._acadId;
-  var r=await sb.from('academies').select('id').limit(1);
-  window._acadId=r.data&&r.data[0]&&r.data[0].id; return window._acadId;
-}
-
-/* ================= 진입 ================= */
-async function renderCourseware(){
-  var box=document.getElementById('cwb-body'); if(!box||!sb)return;
-  if(window._role==='stu') return cbStuList();
-  return cbLoadCourses();
-}
-
-/* ================= 컨설턴트: 코스 목록 ================= */
-async function cbLoadCourses(){
-  var box=document.getElementById('cwb-body'); if(!box)return;
-  box.innerHTML='<div style="color:var(--ink-mute);padding:16px">불러오는 중…</div>';
-  var acid=await cbAcadId();
-  var r=await sb.from('courses').select('*').eq('academy_id',acid).eq('status','active').order('created_at',{ascending:false});
-  if(r.error){box.innerHTML='<div style="color:var(--risk)">'+esc(r.error.message)+'</div>';return;}
-  var rows=r.data||[];
-  var h='<div style="background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px">'
-    +'<div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:9px">새 코스 만들기</div>'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
-    +'<input id="cb-new-title" placeholder="코스명 (예: 주요과목 탐구보고서)" style="flex:1;min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
-    +'<select id="cb-new-track" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="dae">대입</option><option value="goip">고입</option></select>'
-    +'<select id="cb-new-area" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="교과탐구">교과탐구</option><option value="동아리">동아리</option><option value="자율">자율</option><option value="진로">진로</option><option value="독서">독서</option></select>'
-    +'<button class="btn" onclick="cbNewCourse()">＋ 코스 생성</button></div>'
-    +'<div id="cb-msg" style="font-size:12px;min-height:14px;margin-top:6px"></div></div>';
-  if(!rows.length){ h+='<div style="color:var(--ink-mute);padding:20px;text-align:center">아직 코스가 없습니다. 위에서 <b>코스명</b>을 입력해 만들어 보세요.<br><span style="font-size:11.5px">예) “주요과목 탐구보고서” → 1차시 국어 · 2차시 수학 · 3차시 영어 …</span></div>'; box.innerHTML=h; return; }
-  var ids=rows.map(function(x){return x.id;});
-  var lc=await sb.from('course_lessons').select('course_id').in('course_id',ids);
-  var ac=await sb.from('course_assignments').select('course_id').in('course_id',ids);
-  var lcnt={},acnt={};
-  (lc.data||[]).forEach(function(x){lcnt[x.course_id]=(lcnt[x.course_id]||0)+1;});
-  (ac.data||[]).forEach(function(x){acnt[x.course_id]=(acnt[x.course_id]||0)+1;});
-  h+=rows.map(function(c){
-    return '<div class="card" style="margin-bottom:9px;padding:13px 15px"><div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
-      +'<span style="font-size:10px;color:'+(c.track==='goip'?'#7a3ca0':'#2d6da6')+';background:'+(c.track==='goip'?'#f3e8fa':'#e5f0fa')+';border-radius:6px;padding:2px 7px">'+(c.track==='goip'?'고입':'대입')+'</span>'
-      +'<span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;padding:2px 7px">'+esc(c.area||'')+'</span>'
-      +'<b style="font-size:14px;color:var(--ink);flex:1;min-width:140px">'+esc(c.title)+'</b>'
-      +'<span style="font-size:11.5px;color:var(--ink-mute)">차시 '+(lcnt[c.id]||0)+' · 배포 '+(acnt[c.id]||0)+'명</span>'
-      +'<button class="btn" style="padding:5px 12px;font-size:12px" onclick="cbOpenCourse('+c.id+')">차시 구성</button>'
-      +'<button onclick="cbDelCourse('+c.id+')" style="padding:5px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">삭제</button>'
-      +'</div></div>';
-  }).join('');
-  box.innerHTML=h;
-}
-async function cbNewCourse(){
-  var t=(document.getElementById('cb-new-title').value||'').trim(), m=document.getElementById('cb-msg');
-  if(!t){m.style.color='var(--risk)';m.textContent='코스명을 입력하세요.';return;}
-  var acid=await cbAcadId();
-  var r=await sb.from('courses').insert({academy_id:acid,title:t,
-    track:document.getElementById('cb-new-track').value,
-    area:document.getElementById('cb-new-area').value,
-    created_by:window._myUid||null}).select('id').single();
-  if(r.error){m.style.color='var(--risk)';m.textContent=r.error.message;return;}
-  document.getElementById('cb-new-title').value='';
-  cbOpenCourse(r.data.id);
-}
-async function cbDelCourse(id){
-  if(!confirm('이 코스를 삭제할까요?\n\n차시·배포·학생 제출물이 함께 삭제됩니다. (복구 불가)'))return;
-  var d=await sb.from('courses').delete().eq('id',id);
-  if(d.error)return alert(d.error.message);
-  cbLoadCourses();
-}
-
-/* ================= 컨설턴트: 차시 구성 ================= */
-async function cbOpenCourse(id){
-  var box=document.getElementById('cwb-body'); if(!box)return;
-  var r=await sb.from('courses').select('*').eq('id',id).limit(1);
-  cbCourse=r.data&&r.data[0]; if(!cbCourse)return cbLoadCourses();
-  box.innerHTML='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap">'
-    +'<button class="btn ghost" style="padding:5px 12px;font-size:12px" onclick="cbLoadCourses()">← 코스 목록</button>'
-    +'<b style="font-size:16px;color:var(--ink)">'+esc(cbCourse.title)+'</b>'
-    +'<span style="font-size:11.5px;color:var(--ink-mute)">'+(cbCourse.track==='goip'?'고입':'대입')+' · '+esc(cbCourse.area||'')+'</span>'
-    +'<div style="flex:1"></div>'
-    +'<button class="btn" onclick="cbOpenAssign()">👥 학생에게 배포</button></div>'
-    +'<div class="card" style="margin-bottom:14px;padding:14px 16px"><div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:8px">＋ 차시 추가</div>'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
-    +'<input id="cb-l-title" placeholder="차시명 * (예: 국어)" style="width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
-    +'<input id="cb-l-subject" placeholder="과목/영역" style="width:130px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
-    +'<input id="cb-l-min" type="number" value="300" title="제출 최소 글자수" style="width:90px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
-    +'</div>'
-    +'<input id="cb-l-goal" placeholder="차시 목표 (이 차시에서 무엇을 달성하는가)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
-    +'<textarea id="cb-l-guide" rows="3" placeholder="수행 지시 (학생이 이 차시에 해야 할 것 — 탐구질문·방법·자료·산출물)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>'
-    +'<textarea id="cb-l-outline" rows="2" placeholder="보고서 목차 (한 줄에 하나씩)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>'
-    +'<div id="cb-lmsg" style="font-size:12px;min-height:14px;margin-bottom:6px"></div>'
-    +'<button class="btn" onclick="cbAddLesson()">차시 추가</button></div>'
-    +'<div id="cb-lessons"></div>';
-  cbLoadLessons();
-}
-async function cbLoadLessons(){
-  var el=document.getElementById('cb-lessons'); if(!el||!cbCourse)return;
-  var r=await sb.from('course_lessons').select('*').eq('course_id',cbCourse.id).order('order_no',{ascending:true});
-  cbLessons=r.data||[];
-  if(!cbLessons.length){ el.innerHTML='<div style="color:var(--ink-mute);padding:24px;text-align:center;border:1px dashed var(--line);border-radius:10px">아직 차시가 없습니다. 위에서 <b>차시</b>를 추가하세요.</div>'; return; }
-  el.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">차시 구성 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· ▲▼로 순서 조정</span></div>'
-    +cbLessons.map(function(l,i){
-      var first=(i===0), last=(i===cbLessons.length-1);
-      return '<div class="card" style="margin-bottom:8px;padding:12px 14px"><div style="display:flex;align-items:flex-start;gap:11px">'
-        +'<div style="display:flex;flex-direction:column;gap:2px">'
-        +'<button onclick="cbMoveLesson('+l.id+',-1)" '+(first?'disabled':'')+' style="padding:1px 7px;font-size:10px;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);cursor:'+(first?'not-allowed':'pointer')+';opacity:'+(first?'.3':'1')+'">▲</button>'
-        +'<button onclick="cbMoveLesson('+l.id+',1)" '+(last?'disabled':'')+' style="padding:1px 7px;font-size:10px;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);cursor:'+(last?'not-allowed':'pointer')+';opacity:'+(last?'.3':'1')+'">▼</button></div>'
-        +'<div style="min-width:26px;text-align:center;font-weight:800;color:var(--gold,#c8a24a);font-size:15px">'+l.order_no+'</div>'
-        +'<div style="flex:1;min-width:0"><b style="font-size:13.5px;color:var(--ink)">'+esc(l.title)+'</b>'
-        +(l.subject?'<span style="font-size:11px;color:var(--ink-mute);margin-left:7px">'+esc(l.subject)+'</span>':'')
-        +(l.goal?'<div style="font-size:12px;color:var(--ink-dim);margin-top:4px;line-height:1.6">'+esc(l.goal)+'</div>':'')
-        +(l.guide?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:4px;line-height:1.6;white-space:pre-wrap">'+esc(l.guide.slice(0,160))+(l.guide.length>160?'…':'')+'</div>':'')
-        +'<div style="font-size:10.5px;color:var(--ink-mute);margin-top:5px">최소 '+l.min_chars+'자</div></div>'
-        +'<button onclick="cbDelLesson('+l.id+')" style="padding:4px 9px;background:transparent;color:var(--risk);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">×</button>'
-        +'</div></div>';
-    }).join('');
-}
-async function cbAddLesson(){
-  var m=document.getElementById('cb-lmsg');
-  var t=(document.getElementById('cb-l-title').value||'').trim();
-  if(!t){m.style.color='var(--risk)';m.textContent='차시명을 입력하세요.';return;}
-  var base=cbLessons.length?Math.max.apply(null,cbLessons.map(function(l){return l.order_no||0;})):0;
-  var r=await sb.from('course_lessons').insert({course_id:cbCourse.id,order_no:base+1,title:t,
-    subject:(document.getElementById('cb-l-subject').value||'').trim()||null,
-    goal:(document.getElementById('cb-l-goal').value||'').trim()||null,
-    guide:(document.getElementById('cb-l-guide').value||'').trim()||null,
-    outline:(document.getElementById('cb-l-outline').value||'').trim()||null,
-    min_chars:parseInt(document.getElementById('cb-l-min').value,10)||300});
-  if(r.error){m.style.color='var(--risk)';m.textContent=r.error.message;return;}
-  ['cb-l-title','cb-l-subject','cb-l-goal','cb-l-guide','cb-l-outline'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
-  m.style.color='var(--safe)';m.textContent=(base+1)+'차시 추가됨';
-  cbLoadLessons();
-}
-async function cbMoveLesson(id,dir){
-  var i=cbLessons.findIndex(function(l){return l.id===id;}); if(i<0)return;
-  var ni=i+dir; if(ni<0||ni>=cbLessons.length)return;
-  var a=cbLessons[i], b=cbLessons[ni];
-  await sb.from('course_lessons').update({order_no:b.order_no}).eq('id',a.id);
-  await sb.from('course_lessons').update({order_no:a.order_no}).eq('id',b.id);
-  cbLoadLessons();
-}
-async function cbDelLesson(id){
-  if(!confirm('이 차시를 삭제할까요? 학생 제출물도 함께 삭제됩니다.'))return;
-  await sb.from('course_lessons').delete().eq('id',id);
-  cbLoadLessons();
-}
-
-/* ================= 배포 ================= */
-async function cbOpenAssign(){
-  var acid=await cbAcadId();
-  var q=sb.from('students').select('id,name,grade,admission_track').eq('academy_id',acid);
-  if(cbCourse.track==='goip') q=q.eq('admission_track','고입'); else q=q.or('admission_track.is.null,admission_track.neq.고입');
-  var r=await q.order('created_at',{ascending:true});
-  var studs=r.data||[];
-  var cur=await sb.from('course_assignments').select('student_id').eq('course_id',cbCourse.id);
-  var has={}; (cur.data||[]).forEach(function(x){has[x.student_id]=1;});
-  var el=document.getElementById('cb-lessons');
-  if(!studs.length){ alert('배포할 학생이 없습니다.'); return; }
-  var h='<div class="card" style="margin-bottom:12px;padding:14px 16px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:9px"><b style="font-size:13px;color:var(--ink)">👥 학생에게 배포</b><div style="flex:1"></div><button class="btn ghost" style="padding:4px 10px;font-size:11.5px" onclick="cbLoadLessons()">닫기</button></div>'
-    +'<div style="display:flex;flex-wrap:wrap;gap:7px;margin-bottom:10px">'
-    +studs.map(function(s){
-      return '<label style="display:flex;align-items:center;gap:5px;font-size:12.5px;color:var(--ink-dim);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer">'
-        +'<input type="checkbox" class="cb-astu" value="'+s.id+'"'+(has[s.id]?' checked disabled':'')+' style="accent-color:var(--lime)">'
-        +esc(s.name||'')+' <span style="font-size:10.5px;color:var(--ink-mute)">'+esc(s.grade||'')+'</span>'
-        +(has[s.id]?'<span style="font-size:10px;color:var(--safe)">배포됨</span>':'')+'</label>';
-    }).join('')
-    +'</div><div id="cb-amsg" style="font-size:12px;min-height:14px;margin-bottom:6px"></div>'
-    +'<button class="btn" onclick="cbDoAssign()">선택 학생에게 배포</button></div>';
-  el.innerHTML=h+el.innerHTML;
-}
-async function cbDoAssign(){
-  var m=document.getElementById('cb-amsg');
-  var ids=Array.prototype.slice.call(document.querySelectorAll('.cb-astu:checked:not(:disabled)')).map(function(x){return x.value;});
-  if(!ids.length){m.style.color='var(--risk)';m.textContent='배포할 학생을 선택하세요.';return;}
-  var rows=ids.map(function(id){return {course_id:cbCourse.id,student_id:id};});
-  var r=await sb.from('course_assignments').insert(rows);
-  if(r.error){m.style.color='var(--risk)';m.textContent=r.error.message;return;}
-  m.style.color='var(--safe)';m.textContent=ids.length+'명에게 배포되었습니다.';
-  setTimeout(cbLoadLessons,900);
-}
-
-/* ================= 학생: 내 코스 ================= */
-async function cbStuList(){
-  var box=document.getElementById('cwb-body'); if(!box)return;
-  var s=window._activeStudent; if(!s){box.innerHTML='<div style="color:var(--ink-mute);padding:20px">학생 정보를 불러오지 못했습니다.</div>';return;}
-  box.innerHTML='<div style="color:var(--ink-mute);padding:16px">불러오는 중…</div>';
-  var r=await sb.from('course_assignments').select('course_id,assigned_at,courses(id,title,track,area)').eq('student_id',s.id).order('assigned_at',{ascending:false});
-  if(r.error){box.innerHTML='<div style="color:var(--risk)">'+esc(r.error.message)+'</div>';return;}
-  var rows=(r.data||[]).filter(function(x){return x.courses;});
-  if(!rows.length){box.innerHTML='<div style="color:var(--ink-mute);padding:24px;text-align:center">아직 받은 코스가 없습니다.<br><span style="font-size:11.5px">선생님이 코스를 배포하면 여기에 표시됩니다.</span></div>';return;}
-  var cids=rows.map(function(x){return x.course_id;});
-  var ls=await sb.from('course_lessons').select('id,course_id').in('course_id',cids);
-  var subs=await sb.from('lesson_submissions').select('lesson_id,course_id,status').eq('student_id',s.id).in('course_id',cids);
-  var tot={},done={};
-  (ls.data||[]).forEach(function(x){tot[x.course_id]=(tot[x.course_id]||0)+1;});
-  (subs.data||[]).forEach(function(x){ if(x.status==='submitted'||x.status==='reviewed')done[x.course_id]=(done[x.course_id]||0)+1; });
-  box.innerHTML=rows.map(function(x){
-    var c=x.courses, t=tot[c.id]||0, d=done[c.id]||0;
-    return '<div class="card" style="margin-bottom:10px;padding:14px 16px;cursor:pointer" onclick="cbStuOpen('+c.id+')">'
-      +'<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"><b style="font-size:14.5px;color:var(--ink);flex:1">'+esc(c.title)+'</b>'
-      +'<span style="font-size:11.5px;color:var(--ink-mute)">'+d+'/'+t+' 완료</span></div>'
-      +'<div style="height:6px;background:var(--panel-2);border-radius:4px;overflow:hidden;margin-top:8px"><i style="display:block;height:100%;width:'+(t?Math.round(d/t*100):0)+'%;background:var(--lime,#7fb800)"></i></div></div>';
-  }).join('');
-}
-async function cbStuOpen(courseId){
-  var box=document.getElementById('cwb-body'); if(!box)return;
-  var s=window._activeStudent; if(!s)return;
-  var cr=await sb.from('courses').select('*').eq('id',courseId).limit(1);
-  var c=cr.data&&cr.data[0]; if(!c)return cbStuList();
-  var lr=await sb.from('course_lessons').select('*').eq('course_id',courseId).order('order_no',{ascending:true});
-  var lessons=lr.data||[];
-  var sr=await sb.from('lesson_submissions').select('*').eq('student_id',s.id).eq('course_id',courseId);
-  var byL={}; (sr.data||[]).forEach(function(x){byL[x.lesson_id]=x;});
-  var h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><button class="btn ghost" style="padding:5px 12px;font-size:12px" onclick="cbStuList()">← 내 코스</button><b style="font-size:16px;color:var(--ink)">'+esc(c.title)+'</b></div>';
-  if(!lessons.length){box.innerHTML=h+'<div style="color:var(--ink-mute);padding:20px">차시가 아직 없습니다.</div>';return;}
-  lessons.forEach(function(l,i){
-    var sub=byL[l.id], done=sub&&(sub.status==='submitted'||sub.status==='reviewed');
-    var prev=i>0?byL[lessons[i-1].id]:null;
-    var open=(i===0)||(prev&&(prev.status==='submitted'||prev.status==='reviewed'));
-    var icon=done?'✓':(open?'▸':'🔒'), col=done?'var(--safe)':(open?'var(--gold,#c8a24a)':'var(--ink-mute)');
-    h+='<div style="border:1px solid var(--line);border-radius:10px;margin-bottom:8px;overflow:hidden">'
-      +'<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:'+(open?'var(--panel-2)':'transparent')+';'+(open?'cursor:pointer':'')+'"'+(open?(' onclick="cbStuLesson('+l.id+','+courseId+')"'):'')+'>'
-      +'<span style="color:'+col+';font-size:14px">'+icon+'</span>'
-      +'<span style="font-size:10.5px;color:var(--ink-mute)">'+l.order_no+'차시</span>'
-      +'<b style="font-size:13px;color:'+(open?'var(--ink)':'var(--ink-mute)')+';flex:1;font-weight:500">'+esc(l.title)+(l.subject?' · '+esc(l.subject):'')+'</b>'
-      +(done?'<span style="font-size:10px;color:var(--safe);border:1px solid var(--safe);border-radius:5px;padding:1px 6px">완료</span>':'')
-      +(!open?'<span style="font-size:10px;color:var(--ink-mute)">이전 차시 완료 후 열림</span>':'')
-      +'</div><div id="cbl-'+l.id+'" style="display:none"></div></div>';
-  });
-  h+='<div class="note" style="margin-top:8px;font-size:11px">※ 각 차시를 <b>직접 작성·제출</b>해야 다음 차시가 열립니다. 작성 과정이 기록되어 본인 작성 여부가 확인됩니다.</div>';
-  box.innerHTML=h;
-}
-async function cbStuLesson(lessonId,courseId){
-  var pane=document.getElementById('cbl-'+lessonId); if(!pane)return;
-  if(pane.style.display==='block'){pane.style.display='none';return;}
-  pane.style.display='block'; pane.innerHTML='<div style="padding:12px;color:var(--ink-mute);font-size:12px">불러오는 중…</div>';
-  var s=window._activeStudent;
-  var lr=await sb.from('course_lessons').select('*').eq('id',lessonId).limit(1);
-  var l=lr.data&&lr.data[0]; if(!l){pane.innerHTML='<div style="padding:12px;color:var(--risk)">불러오기 실패</div>';return;}
-  var sr=await sb.from('lesson_submissions').select('*').eq('lesson_id',lessonId).eq('student_id',s.id).limit(1);
-  var sub=sr.data&&sr.data[0];
-  if(!sub){
-    var ins=await sb.from('lesson_submissions').insert({lesson_id:lessonId,course_id:courseId,student_id:s.id,status:'todo'}).select('*').single();
-    sub=ins.data||{};
-  }
-  cbCur={id:sub.id, trace:Array.isArray(sub.trace)?sub.trace:[], lessonId:lessonId, courseId:courseId};
-  cbCapInit();
-  var ro=(sub.status==='submitted'||sub.status==='reviewed');
-  var h='<div style="padding:13px 15px;border-top:1px solid var(--line)">';
-  if(l.goal)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">차시 목표</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;margin-bottom:9px">'+esc(l.goal)+'</div>';
-  if(l.guide)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 지시</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap;margin-bottom:9px">'+esc(l.guide)+'</div>';
-  if(l.outline)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">보고서 목차</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.8;white-space:pre-line;margin-bottom:9px">'+esc(l.outline)+'</div>';
-  if(ro){
-    h+='<div style="font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--ink);border-top:1px dashed var(--line);padding-top:10px">'+esc(sub.content||'')+'</div>';
-    if(sub.verdict){
-      var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 확인'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};
-      var v=vm[sub.verdict]||vm.AUTHENTIC;
-      h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'+(sub.verdict_reason?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:4px;line-height:1.6">'+esc(sub.verdict_reason)+'</div>':'')+'</div>';
-    }
-    if(sub.feedback)h+='<div style="margin-top:8px;padding:10px 12px;background:rgba(127,184,0,.07);border-radius:8px;font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap"><b style="font-size:11.5px;color:var(--ink)">선생님 피드백</b><br>'+esc(sub.feedback)+'</div>';
-    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:9px">제출 완료된 차시입니다.</div>';
-  } else {
-    h+='<div style="font-size:11px;color:var(--ink-mute);margin:9px 0 7px;border-top:1px dashed var(--line);padding-top:10px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다.</div>'
-      +'<textarea id="cb-ed" rows="10" placeholder="이 차시의 수행 내용을 직접 작성하세요" style="width:100%;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;line-height:1.85;resize:vertical">'+esc(sub.content||'')+'</textarea>'
-      +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap"><span id="cb-cc" style="font-size:11px;color:var(--ink-mute)">'+String(sub.content||'').length+'자</span>'
-      +'<span style="font-size:11px;color:var(--ink-mute)">/ 최소 '+l.min_chars+'자</span><div style="flex:1"></div>'
-      +'<button class="btn ghost" onclick="cbStuSave('+l.min_chars+')">💾 임시저장</button>'
-      +'<button class="btn" onclick="cbStuSubmit('+l.min_chars+')">제출하고 다음 차시 열기</button></div>'
-      +'<div id="cb-smsg" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
-  }
-  h+='</div>'; pane.innerHTML=h;
-  var ed=document.getElementById('cb-ed'); if(ed){cbCapAttach(ed);ed.focus();}
-}
-async function cbStuSave(minc){
-  var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
-  var t=ed.value||''; cbCap.saves++;
-  cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000)});
-  var u=await sb.from('lesson_submissions').update({content:t,trace:cbCur.trace,typing_meta:cbCapMeta(t),status:'doing',saved_at:new Date().toISOString()}).eq('id',cbCur.id);
-  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패: '+u.error.message;} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+t.length+'자)';} }
-}
-async function cbStuSubmit(minc){
-  var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
-  var t=(ed.value||'').trim();
-  if(t.length<(minc||300)){ if(m){m.style.color='var(--risk)';m.textContent='최소 '+(minc||300)+'자 이상 작성해야 제출할 수 있습니다. (현재 '+t.length+'자)';} return; }
-  if(!confirm('이 차시를 제출할까요?\n\n제출 후에는 수정할 수 없고, 다음 차시가 열립니다.'))return;
-  cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000),final:true});
-  var tm=cbCapMeta(t), cheat=cbCheat(tm);
-  var u=await sb.from('lesson_submissions').update({content:t,trace:cbCur.trace,typing_meta:tm,status:'submitted',
-    verdict:(cheat?'SUSPICIOUS':'AUTHENTIC'),
-    verdict_reason:(cheat||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),
-    submitted_at:new Date().toISOString()}).eq('id',cbCur.id);
-  if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='제출 실패: '+u.error.message;} return; }
-  if(window.toast)toast('제출 완료 — 다음 차시가 열렸습니다',true);
-  cbStuOpen(cbCur.courseId);
-}
-window.renderCourseware=renderCourseware;window.cbLoadCourses=cbLoadCourses;window.cbNewCourse=cbNewCourse;window.cbDelCourse=cbDelCourse;
-window.cbOpenCourse=cbOpenCourse;window.cbLoadLessons=cbLoadLessons;window.cbAddLesson=cbAddLesson;window.cbMoveLesson=cbMoveLesson;window.cbDelLesson=cbDelLesson;
-window.cbOpenAssign=cbOpenAssign;window.cbDoAssign=cbDoAssign;
-window.cbStuList=cbStuList;window.cbStuOpen=cbStuOpen;window.cbStuLesson=cbStuLesson;window.cbStuSave=cbStuSave;window.cbStuSubmit=cbStuSubmit;
 
 /* ===== 본사 소식 (회원용 · hq_posts 공지/입시뉴스) ===== */
 window._hqFilter='all';
@@ -2970,6 +2632,316 @@ function hqFilter(f){
   });
   renderHqNews();
 }
+/* ============ 코스웨어 (학생부 디자인 내장) ============
+   컨설턴트: 코스(교과탐구형/창체활동형) 생성 → 차시명만 입력 → [AI 생성]으로 목표·수행지시 자동 작성
+   AI 생성 규칙: 타 학생 중복 금지 · 희망진로 연계 · 이전 차시 이어받는 서사 누적
+   학생: 차시 순차 진행 (이전 차시 제출해야 다음 열림) + 타이핑 기반 본인작성 검증
+   ======================================================= */
+var cbCourse=null, cbLessons=[], cbCap=null, cbCur=null;
+function cbBox(){ return document.getElementById((window._designTrack==='goip')?'cwb-gdesign':'cwb-sr'); }
+function cbStu(){ return (window._designTrack==='goip')?(window._gactive||(window._role==='stu'?window._activeStudent:null)):window._activeStudent; }
+function cbCapInit(){ cbCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
+function cbCapAttach(el){
+  if(!el||el._cbBound)return; el._cbBound=true;
+  el.addEventListener('keydown',function(e){
+    if(!cbCap)return; var n=Date.now(); if(n-cbCap.last>2000)cbCap.pc++; cbCap.last=n;
+    if(e.key==='Backspace'||e.key==='Delete')cbCap.bc++; else if(e.key&&e.key.length===1)cbCap.kc++;
+  });
+  el.addEventListener('paste',function(e){
+    if(!cbCap)return; cbCap.paste++;
+    try{ var t=((e.clipboardData||window.clipboardData).getData('text'))||''; cbCap.pasteChars+=t.length; }catch(_){}
+  });
+  el.addEventListener('input',function(){ var c=document.getElementById('cb-cc'); if(c)c.textContent=(el.value||'').length+'자'; });
+}
+function cbCapMeta(t){ if(!cbCap)cbCapInit();
+  return {keyCount:cbCap.kc,backCount:cbCap.bc,pauseCount:cbCap.pc,pasteCount:cbCap.paste,pasteChars:cbCap.pasteChars,
+    totalMs:Date.now()-cbCap.start,charCount:(t||'').length,saves:cbCap.saves,startedAt:new Date(cbCap.start).toISOString()}; }
+function cbCheat(tm){ if(!tm)return '';
+  var kc=tm.keyCount||0,cc=tm.charCount||0,p=tm.pasteCount||0,pc=tm.pasteChars||0,f=[];
+  if(cc>50&&kc<cc*0.4)f.push('키입력('+kc+')이 글자수('+cc+') 대비 비정상적으로 적음 → 외부 복사/AI 생성 의심');
+  if(pc>0&&pc>cc*0.5)f.push('붙여넣은 글자('+pc+')가 전체의 절반 이상 → 대량 복사 의심');
+  if(p>3)f.push('붙여넣기 '+p+'회'); return f.join('; '); }
+
+/* ---------- 진입 ---------- */
+async function cbMount(){
+  var box=cbBox(); if(!box||!sb)return;
+  var s=cbStu();
+  if(!s){ box.innerHTML=''; return; }
+  if(window._role==='stu') return cbStuList();
+  return cbList();
+}
+/* ---------- 컨설턴트: 코스 목록 ---------- */
+async function cbList(){
+  var box=cbBox(), s=cbStu(); if(!box||!s)return;
+  var track=(window._designTrack==='goip')?'goip':'dae';
+  var r=await sb.from('courses').select('*').eq('student_id',s.id).eq('track',track).eq('status','active').order('created_at',{ascending:false});
+  var rows=(r.data)||[];
+  var h='<div class="card" style="padding:15px 17px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:10px"><span style="font-size:13px;font-weight:700;color:var(--ink)">📚 코스웨어</span>'
+    +'<span style="font-size:11px;color:var(--ink-mute)">코스를 만들고 차시를 구성하면 학생이 순서대로 진행합니다</span></div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
+    +'<input id="cb-nt" placeholder="코스명 (예: 주요과목 탐구보고서)" style="flex:1;min-width:190px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+    +'<select id="cb-ntype" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="subject">교과탐구형</option><option value="changche">창체활동형</option></select>'
+    +'<button class="btn" onclick="cbNew()">＋ 코스 생성</button></div>'
+    +'<div id="cb-msg" style="font-size:12px;min-height:14px"></div>';
+  if(rows.length){
+    var ids=rows.map(function(x){return x.id;});
+    var lc=await sb.from('course_lessons').select('course_id').in('course_id',ids);
+    var cnt={}; (lc.data||[]).forEach(function(x){cnt[x.course_id]=(cnt[x.course_id]||0)+1;});
+    h+='<div style="margin-top:6px">'+rows.map(function(c){
+      return '<div style="display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:9px;padding:10px 13px;margin-bottom:7px;flex-wrap:wrap">'
+        +'<span style="font-size:10px;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;padding:2px 7px">'+(c.course_type==='changche'?'창체활동형':'교과탐구형')+'</span>'
+        +'<b style="font-size:13.5px;color:var(--ink);flex:1;min-width:130px">'+esc(c.title)+'</b>'
+        +'<span style="font-size:11px;color:var(--ink-mute)">차시 '+(cnt[c.id]||0)+'</span>'
+        +'<button class="btn" style="padding:4px 11px;font-size:11.5px" onclick="cbOpen('+c.id+')">차시 구성</button>'
+        +'<button onclick="cbDelCourse('+c.id+')" style="padding:4px 8px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:12px;cursor:pointer">×</button></div>';
+    }).join('')+'</div>';
+  } else {
+    h+='<div style="font-size:12px;color:var(--ink-mute);padding:10px 0">아직 코스가 없습니다. 코스명을 입력해 만들어 보세요.<br><span style="font-size:11px">교과탐구형 → 차시명에 <b>과목명</b>(국어·수학…) · 창체활동형 → <b>동아리·자율활동·진로활동</b></span></div>';
+  }
+  box.innerHTML=h+'</div>';
+}
+async function cbNew(){
+  var s=cbStu(), m=document.getElementById('cb-msg');
+  var t=(document.getElementById('cb-nt').value||'').trim();
+  if(!t){m.style.color='var(--risk)';m.textContent='코스명을 입력하세요.';return;}
+  var acid=window._acadId; if(!acid){ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; window._acadId=acid; }
+  var r=await sb.from('courses').insert({academy_id:acid,student_id:s.id,title:t,
+    track:(window._designTrack==='goip')?'goip':'dae',
+    course_type:document.getElementById('cb-ntype').value,
+    created_by:window._myUid||null}).select('id').single();
+  if(r.error){m.style.color='var(--risk)';m.textContent=r.error.message;return;}
+  cbOpen(r.data.id);
+}
+async function cbDelCourse(id){
+  if(!confirm('이 코스를 삭제할까요?\n차시·학생 제출물이 함께 삭제됩니다.'))return;
+  await sb.from('courses').delete().eq('id',id); cbList();
+}
+/* ---------- 차시 구성 ---------- */
+async function cbOpen(id){
+  var box=cbBox(); if(!box)return;
+  var r=await sb.from('courses').select('*').eq('id',id).limit(1);
+  cbCourse=r.data&&r.data[0]; if(!cbCourse)return cbList();
+  var isSubj=(cbCourse.course_type!=='changche');
+  var ph=isSubj?'과목명 (예: 국어, 수학, 영어)':'활동 구분 (동아리 / 자율활동 / 진로활동)';
+  box.innerHTML='<div class="card" style="padding:15px 17px">'
+    +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="cbList()">← 코스 목록</button>'
+    +'<b style="font-size:14.5px;color:var(--ink)">'+esc(cbCourse.title)+'</b>'
+    +'<span style="font-size:11px;color:var(--ink-mute)">'+(isSubj?'교과탐구형':'창체활동형')+'</span></div>'
+    +'<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:12px 14px;margin-bottom:12px">'
+    +'<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:7px">＋ 차시 추가</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    +(isSubj?('<input id="cb-lt" placeholder="'+ph+'" style="flex:1;min-width:170px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">')
+            :('<select id="cb-lt" style="flex:1;min-width:170px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">활동 구분 선택</option><option>동아리</option><option>자율활동</option><option>진로활동</option><option>독서활동</option></select>'))
+    +'<button class="btn" id="cb-genbtn" onclick="cbAddLesson()">✨ AI 생성으로 차시 추가</button></div>'
+    +'<div style="font-size:11px;color:var(--ink-mute);margin-top:7px">'+(isSubj?'과목명만 넣으면':'활동 구분만 고르면')+' <b>차시 목표·수행 지시</b>를 AI가 학생 맞춤으로 작성합니다 (타 학생 중복 금지 · 희망진로 연계 · 이전 차시 이어받는 서사).</div>'
+    +'<div id="cb-lmsg" style="font-size:12px;min-height:14px;margin-top:5px"></div></div>'
+    +'<div id="cb-lessons"></div></div>';
+  cbLoadLessons();
+}
+async function cbLoadLessons(){
+  var el=document.getElementById('cb-lessons'); if(!el||!cbCourse)return;
+  var r=await sb.from('course_lessons').select('*').eq('course_id',cbCourse.id).order('order_no',{ascending:true});
+  cbLessons=r.data||[];
+  if(!cbLessons.length){ el.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:16px;text-align:center;border:1px dashed var(--line);border-radius:9px">아직 차시가 없습니다.</div>'; return; }
+  el.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:7px">차시 구성 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· ▲▼ 순서 조정 (학생 화면에 즉시 반영)</span></div>'
+   +cbLessons.map(function(l,i){
+    var f=(i===0), la=(i===cbLessons.length-1);
+    return '<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:7px"><div style="display:flex;align-items:flex-start;gap:10px">'
+      +'<div style="display:flex;flex-direction:column;gap:2px">'
+      +'<button onclick="cbMove('+l.id+',-1)" '+(f?'disabled':'')+' style="padding:1px 6px;font-size:10px;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);cursor:'+(f?'default':'pointer')+';opacity:'+(f?'.3':'1')+'">▲</button>'
+      +'<button onclick="cbMove('+l.id+',1)" '+(la?'disabled':'')+' style="padding:1px 6px;font-size:10px;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);cursor:'+(la?'default':'pointer')+';opacity:'+(la?'.3':'1')+'">▼</button></div>'
+      +'<div style="min-width:24px;text-align:center;font-weight:800;color:var(--gold,#c8a24a);font-size:14px">'+l.order_no+'</div>'
+      +'<div style="flex:1;min-width:0"><b style="font-size:13px;color:var(--ink)">'+esc(l.title)+'</b>'
+      +(l.goal?'<div style="font-size:12px;color:var(--ink-dim);margin-top:4px;line-height:1.65">'+esc(l.goal)+'</div>':'')
+      +(l.guide?'<div id="cbg-'+l.id+'" style="display:none;font-size:12px;color:var(--ink-dim);margin-top:6px;line-height:1.7;white-space:pre-wrap;border-top:1px dashed var(--line);padding-top:6px">'+esc(l.guide)+'</div><div onclick="cbTog('+l.id+')" style="font-size:11px;color:var(--gold,#c8a24a);cursor:pointer;margin-top:5px">수행 지시 보기 ▾</div>':'<div style="font-size:11px;color:var(--risk);margin-top:4px">수행 지시 없음 — 재생성 필요</div>')
+      +'</div>'
+      +'<button onclick="cbRegen('+l.id+')" title="AI 재생성" style="padding:3px 8px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">↻</button>'
+      +'<button onclick="cbDelLesson('+l.id+')" style="padding:3px 8px;background:transparent;color:var(--risk);border:1px solid var(--line);border-radius:6px;font-size:12px;cursor:pointer">×</button>'
+      +'</div></div>';
+  }).join('');
+}
+function cbTog(id){ var e=document.getElementById('cbg-'+id); if(e)e.style.display=e.style.display==='none'?'block':'none'; }
+/* ---------- AI 차시 생성 ---------- */
+async function cbGenLesson(name){
+  var s=cbStu(); var isSubj=(cbCourse.course_type!=='changche');
+  // 이전 차시(서사 누적)
+  var prev=cbLessons.map(function(l,i){return (i+1)+'. ['+l.title+'] '+(l.goal||'');}).join('\n')||'(없음 — 첫 차시)';
+  // 타 학생 중복 금지
+  var avoid=''; try{ avoid=await otherStudentTopics(s,(window._designTrack==='goip')?'goip':'dae'); }catch(e){}
+  // 학생 컨텍스트
+  var ctxTxt='';
+  try{
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(20);
+    ctxTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'').slice(0,200);}).join('\n').slice(0,2500);
+  }catch(e){}
+  if(!ctxTxt && s.is_rookie && window.onboardingText) ctxTxt=onboardingText(s);
+  var di=''; try{ var d=await sb.from('design_items').select('title,subject').eq('student_id',s.id).limit(20);
+    di=(d.data||[]).map(function(x){return '· ['+(x.subject||'')+'] '+(x.title||'');}).join('\n'); }catch(e){}
+  var career=(s.career||s.target_major||''), target=(window._designTrack==='goip')?(s.target_school||''):(s.target_univ||'');
+  var hint='[코스] '+cbCourse.title+' ('+(isSubj?'교과탐구형':'창체활동형')+')\n'
+    +'[이번 차시] '+(isSubj?('과목: '+name):('활동 영역: '+name))+'\n'
+    +'[이전 차시들 — 이어받아 심화]\n'+prev+'\n'
+    +(di?('[이 학생의 기존 활동 설계 — 중복 금지]\n'+di+'\n'):'')
+    +(ctxTxt?('[학생 자료]\n'+ctxTxt+'\n'):'')
+    +avoid+'\n'
+    +'★반드시: (1) 위 이전 차시·기존 설계와 주제가 겹치지 않게, (2) 희망진로('+career+')로 수렴하는 융합 관점으로, (3) 이전 차시를 이어받아 한 단계 심화되는 서사로 설계하라. 정확히 1개만.';
+  var d=await callAI('design_record',{phase:isSubj?'subject':'changche',subjects:(isSubj?name:''),career:career,
+    field:(window.majorToField?majorToField(s.target_major):''),target:target,term:(s.grade||''),context:hint,qual:{}});
+  var o=JSON.parse(d.text); var t=(o.todo||o.items||[])[0]||{};
+  var steps=Array.isArray(t.steps)?t.steps.map(function(x){return '· '+x;}).join('\n'):'';
+  var guide=(t.detail||steps||'')
+    +(t.method?'\n[탐구방법] '+t.method:'')
+    +(t.standard?'\n[연계 학습요소] '+t.standard:'')
+    +(t.output?'\n[산출물] '+t.output:'')
+    +(t.link?'\n[연결] '+t.link:'');
+  var outline=Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||'');
+  return {title:name+(t.title?(' · '+t.title):''), subject:(isSubj?name:''), goal:(t.goal||''), guide:guide.trim(), outline:outline};
+}
+async function cbAddLesson(){
+  var m=document.getElementById('cb-lmsg'), btn=document.getElementById('cb-genbtn');
+  var el=document.getElementById('cb-lt'); var name=(el&&el.value||'').trim();
+  if(!name){m.style.color='var(--risk)';m.textContent=(cbCourse.course_type==='changche'?'활동 구분을 선택하세요.':'과목명을 입력하세요.');return;}
+  btn.disabled=true; m.style.color='var(--ink-mute)';m.textContent='AI가 차시를 설계하는 중… (10~20초)';
+  try{
+    var g=await cbGenLesson(name);
+    var base=cbLessons.length?Math.max.apply(null,cbLessons.map(function(l){return l.order_no||0;})):0;
+    var r=await sb.from('course_lessons').insert({course_id:cbCourse.id,order_no:base+1,title:g.title,subject:g.subject||null,
+      goal:g.goal||null,guide:g.guide||null,outline:g.outline||null,min_chars:300});
+    if(r.error)throw new Error(r.error.message);
+    if(el)el.value='';
+    m.style.color='var(--safe)';m.textContent=(base+1)+'차시 생성 완료';
+    cbLoadLessons();
+  }catch(e){ m.style.color='var(--risk)';m.textContent='생성 실패: '+(e.message||e); }
+  finally{ btn.disabled=false; }
+}
+async function cbRegen(id){
+  var l=cbLessons.find(function(x){return x.id===id;}); if(!l)return;
+  var m=document.getElementById('cb-lmsg');
+  var name=l.subject||String(l.title||'').split(' · ')[0];
+  if(!confirm('['+name+'] 차시를 AI로 다시 생성할까요?\n기존 목표·수행지시는 대체됩니다.'))return;
+  m.style.color='var(--ink-mute)';m.textContent='재생성 중…';
+  try{
+    var g=await cbGenLesson(name);
+    await sb.from('course_lessons').update({title:g.title,goal:g.goal||null,guide:g.guide||null,outline:g.outline||null}).eq('id',id);
+    m.style.color='var(--safe)';m.textContent='재생성 완료'; cbLoadLessons();
+  }catch(e){ m.style.color='var(--risk)';m.textContent='재생성 실패: '+(e.message||e); }
+}
+async function cbMove(id,dir){
+  var i=cbLessons.findIndex(function(l){return l.id===id;}); if(i<0)return;
+  var ni=i+dir; if(ni<0||ni>=cbLessons.length)return;
+  var a=cbLessons[i], b=cbLessons[ni];
+  await sb.from('course_lessons').update({order_no:b.order_no}).eq('id',a.id);
+  await sb.from('course_lessons').update({order_no:a.order_no}).eq('id',b.id);
+  cbLoadLessons();
+}
+async function cbDelLesson(id){
+  if(!confirm('이 차시를 삭제할까요? 학생 제출물도 함께 삭제됩니다.'))return;
+  await sb.from('course_lessons').delete().eq('id',id); cbLoadLessons();
+}
+/* ---------- 학생 ---------- */
+async function cbStuList(){
+  var box=cbBox(), s=cbStu(); if(!box||!s)return;
+  var track=(window._designTrack==='goip')?'goip':'dae';
+  var r=await sb.from('courses').select('*').eq('student_id',s.id).eq('track',track).eq('status','active').order('created_at',{ascending:false});
+  var rows=r.data||[];
+  if(!rows.length){ box.innerHTML=''; return; }
+  var ids=rows.map(function(x){return x.id;});
+  var ls=await sb.from('course_lessons').select('id,course_id').in('course_id',ids);
+  var su=await sb.from('lesson_submissions').select('course_id,status').eq('student_id',s.id).in('course_id',ids);
+  var tot={},dn={};
+  (ls.data||[]).forEach(function(x){tot[x.course_id]=(tot[x.course_id]||0)+1;});
+  (su.data||[]).forEach(function(x){ if(x.status==='submitted'||x.status==='reviewed')dn[x.course_id]=(dn[x.course_id]||0)+1; });
+  box.innerHTML='<div class="card" style="padding:15px 17px"><div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">📚 내 코스</div>'
+    +rows.map(function(c){var t=tot[c.id]||0,d=dn[c.id]||0;
+      return '<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:7px;cursor:pointer" onclick="cbStuOpen('+c.id+')">'
+        +'<div style="display:flex;align-items:center;gap:9px"><b style="font-size:13.5px;color:var(--ink);flex:1">'+esc(c.title)+'</b><span style="font-size:11px;color:var(--ink-mute)">'+d+'/'+t+'</span></div>'
+        +'<div style="height:5px;background:var(--panel-2);border-radius:3px;overflow:hidden;margin-top:7px"><i style="display:block;height:100%;width:'+(t?Math.round(d/t*100):0)+'%;background:var(--lime,#7fb800)"></i></div></div>';
+    }).join('')+'</div>';
+}
+async function cbStuOpen(cid){
+  var box=cbBox(), s=cbStu(); if(!box||!s)return;
+  var cr=await sb.from('courses').select('*').eq('id',cid).limit(1); var c=cr.data&&cr.data[0]; if(!c)return cbStuList();
+  var lr=await sb.from('course_lessons').select('*').eq('course_id',cid).order('order_no',{ascending:true});
+  var L=lr.data||[];
+  var sr=await sb.from('lesson_submissions').select('*').eq('student_id',s.id).eq('course_id',cid);
+  var byL={}; (sr.data||[]).forEach(function(x){byL[x.lesson_id]=x;});
+  var h='<div class="card" style="padding:15px 17px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="cbStuList()">← 내 코스</button><b style="font-size:14.5px;color:var(--ink)">'+esc(c.title)+'</b></div>';
+  if(!L.length){ box.innerHTML=h+'<div style="font-size:12px;color:var(--ink-mute)">차시가 아직 없습니다.</div></div>'; return; }
+  L.forEach(function(l,i){
+    var sub=byL[l.id], done=sub&&(sub.status==='submitted'||sub.status==='reviewed');
+    var pv=i>0?byL[L[i-1].id]:null;
+    var open=(i===0)||(pv&&(pv.status==='submitted'||pv.status==='reviewed'));
+    var ic=done?'✓':(open?'▸':'🔒'), col=done?'var(--safe)':(open?'var(--gold,#c8a24a)':'var(--ink-mute)');
+    h+='<div style="border:1px solid var(--line);border-radius:9px;margin-bottom:7px;overflow:hidden">'
+      +'<div style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:'+(open?'var(--panel-2)':'transparent')+';'+(open?'cursor:pointer':'')+'"'+(open?(' onclick="cbStuLesson('+l.id+','+cid+')"'):'')+'>'
+      +'<span style="color:'+col+';font-size:13px">'+ic+'</span><span style="font-size:10.5px;color:var(--ink-mute)">'+l.order_no+'차시</span>'
+      +'<b style="font-size:12.5px;color:'+(open?'var(--ink)':'var(--ink-mute)')+';flex:1;font-weight:500">'+esc(l.title)+'</b>'
+      +(done?'<span style="font-size:10px;color:var(--safe);border:1px solid var(--safe);border-radius:5px;padding:1px 6px">완료</span>':'')
+      +(!open?'<span style="font-size:10px;color:var(--ink-mute)">이전 차시 완료 후 열림</span>':'')
+      +'</div><div id="cbl-'+l.id+'" style="display:none"></div></div>';
+  });
+  box.innerHTML=h+'<div class="note" style="margin-top:6px;font-size:11px">※ 각 차시를 직접 작성·제출해야 다음 차시가 열립니다. 작성 과정이 기록되어 본인 작성 여부가 확인됩니다.</div></div>';
+}
+async function cbStuLesson(lid,cid){
+  var pane=document.getElementById('cbl-'+lid); if(!pane)return;
+  if(pane.style.display==='block'){pane.style.display='none';return;}
+  pane.style.display='block'; pane.innerHTML='<div style="padding:11px;font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
+  var s=cbStu();
+  var lr=await sb.from('course_lessons').select('*').eq('id',lid).limit(1); var l=lr.data&&lr.data[0]; if(!l)return;
+  var sr=await sb.from('lesson_submissions').select('*').eq('lesson_id',lid).eq('student_id',s.id).limit(1);
+  var sub=sr.data&&sr.data[0];
+  if(!sub){ var ins=await sb.from('lesson_submissions').insert({lesson_id:lid,course_id:cid,student_id:s.id,status:'todo'}).select('*').single(); sub=ins.data||{}; }
+  cbCur={id:sub.id,trace:Array.isArray(sub.trace)?sub.trace:[],courseId:cid};
+  cbCapInit();
+  var ro=(sub.status==='submitted'||sub.status==='reviewed');
+  var h='<div style="padding:12px 14px;border-top:1px solid var(--line)">';
+  if(l.goal)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">차시 목표</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;margin-bottom:9px">'+esc(l.goal)+'</div>';
+  if(l.guide)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 지시</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap;margin-bottom:9px">'+esc(l.guide)+'</div>';
+  if(l.outline)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">보고서 목차</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.8;white-space:pre-line;margin-bottom:9px">'+esc(l.outline)+'</div>';
+  if(ro){
+    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--ink)">'+esc(sub.content||'')+'</div>';
+    if(sub.verdict){var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 확인'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};var v=vm[sub.verdict]||vm.AUTHENTIC;
+      h+='<div style="margin-top:9px;padding:9px 12px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'+(sub.verdict_reason?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:4px;line-height:1.6">'+esc(sub.verdict_reason)+'</div>':'')+'</div>';}
+    if(sub.feedback)h+='<div style="margin-top:8px;padding:9px 12px;background:rgba(127,184,0,.07);border-radius:8px;font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap"><b style="font-size:11.5px;color:var(--ink)">선생님 피드백</b><br>'+esc(sub.feedback)+'</div>';
+  } else {
+    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다.</div>'
+      +'<textarea id="cb-ed" rows="9" placeholder="이 차시의 수행 내용을 직접 작성하세요" style="width:100%;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;line-height:1.85;resize:vertical">'+esc(sub.content||'')+'</textarea>'
+      +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap"><span id="cb-cc" style="font-size:11px;color:var(--ink-mute)">'+String(sub.content||'').length+'자</span>'
+      +'<span style="font-size:11px;color:var(--ink-mute)">/ 최소 '+(l.min_chars||300)+'자</span><div style="flex:1"></div>'
+      +'<button class="btn ghost" onclick="cbStuSave()">💾 임시저장</button>'
+      +'<button class="btn" onclick="cbStuSubmit('+(l.min_chars||300)+')">제출하고 다음 차시 열기</button></div>'
+      +'<div id="cb-smsg" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
+  }
+  pane.innerHTML=h+'</div>';
+  var ed=document.getElementById('cb-ed'); if(ed){cbCapAttach(ed);ed.focus();}
+}
+async function cbStuSave(){
+  var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
+  var t=ed.value||''; cbCap.saves++;
+  cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000)});
+  var u=await sb.from('lesson_submissions').update({content:t,trace:cbCur.trace,typing_meta:cbCapMeta(t),status:'doing',saved_at:new Date().toISOString()}).eq('id',cbCur.id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+t.length+'자)';} }
+}
+async function cbStuSubmit(minc){
+  var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
+  var t=(ed.value||'').trim();
+  if(t.length<(minc||300)){ if(m){m.style.color='var(--risk)';m.textContent='최소 '+(minc||300)+'자 이상 작성해야 제출할 수 있습니다. (현재 '+t.length+'자)';} return; }
+  if(!confirm('이 차시를 제출할까요?\n제출 후에는 수정할 수 없고 다음 차시가 열립니다.'))return;
+  cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000),final:true});
+  var tm=cbCapMeta(t), ch=cbCheat(tm);
+  var u=await sb.from('lesson_submissions').update({content:t,trace:cbCur.trace,typing_meta:tm,status:'submitted',
+    verdict:(ch?'SUSPICIOUS':'AUTHENTIC'),
+    verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),
+    submitted_at:new Date().toISOString()}).eq('id',cbCur.id);
+  if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='제출 실패';} return; }
+  if(window.toast)toast('제출 완료 — 다음 차시가 열렸습니다',true);
+  cbStuOpen(cbCur.courseId);
+}
+window.cbMount=cbMount;window.cbList=cbList;window.cbNew=cbNew;window.cbDelCourse=cbDelCourse;window.cbOpen=cbOpen;
+window.cbAddLesson=cbAddLesson;window.cbRegen=cbRegen;window.cbMove=cbMove;window.cbDelLesson=cbDelLesson;window.cbTog=cbTog;
+window.cbStuList=cbStuList;window.cbStuOpen=cbStuOpen;window.cbStuLesson=cbStuLesson;window.cbStuSave=cbStuSave;window.cbStuSubmit=cbStuSubmit;
+
 /* ===== 본사 소식 새 글 배지 ===== */
 function hqSeenKey(){ return 'arche_hq_seen_'+(window._myUid||'anon'); }
 async function hqCheckNew(){
@@ -3606,6 +3578,7 @@ window.delAllDesign=async function(){
   if(window.toast)toast(n+'건 삭제되었습니다');
   renderDesign(); if(window.renderTopics)renderTopics();
 };
+try{ if(window.cbMount)cbMount(); }catch(_){}
 window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
 window.dlActivity=async function(path,name){
   if(!sb)return; var r=sb.storage.from('activity-files').getPublicUrl(path);
