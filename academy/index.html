@@ -934,11 +934,18 @@
           <span id="gds-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
         <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-          <button class="btn" onclick="genGDesign('subject')">① 교과 탐구활동 생성</button>
-          <button class="btn" onclick="genGDesign('changche')">② 창체·비교과 활동 생성</button>
+          <button class="btn" onclick="genGDesign('subject')">① 주요과목 탐구 2개 생성</button>
+          <button class="btn" onclick="genGDesign('changche')">② 창체·비교과 2개 생성</button>
           <button class="btn ghost" onclick="renderDesign()">불러오기</button>
           <span id="goip-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span>
         </div>
+        <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
+          <span style="font-size:11.5px;color:var(--ink-mute)">③ 직접 과목 지정 탐구:</span>
+          <input id="gds-custom" placeholder="예: 정보, 제2외국어, 기술·가정" style="width:200px;padding:8px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+          <button class="btn" onclick="genGDesignCustom()">지정 과목 2개 생성</button>
+          <span style="font-size:10.5px;color:var(--ink-mute)">이수 중인 과목 중 추가로 채울 과목을 직접 입력</span>
+        </div>
+        <div class="note" style="margin-top:8px">※ 버튼을 누를 때마다 <b>정확히 2개</b>가 <b>기존 항목에 이어서(중복 없이 다음 단계로)</b> 추가됩니다. 각 생성은 이번 달 회차 1회를 사용합니다.</div>
         <div id="gds-result" style="margin-top:14px"></div>
         <div id="gdesign-body" style="margin-top:16px"></div>
 
@@ -3317,15 +3324,32 @@ function showGen(on,msg){
   else { m.style.display='none'; }
 }
 function genStep(t){ var e=document.getElementById('gen-step'); if(e)e.textContent=t; }
-/* ===== 학생부 디자인: 월 생성 제한 + 학생 간 중복 회피 ===== */
+/* ===== 학생부 디자인: 월 2회 + 학기 이월(누적·학기말 마감) + 학생 간 중복 회피 ===== */
 var DESIGN_MONTH_LIMIT=2;
+// 학기 경계: 1학기 3/1~8/31, 2학기 9/1~익년 2월말 (아침 확인용 가정 — 필요시 숫자만 조정)
+function semesterStart(now){
+  now=now||new Date(); var y=now.getFullYear(), m=now.getMonth()+1;
+  if(m>=3 && m<=8) return new Date(y,2,1);      // 3월 1일
+  if(m>=9) return new Date(y,8,1);              // 9월 1일
+  return new Date(y-1,8,1);                      // 1~2월 → 전년도 9월 1일
+}
+function monthsInSemester(now){
+  now=now||new Date(); var ss=semesterStart(now);
+  return (now.getFullYear()-ss.getFullYear())*12 + (now.getMonth()-ss.getMonth()) + 1; // 학기 시작월~현재월(포함)
+}
+async function designAllowance(s){
+  var now=new Date();
+  var accrued=DESIGN_MONTH_LIMIT*monthsInSemester(now);   // 월 2회 × 경과 개월(이월 누적)
+  var ss=semesterStart(now).toISOString();
+  var used=0;
+  try{ var r=await sb.from('design_gen_log').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('created_at',ss); used=r.count||0; }catch(e){}
+  return { accrued:accrued, used:used, remain:Math.max(0,accrued-used) };
+}
 async function designGenGuard(s){
   try{
-    var now=new Date(); var ms=new Date(now.getFullYear(),now.getMonth(),1).toISOString();
-    var r=await sb.from('design_gen_log').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('created_at',ms);
-    var n=r.count||0;
-    if(n>=DESIGN_MONTH_LIMIT){
-      alert('이 학생의 이번 달 학생부 디자인 생성 횟수('+DESIGN_MONTH_LIMIT+'회)를 모두 사용했습니다.\n\n· 다음 달 1일에 초기화됩니다.\n· 어뷰징 방지를 위해 학생당 월 '+DESIGN_MONTH_LIMIT+'회(주요과목+창체 합산)로 제한됩니다.\n· 개별 항목만 바꾸려면 각 항목의 [재생성] 버튼을 이용하세요.');
+    var a=await designAllowance(s);
+    if(a.remain<=0){
+      alert('이 학생의 이번 학기 학생부 디자인 생성 횟수를 모두 사용했습니다.\n\n· 매월 '+DESIGN_MONTH_LIMIT+'회 부여 + 미사용분은 학기 내 이월\n· 학기말 자동 마감·초기화\n· 이번 학기 부여 '+a.accrued+'회 · 사용 '+a.used+'회 · 남음 0회\n\n개별 항목만 바꾸려면 각 항목의 [재생성] 버튼을 이용하세요.');
       return false;
     }
     return true;
@@ -3335,16 +3359,42 @@ async function logDesignGen(s,track,phase){
   try{ await sb.from('design_gen_log').insert({academy_id:s.academy_id||null,student_id:s.id,track:track,phase:phase}); }catch(e){}
   try{ showDesignQuota(track); }catch(e){}
 }
+/* ===== 킬러콘텐츠 과금 게이트 (design·essay·interview 공통) =====
+   규칙: 중학생 디자인=무료(공통) · B2B 기본료 포함학생=전부 무료 · 그 외=중5천/고1만
+   과금은 '월 1회'(월 단위 청구). 실결제(Toss)는 대기중이라 지금은 기록만·비차단.
+   ※ 아침 확인 필요: B2B 포함/추가 판정 기준(현재 students.killer_included !== false 를 포함으로 간주) */
+async function killerGate(s, content){
+  try{
+    if(!s||!sb) return {free:true,price:0};
+    var grade=String(s.grade||'');
+    var track=(grade.indexOf('중')>=0)?'mid':'high';
+    var acct=(window._acctTypeCur==='b2c')?'b2c':'b2b';
+    var inc=(acct==='b2b')?(s.killer_included!==false):false;   // B2B: 명시적 false만 '추가(과금)'
+    var price=0;
+    if(content==='design' && track==='mid') price=0;             // 중학생 디자인 무료(공통)
+    else if(acct==='b2b' && inc) price=0;                         // B2B 포함학생 전부 무료
+    else price=(track==='mid')?5000:10000;                       // 그 외: 중5천/고1만
+    var now=new Date(); var month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+    if(price>0){
+      var ex=await sb.from('killer_charges').select('id',{count:'exact',head:true}).eq('student_id',s.id).eq('content',content).eq('billing_month',month);
+      if((ex.count||0)===0){
+        try{ await sb.from('killer_charges').insert({academy_id:s.academy_id||null,student_id:s.id,content:content,track:track,account_type:acct,included:inc,unit_price:price,billing_month:month}); }catch(e){}
+        return {free:false,price:price,month:month,charged:true};
+      }
+      return {free:false,price:price,month:month,charged:false};  // 이번 달 이미 청구됨
+    }
+    return {free:true,price:0,month:month,charged:false};
+  }catch(e){ return {free:true,price:0}; }
+}
+window.killerGate=killerGate;
 async function showDesignQuota(track){
   var s=(track==='goip')?window._gactive:window._activeStudent;
   var el=document.getElementById(track==='goip'?'goip-quota':'dae-quota'); if(!el)return;
   if(!s||!sb){el.textContent='';return;}
   try{
-    var now=new Date(); var ms=new Date(now.getFullYear(),now.getMonth(),1).toISOString();
-    var r=await sb.from('design_gen_log').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('created_at',ms);
-    var n=r.count||0;
-    el.textContent='이번 달 생성 '+n+'/'+DESIGN_MONTH_LIMIT+(n>=DESIGN_MONTH_LIMIT?' · 소진(다음달 1일 초기화)':'');
-    el.style.color=(n>=DESIGN_MONTH_LIMIT)?'var(--risk)':'var(--ink-mute)';
+    var a=await designAllowance(s);
+    el.textContent='이번 학기 남은 생성 '+a.remain+'회 (부여 '+a.accrued+' · 사용 '+a.used+' · 미사용분 이월)';
+    el.style.color=(a.remain<=0)?'var(--risk)':'var(--ink-mute)';
   }catch(e){ el.textContent=''; }
 }
 window.showDesignQuota=showDesignQuota;
@@ -3407,34 +3457,43 @@ async function genDesign(phase){
     var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||(phase==='changche'?'자율':'과세특'),title:t.title||'',goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),seq:t.seq||0,status:'예정',sent:false};});
     if(todo.length)await sb.from('design_items').insert(todo);
     await logDesignGen(s,'dae',phase);
+    try{ await killerGate(s,'design'); }catch(e){}
     showGen(false);
     renderDesign(); if(window.renderTopics)renderTopics();
   }catch(e){ showGen(false); if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
 }
 window._designTrack=window._designTrack||'dae';
-async function genGDesignItems(phase){
+async function genGDesignItems(phase, customSubject){
   phase=phase||'subject';
   var s=window._gactive; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
+  customSubject=(customSubject||'').trim();
+  if(phase==='custom' && !customSubject){ alert('탐구할 과목명을 입력하세요.'); return; }
   if(!(await designGenGuard(s)))return;
-  showGen(true, phase==='changche'?'창체·비교과 활동을 설계하고 있어요…':'교과 탐구활동을 설계하고 있어요…');
+  showGen(true, phase==='changche'?'창체·비교과 활동 2개를 설계하고 있어요…':(phase==='custom'?('"'+customSubject+'" 교과 탐구 2개를 설계하고 있어요…'):'주요과목 교과 탐구 2개를 설계하고 있어요…'));
   try{
     genStep('학생 자료를 불러오는 중…');
     var ctx=await gctxAll();
     if(!ctx||(!ctx.record&&!ctx.career)){ showGen(false); alert('저장된 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.'); return; }
     var tschEl=document.getElementById('gds-school'); var tsch=tschEl?tschEl.value:'';
+    // 기존 설계 항목(이어가기용 done_list · seq 연속)
+    var ex=await sb.from('design_items').select('area,subject,title,seq').eq('student_id',s.id).order('seq',{ascending:true});
+    var doneList=(ex.data||[]).map(function(d){return {area:d.area,subject:d.subject,title:d.title};});
+    var maxSeq=(ex.data||[]).reduce(function(m,d){return Math.max(m,(typeof d.seq==='number'?d.seq:0));},0);
     var avoidTxt=await otherStudentTopics(s,'goip');
     genStep('활동 설계를 구성 중…');
-    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_design',payload:{grade:ctx.grade,career:ctx.career,target:tsch||ctx.target,target_school:tsch||null,record_text:(ctx.record||'')+avoidTxt}}});
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_design',payload:{grade:ctx.grade,career:ctx.career,target:tsch||ctx.target,target_school:tsch||null,record_text:(ctx.record||'')+avoidTxt,phase:phase,custom_subject:customSubject,done_list:doneList}}});
     if(r.error||!r.data||r.data.error){ showGen(false); alert((r.data&&r.data.error)||(r.error&&r.error.message)||'생성 실패'); return; }
     var o=safeJson(r.data.text); var items=(o&&o.items)||[];
     if(!items.length){ showGen(false); alert('생성 결과가 비었습니다. 다시 시도하세요.'); return; }
-    genStep('설계를 저장하는 중…');
+    // 안전장치: 영역 강제 + 정확히 2개 제한
     var CHANG=['동아리','자율','진로','독서','봉사'];
-    var isCh=(phase==='changche');
-    var sel=items.filter(function(it){ var a=it.area||'교과탐구'; return isCh?(CHANG.indexOf(a)>=0):(a==='교과탐구'); });
-    if(!sel.length)sel=items; // 분류가 애매하면 전체 저장
-    await sb.from('design_items').delete().eq('student_id',s.id).in('area', isCh?CHANG:['교과탐구','과세특']);
-    var rows=sel.map(function(it,i){
+    if(phase==='changche'){ items=items.filter(function(it){ return CHANG.indexOf(it.area)>=0; }); }
+    else { items=items.map(function(it){ it.area='교과탐구'; if(phase==='custom'&&customSubject)it.subject=customSubject; return it; }); }
+    items=items.slice(0,2);
+    if(!items.length){ showGen(false); alert('영역에 맞는 결과가 없습니다. 다시 시도하세요.'); return; }
+    genStep('설계를 저장하는 중…');
+    // 이어가기 = 삭제하지 않고 append (매달 2개씩 누적 성장)
+    var rows=items.map(function(it,i){
       var stepsTxt=(Array.isArray(it.steps)?it.steps.map(function(x){return '· '+x;}).join('\n'):(it.steps||''));
       var detail=stepsTxt
         +(it.method?'\n[탐구방법] '+it.method:'')
@@ -3442,17 +3501,19 @@ async function genGDesignItems(phase){
         +(it.output?'\n[산출물] '+it.output:'')
         +(it.link?'\n[연결] '+it.link:'');
       var outline=Array.isArray(it.outline)?it.outline.join('\n'):(it.outline||'');
-      return {student_id:s.id,grade:String(it.grade||ctx.grade||''),sem:'',subject:it.subject||'',area:(it.area||'교과탐구'),title:it.title||'',goal:it.goal||'',detail:detail,outline:outline,seq:(typeof it.seq==='number'?it.seq:i),status:'예정',sent:false};
+      return {student_id:s.id,grade:String(it.grade||ctx.grade||''),sem:'',subject:it.subject||'',area:(it.area||'교과탐구'),title:it.title||'',goal:it.goal||'',detail:detail,outline:outline,seq:(maxSeq+1+i),status:'예정',sent:false};
     });
     if(rows.length)await sb.from('design_items').insert(rows);
     await logDesignGen(s,'goip',phase);
+    try{ await killerGate(s,'design'); }catch(e){}
     if(o.narrative){ try{ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{narrative:o.narrative,priority:o.priority||''}}); }catch(e){} }
     showGen(false);
     window._designTrack='goip'; renderDesign();
-    if(window.toast)toast(rows.length+'개 활동 설계·저장 완료',true);
+    if(window.toast)toast(rows.length+'개 활동 이어서 설계·저장 완료',true);
   }catch(e){ showGen(false); alert('생성 실패: '+(e.message||e)); }
 }
 window.genGDesign=genGDesignItems;
+window.genGDesignCustom=function(){ var el=document.getElementById('gds-custom'); var v=el?(el.value||'').trim():''; if(!v){alert('탐구할 과목명을 입력하세요.');return;} genGDesignItems('custom',v); if(el)el.value=''; };
 
 /* ===== 면접 준비 ===== */
 var _ivType='doc', _ivStep=0;
