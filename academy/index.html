@@ -3985,6 +3985,69 @@ async function renderRmGpa(){
   body_html+='<div class="strat" style="margin-top:16px"><b>관리 전략:</b> 반영단위 큰 과목의 등급 개선이 전체 내신에 미치는 효과가 큽니다. 이미 1등급인 과목은 방어, 위 상위 과목의 등급을 끌어올리는 데 집중하세요.</div>';
   body.innerHTML=body_html;
 }
+/* ===== 합격 역설계 · 커트라인 연동 (admission_cutlines) ===== */
+window.G9_ANCHOR = [2, 7.5, 17, 31.5, 50, 68.5, 83, 92.5, 98];
+window.G5_ANCHOR = [5, 22, 50, 78, 95];
+function g9ToPct(g){
+  if(g==null||isNaN(g))return null; g=Number(g);
+  var A=window.G9_ANCHOR;
+  if(g<=1)return A[0]; if(g>=9)return A[8];
+  var lo=Math.floor(g);
+  return +(A[lo-1]+(A[lo]-A[lo-1])*(g-lo)).toFixed(2);
+}
+function pctToG5(p){
+  if(p==null||isNaN(p))return null; p=Number(p);
+  var A=window.G5_ANCHOR;
+  if(p<=A[0])return 1; if(p>=A[4])return 5;
+  for(var i=0;i<4;i++){ if(p<=A[i+1]) return +((i+1)+(p-A[i])/(A[i+1]-A[i])).toFixed(2); }
+  return 5;
+}
+/* 2028학년도 대입(현 고1 이하)부터 내신 5등급제 */
+function studentGradeSystem(s){
+  var g=String((s&&s.grade)||'');
+  if(/중/.test(g)) return 5;
+  if(/고1/.test(g)) return 5;
+  return 9;
+}
+window._cutCache = window._cutCache || {};
+async function archeFetchCuts(univNames){
+  if(!sb||!univNames.length) return [];
+  var roots = univNames.map(function(n){
+    return String(n||'').replace(/\s/g,'').replace(/학교$/,'').slice(0,3);
+  }).filter(Boolean);
+  var key = roots.slice().sort().join('|');
+  if(window._cutCache[key]) return window._cutCache[key];
+  var ors = roots.map(function(r){ return 'univ.ilike.%'+r+'%'; }).join(',');
+  var q = await sb.from('admission_cutlines')
+    .select('univ,year,admission_type,major,cut50,cut70,cut50_pct,cut70_pct,cut50_g5,cut70_g5,competition_rate,recruit_count,grade_system,metric,source')
+    .or(ors).order('year',{ascending:false}).limit(1200);
+  var rows=(q&&q.data)||[];
+  window._cutCache[key]=rows;
+  return rows;
+}
+function archeMatchCut(rows, univ, major){
+  var ur=String(univ||'').replace(/\s/g,'').replace(/학교$/,'').slice(0,3);
+  var mj=String(major||'').replace(/\s/g,'');
+  if(!ur) return null;
+  var pool=rows.filter(function(r){ return String(r.univ||'').indexOf(ur)>=0; });
+  if(!pool.length) return null;
+  if(mj){
+    var head=mj.slice(0,2);
+    var exact=pool.filter(function(r){
+      var m=String(r.major||'').replace(/\s/g,'');
+      return m===mj || m.indexOf(mj)>=0 || mj.indexOf(m)>=0;
+    });
+    if(exact.length) pool=exact;
+    else{
+      var loose=pool.filter(function(r){ return String(r.major||'').indexOf(head)>=0; });
+      if(loose.length) pool=loose;
+      else return null;
+    }
+  }
+  pool.sort(function(a,b){ return (a.cut70||a.cut50||9)-(b.cut70||b.cut50||9); });
+  return { best: pool[0], all: pool };
+}
+
 async function renderArche(){
   const body=document.getElementById('arche-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
@@ -3992,6 +4055,19 @@ async function renderArche(){
   const {data,error}=await sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','univ_reco').order('measured_at',{ascending:false}).limit(1);
   if(error){body.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   const list=(data&&data[0]&&data[0].payload&&data[0].payload.list)||[];
+
+  var nx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+  var myGrade=(nx.data&&nx.data[0]&&nx.data[0].payload&&nx.data[0].payload.weighted_overall);
+  myGrade=(myGrade!=null&&!isNaN(myGrade))?Number(myGrade):null;
+  var sysNow=studentGradeSystem(s);
+  var myPct=null;
+  if(myGrade!=null){
+    if(sysNow===5){
+      var A5=window.G5_ANCHOR, gg=Math.max(1,Math.min(5,myGrade)), lo5=Math.floor(gg);
+      myPct = (gg>=5)?A5[4]:+(A5[lo5-1]+((A5[lo5]||A5[4])-A5[lo5-1])*(gg-lo5)).toFixed(2);
+    } else { myPct = g9ToPct(myGrade); }
+  }
+
   var q4r=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1);
   var q4=(q4r.data&&q4r.data[0]&&q4r.data[0].payload)||null;
   var growth='';
@@ -4006,13 +4082,67 @@ async function renderArche(){
     growth='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>서류 준비도 진단 <span style="font-size:11px;color:var(--ink-mute)">· 현재 4축(10점) vs 합격 기준선 '+TARGET+'</span></h3></div>'+grows+'<div class="note" style="margin-top:12px">※ 숫자=현재 점수(0~10) · 세로선=합격자 서류 평균 수준('+TARGET+'점). '+msg+'</div></div>';
   }
   if(!list.length){ body.innerHTML=(growth||'')+'<div style="color:var(--ink-mute);padding:20px">아직 역설계 결과가 없습니다. [학생 진단]에서 <b>AI 분석</b>을 실행하세요.</div>'; return; }
+
+  var cuts=[];
+  try{ cuts=await archeFetchCuts(list.map(function(u){return u.name;})); }catch(e){ cuts=[]; }
+
   const POS={reach:['소신','var(--risk)'],fit:['적정','var(--reach)'],safe:['안정','var(--safe)']};
+  var hitCount=0;
   const rows=list.map(function(u){
     var pk=POS[u.pos]||POS.fit;
-    return '<div class="arche-target"><div class="at-head"><div class="at-uni">'+esc(u.name||'')+' '+esc(u.major||'')+' <span>· '+esc(u.type||'')+'</span></div><div class="at-verdict" style="color:'+pk[1]+'">'+pk[0]+'</div></div><div class="at-foot"><div class="metric"><small>포지션</small><b style="color:'+pk[1]+'">'+pk[0]+'</b></div><div class="metric" style="flex:2"><small>근거</small><b style="font-weight:500;font-size:12px">'+esc(u.basis||'')+'</b></div></div></div>';
+    var head='<div class="at-head"><div class="at-uni">'+esc(u.name||'')+' '+esc(u.major||'')+' <span>· '+esc(u.type||'')+'</span></div><div class="at-verdict" style="color:'+pk[1]+'">'+pk[0]+'</div></div>';
+
+    var m=archeMatchCut(cuts,u.name,u.major);
+    if(!m||myGrade==null){
+      return '<div class="arche-target">'+head+'<div class="at-foot"><div class="metric"><small>포지션</small><b style="color:'+pk[1]+'">'+pk[0]+'</b></div><div class="metric" style="flex:2"><small>근거</small><b style="font-weight:500;font-size:12px">'+esc(u.basis||'')+'</b></div></div>'
+        + (m?'':'<div class="note" style="margin-top:8px;font-size:11px">입결 DB 미수록 모집단위 — 포지션 판정은 계열·내신 근사 추정</div>')+'</div>';
+    }
+    hitCount++;
+    var c=m.best;
+    var cutPct = (c.cut70_pct!=null?Number(c.cut70_pct):(c.cut50_pct!=null?Number(c.cut50_pct):null));
+    var cutRaw = (c.cut70!=null?Number(c.cut70):(c.cut50!=null?Number(c.cut50):null));
+    var cutG5  = (c.cut70_g5!=null?Number(c.cut70_g5):(c.cut50_g5!=null?Number(c.cut50_g5):null));
+
+    var gapPct = (cutPct!=null&&myPct!=null)? +(myPct-cutPct).toFixed(2) : null;
+    var col = gapPct==null?'var(--ink-mute)':(gapPct<=-3?'var(--safe)':(gapPct<=5?'var(--reach)':'var(--risk)'));
+    var verdict = gapPct==null?'—':(gapPct<=-3?'안정권':(gapPct<=5?'적정권':'상향 지원'));
+
+    var SCALE=40;
+    var pos=function(p){ return Math.max(2,Math.min(96, (p/SCALE)*100 )); };
+    var bar='';
+    if(cutPct!=null&&myPct!=null){
+      bar='<div class="track" style="margin:10px 0 4px"><div class="zone z-risk">소신</div><div class="zone z-reach">적정</div><div class="zone z-safe">안정</div>'
+        +'<div class="marker" style="left:'+pos(cutPct)+'%"><div class="flag">합격선 상위 '+cutPct+'%</div></div>'
+        +'<div class="marker now" style="left:'+pos(myPct)+'%"><div class="flag">현재 상위 '+myPct+'%</div></div></div>';
+    }
+
+    var showG5 = (sysNow===5);
+    var cutLabel = showG5
+      ? ('5등급 환산 약 '+ (cutG5!=null?cutG5.toFixed(1):'—') +'등급')
+      : (cutRaw!=null? cutRaw.toFixed(2)+'등급(9등급제)' : '—');
+    var myLabel = (myGrade!=null? myGrade.toFixed(2)+'등급' : '—');
+
+    return '<div class="arche-target">'+head+bar
+      +'<div class="at-foot">'
+      +'<div class="metric"><small>'+esc(String(c.year||''))+' 합격선('+esc(c.admission_type||'')+')</small><b>'+esc(cutLabel)+'</b></div>'
+      +'<div class="metric"><small>현재 내신</small><b>'+esc(myLabel)+'</b></div>'
+      +'<div class="metric"><small>백분위 격차</small><b style="color:'+col+'">'+(gapPct==null?'—':(gapPct>0?'+':'')+gapPct+'%p · '+verdict)+'</b></div>'
+      +'<div class="metric"><small>경쟁률</small><b class="mono">'+(c.competition_rate!=null?Number(c.competition_rate).toFixed(2):'—')+'</b></div>'
+      +'</div>'
+      +'<div class="note" style="margin-top:8px;font-size:11px">기준 '+esc(c.univ||'')+' '+esc(c.major||'')+' · '+esc(c.metric||'')+' · '+esc(c.source||'')
+      + (showG5?' <b style="color:var(--gold,#F5B301)">· 9등급제 입결의 5등급 환산 참고치(백분위 경유) — 직접 비교 불가</b>':'')
+      +'</div></div>';
   }).join('');
-  body.innerHTML=rows+'<div class="note">※ 계열·내신 기반 근사 추정(골든시드 연동). 정밀 합격커트라인은 admission_cutlines 적재 후 표기됩니다.</div>'+(growth||'');
+
+  var footNote = '<div class="note">※ 합격선 = <b>입결 데이터</b>(대학 공시·대입정보포털 기준). '
+    + '비교는 등급 숫자가 아니라 <b>누적 상위 백분위</b>로 수행 — 9등급제 입결을 5등급제 등급으로 단정 제시하지 않습니다.'
+    + (sysNow===5?'<br>※ 2028학년도 대입은 내신 5등급제·수능 개편이 동시 적용되어 <b>연속성이 끊긴 데이터</b>입니다. 예측치가 아닌 <b>참고 좌표</b>로만 사용하세요.':'')
+    + (hitCount?'':'<br>※ 추천 대학이 현재 적재된 입결 DB에 없습니다. 대학 추가 적재 시 자동 표기됩니다.')
+    + '</div>';
+
+  body.innerHTML=rows+footNote+(growth||'');
 }
+
 async function renderDiag(){
   const who=document.getElementById('diag-who'), body=document.getElementById('diag-body'); if(!body)return;
   if(!window._activeStudent||!sb){ if(who)who.textContent='— 미선택'; body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
