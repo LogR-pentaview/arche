@@ -564,6 +564,16 @@
             <select id="as-grade" style="width:100%;margin-bottom:10px;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년 * · 고입/대입 자동 구분</option><optgroup label="중학생 → 고입"><option>중1</option><option>중2</option><option>중3</option></optgroup><optgroup label="고등학생 → 대입"><option>고1</option><option>고2</option><option>고3</option><option>N수</option></optgroup></select>
             <input id="as-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input type="checkbox" id="as-rookie" onchange="asRookieToggle()" style="accent-color:var(--lime)"> <b style="color:var(--ink)">신입생</b> — 아직 생기부 기록이 거의 없어요</label>
+            <div id="as-onboard" style="display:none;background:var(--panel-2);border:1px dashed var(--line);border-radius:10px;padding:13px;margin-bottom:12px">
+              <div style="font-size:11px;color:var(--ink-mute);margin-bottom:9px;line-height:1.6">생기부 대신 <b>상담 정보</b>로 진단·설계를 시작합니다. (가능한 만큼만 입력)</div>
+              <input id="as-ob-target" placeholder="희망 특목고/대학" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
+              <input id="as-ob-strong" placeholder="강점 과목·단원 (예: 수학-이차함수, 과학-화학반응)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
+              <input id="as-ob-weak" placeholder="약점 과목·단원" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
+              <input id="as-ob-disp" placeholder="성향 (예: 탐구형 / 발표·활동형 / 꼼꼼한 기록형)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
+              <input id="as-ob-reading" placeholder="독서 이력 (중학생)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
+              <textarea id="as-ob-recall" rows="2" placeholder="중학 활동 회고 (고1 · 중학 생기부는 등록 후 [열기]→자료입력에서 업로드 가능)" style="width:100%;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+            </div>
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -2537,6 +2547,7 @@ async function renderAllStudents(){
   list.innerHTML=window._allStudents.map(function(s){
     var goip=s.admission_track==='고입';
     var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 7px">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 7px">대입</span>';
+    if(s.is_rookie)badge+=' <span style="font-size:10px;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:2px 7px">신입생</span>';
     var acct=window._allAcct&&window._allAcct[s.id];
     var acctLbl=acct?('<span style="color:var(--safe)">아이디 '+esc(acct.login_id)+'</span>'):'<span style="color:var(--ink-mute)">계정 없음</span>';
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px">'
@@ -2570,17 +2581,28 @@ async function addAllStudent(){
     career:document.getElementById('as-career').value.trim()||null,
     interest:document.getElementById('as-interest').value.trim()||null,
     consent_record:document.getElementById('as-consent').checked };
+  var _rk=document.getElementById('as-rookie'); var isRk=_rk&&_rk.checked;
+  if(isRk){
+    row.is_rookie=true;
+    var gv=function(id){var e=document.getElementById(id);return e?e.value.trim():'';};
+    var ob={ career:row.career||'', interest:row.interest||'', target:gv('as-ob-target'), strong:gv('as-ob-strong'), weak:gv('as-ob-weak'), disposition:gv('as-ob-disp'), reading:gv('as-ob-reading'), recall:gv('as-ob-recall') };
+    row.onboarding=ob;
+    if(ob.target){ if(track==='고입')row.target_school=ob.target; else row.target_univ=ob.target; }
+  }
   if(window._myUid)row.consultant_uid=window._myUid;
   m.style.color='var(--ink-mute)';m.textContent='등록 중…';
   var r=await sb.from('students').insert(row).select('id').single();
   if(r.error){m.style.color='var(--risk)';m.textContent=esc(r.error.message);return;}
   var newId=r.data&&r.data.id;
-  m.style.color='var(--safe)';m.textContent='등록 완료 ('+track+'). 학생 로그인 계정을 생성합니다…';
-  ['as-name','as-school','as-career','as-interest'].forEach(function(i){document.getElementById(i).value='';});
+  m.style.color='var(--safe)';m.textContent='등록 완료 ('+track+(isRk?' · 신입생':'')+'). 학생 로그인 계정을 생성합니다…';
+  ['as-name','as-school','as-career','as-interest','as-ob-target','as-ob-strong','as-ob-weak','as-ob-disp','as-ob-reading','as-ob-recall'].forEach(function(i){var e=document.getElementById(i);if(e)e.value='';});
   document.getElementById('as-grade').value='';document.getElementById('as-region').value='';document.getElementById('as-gender').value='';document.getElementById('as-consent').checked=false;
+  if(_rk){_rk.checked=false; asRookieToggle();}
   renderAllStudents();
   if(newId && window.createStudentAccount){ try{ await createStudentAccount(newId); }catch(e){} }
 }
+function asRookieToggle(){ var c=document.getElementById('as-rookie'), b=document.getElementById('as-onboard'); if(b)b.style.display=(c&&c.checked)?'block':'none'; }
+window.asRookieToggle=asRookieToggle;
 function delAllStudent(id){
   if(!sb||!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·설계 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
   sb.from('students').delete().eq('id',id).then(function(r){ if(r.error){alert(r.error.message);return;} renderAllStudents(); });
@@ -3077,6 +3099,7 @@ async function estimateCog(){
     var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
     var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,8000);
+    if(!setechTxt && s.is_rookie){ setechTxt=onboardingText(s); }
     if(!setechTxt){alert('세특 데이터가 없습니다. 먼저 생기부 업로드/입력.');hideAiLoading();return;}
     var apr=await sb.from('design_items').select('subject,title,submission').eq('student_id',s.id).eq('approved',true);
     var aprTxt=((apr.data)||[]).filter(function(x){return x.submission;}).map(function(x){return '['+(x.subject||'')+'] '+(x.title||'')+' → '+x.submission;}).join('\n');
@@ -3445,6 +3468,7 @@ async function genDesign(phase){
       var cq=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false}).limit(3);
       conTxt=(cq.data||[]).map(function(c){return '['+(c.kind==='parent'?'학부모상담':'학생상담')+'] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / 활동현황:'+(c.activities||'')+' / 메모:'+(c.memo||'');}).join('\n');
     }
+    if(s.is_rookie){ var _obD=onboardingText(s); if(_obD)conTxt=(conTxt?conTxt+'\n':'')+_obD; }
     var major=(subjList.length?subjList:['국어','영어','수학','과학','사회']);
     var avoidTxt=await otherStudentTopics(s,'dae');
     genStep(phase==='changche'?'창체 4영역 활동을 구성 중…':'과목 간 연계 서사를 구성 중…');
@@ -5484,6 +5508,21 @@ async function delGCon(id){ if(!sb||!confirm('삭제하시겠습니까?'))return
 
 /* ===== 고입 진단 · 로드맵 · 디자인 공용 ===== */
 // 학생 컨텍스트: 저장된 성취도 + 활동 텍스트
+function onboardingText(s){
+  var o=s&&s.onboarding; if(!o)return '';
+  if(typeof o==='string'){ try{o=JSON.parse(o);}catch(e){return '';} }
+  var L=['「신입생 상담 정보 (아직 생기부 기록이 없어 아래 상담 내용을 근거로 진단·설계)」'];
+  if(o.career)L.push('· 희망 진로/계열: '+o.career);
+  if(o.target)L.push('· 희망 학교(특목고/대학): '+o.target);
+  if(o.interest)L.push('· 관심 분야: '+o.interest);
+  if(o.strong)L.push('· 강점 과목·단원: '+o.strong);
+  if(o.weak)L.push('· 약점 과목·단원: '+o.weak);
+  if(o.disposition)L.push('· 성향: '+o.disposition);
+  if(o.reading)L.push('· 독서 이력: '+o.reading);
+  if(o.recall)L.push('· 중학 활동 회고: '+o.recall);
+  return L.length>1?L.join('\n'):'';
+}
+window.onboardingText=onboardingText;
 async function gctxAll(){
   var s=window._gactive; if(!s||!sb)return null;
   var grades=[],parts=[];
@@ -5494,6 +5533,7 @@ async function gctxAll(){
     (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,350));});
     var co=await sb.from('consultations').select('activities,memo,career').eq('student_id',s.id).limit(10);
     (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담] '+x.activities.slice(0,250));});
+    if(s.is_rookie){ var _ob=onboardingText(s); if(_ob)parts.push(_ob); }
   }catch(e){}
   return {grades:grades,record:parts.join('\n'),career:s.career||'',grade:s.grade||'',target:(s.target_school||s.target_school_type||'')};
 }
