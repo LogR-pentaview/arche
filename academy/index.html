@@ -11,7 +11,7 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIwIiBmaWxsPSIjMTIxNjBmIi8+PHRleHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjMwMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2M4YTI0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=">
-<title>아르케 · 학원</title>
+<title>아르케 · 학부모</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
@@ -2361,7 +2361,7 @@ async function enterStudentApp(session){
     var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
   }
   // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
-  ['students','intake','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
 
   renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
