@@ -956,7 +956,7 @@
           <button class="btn" onclick="genGDesignCustom()">지정 과목 2개 생성</button>
           <span style="font-size:10.5px;color:var(--ink-mute)">이수 중인 과목 중 추가로 채울 과목을 직접 입력</span>
         </div>
-        <div class="note" style="margin-top:8px">※ 버튼을 누를 때마다 <b>정확히 2개</b>가 <b>기존 항목에 이어서(중복 없이 다음 단계로)</b> 추가됩니다. 각 생성은 이번 달 회차 1회를 사용합니다.</div>
+        <div class="note" style="margin-top:8px">※ 버튼을 누를 때마다 <b>정확히 2개</b>가 <b>기존 항목에 이어서(중복 없이 다음 단계로)</b> 추가됩니다. 각 활동은 <b>차시별로 순차 진행</b>합니다 — 이전 차시를 제출해야 다음 차시가 열립니다.</div>
         <div id="gds-result" style="margin-top:14px"></div>
         <div id="gdesign-body" style="margin-top:16px"></div>
 
@@ -3170,6 +3170,7 @@ async function renderDesign(){
               '<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12px;line-height:1.7;color:var(--ink-dim)">'+esc(it.detail||'')+'</div>'+
               (it.dist_path?'<div style="margin-top:8px"><button onclick="dlActivity(\''+it.dist_path+'\',\''+esc(it.dist_name||'활동지')+'\')" style="padding:5px 12px;background:var(--gold,#c8a24a);color:#1a1200;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">📎 활동지 다운로드'+(it.dist_name?' ('+esc(it.dist_name)+')':'')+'</button></div>':'')+
               (it.outline?'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:10px 0 3px">탐구보고서 목차</div><div style="font-size:12px;line-height:1.8;color:var(--ink-dim);white-space:pre-line">'+esc(it.outline)+'</div>':'')+
+              '<div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--line)"><div style="font-size:11px;color:var(--lime,#7fb800);margin-bottom:6px;font-weight:700">📚 코스 진행 (차시별 수행)</div><div id="cw-'+it.id+'"></div></div>'+
               (stu?'':'<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">'+((window._designTrack==='goip')?'':'<button onclick="regenItem('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">↻ 이 주제 재생성</button>')+(it.sent?'<button onclick="unsendDesign('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">전송 취소</button>':'<button onclick="sendDesign('+it.id+')" style="padding:4px 11px;background:var(--reach,#5b8def);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">학생에게 전송</button>')+'</div>')+
               // 결과물 제출 (학생 또는 대리입력)
               '<div style="margin-top:10px"><div style="font-size:10px;color:var(--gold,#c8a24a);margin-bottom:4px">활동 결과물'+(it.submitted_at?' · 제출됨':'')+(it.analyzed?' · <span style="color:var(--safe)">AI 분석완료</span>':'')+'</div>'+
@@ -3194,7 +3195,180 @@ async function renderDesign(){
   body.innerHTML=html;
 }
 window.dfold=function(id){var c=document.getElementById('dfc-'+id);var a=document.getElementById('dfa-'+id);if(c){var open=c.style.display!=='none';c.style.display=open?'none':'block';if(a)a.textContent=open?'▸':'▾';}};
-window.toggleDesignDetail=function(id){var e=document.getElementById('di-det-'+id);if(e)e.style.display=e.style.display==='none'?'block':'none';};
+/* ===================== 코스웨어 (Courseware) =====================
+   design_items 1건 = 코스 · design_steps = 차시
+   게이팅: 1차시는 항상 열림, N차시는 (N-1)차시 제출 후 열림
+   타이핑 캡처: 일반고 엔진 perfCap 이식 (대필 검증)
+   ================================================================ */
+var cwCap=null, cwCur=null;
+function cwCapInit(){ cwCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
+function cwCapAttach(el){
+  if(!el||el._cwBound)return; el._cwBound=true;
+  el.addEventListener('keydown',function(e){
+    if(!cwCap)return;
+    var now=Date.now(); if(now-cwCap.last>2000)cwCap.pc++; cwCap.last=now;
+    if(e.key==='Backspace'||e.key==='Delete')cwCap.bc++;
+    else if(e.key&&e.key.length===1)cwCap.kc++;
+  });
+  el.addEventListener('paste',function(e){
+    if(!cwCap)return; cwCap.paste++;
+    try{ var t=((e.clipboardData||window.clipboardData).getData('text'))||''; cwCap.pasteChars+=t.length; }catch(_){}
+  });
+  el.addEventListener('input',function(){
+    var c=document.getElementById('cw-cc'); if(c)c.textContent=(el.value||'').length+'자';
+  });
+}
+function cwCapMeta(text){
+  if(!cwCap)cwCapInit();
+  return {keyCount:cwCap.kc,backCount:cwCap.bc,pauseCount:cwCap.pc,pasteCount:cwCap.paste,
+    pasteChars:cwCap.pasteChars,totalMs:Date.now()-cwCap.start,charCount:(text||'').length,
+    saves:cwCap.saves,startedAt:new Date(cwCap.start).toISOString()};
+}
+function cwCheatSignal(tm){
+  if(!tm)return '';
+  var kc=tm.keyCount||0,cc=tm.charCount||0,paste=tm.pasteCount||0,pc=tm.pasteChars||0,f=[];
+  if(cc>50 && kc<cc*0.4) f.push('키입력('+kc+')이 글자수('+cc+') 대비 비정상적으로 적음 → 외부 복사/AI 생성 의심');
+  if(pc>0 && pc>cc*0.5) f.push('붙여넣은 글자('+pc+')가 전체의 절반 이상 → 대량 복사 의심');
+  if(paste>3) f.push('붙여넣기 '+paste+'회');
+  return f.join('; ');
+}
+function cwTraceSummary(trace){
+  trace=Array.isArray(trace)?trace:[];
+  if(!trace.length)return '작성 과정 스냅샷 기록 없음.';
+  var f=trace[0],l=trace[trace.length-1],p=['스냅샷 '+trace.length+'회','길이 '+(f.len||0)+'자 → '+(l.len||0)+'자'];
+  var j=[]; for(var i=1;i<trace.length;i++){var d=(trace[i].len||0)-(trace[i-1].len||0); if(d>300)j.push('스냅샷'+(i+1)+'에서 +'+d+'자 급증');}
+  if(j.length)p.push('⚠️ '+j.join(', '));
+  return p.join(' · ');
+}
+/* design_items.detail → 차시 분해 */
+function cwParseSteps(it){
+  var det=String(it.detail||''); var out=[];
+  det.split('\n').forEach(function(ln){
+    ln=ln.trim();
+    if(ln.indexOf('· ')===0){ var t=ln.slice(2).trim(); if(t)out.push({title:t,guide:''}); }
+  });
+  if(!out.length && it.goal) out.push({title:'활동 수행',guide:it.goal});
+  // 부가 정보를 마지막 차시 가이드로
+  var extra=[];
+  det.split('\n').forEach(function(ln){
+    ln=ln.trim();
+    if(/^\[(탐구방법|연계 학습요소|산출물|연결)\]/.test(ln)) extra.push(ln);
+  });
+  var ol=String(it.outline||'').split('\n').filter(function(x){return x.trim();});
+  out.push({title:'산출물 정리 · 보고서 작성', guide:(ol.length?('[보고서 목차]\n'+ol.join('\n')):'')+(extra.length?('\n'+extra.join('\n')):'')});
+  return out.map(function(x,i){ return {step_no:i+1,title:x.title,guide:x.guide}; });
+}
+async function cwEnsureSteps(itemId){
+  var r=await sb.from('design_steps').select('id').eq('design_item_id',itemId).limit(1);
+  if(r.data&&r.data.length)return;
+  var q=await sb.from('design_items').select('*').eq('id',itemId).limit(1);
+  var it=q.data&&q.data[0]; if(!it)return;
+  var rows=cwParseSteps(it).map(function(x){
+    return {design_item_id:itemId,student_id:it.student_id,step_no:x.step_no,title:x.title,guide:x.guide,status:'todo'};
+  });
+  if(rows.length) await sb.from('design_steps').insert(rows);
+}
+/* 코스 목차 렌더 (게이팅) */
+async function cwRenderCourse(itemId){
+  var box=document.getElementById('cw-'+itemId); if(!box)return;
+  box.innerHTML='<div style="color:var(--ink-mute);font-size:12px;padding:8px">불러오는 중…</div>';
+  await cwEnsureSteps(itemId);
+  var r=await sb.from('design_steps').select('*').eq('design_item_id',itemId).order('step_no',{ascending:true});
+  var steps=r.data||[];
+  if(!steps.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px;padding:8px">차시가 없습니다.</div>'; return; }
+  var doneN=steps.filter(function(x){return x.status==='submitted'||x.status==='reviewed';}).length;
+  var isStu=(window._role==='stu');
+  var html='<div style="display:flex;align-items:center;gap:9px;margin:4px 0 10px"><b style="font-size:12px;color:var(--ink)">차시 목차</b>'
+    +'<span style="font-size:11px;color:var(--ink-mute)">'+doneN+'/'+steps.length+' 완료</span>'
+    +'<div style="flex:1;height:5px;background:var(--panel-2);border-radius:3px;overflow:hidden"><i style="display:block;height:100%;width:'+Math.round(doneN/steps.length*100)+'%;background:var(--lime,#7fb800)"></i></div></div>';
+  steps.forEach(function(st,i){
+    var prev=i>0?steps[i-1]:null;
+    var open=(i===0)||(prev&&(prev.status==='submitted'||prev.status==='reviewed'));
+    var done=(st.status==='submitted'||st.status==='reviewed');
+    var icon=done?'✓':(open?'▸':'🔒');
+    var col=done?'var(--safe)':(open?'var(--gold,#c8a24a)':'var(--ink-mute)');
+    html+='<div style="border:1px solid var(--line);border-radius:9px;margin-bottom:7px;overflow:hidden">'
+      +'<div style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:'+(open?'var(--panel-2)':'transparent')+';'+(open?'cursor:pointer':'')+'"'
+      +(open?(' onclick="cwOpenStep('+st.id+')"'):'')+'>'
+      +'<span style="color:'+col+';font-size:13px">'+icon+'</span>'
+      +'<span style="font-size:10.5px;color:var(--ink-mute)">'+st.step_no+'차시</span>'
+      +'<b style="font-size:12.5px;color:'+(open?'var(--ink)':'var(--ink-mute)')+';font-weight:500;flex:1">'+esc(st.title||'')+'</b>'
+      +(done?'<span style="font-size:10px;color:var(--safe);border:1px solid var(--safe);border-radius:5px;padding:1px 6px">완료</span>':'')
+      +(!open?'<span style="font-size:10px;color:var(--ink-mute)">이전 차시 완료 후 열림</span>':'')
+      +'</div><div id="cws-'+st.id+'" style="display:none"></div></div>';
+  });
+  html+='<div class="note" style="margin-top:6px;font-size:11px">※ 각 차시를 <b>직접 작성·제출</b>해야 다음 차시가 열립니다. 작성 과정이 함께 기록되어 본인 작성 여부가 검증됩니다.</div>';
+  box.innerHTML=html;
+}
+/* 차시 열기 (작성창) */
+async function cwOpenStep(stepId){
+  var pane=document.getElementById('cws-'+stepId); if(!pane)return;
+  if(pane.style.display==='block'){ pane.style.display='none'; return; }
+  pane.style.display='block';
+  pane.innerHTML='<div style="padding:10px;color:var(--ink-mute);font-size:12px">불러오는 중…</div>';
+  var r=await sb.from('design_steps').select('*').eq('id',stepId).limit(1);
+  var st=r.data&&r.data[0]; if(!st){pane.innerHTML='<div style="padding:10px;color:var(--risk)">불러오기 실패</div>';return;}
+  cwCur={id:stepId, trace:Array.isArray(st.trace)?st.trace:[]};
+  cwCapInit();
+  var ro=(st.status==='submitted'||st.status==='reviewed');
+  var guide=st.guide?('<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-bottom:9px;font-size:12.5px;color:var(--ink-dim);white-space:pre-wrap;line-height:1.7">'+esc(st.guide)+'</div>'):'';
+  var h='<div style="padding:12px 13px;border-top:1px solid var(--line)">'+guide;
+  if(ro){
+    h+='<div style="font-size:13px;line-height:1.85;white-space:pre-wrap;color:var(--ink)">'+esc(st.content||'')+'</div>';
+    if(st.verdict){
+      var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 확인'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};
+      var v=vm[st.verdict]||vm.AUTHENTIC;
+      h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'
+        +(st.verdict_reason?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:4px;line-height:1.6">'+esc(st.verdict_reason)+'</div>':'')+'</div>';
+    }
+    if(st.feedback)h+='<div style="margin-top:8px;padding:9px 12px;background:rgba(127,184,0,.07);border-radius:8px;font-size:12.5px;color:var(--ink-dim);white-space:pre-wrap;line-height:1.7"><b style="color:var(--ink);font-size:11.5px">피드백</b><br>'+esc(st.feedback)+'</div>';
+    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">제출 완료된 차시입니다.</div>';
+  } else {
+    h+='<div style="font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·임시저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다.</div>'
+      +'<textarea id="cw-ed" rows="9" placeholder="이 차시에서 수행한 내용을 직접 작성하세요" style="width:100%;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;line-height:1.8;resize:vertical">'+esc(st.content||'')+'</textarea>'
+      +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap">'
+      +'<span id="cw-cc" style="font-size:11px;color:var(--ink-mute)">'+String(st.content||'').length+'자</span>'
+      +'<div style="flex:1"></div>'
+      +'<button class="btn ghost" onclick="cwSaveStep('+stepId+')">💾 임시저장</button>'
+      +'<button class="btn" onclick="cwSubmitStep('+stepId+')">제출하고 다음 차시 열기</button></div>'
+      +'<div id="cw-msg" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
+  }
+  h+='</div>';
+  pane.innerHTML=h;
+  var ed=document.getElementById('cw-ed'); if(ed){ cwCapAttach(ed); ed.focus(); }
+}
+async function cwSaveStep(stepId){
+  var ed=document.getElementById('cw-ed'), m=document.getElementById('cw-msg'); if(!ed)return;
+  var txt=ed.value||''; cwCap.saves++;
+  cwCur.trace.push({ts:new Date().toISOString(),len:txt.length,kc:cwCap.kc,bc:cwCap.bc,paste:cwCap.paste,text:txt.slice(0,4000)});
+  var u=await sb.from('design_steps').update({content:txt,trace:cwCur.trace,typing_meta:cwCapMeta(txt),status:'doing',saved_at:new Date().toISOString()}).eq('id',stepId);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패: '+u.error.message;} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+txt.length+'자)';} }
+}
+async function cwSubmitStep(stepId){
+  var ed=document.getElementById('cw-ed'), m=document.getElementById('cw-msg'); if(!ed)return;
+  var txt=(ed.value||'').trim();
+  if(txt.length<30){ if(m){m.style.color='var(--risk)';m.textContent='30자 이상 작성해야 제출할 수 있습니다.';} return; }
+  if(!confirm('이 차시를 제출할까요?\n\n제출 후에는 수정할 수 없고, 다음 차시가 열립니다.'))return;
+  cwCur.trace.push({ts:new Date().toISOString(),len:txt.length,kc:cwCap.kc,bc:cwCap.bc,paste:cwCap.paste,text:txt.slice(0,4000),final:true});
+  var tm=cwCapMeta(txt); var cheat=cwCheatSignal(tm);
+  var verdict=cheat?'SUSPICIOUS':'AUTHENTIC';
+  var reason=cheat?cheat:('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴');
+  var u=await sb.from('design_steps').update({content:txt,trace:cwCur.trace,typing_meta:tm,status:'submitted',
+    verdict:verdict,verdict_reason:reason,submitted_at:new Date().toISOString()}).eq('id',stepId);
+  if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='제출 실패: '+u.error.message;} return; }
+  var q=await sb.from('design_steps').select('design_item_id').eq('id',stepId).limit(1);
+  var itemId=q.data&&q.data[0]&&q.data[0].design_item_id;
+  if(window.toast)toast('제출 완료 — 다음 차시가 열렸습니다',true);
+  if(itemId)cwRenderCourse(itemId);
+}
+window.cwRenderCourse=cwRenderCourse;window.cwOpenStep=cwOpenStep;window.cwSaveStep=cwSaveStep;window.cwSubmitStep=cwSubmitStep;
+
+window.toggleDesignDetail=function(id){
+  var e=document.getElementById('di-det-'+id); if(!e)return;
+  var open=(e.style.display==='none');
+  e.style.display=open?'block':'none';
+  if(open && window.cwRenderCourse){ try{ cwRenderCourse(id); }catch(_){} }
+};
 window.dlActivity=async function(path,name){
   if(!sb)return; var r=sb.storage.from('activity-files').getPublicUrl(path);
   var url=r&&r.data&&r.data.publicUrl; if(!url)return alert('다운로드 링크 생성 실패');
@@ -3387,17 +3561,22 @@ async function academyIncluded(s){
     return (rank>=0 && rank<hc);
   }catch(e){ return true; }
 }
+/* ===== 킬러콘텐츠 과금 게이트 =====
+   과금 대상: 고입 자소서 · 고입 면접 · 대입 면접 (essay / interview)
+   무료: 학생부 디자인(코스웨어) · 수행평가 도우미 · 그 외
+   단가: 중등 5천 / 고등 1만 · 월 1회 청구 · B2B 기본료 포함 학생은 무료
+   실결제(Toss)는 대기중 — 현재는 기록만·비차단 */
 async function killerGate(s, content){
   try{
     if(!s||!sb) return {free:true,price:0};
+    if(content!=='essay' && content!=='interview') return {free:true,price:0};  // 디자인·수행평가 등은 무료
     var grade=String(s.grade||'');
     var track=(grade.indexOf('중')>=0)?'mid':'high';
     var acct=(window._acctTypeCur==='b2c')?'b2c':'b2b';
     var inc=(acct==='b2b')?(await academyIncluded(s)):false;   // B2B: 포함 인원 이내면 무료 / B2C: 항상 과금
     var price=0;
-    if(content==='design' && track==='mid') price=0;             // 중학생 디자인 무료(공통)
-    else if(acct==='b2b' && inc) price=0;                         // B2B 포함학생 전부 무료
-    else price=(track==='mid')?5000:10000;                       // 그 외: 중5천/고1만
+    if(acct==='b2b' && inc) price=0;                            // B2B 포함학생 무료
+    else price=(track==='mid')?5000:10000;                      // 그 외: 중5천/고1만
     var now=new Date(); var month=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
     if(price>0){
       var ex=await sb.from('killer_charges').select('id',{count:'exact',head:true}).eq('student_id',s.id).eq('content',content).eq('billing_month',month);
@@ -3412,14 +3591,9 @@ async function killerGate(s, content){
 }
 window.killerGate=killerGate;
 async function showDesignQuota(track){
-  var s=(track==='goip')?window._gactive:window._activeStudent;
   var el=document.getElementById(track==='goip'?'goip-quota':'dae-quota'); if(!el)return;
-  if(!s||!sb){el.textContent='';return;}
-  try{
-    var a=await designAllowance(s);
-    el.textContent='이번 학기 남은 생성 '+a.remain+'회 (부여 '+a.accrued+' · 사용 '+a.used+' · 미사용분 이월)';
-    el.style.color=(a.remain<=0)?'var(--risk)':'var(--ink-mute)';
-  }catch(e){ el.textContent=''; }
+  el.textContent='※ 생성된 활동은 차시별로 진행합니다 — 이전 차시를 제출해야 다음 차시가 열립니다.';
+  el.style.color='var(--ink-mute)';
 }
 window.showDesignQuota=showDesignQuota;
 async function otherStudentTopics(s,track){
@@ -3448,7 +3622,6 @@ async function genDesign(phase){
   if((window._designTrack||'dae')==='goip'){ return genGDesignItems(phase); }
   const body=document.getElementById('design-body');
   const s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
-  if(!(await designGenGuard(s)))return;
   showGen(true, phase==='changche'?'창체활동을 설계하고 있어요…':'주요과목 탐구활동을 설계하고 있어요…');
   try{
     genStep('학생 자료를 불러오는 중…');
@@ -3482,7 +3655,6 @@ async function genDesign(phase){
     var todo=(o.todo||[]).map(function(t){return {student_id:s.id,grade:String(t.grade||''),sem:t.sem||'',subject:t.subject||'',area:t.area||(phase==='changche'?'자율':'과세특'),title:t.title||'',goal:t.goal||'',detail:t.detail||'',outline:Array.isArray(t.outline)?t.outline.join('\n'):(t.outline||''),seq:t.seq||0,status:'예정',sent:false};});
     if(todo.length)await sb.from('design_items').insert(todo);
     await logDesignGen(s,'dae',phase);
-    try{ await killerGate(s,'design'); }catch(e){}
     showGen(false);
     renderDesign(); if(window.renderTopics)renderTopics();
   }catch(e){ showGen(false); if(body)body.innerHTML='<div style="color:var(--risk);padding:20px">생성 실패: '+esc(e.message||e)+'</div>'; }
@@ -3493,7 +3665,6 @@ async function genGDesignItems(phase, customSubject){
   var s=window._gactive; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
   customSubject=(customSubject||'').trim();
   if(phase==='custom' && !customSubject){ alert('탐구할 과목명을 입력하세요.'); return; }
-  if(!(await designGenGuard(s)))return;
   showGen(true, phase==='changche'?'창체·비교과 활동 2개를 설계하고 있어요…':(phase==='custom'?('"'+customSubject+'" 교과 탐구 2개를 설계하고 있어요…'):'주요과목 교과 탐구 2개를 설계하고 있어요…'));
   try{
     genStep('학생 자료를 불러오는 중…');
@@ -3530,7 +3701,6 @@ async function genGDesignItems(phase, customSubject){
     });
     if(rows.length)await sb.from('design_items').insert(rows);
     await logDesignGen(s,'goip',phase);
-    try{ await killerGate(s,'design'); }catch(e){}
     if(o.narrative){ try{ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'design',payload:{narrative:o.narrative,priority:o.priority||''}}); }catch(e){} }
     showGen(false);
     window._designTrack='goip'; renderDesign();
