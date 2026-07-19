@@ -350,6 +350,37 @@
   .roletoggle{border-radius:9px!important}
   .subtabs .subtab.on{border-bottom-color:var(--gold)}
   .sectionhead{border-bottom:1px solid var(--line-soft);padding-bottom:8px}
+  
+  /* ===== v2 종합 디자인 폴리시 (전 화면 공통) ===== */
+  .card{box-shadow:0 1px 2px rgba(35,42,32,.03),0 10px 26px rgba(35,42,32,.045)!important;transition:box-shadow .18s,transform .18s}
+  .card:hover{box-shadow:0 8px 30px rgba(35,42,32,.085)!important}
+  /* 서브탭 → 부드러운 알약형 */
+  .subtabs{border-bottom:none!important;gap:8px!important;flex-wrap:wrap;padding-bottom:2px}
+  .subtab{border:1px solid var(--line)!important;border-radius:22px!important;background:var(--panel)!important;padding:7px 16px!important;font-weight:500;color:var(--ink-dim)!important;margin-bottom:0!important}
+  .subtab.on{background:var(--gold)!important;color:#241a06!important;border-color:var(--gold)!important;font-weight:700}
+  /* KPI 톤 */
+  .kpi .lab{color:var(--ink-mute);letter-spacing:.02em}
+  /* 테이블 */
+  th{background:var(--panel-2);color:var(--ink-mute)}
+  tbody tr:hover{background:var(--panel-2)}
+  /* 알약/뱃지 */
+  .pill{font-weight:600}
+  /* 드롭존 */
+  .dropzone:hover{border-color:var(--gold)!important;background:rgba(176,129,42,.05)!important}
+  .dropzone.done{border-color:var(--safe)!important;background:rgba(63,143,95,.06)!important}
+  .dropzone.done .dz-ic svg{color:var(--safe)!important}
+  /* 미터 그라디언트 */
+  .mbar i{background:linear-gradient(90deg,var(--lime),var(--gold))!important}
+  /* 고스트 버튼 hover */
+  .btn.ghost:hover{border-color:var(--gold)!important;color:var(--gold)!important;background:transparent!important}
+  /* 스크롤바 */
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-thumb{background:rgba(35,42,32,.16);border-radius:8px}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(35,42,32,.28)}
+  /* 학생 진단 등 페인 카드 라운드 통일 */
+  .pane .card,.view .card{border-radius:14px!important}
+  /* 입력 포커스 브라스 */
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--gold)!important}
   </style>
 <style>
   #v-essaybatch .eb-card{background:var(--panel,#0e2c1f);border:1px solid var(--line,rgba(180,240,60,.13));border-radius:14px;padding:22px 24px;margin-bottom:18px}
@@ -4120,6 +4151,7 @@ async function refreshIntake(){
   populateIntakePicker();
   const w=document.getElementById('intake-who');
   if(w) w.textContent=window._activeStudent?(esc(window._activeStudent.name)+' · '+esc(window._activeStudent.grade||'')):'— 미선택';
+  try{ if(window._activeStudent){ var _gs=studentGradeSystem(window._activeStudent),_ni=document.getElementById('mx-naesin'); if(_ni){ _ni.max=(_gs===9?9:5); _ni.placeholder=(_gs===9?'2.30':'2.10'); var _lb=_ni.parentElement.querySelector('label span'); if(_lb)_lb.textContent='('+_gs+'등급제)'; } } }catch(_e){}
   loadSetech(); if(window.loadMetrics)loadMetrics(); if(window.loadNaesinCourses)loadNaesinCourses();
 }
 async function saveSetech(){
@@ -4197,7 +4229,7 @@ async function estimateCog(){
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'comp5',payload:{academic:o.academic,inquiry:o.inquiry,convergence:o.convergence,community:o.community,problem:o.problem,reasons:o.reasons||null,naesin:naesin,source:'ai_estimate'}});
     if(o.qual){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'qual4',payload:{activity:o.qual.activity,thinking:o.qual.thinking,values:o.qual.values,vision:o.qual.vision,source:'ai_estimate'}}); }
     try{
-      var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:(naesin!=null?naesin:''),context:setechTxt.slice(0,3000)});
+      var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:(naesin!=null?naesin:''),gpa_sys:studentGradeSystem(s),context:setechTxt.slice(0,3000)});
       var ulist=JSON.parse(rc.text);
       if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
     }catch(ue){}
@@ -5114,12 +5146,12 @@ function pctToG5(p){
   for(var i=0;i<4;i++){ if(p<=A[i+1]) return +((i+1)+(p-A[i])/(A[i+1]-A[i])).toFixed(2); }
   return 5;
 }
-/* 2028학년도 대입(현 고1 이하)부터 내신 5등급제 */
+/* 내신 등급제: 고3=9등급(2015개정) · 고2·고1=5등급(2022개정) · 중학=5 */
 function studentGradeSystem(s){
   var g=String((s&&s.grade)||'');
   if(/중/.test(g)) return 5;
-  if(/고1/.test(g)) return 5;
-  return 9;
+  if(/고1|고2/.test(g)) return 5;
+  return 9; /* 고3·재수·미상 = 9등급 */
 }
 window._cutCache = window._cutCache || {};
 async function archeFetchCuts(univNames){
