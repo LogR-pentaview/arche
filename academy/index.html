@@ -2391,6 +2391,7 @@ async function enterApp(session){
     return;
   }
   if(window._demo) setupDemoMode();
+  if(window._isOwner!==true){ var _rn=document.querySelector('.nav[data-v="roi"]'); if(_rn)_rn.style.display='none'; }
   loadStudents();
 }
 /* ===== 게스트 체험 모드 ===== */
@@ -2598,6 +2599,7 @@ window._editId=null;
 window.toggleFolder=function(k){var e=document.getElementById('fold-'+k);var a=document.getElementById('arrow-'+k);if(e){var open=e.style.display!=='none';e.style.display=open?'none':'block';if(a)a.textContent=open?'▸':'▾';}};
 window.renderROI=async function(){
   var body=document.getElementById('roi-body'); if(!body)return;
+  if(window._isOwner!==true){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">원장(학원 소유자) 전용 화면입니다.</div>'; return; }
   if(!sb){ body.innerHTML='<div style="color:var(--risk);padding:20px">DB 미로드 — 새로고침</div>'; return; }
   body.innerHTML='<div style="color:var(--ink-mute);padding:20px">집계 중…</div>';
   try{
@@ -2806,6 +2808,10 @@ async function renderAllStudents(){
   var cnt=document.getElementById('as-count'); if(cnt)cnt.textContent=window._allStudents.length;
   if(!window._allStudents.length){ list.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._isB2C?'등록된 자녀가 없습니다. 왼쪽에서 등록하세요.':'등록된 학생이 없습니다. 왼쪽에서 등록하세요.')+'</div>'; return; }
   var _AVC={dae:'#3b7a9e',goip:'#7c6ad0'};
+  var _isOwner=(window._isOwner===true && !window._isB2C);
+  var _team=[];
+  if(_isOwner){ try{ if(!window._teamMembers){ var _td=await teamCall('list'); window._teamMembers=_td.members||[]; } _team=window._teamMembers; }catch(e){ _team=window._teamMembers||[]; } }
+  function _teamOpts(cur){ var o='<option value=""'+(cur?'':' selected')+'>— 미배정 —</option>'; _team.forEach(function(m){ o+='<option value="'+m.uid+'"'+(m.uid===cur?' selected':'')+'>'+esc(m.is_owner?'원장(나)':(m.email||m.uid))+'</option>'; }); return o; }
   list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px">'+window._allStudents.map(function(s){
     var goip=s.admission_track==='고입';
     var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 8px;font-weight:600">대입</span>';
@@ -2821,6 +2827,7 @@ async function renderAllStudents(){
         +badge
       +'</div>'
       +'<div style="font-size:11.5px;border-top:1px dashed var(--line);padding-top:9px;margin-bottom:12px">'+acctLbl+'</div>'
+      +(_isOwner?('<div style="margin-bottom:11px"><div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:4px">담당 컨설턴트</div><select onchange="assignConsultant(\''+s.id+'\',this.value)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px">'+_teamOpts(s.consultant_uid)+'</select></div>'):'')
       +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
         +'<button onclick="openStudentUnified(\''+s.id+'\')" style="flex:1;min-width:74px;padding:7px 10px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">열기 →</button>'
         +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:8px;font-size:11px;cursor:pointer">계정</button>')
@@ -2830,6 +2837,14 @@ async function renderAllStudents(){
     +'</div>';
   }).join('')+'</div>';
 }
+window.assignConsultant=async function(id,uid){
+  if(!sb)return; var u=uid||null;
+  var r=await sb.from('students').update({consultant_uid:u}).eq('id',id);
+  if(r.error){ if(window.toast)toast('배정 실패: '+r.error.message,false); return; }
+  var s=(window._allStudents||[]).find(function(x){return x.id===id;}); if(s)s.consultant_uid=u;
+  window._teamMembers=null; // 담당 인원수 갱신 위해 팀 캐시 무효화
+  if(window.toast)toast(u?'담당 컨설턴트로 배정했습니다':'미배정으로 변경했습니다',true);
+};
 function openStudentUnified(id){
   var s=(window._allStudents||[]).find(function(x){return x.id===id;}); if(!s)return;
   if(s.admission_track==='고입'){ window._gactive=s; if(window._gstudents&&!window._gstudents.find(function(x){return x.id===id;}))window._gstudents.push(s); goView('gintake'); }
