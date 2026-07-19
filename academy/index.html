@@ -23,8 +23,8 @@
     --panel:#fbf9f3; --panel-2:#efe9db; --panel-3:#e6dece;
     --line:rgba(31,45,34,.15); --line-soft:rgba(31,45,34,.075);
     --ink:#20261f; --ink-dim:#4a5148; --ink-mute:#8a8574;
-    --lime:#1f4d3a; --gold:#a9791f; --blue:#2f5c86;
-    --safe:#1f6d43; --reach:#a9791f; --risk:#a24b34; --violet:#6d5bbf;
+    --lime:#4e9469; --gold:#b0812a; --blue:#2f5c86;
+    --safe:#3f8f5f; --reach:#c2872f; --risk:#a24b34; --violet:#6d5bbf;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%}
@@ -339,6 +339,17 @@
   .side .foot .who{color:#e6ebe6!important}
   .side .foot .who small{color:#8b968d!important}
   .avatar{background:var(--lime)!important;color:#fff!important;border-radius:10px!important}
+  
+  /* ===== v2 조화: 라운드 카드 · 차분한 톤 ===== */
+  .card{border-radius:14px!important}
+  .card.pad0{border-radius:14px!important;overflow:hidden}
+  .btn{border-radius:9px!important}
+  .field input,.field select{border-radius:9px!important}
+  .dropzone{border-radius:12px!important}
+  .studenttag{border-radius:9px!important}
+  .roletoggle{border-radius:9px!important}
+  .subtabs .subtab.on{border-bottom-color:var(--gold)}
+  .sectionhead{border-bottom:1px solid var(--line-soft);padding-bottom:8px}
   </style>
 <style>
   #v-essaybatch .eb-card{background:var(--panel,#0e2c1f);border:1px solid var(--line,rgba(180,240,60,.13));border-radius:14px;padding:22px 24px;margin-bottom:18px}
@@ -426,7 +437,7 @@
     <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
-      <button id="au-login" style="flex:1;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
+      <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
       <button id="au-signup" style="flex:1;padding:11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:9px;font-weight:500;cursor:pointer">회원가입</button>
     </div>
     <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#c8a24a)">스팸함·프로모션함</b>을 확인하세요.</div>
@@ -459,7 +470,7 @@
     <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
     <div class="nav" data-v="stuset" id="nav-stuset" style="display:none" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 설정</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
-    <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="자녀 관리">학생 관리</span></div>
+    <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="전체 자녀 관리">전체 학생 관리</span></div>
 
     <!-- 대입 컨설팅 그룹 -->
     <div class="navgroup dae" id="grp-dae">
@@ -668,7 +679,7 @@
             </div>
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
-            <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
+            <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
           <div>
             <h3 style="font-size:14px;color:var(--ink);margin:2px 0 12px"><span data-b2c="등록한 자녀">전체 학생</span> <span id="as-count" class="mono" style="font-size:12px;color:var(--lime)">0</span></h3>
@@ -720,7 +731,7 @@
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <label id="st-bench-row" style="display:none;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여 <small style="color:var(--ink-mute)">· 개인 식별정보를 완전히 제거한 통계에만 활용</small></label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
-            <button id="st-submit" onclick="addStudent()" style="width:100%;padding:11px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
+            <button id="st-submit" onclick="addStudent()" style="width:100%;padding:11px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
           <div>
             <h3 class="list-title" data-b2c="등록한 자녀" style="font-size:14px;color:var(--ink);margin:2px 0 12px"><span class="lt-text">수강생 목록</span> <span id="st-count" class="mono" style="font-size:12px;color:var(--lime)">0</span></h3>
@@ -743,7 +754,7 @@
               <input id="con-career" placeholder="희망 진로" style="width:100%;margin:10px 0;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
               <textarea id="con-act" rows="4" placeholder="현재 학생부 활동 현황 (창체활동 중심: 자율·진로·동아리·봉사)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
               <textarea id="con-memo" rows="3" placeholder="상담 메모 (자유)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
-              <button id="con-save-btn" onclick="saveConsult()" style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
+              <button id="con-save-btn" onclick="saveConsult()" style="padding:10px 18px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
               <div id="con-msg" style="font-size:12px;margin-top:8px"></div>
               <div id="con-list" style="margin-top:20px"></div>
             </section>
@@ -762,7 +773,7 @@
             <input type="file" id="rec-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="uploadRecords(this.files)" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div style="font-size:11px;color:var(--ink-mute);margin-top:5px">PDF·이미지(여러 장 동시 선택 가능·폰 촬영본 OK)·DOCX·XLSX·TXT 지원 · 한글(HWP)은 PDF로 내보내 업로드</div>
             <div id="rec-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
-            <button id="rec-ai" onclick="aiAutofill()" disabled style="padding:10px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer;opacity:.55">AI 자동정리</button>
+            <button id="rec-ai" onclick="aiAutofill()" disabled style="padding:10px 18px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer;opacity:.55">AI 자동정리</button>
             <div id="rec-setech" style="margin-top:12px"></div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px">
@@ -773,7 +784,7 @@
             </div>
             <textarea id="se-text" rows="4" placeholder="세특/창체 활동 내용을 입력하세요 (학생부 없어도 직접 기입 가능)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
             <div id="se-msg" style="min-height:14px;font-size:12px;margin-bottom:6px"></div>
-            <button onclick="saveSetech()" style="width:100%;padding:10px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">세특 저장</button>
+            <button onclick="saveSetech()" style="width:100%;padding:10px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">세특 저장</button>
             <div id="se-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
@@ -785,7 +796,7 @@
             <div style="font-size:12px;color:var(--ink-mute);margin:4px 0 8px">학종 5역량 (0~10) · 컨설팅 진단지표 <span style="color:var(--gold,#c8a24a)">· AI 자동산출/보정</span></div>
             <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">학업역량 <small style="color:var(--ink-mute)">· 내신</small></span><input id="cg-academic" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">탐구역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-inquiry" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">융합창의역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-convergence" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">공동체역량 <small style="color:var(--ink-mute)">· 자율·행발</small></span><input id="cg-community" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">문제해결역량 <small style="color:var(--ink-mute)">· 전체세특</small></span><input id="cg-problem" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div>
             <div id="mx-msg" style="min-height:14px;font-size:12px;margin:6px 0"></div>
-            <button onclick="saveMetrics()" style="width:100%;padding:10px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">지표 저장</button>
+            <button onclick="saveMetrics()" style="width:100%;padding:10px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">지표 저장</button>
           </div>
         </div>
       
@@ -811,7 +822,7 @@
               </table></div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
                 <div id="nd-result" class="mono" style="font-size:13px;color:var(--lime)">전체 가중평균 —</div>
-                <button onclick="saveNaesin()" style="padding:9px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">내신 저장</button>
+                <button onclick="saveNaesin()" style="padding:9px 18px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">내신 저장</button>
               </div>
               <div id="nd-msg" style="min-height:14px;font-size:12px;margin-top:6px"></div>
             </div>
@@ -1604,7 +1615,7 @@ const ADMIN=(function(){
         apiBadge=typeBadge+apiBadge;
         var btns='';
         if(!a.is_admin){
-          if(!ap&&!a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>';
+          if(!ap&&!a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.approve(\''+a.id+'\',true)" style="padding:4px 10px;background:var(--gold);color:#241a06;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">승인</button>';
           if(a.is_demo)btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',false,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:var(--safe);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">정회원 전환</button>';
           else btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',true,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">체험으로 전환</button>';
         }
@@ -1954,7 +1965,7 @@ window.ADMIN=ADMIN;
             <input id="tm-name" placeholder="이름 (선택)" style="width:120px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="tm-email" placeholder="컨설턴트 이메일" style="flex:1;min-width:170px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="tm-pw" placeholder="임시 비밀번호 (선택)" style="width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <button onclick="tmCreate()" style="padding:9px 18px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">추가</button>
+            <button onclick="tmCreate()" style="padding:9px 18px;background:var(--gold);color:#241a06;border:none;border-radius:9px;font-weight:700;cursor:pointer">추가</button>
           </div>
           <div id="tm-msg" style="min-height:14px;font-size:12px;margin:6px 0"></div>
           <div id="tm-list" style="margin-top:8px"></div>
@@ -1969,7 +1980,7 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){
@@ -2252,7 +2263,7 @@ window.showPolicyDoc=function(kind){
   ov.style.cssText='position:fixed;inset:0;z-index:100002;background:rgba(4,8,3,.82);display:flex;align-items:center;justify-content:center;padding:18px';
   ov.innerHTML='<div style="max-width:640px;width:100%;max-height:82vh;overflow:auto;background:var(--panel,#12160f);border:1px solid var(--line,#2a3324);border-radius:14px;padding:22px;font-size:12.5px;color:var(--ink-dim,#c7d2c2);line-height:1.65">'
     +(kind==='terms'?policyTermsHTML():policyPrivacyHTML())
-    +'<div style="text-align:right;margin-top:14px"><button id="_pdclose" style="padding:8px 18px;background:var(--lime,#7fb800);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">닫기</button></div></div>';
+    +'<div style="text-align:right;margin-top:14px"><button id="_pdclose" style="padding:8px 18px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px">닫기</button></div></div>';
   document.body.appendChild(ov);
   ov.querySelector('#_pdclose').onclick=function(){document.body.removeChild(ov);};
   ov.onclick=function(e){if(e.target===ov)document.body.removeChild(ov);};
@@ -2280,7 +2291,7 @@ function showConsentGate(user, role){
       +'<div style="font-size:11px;color:var(--ink-mute,#8a978a);margin:6px 0 14px;line-height:1.6">※ 만 14세 미만 학생은 법정대리인(보호자)의 동의가 필요합니다. 학원 이용 시 학원이 보호자 동의를 확보한 것으로 간주됩니다.</div>'
       +'<div style="display:flex;gap:8px;justify-content:flex-end">'
       +'<button id="cg-cancel" style="padding:9px 16px;background:transparent;color:var(--ink-mute,#8a978a);border:1px solid var(--line,#2a3324);border-radius:9px;cursor:pointer;font-size:13px">동의 안 함(로그아웃)</button>'
-      +'<button id="cg-ok" disabled style="padding:9px 18px;background:var(--lime,#7fb800);color:#0a1a05;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;opacity:.5">동의하고 시작</button>'
+      +'<button id="cg-ok" disabled style="padding:9px 18px;background:var(--gold);color:#241a06;border:none;border-radius:9px;cursor:pointer;font-weight:700;font-size:13px;opacity:.5">동의하고 시작</button>'
       +'</div></div>';
     document.body.appendChild(w);
     var q=function(id){return w.querySelector('#'+id);};
@@ -2663,7 +2674,7 @@ async function renderAllStudents(){
     return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px">'
       +'<div style="display:flex;align-items:center;gap:9px;min-width:0">'+badge+'<div style="min-width:0"><div style="font-weight:600;color:var(--ink);font-size:13.5px">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+' · '+acctLbl+'</div></div></div>'
       +'<div style="display:flex;gap:6px;flex-shrink:0">'
-      +'<button onclick="openStudentUnified(\''+s.id+'\')" style="padding:6px 12px;background:var(--lime);color:#0a1a05;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">열기 →</button>'
+      +'<button onclick="openStudentUnified(\''+s.id+'\')" style="padding:6px 12px;background:var(--gold);color:#241a06;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">열기 →</button>'
       +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;font-size:11px;cursor:pointer">계정</button>')
       +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">비번초기화</button>':'')
       +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:6px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">삭제</button>'
@@ -3328,7 +3339,7 @@ async function renderHqNews(){
   var catCol={notice:'#c8871a',news:'#2f7de0',manager:'#7b5fef'};
   box.innerHTML=rows.map(function(p){
     var isVid=p.link_url && /youtu|youtube|vimeo|\.mp4|video/i.test(p.link_url);
-    var link=p.link_url?('<div style="margin-top:10px"><a href="'+hqEsc(p.link_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--lime);color:#0a1a05;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none">'+(isVid?'▶ 영상 보기':'🔗 링크 열기')+'</a></div>'):'';
+    var link=p.link_url?('<div style="margin-top:10px"><a href="'+hqEsc(p.link_url)+'" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--gold);color:#241a06;border-radius:8px;font-size:12.5px;font-weight:600;text-decoration:none">'+(isVid?'▶ 영상 보기':'🔗 링크 열기')+'</a></div>'):'';
     var body=p.body?'<div style="font-size:13px;color:var(--ink-dim);margin-top:8px;white-space:pre-wrap;line-height:1.7">'+hqEsc(p.body)+'</div>':'';
     var pin=p.pinned?'<span style="font-size:10px;color:var(--gold);margin-right:6px">📌 고정</span>':'';
     return '<div class="card" style="margin-bottom:12px">'
@@ -3996,7 +4007,7 @@ async function wbLoad(track){
         '<button onclick="wbPdf(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:7px;cursor:pointer;font-weight:700">평가지 PDF 다운로드</button>'+
         (isStu?'':'<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:11.5px;padding:6px 12px;background:transparent;border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--ink-dim)">재평가</button>');
     } else if(!isStu){
-      actions+='<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:12px;padding:8px 14px;background:var(--lime,#2b9457);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">성취도 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">워크북 방식 · API 사용</span>';
+      actions+='<button onclick="wbEval(\''+r.id+'\',\''+track+'\')" style="font-size:12px;padding:8px 14px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-weight:700;cursor:pointer">성취도 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">워크북 방식 · API 사용</span>';
     }
     actions+='</div>';
     var sheet=ev?'<div id="wb-sheet-'+r.id+'" style="display:none">'+wbSheetHtml(r,ev,false)+'</div>':'';
@@ -4256,7 +4267,7 @@ async function renderDesign(){
                 '<textarea id="sub-'+it.id+'" rows="2" placeholder="수행 결과·산출물 요약 입력 (또는 파일 첨부)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.submission||'')+'</textarea>'+
                 '<div style="display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap">'+
                   '<input type="file" id="file-'+it.id+'" accept=".pdf,.docx,.hwp,.hwpx" onchange="attachDesignFile('+it.id+')" style="font-size:11px;color:var(--ink-dim);max-width:200px">'+
-                  '<button onclick="submitDesign('+it.id+')" style="padding:4px 11px;background:var(--lime);color:#0a1a05;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">제출</button>'+
+                  '<button onclick="submitDesign('+it.id+')" style="padding:4px 11px;background:var(--gold);color:#241a06;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">제출</button>'+
                   (stu?'':'<button onclick="analyzeSubmission('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">AI 분석</button>')+
                 '</div>'+
                 '<div id="fmsg-'+it.id+'" style="font-size:10px;color:var(--ink-mute);margin-top:4px">'+(it.file_name?'첨부: '+esc(it.file_name):'')+'</div>'+(stu?'':'<div style="font-size:10px;color:var(--gold,#c8a24a);margin-top:3px">※ 제출물은 [AI 분석] 또는 [제출]로 반드시 저장하세요. 저장하지 않으면 원본은 보관되지 않습니다.</div>')+'</div>'+
@@ -5509,7 +5520,7 @@ async function aiAutofill(){
     if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade)),uncertain:Array.isArray(c.uncertain)?c.uncertain:[]};}); renderCourses(); }
     window._parsedSetech=obj.setech||[]; window._parsedChangche=obj.changche||[]; window._parsedHaengbal=obj.haengbal||[];
     var se=window._parsedSetech;
-    document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 세특 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">세특 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 세특 없음</div>';
+    document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 세특 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">세특 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 세특 없음</div>';
     if(failed.length){ m.style.color='var(--reach)';m.textContent='자동정리 완료 · 배치 '+failed.join(', ')+' 실패(내용 일부 누락 가능) · 확인 후 저장하세요.'; }
     else { m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/세특 확인 후 저장하세요.'; }
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; } finally { hideAiLoading(); }
@@ -7334,7 +7345,7 @@ function gesRender(items){
         } else {
           html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0 4px">설계를 학생에게 전달했습니다. 학생이 제출하면 여기에 표시됩니다.</div>';
         }
-        if(it.status==='submitted')html+='<div style="margin-top:8px"><button onclick="gesEvaluate(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--lime);color:#0a1a05;border:none;border-radius:8px;font-weight:700;cursor:pointer">AI 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">4축·배제사항 기준 평가 (API 사용)</span></div>';
+        if(it.status==='submitted')html+='<div style="margin-top:8px"><button onclick="gesEvaluate(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-weight:700;cursor:pointer">AI 평가 실행</button> <span style="font-size:11px;color:var(--ink-mute)">4축·배제사항 기준 평가 (API 사용)</span></div>';
         if(it.status==='returned')html+='<div style="font-size:11.5px;color:var(--reach);margin-top:6px">↩ '+(it.round||1)+'차본 반송됨 — 학생이 '+((it.round||1)+1)+'차본을 작성 중입니다.</div>';
         if(it.status==='done')html+='<div style="margin-top:6px"><button onclick="gesReopen(\''+it.id+'\')" style="font-size:12px;padding:7px 13px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-dim)">재수정 열기(학생에게 반송)</button></div>';
       }
