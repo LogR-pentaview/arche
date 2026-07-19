@@ -2167,15 +2167,22 @@ const auP=()=>document.getElementById('au-pw').value;
 function msg(t,ok){auMsg.textContent=t;auMsg.style.color=ok?'var(--safe)':'var(--risk)';}
 
 async function ensureAcademy(user){
-  // 1) 내가 소유한(원장) 학원
-  let {data:acs}=await sb.from('academies').select('id,name').eq('owner_uid',user.id).limit(1);
-  let ac=acs&&acs[0];
-  if(ac){ window._isOwner=true; window._myRole='owner'; return ac; }
-  // 2) 소속 컨설턴트(academy_users)로 연결된 학원
+  // 1) 소속(academy_users) 우선 — 원장(owner)도, 초대된 컨설턴트도 여기서 해결
   var {data:au}=await sb.from('academy_users').select('academy_id,role').eq('uid',user.id).limit(1);
   if(au&&au[0]){
     var {data:ac2}=await sb.from('academies').select('id,name').eq('id',au[0].academy_id).limit(1);
     if(ac2&&ac2[0]){ window._isOwner=(au[0].role==='owner'); window._myRole=au[0].role||'consultant'; return ac2[0]; }
+  }
+  // 2) (구계정 호환) 내가 소유한 학원
+  let {data:acs}=await sb.from('academies').select('id,name').eq('owner_uid',user.id).limit(1);
+  let ac=acs&&acs[0];
+  if(ac){ window._isOwner=true; window._myRole='owner'; return ac; }
+  // ★ 초대된 컨설턴트 계정은 절대 새 학원을 만들지 않음
+  if(user.user_metadata&&user.user_metadata.academy_id){
+    try{ await sb.auth.signOut(); }catch(e){}
+    gate.style.display='flex';
+    msg('소속 학원 연결에 문제가 있습니다. 원장에게 재초대를 요청하세요.');
+    return null;
   }
   // 3) 신규 가입(원장) — 학원 생성 후 academy_users에 owner로 등록
   const nm=(document.getElementById('au-name')&&document.getElementById('au-name').value.trim())
@@ -2358,6 +2365,7 @@ async function enterApp(session){
   if(role==='student'){ return enterStudentApp(session); }
   // 컨설턴트/관리자
   const ac=await ensureAcademy(u);
+  if(!ac && u.user_metadata && u.user_metadata.academy_id){ return; }
   window._academy=ac;
   var isAdmin=false, approved=true;
   if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits,account_type').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._acctTypeCur=ar[0].account_type||'b2b'; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null;} }
