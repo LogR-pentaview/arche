@@ -981,21 +981,13 @@
           <select id="gds-school" class="goip-con-only" style="min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">목표 학교 (선택)</option></select>
           <span id="gds-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
-        <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-          <button class="btn" onclick="genGDesign('subject')">① 주요과목 탐구 2개 생성</button>
-          <button class="btn" onclick="genGDesign('changche')">② 창체·비교과 2개 생성</button>
+        <div id="gdesign-priority-top" style="margin:14px 0 0"></div>
+        <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
           <button class="btn ghost" onclick="renderDesign()">불러오기</button>
           <button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button>
           <span id="goip-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span>
         </div>
-        <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center">
-          <span style="font-size:11.5px;color:var(--ink-mute)">③ 직접 과목 지정 탐구:</span>
-          <input id="gds-custom" placeholder="예: 정보, 제2외국어, 기술·가정" style="width:200px;padding:8px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-          <button class="btn" onclick="genGDesignCustom()">지정 과목 2개 생성</button>
-          <span style="font-size:10.5px;color:var(--ink-mute)">이수 중인 과목 중 추가로 채울 과목을 직접 입력</span>
-        </div>
-        <div class="note" style="margin-top:8px">※ 버튼을 누를 때마다 <b>정확히 2개</b>가 <b>기존 항목에 이어서(중복 없이 다음 단계로)</b> 추가됩니다. 각 활동은 <b>차시별로 순차 진행</b>합니다 — 이전 차시를 제출해야 다음 차시가 열립니다.</div>
-        <div id="gds-result" style="margin-top:14px"></div>
+        <div id="gds-result" style="display:none"></div>
         <div id="cwb-gdesign" style="margin:16px 0 18px"></div>
         <div id="gdesign-body" style="margin-top:16px"></div>
 
@@ -1120,7 +1112,8 @@
         <div class="eyebrow">Student Record Design</div>
         <div class="h1">학생부 디자인</div>
         <div class="sub">진로·학과에 맞춰 앞으로 학생부에서 채워갈 방향을 과목·창체별로 설계 (대필 아님 · 방향 가이드)</div>
-        <div id="design-actions" style="display:flex;gap:10px;margin:8px 0 16px;flex-wrap:wrap"><button class="btn" onclick="genDesign('subject')">① 주요과목 탐구 생성</button><button class="btn" onclick="genDesign('changche')">② 창체활동 생성</button><button class="btn ghost" onclick="renderDesign()">불러오기</button><button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button><span id="dae-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span></div>
+        <div id="design-priority-top" style="margin:14px 0 0"></div>
+        <div id="cwb-sr" style="margin:16px 0 18px"></div>
         <div class="card" id="dist-box" style="margin-bottom:14px;padding:14px">
           <div class="sectionhead" style="margin-bottom:8px"><span class="idx">직접</span><h3>컨설턴트 직접 활동 배포 <span style="font-size:11px;color:var(--ink-mute)">· 활동지 파일을 학생에게 전송</span></h3></div>
           <div class="fieldrow"><input id="dist-subj" placeholder="탐구 대상 과목/영역" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><input id="dist-title" placeholder="탐구 주제" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
@@ -1130,8 +1123,8 @@
           </div>
           <div id="dist-msg" style="font-size:11px;color:var(--ink-mute);margin-top:6px">※ 한글(hwp)·pdf·docx 등 업로드 가능. 전송 즉시 학생이 다운로드할 수 있습니다.</div>
         </div>
-        <div id="cwb-sr" style="margin-bottom:18px"></div>
-        <div id="design-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 <b>[① 주요과목 탐구]</b>부터 생성하세요. 과목당 학기 1개(연 2개)로, 진로·학과로 이어지는 연계 서사로 설계됩니다. 이후 <b>[② 창체활동]</b>을 추가 생성합니다.</div></div>
+        <div id="design-actions" style="display:flex;gap:10px;margin:6px 0 10px;flex-wrap:wrap"><button class="btn ghost" onclick="renderDesign()">불러오기</button><button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button><span id="dae-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span></div>
+        <div id="design-body"><div style="color:var(--ink-mute);padding:20px">아래 <b>코스웨어</b>에서 코스를 만들고 차시를 구성하면 학생이 순서대로 진행합니다. 직접 배포한 활동·제출물은 여기에 표시됩니다.</div></div>
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
 
         <div class="card" style="margin-top:20px">
@@ -2752,7 +2745,7 @@ async function cbList(){
   var h='<div class="card" style="padding:15px 17px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:10px"><span style="font-size:13px;font-weight:700;color:var(--ink)">📚 코스웨어</span>'
     +'<span style="font-size:11px;color:var(--ink-mute)">코스를 만들고 차시를 구성하면 학생이 순서대로 진행합니다</span></div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">'
-    +'<input id="cb-nt" placeholder="코스명 (예: 주요과목 탐구보고서)" style="flex:1;min-width:190px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+    +'<input id="cb-nt" placeholder="코스명 (예: 학과목 탐구활동)" style="flex:1;min-width:190px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
     +'<select id="cb-ntype" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="subject">교과탐구형</option><option value="changche">창체활동형</option></select>'
     +'<button class="btn" onclick="cbNew()">＋ 코스 생성</button></div>'
     +'<div id="cb-msg" style="font-size:12px;min-height:14px"></div>';
@@ -3381,34 +3374,56 @@ function selectStudent(id){
   if(window.loadExtra)loadExtra('dae'); if(window.wbLoad)wbLoad('dae');
 }
 function fillStudentPickers(){
-  var opts='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
-  if(window._topbarMode!=='goip'){var td=document.getElementById('topbar-student'); if(td){var v=window._activeStudent?window._activeStudent.id:'';td.innerHTML=opts;td.value=v;}}
+  var td=document.getElementById('topbar-student');
+  if(td && window._topbarMode!=='goip'){
+    var isAll=(window._topbarMode==='all');
+    if(isAll && !(window._gstudents&&window._gstudents.length) && window.loadGStudents){
+      try{ Promise.resolve(loadGStudents()).then(function(){ fillStudentPickers(); }); }catch(e){}
+    }
+    var list=isAll?[].concat(window._students||[], window._gstudents||[]):(window._students||[]);
+    var cur=window._gactive?window._gactive.id:(window._activeStudent?window._activeStudent.id:'');
+    td.innerHTML='<option value="">— 미선택 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
+    td.value=cur;
+  }
   var ip=document.getElementById('intake-student'); if(ip){var v2=ip.value;ip.innerHTML='<option value="">— 학생 선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+'</option>';}).join('');ip.value=v2;}
 }
 window.fillStudentPickers=fillStudentPickers;
 /* topbar 활성 학생 — 대입/고입 트랙 인식 */
-window._topbarMode='dae';
+window._topbarMode='all';
 function topbarSelect(id){
-  if(window._topbarMode==='goip'){
-    if(id)selectGStudent(id);
+  if(!id)return;
+  var isG=(window._gstudents||[]).some(function(x){return x.id===id;});
+  if(window._topbarMode==='goip' || (window._topbarMode==='all'&&isG)){
+    selectGStudent(id);
     // 지원가능·성향매칭 화면이면 성적·활동 자동 재연동
     var gv=document.getElementById('v-goip');
     if(gv&&gv.classList.contains('on')&&window.goipAutoFill)goipAutoFill();
   } else { selectStudent(id); }
+  // 학생 전환 시 현재 보고 있던 화면을 새 학생 데이터로 자동 재로딩
+  if(window._curView && window.goView)goView(window._curView);
 }
 async function syncTopbarPicker(v){
-  var mode=(typeof GOIP_VIEWS!=='undefined'&&GOIP_VIEWS.indexOf(v)>=0)?'goip':'dae';
-  window._topbarMode=mode;
   var td=document.getElementById('topbar-student'); if(!td)return;
-  if(mode==='goip'){
+  var isGoip=(typeof GOIP_VIEWS!=='undefined'&&GOIP_VIEWS.indexOf(v)>=0);
+  var isDae=(typeof DAE_VIEWS!=='undefined'&&DAE_VIEWS.indexOf(v)>=0);
+  if(isGoip){
+    window._topbarMode='goip';
     if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
     var cur=window._gactive?window._gactive.id:'';
     td.innerHTML='<option value="">— 미선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
     td.value=cur;
-  } else {
+  } else if(isDae){
+    window._topbarMode='dae';
     var v2=(window._activeStudent&&(window._students||[]).some(function(x){return x.id===window._activeStudent.id;}))?window._activeStudent.id:'';
     td.innerHTML='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
     td.value=v2;
+  } else {
+    window._topbarMode='all';
+    if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
+    var list=[].concat(window._students||[], window._gstudents||[]);
+    var cur2=window._gactive?window._gactive.id:(window._activeStudent?window._activeStudent.id:'');
+    td.innerHTML='<option value="">— 미선택 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
+    td.value=cur2;
   }
 }
 /* 저장 등 결과 토스트 알림 */
@@ -3787,6 +3802,7 @@ var DI_COL={'예정':'var(--ink-mute)','진행중':'var(--gold,#c8a24a)','완료
 async function renderDesign(){
   var _dt=window._designTrack||'dae';
   const body=document.getElementById(_dt==='goip'?'gdesign-body':'design-body'); if(!body)return;
+  var _ptop=document.getElementById(_dt==='goip'?'gdesign-priority-top':'design-priority-top'); if(_ptop)_ptop.innerHTML='';
   var _s0=(_dt==='goip')?(window._gactive||(window._role==='stu'?window._activeStudent:null)):window._activeStudent;
   if(!_s0||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">'+(_dt==='goip'?'학생을 선택하세요.':'[학생 관리]에서 학생을 활성화하세요.')+'</div>'; return; }
   const s=_s0;
@@ -3796,7 +3812,7 @@ async function renderDesign(){
   const items=(ir.data)||[];
   if(!d&&!items.length){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">저장된 설계가 없습니다. <b>[AI 학생부 디자인 생성]</b>을 눌러주세요.</div>'; return; }
   var html='';
-  if(d&&d.priority)html+='<div id="design-priority" class="card" style="border-color:var(--gold,#c8a24a);margin-bottom:16px"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>';
+  if(_ptop&&d&&d.priority)_ptop.innerHTML='<div id="design-priority" class="card" style="border-color:var(--gold,#c8a24a);margin:14px 0 0"><div style="font-size:11px;color:var(--gold,#c8a24a);letter-spacing:.05em;margin-bottom:5px">가장 먼저 집중</div><div style="font-size:14px;line-height:1.7;color:var(--ink)">'+esc(d.priority)+'</div></div>';
   // 진행 요약(완료/전체)
   var doneN=items.filter(function(x){return x.status==='완료';}).length;
   html+='<div style="display:flex;gap:10px;margin-bottom:16px;font-size:12px;color:var(--ink-dim)"><span>진행 <b class="mono" style="color:var(--ink)">'+doneN+'/'+items.length+'</b></span><span style="color:var(--ink-mute)">누적될수록 실제 입시 무기가 됩니다.</span></div>';
@@ -5807,7 +5823,7 @@ window.EB = EB;
 /* ===== 트랙 진입 · 홈 카드 ===== */
 function enterTrack(t){
   if(t==='dae'){ var d=document.getElementById('grp-dae'); if(d)d.classList.add('open'); jump('students'); }
-  else { var g=document.getElementById('grp-goip'); if(g)g.classList.add('open'); jump('goip'); }
+  else { var g=document.getElementById('grp-goip'); if(g)g.classList.add('open'); jump('gstudents'); }
 }
 
 /* ===== 학생 기본 상담 ===== */
