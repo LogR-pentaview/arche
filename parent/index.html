@@ -992,23 +992,8 @@
         <div id="gdesign-body" style="margin-top:16px"></div>
 
         <div class="card" style="margin-top:20px">
-          <div style="font-weight:700;margin-bottom:6px">학생 작성 자료 · 성취도 평가 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 생기부에 없는 탐구·실험 보고서를 업로드하면 워크북 방식으로 성취도를 평가합니다</span></div>
-          <div class="goip-con-only">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <select id="gwb-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험보고서</option><option>수행평가</option><option>소논문</option><option>기타</option></select>
-            <input id="gwb-subject" placeholder="과목/영역" style="width:140px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="gwb-title" placeholder="자료 제목" style="flex:1;min-width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
-            <input type="file" id="gwb-file" accept=".pdf,.docx,.txt,.md" onchange="wbPick('goip')" style="font-size:12px;color:var(--ink-dim)">
-            <span style="font-size:11px;color:var(--ink-mute)">PDF·DOCX·TXT 자동 추출 (HWP는 내용 붙여넣기)</span>
-            <input type="hidden" id="gwb-fname">
-          </div>
-          <textarea id="gwb-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
-          <div id="gwb-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
-          <button onclick="wbSave('goip')" style="padding:10px 18px;background:var(--gold);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">자료 저장</button>
-          </div>
-          <div id="gwb-list" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div></div>
+          <div style="font-weight:700;margin-bottom:4px">수행평가 도우미 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학교 평가지를 올리면 AI 인터뷰→학습가이드→작성→컨설턴트 검토→예상등급까지 단계별로 진행합니다</span></div>
+          <div id="perf-root-goip" style="margin-top:12px"></div>
         </div>
       </section>
 
@@ -1128,23 +1113,8 @@
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
 
         <div class="card" style="margin-top:20px">
-          <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">평가</span><h3>학생 작성 자료 · 성취도 평가 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 학생부에 없는 탐구·실험 보고서를 업로드하면 워크북 방식으로 성취도를 평가합니다</span></h3></div>
-          <div class="goip-con-only">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-            <select id="wb-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험보고서</option><option>수행평가</option><option>소논문</option><option>기타</option></select>
-            <input id="wb-subject" placeholder="과목/영역 (예: 생명과학)" style="width:150px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="wb-title" placeholder="자료 제목" style="flex:1;min-width:160px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">
-            <input type="file" id="wb-file" accept=".pdf,.docx,.txt,.md" onchange="wbPick('dae')" style="font-size:12px;color:var(--ink-dim)">
-            <span style="font-size:11px;color:var(--ink-mute)">PDF·DOCX·TXT 자동 추출 (HWP는 내용 붙여넣기)</span>
-            <input type="hidden" id="wb-fname">
-          </div>
-          <textarea id="wb-content" rows="4" placeholder="자료 내용 (파일에서 추출되거나 직접 입력)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
-          <div id="wb-msg" style="min-height:14px;font-size:12px;margin-bottom:8px"></div>
-          <button onclick="wbSave('dae')" style="padding:10px 18px;background:var(--gold,#c8a24a);color:#1a1204;border:none;border-radius:9px;font-weight:700;cursor:pointer">자료 저장</button>
-          </div>
-          <div id="wb-list" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"><div style="color:var(--ink-mute);font-size:12px">학생을 선택하면 업로드한 자료·평가가 표시됩니다.</div></div>
+          <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">수행</span><h3>수행평가 도우미 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학교 평가지 → AI 인터뷰 → 학습가이드 → 작성 → 컨설턴트 검토 → 예상등급</span></h3></div>
+          <div id="perf-root-dae" style="margin-top:12px"></div>
         </div>
       </section>
 
@@ -1951,7 +1921,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.perfMount)perfMount('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.perfMount)perfMount('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -3371,7 +3341,7 @@ function selectStudent(id){
   var td=document.getElementById('topbar-student'); if(td)td.value=id;
   var sv=document.getElementById('v-students'); if(sv&&sv.classList.contains('on')&&window.loadStudents)loadStudents();
   if(window.refreshIntake)refreshIntake(); if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
-  if(window.loadExtra)loadExtra('dae'); if(window.wbLoad)wbLoad('dae');
+  if(window.loadExtra)loadExtra('dae'); if(window.wbLoad)wbLoad('dae'); if(window.perfMount)perfMount('dae');
 }
 function fillStudentPickers(){
   var td=document.getElementById('topbar-student');
@@ -3533,6 +3503,370 @@ async function extraCtx(studentId){
   }catch(e){ return ''; }
 }
 window.extraCtx=extraCtx;
+
+/* ===== 수행평가 도우미 (staged workflow: 자료→인터뷰→가이드→작성→검토→완성) — 대입/고입 공통 ===== */
+function perfStu(track){ return track==='goip'?(window._gactive||(window._role==='stu'?window._activeStudent:null)):window._activeStudent; }
+function pfTracker(step){
+  var names=['자료','인터뷰','가이드','작성','검토','완성']; var h='<div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap">';
+  names.forEach(function(nm,i){ var n=i+1; var done=n<step,cur=n===step; var bg=done?'var(--safe,#2b9457)':(cur?'var(--gold,#c8a24a)':'var(--panel-2)'); var fg=(done||cur)?'#fff':'var(--ink-mute)';
+    h+='<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:'+bg+';color:'+fg+';font-size:10.5px;font-weight:700">'+(done?'✓':n)+' '+nm+'</span>';
+    if(n<6)h+='<span style="color:var(--ink-mute);font-size:9px">›</span>'; });
+  return h+'</div>';
+}
+async function perfMount(track){
+  var box=document.getElementById('perf-root-'+track); if(!box||!sb)return; var s=perfStu(track);
+  if(!s){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">학생을 먼저 선택하면 수행평가 도우미를 사용할 수 있습니다.</div>'; return; }
+  if(window._role==='stu') return perfStuView(track,s);
+  return perfConView(track,s);
+}
+/* ---------- 공용 표시 ---------- */
+var PF_ST={assigned:['배포됨','var(--ink-mute)'],doing:['학생 작성 중','var(--gold,#c8a24a)'],review:['검토 요청','var(--reach,#5b8def)'],returned:['피드백 전달됨','var(--gold,#c8a24a)'],completed:['완성','var(--safe,#2b9457)']};
+function perfSpecHtml(a){
+  var h='<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0;background:var(--panel-2)">';
+  if(a.unit)h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:4px"><b style="color:var(--ink)">단원</b> '+esc(a.unit)+'</div>';
+  if(a.task_body)h+='<div style="font-size:12px;color:var(--ink);line-height:1.65;margin-bottom:6px;white-space:pre-wrap"><b>과제</b>\n'+esc(a.task_body)+'</div>';
+  if(Array.isArray(a.standards)&&a.standards.length)h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:6px"><b style="color:var(--ink)">성취기준</b><br>'+a.standards.map(function(x){return esc((x.code?('['+x.code+'] '):'')+(x.text||''));}).join('<br>')+'</div>';
+  if(Array.isArray(a.rubric)&&a.rubric.length){ h+='<div style="font-size:11.5px;color:var(--ink-dim)"><b style="color:var(--ink)">채점기준</b>'; a.rubric.forEach(function(r){ h+='<div style="border-top:1px dashed var(--line);padding:4px 0"><b style="color:var(--ink)">'+esc(r.area||'')+'</b>'+(r.points!=null?' ('+esc(r.points)+'점)':'')+(r.criteria?'<br><span style="color:var(--ink-mute)">'+esc(r.criteria)+'</span>':'')+'</div>'; }); h+='</div>'; }
+  var bp=a.blueprint||{}; if(bp.total_points||bp.reflect_ratio||a.due_at||a.submit_method){ h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">'+(bp.total_points?('총배점 '+esc(bp.total_points)+' · '):'')+(bp.reflect_ratio?('반영 '+esc(bp.reflect_ratio)+' · '):'')+(a.submit_method?('제출 '+esc(a.submit_method)+' · '):'')+(a.due_at?('마감 '+esc(String(a.due_at).slice(0,10))):'')+'</div>'; }
+  return h+'</div>';
+}
+function perfEvalSheet(ev,forPrint){
+  if(!ev)return '';
+  var bd=forPrint?'#ddd':'var(--line)',mut=forPrint?'#777':'var(--ink-mute)',ink=forPrint?'#1a2820':'var(--ink)',dim=forPrint?'#445':'var(--ink-dim)';
+  var h='<div style="border-top:1px solid '+bd+';margin-top:10px;padding-top:12px">';
+  h+='<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<div style="min-width:64px;padding:8px 14px;border-radius:12px;background:var(--gold,#c8a24a);color:#fff;text-align:center;flex:none"><div style="font-size:10px;opacity:.9">예상 성취수준</div><div style="font-size:22px;font-weight:800">'+esc(ev.predicted_level||'-')+'</div></div>'
+    +'<div><div style="font-size:12px;color:'+mut+'">예상 점수</div><div style="font-size:16px;font-weight:800;color:'+ink+'">'+(ev.total_score!=null?esc(ev.total_score):'-')+(ev.total_max!=null?' / '+esc(ev.total_max):'')+'</div></div></div>';
+  if(Array.isArray(ev.rubric_eval)&&ev.rubric_eval.length){ h+='<div style="font-size:12px;font-weight:700;color:'+ink+';margin-bottom:6px">채점기준별 예상</div>';
+    ev.rubric_eval.forEach(function(r){ h+='<div style="border:1px solid '+bd+';border-radius:8px;padding:8px 10px;margin-bottom:6px"><div style="display:flex;justify-content:space-between;gap:8px"><span style="font-size:12px;font-weight:700;color:'+ink+'">'+esc(r.area||'')+(r.level?' · '+esc(r.level):'')+'</span><b style="font-family:monospace;color:#b3801f">'+(r.earned!=null?esc(r.earned):'-')+'/'+(r.max!=null?esc(r.max):'-')+'</b></div>'+(r.comment?'<div style="font-size:11px;color:'+mut+';margin-top:2px;line-height:1.5">'+esc(r.comment)+'</div>':'')+'</div>'; }); }
+  if(ev.cog&&typeof wbCogRadar==='function'){ h+='<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin:12px 0"><div style="flex:none">'+wbCogRadar(ev.cog,150)+'</div><div style="flex:1;min-width:200px">';
+    ['비판성','개념치환','논리추론','연결지성','회복탄력성'].forEach(function(k){ var val=Math.round(((ev.cog[k]||0))*100); var cr=(ev.cog_reasons||{})[k]; h+='<div style="margin-bottom:6px"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:'+dim+'"><span>'+k+'</span><b style="color:'+ink+'">'+val+'</b></div><div style="height:5px;background:'+(forPrint?'#eee':'var(--panel-2)')+';border-radius:4px;overflow:hidden"><div style="height:100%;width:'+val+'%;background:#b3801f"></div></div>'+(cr?'<div style="font-size:10px;color:'+mut+';margin-top:2px">'+esc(cr)+'</div>':'')+'</div>'; });
+    h+='</div></div>'; }
+  if(Array.isArray(ev.golden_sentences)&&ev.golden_sentences.length){ h+='<div style="margin-bottom:12px"><div style="font-size:12px;font-weight:700;color:'+ink+';margin-bottom:6px">주목 문장</div>'; ev.golden_sentences.forEach(function(g){ h+='<div style="border-left:3px solid #b3801f;padding:4px 10px;margin-bottom:6px"><div style="font-size:12px;color:'+ink+';font-style:italic">"'+esc(g.sentence||'')+'"</div><div style="font-size:11px;color:'+mut+';margin-top:2px">→ '+esc(g.comment||'')+'</div></div>'; }); h+='</div>'; }
+  function block(t,v,c){ return v?'<div style="margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:'+c+'">'+t+'</span> <span style="font-size:12px;color:'+dim+'">'+esc(v)+'</span></div>':''; }
+  h+=block('강점',ev.strengths,'#2b9457')+block('보완점(채점기준 대비)',ev.improvements,'#d0902a')+block('다음 보완',ev.next,'#2f6fd0');
+  if(ev.verdict&&ev.verdict!=='AUTHENTIC')h+='<div style="margin-top:6px;font-size:11.5px;color:var(--risk)">⚠ 본인작성 확인 필요: '+esc(ev.verdict_reason||ev.verdict)+'</div>';
+  if(ev.narrative)h+='<div style="margin-top:8px;background:'+(forPrint?'#f7f9f6':'var(--panel-2)')+';border-radius:8px;padding:10px 12px;font-size:12px;color:'+dim+';line-height:1.65">'+esc(ev.narrative)+'</div>';
+  return h+'</div>';
+}
+function perfEvalSheetFromSub(s,forPrint){ var ev=s.rubric_eval; if(ev&&typeof ev==='string'){try{ev=JSON.parse(ev);}catch(_){ev=null;}} if(!ev)return '<div style="font-size:12px;color:var(--ink-mute);margin-top:8px">아직 채점 결과가 없습니다.</div>'; return perfEvalSheet(ev,forPrint); }
+/* ---------- 컨설턴트 ---------- */
+async function perfConView(track,s){
+  var box=document.getElementById('perf-root-'+track); box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
+  var q=await sb.from('perf_assessments').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
+  if(q.error){ box.innerHTML='<div style="font-size:12px;color:var(--risk)">'+esc(q.error.message)+'</div>'; return; }
+  var asmts=q.data||[]; var subs={};
+  if(asmts.length){ var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;}); }
+  var h='<div style="border:1px solid var(--line);border-radius:10px;padding:14px 15px;margin-bottom:14px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">① 수행평가 자료 등록</div>'
+    +'<div style="font-size:11.5px;color:var(--ink-mute);margin-bottom:10px">학교 수행평가 <b style="color:var(--ink)">평가계획서·평가지·가정통신문</b>을 올리면 AI가 과제·성취기준·채점기준(루브릭)을 자동으로 정리합니다. 파일(PDF·DOCX·TXT) 또는 사진 여러 장을 올릴 수 있어요.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
+      +'<input type="file" id="pf-file-'+track+'" accept=".pdf,.docx,.txt,.md" style="font-size:12px;color:var(--ink-dim)">'
+      +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);padding:5px 10px;border-radius:6px">📷 사진 첨부<input type="file" id="pf-img-'+track+'" accept="image/*" multiple style="display:none" onchange="perfImgPick(\''+track+'\')"></label>'
+      +'<button class="btn" onclick="perfParse(\''+track+'\')">AI로 분석</button></div>'
+    +'<div id="pf-imgnames-'+track+'" style="font-size:11px;color:var(--ink-mute);margin-bottom:6px"></div>'
+    +'<textarea id="pf-raw-'+track+'" rows="3" placeholder="또는 평가 안내 내용을 직접 붙여넣기 (HWP 등 자동추출 불가 시)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical;box-sizing:border-box"></textarea>'
+    +'<div id="pf-parsemsg-'+track+'" style="font-size:12px;min-height:14px;margin-bottom:4px"></div>'
+    +'<div id="pf-spec-'+track+'"></div></div>';
+  h+='<div style="font-weight:700;font-size:13px;margin-bottom:8px">② 등록된 수행평가</div>';
+  if(!asmts.length)h+='<div style="font-size:12px;color:var(--ink-mute)">아직 등록된 수행평가가 없습니다. 위에서 평가지를 올려 등록하세요.</div>';
+  else h+=asmts.map(function(a){ return perfAsmtCard(a,subs[a.id],track); }).join('');
+  box.innerHTML=h;
+}
+function perfImgPick(track){ var inp=document.getElementById('pf-img-'+track); var files=Array.prototype.slice.call(inp.files||[]); window._pfImgs=window._pfImgs||{}; window._pfImgs[track]=files; var n=document.getElementById('pf-imgnames-'+track); if(n)n.textContent=files.length?('사진 '+files.length+'장 첨부됨'):''; }
+function pfFileToB64(file){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ var s=String(r.result||''); res(s.split(',')[1]||''); }; r.onerror=rej; r.readAsDataURL(file); }); }
+async function perfParse(track){
+  var m=document.getElementById('pf-parsemsg-'+track);
+  var raw=(document.getElementById('pf-raw-'+track).value||'').trim();
+  var fileInput=document.getElementById('pf-file-'+track); var f=fileInput&&fileInput.files[0];
+  var imgs=(window._pfImgs&&window._pfImgs[track])||[];
+  m.style.color='var(--ink-mute)'; var text=raw;
+  try{ if(!text&&f){ m.textContent='파일 텍스트 추출 중…'; var t=await extractExtraText(f); if(t&&t.trim())text=t.trim().slice(0,15000); } }catch(e){}
+  var b64=[]; if(imgs.length){ m.textContent='사진 처리 중…'; for(var i=0;i<imgs.length&&i<6;i++){ try{ b64.push(await pfFileToB64(imgs[i])); }catch(_){} } }
+  if(!text&&!b64.length){ m.style.color='var(--risk)'; m.textContent='평가지 파일·사진을 올리거나 내용을 붙여넣어 주세요.'; return; }
+  m.style.color='var(--ink-mute)'; m.textContent='AI가 평가 자료를 분석하는 중… (10~25초)';
+  try{ var d=await callAI('perf_parse',{text:text||'(이미지 참조)',images:b64}); var o=JSON.parse(d.text);
+    m.style.color='var(--safe)'; m.textContent='분석 완료 — 아래 내용을 확인·수정 후 등록하세요.'; perfRenderSpec(track,o,f?f.name:null);
+  }catch(e){ m.style.color='var(--risk)'; m.textContent='분석 실패: '+(e.message||e); }
+}
+function pfField(label,id,track,val){ return '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">'+esc(label)+'</div><input id="'+id+'-'+track+'" value="'+esc(val)+'" style="width:100%;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12.5px;box-sizing:border-box"></div>'; }
+function pfFieldInline(label,id,track,val){ return '<div style="flex:1;min-width:120px;margin-bottom:8px"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">'+esc(label)+'</div><input id="'+id+'-'+track+'" value="'+esc(val)+'" style="width:100%;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12.5px;box-sizing:border-box"></div>'; }
+function pfArea(label,id,track,val,rows){ return '<div style="margin-bottom:8px"><div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">'+esc(label)+'</div><textarea id="'+id+'-'+track+'" rows="'+(rows||3)+'" style="width:100%;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12.5px;resize:vertical;box-sizing:border-box">'+esc(val)+'</textarea></div>'; }
+function perfRenderSpec(track,o,fname){
+  o=o||{}; var std=(o.standards||[]).map(function(x){return (x.code||'')+' :: '+(x.text||'');}).join('\n');
+  var rub=(o.rubric||[]).map(function(x){return (x.area||'')+' :: '+(x.points!=null?x.points:'')+' :: '+(x.criteria||'');}).join('\n');
+  var box=document.getElementById('pf-spec-'+track);
+  box.innerHTML='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:12px">'
+    +pfField('과목','pf-s-subject',track,o.subject||'')+pfField('단원/영역','pf-s-unit',track,o.unit||'')+pfField('과제명','pf-s-title',track,o.title||'')
+    +pfArea('성취기준 (한 줄에 하나 · 코드 :: 내용)','pf-s-std',track,std,3)+pfArea('과제 내용·조건','pf-s-task',track,o.task_body||'',3)
+    +pfArea('채점기준 루브릭 (한 줄에 하나 · 영역 :: 배점 :: 기준)','pf-s-rub',track,rub,4)
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+pfFieldInline('총배점','pf-s-total',track,o.total_points!=null?o.total_points:'')+pfFieldInline('반영비율','pf-s-ratio',track,o.reflect_ratio||'')+pfFieldInline('마감(YYYY-MM-DD)','pf-s-due',track,'')+'</div>'
+    +pfField('제출 방식','pf-s-method',track,o.submit_method||'')+pfArea('유의사항','pf-s-notice',track,o.notice||'',2)
+    +'<input type="hidden" id="pf-s-fname-'+track+'" value="'+esc(fname||'')+'">'
+    +'<div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><button class="btn" onclick="perfSaveAsmt(\''+track+'\')">✅ 수행평가 등록 · 학생에게 배포</button><span id="pf-savemsg-'+track+'" style="font-size:11.5px;align-self:center"></span></div></div>';
+}
+async function perfSaveAsmt(track){
+  var s=perfStu(track); var m=document.getElementById('pf-savemsg-'+track);
+  function V(id){ var e=document.getElementById(id+'-'+track); return e?e.value.trim():''; }
+  var title=V('pf-s-title'); if(!title){ m.style.color='var(--risk)'; m.textContent='과제명을 입력하세요.'; return; }
+  var std=V('pf-s-std').split('\n').map(function(l){ l=l.trim(); if(!l)return null; var p=l.split('::'); return {code:(p[0]||'').trim(),text:(p[1]||'').trim()}; }).filter(Boolean);
+  var rub=V('pf-s-rub').split('\n').map(function(l){ l=l.trim(); if(!l)return null; var p=l.split('::'); return {area:(p[0]||'').trim(),points:(parseFloat(p[1])||null),criteria:(p[2]||'').trim()}; }).filter(Boolean);
+  var due=V('pf-s-due'); var dueIso=null; if(due){ var dd=new Date(due); if(!isNaN(dd.getTime()))dueIso=dd.toISOString(); }
+  var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
+  if(!acid){ try{ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; }catch(_){}}
+  var row={academy_id:acid,student_id:s.id,title:title,subject:V('pf-s-subject')||null,unit:V('pf-s-unit')||null,standards:std,task_body:V('pf-s-task')||null,rubric:rub,submit_method:V('pf-s-method')||null,due_at:dueIso,notice:V('pf-s-notice')||null,source_file:V('pf-s-fname')||null,blueprint:{total_points:(parseFloat(V('pf-s-total'))||null),reflect_ratio:V('pf-s-ratio')||null}};
+  m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
+  var ins=await sb.from('perf_assessments').insert(row).select('*').single();
+  if(ins.error){ m.style.color='var(--risk)'; m.textContent='등록 실패: '+ins.error.message; return; }
+  var sub=await sb.from('perf_submissions').insert({assessment_id:ins.data.id,student_id:s.id,status:'assigned'});
+  if(sub.error){ m.style.color='var(--risk)'; m.textContent='배포 실패: '+sub.error.message; return; }
+  m.style.color='var(--safe)'; m.textContent='등록·배포 완료'; if(window.toast)toast('수행평가를 학생에게 배포했습니다',true);
+  var raw=document.getElementById('pf-raw-'+track); if(raw)raw.value=''; var fi=document.getElementById('pf-file-'+track); if(fi)fi.value=''; if(window._pfImgs)window._pfImgs[track]=[]; var ni=document.getElementById('pf-imgnames-'+track); if(ni)ni.textContent='';
+  perfMount(track);
+}
+function perfAsmtCard(a,sub,track){
+  var st=sub?sub.status:'assigned'; var lb=PF_ST[st]||[st,'var(--ink-mute)'];
+  var h='<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:10px">'
+    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:13px">'+esc(a.title||'(제목 없음)')+'</b>'+(a.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(a.subject)+'</span>':'')+'<span style="font-size:10.5px;font-weight:700;color:#fff;background:'+lb[1]+';border-radius:6px;padding:1px 8px">'+esc(lb[0])+'</span>'+(sub&&sub.round?'<span style="font-size:10px;color:var(--ink-mute)">라운드 '+sub.round+'</span>':'')+'<button onclick="perfDelAsmt('+a.id+',\''+track+'\')" style="margin-left:auto;border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:15px;line-height:1">×</button></div>'
+    +'<div style="margin-bottom:6px">'+pfTracker(perfStepOf(sub))+'</div>'
+    +'<button class="btn ghost" style="padding:3px 10px;font-size:11px;margin-bottom:6px" onclick="perfTogSpec('+a.id+')">평가지 상세</button>'
+    +'<div id="pf-spec-detail-'+a.id+'" style="display:none">'+perfSpecHtml(a)+'</div>'
+    +'<div id="pf-rev-'+a.id+'">'+perfConReview(a,sub,track)+'</div></div>';
+  return h;
+}
+function perfConReview(a,sub,track){
+  if(!sub||sub.status==='assigned'){ return '<div style="font-size:12px;color:var(--ink-mute);margin-top:6px">학생이 인터뷰·작성을 진행하면 여기에서 검토할 수 있습니다.</div>'; }
+  var s=sub; var done=(s.status==='completed'); var tm=s.typing_meta||{};
+  var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 추정'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};
+  var v=vm[s.verdict]||['var(--ink-mute)','—']; var content=s.final_content||s.draft_content||'';
+  var h='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:10px">';
+  if(s.status==='doing')h+='<div style="font-size:12px;color:var(--ink-mute);margin-bottom:6px">학생이 작성 중입니다. (검토 요청 전)</div>';
+  h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">학생 결과물</div><div style="font-size:13px;line-height:1.85;color:var(--ink);word-break:keep-all;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--panel-2)">'+(content||'<span style="color:var(--ink-mute)">(비어 있음)</span>')+'</div>';
+  if(tm&&tm.charCount!=null)h+='<div style="margin-top:8px;padding:8px 11px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b><div style="font-size:11px;color:var(--ink-dim);margin-top:3px">키입력 '+(tm.keyCount||0)+' · 삭제 '+(tm.backCount||0)+' · 붙여넣기 '+(tm.pasteCount||0)+'회('+(tm.pasteChars||0)+'자) · 글자수 '+(tm.charCount||0)+' · 작성 '+Math.round((tm.totalMs||0)/60000)+'분</div>'+(s.verdict_reason?'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6">'+esc(s.verdict_reason)+'</div>':'')+'</div>';
+  if(!done){
+    h+='<div style="display:flex;align-items:center;gap:8px;margin:11px 0 4px"><span style="font-size:11px;color:var(--reach,#5b8def);font-weight:700">🤖 AI 코칭</span><button class="btn ghost" style="padding:3px 9px;font-size:11px" onclick="perfRunCoach('+sub.id+','+a.id+',\''+track+'\')">'+(s.ai_coaching?'AI 재검토':'AI 검토 실행')+'</button></div>'
+      +'<div id="pf-ai-'+a.id+'" style="'+(s.ai_coaching?'':'display:none;')+'padding:10px 12px;border:1px solid var(--reach,#5b8def);border-radius:9px;background:rgba(91,141,239,.06);font-size:12px;color:var(--ink-dim);line-height:1.7">'+(s.ai_coaching||'')+'</div>'
+      +'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:11px 0 4px">컨설턴트 피드백 (AI 코칭과 함께 학생에게 전달)</div>'
+      +'<textarea id="pf-fb-'+a.id+'" rows="3" placeholder="방향·수정 포인트를 적어주세요." style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.7;resize:vertical;box-sizing:border-box">'+esc(s.feedback||'')+'</textarea>'
+      +'<div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;align-items:center"><button class="btn" style="padding:4px 12px;font-size:11.5px;background:var(--reach,#5b8def);border:none;color:#fff" onclick="perfReturn('+sub.id+','+a.id+',\''+track+'\')">↩ 학생에게 돌려보내기</button><button class="btn ghost" style="padding:4px 12px;font-size:11.5px;border-color:var(--safe);color:var(--safe)" onclick="perfComplete('+sub.id+','+a.id+',\''+track+'\')">✅ 완성 · AI 예상등급 채점</button><span id="pf-fbm-'+a.id+'" style="font-size:11px"></span></div>';
+  } else {
+    h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성 처리됨 · 학생이 결과물과 예상등급 평가지를 받을 수 있습니다.</div>'
+      +perfEvalSheetFromSub(s,false)
+      +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn ghost" style="padding:4px 12px;font-size:11.5px" onclick="perfRunEval('+sub.id+','+a.id+',\''+track+'\')">AI 재채점</button><span id="pf-fbm-'+a.id+'" style="font-size:11px"></span></div>';
+  }
+  return h+'</div>';
+}
+function perfTogSpec(aid){ var e=document.getElementById('pf-spec-detail-'+aid); if(e)e.style.display=e.style.display==='none'?'block':'none'; }
+async function perfDelAsmt(aid,track){ if(!confirm('이 수행평가와 학생 작업을 삭제할까요?'))return; await sb.from('perf_submissions').delete().eq('assessment_id',aid); await sb.from('perf_assessments').delete().eq('id',aid); if(window.toast)toast('삭제됨'); perfMount(track); }
+async function perfRunCoach(sid,aid,track){
+  var m=document.getElementById('pf-fbm-'+aid); if(m){m.style.color='var(--ink-mute)';m.textContent='AI 검토 중… (10~20초)';}
+  var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{};
+  var sr=await sb.from('perf_submissions').select('draft_content,final_content').eq('id',sid).limit(1); var sd=(sr.data&&sr.data[0])||{};
+  var draft=''; try{ var tmp=document.createElement('div'); tmp.innerHTML=sd.final_content||sd.draft_content||''; draft=(tmp.innerText||tmp.textContent||''); }catch(e){}
+  var s=perfStu(track)||{};
+  try{ var rubTxt=(a.rubric||[]).map(function(r){return (r.area||'')+'('+(r.points!=null?r.points+'점':'')+'): '+(r.criteria||'');}).join('\n');
+    var d=await callAI('course_coach',{title:a.title||'',goal:('수행평가 · '+(a.subject||'')+' '+(a.unit||'')),guide:((a.task_body||'')+'\n[채점기준]\n'+rubTxt).slice(0,1600),outline:'',level:(track==='goip')?'goip':'dae',career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),draft:draft});
+    var o=JSON.parse(d.text); var html=cbFmtCoach(o);
+    await sb.from('perf_submissions').update({ai_coaching:html}).eq('id',sid);
+    var box=document.getElementById('pf-ai-'+aid); if(box){box.style.display='block';box.innerHTML=html;}
+    if(m){m.style.color='var(--safe)';m.textContent='AI 검토 완료 — 저장됨';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='AI 검토 실패: '+(e.message||e);} }
+}
+async function perfReturn(sid,aid,track){
+  var t=document.getElementById('pf-fb-'+aid),m=document.getElementById('pf-fbm-'+aid); var v=t?t.value.trim():'';
+  var cur=await sb.from('perf_submissions').select('round,review_history,ai_coaching').eq('id',sid).limit(1); var s=(cur.data&&cur.data[0])||{};
+  var hist=Array.isArray(s.review_history)?s.review_history:[]; var rnd=(s.round||0)+1;
+  hist.push({round:rnd,ai_coaching:s.ai_coaching||'',feedback:v,returned_at:new Date().toISOString()});
+  var u=await sb.from('perf_submissions').update({feedback:v,status:'returned',round:rnd,review_history:hist}).eq('id',sid);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='전송 실패: '+u.error.message;return;} m.style.color='var(--safe)';m.textContent='학생에게 돌려보냈습니다 (라운드 '+rnd+')'; }
+  if(window.toast)toast('AI 코칭·피드백을 학생에게 전달했습니다',true); perfMount(track);
+}
+async function perfComplete(sid,aid,track){
+  var t=document.getElementById('pf-fb-'+aid),m=document.getElementById('pf-fbm-'+aid); var v=t?t.value.trim():'';
+  if(!confirm('완성 처리하고 AI 예상등급 채점을 실행할까요?\n완성하면 학생이 결과물과 예상등급 평가지를 받을 수 있습니다.'))return;
+  await sb.from('perf_submissions').update({feedback:v,status:'completed',completed_at:new Date().toISOString()}).eq('id',sid);
+  if(m){m.style.color='var(--ink-mute)';m.textContent='AI 예상등급 채점 중… (10~25초)';}
+  await perfRunEval(sid,aid,track,true);
+  if(window.toast)toast('완성 처리 및 예상등급 채점 완료',true); perfMount(track);
+}
+async function perfRunEval(sid,aid,track,silent){
+  var m=document.getElementById('pf-fbm-'+aid);
+  var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{};
+  var sr=await sb.from('perf_submissions').select('draft_content,final_content').eq('id',sid).limit(1); var sd=(sr.data&&sr.data[0])||{};
+  var content=''; try{ var tmp=document.createElement('div'); tmp.innerHTML=sd.final_content||sd.draft_content||''; content=(tmp.innerText||tmp.textContent||''); }catch(e){ content=sd.final_content||sd.draft_content||''; }
+  if(m&&!silent){m.style.color='var(--ink-mute)';m.textContent='AI 채점 중… (10~25초)';}
+  try{ var d=await callAI('perf_eval',{subject:a.subject||'',title:a.title||'',standards:a.standards||[],task_body:a.task_body||'',rubric:a.rubric||[],content:content}); var ev=JSON.parse(d.text);
+    await sb.from('perf_submissions').update({rubric_eval:ev,cog_metrics:ev.cog||null,golden_sentences:ev.golden_sentences||null,narrative:ev.narrative||null,verdict:ev.verdict||null,verdict_reason:ev.verdict_reason||null,diagnosed_at:new Date().toISOString()}).eq('id',sid);
+    if(m&&!silent){m.style.color='var(--safe)';m.textContent='채점 완료';} if(!silent)perfMount(track);
+  }catch(e){ if(m&&!silent){m.style.color='var(--risk)';m.textContent='채점 실패: '+(e.message||e);} }
+}
+/* ---------- 학생 ---------- */
+function perfStepOf(sub){
+  if(!sub)return 2; if(sub.status==='completed')return 6; if(sub.status==='review')return 5; if(sub.status==='returned'||sub.status==='doing')return 4;
+  var iv=sub.interview; if(iv&&typeof iv==='string'){try{iv=JSON.parse(iv);}catch(_){iv=null;}}
+  if(!iv||!iv.done)return 2; if(!sub.guide)return 3; return 4;
+}
+async function perfStuView(track,s){
+  var box=document.getElementById('perf-root-'+track); box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
+  var q=await sb.from('perf_assessments').select('*').eq('student_id',s.id).eq('status','active').order('created_at',{ascending:false});
+  if(q.error){ box.innerHTML='<div style="font-size:12px;color:var(--risk)">'+esc(q.error.message)+'</div>'; return; }
+  var asmts=q.data||[]; if(!asmts.length){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">아직 배포된 수행평가가 없습니다. 선생님이 수행평가를 등록하면 여기에 표시됩니다.</div>'; return; }
+  var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); var subs={}; (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;});
+  box.innerHTML=asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('');
+}
+function perfStuCard(a,sub,track){
+  var step=perfStepOf(sub);
+  return '<div style="border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden"><div style="padding:12px 14px;cursor:pointer;background:var(--panel-2)" onclick="perfStuToggle('+a.id+',\''+track+'\')"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:13px;color:var(--ink)">'+esc(a.title||'수행평가')+'</b>'+(a.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(a.subject)+'</span>':'')+(a.due_at?'<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">마감 '+esc(String(a.due_at).slice(0,10))+'</span>':'')+'</div><div style="margin-top:8px">'+pfTracker(step)+'</div></div><div id="pf-work-'+a.id+'" style="display:none;padding:0 14px 14px"></div></div>';
+}
+async function perfStuToggle(aid,track){
+  var pane=document.getElementById('pf-work-'+aid); if(!pane)return;
+  if(pane.style.display==='block'){ pane.style.display='none'; return; }
+  var all=document.querySelectorAll('[id^="pf-work-"]'); for(var i=0;i<all.length;i++){ if(all[i]!==pane)all[i].style.display='none'; }
+  pane.style.display='block'; perfStuWork(aid,track);
+}
+async function perfStuWork(aid,track){
+  var pane=document.getElementById('pf-work-'+aid); if(!pane)return; pane.innerHTML='<div style="padding:10px;font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
+  var s=perfStu(track);
+  var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0]); if(!a)return;
+  var sr=await sb.from('perf_submissions').select('*').eq('assessment_id',aid).eq('student_id',s.id).limit(1); var sub=(sr.data&&sr.data[0]);
+  if(!sub){ var ins=await sb.from('perf_submissions').insert({assessment_id:aid,student_id:s.id,status:'assigned'}).select('*').single(); sub=ins.data||{}; }
+  window._pfCurSub=sub.id; var step=perfStepOf(sub);
+  var iv=sub.interview; if(iv&&typeof iv==='string'){try{iv=JSON.parse(iv);}catch(_){iv=null;}}
+  var gd=sub.guide; if(gd&&typeof gd==='string'){try{gd=JSON.parse(gd);}catch(_){gd=null;}}
+  var h='<div style="border-top:1px solid var(--line);padding-top:10px">'+perfSpecHtml(a)+perfStuFeedback(sub);
+  if(step===2)h+=perfInterviewUI(a,sub,iv,track);
+  else if(step===3)h+=perfGuideStage(a,sub,gd,track);
+  else if(step===4)h+=perfWriteUI(a,sub,gd,track);
+  else if(step===5)h+='<div style="margin-top:10px;padding:9px 12px;border:1px dashed var(--reach,#5b8def);border-radius:8px;font-size:12px;color:var(--reach,#5b8def)">📤 검토 요청됨 — 선생님의 코칭·피드백을 기다리는 중입니다. 도착하면 이어서 수정할 수 있어요.</div><div style="border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.draft_content||'')+'</div>';
+  else if(step===6)h+=perfDoneUI(a,sub,track);
+  pane.innerHTML=h+'</div>';
+  if(step===4){ var ed=document.getElementById('pf-ed'); if(ed){ ed.innerHTML=sub.draft_content||''; pfCapInit(); pfCapAttach(ed); ed.addEventListener('paste',pfEdPaste); pfEdCount(); try{ed.focus();}catch(_){} } }
+}
+function perfStuFeedback(sub){
+  if(sub.status!=='returned')return '';
+  var h='<div style="margin-top:8px;padding:8px 11px;background:rgba(91,141,239,.08);border-radius:8px;font-size:12px;color:var(--reach,#5b8def)">↩ 선생님이 피드백과 함께 돌려보냈어요. 아래 코칭·피드백을 반영해 수정한 뒤 다시 검토 요청하세요.</div>';
+  if(sub.ai_coaching)h+='<div style="margin-top:8px;padding:10px 12px;border:1px solid var(--reach,#5b8def);border-radius:9px;background:rgba(91,141,239,.06)"><div style="font-size:11px;color:var(--reach,#5b8def);font-weight:700;margin-bottom:5px">🤖 AI 코칭</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7">'+sub.ai_coaching+'</div></div>';
+  if(sub.feedback)h+='<div style="margin-top:8px;padding:10px 12px;background:rgba(127,184,0,.08);border-radius:9px"><div style="font-size:11px;color:var(--ink);font-weight:700;margin-bottom:4px">👩‍🏫 선생님 피드백</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap">'+esc(sub.feedback)+'</div></div>';
+  return h;
+}
+function perfInterviewUI(a,sub,iv,track){
+  var h='<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">② AI 인터뷰 — 나만의 관점 정하기</div>';
+  if(!iv||!iv.questions){ return h+'<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">이 수행평가를 <b>어떤 관점</b>으로 접근할지 AI와 함께 정합니다. 아래 버튼을 누르면 나에게 맞는 선택형 질문이 생성됩니다.</div><button class="btn" onclick="perfGenInterview('+a.id+',\''+track+'\')">🎤 인터뷰 시작</button><span id="pf-ivm-'+a.id+'" style="font-size:11.5px;margin-left:8px"></span></div>'; }
+  var qs=iv.questions||[]; var ans=iv.answers||{};
+  qs.forEach(function(qq,i){ h+='<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:9px"><div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:3px">Q'+(i+1)+'. '+esc(qq.q||'')+'</div>'+(qq.intent?'<div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:7px">'+esc(qq.intent)+'</div>':'');
+    (qq.options||[]).forEach(function(op,oi){ var sel=(ans[i]===oi); h+='<label style="display:block;border:1px solid '+(sel?'var(--gold,#c8a24a)':'var(--line)')+';border-radius:8px;padding:8px 10px;margin-bottom:5px;cursor:pointer;background:'+(sel?'rgba(200,162,74,.08)':'transparent')+'"><input type="radio" name="pf-iv-'+a.id+'-'+i+'" value="'+oi+'"'+(sel?' checked':'')+' style="margin-right:7px"><b style="font-size:12px;color:var(--ink)">'+esc(op.label||'')+'</b>'+(op.desc?'<div style="font-size:11px;color:var(--ink-mute);margin-left:20px">'+esc(op.desc)+'</div>':'')+'</label>'; });
+    h+='</div>'; });
+  h+='<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn" onclick="perfSaveInterview('+a.id+',\''+track+'\')">✅ 관점 확정 · 다음(학습가이드)</button><button class="btn ghost" style="padding:6px 12px" onclick="perfGenInterview('+a.id+',\''+track+'\')">질문 다시 생성</button><span id="pf-ivm-'+a.id+'" style="font-size:11.5px"></span></div>';
+  return h+'</div>';
+}
+async function perfGenInterview(aid,track){
+  var m=document.getElementById('pf-ivm-'+aid); var s=perfStu(track); if(m){m.style.color='var(--ink-mute)';m.textContent='인터뷰 질문 생성 중… (10~20초)';}
+  var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{};
+  var ctx=''; try{ ctx=await extraCtx(s.id); }catch(e){}
+  try{ var d=await callAI('perf_interview',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:a.standards||[],career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),target:(track==='goip'?(s.target_school||''):(s.target_univ||'')),context:ctx});
+    var o=JSON.parse(d.text); var iv={questions:o.questions||[],answers:{},done:false};
+    await sb.from('perf_submissions').update({interview:iv}).eq('assessment_id',aid).eq('student_id',s.id); perfStuWork(aid,track);
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='생성 실패: '+(e.message||e);} }
+}
+async function perfSaveInterview(aid,track){
+  var s=perfStu(track); var m=document.getElementById('pf-ivm-'+aid);
+  var sr=await sb.from('perf_submissions').select('interview').eq('assessment_id',aid).eq('student_id',s.id).limit(1);
+  var iv=(sr.data&&sr.data[0]&&sr.data[0].interview)||{}; if(typeof iv==='string'){try{iv=JSON.parse(iv);}catch(_){iv={};}}
+  var qs=iv.questions||[]; var ans={}; for(var i=0;i<qs.length;i++){ var sel=document.querySelector('input[name="pf-iv-'+aid+'-'+i+'"]:checked'); if(sel)ans[i]=parseInt(sel.value,10); }
+  if(Object.keys(ans).length<qs.length){ if(m){m.style.color='var(--risk)';m.textContent='모든 질문에 답해 주세요.';} return; }
+  iv.answers=ans; iv.done=true;
+  await sb.from('perf_submissions').update({interview:iv}).eq('assessment_id',aid).eq('student_id',s.id);
+  if(window.toast)toast('관점을 확정했어요 — 학습가이드를 생성하세요',true); perfStuWork(aid,track);
+}
+function perfGuideStage(a,sub,gd,track){
+  return '<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">③ 맞춤 학습가이드 생성</div><div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">인터뷰에서 고른 관점과 학교 채점기준을 합쳐, 나만의 <b>수행평가 접근 설계도</b>를 만듭니다. (대필이 아니라 방향·전략·목차 안내예요)</div><button class="btn" onclick="perfGenGuide('+a.id+',\''+track+'\')">📐 학습가이드 생성</button><span id="pf-gdm-'+a.id+'" style="font-size:11.5px;margin-left:8px"></span></div>';
+}
+async function perfGenGuide(aid,track){
+  var m=document.getElementById('pf-gdm-'+aid); var s=perfStu(track); if(m){m.style.color='var(--ink-mute)';m.textContent='학습가이드 생성 중… (10~25초)';}
+  var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{};
+  var sr=await sb.from('perf_submissions').select('interview').eq('assessment_id',aid).eq('student_id',s.id).limit(1);
+  var iv=(sr.data&&sr.data[0]&&sr.data[0].interview)||{}; if(typeof iv==='string'){try{iv=JSON.parse(iv);}catch(_){iv={};}}
+  var chosen=(iv.questions||[]).map(function(qq,i){ var oi=(iv.answers||{})[i]; var op=(qq.options||[])[oi]; return op?('· '+(qq.stage||'')+': '+(op.label||'')+' — '+(op.desc||'')):''; }).filter(Boolean).join('\n');
+  var ctx=''; try{ ctx=await extraCtx(s.id); }catch(e){}
+  try{ var d=await callAI('perf_guide',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:a.standards||[],career:(s.career||s.target_major||''),answers:chosen,context:ctx});
+    var o=JSON.parse(d.text); await sb.from('perf_submissions').update({guide:o}).eq('assessment_id',aid).eq('student_id',s.id);
+    if(window.toast)toast('학습가이드가 완성됐어요',true); perfStuWork(aid,track);
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='생성 실패: '+(e.message||e);} }
+}
+function perfGuideHtml(gd){
+  if(!gd)return '';
+  var h='<div style="border:1px solid var(--gold,#c8a24a);border-radius:9px;padding:11px 13px;margin-bottom:10px;background:rgba(200,162,74,.05)"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:5px">📐 나의 학습가이드'+(gd.title?' · '+esc(gd.title):'')+'</div>';
+  if(gd.direction)h+='<div style="font-size:12px;color:var(--ink-dim);line-height:1.7;margin-bottom:6px">'+esc(gd.direction)+'</div>';
+  if(Array.isArray(gd.approach)&&gd.approach.length)h+='<div style="margin-bottom:6px"><b style="font-size:11px;color:var(--ink)">핵심 실행 포인트</b><ul style="margin:3px 0 0 16px;padding:0;font-size:12px;color:var(--ink-dim)">'+gd.approach.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  if(Array.isArray(gd.outline)&&gd.outline.length)h+='<div style="margin-bottom:6px"><b style="font-size:11px;color:var(--ink)">추천 목차</b><div style="font-size:12px;color:var(--ink-dim);line-height:1.8;white-space:pre-line">'+esc(gd.outline.join('\n'))+'</div></div>';
+  if(Array.isArray(gd.rubric_tips)&&gd.rubric_tips.length){ h+='<div style="margin-bottom:6px"><b style="font-size:11px;color:var(--ink)">채점기준 공략</b>'; gd.rubric_tips.forEach(function(r){ h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-top:2px">· <b style="color:var(--ink)">'+esc(r.area||'')+'</b>: '+esc(r.tip||'')+'</div>'; }); h+='</div>'; }
+  if(gd.differentiator)h+='<div style="font-size:11.5px;color:var(--gold,#c8a24a);margin-top:4px">✦ 차별점: '+esc(gd.differentiator)+'</div>';
+  if(gd.encouragement)h+='<div style="font-size:11.5px;color:var(--safe);margin-top:4px">'+esc(gd.encouragement)+'</div>';
+  return h+'</div>';
+}
+function perfWriteUI(a,sub,gd,track){
+  var h='<div style="margin-top:12px">'+perfGuideHtml(gd)
+    +'<div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">④ 수행평가 결과물 작성</div>'
+    +'<div style="border-top:1px dashed var(--line);padding-top:8px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다. 이미지·수식도 넣을 수 있어요.</div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><label style="cursor:pointer;font-size:12px;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="pfInsertImg(this)"></label><button type="button" onclick="pfOpenMath()" style="font-size:12px;color:var(--reach,#5b8def);border:1px solid var(--reach,#5b8def);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;white-space:nowrap">∑ 수식</button><span id="pf-cc" style="font-size:11px;color:var(--ink-mute)">0자</span></div>'
+    +'<div id="pf-ed" contenteditable="true" data-ph="수행평가 결과물을 직접 작성하세요" style="width:100%;min-height:220px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:12px 13px;color:var(--ink);font-size:13.5px;line-height:1.85;outline:none;box-sizing:border-box;word-break:keep-all"></div>'
+    +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap"><div style="flex:1"></div><button class="btn ghost" onclick="perfStuSave('+a.id+',\''+track+'\')">💾 임시저장</button><button class="btn" onclick="perfStuSubmit('+a.id+',\''+track+'\')">'+(sub.status==='returned'?'✅ 수정 완료 · 다시 검토 요청':'📤 검토 요청')+'</button></div>'
+    +'<div id="pf-smsg-'+a.id+'" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
+  return h+'</div>';
+}
+async function perfStuSave(aid,track){
+  var ed=document.getElementById('pf-ed'),m=document.getElementById('pf-smsg-'+aid); if(!ed)return; var s=perfStu(track);
+  var html=ed.innerHTML,t=(ed.innerText||ed.textContent||''); if(pfCap)pfCap.saves++;
+  var u=await sb.from('perf_submissions').update({draft_content:html,typing_meta:pfCapMeta(t),status:'doing',saved_at:new Date().toISOString()}).eq('assessment_id',aid).eq('student_id',s.id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+pfEdLen()+'자)';} }
+}
+async function perfStuSubmit(aid,track){
+  var ed=document.getElementById('pf-ed'),m=document.getElementById('pf-smsg-'+aid); if(!ed)return; var s=perfStu(track);
+  var html=ed.innerHTML,t=(ed.innerText||ed.textContent||'').trim();
+  if(!t&&!/<img|math-node/i.test(html)){ if(m){m.style.color='var(--risk)';m.textContent='내용을 작성한 뒤 검토를 요청하세요.';} return; }
+  if(!confirm('선생님께 검토를 요청할까요?\n검토 중에는 잠시 수정이 제한되며, 코칭·피드백이 오면 이어서 수정할 수 있어요.'))return;
+  var tm=pfCapMeta(t),ch=(window.cbCheat?cbCheat(tm):'');
+  var u=await sb.from('perf_submissions').update({draft_content:html,final_content:html,typing_meta:tm,status:'review',verdict:(ch?'SUSPICIOUS':'AUTHENTIC'),verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),submitted_at:new Date().toISOString()}).eq('assessment_id',aid).eq('student_id',s.id);
+  if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='요청 실패';} return; }
+  if(window.toast)toast('검토를 요청했어요 — 선생님의 코칭을 기다려 주세요',true); perfStuWork(aid,track);
+}
+function perfDoneUI(a,sub,track){
+  var h='<div style="margin-top:12px"><div style="padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성되었습니다. 결과물과 예상등급 평가지를 확인하고 내려받으세요.</div>';
+  if(sub.feedback)h+='<div style="margin-top:8px;padding:10px 12px;background:rgba(127,184,0,.08);border-radius:9px"><div style="font-size:11px;color:var(--ink);font-weight:700;margin-bottom:4px">👩‍🏫 선생님 최종 피드백</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap">'+esc(sub.feedback)+'</div></div>';
+  h+='<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn" onclick="perfDownloadPDF('+a.id+',\''+track+'\')">📄 결과물 PDF</button><button class="btn ghost" onclick="perfDownloadDOCX('+a.id+',\''+track+'\')">📝 결과물 DOCX</button><button class="btn ghost" onclick="perfEvalPDF('+a.id+',\''+track+'\')">📊 예상등급 평가지 PDF</button></div>';
+  h+='<div style="font-size:12px;font-weight:700;color:var(--ink);margin:12px 0 4px">예상 성취수준</div>'+perfEvalSheetFromSub(sub,false);
+  h+='<div style="border-top:1px dashed var(--line);margin-top:12px;padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.final_content||sub.draft_content||'')+'</div>';
+  return h+'</div>';
+}
+async function perfDocData(aid,track){ var s=perfStu(track); var ar=await sb.from('perf_assessments').select('title,subject').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{}; var sr=await sb.from('perf_submissions').select('final_content,draft_content,rubric_eval').eq('assessment_id',aid).eq('student_id',s.id).limit(1); var sd=(sr.data&&sr.data[0])||{}; return {title:a.title||'수행평가',subject:a.subject||'',content:sd.final_content||sd.draft_content||'',eval:sd.rubric_eval,who:(s&&s.name)||''}; }
+async function perfDownloadPDF(aid,track){ var r=await perfDocData(aid,track); var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도하세요.');return;} var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(r.title)+'</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css"><style>body{font-family:"Noto Sans KR",-apple-system,sans-serif;max-width:760px;margin:38px auto;padding:0 26px;line-height:1.9;color:#111;word-break:keep-all}h1{font-size:22px;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:6px}.m{color:#667;font-size:12px;margin-bottom:16px}img{max-width:100%}</style></head><body><h1>'+esc(r.title)+'</h1><div class="m">'+esc(r.subject)+(r.who?(' · '+esc(r.who)):'')+'</div><div>'+(r.content||'')+'</div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},450);};</scr'+'ipt></body></html>'; w.document.open(); w.document.write(doc); w.document.close(); }
+async function perfDownloadDOCX(aid,track){ var r=await perfDocData(aid,track); var inner='<h1 style="font-size:18pt">'+esc(r.title)+'</h1>'+(r.content||''); var full='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:"Malgun Gothic",sans-serif;line-height:1.8}img{max-width:480px}h1{border-bottom:1px solid #333;padding-bottom:8px}</style></head><body>'+inner+'</body></html>'; var fname=(r.title||'수행평가').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60); var lib=await cbLoadDocx(); var blob,ext; if(lib&&lib.asBlob){blob=lib.asBlob(full);ext='docx';}else{blob=new Blob(['﻿'+full],{type:'application/msword'});ext='doc';} var aE=document.createElement('a'); aE.href=URL.createObjectURL(blob); aE.download=fname+'.'+ext; document.body.appendChild(aE); aE.click(); setTimeout(function(){URL.revokeObjectURL(aE.href);aE.remove();},1200); }
+async function perfEvalPDF(aid,track){ var r=await perfDocData(aid,track); var ev=r.eval; if(ev&&typeof ev==='string'){try{ev=JSON.parse(ev);}catch(_){ev=null;}} if(!ev){alert('아직 채점 결과가 없습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다.');return;} var sheet=perfEvalSheet(ev,true); var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>수행평가 예상등급 평가지</title><style>@page{size:A4;margin:16mm}body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;color:#1a2820;padding:8px 4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:20px;margin:0 0 2px}.meta{font-size:12px;color:#667;margin-bottom:4px}.rule{height:2px;background:#12211a;margin:8px 0 4px}.foot{margin-top:18px;font-size:10px;color:#889;border-top:1px solid #ddd;padding-top:8px}b{color:#1a2820}</style></head><body><h1>수행평가 예상등급 평가지</h1><div class="meta">학생: <b>'+esc(r.who)+'</b> · 과제: <b>'+esc(r.title)+'</b>'+(r.subject?(' ('+esc(r.subject)+')'):'')+'</div><div class="rule"></div>'+sheet+'<div class="foot">ARCHE 수행평가 도우미 · 본 평가지는 학교 채점기준 기반 AI 예상 진단으로 컨설팅 참고용이며, 실제 학교 성적·평가와 다를 수 있습니다.</div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},350);}</scr'+'ipt></body></html>'; w.document.open(); w.document.write(doc); w.document.close(); }
+/* ---------- 수행평가 전용 리치 에디터 (pf-ed) ---------- */
+var pfCap=null;
+function pfCapInit(){ pfCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
+function pfEdLen(){ var ed=document.getElementById('pf-ed'); if(!ed)return 0; var len=0; ed.childNodes.forEach(function(n){ if(n.nodeType===3)len+=n.textContent.length; else if(n.nodeType===1){ if(n.tagName==='IMG'||(n.classList&&n.classList.contains('math-node')))len+=1; else len+=(n.textContent||'').length; } }); return len; }
+function pfEdCount(){ var c=document.getElementById('pf-cc'); if(c)c.textContent=pfEdLen()+'자'; }
+function pfCapAttach(el){ if(!el||el._pfBound)return; el._pfBound=true;
+  el.addEventListener('keydown',function(e){ if(!pfCap)return; var n=Date.now(); if(n-pfCap.last>2000)pfCap.pc++; pfCap.last=n; if(e.key==='Backspace'||e.key==='Delete')pfCap.bc++; else if(e.key&&e.key.length===1)pfCap.kc++; });
+  el.addEventListener('paste',function(e){ if(!pfCap)return; pfCap.paste++; try{ var t=((e.clipboardData||window.clipboardData).getData('text'))||''; pfCap.pasteChars+=t.length; }catch(_){} });
+  el.addEventListener('input',function(){ pfEdCount(); }); }
+function pfCapMeta(t){ if(!pfCap)pfCapInit(); return {keyCount:pfCap.kc,backCount:pfCap.bc,pauseCount:pfCap.pc,pasteCount:pfCap.paste,pasteChars:pfCap.pasteChars,totalMs:Date.now()-pfCap.start,charCount:(t||'').length,saves:pfCap.saves,startedAt:new Date(pfCap.start).toISOString()}; }
+async function pfImgSrc(file){ try{ var path='perf/sub'+((window._pfCurSub)||'tmp')+'/'+Date.now()+'_'+String(file.name||'p.png').replace(/[^\w.\-]+/g,'_').slice(-40); var up=await sb.storage.from('activity-files').upload(path,file,{upsert:true,contentType:(file.type||'image/png')}); if(up.error)throw up.error; return sb.storage.from('activity-files').getPublicUrl(path).data.publicUrl; }catch(e){ return await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=rej; r.readAsDataURL(file); }); } }
+async function pfUploadImgs(files){ var ed=document.getElementById('pf-ed'); if(!ed)return; ed.focus(); if(typeof cbRestoreCursor==='function')cbRestoreCursor();
+  for(var i=0;i<files.length;i++){ var file=files[i]; if(!/^image\//.test(file.type||''))continue; if(file.size>20*1024*1024){alert('이미지는 20MB 이하만 가능합니다.');continue;}
+   try{ var url=await pfImgSrc(file); var img=document.createElement('img'); img.src=url; img.style.cssText='max-width:100%;max-height:300px;border-radius:6px;margin:4px 2px;vertical-align:middle;cursor:pointer'; img.onclick=function(){ if(confirm('이미지를 삭제하시겠습니까?')){this.remove();pfEdCount();} };
+    var sel=window.getSelection(); if(sel.rangeCount>0&&ed.contains(sel.getRangeAt(0).startContainer)){var r=sel.getRangeAt(0);r.insertNode(img);r.collapse(false);} else ed.appendChild(img);
+    if(pfCap)pfCap.kc++; pfEdCount(); }catch(e){alert('이미지 삽입 실패: '+(e.message||e));} } }
+function pfInsertImg(input){ var f=Array.prototype.slice.call(input.files||[]); if(f.length)pfUploadImgs(f); input.value=''; }
+function pfEdPaste(e){ var dt=e.clipboardData||window.clipboardData; if(!dt)return; var items=dt.items||[],imgs=[]; for(var i=0;i<items.length;i++){ if(items[i].type&&items[i].type.indexOf('image')===0){var f=items[i].getAsFile(); if(f)imgs.push(f);} } if(imgs.length){e.preventDefault();pfUploadImgs(imgs);return;} var txt=dt.getData('text'); if(txt!=null){e.preventDefault(); try{document.execCommand('insertText',false,txt);}catch(_){ } pfEdCount();} }
+function pfOpenMath(){ var ed=document.getElementById('pf-ed'); if(!ed)return; window.mathTargetEd=ed; if(typeof cbSaveCursor==='function')cbSaveCursor(); var mm=document.getElementById('math-modal'); if(!mm){alert('수식 도구를 불러올 수 없습니다.');return;} mm.style.display='flex'; var mi=document.getElementById('math-input'); if(mi){mi.value='';mi.focus();} var mp=document.getElementById('math-preview'); if(mp)mp.innerHTML=''; }
+window.perfMount=perfMount;window.perfParse=perfParse;window.perfImgPick=perfImgPick;window.perfSaveAsmt=perfSaveAsmt;window.perfDelAsmt=perfDelAsmt;window.perfTogSpec=perfTogSpec;
+window.perfRunCoach=perfRunCoach;window.perfReturn=perfReturn;window.perfComplete=perfComplete;window.perfRunEval=perfRunEval;
+window.perfStuToggle=perfStuToggle;window.perfGenInterview=perfGenInterview;window.perfSaveInterview=perfSaveInterview;window.perfGenGuide=perfGenGuide;window.perfStuSave=perfStuSave;window.perfStuSubmit=perfStuSubmit;
+window.perfDownloadPDF=perfDownloadPDF;window.perfDownloadDOCX=perfDownloadDOCX;window.perfEvalPDF=perfEvalPDF;window.pfInsertImg=pfInsertImg;window.pfOpenMath=pfOpenMath;
+/* ===== 수행평가 도우미 끝 ===== */
+
 
 /* ===== 학생 작성 자료 성취도 평가 (워크북 방식) — 대입/고입 공통 ===== */
 function wbActive(track){ return track==='goip'?(window._gactive||(window._role==='stu'?window._activeStudent:null)):window._activeStudent; }
@@ -6117,7 +6451,7 @@ function fillGoipPickers(){
 /* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
 window.renderGIntake=function(){ loadGStudents().then(function(){ if(window._gactive){var w=document.getElementById('gin-who');if(w)w.textContent=window._gactive.name+' 활성';} }); };
 function gintakeSelect(id){ selectGStudent(id); gintakeLoadSaved(true); if(window.loadExtra)loadExtra('goip'); }
-function selectGStudentWb(){ if(window.wbLoad)wbLoad('goip'); }
+function selectGStudentWb(){ if(window.wbLoad)wbLoad('goip'); if(window.perfMount)perfMount('goip'); }
 // 저장된 성취도·활동자료를 파싱 포맷으로 역구성해 표시
 async function gintakeLoadSaved(silent){
   var m=document.getElementById('gin-msg'); var s=window._gactive;
