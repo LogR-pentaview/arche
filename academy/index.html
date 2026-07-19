@@ -2995,6 +2995,7 @@ async function cbRunCoach(id,lid){
   var s=cbStu()||{};
   try{
     var d=await callAI('course_coach',{title:l.title||'',goal:l.goal||'',guide:l.guide||'',outline:l.outline||'',
+      level:(window._designTrack==='goip')?'goip':'dae',
       career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),draft:draft});
     var o=JSON.parse(d.text); var html=cbFmtCoach(o);
     await sb.from('lesson_submissions').update({ai_coaching:html}).eq('id',id);
@@ -3074,6 +3075,7 @@ async function cbGenLesson(name){
   var career=(s.career||s.target_major||''), target=(window._designTrack==='goip')?(s.target_school||''):(s.target_univ||'');
   // 전용 task(course_lesson): 학생부 디자인과 동일한 깊이(활동 목표 2~3문장 · 수행 가이드 5~8문장 · 탐구 질문 · 목차 5~6장)로 차시 1개 설계
   var d=await callAI('course_lesson',{kind:isSubj?'subject':'changche',name:name,course:cbCourse.title,career:career,
+    level:(window._designTrack==='goip')?'goip':'dae',
     field:(window.majorToField?majorToField(s.target_major):''),target:target,term:(s.grade||''),
     prev:prev,existing:di,avoid:avoid,context:ctxTxt});
   var o=JSON.parse(d.text); var t=o||{};
