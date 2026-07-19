@@ -502,6 +502,7 @@
     <div class="nav" data-v="stuset" id="nav-stuset" style="display:none" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 설정</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
     <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="전체 자녀 관리">전체 학생 관리</span></div>
+    <div class="nav" data-v="roi" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5M4 19h16"/><rect x="7" y="11" width="3.2" height="5"/><rect x="12" y="8" width="3.2" height="8"/><rect x="17" y="13.5" width="3.2" height="2.5"/></svg> 원장 대시보드</div>
 
     <!-- 대입 컨설팅 그룹 -->
     <div class="navgroup dae" id="grp-dae">
@@ -589,12 +590,12 @@
         <div class="h1">컨설팅 홈</div>
         <div class="sub" id="home-sub">담당 학생 0명</div>
 
-        <div onclick="goView('allstudents')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,rgba(127,184,0,.12),rgba(127,184,0,.04));border:1px solid rgba(127,184,0,.3);border-radius:12px;padding:16px 20px;margin-top:18px">
+        <div onclick="goView('allstudents')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,rgba(176,129,42,.12),rgba(176,129,42,.04));border:1px solid rgba(176,129,42,.3);border-radius:14px;padding:16px 20px;margin-top:18px">
           <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:38px;height:38px;border-radius:10px;background:var(--lime);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0a1a05" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            <div style="width:38px;height:38px;border-radius:11px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#241a06" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
             <div><div style="font-weight:700;color:var(--ink);font-size:14.5px" data-b2c="자녀 등록·관리">학생 등록·관리</div><div style="font-size:12px;color:var(--ink-mute)">여기서 학생을 등록하면 아이디가 자동 생성되고, 학년에 따라 고입/대입이 자동 구분됩니다</div></div>
           </div>
-          <div style="color:var(--lime);font-size:20px;flex-shrink:0">→</div>
+          <div style="color:var(--gold);font-size:20px;flex-shrink:0">→</div>
         </div>
 
         <div class="grid" style="grid-template-columns:1fr 1fr;margin:18px 0 22px">
@@ -637,6 +638,14 @@
           </table>
         </div>
         
+      </section>
+
+      <!-- 원장 ROI 대시보드 -->
+      <section class="view" id="v-roi">
+        <div class="eyebrow">Principal · ROI Cockpit</div>
+        <div class="h1">원장 대시보드</div>
+        <div class="sub">관리 알림이 아니라, <b>협업이 만든 결과물과 AI 투자수익</b>을 봅니다.</div>
+        <div id="roi-body" style="margin-top:20px"><div style="color:var(--ink-mute);padding:20px">불러오는 중…</div></div>
       </section>
 
       <!-- 학생 기본 상담 -->
@@ -2011,7 +2020,7 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",roi:"원장 대시보드",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){
@@ -2028,7 +2037,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2062,7 +2071,7 @@ window.addEventListener('popstate', function(e){
       else if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();}
       else if(v==='sr'){window._designTrack='dae';renderDesign();} else if(v==='perf'){window._designTrack='dae';if(window.perfMount)perfMount('dae');} else if(v==='iv'&&window.renderInterview)renderInterview();
       else if(v==='intake'&&window.refreshIntake)refreshIntake(); else if(v==='consult'&&window.renderConsult)renderConsult();
-      else if(v==='report'&&window.renderReport)renderReport(); else if(v==='basecon'&&window.renderBaseCon)renderBaseCon();
+      else if(v==='report'&&window.renderReport)renderReport(); else if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); else if(v==='roi'&&window.renderROI)renderROI();
       else if(v==='goip'&&window.renderGoip)renderGoip(); else if(v==='gstudents'&&window.renderGStudents)renderGStudents();
       else if(v==='gintake'&&window.renderGIntake)renderGIntake(); else if(v==='gconsult'&&window.renderGConsult)renderGConsult();
       else if(v==='gdiag'&&window.renderGDiag)renderGDiag(); else if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap();
@@ -2462,7 +2471,7 @@ async function enterStudentApp(session){
     var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
   }
   // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
-  ['allstudents','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','roi','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
   // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
@@ -2587,6 +2596,98 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;',
 window._students=[];
 window._editId=null;
 window.toggleFolder=function(k){var e=document.getElementById('fold-'+k);var a=document.getElementById('arrow-'+k);if(e){var open=e.style.display!=='none';e.style.display=open?'none':'block';if(a)a.textContent=open?'▸':'▾';}};
+window.renderROI=async function(){
+  var body=document.getElementById('roi-body'); if(!body)return;
+  if(!sb){ body.innerHTML='<div style="color:var(--risk);padding:20px">DB 미로드 — 새로고침</div>'; return; }
+  body.innerHTML='<div style="color:var(--ink-mute);padding:20px">집계 중…</div>';
+  try{
+    var acid=window._acadId||(window._academy&&window._academy.id)||null;
+    if(!acid){ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; window._acadId=acid; }
+    var stu=await sb.from('students').select('id,name,admission_track,grade,created_at').eq('academy_id',acid);
+    var students=(stu.data)||[]; var sids=students.map(function(s){return s.id;});
+    var now=Date.now(), M30=now-30*86400000;
+    var dae=students.filter(function(s){return s.admission_track!=='고입';}).length;
+    var goip=students.length-dae;
+    var newM=students.filter(function(s){return s.created_at&&new Date(s.created_at).getTime()>M30;}).length;
+    async function q(tbl,cols){ if(!sids.length)return []; try{ var r=await sb.from(tbl).select(cols).in('student_id',sids); return r.data||[]; }catch(e){ return []; } }
+    var ls=await q('lesson_submissions','student_id,status,round,verdict,completed_at');
+    var ps=await q('perf_submissions','student_id,status,round,completed_at');
+    var di=await q('design_items','student_id,approved,submitted_at,created_at');
+    var cons=await q('consultations','student_id,created_at');
+    var aiRows=[]; try{ var ar=await sb.from('ai_usage_log').select('task,prompt_tokens,output_tokens,created_at').eq('academy_id',acid); aiRows=ar.data||[]; }catch(e){}
+    function inM(d){ return d&&new Date(d).getTime()>M30; }
+    var lsDone=ls.filter(function(x){return x.status==='completed';}).length;
+    var psDone=ps.filter(function(x){return x.status==='completed';}).length;
+    var diApproved=di.filter(function(x){return x.approved;}).length;
+    var coachR=0; ls.forEach(function(x){coachR+=(x.round||0);}); ps.forEach(function(x){coachR+=(x.round||0);});
+    var outputs=lsDone+psDone+diApproved;
+    var verd=ls.filter(function(x){return x.verdict;}); var auth=verd.filter(function(x){return x.verdict==='AUTHENTIC';}).length;
+    var authPct=verd.length?Math.round(auth/verd.length*100):null;
+    var outM=ls.filter(function(x){return x.status==='completed'&&inM(x.completed_at);}).length
+      +ps.filter(function(x){return x.status==='completed'&&inM(x.completed_at);}).length
+      +di.filter(function(x){return x.approved&&inM(x.submitted_at||x.created_at);}).length;
+    var pt=0,ot=0,calls=aiRows.length,taskAgg={};
+    aiRows.forEach(function(r){ pt+=(r.prompt_tokens||0); ot+=(r.output_tokens||0); var tk=r.task||'기타'; taskAgg[tk]=(taskAgg[tk]||0)+1; });
+    var IN_RATE=0.30/1e6, OUT_RATE=2.50/1e6, USDKRW=1380;
+    var costKRW=Math.round((pt*IN_RATE+ot*OUT_RATE)*USDKRW);
+    var HRS=1.5, RATE=30000, savedHrs=Math.round(outputs*HRS), savedKRW=savedHrs*RATE;
+    var roiX=costKRW>0?(savedKRW/costKRW):null;
+    var won=function(n){ return '₩'+Number(n||0).toLocaleString('ko-KR'); };
+    var K=function(n){ n=Number(n||0); return n>=1000?(n/1000).toFixed(n>=10000?0:1)+'K':String(n); };
+    function stat(lab,val,sub,col){ return '<div class="card" style="padding:16px 18px"><div style="font-size:11.5px;color:var(--ink-mute);letter-spacing:.02em">'+lab+'</div><div style="font-family:\'Noto Serif KR\',serif;font-weight:700;font-size:25px;color:'+(col||'var(--ink)')+';margin-top:6px;line-height:1.1">'+val+'</div>'+(sub?'<div style="font-size:11px;color:var(--ink-dim);margin-top:4px;line-height:1.4">'+sub+'</div>':'')+'</div>'; }
+    function metric(lab,val,note,pct){ var bar=(pct!=null)?'<div style="height:5px;background:var(--panel-2);border-radius:20px;overflow:hidden;margin-top:7px"><i style="display:block;height:100%;width:'+pct+'%;background:linear-gradient(90deg,var(--lime),var(--gold))"></i></div>':''; return '<div style="padding:11px 0;border-top:1px solid var(--line-soft)"><div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:13px;color:var(--ink)">'+lab+'</span><b style="font-family:\'Noto Serif KR\',serif;font-size:16px;color:var(--ink)">'+val+'</b></div>'+(note?'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+note+'</div>':'')+bar+'</div>'; }
+    var h='';
+    h+='<div class="grid g4" style="margin-bottom:18px">'
+      +stat('담당 학생',students.length+'명','대입 '+dae+' · 고입 '+goip+(newM?' · 신규 '+newM:''))
+      +stat('이번 달 협업 산출물',outM+'건','완료 코스·수행·설계 (최근 30일)','var(--gold)')
+      +stat('AI가 대체한 작업',savedHrs+'시간','산출물 '+outputs+'건 기반 (추정)','var(--lime)')
+      +stat('투자수익(ROI)',(roiX!=null?('약 '+roiX.toFixed(0)+'배'):'—'),'절감 '+won(savedKRW)+' vs AI '+won(costKRW),'var(--gold)')
+    +'</div>';
+    h+='<div class="grid g2" style="align-items:start;margin-bottom:18px">';
+    h+='<div class="card"><div class="sectionhead"><span class="idx">◆</span><h3>협업이 만든 결과물</h3></div>'
+      +'<div style="font-size:11.5px;color:var(--ink-mute);margin-bottom:2px">컨설턴트와 학생이 주고받으며 실제로 완성한 것들</div>'
+      +metric('완료된 코스웨어 차시',lsDone+'건','학생부 디자인 코스 수행 완료')
+      +metric('완료된 수행평가',psDone+'건','관점설계→작성→검토→완성')
+      +metric('승인된 학생부 설계',diApproved+'건')
+      +metric('코칭 피드백 왕복',coachR+'회','컨설턴트↔학생 검토 라운드 총합')
+      +metric('상담 기록',cons.length+'건')
+      +(authPct!=null?metric('본인 작성 검증 통과율',authPct+'%','대필 아님 — 학생 직접 작성 비율',authPct):'')
+    +'</div>';
+    var taskLabels={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수검증',course_roadmap:'선택과목',design_record:'학생부 설계',course_lesson:'코스 차시',course_coach:'AI 코칭',perf_parse:'수행평가 분석',perf_interview:'관점 설계',perf_guide:'학습가이드',perf_eval:'수행 채점',analyze_activity:'활동 분석',report_comment:'리포트',interview_prep:'면접 문항',interview_feedback:'면접 피드백'};
+    var taskArr=Object.keys(taskAgg).map(function(k){return {k:k,n:taskAgg[k]};}).sort(function(a,b){return b.n-a.n;});
+    var maxT=taskArr.length?taskArr[0].n:1;
+    var taskBars=taskArr.slice(0,8).map(function(tt){ return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:11px;color:var(--ink-dim);width:80px;flex:none;text-align:right">'+esc(taskLabels[tt.k]||tt.k)+'</span><div style="flex:1;height:14px;background:var(--panel-2);border-radius:5px;overflow:hidden"><i style="display:block;height:100%;width:'+Math.round(tt.n/maxT*100)+'%;background:var(--gold)"></i></div><span style="font-size:11px;color:var(--ink-mute);width:28px">'+tt.n+'</span></div>'; }).join('');
+    h+='<div class="card"><div class="sectionhead"><span class="idx">◆</span><h3>AI 활용 &amp; 투자수익</h3></div>'
+      +'<div class="grid g3" style="gap:10px;margin-bottom:12px">'
+        +'<div style="text-align:center;padding:11px 6px;background:var(--panel-2);border-radius:11px"><div style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:700;color:var(--ink)">'+calls+'</div><div style="font-size:10.5px;color:var(--ink-mute)">AI 호출</div></div>'
+        +'<div style="text-align:center;padding:11px 6px;background:var(--panel-2);border-radius:11px"><div style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:700;color:var(--ink)">'+K(pt+ot)+'</div><div style="font-size:10.5px;color:var(--ink-mute)">총 토큰</div></div>'
+        +'<div style="text-align:center;padding:11px 6px;background:var(--panel-2);border-radius:11px"><div style="font-family:\'Noto Serif KR\',serif;font-size:20px;font-weight:700;color:var(--gold)">'+won(costKRW)+'</div><div style="font-size:10.5px;color:var(--ink-mute)">추정 비용</div></div>'
+      +'</div>'
+      +'<div style="font-size:11.5px;color:var(--ink);font-weight:600;margin:6px 0 8px">기능별 사용</div>'
+      +(taskBars||'<div style="font-size:12px;color:var(--ink-mute)">아직 AI 사용 기록이 없습니다.</div>')
+      +'<div style="margin-top:12px;padding:11px 13px;background:rgba(176,129,42,.09);border-radius:11px;font-size:12px;color:var(--ink-dim);line-height:1.65">'
+        +'AI 비용 <b style="color:var(--gold)">'+won(costKRW)+'</b>로 컨설턴트 <b style="color:var(--ink)">'+savedHrs+'시간</b>('+won(savedKRW)+' 상당)을 대체 — <b style="color:var(--gold)">약 '+(roiX!=null?roiX.toFixed(0):'—')+'배</b> 투자수익(추정).'
+      +'</div>'
+    +'</div>';
+    h+='</div>';
+    var perStu={}; sids.forEach(function(id){perStu[id]={o:0,r:0,last:0};});
+    function add(id,oo,rr,d){ if(!perStu[id])return; perStu[id].o+=oo; perStu[id].r+=rr; if(d){var tm=new Date(d).getTime(); if(tm>perStu[id].last)perStu[id].last=tm;} }
+    ls.forEach(function(x){ add(x.student_id,(x.status==='completed'?1:0),(x.round||0),x.completed_at); });
+    ps.forEach(function(x){ add(x.student_id,(x.status==='completed'?1:0),(x.round||0),x.completed_at); });
+    di.forEach(function(x){ add(x.student_id,(x.approved?1:0),0,x.submitted_at||x.created_at); });
+    var byId={}; students.forEach(function(s){byId[s.id]=s;});
+    var ranked=students.map(function(s){var pp=perStu[s.id]||{o:0,r:0,last:0}; return {s:s,o:pp.o,r:pp.r,last:pp.last};}).sort(function(a,b){return (b.o+b.r*0.3)-(a.o+a.r*0.3);}).slice(0,8);
+    var srows=ranked.map(function(x){ var last=x.last?(new Date(x.last).toISOString().slice(0,10)):'—'; var gb=x.s.admission_track==='고입';
+      return '<div style="display:flex;align-items:center;gap:11px;padding:10px 0;border-top:1px solid var(--line-soft)">'
+       +'<div style="width:34px;height:34px;border-radius:10px;background:'+(gb?'#7c6ad0':'#3b7a9e')+';display:grid;place-items:center;color:#fff;font-family:\'Noto Serif KR\',serif;font-size:14px;flex:none">'+esc(String(x.s.name||'-').charAt(0)||'·')+'</div>'
+       +'<div style="flex:1;min-width:0"><div style="font-size:13px;color:var(--ink);font-weight:500">'+esc(x.s.name||'-')+'</div><div style="font-size:10.5px;color:var(--ink-mute)">'+esc(x.s.grade||'')+' · 최근활동 '+last+'</div></div>'
+       +'<div style="text-align:right"><div style="font-family:\'Noto Serif KR\',serif;font-size:15px;color:var(--ink)">'+x.o+'<span style="font-size:11px;color:var(--ink-mute)"> 산출물</span></div><div style="font-size:10.5px;color:var(--ink-mute)">코칭 '+x.r+'회</div></div>'
+      +'</div>'; }).join('');
+    h+='<div class="card"><div class="sectionhead"><span class="idx">◆</span><h3>학생별 활동·성과</h3></div><div style="font-size:11.5px;color:var(--ink-mute);margin-bottom:2px">산출물·협업이 많이 쌓인 순</div>'+(srows||'<div style="font-size:12px;color:var(--ink-mute);padding:10px 0">아직 활동 데이터가 없습니다.</div>')+'</div>';
+    h+='<div class="note" style="margin-top:14px">※ ROI·절감 시간은 <b>추정치</b>입니다 (산출물 1건 ≈ 컨설턴트 1.5시간, ₩30,000/시간, AI 비용은 Gemini Flash 토큰 단가 기준). 실제 값은 학원 상황에 따라 다릅니다. 학쫑프로식 관리 알림이 아니라, <b style="color:var(--ink)">아르케가 만든 협업의 결과물과 투자수익</b>을 보여주는 지표입니다.</div>';
+    body.innerHTML=h;
+  }catch(e){ body.innerHTML='<div style="color:var(--risk);padding:20px">집계 오류: '+esc(e.message||e)+'</div>'; }
+};
 function renderHomeKPI(){
   var st=window._students||[];
   var set=function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
@@ -2696,21 +2797,30 @@ async function renderAllStudents(){
   }catch(e){window._allAcct={};}
   var cnt=document.getElementById('as-count'); if(cnt)cnt.textContent=window._allStudents.length;
   if(!window._allStudents.length){ list.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._isB2C?'등록된 자녀가 없습니다. 왼쪽에서 등록하세요.':'등록된 학생이 없습니다. 왼쪽에서 등록하세요.')+'</div>'; return; }
-  list.innerHTML=window._allStudents.map(function(s){
+  var _AVC={dae:'#3b7a9e',goip:'#7c6ad0'};
+  list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px">'+window._allStudents.map(function(s){
     var goip=s.admission_track==='고입';
-    var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 7px">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 7px">대입</span>';
-    if(s.is_rookie)badge+=' <span style="font-size:10px;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:2px 7px">신입생</span>';
+    var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 8px;font-weight:600">대입</span>';
+    if(s.is_rookie)badge+=' <span style="font-size:10px;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:2px 8px;font-weight:600">신입생</span>';
     var acct=window._allAcct&&window._allAcct[s.id];
     var acctLbl=acct?('<span style="color:var(--safe)">아이디 '+esc(acct.login_id)+'</span>'):'<span style="color:var(--ink-mute)">계정 없음</span>';
-    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px">'
-      +'<div style="display:flex;align-items:center;gap:9px;min-width:0">'+badge+'<div style="min-width:0"><div style="font-weight:600;color:var(--ink);font-size:13.5px">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+' · '+acctLbl+'</div></div></div>'
-      +'<div style="display:flex;gap:6px;flex-shrink:0">'
-      +'<button onclick="openStudentUnified(\''+s.id+'\')" style="padding:6px 12px;background:var(--gold);color:#241a06;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">열기 →</button>'
-      +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;font-size:11px;cursor:pointer">계정</button>')
-      +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">비번초기화</button>':'')
-      +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:6px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">삭제</button>'
-      +'</div></div>';
-  }).join('');
+    var _ini=esc(String(s.name||'-').trim().charAt(0)||'·');
+    var _av=goip?_AVC.goip:_AVC.dae;
+    return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(35,42,32,.03),0 10px 26px rgba(35,42,32,.04)">'
+      +'<div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">'
+        +'<div style="width:44px;height:44px;border-radius:13px;background:'+_av+';display:grid;place-items:center;font-family:\'Noto Serif KR\',serif;font-weight:600;color:#fff;font-size:18px;flex:none">'+_ini+'</div>'
+        +'<div style="min-width:0;flex:1"><div style="font-family:\'Noto Serif KR\',serif;font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+'</div></div>'
+        +badge
+      +'</div>'
+      +'<div style="font-size:11.5px;border-top:1px dashed var(--line);padding-top:9px;margin-bottom:12px">'+acctLbl+'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+        +'<button onclick="openStudentUnified(\''+s.id+'\')" style="flex:1;min-width:74px;padding:7px 10px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">열기 →</button>'
+        +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:8px;font-size:11px;cursor:pointer">계정</button>')
+        +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:8px;font-size:11px;cursor:pointer">비번초기화</button>':'')
+        +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:8px;font-size:11px;cursor:pointer">삭제</button>'
+      +'</div>'
+    +'</div>';
+  }).join('')+'</div>';
 }
 function openStudentUnified(id){
   var s=(window._allStudents||[]).find(function(x){return x.id===id;}); if(!s)return;
@@ -6486,24 +6596,32 @@ window.renderGStudents=async function(){
     if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id,must_change').in('student_id',ids);
       (acc.data||[]).forEach(function(a){window._gstuAcct[a.student_id]=a;});}
   }catch(e){}
-  list.innerHTML=st.map(function(s){
+  list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px">'+st.map(function(s){
     var act=(window._gactive&&window._gactive.id===s.id);
     var acct=window._gstuAcct[s.id];
-    var idBadge=acct?'<span style="font-size:10.5px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:700">'+esc(acct.login_id)+'</span>'+(acct.must_change?'<span style="font-size:9.5px;color:var(--ink-mute);margin-left:4px">(pw 0000)</span>':''):'';
+    var idBadge=acct?'<span style="font-size:10px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;font-weight:700">'+esc(acct.login_id)+'</span>':'';
     var acctBtn=acct
-      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--gold);border-radius:6px;cursor:pointer;color:var(--gold)">ID 복사</button>'
-      :'<button onclick="event.stopPropagation();createStudentAccount(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--gold);border-radius:6px;cursor:pointer;color:var(--gold)">계정 생성</button>';
-    return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line-soft)')+';border-radius:12px;padding:13px 15px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px;color:var(--ink)">'+esc(s.name||'-')+idBadge+'</b>'
-      +'<span style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'')+(s.target_school_type?' · '+esc(s.target_school_type):'')+'</span></div>'
-      +'<div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+'</div>'
-      +(s.career?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px">진로: '+esc(s.career)+'</div>':'')
-      +'<div style="margin-top:7px;display:flex;gap:6px">'
-      +'<button onclick="event.stopPropagation();selectGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--ink-dim)">활성화</button>'
-      +acctBtn
-      +'<button onclick="event.stopPropagation();delGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--risk)">삭제</button>'
-      +'</div></div>';
-  }).join('');
+      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">ID 복사</button>'
+      :'<button onclick="event.stopPropagation();createStudentAccount(\''+s.id+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">계정</button>';
+    var _ini=esc(String(s.name||'-').trim().charAt(0)||'·');
+    return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line)')+';border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(35,42,32,.03),0 10px 26px rgba(35,42,32,.04)">'
+      +'<div style="display:flex;align-items:center;gap:11px;margin-bottom:11px">'
+        +'<div style="width:44px;height:44px;border-radius:13px;background:#7c6ad0;display:grid;place-items:center;font-family:\'Noto Serif KR\',serif;font-weight:600;color:#fff;font-size:18px;flex:none">'+_ini+'</div>'
+        +'<div style="min-width:0;flex:1"><div style="font-family:\'Noto Serif KR\',serif;font-weight:600;font-size:15px;color:var(--ink)">'+esc(s.name||'-')+(act?' <span style="font-size:10px;color:var(--gold)">● 활성</span>':'')+'</div><div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(s.grade||'')+(s.school?' · '+esc(s.school):'')+'</div></div>'
+        +'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>'
+      +'</div>'
+      +'<div style="font-size:11.5px;color:var(--ink-dim);border-top:1px dashed var(--line);padding-top:9px;margin-bottom:11px">'
+        +(s.target_school?'목표 '+esc(s.target_school):(s.target_school_type?esc(s.target_school_type):'목표 미정'))
+        +(s.career?' · 진로 '+esc(s.career):'')
+        +(idBadge?'<br>'+idBadge:'')
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+        +'<button onclick="event.stopPropagation();selectGStudent(\''+s.id+'\')" style="flex:1;min-width:70px;font-size:12px;font-weight:700;padding:7px 10px;background:var(--gold);color:#241a06;border:none;border-radius:8px;cursor:pointer">활성화</button>'
+        +acctBtn
+        +'<button onclick="event.stopPropagation();delGStudent(\''+s.id+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-mute)">삭제</button>'
+      +'</div>'
+    +'</div>';
+  }).join('')+'</div>';
 };
 async function addGStudent(){
   var m=document.getElementById('gst-msg'); if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드';return;}
