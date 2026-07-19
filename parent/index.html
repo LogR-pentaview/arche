@@ -589,12 +589,12 @@
         <div class="h1">컨설팅 홈</div>
         <div class="sub" id="home-sub">담당 학생 0명</div>
 
-        <div onclick="goView('allstudents')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,rgba(127,184,0,.12),rgba(127,184,0,.04));border:1px solid rgba(127,184,0,.3);border-radius:12px;padding:16px 20px;margin-top:18px">
+        <div onclick="goView('allstudents')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;background:linear-gradient(90deg,rgba(176,129,42,.12),rgba(176,129,42,.04));border:1px solid rgba(176,129,42,.3);border-radius:14px;padding:16px 20px;margin-top:18px">
           <div style="display:flex;align-items:center;gap:12px">
-            <div style="width:38px;height:38px;border-radius:10px;background:var(--lime);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0a1a05" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+            <div style="width:38px;height:38px;border-radius:11px;background:var(--gold);display:flex;align-items:center;justify-content:center;flex-shrink:0"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#241a06" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
             <div><div style="font-weight:700;color:var(--ink);font-size:14.5px" data-b2c="자녀 등록·관리">학생 등록·관리</div><div style="font-size:12px;color:var(--ink-mute)">여기서 학생을 등록하면 아이디가 자동 생성되고, 학년에 따라 고입/대입이 자동 구분됩니다</div></div>
           </div>
-          <div style="color:var(--lime);font-size:20px;flex-shrink:0">→</div>
+          <div style="color:var(--gold);font-size:20px;flex-shrink:0">→</div>
         </div>
 
         <div class="grid" style="grid-template-columns:1fr 1fr;margin:18px 0 22px">
@@ -2696,21 +2696,30 @@ async function renderAllStudents(){
   }catch(e){window._allAcct={};}
   var cnt=document.getElementById('as-count'); if(cnt)cnt.textContent=window._allStudents.length;
   if(!window._allStudents.length){ list.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._isB2C?'등록된 자녀가 없습니다. 왼쪽에서 등록하세요.':'등록된 학생이 없습니다. 왼쪽에서 등록하세요.')+'</div>'; return; }
-  list.innerHTML=window._allStudents.map(function(s){
+  var _AVC={dae:'#3b7a9e',goip:'#7c6ad0'};
+  list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px">'+window._allStudents.map(function(s){
     var goip=s.admission_track==='고입';
-    var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 7px">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 7px">대입</span>';
-    if(s.is_rookie)badge+=' <span style="font-size:10px;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:2px 7px">신입생</span>';
+    var badge=goip?'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>':'<span style="font-size:10px;color:#2d6da6;background:#e5f0fa;border-radius:6px;padding:2px 8px;font-weight:600">대입</span>';
+    if(s.is_rookie)badge+=' <span style="font-size:10px;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:2px 8px;font-weight:600">신입생</span>';
     var acct=window._allAcct&&window._allAcct[s.id];
     var acctLbl=acct?('<span style="color:var(--safe)">아이디 '+esc(acct.login_id)+'</span>'):'<span style="color:var(--ink-mute)">계정 없음</span>';
-    return '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;margin-bottom:8px">'
-      +'<div style="display:flex;align-items:center;gap:9px;min-width:0">'+badge+'<div style="min-width:0"><div style="font-weight:600;color:var(--ink);font-size:13.5px">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+' · '+acctLbl+'</div></div></div>'
-      +'<div style="display:flex;gap:6px;flex-shrink:0">'
-      +'<button onclick="openStudentUnified(\''+s.id+'\')" style="padding:6px 12px;background:var(--gold);color:#241a06;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">열기 →</button>'
-      +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;font-size:11px;cursor:pointer">계정</button>')
-      +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">비번초기화</button>':'')
-      +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:6px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">삭제</button>'
-      +'</div></div>';
-  }).join('');
+    var _ini=esc(String(s.name||'-').trim().charAt(0)||'·');
+    var _av=goip?_AVC.goip:_AVC.dae;
+    return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(35,42,32,.03),0 10px 26px rgba(35,42,32,.04)">'
+      +'<div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">'
+        +'<div style="width:44px;height:44px;border-radius:13px;background:'+_av+';display:grid;place-items:center;font-family:\'Noto Serif KR\',serif;font-weight:600;color:#fff;font-size:18px;flex:none">'+_ini+'</div>'
+        +'<div style="min-width:0;flex:1"><div style="font-family:\'Noto Serif KR\',serif;font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+'</div></div>'
+        +badge
+      +'</div>'
+      +'<div style="font-size:11.5px;border-top:1px dashed var(--line);padding-top:9px;margin-bottom:12px">'+acctLbl+'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+        +'<button onclick="openStudentUnified(\''+s.id+'\')" style="flex:1;min-width:74px;padding:7px 10px;background:var(--gold);color:#241a06;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">열기 →</button>'
+        +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:8px;font-size:11px;cursor:pointer">계정</button>')
+        +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:8px;font-size:11px;cursor:pointer">비번초기화</button>':'')
+        +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:8px;font-size:11px;cursor:pointer">삭제</button>'
+      +'</div>'
+    +'</div>';
+  }).join('')+'</div>';
 }
 function openStudentUnified(id){
   var s=(window._allStudents||[]).find(function(x){return x.id===id;}); if(!s)return;
@@ -6484,24 +6493,32 @@ window.renderGStudents=async function(){
     if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id,must_change').in('student_id',ids);
       (acc.data||[]).forEach(function(a){window._gstuAcct[a.student_id]=a;});}
   }catch(e){}
-  list.innerHTML=st.map(function(s){
+  list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px">'+st.map(function(s){
     var act=(window._gactive&&window._gactive.id===s.id);
     var acct=window._gstuAcct[s.id];
-    var idBadge=acct?'<span style="font-size:10.5px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:700">'+esc(acct.login_id)+'</span>'+(acct.must_change?'<span style="font-size:9.5px;color:var(--ink-mute);margin-left:4px">(pw 0000)</span>':''):'';
+    var idBadge=acct?'<span style="font-size:10px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;font-weight:700">'+esc(acct.login_id)+'</span>':'';
     var acctBtn=acct
-      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--gold);border-radius:6px;cursor:pointer;color:var(--gold)">ID 복사</button>'
-      :'<button onclick="event.stopPropagation();createStudentAccount(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--gold);border-radius:6px;cursor:pointer;color:var(--gold)">계정 생성</button>';
-    return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line-soft)')+';border-radius:12px;padding:13px 15px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:14px;color:var(--ink)">'+esc(s.name||'-')+idBadge+'</b>'
-      +'<span style="font-size:11px;color:var(--ink-mute)">'+esc(s.grade||'')+(s.target_school_type?' · '+esc(s.target_school_type):'')+'</span></div>'
-      +'<div style="font-size:12px;color:var(--ink-dim);margin-top:3px">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+'</div>'
-      +(s.career?'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:2px">진로: '+esc(s.career)+'</div>':'')
-      +'<div style="margin-top:7px;display:flex;gap:6px">'
-      +'<button onclick="event.stopPropagation();selectGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--ink-dim)">활성화</button>'
-      +acctBtn
-      +'<button onclick="event.stopPropagation();delGStudent(\''+s.id+'\')" style="font-size:11px;padding:4px 10px;background:transparent;border:1px solid var(--line);border-radius:6px;cursor:pointer;color:var(--risk)">삭제</button>'
-      +'</div></div>';
-  }).join('');
+      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">ID 복사</button>'
+      :'<button onclick="event.stopPropagation();createStudentAccount(\''+s.id+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">계정</button>';
+    var _ini=esc(String(s.name||'-').trim().charAt(0)||'·');
+    return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line)')+';border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(35,42,32,.03),0 10px 26px rgba(35,42,32,.04)">'
+      +'<div style="display:flex;align-items:center;gap:11px;margin-bottom:11px">'
+        +'<div style="width:44px;height:44px;border-radius:13px;background:#7c6ad0;display:grid;place-items:center;font-family:\'Noto Serif KR\',serif;font-weight:600;color:#fff;font-size:18px;flex:none">'+_ini+'</div>'
+        +'<div style="min-width:0;flex:1"><div style="font-family:\'Noto Serif KR\',serif;font-weight:600;font-size:15px;color:var(--ink)">'+esc(s.name||'-')+(act?' <span style="font-size:10px;color:var(--gold)">● 활성</span>':'')+'</div><div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(s.grade||'')+(s.school?' · '+esc(s.school):'')+'</div></div>'
+        +'<span style="font-size:10px;color:#7a3ca0;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>'
+      +'</div>'
+      +'<div style="font-size:11.5px;color:var(--ink-dim);border-top:1px dashed var(--line);padding-top:9px;margin-bottom:11px">'
+        +(s.target_school?'목표 '+esc(s.target_school):(s.target_school_type?esc(s.target_school_type):'목표 미정'))
+        +(s.career?' · 진로 '+esc(s.career):'')
+        +(idBadge?'<br>'+idBadge:'')
+      +'</div>'
+      +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
+        +'<button onclick="event.stopPropagation();selectGStudent(\''+s.id+'\')" style="flex:1;min-width:70px;font-size:12px;font-weight:700;padding:7px 10px;background:var(--gold);color:#241a06;border:none;border-radius:8px;cursor:pointer">활성화</button>'
+        +acctBtn
+        +'<button onclick="event.stopPropagation();delGStudent(\''+s.id+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--line);border-radius:8px;cursor:pointer;color:var(--ink-mute)">삭제</button>'
+      +'</div>'
+    +'</div>';
+  }).join('')+'</div>';
 };
 async function addGStudent(){
   var m=document.getElementById('gst-msg'); if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드';return;}
