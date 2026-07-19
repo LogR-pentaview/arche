@@ -4254,6 +4254,7 @@ async function genInterview(){
     var cq=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false}).limit(3);
     var conTxt=(cq.data||[]).map(function(c){return '[상담] 희망:'+(c.target_univ||'')+' '+(c.target_major||'')+' '+(c.career||'')+' / '+(c.activities||'')+' / '+(c.memo||'');}).join('\n').slice(0,1000);
     var gye=await resolveField(s.target_major);
+    var _exTxt=''; try{ _exTxt=await extraCtx(s.id); }catch(e){}
     genStep('면접관 관점의 질문을 구성 중…');
     var d=await callAI('interview_prep',{qtype:_ivType,career:(s.career||s.target_major||''),field:gye,target:(s.target_univ||''),term:(s.grade||''),context:setechTxt+(diTxt?'\n[활동 설계·실적]\n'+diTxt:'')+(conTxt?'\n'+conTxt:'')+(_exTxt||'')});
     var o=JSON.parse(d.text);
