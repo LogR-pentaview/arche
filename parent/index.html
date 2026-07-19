@@ -400,6 +400,7 @@
     </div></div>
 
     <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
+    <div class="nav" data-v="stuset" id="nav-stuset" style="display:none" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 설정</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
     <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="자녀 관리">학생 관리</span></div>
 
@@ -476,6 +477,12 @@
     <div class="content">
 
       <!-- 1. HOME -->
+      <section class="view" id="v-stuset">
+        <div class="eyebrow">Settings</div>
+        <div class="h1">설정</div>
+        <div class="sub">계정 정보와 비밀번호를 관리합니다</div>
+        <div id="stuset-body" style="margin-top:18px"></div>
+      </section>
       <section class="view on" id="v-home">
         <div class="eyebrow">Consulting Cockpit</div>
         <div class="h1">컨설팅 홈</div>
@@ -1951,7 +1958,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();}
+  if(v==='diag'&&window.renderDiag)renderDiag(); if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2386,6 +2393,8 @@ async function enterStudentApp(session){
   }
   // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
   ['allstudents','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
+  var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
   renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
@@ -2423,6 +2432,45 @@ async function changeStudentPw(){
   try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
   alert('비밀번호가 변경되었습니다.');
 }
+/* 학생 설정 화면 (계정·비밀번호) */
+async function renderStuSettings(){
+  var b=document.getElementById('stuset-body'); if(!b)return;
+  var s=window._activeStudent||{}; var lid='';
+  try{ var u=(await sb.auth.getUser()).data.user; if(u){ var a=await sb.from('student_accounts').select('login_id').eq('auth_uid',u.id).limit(1); lid=(a.data&&a.data[0]&&a.data[0].login_id)||''; } }catch(e){}
+  b.innerHTML='<div class="card" style="padding:16px 18px;max-width:460px">'
+    +'<div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:8px">👤 내 계정</div>'
+    +'<div style="font-size:12.5px;color:var(--ink-dim);margin-bottom:16px">이름 <b style="color:var(--ink)">'+esc(s.name||'-')+'</b>'+(lid?(' · 로그인 아이디 <b style="color:var(--ink)">'+esc(lid)+'</b>'):'')+'</div>'
+    +'<div style="font-size:13px;font-weight:700;color:var(--ink);margin:6px 0 9px;border-top:1px solid var(--line);padding-top:14px">🔑 비밀번호 변경</div>'
+    +'<input type="password" id="sps-new" placeholder="새 비밀번호 (4자 이상)" style="width:100%;padding:10px 12px;margin-bottom:8px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;box-sizing:border-box">'
+    +'<input type="password" id="sps-conf" placeholder="새 비밀번호 확인" onkeydown="if(event.key===\'Enter\')stuChangePw()" style="width:100%;padding:10px 12px;margin-bottom:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;box-sizing:border-box">'
+    +'<button class="btn" onclick="stuChangePw()">비밀번호 변경</button>'
+    +'<div id="sps-msg" style="font-size:11.5px;min-height:14px;margin-top:8px"></div>'
+    +'<div style="font-size:11px;color:var(--ink-mute);margin-top:14px;line-height:1.6;border-top:1px solid var(--line);padding-top:12px">※ 비밀번호를 잊어버렸다면 담당 선생님(학원)께 요청하세요. 초기 비밀번호(<b>0000</b>)로 재설정해 드립니다.</div>'
+    +'</div>';
+}
+async function stuChangePw(){
+  var np=(document.getElementById('sps-new')||{}).value||'', cf=(document.getElementById('sps-conf')||{}).value||'', m=document.getElementById('sps-msg');
+  if(np.length<4){ if(m){m.style.color='var(--risk)';m.textContent='새 비밀번호는 4자 이상 입력하세요.';} return; }
+  if(np!==cf){ if(m){m.style.color='var(--risk)';m.textContent='두 비밀번호가 일치하지 않습니다.';} return; }
+  if(m){m.style.color='var(--ink-mute)';m.textContent='변경 중…';}
+  var {error}=await sb.auth.updateUser({password:np});
+  if(error){ if(m){m.style.color='var(--risk)';m.textContent='변경 실패: '+error.message;} return; }
+  try{ var u=(await sb.auth.getUser()).data.user; if(u)await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); }catch(e){}
+  var n=document.getElementById('sps-new'),c=document.getElementById('sps-conf'); if(n)n.value='';if(c)c.value='';
+  if(m){m.style.color='var(--safe)';m.textContent='✅ 비밀번호가 변경되었습니다.';}
+}
+/* 컨설턴트: 학생 비밀번호 초기화(0000) */
+async function resetStudentPw(id){
+  if(!confirm('이 학생의 비밀번호를 초기 비밀번호(0000)로 재설정할까요?\n학생은 다음 로그인 후 새 비밀번호로 변경하게 됩니다.'))return;
+  var sess=(await sb.auth.getSession()).data.session; if(!sess)return alert('로그인이 필요합니다.');
+  try{
+    var r=await fetch('https://dvxepjctjazobrkjrkdw.supabase.co/functions/v1/create-student',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify({student_id:id,action:'reset_pw'})});
+    var d=await r.json();
+    if(d.error)return alert('초기화 실패: '+d.error);
+    alert('비밀번호가 초기화되었습니다.\n아이디: '+(d.login_id||'')+'\n초기 비밀번호: '+(d.pw||'0000'));
+  }catch(e){ alert('초기화 실패: '+(e.message||e)); }
+}
+window.renderStuSettings=renderStuSettings;window.stuChangePw=stuChangePw;window.resetStudentPw=resetStudentPw;
 document.getElementById('au-login').onclick=async()=>{
   if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
   msg('로그인 중…',true);
@@ -2534,7 +2582,7 @@ async function loadStudents(){
       var acct=(window._stuAcct||{})[s.id];
       var idBadge=acct?'<span style="font-size:10.5px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:700">'+esc(acct.login_id)+'</span>'+(acct.must_change?'<span style="font-size:9.5px;color:var(--ink-mute);margin-left:4px">(초기 pw 0000)</span>':''):'';
       var acctBtn=acct
-        ?'<button onclick="copyStuId(\''+esc(acct.login_id)+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">ID 복사</button>'
+        ?'<button onclick="copyStuId(\''+esc(acct.login_id)+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">ID 복사</button><button onclick="resetStudentPw(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">비번초기화</button>'
         :'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">계정 생성</button>';
       return '<div onclick="selectStudent(\''+s.id+'\')" style="background:var(--panel);border:1px solid '+(on?'var(--lime)':'var(--line)')+';border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 14px;cursor:pointer">'+
         '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+idBadge+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
@@ -2589,6 +2637,7 @@ async function renderAllStudents(){
       +'<div style="display:flex;gap:6px;flex-shrink:0">'
       +'<button onclick="openStudentUnified(\''+s.id+'\')" style="padding:6px 12px;background:var(--lime);color:#0a1a05;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer">열기 →</button>'
       +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:7px;font-size:11px;cursor:pointer">계정</button>')
+      +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:6px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">비번초기화</button>':'')
       +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:6px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:7px;font-size:11px;cursor:pointer">삭제</button>'
       +'</div></div>';
   }).join('');
@@ -2797,10 +2846,11 @@ async function cbLoadLessons(){
   el.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:7px">차시 구성 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· ▲▼ 순서 조정 (학생 화면에 즉시 반영)</span></div>'
    +cbLessons.map(function(l,i){
     var f=(i===0), la=(i===cbLessons.length-1);
-    var rv=cbSubMap[l.id];
+    var rv=cbSubMap[l.id]; var rvSt=rv?rv.status:'';
+    var rvC=rvSt==='completed'?'var(--safe)':(rvSt==='review'?'var(--reach,#5b8def)':(rvSt==='returned'?'var(--gold,#c8a24a)':'var(--ink-mute)'));
+    var rvLbl=rvSt==='completed'?'✅ 완성됨 — 보기':(rvSt==='review'?'🟦 검토 요청됨 — 검토·첨삭':(rvSt==='returned'?'↩ 돌려보냄 — 학생 수정 대기':'✏️ 작성 중 — 미리보기'));
     var rvSec=rv?('<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px">'
-      +'<button onclick="cbReviewSub('+l.id+')" style="font-size:11px;padding:3px 10px;background:transparent;border:1px solid '+(rv.status==='reviewed'?'var(--safe)':(rv.status==='submitted'?'var(--reach,#5b8def)':'var(--line)'))+';border-radius:6px;color:'+(rv.status==='reviewed'?'var(--safe)':(rv.status==='submitted'?'var(--reach,#5b8def)':'var(--ink-mute)'))+';cursor:pointer">'
-      +(rv.status==='reviewed'?'✓ 검수 완료 — 제출물 보기':(rv.status==='submitted'?'🟦 제출됨 — 검토·첨삭':'✏️ 작성 중 — 미리보기'))+'</button>'
+      +'<button onclick="cbReviewSub('+l.id+')" style="font-size:11px;padding:3px 10px;background:transparent;border:1px solid '+rvC+';border-radius:6px;color:'+rvC+';cursor:pointer">'+rvLbl+'</button>'
       +'<div id="cbrev-'+l.id+'" style="display:none"></div></div>'):'';
     return '<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:7px"><div style="display:flex;align-items:flex-start;gap:10px">'
       +'<div style="display:flex;flex-direction:column;gap:2px">'
@@ -2896,35 +2946,112 @@ async function cbReviewSub(lid){
   pane.style.display='block'; pane.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:8px">불러오는 중…</div>';
   var sr=await sb.from('lesson_submissions').select('*').eq('lesson_id',lid).eq('course_id',cbCourse.id).limit(1);
   var s=sr.data&&sr.data[0];
-  if(!s||(s.status!=='submitted'&&s.status!=='reviewed'&&s.status!=='doing')){ pane.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:8px">아직 학생 제출물이 없습니다.</div>'; return; }
+  if(!s){ pane.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:8px">아직 학생 제출물이 없습니다.</div>'; return; }
+  var done=(s.status==='completed');
   var tm=s.typing_meta||{};
   var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 추정'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};
   var v=vm[s.verdict]||['var(--ink-mute)','—'];
+  var stLbl=s.status==='review'?'검토 요청됨':(s.status==='returned'?'돌려보냄(학생 수정 대기)':(s.status==='completed'?'완성됨':(s.status==='doing'?'작성 중':s.status)));
   var h='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:10px">'
-    +'<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">학생 제출물'+(s.status==='doing'?' (작성 중 · 미제출)':'')+'</div>'
+    +'<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">학생 제출물 · <b>'+stLbl+'</b>'+(s.round?(' · 라운드 '+s.round):'')+'</div>'
     +'<div style="font-size:13px;line-height:1.85;color:var(--ink);word-break:keep-all;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--panel-2)">'+(s.content||'<span style="color:var(--ink-mute)">(비어 있음)</span>')+'</div>'
     +'<div style="margin-top:8px;padding:8px 11px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'
       +'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px">키입력 '+(tm.keyCount||0)+' · 삭제 '+(tm.backCount||0)+' · 붙여넣기 '+(tm.pasteCount||0)+'회('+(tm.pasteChars||0)+'자) · 글자수 '+(tm.charCount||0)+' · 작성 '+Math.round((tm.totalMs||0)/60000)+'분'+(tm.saves!=null?' · 저장 '+tm.saves+'회':'')+'</div>'
-      +(s.verdict_reason?'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6">'+esc(s.verdict_reason)+'</div>':'')+'</div>'
-    +'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:10px 0 4px">첨삭·피드백</div>'
-    +'<textarea id="cbfb-'+lid+'" rows="3" placeholder="학생에게 전달할 피드백을 작성하세요" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.7;resize:vertical;box-sizing:border-box">'+esc(s.feedback||'')+'</textarea>'
-    +'<div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;align-items:center">'
-      +'<button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="cbSaveFeedback('+s.id+','+lid+')">피드백 저장</button>'
-      +'<button class="btn" style="padding:4px 11px;font-size:11.5px" onclick="cbMarkReviewed('+s.id+','+lid+')">'+(s.status==='reviewed'?'✓ 검수 완료됨 (재저장)':'검수 완료 처리')+'</button>'
-      +'<span id="cbfbm-'+lid+'" style="font-size:11px"></span></div></div>';
+      +(s.verdict_reason?'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6">'+esc(s.verdict_reason)+'</div>':'')+'</div>';
+  h+='<div style="display:flex;align-items:center;gap:8px;margin:11px 0 4px"><span style="font-size:11px;color:var(--reach,#5b8def);font-weight:700">🤖 AI 코칭</span>'
+    +(done?'':'<button class="btn ghost" style="padding:3px 9px;font-size:11px" onclick="cbRunCoach('+s.id+','+lid+')">'+(s.ai_coaching?'AI 재검토':'AI 검토 실행')+'</button>')+'</div>'
+    +'<div id="cbai-'+lid+'" style="'+(s.ai_coaching?'':'display:none;')+'padding:10px 12px;border:1px solid var(--reach,#5b8def);border-radius:9px;background:rgba(91,141,239,.06);font-size:12px;color:var(--ink-dim);line-height:1.7">'+(s.ai_coaching||'')+'</div>';
+  if(done){
+    h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성 처리된 차시입니다. 학생이 PDF·DOCX로 다운로드할 수 있습니다.</div>'
+      +(s.feedback?'<div style="margin-top:8px;font-size:12px;color:var(--ink-dim);white-space:pre-wrap"><b style="color:var(--ink)">최종 피드백</b><br>'+esc(s.feedback)+'</div>':'')+'</div>';
+  } else {
+    h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin:11px 0 4px">컨설턴트 피드백 (AI 코칭과 함께 학생에게 전달)</div>'
+      +'<textarea id="cbfb-'+lid+'" rows="3" placeholder="방향·수정 포인트를 적어주세요. AI 코칭과 함께 학생에게 전달됩니다." style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.7;resize:vertical;box-sizing:border-box">'+esc(s.feedback||'')+'</textarea>'
+      +'<div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;align-items:center">'
+        +'<button class="btn" style="padding:4px 12px;font-size:11.5px;background:var(--reach,#5b8def);border:none;color:#fff" onclick="cbReturnToStudent('+s.id+','+lid+')">↩ 학생에게 돌려보내기</button>'
+        +'<button class="btn ghost" style="padding:4px 12px;font-size:11.5px;border-color:var(--safe);color:var(--safe)" onclick="cbCompleteLesson('+s.id+','+lid+')">✅ 완성 처리</button>'
+        +'<span id="cbfbm-'+lid+'" style="font-size:11px"></span></div></div>';
+  }
   pane.innerHTML=h;
 }
-async function cbSaveFeedback(id,lid){
-  var t=document.getElementById('cbfb-'+lid), m=document.getElementById('cbfbm-'+lid); var v=t?t.value.trim():'';
-  var u=await sb.from('lesson_submissions').update({feedback:v}).eq('id',id);
-  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='피드백 저장됨';} }
+function cbFmtCoach(o){
+  if(!o||typeof o!=='object')return '';
+  var h='';
+  if(o.summary)h+='<div style="margin-bottom:6px">'+esc(o.summary)+'</div>';
+  if(o.direction)h+='<div style="margin-bottom:6px"><b>🧭 방향성</b><br>'+esc(o.direction)+'</div>';
+  if(Array.isArray(o.issues)&&o.issues.length)h+='<div style="margin-bottom:6px"><b>⚠️ 짚을 점</b><ul style="margin:3px 0 0 16px;padding:0">'+o.issues.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  if(Array.isArray(o.improvements)&&o.improvements.length)h+='<div style="margin-bottom:6px"><b>✍️ 보완 제안</b><ul style="margin:3px 0 0 16px;padding:0">'+o.improvements.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul></div>';
+  if(o.next)h+='<div style="margin-bottom:6px"><b>▶ 다음 할 일</b><br>'+esc(o.next)+'</div>';
+  if(o.encouragement)h+='<div style="color:var(--safe)">'+esc(o.encouragement)+'</div>';
+  return h;
 }
-async function cbMarkReviewed(id,lid){
+async function cbRunCoach(id,lid){
+  var m=document.getElementById('cbfbm-'+lid); if(m){m.style.color='var(--ink-mute)';m.textContent='AI 검토 중… (10~20초)';}
+  var l=(cbLessons||[]).find(function(x){return x.id===lid;})||{};
+  var sr=await sb.from('lesson_submissions').select('content').eq('id',id).limit(1);
+  var draft=''; try{ var tmp=document.createElement('div'); tmp.innerHTML=(sr.data&&sr.data[0]&&sr.data[0].content)||''; draft=(tmp.innerText||tmp.textContent||''); }catch(e){}
+  var s=cbStu()||{};
+  try{
+    var d=await callAI('course_coach',{title:l.title||'',goal:l.goal||'',guide:l.guide||'',outline:l.outline||'',
+      career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),draft:draft});
+    var o=JSON.parse(d.text); var html=cbFmtCoach(o);
+    await sb.from('lesson_submissions').update({ai_coaching:html}).eq('id',id);
+    var box=document.getElementById('cbai-'+lid); if(box){box.style.display='block';box.innerHTML=html;}
+    if(m){m.style.color='var(--safe)';m.textContent='AI 검토 완료 — 저장됨';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='AI 검토 실패: '+(e.message||e);} }
+}
+async function cbReturnToStudent(id,lid){
   var t=document.getElementById('cbfb-'+lid), m=document.getElementById('cbfbm-'+lid); var v=t?t.value.trim():'';
-  var u=await sb.from('lesson_submissions').update({feedback:v,status:'reviewed',reviewed_at:new Date().toISOString()}).eq('id',id);
-  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='처리 실패';return;} m.style.color='var(--safe)';m.textContent='검수 완료';}
-  if(window.toast)toast('검수 완료 처리했습니다',true);
+  var cur=await sb.from('lesson_submissions').select('round,review_history,ai_coaching').eq('id',id).limit(1); var s=(cur.data&&cur.data[0])||{};
+  var hist=Array.isArray(s.review_history)?s.review_history:[]; var rnd=(s.round||0)+1;
+  hist.push({round:rnd,ai_coaching:s.ai_coaching||'',feedback:v,returned_at:new Date().toISOString()});
+  var u=await sb.from('lesson_submissions').update({feedback:v,status:'returned',round:rnd,review_history:hist,reviewed_at:new Date().toISOString()}).eq('id',id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='전송 실패: '+u.error.message;return;} m.style.color='var(--safe)';m.textContent='학생에게 돌려보냈습니다 (라운드 '+rnd+')';}
+  if(window.toast)toast('AI 코칭·피드백을 학생에게 전달했습니다',true);
   cbLoadLessons();
+}
+async function cbCompleteLesson(id,lid){
+  var t=document.getElementById('cbfb-'+lid), m=document.getElementById('cbfbm-'+lid); var v=t?t.value.trim():'';
+  if(!confirm('이 차시를 완성 처리할까요?\n완성하면 학생이 최종 보고서를 PDF·DOCX로 다운로드할 수 있고, 다음 차시가 열립니다. (이후 학생은 수정 불가)'))return;
+  var u=await sb.from('lesson_submissions').update({feedback:v,status:'completed',completed_at:new Date().toISOString()}).eq('id',id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='처리 실패: '+u.error.message;return;} m.style.color='var(--safe)';m.textContent='완성 처리됨';}
+  if(window.toast)toast('완성 처리했습니다 — 학생이 문서를 받을 수 있습니다',true);
+  cbLoadLessons();
+}
+/* ---------- 완성 보고서 문서화 (PDF·DOCX) ---------- */
+async function cbReportDoc(lid){
+  var s=cbStu(); if(!s)return null;
+  var lr=await sb.from('course_lessons').select('title').eq('id',lid).limit(1); var title=(lr.data&&lr.data[0]&&lr.data[0].title)||'탐구보고서';
+  var sr=await sb.from('lesson_submissions').select('content').eq('lesson_id',lid).eq('student_id',s.id).limit(1);
+  return {title:title, content:(sr.data&&sr.data[0]&&sr.data[0].content)||''};
+}
+async function cbDownloadReportPDF(lid){
+  var r=await cbReportDoc(lid); if(!r)return;
+  var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 브라우저에서 팝업을 허용한 뒤 다시 시도하세요.');return;}
+  var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(r.title)+'</title>'
+    +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'
+    +'<style>body{font-family:"Noto Sans KR",-apple-system,sans-serif;max-width:760px;margin:38px auto;padding:0 26px;line-height:1.9;color:#111;word-break:keep-all}h1{font-size:22px;border-bottom:2px solid #333;padding-bottom:10px;margin-bottom:18px}img{max-width:100%}</style></head><body>'
+    +'<h1>'+esc(r.title)+'</h1><div>'+(r.content||'')+'</div>'
+    +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},450);};</scr'+'ipt></body></html>';
+  w.document.open(); w.document.write(doc); w.document.close();
+}
+function cbLoadDocx(){ return new Promise(function(res){ if(window.htmlDocx)return res(window.htmlDocx); var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js'; sc.onload=function(){res(window.htmlDocx||null);}; sc.onerror=function(){res(null);}; document.head.appendChild(sc); }); }
+async function cbDownloadReportDOCX(lid){
+  var r=await cbReportDoc(lid); if(!r)return;
+  var inner='<h1 style="font-size:18pt">'+esc(r.title)+'</h1>'+(r.content||'');
+  var full='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:"Malgun Gothic",sans-serif;line-height:1.8}img{max-width:480px}h1{border-bottom:1px solid #333;padding-bottom:8px}</style></head><body>'+inner+'</body></html>';
+  var fname=(r.title||'보고서').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60);
+  var lib=await cbLoadDocx(); var blob, ext;
+  if(lib&&lib.asBlob){ blob=lib.asBlob(full); ext='docx'; }
+  else { blob=new Blob(['﻿'+full],{type:'application/msword'}); ext='doc'; }
+  var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=fname+'.'+ext;
+  document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1200);
+}
+function cbFeedbackPanel(sub){
+  var h='';
+  if(sub.ai_coaching)h+='<div style="margin-top:9px;padding:10px 12px;border:1px solid var(--reach,#5b8def);border-radius:9px;background:rgba(91,141,239,.06)"><div style="font-size:11px;color:var(--reach,#5b8def);font-weight:700;margin-bottom:5px">🤖 AI 코칭</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7">'+sub.ai_coaching+'</div></div>';
+  if(sub.feedback)h+='<div style="margin-top:8px;padding:10px 12px;background:rgba(127,184,0,.08);border-radius:9px"><div style="font-size:11px;color:var(--ink);font-weight:700;margin-bottom:4px">👩‍🏫 선생님 피드백</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap">'+esc(sub.feedback)+'</div></div>';
+  return h;
 }
 /* ---------- AI 차시 생성 ---------- */
 async function cbGenLesson(name){
@@ -3013,7 +3140,7 @@ async function cbStuList(){
   var su=await sb.from('lesson_submissions').select('course_id,status').eq('student_id',s.id).in('course_id',ids);
   var tot={},dn={};
   (ls.data||[]).forEach(function(x){tot[x.course_id]=(tot[x.course_id]||0)+1;});
-  (su.data||[]).forEach(function(x){ if(x.status==='submitted'||x.status==='reviewed')dn[x.course_id]=(dn[x.course_id]||0)+1; });
+  (su.data||[]).forEach(function(x){ if(x.status==='completed')dn[x.course_id]=(dn[x.course_id]||0)+1; });
   box.innerHTML='<div class="card" style="padding:15px 17px"><div style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px">📚 내 코스</div>'
     +rows.map(function(c){var t=tot[c.id]||0,d=dn[c.id]||0;
       return '<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:7px;cursor:pointer" onclick="cbStuOpen('+c.id+')">'
@@ -3031,19 +3158,20 @@ async function cbStuOpen(cid){
   var h='<div class="card" style="padding:15px 17px"><div style="display:flex;align-items:center;gap:9px;margin-bottom:11px"><button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="cbStuList()">← 내 코스</button><b style="font-size:14.5px;color:var(--ink)">'+esc(c.title)+'</b></div>';
   if(!L.length){ box.innerHTML=h+'<div style="font-size:12px;color:var(--ink-mute)">차시가 아직 없습니다.</div></div>'; return; }
   L.forEach(function(l,i){
-    var sub=byL[l.id], done=sub&&(sub.status==='submitted'||sub.status==='reviewed');
+    var sub=byL[l.id], stt=sub?sub.status:''; var done=(stt==='completed');
     var pv=i>0?byL[L[i-1].id]:null;
-    var open=(i===0)||(pv&&(pv.status==='submitted'||pv.status==='reviewed'));
+    var open=(i===0)||(pv&&pv.status==='completed');
     var ic=done?'✓':(open?'▸':'🔒'), col=done?'var(--safe)':(open?'var(--gold,#c8a24a)':'var(--ink-mute)');
+    var stB=done?'<span style="font-size:10px;color:var(--safe);border:1px solid var(--safe);border-radius:5px;padding:1px 6px">완료</span>':(stt==='review'?'<span style="font-size:10px;color:var(--reach,#5b8def);border:1px solid var(--reach,#5b8def);border-radius:5px;padding:1px 6px">검토중</span>':(stt==='returned'?'<span style="font-size:10px;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:5px;padding:1px 6px">피드백 도착</span>':''));
     h+='<div style="border:1px solid var(--line);border-radius:9px;margin-bottom:7px;overflow:hidden">'
       +'<div style="display:flex;align-items:center;gap:9px;padding:11px 13px;background:'+(open?'var(--panel-2)':'transparent')+';'+(open?'cursor:pointer':'')+'"'+(open?(' onclick="cbStuLesson('+l.id+','+cid+')"'):'')+'>'
       +'<span style="color:'+col+';font-size:13px">'+ic+'</span><span style="font-size:10.5px;color:var(--ink-mute)">'+l.order_no+'차시</span>'
       +'<b style="font-size:12.5px;color:'+(open?'var(--ink)':'var(--ink-mute)')+';flex:1;font-weight:500">'+esc(l.title)+'</b>'
-      +(done?'<span style="font-size:10px;color:var(--safe);border:1px solid var(--safe);border-radius:5px;padding:1px 6px">완료</span>':'')
-      +(!open?'<span style="font-size:10px;color:var(--ink-mute)">이전 차시 완료 후 열림</span>':'')
+      +stB
+      +(!open?'<span style="font-size:10px;color:var(--ink-mute)">이전 차시 완성 후 열림</span>':'')
       +'</div><div id="cbl-'+l.id+'" style="display:none"></div></div>';
   });
-  box.innerHTML=h+'<div class="note" style="margin-top:6px;font-size:11px">※ 각 차시를 직접 작성·제출해야 다음 차시가 열립니다. 작성 과정이 기록되어 본인 작성 여부가 확인됩니다.</div></div>';
+  box.innerHTML=h+'<div class="note" style="margin-top:6px;font-size:11px">※ 각 차시를 작성해 <b>검토 요청</b> → 선생님의 AI 코칭·피드백을 받아 수정 → 선생님이 <b>완성 처리</b>하면 다음 차시가 열리고 최종 보고서를 내려받을 수 있습니다.</div></div>';
 }
 async function cbStuLesson(lid,cid){
   var pane=document.getElementById('cbl-'+lid); if(!pane)return;
@@ -3056,17 +3184,21 @@ async function cbStuLesson(lid,cid){
   if(!sub){ var ins=await sb.from('lesson_submissions').insert({lesson_id:lid,course_id:cid,student_id:s.id,status:'todo'}).select('*').single(); sub=ins.data||{}; }
   cbCur={id:sub.id,trace:Array.isArray(sub.trace)?sub.trace:[],courseId:cid};
   cbCapInit();
-  var ro=(sub.status==='submitted'||sub.status==='reviewed');
+  var st=sub.status||'todo';
   var h='<div style="padding:12px 14px;border-top:1px solid var(--line)">';
   if(l.goal)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">활동 목표</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;margin-bottom:9px">'+esc(l.goal)+'</div>';
   if(l.guide)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap;margin-bottom:9px">'+esc(l.guide)+'</div>';
   if(l.outline)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">탐구보고서 목차</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.8;white-space:pre-line;margin-bottom:9px">'+esc(l.outline)+'</div>';
-  if(ro){
-    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.content||'')+'</div>';
-    if(sub.verdict){var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 확인'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};var v=vm[sub.verdict]||vm.AUTHENTIC;
-      h+='<div style="margin-top:9px;padding:9px 12px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'+(sub.verdict_reason?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:4px;line-height:1.6">'+esc(sub.verdict_reason)+'</div>':'')+'</div>';}
-    if(sub.feedback)h+='<div style="margin-top:8px;padding:9px 12px;background:rgba(127,184,0,.07);border-radius:8px;font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap"><b style="font-size:11.5px;color:var(--ink)">선생님 피드백</b><br>'+esc(sub.feedback)+'</div>';
+  h+=cbFeedbackPanel(sub);
+  if(st==='completed'){
+    h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성되었습니다. 최종 보고서를 내려받아 학교에 제출하세요.</div>'
+      +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn" onclick="cbDownloadReportPDF('+lid+')">📄 PDF 다운로드</button><button class="btn ghost" onclick="cbDownloadReportDOCX('+lid+')">📝 DOCX 다운로드</button></div>'
+      +'<div style="border-top:1px dashed var(--line);margin-top:12px;padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.content||'')+'</div>';
+  } else if(st==='review'){
+    h+='<div style="margin-top:10px;padding:9px 12px;border:1px dashed var(--reach,#5b8def);border-radius:8px;font-size:12px;color:var(--reach,#5b8def)">📤 검토 요청됨 — 선생님의 검토·피드백을 기다리는 중입니다. 도착하면 이어서 수정할 수 있어요.</div>'
+      +'<div style="border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.content||'')+'</div>';
   } else {
+    if(st==='returned')h+='<div style="margin-top:10px;padding:8px 11px;background:rgba(91,141,239,.08);border-radius:8px;font-size:12px;color:var(--reach,#5b8def)">↩ 선생님이 피드백과 함께 돌려보냈어요. 위 코칭·피드백을 반영해 수정한 뒤 <b>다시 검토 요청</b>하세요.</div>';
     h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다. 이미지·수식도 붙여넣거나 삽입할 수 있어요.</div>'
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
         +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="cbInsertImg(this)"></label>'
@@ -3075,7 +3207,7 @@ async function cbStuLesson(lid,cid){
       +'<div id="cb-ed" contenteditable="true" data-ph="이 차시의 수행 내용을 직접 작성하세요" style="width:100%;min-height:200px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:12px 13px;color:var(--ink);font-size:13.5px;line-height:1.85;outline:none;box-sizing:border-box;word-break:keep-all"></div>'
       +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap"><div style="flex:1"></div>'
       +'<button class="btn ghost" onclick="cbStuSave()">💾 임시저장</button>'
-      +'<button class="btn" onclick="cbStuSubmit()">제출하고 다음 차시 열기</button></div>'
+      +'<button class="btn" onclick="cbStuRequestReview()">'+(st==='returned'?'✅ 수정 완료 · 다시 검토 요청':'📤 검토 요청')+'</button></div>'
       +'<div id="cb-smsg" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
   }
   pane.innerHTML=h+'</div>';
@@ -3088,26 +3220,28 @@ async function cbStuSave(){
   var u=await sb.from('lesson_submissions').update({content:html,trace:cbCur.trace,typing_meta:cbCapMeta(t),status:'doing',saved_at:new Date().toISOString()}).eq('id',cbCur.id);
   if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+cbEdLen()+'자)';} }
 }
-async function cbStuSubmit(){
+async function cbStuRequestReview(){
   var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
   var html=ed.innerHTML, t=(ed.innerText||ed.textContent||'').trim();
-  if(!t && !/<img|math-node/i.test(html)){ if(m){m.style.color='var(--risk)';m.textContent='내용을 작성한 뒤 제출하세요.';} return; }
-  if(!confirm('이 차시를 제출할까요?\n제출 후에는 수정할 수 없고 다음 차시가 열립니다.'))return;
+  if(!t && !/<img|math-node/i.test(html)){ if(m){m.style.color='var(--risk)';m.textContent='내용을 작성한 뒤 검토를 요청하세요.';} return; }
+  if(!confirm('선생님께 검토를 요청할까요?\n검토 중에는 잠시 수정이 제한되며, 선생님의 AI 코칭·피드백이 도착하면 이어서 수정할 수 있습니다.'))return;
   cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000),final:true});
   var tm=cbCapMeta(t), ch=cbCheat(tm);
-  var u=await sb.from('lesson_submissions').update({content:html,trace:cbCur.trace,typing_meta:tm,status:'submitted',
+  var u=await sb.from('lesson_submissions').update({content:html,trace:cbCur.trace,typing_meta:tm,status:'review',
     verdict:(ch?'SUSPICIOUS':'AUTHENTIC'),
     verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),
     submitted_at:new Date().toISOString()}).eq('id',cbCur.id);
-  if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='제출 실패';} return; }
-  if(window.toast)toast('제출 완료 — 다음 차시가 열렸습니다',true);
+  if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='요청 실패';} return; }
+  if(window.toast)toast('검토를 요청했습니다 — 선생님의 코칭을 기다려 주세요',true);
   cbStuOpen(cbCur.courseId);
 }
 window.cbMount=cbMount;window.cbList=cbList;window.cbNew=cbNew;window.cbDelCourse=cbDelCourse;window.cbOpen=cbOpen;
 window.cbAddLesson=cbAddLesson;window.cbRegen=cbRegen;window.cbMove=cbMove;window.cbDelLesson=cbDelLesson;window.cbTog=cbTog;
 window.cbPublish=cbPublish;window.cbUnpublish=cbUnpublish;
-window.cbStuList=cbStuList;window.cbStuOpen=cbStuOpen;window.cbStuLesson=cbStuLesson;window.cbStuSave=cbStuSave;window.cbStuSubmit=cbStuSubmit;
-window.cbInsertImg=cbInsertImg;window.cbOpenMath=cbOpenMath;window.cbReviewSub=cbReviewSub;window.cbSaveFeedback=cbSaveFeedback;window.cbMarkReviewed=cbMarkReviewed;
+window.cbStuList=cbStuList;window.cbStuOpen=cbStuOpen;window.cbStuLesson=cbStuLesson;window.cbStuSave=cbStuSave;window.cbStuRequestReview=cbStuRequestReview;
+window.cbInsertImg=cbInsertImg;window.cbOpenMath=cbOpenMath;window.cbReviewSub=cbReviewSub;
+window.cbRunCoach=cbRunCoach;window.cbReturnToStudent=cbReturnToStudent;window.cbCompleteLesson=cbCompleteLesson;
+window.cbDownloadReportPDF=cbDownloadReportPDF;window.cbDownloadReportDOCX=cbDownloadReportDOCX;
 window.addMathBtn=addMathBtn;window.previewMath=previewMath;window.closeMathModal=closeMathModal;window.insertMathToEditor=insertMathToEditor;
 
 /* ===== 본사 소식 새 글 배지 ===== */
