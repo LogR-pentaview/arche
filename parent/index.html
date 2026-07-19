@@ -992,7 +992,7 @@
         <div id="gdesign-body" style="margin-top:16px"></div>
 
         <div class="card" style="margin-top:20px">
-          <div style="font-weight:700;margin-bottom:4px">수행평가 도우미 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학교 평가지를 올리면 AI 인터뷰→학습가이드→작성→컨설턴트 검토→예상등급까지 단계별로 진행합니다</span></div>
+          <div style="font-weight:700;margin-bottom:4px">수행평가 도우미 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학교 평가지를 올리면 관점 설계→학습가이드→작성→컨설턴트 검토→예상등급까지 단계별로 진행합니다</span></div>
           <div id="perf-root-goip" style="margin-top:12px"></div>
         </div>
       </section>
@@ -1113,7 +1113,7 @@
         <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
 
         <div class="card" style="margin-top:20px">
-          <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">수행</span><h3>수행평가 도우미 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학교 평가지 → AI 인터뷰 → 학습가이드 → 작성 → 컨설턴트 검토 → 예상등급</span></h3></div>
+          <div class="sectionhead"><span class="idx" style="background:var(--gold,#c8a24a)">수행</span><h3>수행평가 도우미 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학교 평가지 → 관점 설계 → 학습가이드 → 작성 → 컨설턴트 검토 → 예상등급</span></h3></div>
           <div id="perf-root-dae" style="margin-top:12px"></div>
         </div>
       </section>
@@ -3507,7 +3507,7 @@ window.extraCtx=extraCtx;
 /* ===== 수행평가 도우미 (staged workflow: 자료→인터뷰→가이드→작성→검토→완성) — 대입/고입 공통 ===== */
 function perfStu(track){ return track==='goip'?(window._gactive||(window._role==='stu'?window._activeStudent:null)):window._activeStudent; }
 function pfTracker(step){
-  var names=['자료','인터뷰','가이드','작성','검토','완성']; var h='<div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap">';
+  var names=['자료','관점설계','가이드','작성','검토','완성']; var h='<div style="display:flex;align-items:center;gap:3px;flex-wrap:wrap">';
   names.forEach(function(nm,i){ var n=i+1; var done=n<step,cur=n===step; var bg=done?'var(--safe,#2b9457)':(cur?'var(--gold,#c8a24a)':'var(--panel-2)'); var fg=(done||cur)?'#fff':'var(--ink-mute)';
     h+='<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;background:'+bg+';color:'+fg+';font-size:10.5px;font-weight:700">'+(done?'✓':n)+' '+nm+'</span>';
     if(n<6)h+='<span style="color:var(--ink-mute);font-size:9px">›</span>'; });
@@ -3750,8 +3750,8 @@ function perfStuFeedback(sub){
   return h;
 }
 function perfInterviewUI(a,sub,iv,track){
-  var h='<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">② AI 인터뷰 — 나만의 관점 정하기</div>';
-  if(!iv||!iv.questions){ return h+'<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">이 수행평가를 <b>어떤 관점</b>으로 접근할지 AI와 함께 정합니다. 아래 버튼을 누르면 나에게 맞는 선택형 질문이 생성됩니다.</div><button class="btn" onclick="perfGenInterview('+a.id+',\''+track+'\')">🎤 인터뷰 시작</button><span id="pf-ivm-'+a.id+'" style="font-size:11.5px;margin-left:8px"></span></div>'; }
+  var h='<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">② 관점 설계 — 나만의 접근 방향 잡기</div>';
+  if(!iv||!iv.questions){ return h+'<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">이 수행평가를 <b>어떤 관점</b>으로 접근할지 AI와 함께 정합니다. 아래 버튼을 누르면 나에게 맞는 선택형 질문이 생성됩니다.</div><button class="btn" onclick="perfGenInterview('+a.id+',\''+track+'\')">🧭 관점 설계 시작</button><span id="pf-ivm-'+a.id+'" style="font-size:11.5px;margin-left:8px"></span></div>'; }
   var qs=iv.questions||[]; var ans=iv.answers||{};
   qs.forEach(function(qq,i){ h+='<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:9px"><div style="font-size:12.5px;font-weight:700;color:var(--ink);margin-bottom:3px">Q'+(i+1)+'. '+esc(qq.q||'')+'</div>'+(qq.intent?'<div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:7px">'+esc(qq.intent)+'</div>':'');
     (qq.options||[]).forEach(function(op,oi){ var sel=(ans[i]===oi); h+='<label style="display:block;border:1px solid '+(sel?'var(--gold,#c8a24a)':'var(--line)')+';border-radius:8px;padding:8px 10px;margin-bottom:5px;cursor:pointer;background:'+(sel?'rgba(200,162,74,.08)':'transparent')+'"><input type="radio" name="pf-iv-'+a.id+'-'+i+'" value="'+oi+'"'+(sel?' checked':'')+' style="margin-right:7px"><b style="font-size:12px;color:var(--ink)">'+esc(op.label||'')+'</b>'+(op.desc?'<div style="font-size:11px;color:var(--ink-mute);margin-left:20px">'+esc(op.desc)+'</div>':'')+'</label>'; });
@@ -3760,7 +3760,7 @@ function perfInterviewUI(a,sub,iv,track){
   return h+'</div>';
 }
 async function perfGenInterview(aid,track){
-  var m=document.getElementById('pf-ivm-'+aid); var s=perfStu(track); if(m){m.style.color='var(--ink-mute)';m.textContent='인터뷰 질문 생성 중… (10~20초)';}
+  var m=document.getElementById('pf-ivm-'+aid); var s=perfStu(track); if(m){m.style.color='var(--ink-mute)';m.textContent='관점 설계 질문 생성 중… (10~20초)';}
   var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{};
   var ctx=''; try{ ctx=await extraCtx(s.id); }catch(e){}
   try{ var d=await callAI('perf_interview',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:a.standards||[],career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),target:(track==='goip'?(s.target_school||''):(s.target_univ||'')),context:ctx});
@@ -3779,7 +3779,7 @@ async function perfSaveInterview(aid,track){
   if(window.toast)toast('관점을 확정했어요 — 학습가이드를 생성하세요',true); perfStuWork(aid,track);
 }
 function perfGuideStage(a,sub,gd,track){
-  return '<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">③ 맞춤 학습가이드 생성</div><div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">인터뷰에서 고른 관점과 학교 채점기준을 합쳐, 나만의 <b>수행평가 접근 설계도</b>를 만듭니다. (대필이 아니라 방향·전략·목차 안내예요)</div><button class="btn" onclick="perfGenGuide('+a.id+',\''+track+'\')">📐 학습가이드 생성</button><span id="pf-gdm-'+a.id+'" style="font-size:11.5px;margin-left:8px"></span></div>';
+  return '<div style="margin-top:12px"><div style="font-size:12px;font-weight:700;color:var(--gold,#c8a24a);margin-bottom:6px">③ 맞춤 학습가이드 생성</div><div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:8px">관점 설계에서 고른 관점과 학교 채점기준을 합쳐, 나만의 <b>수행평가 접근 설계도</b>를 만듭니다. (대필이 아니라 방향·전략·목차 안내예요)</div><button class="btn" onclick="perfGenGuide('+a.id+',\''+track+'\')">📐 학습가이드 생성</button><span id="pf-gdm-'+a.id+'" style="font-size:11.5px;margin-left:8px"></span></div>';
 }
 async function perfGenGuide(aid,track){
   var m=document.getElementById('pf-gdm-'+aid); var s=perfStu(track); if(m){m.style.color='var(--ink-mute)';m.textContent='학습가이드 생성 중… (10~25초)';}
