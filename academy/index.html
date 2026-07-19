@@ -11,10 +11,12 @@
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIwIiBmaWxsPSIjMTIxNjBmIi8+PHRleHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjMwMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2M4YTI0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=">
-<title>아르케 · 학부모</title>
+<title>아르케 · 학원</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <style>
   :root{
     --bg:#f4f7f4; --shell:#ffffff;
@@ -327,6 +329,28 @@
 </style>
 </head>
 <body>
+<!-- 수식 입력 모달 (코스웨어 학생 입력창) -->
+<div id="math-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center">
+  <div style="background:var(--shell,#fff);border:1px solid var(--line);border-radius:16px;padding:22px;width:94%;max-width:560px;max-height:90vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:700;color:var(--ink);margin-bottom:2px">∑ 수식 삽입</div>
+    <div style="font-size:12px;color:var(--ink-dim);margin-bottom:14px">버튼을 누르거나 LaTeX를 직접 입력하세요</div>
+    <div style="margin-bottom:11px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:5px">📐 기본 연산</div><div style="display:flex;flex-wrap:wrap;gap:5px">
+      <button class="mtpl" onclick="addMathBtn('x^{2}')">x²</button><button class="mtpl" onclick="addMathBtn('x^{3}')">x³</button><button class="mtpl" onclick="addMathBtn('x^{n}')">xⁿ</button><button class="mtpl" onclick="addMathBtn('\\sqrt{x}')">√x</button><button class="mtpl" onclick="addMathBtn('\\sqrt[3]{x}')">∛x</button><button class="mtpl" onclick="addMathBtn('\\frac{a}{b}')">a/b</button><button class="mtpl" onclick="addMathBtn('|x|')">|x|</button><button class="mtpl" onclick="addMathBtn('\\pm')">±</button><button class="mtpl" onclick="addMathBtn('\\times')">×</button><button class="mtpl" onclick="addMathBtn('\\div')">÷</button></div></div>
+    <div style="margin-bottom:11px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:5px">📊 수열·극한·미적분</div><div style="display:flex;flex-wrap:wrap;gap:5px">
+      <button class="mtpl" onclick="addMathBtn('\\sum_{i=1}^{n}')">Σ</button><button class="mtpl" onclick="addMathBtn('\\sum_{k=1}^{n}k')">Σk</button><button class="mtpl" onclick="addMathBtn('\\lim_{x \\to a}')">lim</button><button class="mtpl" onclick="addMathBtn('\\lim_{x \\to \\infty}')">lim∞</button><button class="mtpl" onclick="addMathBtn('\\int_{a}^{b}')">∫</button><button class="mtpl" onclick="addMathBtn(&quot;f'(x)&quot;)">f'(x)</button><button class="mtpl" onclick="addMathBtn('\\infty')">∞</button><button class="mtpl" onclick="addMathBtn('\\Delta x')">Δx</button></div></div>
+    <div style="margin-bottom:11px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:5px">📐 삼각·지수·로그</div><div style="display:flex;flex-wrap:wrap;gap:5px">
+      <button class="mtpl" onclick="addMathBtn('\\sin x')">sin</button><button class="mtpl" onclick="addMathBtn('\\cos x')">cos</button><button class="mtpl" onclick="addMathBtn('\\tan x')">tan</button><button class="mtpl" onclick="addMathBtn('\\sin^{2}x+\\cos^{2}x=1')">sin²+cos²</button><button class="mtpl" onclick="addMathBtn('\\log_{a}b')">logₐb</button><button class="mtpl" onclick="addMathBtn('\\ln x')">ln</button><button class="mtpl" onclick="addMathBtn('e^{x}')">eˣ</button></div></div>
+    <div style="margin-bottom:11px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:5px">🔡 그리스 문자·기호</div><div style="display:flex;flex-wrap:wrap;gap:5px">
+      <button class="mtpl" onclick="addMathBtn('\\pi')">π</button><button class="mtpl" onclick="addMathBtn('\\alpha')">α</button><button class="mtpl" onclick="addMathBtn('\\beta')">β</button><button class="mtpl" onclick="addMathBtn('\\theta')">θ</button><button class="mtpl" onclick="addMathBtn('\\lambda')">λ</button><button class="mtpl" onclick="addMathBtn('\\mu')">μ</button><button class="mtpl" onclick="addMathBtn('\\sigma')">σ</button><button class="mtpl" onclick="addMathBtn('\\leq')">≤</button><button class="mtpl" onclick="addMathBtn('\\geq')">≥</button><button class="mtpl" onclick="addMathBtn('\\neq')">≠</button><button class="mtpl" onclick="addMathBtn('\\approx')">≈</button></div></div>
+    <div style="margin-bottom:11px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:5px">📝 자주 쓰는 수식</div><div style="display:flex;flex-wrap:wrap;gap:5px">
+      <button class="mtpl" style="font-size:11px" onclick="addMathBtn('ax^{2}+bx+c=0')">이차방정식</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}')">근의공식</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('a^2+b^2=c^2')">피타고라스</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('S=\\frac{n(n+1)}{2}')">등차수열 합</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('a_n=a_1+(n-1)d')">등차수열</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('a_n=a_1 \\cdot r^{n-1}')">등비수열</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('\\vec{AB}')">벡터</button><button class="mtpl" style="font-size:11px" onclick="addMathBtn('\\binom{n}{r}')">조합</button></div></div>
+    <div style="margin-bottom:10px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:4px">✏️ 직접 입력 (LaTeX)</div>
+      <input type="text" id="math-input" placeholder="예: \frac{1}{2}mv^2 또는 E=mc^2" style="width:100%;font-family:monospace;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;box-sizing:border-box" oninput="previewMath()"></div>
+    <div style="padding:13px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;text-align:center;min-height:50px;margin-bottom:14px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:4px">미리보기</div><div id="math-preview" style="font-size:20px;min-height:28px;color:var(--ink)"></div></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end"><button class="btn ghost" onclick="closeMathModal()">취소</button><button class="btn" onclick="insertMathToEditor()">삽입</button></div>
+  </div>
+</div>
+<style>#math-modal .mtpl{padding:5px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:13px;cursor:pointer}#math-modal .mtpl:hover{border-color:var(--gold,#c8a24a);color:var(--gold,#c8a24a)}#cb-ed:empty:before{content:attr(data-ph);color:var(--ink-mute);pointer-events:none}#cb-ed .math-node{display:inline-block}</style>
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 26px">
     <div style="font-family:'Bebas Neue';font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
@@ -2651,7 +2675,7 @@ function cbCapAttach(el){
     if(!cbCap)return; cbCap.paste++;
     try{ var t=((e.clipboardData||window.clipboardData).getData('text'))||''; cbCap.pasteChars+=t.length; }catch(_){}
   });
-  el.addEventListener('input',function(){ var c=document.getElementById('cb-cc'); if(c)c.textContent=(el.value||'').length+'자'; });
+  el.addEventListener('input',function(){ var c=document.getElementById('cb-cc'); if(c)c.textContent=(el.isContentEditable?cbEdLen():(el.value||'').length)+'자'; });
 }
 function cbCapMeta(t){ if(!cbCap)cbCapInit();
   return {keyCount:cbCap.kc,backCount:cbCap.bc,pauseCount:cbCap.pc,pasteCount:cbCap.paste,pasteChars:cbCap.pasteChars,
@@ -2769,9 +2793,15 @@ async function cbLoadLessons(){
   var r=await sb.from('course_lessons').select('*').eq('course_id',cbCourse.id).order('order_no',{ascending:true});
   cbLessons=r.data||[];
   if(!cbLessons.length){ el.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:16px;text-align:center;border:1px dashed var(--line);border-radius:9px">아직 차시가 없습니다.</div>'; return; }
+  var cbSubMap={}; try{ var su=await sb.from('lesson_submissions').select('id,lesson_id,status,verdict,feedback').eq('course_id',cbCourse.id); (su.data||[]).forEach(function(x){cbSubMap[x.lesson_id]=x;}); }catch(e){}
   el.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:7px">차시 구성 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· ▲▼ 순서 조정 (학생 화면에 즉시 반영)</span></div>'
    +cbLessons.map(function(l,i){
     var f=(i===0), la=(i===cbLessons.length-1);
+    var rv=cbSubMap[l.id];
+    var rvSec=rv?('<div style="margin-top:8px;border-top:1px dashed var(--line);padding-top:8px">'
+      +'<button onclick="cbReviewSub('+l.id+')" style="font-size:11px;padding:3px 10px;background:transparent;border:1px solid '+(rv.status==='reviewed'?'var(--safe)':(rv.status==='submitted'?'var(--reach,#5b8def)':'var(--line)'))+';border-radius:6px;color:'+(rv.status==='reviewed'?'var(--safe)':(rv.status==='submitted'?'var(--reach,#5b8def)':'var(--ink-mute)'))+';cursor:pointer">'
+      +(rv.status==='reviewed'?'✓ 검수 완료 — 제출물 보기':(rv.status==='submitted'?'🟦 제출됨 — 검토·첨삭':'✏️ 작성 중 — 미리보기'))+'</button>'
+      +'<div id="cbrev-'+l.id+'" style="display:none"></div></div>'):'';
     return '<div style="border:1px solid var(--line);border-radius:9px;padding:11px 13px;margin-bottom:7px"><div style="display:flex;align-items:flex-start;gap:10px">'
       +'<div style="display:flex;flex-direction:column;gap:2px">'
       +'<button onclick="cbMove('+l.id+',-1)" '+(f?'disabled':'')+' style="padding:1px 6px;font-size:10px;background:transparent;border:1px solid var(--line);border-radius:5px;color:var(--ink-dim);cursor:'+(f?'default':'pointer')+';opacity:'+(f?'.3':'1')+'">▲</button>'
@@ -2787,10 +2817,115 @@ async function cbLoadLessons(){
       +'</div>'
       +'<button onclick="cbRegen('+l.id+')" title="AI 재생성" style="padding:3px 8px;background:transparent;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);border-radius:6px;font-size:11px;cursor:pointer">↻</button>'
       +'<button onclick="cbDelLesson('+l.id+')" style="padding:3px 8px;background:transparent;color:var(--risk);border:1px solid var(--line);border-radius:6px;font-size:12px;cursor:pointer">×</button>'
-      +'</div></div>';
+      +'</div>'+rvSec+'</div>';
   }).join('');
 }
 function cbTog(id){ var e=document.getElementById('cbg-'+id); if(e)e.style.display=e.style.display==='none'?'block':'none'; }
+/* ======== 리치 입력창(이미지·수식) — 일반고 엔진 이식 ======== */
+var cbSavedRange=null;
+function cbSaveCursor(){ var s=window.getSelection(); if(s&&s.rangeCount>0)cbSavedRange=s.getRangeAt(0).cloneRange(); }
+function cbRestoreCursor(){ if(cbSavedRange){ var s=window.getSelection(); s.removeAllRanges(); s.addRange(cbSavedRange); } }
+function cbEdLen(){ var ed=document.getElementById('cb-ed'); if(!ed)return 0; var len=0;
+  ed.childNodes.forEach(function(n){ if(n.nodeType===3)len+=n.textContent.length;
+    else if(n.nodeType===1){ if(n.tagName==='IMG'||(n.classList&&n.classList.contains('math-node')))len+=1; else len+=(n.textContent||'').length; } });
+  return len; }
+function cbEdCount(){ var c=document.getElementById('cb-cc'); if(c)c.textContent=cbEdLen()+'자'; }
+function cbSafeName(n){ return String(n||'img').replace(/[^\w.\-]+/g,'_').slice(-50); }
+async function cbImgSrc(file){
+  // 1순위: Storage 업로드 → 공개 URL, 실패 시 base64 폴백
+  try{
+    var path='courseware/sub'+((cbCur&&cbCur.id)||'tmp')+'/'+Date.now()+'_'+cbSafeName(file.name||'paste.png');
+    var up=await sb.storage.from('activity-files').upload(path,file,{upsert:true,contentType:(file.type||'image/png')});
+    if(up.error)throw up.error;
+    return sb.storage.from('activity-files').getPublicUrl(path).data.publicUrl;
+  }catch(e){
+    return await new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){res(r.result);}; r.onerror=rej; r.readAsDataURL(file); });
+  }
+}
+async function cbUploadImgs(files){
+  var ed=document.getElementById('cb-ed'); if(!ed)return; ed.focus(); cbRestoreCursor();
+  for(var i=0;i<files.length;i++){ var file=files[i];
+    if(!/^image\//.test(file.type||'')){ continue; }
+    if(file.size>20*1024*1024){ alert('이미지는 20MB 이하만 가능합니다: '+(file.name||'')); continue; }
+    try{
+      var url=await cbImgSrc(file);
+      var img=document.createElement('img'); img.src=url;
+      img.style.cssText='max-width:100%;max-height:300px;border-radius:6px;margin:4px 2px;vertical-align:middle;cursor:pointer';
+      img.onclick=function(){ if(confirm('이미지를 삭제하시겠습니까?')){ this.remove(); cbEdCount(); } };
+      var sel=window.getSelection();
+      if(sel.rangeCount>0&&ed.contains(sel.getRangeAt(0).startContainer)){ var r=sel.getRangeAt(0); r.insertNode(img); r.collapse(false); }
+      else ed.appendChild(img);
+      if(cbCap)cbCap.kc++;
+      cbEdCount();
+    }catch(e){ alert('이미지 삽입 실패: '+(e.message||e)); }
+  }
+}
+function cbInsertImg(input){ var f=Array.prototype.slice.call(input.files||[]); if(f.length)cbUploadImgs(f); input.value=''; }
+function cbEdPaste(e){
+  var dt=e.clipboardData||window.clipboardData; if(!dt)return;
+  var items=dt.items||[], imgs=[];
+  for(var i=0;i<items.length;i++){ if(items[i].type&&items[i].type.indexOf('image')===0){ var f=items[i].getAsFile(); if(f)imgs.push(f); } }
+  if(imgs.length){ e.preventDefault(); cbUploadImgs(imgs); return; }
+  var txt=dt.getData('text'); if(txt!=null){ e.preventDefault(); try{document.execCommand('insertText',false,txt);}catch(_){ } cbEdCount(); }
+}
+/* 수식 모달 (공용) */
+function addMathBtn(latex){ var i=document.getElementById('math-input'); if(i){i.value=latex; previewMath(); i.focus();} }
+function previewMath(){ var i=document.getElementById('math-input'); var p=document.getElementById('math-preview'); if(!p)return; var l=i?i.value:'';
+  try{ p.innerHTML=(typeof katex!=='undefined')?katex.renderToString(l,{throwOnError:false,displayMode:false}):l; }catch(e){ p.textContent=l; } }
+function closeMathModal(){ var m=document.getElementById('math-modal'); if(m)m.style.display='none'; }
+function cbOpenMath(){ var ed=document.getElementById('cb-ed'); if(!ed)return; window.mathTargetEd=ed; cbSaveCursor();
+  var mm=document.getElementById('math-modal'); if(!mm){alert('수식 도구를 불러올 수 없습니다.');return;} mm.style.display='flex';
+  var mi=document.getElementById('math-input'); if(mi){mi.value='';mi.focus();} var mp=document.getElementById('math-preview'); if(mp)mp.innerHTML=''; }
+function insertMathToEditor(){
+  var mi=document.getElementById('math-input'); var latex=(mi?mi.value:'').trim(); if(!latex){closeMathModal();return;}
+  var ed=window.mathTargetEd||document.getElementById('cb-ed'); if(!ed){closeMathModal();return;}
+  var span=document.createElement('span'); span.className='math-node'; span.setAttribute('data-latex',latex); span.contentEditable='false'; span.style.cssText='cursor:pointer;padding:0 2px';
+  try{ span.innerHTML=(typeof katex!=='undefined')?katex.renderToString(latex,{throwOnError:false}):latex; }catch(e){ span.textContent=latex; }
+  span.onclick=function(){ if(confirm('수식을 삭제하시겠습니까?')){ this.remove(); cbEdCount(); } };
+  ed.focus(); cbRestoreCursor();
+  var sel=window.getSelection();
+  if(sel.rangeCount>0&&ed.contains(sel.getRangeAt(0).startContainer)){ var r=sel.getRangeAt(0); r.insertNode(span); r.setStartAfter(span); r.collapse(true); sel.removeAllRanges(); sel.addRange(r); }
+  else ed.appendChild(span);
+  if(cbCap)cbCap.kc++;
+  cbEdCount(); closeMathModal();
+}
+/* ======== 컨설턴트: 학생 제출물 검토·피드백 루프 ======== */
+async function cbReviewSub(lid){
+  var pane=document.getElementById('cbrev-'+lid); if(!pane)return;
+  if(pane.style.display==='block'){pane.style.display='none';return;}
+  pane.style.display='block'; pane.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:8px">불러오는 중…</div>';
+  var sr=await sb.from('lesson_submissions').select('*').eq('lesson_id',lid).eq('course_id',cbCourse.id).limit(1);
+  var s=sr.data&&sr.data[0];
+  if(!s||(s.status!=='submitted'&&s.status!=='reviewed'&&s.status!=='doing')){ pane.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:8px">아직 학생 제출물이 없습니다.</div>'; return; }
+  var tm=s.typing_meta||{};
+  var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 추정'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};
+  var v=vm[s.verdict]||['var(--ink-mute)','—'];
+  var h='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:10px">'
+    +'<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:4px">학생 제출물'+(s.status==='doing'?' (작성 중 · 미제출)':'')+'</div>'
+    +'<div style="font-size:13px;line-height:1.85;color:var(--ink);word-break:keep-all;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--panel-2)">'+(s.content||'<span style="color:var(--ink-mute)">(비어 있음)</span>')+'</div>'
+    +'<div style="margin-top:8px;padding:8px 11px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'
+      +'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px">키입력 '+(tm.keyCount||0)+' · 삭제 '+(tm.backCount||0)+' · 붙여넣기 '+(tm.pasteCount||0)+'회('+(tm.pasteChars||0)+'자) · 글자수 '+(tm.charCount||0)+' · 작성 '+Math.round((tm.totalMs||0)/60000)+'분'+(tm.saves!=null?' · 저장 '+tm.saves+'회':'')+'</div>'
+      +(s.verdict_reason?'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6">'+esc(s.verdict_reason)+'</div>':'')+'</div>'
+    +'<div style="font-size:11px;color:var(--gold,#c8a24a);margin:10px 0 4px">첨삭·피드백</div>'
+    +'<textarea id="cbfb-'+lid+'" rows="3" placeholder="학생에게 전달할 피드백을 작성하세요" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.7;resize:vertical;box-sizing:border-box">'+esc(s.feedback||'')+'</textarea>'
+    +'<div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;align-items:center">'
+      +'<button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="cbSaveFeedback('+s.id+','+lid+')">피드백 저장</button>'
+      +'<button class="btn" style="padding:4px 11px;font-size:11.5px" onclick="cbMarkReviewed('+s.id+','+lid+')">'+(s.status==='reviewed'?'✓ 검수 완료됨 (재저장)':'검수 완료 처리')+'</button>'
+      +'<span id="cbfbm-'+lid+'" style="font-size:11px"></span></div></div>';
+  pane.innerHTML=h;
+}
+async function cbSaveFeedback(id,lid){
+  var t=document.getElementById('cbfb-'+lid), m=document.getElementById('cbfbm-'+lid); var v=t?t.value.trim():'';
+  var u=await sb.from('lesson_submissions').update({feedback:v}).eq('id',id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='피드백 저장됨';} }
+}
+async function cbMarkReviewed(id,lid){
+  var t=document.getElementById('cbfb-'+lid), m=document.getElementById('cbfbm-'+lid); var v=t?t.value.trim():'';
+  var u=await sb.from('lesson_submissions').update({feedback:v,status:'reviewed',reviewed_at:new Date().toISOString()}).eq('id',id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='처리 실패';return;} m.style.color='var(--safe)';m.textContent='검수 완료';}
+  if(window.toast)toast('검수 완료 처리했습니다',true);
+  cbLoadLessons();
+}
 /* ---------- AI 차시 생성 ---------- */
 async function cbGenLesson(name){
   var s=cbStu(); var isSubj=(cbCourse.course_type!=='changche');
@@ -2927,37 +3062,40 @@ async function cbStuLesson(lid,cid){
   if(l.guide)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">수행 가이드</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap;margin-bottom:9px">'+esc(l.guide)+'</div>';
   if(l.outline)h+='<div style="font-size:11px;color:var(--gold,#c8a24a);margin-bottom:3px">탐구보고서 목차</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.8;white-space:pre-line;margin-bottom:9px">'+esc(l.outline)+'</div>';
   if(ro){
-    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.9;white-space:pre-wrap;color:var(--ink)">'+esc(sub.content||'')+'</div>';
+    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.content||'')+'</div>';
     if(sub.verdict){var vm={AUTHENTIC:['var(--safe)','✅ 본인 작성 확인'],SUSPICIOUS:['var(--gold,#c8a24a)','⚠️ 추가 확인 필요'],AI_GENERATED:['var(--risk)','🚨 대필 의심']};var v=vm[sub.verdict]||vm.AUTHENTIC;
       h+='<div style="margin-top:9px;padding:9px 12px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b>'+(sub.verdict_reason?'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:4px;line-height:1.6">'+esc(sub.verdict_reason)+'</div>':'')+'</div>';}
     if(sub.feedback)h+='<div style="margin-top:8px;padding:9px 12px;background:rgba(127,184,0,.07);border-radius:8px;font-size:12.5px;color:var(--ink-dim);line-height:1.7;white-space:pre-wrap"><b style="font-size:11.5px;color:var(--ink)">선생님 피드백</b><br>'+esc(sub.feedback)+'</div>';
   } else {
-    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다.</div>'
-      +'<textarea id="cb-ed" rows="9" placeholder="이 차시의 수행 내용을 직접 작성하세요" style="width:100%;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;line-height:1.85;resize:vertical">'+esc(sub.content||'')+'</textarea>'
-      +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap"><span id="cb-cc" style="font-size:11px;color:var(--ink-mute)">'+String(sub.content||'').length+'자</span>'
-      +'<span style="font-size:11px;color:var(--ink-mute)">/ 최소 '+(l.min_chars||300)+'자</span><div style="flex:1"></div>'
+    h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다. 이미지·수식도 붙여넣거나 삽입할 수 있어요.</div>'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+        +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#c8a24a);border:1px solid var(--gold,#c8a24a);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="cbInsertImg(this)"></label>'
+        +'<button type="button" onclick="cbOpenMath()" style="font-size:12px;color:var(--reach,#5b8def);border:1px solid var(--reach,#5b8def);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;white-space:nowrap">∑ 수식</button>'
+        +'<span id="cb-cc" style="font-size:11px;color:var(--ink-mute)">0자</span></div>'
+      +'<div id="cb-ed" contenteditable="true" data-ph="이 차시의 수행 내용을 직접 작성하세요" style="width:100%;min-height:200px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;padding:12px 13px;color:var(--ink);font-size:13.5px;line-height:1.85;outline:none;box-sizing:border-box;word-break:keep-all"></div>'
+      +'<div style="display:flex;align-items:center;gap:9px;margin-top:8px;flex-wrap:wrap"><div style="flex:1"></div>'
       +'<button class="btn ghost" onclick="cbStuSave()">💾 임시저장</button>'
-      +'<button class="btn" onclick="cbStuSubmit('+(l.min_chars||300)+')">제출하고 다음 차시 열기</button></div>'
+      +'<button class="btn" onclick="cbStuSubmit()">제출하고 다음 차시 열기</button></div>'
       +'<div id="cb-smsg" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
   }
   pane.innerHTML=h+'</div>';
-  var ed=document.getElementById('cb-ed'); if(ed){cbCapAttach(ed);ed.focus();}
+  var ed=document.getElementById('cb-ed'); if(ed){ ed.innerHTML=sub.content||''; cbCapAttach(ed); ed.addEventListener('paste',cbEdPaste); cbEdCount(); try{ed.focus();}catch(_){} }
 }
 async function cbStuSave(){
   var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
-  var t=ed.value||''; cbCap.saves++;
+  var html=ed.innerHTML, t=(ed.innerText||ed.textContent||''); cbCap.saves++;
   cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000)});
-  var u=await sb.from('lesson_submissions').update({content:t,trace:cbCur.trace,typing_meta:cbCapMeta(t),status:'doing',saved_at:new Date().toISOString()}).eq('id',cbCur.id);
-  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+t.length+'자)';} }
+  var u=await sb.from('lesson_submissions').update({content:html,trace:cbCur.trace,typing_meta:cbCapMeta(t),status:'doing',saved_at:new Date().toISOString()}).eq('id',cbCur.id);
+  if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='저장 실패';} else {m.style.color='var(--safe)';m.textContent='임시저장 완료 ('+cbEdLen()+'자)';} }
 }
-async function cbStuSubmit(minc){
+async function cbStuSubmit(){
   var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
-  var t=(ed.value||'').trim();
-  if(t.length<(minc||300)){ if(m){m.style.color='var(--risk)';m.textContent='최소 '+(minc||300)+'자 이상 작성해야 제출할 수 있습니다. (현재 '+t.length+'자)';} return; }
+  var html=ed.innerHTML, t=(ed.innerText||ed.textContent||'').trim();
+  if(!t && !/<img|math-node/i.test(html)){ if(m){m.style.color='var(--risk)';m.textContent='내용을 작성한 뒤 제출하세요.';} return; }
   if(!confirm('이 차시를 제출할까요?\n제출 후에는 수정할 수 없고 다음 차시가 열립니다.'))return;
   cbCur.trace.push({ts:new Date().toISOString(),len:t.length,kc:cbCap.kc,bc:cbCap.bc,paste:cbCap.paste,text:t.slice(0,4000),final:true});
   var tm=cbCapMeta(t), ch=cbCheat(tm);
-  var u=await sb.from('lesson_submissions').update({content:t,trace:cbCur.trace,typing_meta:tm,status:'submitted',
+  var u=await sb.from('lesson_submissions').update({content:html,trace:cbCur.trace,typing_meta:tm,status:'submitted',
     verdict:(ch?'SUSPICIOUS':'AUTHENTIC'),
     verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),
     submitted_at:new Date().toISOString()}).eq('id',cbCur.id);
@@ -2969,6 +3107,8 @@ window.cbMount=cbMount;window.cbList=cbList;window.cbNew=cbNew;window.cbDelCours
 window.cbAddLesson=cbAddLesson;window.cbRegen=cbRegen;window.cbMove=cbMove;window.cbDelLesson=cbDelLesson;window.cbTog=cbTog;
 window.cbPublish=cbPublish;window.cbUnpublish=cbUnpublish;
 window.cbStuList=cbStuList;window.cbStuOpen=cbStuOpen;window.cbStuLesson=cbStuLesson;window.cbStuSave=cbStuSave;window.cbStuSubmit=cbStuSubmit;
+window.cbInsertImg=cbInsertImg;window.cbOpenMath=cbOpenMath;window.cbReviewSub=cbReviewSub;window.cbSaveFeedback=cbSaveFeedback;window.cbMarkReviewed=cbMarkReviewed;
+window.addMathBtn=addMathBtn;window.previewMath=previewMath;window.closeMathModal=closeMathModal;window.insertMathToEditor=insertMathToEditor;
 
 /* ===== 본사 소식 새 글 배지 ===== */
 function hqSeenKey(){ return 'arche_hq_seen_'+(window._myUid||'anon'); }
