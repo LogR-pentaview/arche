@@ -2604,7 +2604,7 @@ window.renderROI=async function(){
     var acid=window._acadId||(window._academy&&window._academy.id)||null;
     if(!acid){ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; window._acadId=acid; }
     var stu=await sb.from('students').select('id,name,admission_track,grade,created_at').eq('academy_id',acid);
-    var students=(stu.data)||[]; var sids=students.map(function(s){return s.id;});
+    var students=(stu.data)||[]; var sids=students.map(function(s){return s.id;}); window._allStudents=students;
     var now=Date.now(), M30=now-30*86400000;
     var dae=students.filter(function(s){return s.admission_track!=='고입';}).length;
     var goipN=students.length-dae;
