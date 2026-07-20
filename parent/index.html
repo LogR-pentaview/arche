@@ -2501,6 +2501,7 @@ async function enterStudentApp(session){
   renderStudentHome();
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
   var mustChange=sa&&sa[0]&&sa[0].must_change;
+  try{ if(localStorage.getItem('arche_pw_ok_'+session.user.id)==='1')mustChange=false; }catch(e){}
   var prompted=false; try{prompted=sessionStorage.getItem('pw_prompted')==='1';}catch(e){}
   if(mustChange && !prompted){
     try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
@@ -2530,7 +2531,9 @@ async function changeStudentPw(){
   var {error}=await sb.auth.updateUser({password:np});
   if(error)return alert('변경 실패: '+error.message);
   var u=(await sb.auth.getUser()).data.user;
-  if(u){ var r=await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); if(r.error)console.error('[must_change]',r.error); }
+  if(u){ var r=await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id).select('student_id'); if(r.error||!(r.data&&r.data.length))console.error('[must_change] 직접 갱신 실패 — 서버 폴백',r.error); }
+  try{ var _ss=(await sb.auth.getSession()).data.session; await fetch(SB_URL+'/functions/v1/create-student',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_ss?_ss.access_token:'')},body:JSON.stringify({action:'pw_changed'})}); }catch(e){}
+  try{ if(u)localStorage.setItem('arche_pw_ok_'+u.id,'1'); }catch(e){}
   try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
   alert('비밀번호가 변경되었습니다.');
 }
@@ -2557,7 +2560,8 @@ async function stuChangePw(){
   if(m){m.style.color='var(--ink-mute)';m.textContent='변경 중…';}
   var {error}=await sb.auth.updateUser({password:np});
   if(error){ if(m){m.style.color='var(--risk)';m.textContent='변경 실패: '+error.message;} return; }
-  try{ var u=(await sb.auth.getUser()).data.user; if(u)await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); }catch(e){}
+  try{ var u=(await sb.auth.getUser()).data.user; if(u)await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); if(u)localStorage.setItem('arche_pw_ok_'+u.id,'1'); }catch(e){}
+  try{ var _ss2=(await sb.auth.getSession()).data.session; await fetch(SB_URL+'/functions/v1/create-student',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(_ss2?_ss2.access_token:'')},body:JSON.stringify({action:'pw_changed'})}); }catch(e){}
   var n=document.getElementById('sps-new'),c=document.getElementById('sps-conf'); if(n)n.value='';if(c)c.value='';
   if(m){m.style.color='var(--safe)';m.textContent='✅ 비밀번호가 변경되었습니다.';}
 }
@@ -3119,6 +3123,7 @@ async function cbReturnToStudent(id,lid){
   hist.push({round:rnd,ai_coaching:s.ai_coaching||'',feedback:v,returned_at:new Date().toISOString()});
   var u=await sb.from('lesson_submissions').update({feedback:v,status:'returned',round:rnd,review_history:hist,reviewed_at:new Date().toISOString()}).eq('id',id);
   if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='전송 실패: '+u.error.message;return;} m.style.color='var(--safe)';m.textContent='학생에게 돌려보냈습니다 (라운드 '+rnd+')';}
+  if(window.notify)notify('stu','course','코칭·피드백 도착','제출한 보고서에 코칭·피드백이 도착했습니다. 이어서 수정해 주세요.',(window._designTrack==='goip'?'gdesign':'sr'));
   if(window.toast)toast('AI 코칭·피드백을 학생에게 전달했습니다',true);
   cbLoadLessons();
 }
@@ -3345,6 +3350,7 @@ async function cbStuRequestReview(){
     verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),
     submitted_at:new Date().toISOString()}).eq('id',cbCur.id);
   if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='요청 실패';} return; }
+  if(window.notify)notify('con','course','보고서 검토 요청','코스웨어 보고서가 제출되었습니다. 코칭해 주세요.',(window._designTrack==='goip'?'gdesign':'sr'));
   if(window.toast)toast('검토를 요청했습니다 — 선생님의 코칭을 기다려 주세요',true);
   cbStuOpen(cbCur.courseId);
 }
@@ -3827,6 +3833,7 @@ async function perfReturn(sid,aid,track){
   hist.push({round:rnd,ai_coaching:s.ai_coaching||'',feedback:v,returned_at:new Date().toISOString()});
   var u=await sb.from('perf_submissions').update({feedback:v,status:'returned',round:rnd,review_history:hist}).eq('id',sid);
   if(m){ if(u.error){m.style.color='var(--risk)';m.textContent='전송 실패: '+u.error.message;return;} m.style.color='var(--safe)';m.textContent='학생에게 돌려보냈습니다 (라운드 '+rnd+')'; }
+  if(window.notify)notify('stu','perf','수행평가 피드백 도착','컨설턴트 피드백이 도착했습니다. 확인해 주세요.',(track==='goip'?'gperf':'perf'));
   if(window.toast)toast('AI 코칭·피드백을 학생에게 전달했습니다',true); perfMount(track);
 }
 async function perfComplete(sid,aid,track){
@@ -3975,6 +3982,7 @@ async function perfStuSubmit(aid,track){
   if(!confirm('선생님께 검토를 요청할까요?\n검토 중에는 잠시 수정이 제한되며, 코칭·피드백이 오면 이어서 수정할 수 있어요.'))return;
   var tm=pfCapMeta(t),ch=(window.cbCheat?cbCheat(tm):'');
   var u=await sb.from('perf_submissions').update({draft_content:html,final_content:html,typing_meta:tm,status:'review',verdict:(ch?'SUSPICIOUS':'AUTHENTIC'),verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),submitted_at:new Date().toISOString()}).eq('assessment_id',aid).eq('student_id',s.id);
+  if(!u.error&&window.notify)notify('con','perf','수행평가 제출','수행평가 결과물이 제출되었습니다. 예상 채점·진단해 주세요.',(window._designTrack==='goip'?'gperf':'perf'));
   if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='요청 실패';} return; }
   if(window.toast)toast('검토를 요청했어요 — 선생님의 코칭을 기다려 주세요',true); perfStuWork(aid,track);
 }
@@ -4411,7 +4419,7 @@ window.regenItem=async function(id){
   }catch(e){ showGen(false); alert('재생성 실패: '+(e.message||e)); }
 };
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
-window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
+window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); if(window.notify)notify('con','design','활동 결과물 제출','학생부 디자인 활동 결과물이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr')); renderDesign(); };
 window.sendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:true,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.unsendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:false,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 async function distributeActivity(){
@@ -4830,6 +4838,7 @@ function ivStatusBar(set,flat,prMap){
 async function ivSend(){
   var set=window._ivSet; if(!set)return;
   var {error}=await sb.from('interview_sets').update({status:'sent',updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error&&window.notify)notify('stu','iv','면접 예상질문 도착','컨설턴트가 면접 질문을 보냈습니다. 답변을 작성해 주세요.','iv');
   if(!error)renderInterview();
 }
 async function ivSubmit(){
@@ -4850,6 +4859,7 @@ async function ivSubmit(){
   if(!answered){alert('답변을 하나 이상 작성해 주세요.');return;}
   if(answered<flat.length&&!confirm((flat.length-answered)+'개 문항이 미작성입니다. 이대로 제출할까요?'))return;
   var {error}=await sb.from('interview_sets').update({status:'answered',updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error&&window.notify)notify('con','iv','면접 답변 제출','면접 답변이 제출되었습니다. 검토 후 코멘트해 주세요.','iv');
   if(!error)renderInterview();
 }
 async function ivSendComments(){
@@ -4860,6 +4870,7 @@ async function ivSendComments(){
     if(el){var v=el.value.trim(); if(v)cmt[String(i)]={text:v,updated_at:new Date().toISOString()}; else delete cmt[String(i)];}
   }
   var {error}=await sb.from('interview_sets').update({comments:cmt,status:'commented',round:(set.round||1)+1,updated_at:new Date().toISOString()}).eq('id',set.id);
+  if(!error&&window.notify)notify('stu','iv','면접 코멘트 도착','컨설턴트 코멘트가 도착했습니다. 답변을 보완해 주세요.','iv');
   if(!error)renderInterview();
 }
 async function ivComplete(){
@@ -7193,6 +7204,7 @@ function gIvFlow(rec){
 async function gIvSend(){
   var rec=window._gIvCur; if(!rec)return;
   var {error}=await sb.from('goip_interviews').update({status:'sent',updated_at:new Date().toISOString()}).eq('id',rec.id);
+  if(!error&&window.notify)notify('stu','iv','면접 예상질문 도착','면접 질문이 도착했습니다. 답변을 작성해 주세요.','ginterview');
   var m=document.getElementById('giv-flow-msg');
   if(error){if(m){m.style.color='var(--risk)';m.textContent=esc(error.message);}return;}
   renderGInterview();
@@ -7209,6 +7221,7 @@ async function gIvSubmitAnswers(){
   if(empty===total){alert('답변을 하나 이상 작성해 주세요.');return;}
   if(empty>0&&!confirm(empty+'개 문항이 비어 있습니다. 이대로 제출할까요?'))return;
   var {error}=await sb.from('goip_interviews').update({answers:ans,status:'answered',updated_at:new Date().toISOString()}).eq('id',rec.id);
+  if(!error&&window.notify)notify('con','iv','면접 답변 제출','고입 면접 답변이 제출되었습니다.','ginterview');
   var m=document.getElementById('giv-flow-msg');
   if(error){if(m){m.style.color='var(--risk)';m.textContent=esc(error.message);}return;}
   renderGInterview();
@@ -7221,6 +7234,7 @@ async function gIvSendComments(){
     if(el){var v=el.value.trim();if(v)cmt[key]={text:v,updated_at:new Date().toISOString()};else delete cmt[key];}
   });});
   var {error}=await sb.from('goip_interviews').update({comments:cmt,status:'commented',round:(rec.round||1)+1,updated_at:new Date().toISOString()}).eq('id',rec.id);
+  if(!error&&window.notify)notify('stu','iv','면접 코멘트 도착','면접 코멘트가 도착했습니다. 보완해 주세요.','ginterview');
   var m=document.getElementById('giv-flow-msg');
   if(error){if(m){m.style.color='var(--risk)';m.textContent=esc(error.message);}return;}
   renderGInterview();
@@ -7504,6 +7518,7 @@ async function gesOpenToStudent(id){
   var el=document.getElementById('ges-bpedit-'+id);
   var v=el?el.value.trim():'';
   await sb.from('goip_essay_drafts').update({blueprint_edit:v,status:'blueprint_ok',sent:true,updated_at:new Date().toISOString()}).eq('id',id);
+  if(window.notify)notify('stu','essay','자소서 설계도 전달','자소서 설계도가 도착했습니다. 작성을 시작하세요.','gessay');
   if(window.toast)toast('학생에게 전달되었습니다',true);
   gesLoad();
 }
@@ -8051,6 +8066,109 @@ async function genCareerMatch(){
 }
 window.renderCareerMatch=renderCareerMatch;
 window.genCareerMatch=genCareerMatch;
+</script>
+
+<style id="notif-css">
+/* ═══ 알림 벨 ═══ */
+#notif-bell{position:relative;width:36px;height:36px;border-radius:11px;background:#fff;border:none;cursor:pointer;font-size:16px;box-shadow:0 1px 3px rgba(25,31,40,.08);display:flex;align-items:center;justify-content:center;transition:.15s;flex:none}
+#notif-bell:hover{box-shadow:0 3px 10px rgba(25,31,40,.12)}
+#notif-cnt{position:absolute;top:-5px;right:-5px;min-width:17px;height:17px;border-radius:20px;background:#f04452;color:#fff;font-size:10px;font-weight:800;display:none;align-items:center;justify-content:center;padding:0 4px;box-shadow:0 2px 6px rgba(240,68,82,.4)}
+#notif-panel{display:none;position:fixed;top:60px;right:24px;width:340px;max-width:calc(100vw - 32px);max-height:min(480px,70vh);overflow-y:auto;background:#fff;border-radius:18px;box-shadow:0 12px 40px rgba(25,31,40,.18);z-index:9000;padding:8px}
+#notif-panel.open{display:block}
+#notif-panel .np-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 8px;font-size:13.5px;font-weight:800}
+#notif-panel .np-all{font-size:11px;font-weight:700;color:#3182f6;cursor:pointer;background:none;border:none;font-family:inherit}
+.np-item{display:flex;gap:10px;padding:11px 13px;border-radius:12px;cursor:pointer;transition:.12s;align-items:flex-start}
+.np-item:hover{background:#f4f6f8}
+.np-item.unread{background:#e8f3ff}
+.np-item.unread:hover{background:#dcedff}
+.np-item .ni{font-size:16px;flex:none;margin-top:1px}
+.np-item .nt{font-size:12.5px;font-weight:700;line-height:1.4}
+.np-item .nb{font-size:11.5px;color:#6b7684;line-height:1.55;margin-top:2px;font-weight:500}
+.np-item .nd{font-size:10px;color:#b0b8c1;margin-top:3px;font-weight:500}
+.np-empty{padding:24px 14px;text-align:center;font-size:12px;color:#8b95a1;font-weight:500}
+@media(max-width:960px){#notif-panel{right:10px;top:56px}}
+</style>
+
+<script id="notif-js">
+/* ═══ 학생↔컨설턴트 알림 시스템 ═══ */
+function _notifRole(){ return document.body.classList.contains('student-mode')?'stu':'con'; }
+function _notifReady(){ return !!(window.sb&&(window._activeStudent||window._academy||window._acadId)); }
+window.notify=async function(recipient,kind,title,body,view){
+  try{
+    if(!window.sb)return;
+    var s=window._activeStudent||{};
+    var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
+    if(!acid&&!s.id)return;
+    if(recipient==='con'&&s.name)title='['+s.name+'] '+title;
+    await sb.from('app_notifications').insert({academy_id:acid,student_id:s.id||null,recipient:recipient,kind:kind||null,title:title,body:body||null,view:view||null});
+  }catch(e){}
+};
+function notifEnsureBell(){
+  if(document.getElementById('notif-bell'))return;
+  var host=document.querySelector('.topbar>div:last-child'); if(!host)return;
+  var b=document.createElement('button'); b.id='notif-bell'; b.type='button'; b.title='알림';
+  b.innerHTML='🔔<span id="notif-cnt"></span>';
+  b.onclick=function(e){ e.stopPropagation(); notifTogglePanel(); };
+  host.insertBefore(b,host.firstChild);
+  var p=document.createElement('div'); p.id='notif-panel'; document.body.appendChild(p);
+  document.addEventListener('click',function(ev){ var pn=document.getElementById('notif-panel'); if(pn&&pn.classList.contains('open')&&!pn.contains(ev.target))pn.classList.remove('open'); });
+}
+async function notifPoll(){
+  try{
+    if(!_notifReady())return;
+    notifEnsureBell();
+    var role=_notifRole();
+    var q=sb.from('app_notifications').select('id',{count:'exact',head:true}).eq('recipient',role).eq('read',false);
+    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.eq('student_id',window._activeStudent.id);
+    var r=await q;
+    var n=(r&&r.count)||0;
+    var c=document.getElementById('notif-cnt');
+    if(c){ c.style.display=n>0?'flex':'none'; c.textContent=n>9?'9+':String(n); }
+  }catch(e){}
+}
+async function notifTogglePanel(){
+  var p=document.getElementById('notif-panel'); if(!p)return;
+  if(p.classList.contains('open')){ p.classList.remove('open'); return; }
+  p.classList.add('open');
+  p.innerHTML='<div class="np-empty">불러오는 중…</div>';
+  try{
+    var role=_notifRole();
+    var q=sb.from('app_notifications').select('*').eq('recipient',role).order('created_at',{ascending:false}).limit(15);
+    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.eq('student_id',window._activeStudent.id);
+    var r=await q;
+    var rows=r.data||[];
+    var ICO={iv:'🎤',design:'✏️',perf:'📝',course:'📚',essay:'📄'};
+    var h='<div class="np-head">알림'+(rows.some(function(x){return !x.read;})?'<button class="np-all" onclick="notifMarkAll(event)">모두 읽음</button>':'')+'</div>';
+    if(!rows.length)h+='<div class="np-empty">알림이 없습니다.</div>';
+    rows.forEach(function(x){
+      var d=String(x.created_at||'').replace('T',' ').slice(5,16);
+      h+='<div class="np-item'+(x.read?'':' unread')+'" onclick="notifClick(\''+x.id+'\',\''+esc(x.view||'')+'\')">'
+        +'<div class="ni">'+(ICO[x.kind]||'🔔')+'</div><div style="flex:1;min-width:0">'
+        +'<div class="nt">'+esc(x.title||'')+'</div>'
+        +(x.body?'<div class="nb">'+esc(x.body)+'</div>':'')
+        +'<div class="nd">'+esc(d)+'</div></div></div>';
+    });
+    p.innerHTML=h;
+  }catch(e){ p.innerHTML='<div class="np-empty">알림을 불러올 수 없습니다.</div>'; }
+}
+window.notifClick=async function(id,view){
+  try{ await sb.from('app_notifications').update({read:true}).eq('id',id); }catch(e){}
+  var p=document.getElementById('notif-panel'); if(p)p.classList.remove('open');
+  notifPoll();
+  if(view&&window.goView)goView(view);
+};
+window.notifMarkAll=async function(ev){
+  if(ev)ev.stopPropagation();
+  try{
+    var role=_notifRole();
+    var q=sb.from('app_notifications').update({read:true}).eq('recipient',role).eq('read',false);
+    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.eq('student_id',window._activeStudent.id);
+    await q;
+  }catch(e){}
+  notifPoll(); notifTogglePanel(); notifTogglePanel();
+};
+setTimeout(notifPoll,3000);
+setInterval(notifPoll,90000);
 </script>
 </body>
 </html>
