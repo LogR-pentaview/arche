@@ -792,6 +792,7 @@
               <div class="eyebrow">Consultation</div>
               <div class="h1">상담 기록</div>
               <div class="sub">학생부가 없어도 상담 내용 기반으로 학생부 디자인을 생성합니다</div>
+              <div class="card" id="mb-card" style="margin-top:14px;padding:18px 20px;display:none"></div>
               <div style="display:flex;gap:8px;margin:14px 0">
                 <select id="con-kind" class="con-kind-sel" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="student">학생 상담</option><option value="parent">학부모 상담</option></select>
               </div>
@@ -921,6 +922,7 @@
         <div class="eyebrow">Reverse-Engineering Admission</div>
         <div class="h1">합격 역설계</div>
         <div class="sub">목표 대학의 합격선에서 거꾸로 계산 — 지금 어디에 있고, 무엇이 부족한가</div>
+        <div id="sim-slot"></div>
         <div id="arche-body">
         <div class="arche-target">
           <div class="at-head"><div class="at-uni">연세대 경영학과 <span>· 활동우수형(수시)</span></div><div class="at-verdict" style="color:var(--reach)">적정 · 합격선까지 0.14등급</div></div>
@@ -2054,7 +2056,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'&&window.renderArche)renderArche(); if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'&&window.renderConsult)renderConsult(); if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2083,11 +2085,11 @@ window.addEventListener('popstate', function(e){
     if(window.syncTopbarPicker)syncTopbarPicker(v);
     // 렌더 재호출 (go의 렌더 디스패치와 동일 효과)
     try{
-      if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} else if(v==='arche'&&window.renderArche)renderArche();
+      if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} else if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();}
       else if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();}
       else if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();}
       else if(v==='sr'){window._designTrack='dae';renderDesign();} else if(v==='perf'){window._designTrack='dae';if(window.perfMount)perfMount('dae');} else if(v==='iv'&&window.renderInterview)renderInterview();
-      else if(v==='intake'&&window.refreshIntake)refreshIntake(); else if(v==='consult'&&window.renderConsult)renderConsult();
+      else if(v==='intake'&&window.refreshIntake)refreshIntake(); else if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();}
       else if(v==='report'&&window.renderReport)renderReport(); else if(v==='basecon'&&window.renderBaseCon)renderBaseCon();
       else if(v==='goip'&&window.renderGoip)renderGoip(); else if(v==='gstudents'&&window.renderGStudents)renderGStudents();
       else if(v==='gintake'&&window.renderGIntake)renderGIntake(); else if(v==='gconsult'&&window.renderGConsult)renderGConsult();
@@ -2419,7 +2421,7 @@ async function enterApp(session){
   loadStudents();
 }
 /* ===== 게스트 체험 모드 ===== */
-var DEMO_TASK_LABEL={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'학생부 디자인',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭'};
+var DEMO_TASK_LABEL={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'학생부 디자인',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
 function toggleGuestForm(){var f=document.getElementById('guest-form');if(f)f.style.display=(f.style.display==='none')?'block':'none';}
 async function guestSignup(){
   var m=document.getElementById('gu-msg'), btn=document.getElementById('gu-btn');
@@ -2453,7 +2455,7 @@ function updateDemoBanner(){
     main.insertBefore(b,main.firstChild);
   }
   var c=window._demo.credits||{};
-  var INIT={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,course_roadmap:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3,golden_sentences:1,career_match:1};
+  var INIT={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,course_roadmap:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3,golden_sentences:1,career_match:1,monthly_brief:1};
   var total=0,remain=0;
   Object.keys(INIT).forEach(function(k){total+=INIT[k];var v=(c[k]!=null)?c[k]:INIT[k];remain+=Math.max(0,Math.min(v,INIT[k]));});
   var used=total-remain;
@@ -4350,6 +4352,7 @@ async function renderDesign(){
               (stu?'':'<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">'+((window._designTrack==='goip')?'':'<button onclick="regenItem('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:6px;font-size:11px;cursor:pointer">↻ 이 주제 재생성</button>')+(it.sent?'<button onclick="unsendDesign('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">전송 취소</button>':'<button onclick="sendDesign('+it.id+')" style="padding:4px 11px;background:var(--reach,#3182f6);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">학생에게 전송</button>')+'<button onclick="delDesignItem('+it.id+')" style="padding:4px 11px;background:transparent;color:var(--risk);border:1px solid var(--risk);border-radius:6px;font-size:11px;cursor:pointer">🗑 삭제</button></div>')+
               // 결과물 제출 (학생 또는 대리입력)
               '<div style="margin-top:10px"><div style="font-size:10px;color:var(--gold,#3182f6);margin-bottom:4px">활동 결과물'+(it.submitted_at?' · 제출됨':'')+(it.analyzed?' · <span style="color:var(--safe)">AI 분석완료</span>':'')+'</div>'+
+                (it.sub_path?'<div style="margin-bottom:6px"><button onclick="dlActivity(\''+it.sub_path+'\',\''+esc(it.file_name||'제출파일')+'\')" style="padding:5px 12px;background:var(--blue-deep,#1b64da);color:#fff;border:none;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer">📥 제출 파일 다운로드'+(it.file_name?' ('+esc(it.file_name)+')':'')+'</button></div>':'')+
                 '<textarea id="sub-'+it.id+'" rows="2" placeholder="수행 결과·산출물 요약 입력 (또는 파일 첨부)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;resize:vertical">'+esc(it.submission||'')+'</textarea>'+
                 '<div style="display:flex;gap:6px;align-items:center;margin-top:5px;flex-wrap:wrap">'+
                   '<input type="file" id="file-'+it.id+'" accept=".pdf,.docx,.hwp,.hwpx" onchange="attachDesignFile('+it.id+')" style="font-size:11px;color:var(--ink-dim);max-width:200px">'+
@@ -4421,7 +4424,11 @@ window.regenItem=async function(id){
   }catch(e){ showGen(false); alert('재생성 실패: '+(e.message||e)); }
 };
 window.updateDesignStatus=async function(id,st){ if(!sb)return; await sb.from('design_items').update({status:st,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); if(window.renderTopics)renderTopics(); };
-window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():''; await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id); if(window.notify)notify('con','design','활동 결과물 제출','학생부 디자인 활동 결과물이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr')); renderDesign(); };
+window.submitDesign=async function(id){ if(!sb)return; var t=document.getElementById('sub-'+id); var v=t?t.value.trim():'';
+  if(!v){ alert('제출할 내용이 없습니다.\n결과물 요약을 입력하거나, 파일을 첨부해 주세요. (파일은 첨부 즉시 자동 제출됩니다)'); return; }
+  var _r=await sb.from('design_items').update({submission:v,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id).select('id');
+  if(_r.error||!(_r.data&&_r.data.length)){ alert('제출 저장 실패: '+((_r.error&&_r.error.message)||'권한 오류 — 새로고침 후 다시 시도해 주세요.')); return; }
+  if(window.notify)notify('con','design','활동 결과물 제출','학생부 디자인 활동 결과물이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr')); renderDesign(); };
 window.sendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:true,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 window.unsendDesign=async function(id){ if(!sb)return; await sb.from('design_items').update({sent:false,updated_at:new Date().toISOString()}).eq('id',id); renderDesign(); };
 async function distributeActivity(){
@@ -4451,6 +4458,13 @@ window.attachDesignFile=async function(id){
   var ext=(f.name.split('.').pop()||'').toLowerCase();
   msg.style.color='var(--ink-mute)'; msg.textContent='파일 처리 중…';
   try{
+    /* 원본 파일을 형식과 무관하게 항상 스토리지에 업로드 → 컨설턴트가 다운로드 가능 */
+    var _sp=null;
+    try{
+      var _p='design/sub/'+id+'/'+Date.now()+'_'+String(f.name||'file').replace(/[^\w.\-가-힣]+/g,'_').slice(-60);
+      var _up=await sb.storage.from('activity-files').upload(_p,f,{upsert:true,contentType:(f.type||'application/octet-stream')});
+      if(!_up.error)_sp=_p;
+    }catch(_e){}
     var text='';
     if(ext==='pdf'){
       var buf=await f.arrayBuffer(); pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
@@ -4460,13 +4474,25 @@ window.attachDesignFile=async function(id){
     } else if(ext==='docx'){
       var ab=await f.arrayBuffer(); var res=await mammoth.extractRawText({arrayBuffer:ab}); text=res.value||'';
     } else if(ext==='hwp'||ext==='hwpx'){
-      await sb.from('design_items').update({file_name:f.name,submitted_at:new Date().toISOString(),status:'진행중'}).eq('id',id);
-      msg.style.color='var(--gold,#3182f6)'; msg.innerHTML='hwp 파일은 자동 분석이 안 됩니다. <b>PDF로 변환 후 다시 첨부</b>하면 AI 분석이 가능합니다. (파일은 제출됨)';
+      var _r1=await sb.from('design_items').update({file_name:f.name,sub_path:_sp,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id).select('id');
+      if(_r1.error||!(_r1.data&&_r1.data.length)){ msg.style.color='var(--risk)'; msg.textContent='제출 저장 실패: '+((_r1.error&&_r1.error.message)||'권한 오류 — 새로고침 후 다시 시도해 주세요.'); return; }
+      if(window.notify)notify('con','design','활동 결과물 제출(파일)','학생부 디자인 결과물 파일('+f.name+')이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr'));
+      if(_sp){ msg.style.color='var(--safe)'; msg.innerHTML='✅ 원본 파일 제출 완료: '+f.name+' — 컨설턴트가 다운로드할 수 있습니다. <span style="color:var(--gold,#3182f6)">hwp는 자동 텍스트 분석이 안 되므로, <b>PDF로 변환 후 다시 첨부</b>하면 AI 분석까지 가능합니다.</span>'; }
+      else { msg.style.color='var(--risk)'; msg.innerHTML='파일 업로드에 실패해 파일명만 기록되었습니다. 다시 첨부하거나 <b>PDF로 변환 후 첨부</b>해 주세요.'; }
+      if(window.renderDesign)renderDesign();
       return;
     } else { msg.style.color='var(--risk)'; msg.textContent='지원하지 않는 형식(pdf/docx/hwp만).'; return; }
-    if(text.trim().length<20){ msg.style.color='var(--risk)'; msg.textContent='텍스트 추출 실패(스캔본일 수 있음). PDF 텍스트본으로 재시도하세요.'; return; }
+    if(text.trim().length<20){
+      if(_sp){
+        await sb.from('design_items').update({file_name:f.name,sub_path:_sp,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id);
+        if(window.notify)notify('con','design','활동 결과물 제출(파일)','학생부 디자인 결과물 파일('+f.name+')이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr'));
+        if(window.renderDesign)renderDesign();
+        msg.style.color='var(--gold,#3182f6)'; msg.textContent='원본 파일은 제출되었습니다. 다만 텍스트 추출에 실패해(스캔본일 수 있음) AI 분석은 불가 — PDF 텍스트본으로 재첨부하면 분석 가능합니다.';
+      } else { msg.style.color='var(--risk)'; msg.textContent='텍스트 추출 실패(스캔본일 수 있음). PDF 텍스트본으로 재시도하세요.'; }
+      return; }
     var ta=document.getElementById('sub-'+id); if(ta)ta.value=text.slice(0,8000);
-    await sb.from('design_items').update({submission:text.slice(0,8000),file_name:f.name,submitted_at:new Date().toISOString(),status:'진행중',analyzed:false,updated_at:new Date().toISOString()}).eq('id',id);
+    var _r2=await sb.from('design_items').update({submission:text.slice(0,8000),file_name:f.name,sub_path:_sp,submitted_at:new Date().toISOString(),status:'진행중',analyzed:false,updated_at:new Date().toISOString()}).eq('id',id).select('id');
+    if(_r2.error||!(_r2.data&&_r2.data.length)){ msg.style.color='var(--risk)'; msg.textContent='제출 저장 실패: '+((_r2.error&&_r2.error.message)||'권한 오류 — 새로고침 후 다시 시도해 주세요.'); return; }
     msg.style.color='var(--safe)'; msg.textContent='추출 완료: '+f.name+' · 컨설턴트가 [AI 분석] 실행하면 분석결과만 저장됩니다.';
   }catch(e){ msg.style.color='var(--risk)'; msg.textContent='처리 실패: '+e.message; }
 };
@@ -8180,5 +8206,184 @@ setInterval(notifPoll,90000);
 .pdfwarn .pw-y{color:#b25e00}
 @keyframes pdfwpulse{0%,100%{box-shadow:0 0 0 0 rgba(247,144,9,.35)}50%{box-shadow:0 0 0 6px rgba(247,144,9,0)}}
 </style>
+<style id="mb-sim-css">
+#mb-card{padding:18px 20px}
+.mbx-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.mbx-title{font-size:14.5px;font-weight:800;color:var(--ink)}
+.mbx-month{font-size:11.5px;color:var(--blue-deep,#1b64da);background:rgba(49,130,246,.08);border-radius:999px;padding:3px 10px;font-weight:700}
+.mbx-body{margin-top:12px}
+.mbx-sum{font-size:13px;color:var(--ink-dim);line-height:1.75}
+.mbx-done{display:flex;flex-direction:column;gap:7px;margin:12px 0 4px}
+.mbx-done .it{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;color:var(--ink-dim);line-height:1.6}
+.mbx-done .ar{flex:none;font-size:11px;font-weight:700;color:var(--blue,#3182f6);background:rgba(49,130,246,.08);border-radius:6px;padding:2px 8px;margin-top:1px}
+.mbx-pm{background:var(--panel-2,#f9fafb);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:12.5px;color:var(--ink-dim);line-height:1.75;margin-top:10px}
+.mbx-next{margin-top:10px}
+.mbx-next .nx{display:inline-block;font-size:11.5px;color:#b25e00;background:rgba(247,144,9,.1);border-radius:999px;padding:4px 11px;margin:0 6px 6px 0;font-weight:600}
+#sim-slot>.card{padding:18px 20px;margin-bottom:18px}
+.simx-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:12px}
+.simx-kpi{background:var(--panel-2,#f9fafb);border:1px solid var(--line);border-radius:12px;padding:10px 16px;min-width:112px}
+.simx-kpi small{display:block;font-size:11px;color:var(--ink-mute);margin-bottom:3px}
+.simx-kpi b{font-size:19px;color:var(--ink)}
+.simx-slider{flex:1;min-width:220px}
+.simx-slider input[type=range]{width:100%;accent-color:var(--blue,#3182f6)}
+.simx-note{font-size:11px;color:var(--ink-mute);margin-top:8px;line-height:1.6}
+#sim-ai-out .u{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-dim);padding:7px 0;border-bottom:1px dashed var(--line);flex-wrap:wrap}
+#sim-ai-out .u .pos{flex:none;font-size:11px;font-weight:800;border-radius:6px;padding:2px 8px}
+</style>
+<script id="mb-sim-js">
+(function(){
+function _ms(){ var d=new Date(); return new Date(d.getFullYear(),d.getMonth(),1).toISOString(); }
+function _ym(){ var d=new Date(); var m=d.getMonth()+1; return d.getFullYear()+'-'+(m<10?'0':'')+m; }
+function _ymLabel(){ var d=new Date(); return d.getFullYear()+'\ub144 '+(d.getMonth()+1)+'\uc6d4'; }
+
+/* ---------- 학부모 월간 브리핑 ---------- */
+window.renderMB=async function(){
+  var box=document.getElementById('mb-card'); if(!box)return;
+  var s=window._activeStudent;
+  if(!s||!s.id||!_SB()){ box.style.display='none'; return; }
+  box.style.display='';
+  box.innerHTML='<div class="mbx-head"><span class="mbx-title">\ud83d\udcec \ud559\ubd80\ubaa8 \uc6d4\uac04 \ube0c\ub9ac\ud551</span><span class="mbx-month">'+_ymLabel()+'</span><span style="flex:1"></span><button class="btn" id="mb-gen" style="font-size:12px;padding:8px 16px" onclick="genMonthlyBrief()">\uc774\ubc88 \ub2ec \ube0c\ub9ac\ud551 \uc0dd\uc131</button></div><div id="mb-msg" style="font-size:11.5px;color:var(--ink-mute);margin-top:6px;min-height:14px"></div><div class="mbx-body" id="mb-body"><div style="font-size:12px;color:var(--ink-mute)">\ubd88\ub7ec\uc624\ub294 \uc911\u2026</div></div>';
+  var cur=null;
+  try{ var r=await _SB().from('student_metrics').select('payload,measured_at').eq('student_id',s.id).eq('metric_type','monthly_brief').order('measured_at',{ascending:false}).limit(1);
+    if(r.data&&r.data[0])cur=r.data[0].payload; }catch(e){}
+  var bd=document.getElementById('mb-body'); if(!bd)return;
+  if(!cur){ bd.innerHTML='<div style="font-size:12.5px;color:var(--ink-mute);line-height:1.7">\uc774\ubc88 \ub2ec\uc758 \uc0c1\ub2f4\u00b7\ud65c\ub3d9\u00b7\uc131\uc801 \ub370\uc774\ud130\ub97c \ubaa8\uc544 \ud559\ubd80\ubaa8\ub2d8\uaed8 \ubcf4\uc5ec\ub4dc\ub9b4 \uc6d4\uac04 \ube0c\ub9ac\ud551\uc744 AI\uac00 \uc791\uc131\ud569\ub2c8\ub2e4. \uc0dd\uc131\ud558\uba74 \ud559\uc0dd\u00b7\ud559\ubd80\ubaa8 \ud648 \ud654\uba74\uc5d0 \uac8c\uc2dc\ub418\uace0 \uc54c\ub9bc\uc774 \ubc1c\uc1a1\ub429\ub2c8\ub2e4.</div>'; return; }
+  bd.innerHTML=mbHtml(cur);
+  var btn=document.getElementById('mb-gen'); if(btn&&cur.month===_ym())btn.textContent='\ube0c\ub9ac\ud551 \ub2e4\uc2dc \uc0dd\uc131';
+};
+function mbHtml(o){
+  var h='';
+  if(o.headline)h+='<div style="font-size:14px;font-weight:800;color:var(--ink);line-height:1.6;margin-bottom:8px">\u201c'+esc(o.headline)+'\u201d</div>';
+  if(o.summary)h+='<div class="mbx-sum">'+esc(o.summary)+'</div>';
+  var dn=o.done||[];
+  if(dn.length)h+='<div class="mbx-done">'+dn.map(function(x){return '<div class="it"><span class="ar">'+esc(x.area||'')+'</span><span>'+esc(x.text||'')+'</span></div>';}).join('')+'</div>';
+  if(o.growth)h+='<div style="font-size:12.5px;color:var(--safe);line-height:1.7;margin-top:6px">\ud83c\udf31 '+esc(o.growth)+'</div>';
+  var nx=o.next_focus||[];
+  if(nx.length)h+='<div class="mbx-next">'+nx.map(function(x){return '<span class="nx">\ub2e4\uc74c \ub2ec \u00b7 '+esc(x)+'</span>';}).join('')+'</div>';
+  if(o.parent_message)h+='<div class="mbx-pm">\ud83d\udcac <b>\ud559\ubd80\ubaa8\ub2d8\uaed8</b><br>'+esc(o.parent_message)+'</div>';
+  return h||'<div style="font-size:12px;color:var(--ink-mute)">\ub0b4\uc6a9 \uc5c6\uc74c</div>';
+}
+window.genMonthlyBrief=async function(){
+  var s=window._activeStudent, m=document.getElementById('mb-msg'), btn=document.getElementById('mb-gen');
+  if(!s||!s.id||!_SB())return;
+  if(btn)btn.disabled=true;
+  function say(t,c){ if(m){m.style.color=c||'var(--ink-mute)';m.textContent=t;} }
+  try{
+    say('\uc774\ubc88 \ub2ec \ub370\uc774\ud130 \uc218\uc9d1 \uc911\u2026');
+    var ms=_ms(), parts=[];
+    try{ var c=await _SB().from('consultations').select('kind,career,target_univ,target_major,activities,memo,created_at').eq('student_id',s.id).gte('created_at',ms).order('created_at',{ascending:false}).limit(10);
+      if(c.data&&c.data.length)parts.push('[\uc774\ubc88 \ub2ec \uc0c1\ub2f4 '+c.data.length+'\uac74]\n'+c.data.map(function(x){return '- ('+(x.kind==='parent'?'\ud559\ubd80\ubaa8':'\ud559\uc0dd')+') '+[x.career,x.target_univ,x.target_major].filter(Boolean).join(' \u00b7 ')+' / '+String(x.memo||x.activities||'').slice(0,200);}).join('\n')); }catch(e){}
+    try{ var di=await _SB().from('design_items').select('subject,title,status,approved,submitted_at,updated_at').eq('student_id',s.id).order('updated_at',{ascending:false}).limit(30);
+      var dd=(di.data||[]).filter(function(x){return (x.submitted_at&&x.submitted_at>=ms)||(x.updated_at&&x.updated_at>=ms);});
+      if(dd.length)parts.push('[\uc774\ubc88 \ub2ec \ud559\uc0dd\ubd80 \ub514\uc790\uc778 \ud65c\ub3d9 '+dd.length+'\uac74]\n'+dd.slice(0,10).map(function(x){return '- ['+(x.subject||'')+'] '+(x.title||'')+' \u2014 '+(x.approved?'\uc644\ub8cc(\uc2b9\uc778)':(x.status||''))+((x.submitted_at&&x.submitted_at>=ms)?' \u00b7 \uacb0\uacfc\ubb3c \uc81c\ucd9c':'');}).join('\n')); }catch(e){}
+    try{ var st=await _SB().from('student_setech').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('extracted_at',ms); if(st.count)parts.push('[\uc774\ubc88 \ub2ec \uc0c8\ub85c \ub4f1\ub85d\ub41c \uc0dd\uae30\ubd80 \uc138\ud2b9 '+st.count+'\uac74]'); }catch(e){}
+    try{ var pf=await _SB().from('perf_submissions').select('status').eq('student_id',s.id);
+      var pd=pf.data||[]; if(pd.length)parts.push('[\uc218\ud589\ud3c9\uac00 \ud604\ud669] \ucd1d '+pd.length+'\uac74 \uc9c4\ud589 \uc911'); }catch(e){}
+    try{ var nx=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+      var p0=nx.data&&nx.data[0]&&nx.data[0].payload; if(p0&&p0.weighted_overall!=null)parts.push('[\ub0b4\uc2e0] \ub2e8\uc704\uac00\uc911 \ud3c9\uade0 '+Number(p0.weighted_overall).toFixed(2)+'\ub4f1\uae09 ('+studentGradeSystem(s)+'\ub4f1\uae09\uc81c \u00b7 \ud559\uae30 '+Object.keys(p0.by_semester||{}).length+'\uac1c \uc785\ub825)'); }catch(e){}
+    try{ var cm=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','career_match').order('measured_at',{ascending:false}).limit(1);
+      var c0=cm.data&&cm.data[0]&&cm.data[0].payload; if(c0&&c0.majors&&c0.majors.length)parts.push('[\uc9c4\ub85c\u00b7\ud559\uacfc \ub9e4\uce6d] 1\uc21c\uc704 '+c0.majors[0].major+' (\uc801\ud569\ub3c4 '+c0.majors[0].fit+')'+((c0.narrative&&c0.narrative.headline)?' \u2014 '+c0.narrative.headline:'')); }catch(e){}
+    try{ var gs=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','golden_sents').order('measured_at',{ascending:false}).limit(1);
+      var g0=gs.data&&gs.data[0]&&gs.data[0].payload; if(g0&&g0.summary)parts.push('[\ud669\uae08\ubb38\uc7a5 \uc11c\uc0ac \uc694\uc57d] '+String(g0.summary).slice(0,300)); }catch(e){}
+    if(!parts.length)parts.push('(\uc774\ubc88 \ub2ec \uae30\ub85d\ub41c \ud65c\ub3d9 \ub370\uc774\ud130\uac00 \uc544\uc9c1 \uc5c6\uc74c \u2014 \uc0c1\ub2f4\u00b7\ud65c\ub3d9 \uae30\ub85d\uc774 \uc313\uc774\uba74 \ub354 \ud48d\ubd80\ud55c \ube0c\ub9ac\ud551\uc774 \uc0dd\uc131\ub429\ub2c8\ub2e4)');
+    say('AI \ube0c\ub9ac\ud551 \uc791\uc131 \uc911\u2026 (\ucd5c\ub300 1\ubd84)');
+    var d=await callAI('monthly_brief',{name:s.name||'',grade:s.grade||'',career:s.career||'',major:s.target_major||'',target:s.target_univ||'',month:_ym(),context:parts.join('\n\n').slice(0,6000)});
+    var o=JSON.parse(d.text); o.month=_ym();
+    await _SB().from('student_metrics').insert({student_id:s.id,metric_type:'monthly_brief',payload:o});
+    if(window.notify)notify('stu','brief','\ud83d\udcec \uc774\ubc88 \ub2ec \ube0c\ub9ac\ud551 \ub3c4\ucc29','\uc774\ubc88 \ub2ec \ud559\uc2b5 \ube0c\ub9ac\ud551\uc774 \ub3c4\ucc29\ud588\uc2b5\ub2c8\ub2e4. \ud648 \ud654\uba74\uc5d0\uc11c \ud655\uc778\ud574 \uc8fc\uc138\uc694.','home');
+    say('\u2705 \ube0c\ub9ac\ud551 \uc0dd\uc131 \uc644\ub8cc \u2014 \ud559\uc0dd\u00b7\ud559\ubd80\ubaa8 \ud648 \ud654\uba74\uc5d0 \uac8c\uc2dc\ub418\uc5c8\uc2b5\ub2c8\ub2e4.','var(--safe)');
+    renderMB();
+  }catch(e){ say('\uc2e4\ud328: '+(e.message||e),'var(--risk)'); }
+  finally{ if(btn)btn.disabled=false; }
+};
+
+/* 학생·학부모 홈 브리핑 카드 */
+window.renderStuBrief=async function(){
+  var box=document.getElementById('stu-brief'); if(!box)return;
+  var s=window._activeStudent; if(!s||!s.id||!_SB()){box.innerHTML='';return;}
+  var cur=null;
+  try{ var r=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','monthly_brief').order('measured_at',{ascending:false}).limit(1);
+    if(r.data&&r.data[0])cur=r.data[0].payload; }catch(e){}
+  if(!cur){ box.innerHTML=''; return; }
+  box.innerHTML='<div class="card" style="padding:18px 20px"><div class="mbx-head"><span class="mbx-title">\ud83d\udcec \uc774\ubc88 \ub2ec \ube0c\ub9ac\ud551</span><span class="mbx-month">'+esc(cur.month||'')+'</span></div><div class="mbx-body">'+mbHtml(cur)+'</div></div>';
+};
+(function(){
+  var _o=window.renderStudentHome;
+  if(typeof _o==='function'){
+    window.renderStudentHome=function(){ _o();
+      try{
+        if(!document.body.classList.contains('student-mode'))return;
+        var v=document.getElementById('v-home'); if(!v)return;
+        var d=document.getElementById('stu-brief');
+        if(!d){ d=document.createElement('div'); d.id='stu-brief'; d.style.marginTop='16px'; v.appendChild(d); }
+        renderStuBrief();
+      }catch(e){}
+    };
+  }
+})();
+
+/* ---------- 내신 시나리오 시뮬레이터 ---------- */
+var _simSt=null;
+window.renderSimCard=async function(){
+  var slot=document.getElementById('sim-slot'); if(!slot)return;
+  var s=window._activeStudent;
+  if(!s||!s.id||!_SB()){ slot.innerHTML=''; return; }
+  var pl=null;
+  try{ var r=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
+    if(r.data&&r.data[0])pl=r.data[0].payload; }catch(e){}
+  if(!pl||pl.weighted_overall==null){ slot.innerHTML='<div class="card" style="font-size:12px;color:var(--ink-mute);line-height:1.7">\ud83d\udcc8 <b style="color:var(--ink)">\ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</b> \u2014 [\ud559\uc0dd \uc790\ub8cc \uc785\ub825]\uc5d0\uc11c \uc131\uc801\uc744 \uc785\ub825\ud558\uba74, \ub0a8\uc740 \ud559\uae30 \uc131\uc801\uc5d0 \ub530\ub77c \ucd5c\uc885 \ub0b4\uc2e0\uc774 \uc5b4\ub5bb\uac8c \ubcc0\ud558\ub294\uc9c0 \uc2dc\ubbac\ub808\uc774\uc158\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>'; return; }
+  var W=Number(pl.weighted_overall); var byS=pl.by_semester||{}; var C=Math.max(1,Object.keys(byS).length);
+  var sys=studentGradeSystem(s); var T=6; var R=Math.max(0,T-C);
+  _simSt={W:W,C:C,R:R,sys:sys};
+  var semChips=Object.keys(byS).sort().map(function(k){return '<span style="font-size:11px;background:var(--panel-2,#f9fafb);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--ink-dim)">'+esc(k)+' <b>'+Number(byS[k]).toFixed(2)+'</b></span>';}).join(' ');
+  if(R===0){
+    slot.innerHTML='<div class="card"><div class="mbx-head"><span class="mbx-title">\ud83d\udcc8 \ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</span></div><div style="font-size:12.5px;color:var(--ink-dim);margin-top:8px">\ubaa8\ub4e0 \ud559\uae30('+C+'\uac1c) \uc131\uc801\uc774 \uc785\ub825\ub418\uc5b4 \ucd5c\uc885 \ub0b4\uc2e0\uc774 \ud655\uc815 \uc0c1\ud0dc\uc785\ub2c8\ub2e4 \u2014 \ub2e8\uc704\uac00\uc911 \ud3c9\uade0 <b style="color:var(--ink)">'+W.toFixed(2)+'\ub4f1\uae09</b></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+semChips+'</div></div>';
+    return;
+  }
+  var init=Math.min(sys,Math.max(1,Math.round(W*10)/10));
+  slot.innerHTML='<div class="card">'
+    +'<div class="mbx-head"><span class="mbx-title">\ud83d\udcc8 \ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</span><span style="font-size:11px;color:var(--ink-mute)">'+sys+'\ub4f1\uae09\uc81c \u00b7 \ud559\uae30\ub2e8\uc704 \uadfc\uc0ac</span></div>'
+    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+semChips+'</div>'
+    +'<div class="simx-row">'
+    +'<div class="simx-kpi"><small>\ud604\uc7ac \ud3c9\uade0 ('+C+'\ud559\uae30)</small><b>'+W.toFixed(2)+'</b></div>'
+    +'<div class="simx-slider"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-dim);margin-bottom:4px"><span>\ub0a8\uc740 '+R+'\uac1c \ud559\uae30 \ud3c9\uade0 \ub4f1\uae09 \uac00\uc815</span><b id="sim-f" style="color:var(--blue,#3182f6)">'+init.toFixed(1)+'</b></div>'
+    +'<input type="range" id="sim-range" min="1" max="'+sys+'" step="0.1" value="'+init+'" oninput="simCalc()"></div>'
+    +'<div class="simx-kpi"><small>\uc608\uc0c1 \ucd5c\uc885 \ub0b4\uc2e0</small><b id="sim-p">\u2014</b></div>'
+    +'</div>'
+    +'<div class="simx-note">\u203b \ud559\uae30\ubcc4 \uc774\uc218\ub2e8\uc704\uac00 \ub3d9\uc77c\ud558\ub2e4\uace0 \uac00\uc815\ud55c \uadfc\uc0ac\uce58\uc785\ub2c8\ub2e4. \uc2e4\uc81c \ucd5c\uc885 \ub0b4\uc2e0\uc740 \ud559\uae30\ubcc4 \uc774\uc218\ub2e8\uc704\u00b7\uacfc\ubaa9 \uad6c\uc131\uc5d0 \ub530\ub77c \ub2ec\ub77c\uc9c8 \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>'
+    +'<div style="margin-top:12px"><button class="btn" id="sim-ai-btn" style="font-size:12px;padding:8px 16px" onclick="simRunAI()">\ud83e\udd16 \uc774 \uc2dc\ub098\ub9ac\uc624\ub85c AI \uc5ed\uc124\uacc4 \ubcf4\uae30</button><span id="sim-msg" style="font-size:11.5px;color:var(--ink-mute);margin-left:10px"></span></div>'
+    +'<div id="sim-ai-out"></div>'
+    +'</div>';
+  simCalc();
+};
+window.simCalc=function(){
+  if(!_simSt)return;
+  var el=document.getElementById('sim-range'); if(!el)return;
+  var F=parseFloat(el.value)||_simSt.W;
+  var P=(_simSt.W*_simSt.C+F*_simSt.R)/(_simSt.C+_simSt.R);
+  var fEl=document.getElementById('sim-f'); if(fEl)fEl.textContent=F.toFixed(1);
+  var pEl=document.getElementById('sim-p');
+  if(pEl){ pEl.textContent=P.toFixed(2); pEl.style.color=(P<_simSt.W-0.001)?'var(--safe)':((P>_simSt.W+0.001)?'var(--risk)':'var(--ink)'); }
+  _simSt.F=F; _simSt.P=P;
+};
+window.simRunAI=async function(){
+  var s=window._activeStudent, m=document.getElementById('sim-msg'), out=document.getElementById('sim-ai-out'), btn=document.getElementById('sim-ai-btn');
+  if(!s||!_simSt||!_SB()||!out)return;
+  if(btn)btn.disabled=true;
+  if(m){m.style.color='var(--ink-mute)';m.textContent='AI \uc5ed\uc124\uacc4 \uc911\u2026 (\ucd5c\ub300 1\ubd84)';}
+  try{
+    var P=+((_simSt.P!=null?_simSt.P:_simSt.W)).toFixed(2);
+    var ctx='[\ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\uc158] \ud604\uc7ac '+_simSt.C+'\uac1c \ud559\uae30 \ud3c9\uade0 '+_simSt.W.toFixed(2)+'\ub4f1\uae09. \ub0a8\uc740 '+_simSt.R+'\uac1c \ud559\uae30 \ud3c9\uade0 '+Number(_simSt.F||_simSt.W).toFixed(1)+'\ub4f1\uae09 \uac00\uc815 \uc2dc \ucd5c\uc885 \ub0b4\uc2e0 '+P+'\ub4f1\uae09\uc774 \ub418\ub294 \uac00\uc0c1 \uc2dc\ub098\ub9ac\uc624\uc784. \uc774 \ucd5c\uc885 \ub0b4\uc2e0\uc744 \uc804\uc81c\ub85c \ucd94\ucc9c\ud558\ub77c.';
+    var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:P,gpa_sys:_simSt.sys,context:ctx});
+    var list=JSON.parse(rc.text); if(!Array.isArray(list))list=[];
+    var POS={reach:['\uc18c\uc2e0','var(--reach,#f79009)','rgba(247,144,9,.1)'],fit:['\uc801\uc815','var(--blue,#3182f6)','rgba(49,130,246,.08)'],safe:['\uc548\uc815','var(--safe,#12b76a)','rgba(18,183,106,.1)']};
+    out.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--ink);margin:12px 0 2px">\ucd5c\uc885 \ub0b4\uc2e0 '+P+'\ub4f1\uae09 \uac00\uc815 \uc2dc \uc9c0\uc6d0 \uc2a4\ud399\ud2b8\ub7fc <span style="font-weight:400;color:var(--ink-mute)">(\uc2dc\ub098\ub9ac\uc624 \ucc38\uace0\uc6a9 \u2014 \uc800\uc7a5\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4)</span></div>'
+      +list.map(function(u){ var pz=POS[u.pos]||['\u2014','var(--ink-mute)','var(--panel-2,#f9fafb)']; return '<div class="u"><span class="pos" style="color:'+pz[1]+';background:'+pz[2]+'">'+pz[0]+'</span><b style="color:var(--ink)">'+esc(u.name||'')+'</b> <span>'+esc(u.major||'')+'</span> <span style="color:var(--ink-mute);font-size:11px">'+esc(u.type||'')+'</span><span style="flex:1"></span><span style="font-size:11px;color:var(--ink-mute)">'+esc(u.basis||'')+'</span></div>';}).join('');
+    if(m){m.style.color='var(--safe)';m.textContent='\uc644\ub8cc';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='\uc2e4\ud328: '+(e.message||e);} }
+  finally{ if(btn)btn.disabled=false; }
+};
+})();
+</script>
 </body>
 </html>
