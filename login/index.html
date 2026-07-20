@@ -4,49 +4,64 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>아르케 · 로그인</title>
-<meta name="theme-color" content="#ffffff">
+<meta name="theme-color" content="#3182f6">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="아르케">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
   :root{
-    --bg:#f4f7f4; --panel:#ffffff; --panel-2:#f0f4f0;
-    --line:rgba(20,80,40,.14);
-    --ink:#16241c; --ink-dim:#41564a; --ink-mute:#6d8377;
-    --lime:#2fa860; --gold:#c8871a; --risk:#e05353; --safe:#2e9e56;
+    --bg:#f2f4f6; --panel:#ffffff; --panel-2:#f4f6f8;
+    --line:#e5e8eb;
+    --ink:#191f28; --ink-dim:#4e5968; --ink-mute:#8b95a1;
+    --blue:#3182f6; --blue-deep:#1b64da; --blue-soft:#e8f3ff;
+    --lime:#3182f6; --gold:#3182f6; --risk:#f04452; --safe:#12b76a;
   }
   *{ box-sizing:border-box; }
-  body{ margin:0; font-family:'Noto Sans KR',sans-serif; background:var(--bg); color:var(--ink);
+  body{ margin:0; font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',-apple-system,BlinkMacSystemFont,sans-serif; background:var(--bg); color:var(--ink); letter-spacing:-.01em;
         min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; -webkit-font-smoothing:antialiased; }
-  .card{ width:100%; max-width:380px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:30px 26px; }
-  .brand{ font-family:'Bebas Neue',sans-serif; font-size:34px; line-height:.9; letter-spacing:.02em; }
-  .brand .dot{ color:var(--gold); }
-  .mono{ font-size:10px; letter-spacing:.16em; color:var(--ink-mute); text-transform:uppercase; margin:4px 0 20px; }
-  input{ width:100%; margin-bottom:10px; padding:11px 13px; background:var(--panel-2); border:1px solid var(--line);
-         border-radius:9px; color:var(--ink); font-size:14px; font-family:inherit; }
-  .msg{ min-height:16px; font-size:12px; color:var(--risk); margin:4px 0 10px; line-height:1.5; }
+  .card{ width:100%; max-width:400px; background:var(--panel); border:none; border-radius:24px; padding:34px 30px; box-shadow:0 4px 24px rgba(25,31,40,.08); }
+  .brandrow{ display:flex; align-items:center; gap:12px; }
+  .brandmark{ width:44px; height:44px; border-radius:14px; background:var(--blue); display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:22px; box-shadow:0 4px 12px rgba(49,130,246,.3); }
+  .brand{ font-size:26px; font-weight:800; letter-spacing:-.02em; line-height:1; }
+  .brand .dot{ color:var(--blue); }
+  .mono{ font-size:11px; font-weight:500; color:var(--ink-mute); margin:3px 0 0; }
+  .brandwrap{ margin-bottom:22px; }
+  input{ width:100%; margin-bottom:10px; padding:13px 15px; background:var(--panel-2); border:1.5px solid transparent;
+         border-radius:13px; color:var(--ink); font-size:14px; font-family:inherit; transition:.15s; }
+  input:focus{ outline:none; border-color:var(--blue); background:#fff; }
+  input::placeholder{ color:var(--ink-mute); }
+  .msg{ min-height:16px; font-size:12px; color:var(--risk); margin:4px 0 10px; line-height:1.5; font-weight:500; }
   .msg.ok{ color:var(--safe); }
-  .btn{ width:100%; padding:12px; background:var(--lime); color:#fff; border:none; border-radius:9px; font-weight:700;
-        cursor:pointer; font-size:14px; font-family:inherit; }
+  .btn{ width:100%; padding:14px; background:var(--blue); color:#fff; border:none; border-radius:13px; font-weight:700;
+        cursor:pointer; font-size:14.5px; font-family:inherit; transition:.15s; box-shadow:0 4px 12px rgba(49,130,246,.25); }
+  .btn:hover{ background:var(--blue-deep); }
   .btn:disabled{ opacity:.6; cursor:default; }
-  .hint{ font-size:10.5px; color:var(--ink-mute); text-align:center; margin-top:14px; line-height:1.6; }
-  .badge{ display:inline-block; font-size:10px; color:var(--gold); border:1px solid var(--gold); border-radius:8px; padding:1px 7px; margin-left:6px; }
-  .link{ display:block; text-align:center; font-size:12px; color:var(--gold); cursor:pointer; text-decoration:underline; margin-top:12px; }
-  .section-title{ font-size:13px; font-weight:700; margin-bottom:10px; }
-  .toggle{ display:flex; border:1px solid var(--line); border-radius:9px; overflow:hidden; margin-bottom:12px; }
-  .toggle button{ flex:1; background:transparent; border:none; color:var(--ink-dim); font-family:inherit; font-size:13px; padding:9px; cursor:pointer; }
-  .toggle button.on{ background:var(--gold); color:#1a1200; font-weight:700; }
-  .notice{ font-size:11px; color:var(--ink-dim); background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:10px 12px; margin-bottom:10px; line-height:1.55; }
+  .hint{ font-size:11px; color:var(--ink-mute); text-align:center; margin-top:16px; line-height:1.7; font-weight:500; }
+  .badge{ display:inline-block; font-size:9.5px; font-weight:700; color:var(--blue); background:var(--blue-soft); border:none; border-radius:20px; padding:2px 9px; margin-left:6px; vertical-align:2px; }
+  .link{ display:block; text-align:center; font-size:12.5px; font-weight:600; color:var(--blue); cursor:pointer; text-decoration:none; margin-top:14px; }
+  .link:hover{ text-decoration:underline; }
+  .section-title{ font-size:16px; font-weight:800; margin-bottom:14px; letter-spacing:-.01em; }
+  .toggle{ display:flex; background:var(--panel-2); border:none; border-radius:13px; overflow:hidden; margin-bottom:14px; padding:4px; gap:4px; }
+  .toggle button{ flex:1; background:transparent; border:none; color:var(--ink-mute); font-family:inherit; font-size:13px; font-weight:700; padding:10px; cursor:pointer; border-radius:10px; transition:.15s; }
+  .toggle button.on{ background:#fff; color:var(--blue); box-shadow:0 1px 4px rgba(25,31,40,.12); }
+  .notice{ font-size:11.5px; color:var(--ink-dim); background:var(--blue-soft); border:none; border-radius:13px; padding:12px 14px; margin-bottom:10px; line-height:1.65; font-weight:500; }
   #signupForm,#mgrForm{ display:none; }
 </style>
 </head>
 <body>
   <div class="card">
-    <div class="brand">ARCHE<span class="dot">.</span></div>
-    <div class="mono">학원 컨설팅 엔진 <span class="badge">new</span></div>
+    <div class="brandwrap">
+      <div class="brandrow">
+        <div class="brandmark">A</div>
+        <div>
+          <div class="brand">아르케<span class="dot">.</span></div>
+          <div class="mono">입시 컨설팅 엔진 <span class="badge">NEW</span></div>
+        </div>
+      </div>
+    </div>
 
     <!-- ===== 로그인 ===== -->
     <div id="loginForm">
