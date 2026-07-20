@@ -66,7 +66,8 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);backdr
 .hero .stats{display:flex;gap:38px;justify-content:center;margin-top:42px;flex-wrap:wrap}
 .hero .stat b{font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--ink);display:block}
 .hero .stat b i{font-style:normal;color:var(--blue)}
-.hero .stat span{font-size:12px;color:var(--ink-mute);font-weight:600}
+.hero .stat b .cnt{font-size:inherit;color:inherit;font-weight:inherit}
+.hero .stat > span{font-size:12px;color:var(--ink-mute);font-weight:600}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* 히어로 목업 (살아있는 버전) */
@@ -464,6 +465,8 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
       <div class="gcard reveal d1"><div class="gi">🧩</div><h4>학생부 성향 매칭</h4><p>학교별 인재상·선발 스타일과 학생 활동 성향의 적합도를 분석합니다.</p></div>
       <div class="gcard reveal d2"><div class="gi">📝</div><h4>자소서 설계 → 작성 → 평가 루프</h4><p>설계도를 컨설턴트가 검토·전달하면 학생이 작성하고, 4축 평가와 코멘트로 라운드를 반복합니다.</p></div>
       <div class="gcard reveal d3"><div class="gi">🎤</div><h4>면접 준비</h4><p>학교 유형별 예상 질문과 중학생 눈높이의 답변 가이드, 모의 답변 피드백을 제공합니다.</p></div>
+      <div class="gcard reveal"><div class="gi">✏️</div><h4>학생부 디자인 — 중학생 눈높이</h4><p>중학교에서 실제 수행 가능한 탐구·체험·제작 활동을 진로와 목표 고교 인재상으로 수렴하게 설계하고, 활동기록을 코칭 루프로 완성합니다.</p></div>
+      <div class="gcard reveal d1"><div class="gi">📝</div><h4>수행평가 도우미</h4><p>중학교 수행평가 계획서를 파싱해 관점 설계 → 작성 → 루브릭 예상 채점 → 피드백까지, 내신 관리와 고입 준비를 함께 돕습니다.</p></div>
     </div>
   </div>
 </section>
@@ -495,12 +498,12 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
     <div class="sec-eyebrow reveal" style="margin-top:56px">OUR ENGINES</div>
     <h2 class="sec-h reveal" style="font-size:clamp(20px,2.6vw,26px)">하나의 특허 엔진, 세 개의 현장</h2>
     <div class="core3" style="text-align:left">
-      <div class="core reveal">
+      <a class="core reveal" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block;cursor:pointer">
         <div class="ci" style="background:var(--blue-soft)">🏫</div>
         <h3>Penta-View<small>학교용 · penta-view.com</small></h3>
         <p>일반고·특성화고를 위한 프로세스 분석 엔진. 사고 과정 기록, 타이핑 무결성 인증, NEIS 규격 세특 지원, NCS 실무 매핑까지 — 공교육 현장의 행정을 덜어냅니다.</p>
-        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">일반고 · 특성화고 운영 중</span>
-      </div>
+        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">일반고 · 특성화고 운영 중 · 홈페이지 보기 →</span>
+      </a>
       <div class="core reveal d1">
         <div class="ci" style="background:var(--mint-soft)">🎓</div>
         <h3>아르케 (Arche)<small>학원용 · arche.penta-view.com</small></h3>
@@ -713,6 +716,16 @@ goip:[
    +'<div class="loopline"><div class="lnode" data-s="0" id="gn0"><div class="le">📐</div><div class="lt">설계도 전달</div></div><div class="lnode" data-s="1" id="gn1"><div class="le">⌨️</div><div class="lt">학생 작성</div></div><div class="lnode" data-s="2" id="gn2"><div class="le">📊</div><div class="lt">4축 평가</div></div><div class="lnode" data-s="3" id="gn3"><div class="le">🔁</div><div class="lt">코멘트·보완</div></div></div>'
    +'<div class="exrow" data-s="4">📊 <b>4축 평가</b> — 활동 8 · 사고 7 · 가치관 6 · 비전 8 → "가치관 형성 경험을 구체화" <span class="ok">3차 라운드</span></div>'
    +'<div class="exrow" data-s="5">⌨️ <b>타이핑 무결성</b> — 붙여넣기 0회 · 작성 47분 → 진정성 검증 <span class="ok">AUTHENTIC</span></div>';}},
+ {k:'gdesign',e:'✏️',t:'학생부 디자인 루프',d:'중학생 눈높이 활동 설계',dur:10,html:function(){return ''
+   +'<div class="loopline"><div class="lnode" data-s="0"><div class="le">📐</div><div class="lt">활동 설계 전달</div></div><div class="lnode" data-s="1"><div class="le">⌨️</div><div class="lt">학생 활동 수행</div></div><div class="lnode" data-s="2"><div class="le">🤖</div><div class="lt">AI 코칭</div></div><div class="lnode" data-s="3"><div class="le">💬</div><div class="lt">피드백 → 보완</div></div></div>'
+   +'<div class="exrow" data-s="4">📐 <b>활동 설계</b> — "우리 동네 영어 안내판 오류 조사 프로젝트" · 자유학기·동아리 연계 <span class="ok">중학생 수행 가능</span></div>'
+   +'<div class="exrow" data-s="5">⌨️ <b>활동기록 제출</b> — 붙여넣기 0회 · 작성 38분 → 🔔 컨설턴트 알림 <span class="ok">AUTHENTIC</span></div>'
+   +'<div class="exrow" data-s="6">💬 <b>눈높이 코칭</b> — "느낀 점에 ‘다음 목표’를 한 줄 더!" → 🔔 학생 알림 · 2라운드 <span class="ok">격려형</span></div>';}},
+ {k:'gperf',e:'📝',t:'수행평가 도우미',d:'중학교 수행평가 · 예상 채점',dur:9,html:function(){return ''
+   +'<div class="exrow" data-s="0">📄 <b>평가계획서 파싱</b> — "영어 말하기 수행평가" · 루브릭 3영역 30점 <span class="ok">가정통신문 OK</span></div>'
+   +'<div class="exrow" data-s="1">🎯 <b>관점 설계</b> — 학생이 발표 주제·접근 방향을 직접 선택 → 맞춤 설계도 <span class="ok">대필 아님</span></div>'
+   +'<div class="gauge" data-s="2"><div class="gl"><span>예상 채점 — 루브릭 기준</span><b>26/30</b></div><div class="gt"><i style="--w:87%"></i></div></div>'
+   +'<div class="exrow" data-s="3">💬 <b>컨설턴트 피드백</b> — "예시를 하나 더 들면 상 등급" → 🔔 학생 보완 루프 <span class="ok">예상 성취수준 A</span></div>';}},
  {k:'giv',e:'🎤',t:'고입 면접',d:'학교 유형별 · 눈높이 가이드',dur:8,html:function(){return ''
    +'<div class="qcard" data-s="0"><div class="qq">Q1. 영어 신문 동아리에서 기사를 직접 썼다고 했는데, 가장 기억에 남는 기사와 그 이유는?</div><div class="qb">출제 근거: <b>동아리활동(중2)</b> · 외고 공통 유형</div><div class="qtail"><span>꼬리) 취재는 어떻게?</span><span>꼬리) 반대 의견이 있었다면?</span></div></div>'
    +'<div class="exrow" data-s="1">🤖 <b>모의답변 피드백</b> — "경험→배움→다음 목표 순서로 말하면 좋아요" (중학생 눈높이) <span class="ok">격려형 코칭</span></div>'
