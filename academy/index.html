@@ -8726,19 +8726,18 @@ window.genPromoStory=async function(){
     say('성장 데이터 수집 중…');
     var cf=null,cl=null,months=null;
     try{ var ca=await _S().from('student_metrics').select('payload,measured_at').eq('student_id',sid).eq('metric_type','comp5').order('measured_at',{ascending:true}); var rows=ca.data||[]; if(rows.length){cf=rows[0].payload;cl=rows[rows.length-1].payload; var t0=new Date(rows[0].measured_at).getTime(); months=Math.max(1,Math.round((Date.now()-t0)/2592000000)); } }catch(e){}
-    var naesin=null; try{ var nx=await _S().from('student_metrics').select('payload').eq('student_id',sid).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1); var np=nx.data&&nx.data[0]&&nx.data[0].payload; if(np){ var bs=np.by_semester||{}; var keys=Object.keys(bs).sort(); if(keys.length>=2)naesin=keys[0]+' '+Number(bs[keys[0]]).toFixed(2)+'등급 → '+keys[keys.length-1]+' '+Number(bs[keys[keys.length-1]]).toFixed(2)+'등급'; else if(np.weighted_overall!=null)naesin='주요과목 '+Number(np.weighted_overall).toFixed(2)+'등급'; } }catch(e){}
+    var naesin=null,_bySem=null,_sys=(window.studentGradeSystem?studentGradeSystem(s):9); try{ var nx=await _S().from('student_metrics').select('payload').eq('student_id',sid).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1); var np=nx.data&&nx.data[0]&&nx.data[0].payload; if(np){ var bs=np.by_semester||{}; var keys=Object.keys(bs).sort(); if(keys.length>=2){ var g0=Number(bs[keys[0]]), g1=Number(bs[keys[keys.length-1]]); if(g1<g0-0.001){ /* 개선된 경우에만 홍보에 노출 */ _bySem=bs; naesin=keys[0]+' '+g0.toFixed(2)+'등급 → '+keys[keys.length-1]+' '+g1.toFixed(2)+'등급'; } } } }catch(e){}
     async function _cnt(tbl){ try{ var r=await _S().from(tbl).select('id',{count:'exact',head:true}).eq('student_id',sid); return r.count||0; }catch(e){ return 0; } }
     var dc=await _cnt('design_items'), pc=await _cnt('perf_submissions'), lc=await _cnt('lesson_submissions'), cc=await _cnt('consultations');
     var an=_anon(s);
     var cbA=_compAvg(cf), clA=_compAvg(cl);
     var payload={ grade:s.grade||'', anon:an.label, school_type:an.school_type, career:s.career||'', major:s.target_major||'', target:(s.admission_track==='고입'?(s.target_school||''):(s.target_univ||'')), months:months||3,
-      comp_before:cf?{academic:cf.academic,inquiry:cf.inquiry,convergence:cf.convergence,community:cf.community,problem:cf.problem}:null,
-      comp_after:cl?{academic:cl.academic,inquiry:cl.inquiry,convergence:cl.convergence,community:cl.community,problem:cl.problem}:null,
+      comp_now:cl?{academic:cl.academic,inquiry:cl.inquiry,convergence:cl.convergence,community:cl.community,problem:cl.problem}:null,
       naesin:naesin, outputs:{design:dc,perf:pc,course:lc}, consults:cc, academy:(window._academy&&window._academy.name)||'저희 학원' };
     say('AI가 홍보글을 작성 중… (최대 1분)');
     var d=await callPromo('promo_story',payload);
     var o=JSON.parse(d.text);
-    o._visual={before:cf,after:cl,cbA:cbA,clA:clA,naesin:naesin,outputs:payload.outputs};
+    o._visual={comp:cl,naesin:naesin,bySem:_bySem,sys:_sys,months:months||3,outputs:payload.outputs,consults:cc};
     o._kind='story'; o._name=(window._academy&&window._academy.name)||'';
     renderPromoResult(o);
     say('✅ 생성 완료 — 아래에서 복사하거나 Word로 다운받으세요.','var(--safe)');
@@ -8776,24 +8775,77 @@ window.genPromoNews=async function(){
 
 /* ---------- 결과 렌더 + 복사 + Word ---------- */
 var _COMPLAB={academic:'학업역량',inquiry:'탐구역량',convergence:'융합창의',community:'공동체',problem:'문제해결'};
-function _growTable(v){
-  if(!v||!v.before||!v.after)return '';
-  var rows=Object.keys(_COMPLAB).map(function(k){ var a=v.before[k],b=v.after[k]; if(a==null||b==null)return ''; var up=(b-a); var upTxt=up>0?('+'+up.toFixed(1)):up.toFixed(1);
-    return '<tr><td>'+_COMPLAB[k]+'</td><td>'+Number(a).toFixed(1)+'</td><td><b>'+Number(b).toFixed(1)+'</b></td><td><div class="bar" style="width:'+Math.max(6,Number(b)*10)+'%"></div></td><td style="color:'+(up>0?'#12b76a':'#8b95a1')+'">'+upTxt+'</td></tr>'; }).join('');
-  if(!rows)return '';
-  return '<table class="grow"><thead><tr><th>역량</th><th>처음</th><th>현재</th><th>수준</th><th>변화</th></tr></thead><tbody>'+rows+'</tbody></table>';
+var _COMPSHORT={academic:'학업',inquiry:'탐구',convergence:'융합창의',community:'공동체',problem:'문제해결'};
+/* 현재 강점 배지 (현재 값이 높은 역량 Top3) */
+function _strengthChips(comp){
+  if(!comp)return '';
+  var arr=Object.keys(_COMPLAB).map(function(k){var v=comp[k];return v==null?null:{k:_COMPLAB[k],v:Number(v)};}).filter(Boolean).sort(function(a,b){return b.v-a.v;}).slice(0,3);
+  if(!arr.length)return '';
+  return '<div style="margin:2px 0 10px">'+arr.map(function(x){return '<span style="display:inline-block;background:#eef4ff;color:#1b64da;border:1px solid #cfe0ff;border-radius:20px;padding:6px 14px;font-size:13px;font-weight:700;margin:0 8px 8px 0">★ '+x.k+' '+x.v.toFixed(1)+'</span>';}).join('')+'</div>';
+}
+/* 현재 5역량 레이더 차트 (SVG 그래프) */
+function _radarSvg(comp){
+  if(!comp)return '';
+  var keys=['academic','inquiry','convergence','community','problem'];
+  var vals=keys.map(function(k){return comp[k]!=null?Math.max(0,Math.min(10,Number(comp[k]))):null;});
+  if(vals.some(function(v){return v==null;}))return '';
+  var cx=160,cy=150,R=100,n=5;
+  function pt(i,r){var ang=-Math.PI/2+i*2*Math.PI/n;return [cx+r*Math.cos(ang),cy+r*Math.sin(ang)];}
+  var grid='';[0.25,0.5,0.75,1].forEach(function(f){var pts=[];for(var i=0;i<n;i++){var p=pt(i,R*f);pts.push(p[0].toFixed(1)+','+p[1].toFixed(1));}grid+='<polygon points="'+pts.join(' ')+'" fill="none" stroke="#e5e8eb" stroke-width="1"/>';});
+  var axes='';for(var i=0;i<n;i++){var p=pt(i,R);axes+='<line x1="'+cx+'" y1="'+cy+'" x2="'+p[0].toFixed(1)+'" y2="'+p[1].toFixed(1)+'" stroke="#e5e8eb" stroke-width="1"/>';}
+  var poly=[];for(var i=0;i<n;i++){var p=pt(i,R*vals[i]/10);poly.push(p[0].toFixed(1)+','+p[1].toFixed(1));}
+  var dots='';for(var i=0;i<n;i++){var p=pt(i,R*vals[i]/10);dots+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.5" fill="#2f7cf6"/>';}
+  var lbls='';for(var i=0;i<n;i++){var p=pt(i,R+20);var ax=Math.abs(p[0]-cx)<6?'middle':(p[0]<cx?'end':'start');lbls+='<text x="'+p[0].toFixed(1)+'" y="'+(p[1]+4).toFixed(1)+'" font-size="12.5" font-weight="600" fill="#33415c" text-anchor="'+ax+'">'+_COMPSHORT[keys[i]]+' '+vals[i].toFixed(1)+'</text>';}
+  return '<svg viewBox="0 0 320 300" width="320" height="300" xmlns="http://www.w3.org/2000/svg"><rect width="320" height="300" fill="#ffffff"/>'+grid+axes+'<polygon points="'+poly.join(' ')+'" fill="rgba(47,124,246,0.16)" stroke="#2f7cf6" stroke-width="2.5"/>'+dots+lbls+'</svg>';
+}
+/* 내신 추이 라인 그래프 (SVG · 개선된 경우에만 전달됨) */
+function _naesinLineSvg(v){
+  var bs=v&&v.bySem; if(!bs)return ''; var keys=Object.keys(bs).sort(); if(keys.length<2)return '';
+  var sys=v.sys||9; var W=360,H=170,pL=44,pR=16,pT=18,pB=30;
+  function xOf(i){return pL+(W-pL-pR)*(keys.length===1?0.5:i/(keys.length-1));}
+  function yOf(g){return pT+(H-pT-pB)*((g-1)/(sys-1));} /* 1등급(최상)=위 */
+  var grid='';[0,0.5,1].forEach(function(f){var y=pT+(H-pT-pB)*f;grid+='<line x1="'+pL+'" y1="'+y.toFixed(1)+'" x2="'+(W-pR)+'" y2="'+y.toFixed(1)+'" stroke="#eef1f4" stroke-width="1"/>';});
+  var pts=keys.map(function(k,i){return xOf(i).toFixed(1)+','+yOf(Number(bs[k])).toFixed(1);});
+  var area='M '+xOf(0).toFixed(1)+' '+(H-pB)+' L '+pts.join(' L ')+' L '+xOf(keys.length-1).toFixed(1)+' '+(H-pB)+' Z';
+  var dots=keys.map(function(k,i){var x=xOf(i),y=yOf(Number(bs[k]));return '<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="4" fill="#00b39c"/><text x="'+x.toFixed(1)+'" y="'+(y-9).toFixed(1)+'" font-size="12" font-weight="700" fill="#0e7c6e" text-anchor="middle">'+Number(bs[k]).toFixed(2)+'</text>';}).join('');
+  var xlab=keys.map(function(k,i){return '<text x="'+xOf(i).toFixed(1)+'" y="'+(H-9)+'" font-size="11.5" fill="#8b95a1" text-anchor="middle">'+k+'</text>';}).join('');
+  return '<svg viewBox="0 0 '+W+' '+H+'" width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg"><rect width="'+W+'" height="'+H+'" fill="#ffffff"/>'+grid+'<path d="'+area+'" fill="rgba(0,179,156,0.12)"/><polyline points="'+pts.join(' ')+'" fill="none" stroke="#00b39c" stroke-width="3"/>'+dots+xlab+'<text x="'+pL+'" y="'+(pT-4)+'" font-size="10.5" fill="#8b95a1">↑ 위로 갈수록 상위 등급</text></svg>';
+}
+/* 함께 쌓은 활동 (통계 타일) */
+function _actTiles(v){
+  var o=(v&&v.outputs)||{};var items=[['학생부 디자인',o.design||0],['수행평가 관리',o.perf||0],['맞춤 코스',o.course||0],['상담 진행',(v&&v.consults)||0]].filter(function(x){return x[1]>0;});
+  if(!items.length)return '';
+  return '<div style="font-size:12.5px;font-weight:800;color:#191f28;margin:20px 0 8px">🗂 함께 쌓은 관리 활동</div><table style="width:100%;border-collapse:collapse"><tbody><tr>'+items.map(function(x){return '<td style="text-align:center;padding:14px 6px;background:#f9fafb;border:1px solid #eef1f4"><div style="font-size:26px;font-weight:800;color:#2f7cf6">'+x[1]+'</div><div style="font-size:11px;color:#8b95a1;margin-top:3px">'+x[0]+'</div></td>';}).join('')+'</tr></tbody></table>';
+}
+/* 강점/성장 포인트 콜아웃 */
+function _highlights(o){
+  var hs=(o.highlights&&o.highlights.length)?o.highlights:[]; if(!hs.length)return '';
+  return '<div style="background:#f5f9ff;border:1px solid #d6e6ff;border-radius:12px;padding:14px 18px;margin:18px 0"><div style="font-size:12.5px;font-weight:800;color:#1b64da;margin-bottom:6px">✨ 이 학생의 강점·성장 포인트</div><ul style="margin:0;padding-left:18px;color:#33415c;font-size:13px;line-height:1.9">'+hs.map(function(h){return '<li>'+esc(String(h))+'</li>';}).join('')+'</ul></div>';
 }
 function renderPromoResult(o){
   var box=document.getElementById('promo-result'); if(!box)return;
   var body=String(o.body||'').replace(/\n/g,'<br>');
-  var visual=(o._kind==='story')?_growTable(o._visual):'';
-  var tags=(o.hashtags&&o.hashtags.length)?'<div class="tags">'+o.hashtags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' ')+'</div>':'';
-  window._promoDoc={title:o.title||'',bodyHtml:body,visual:visual,tags:(o.hashtags||[]),kind:o._kind};
-  box.innerHTML='<div class="promo-out" id="promo-doc"><h2>'+esc(o.title||'')+'</h2>'+(o.intro?'<p style="color:#4e5968">'+esc(o.intro)+'</p>':'')+visual+'<div>'+body+'</div>'+tags+'</div>'
+  var v=o._visual||{};
+  var story=(o._kind==='story');
+  var chips=story?_strengthChips(v.comp):'';
+  var radar=story?_radarSvg(v.comp):'';
+  var line=story?_naesinLineSvg(v):'';
+  var tiles=story?_actTiles(v):'';
+  var hl=story?_highlights(o):'';
+  var monthBadge=(story&&v.months)?'<div style="margin:2px 0 8px"><span style="background:#f2f4f6;border-radius:8px;padding:5px 12px;font-size:12px;color:#4e5968">🗓 관리 기간 <b style="color:#191f28">약 '+v.months+'개월</b></span></div>':'';
+  var charts='';
+  if(radar||line){ charts='<div style="display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;justify-content:center;margin:14px 0">'
+    +(radar?'<div style="text-align:center"><div style="font-size:12.5px;font-weight:800;color:#191f28;margin-bottom:2px">📊 현재 역량 프로필</div>'+radar+'</div>':'')
+    +(line?'<div style="text-align:center"><div style="font-size:12.5px;font-weight:800;color:#191f28;margin-bottom:2px">📈 내신 성적 향상</div>'+line+'</div>':'')
+    +'</div>'; }
+  window._promoDoc={title:o.title||'',intro:(o.intro||''),bodyHtml:body,chips:chips,radar:radar,line:line,tiles:tiles,hl:hl,months:(story?v.months:0),tags:(o.hashtags||[]),kind:o._kind,_name:o._name||''};
+  box.innerHTML='<div class="promo-out" id="promo-doc"><h2>'+esc(o.title||'')+'</h2>'+(o.intro?'<p style="color:#4e5968;font-size:14.5px">'+esc(o.intro)+'</p>':'')+monthBadge+chips+charts+tiles+hl+'<div style="margin-top:14px">'+body+'</div>'+(o.hashtags&&o.hashtags.length?'<div class="tags">'+o.hashtags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' ')+'</div>':'')+'</div>'
     +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="promo-btn" style="background:#191f28;color:#fff" onclick="copyPromo()">📋 본문 복사 (블로그·밴드 붙여넣기)</button>'
-    +'<button class="promo-btn" style="background:var(--safe,#12b76a);color:#fff" onclick="downloadPromoDoc()">⬇ Word 문서 다운로드</button></div>'
-    +'<div class="promo-note">※ 블로그·밴드에는 [본문 복사]로 텍스트를 붙여넣고 사진을 따로 올리면 깔끔합니다. Word 문서는 표·서식까지 들어있어 보관·수정용입니다.</div>';
+    +'<button class="promo-btn" style="background:var(--safe,#12b76a);color:#fff" onclick="downloadPromoDoc()">⬇ Word 문서 다운로드 (그래프 포함)</button></div>'
+    +'<div class="promo-note">※ 블로그·밴드에는 [본문 복사]로 텍스트를 붙여넣고, 위 그래프는 화면을 캐처해 이미지로 올리거나 Word 문서를 활용하세요.</div>';
 }
+/* SVG → PNG dataURL (유니코드 안전) */
+function _svgToPng(svg,w,h){return new Promise(function(res){try{var img=new Image();img.onload=function(){try{var c=document.createElement('canvas');c.width=w*2;c.height=h*2;var ctx=c.getContext('2d');ctx.fillStyle='#ffffff';ctx.fillRect(0,0,c.width,c.height);ctx.drawImage(img,0,0,c.width,c.height);res(c.toDataURL('image/png'));}catch(e){res(null);}};img.onerror=function(){res(null);};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svg);}catch(e){res(null);}});}
 window.copyPromo=function(){
   var d=window._promoDoc; if(!d)return;
   var txt=(d.title?d.title+'\n\n':'')+d.bodyHtml.replace(/<br>/g,'\n').replace(/<[^>]+>/g,'')+(d.tags.length?'\n\n'+d.tags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' '):'');
@@ -8801,17 +8853,24 @@ window.copyPromo=function(){
 };
 function _fallbackCopy(txt){ var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');toastP('본문이 복사되었습니다');}catch(e){} ta.remove(); }
 function toastP(t){ var m=document.getElementById('promo-smsg')||document.getElementById('promo-nmsg'); if(m){m.style.color='var(--safe)';m.textContent=t;} }
-window.downloadPromoDoc=function(){
+window.downloadPromoDoc=async function(){
   var d=window._promoDoc; if(!d)return;
+  var bm=document.getElementById('promo-smsg')||document.getElementById('promo-nmsg'); if(bm){bm.style.color='var(--ink-mute)';bm.textContent='Word 문서 생성 중…';}
+  var radarImg='',lineImg='';
+  try{ if(d.radar){var p=await _svgToPng(d.radar,320,300); if(p)radarImg='<img src="'+p+'" width="360" style="display:block;margin:6px 0"/>';} }catch(e){}
+  try{ if(d.line){var p2=await _svgToPng(d.line,360,170); if(p2)lineImg='<img src="'+p2+'" width="400" style="display:block;margin:6px 0"/>';} }catch(e){}
+  var charts=(radarImg||lineImg)?('<div>'+(radarImg?'<div style="font-weight:700;color:#191f28;margin-top:12px">현재 역량 프로필</div>'+radarImg:'')+(lineImg?'<div style="font-weight:700;color:#191f28;margin-top:12px">내신 성적 향상</div>'+lineImg:'')+'</div>'):'';
   var tags=(d.tags.length?'<p style="color:#3182f6">'+d.tags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' ')+'</p>':'');
+  var monthLine=(d.months?'<p style="color:#4e5968;font-size:10pt">관리 기간 약 '+d.months+'개월</p>':'');
   var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>'+esc(d.title)+'</title>'
-    +'<style>body{font-family:"맑은 고딕","Malgun Gothic",sans-serif;font-size:11pt;line-height:1.7;color:#222} h2{font-size:16pt} table{border-collapse:collapse} th,td{border:1px solid #bbb;padding:5px 8px;font-size:10pt} th{background:#eef} .bar{height:9px;background:#3182f6;border-radius:4px}</style></head><body>'
-    +'<h2>'+esc(d.title)+'</h2>'+(d.visual||'')+'<div>'+d.bodyHtml+'</div>'+tags
+    +'<style>body{font-family:"맑은 고딕","Malgun Gothic",sans-serif;font-size:11pt;line-height:1.8;color:#222} h2{font-size:17pt;color:#111} td{padding:6px 8px}</style></head><body>'
+    +'<h2>'+esc(d.title)+'</h2>'+(d.intro?'<p style="color:#555">'+esc(d.intro)+'</p>':'')+monthLine+charts+(d.tiles||'')+(d.hl||'')+'<div style="margin-top:12px">'+d.bodyHtml+'</div>'+tags
     +'<hr><p style="font-size:8pt;color:#999">※ 본 콘텐츠는 아르케 홍보 스튜디오에서 생성되었으며, 학생 개인정보는 익명 처리되었습니다. 성과는 개인차가 있을 수 있습니다.</p></body></html>';
   var blob=new Blob(['﻿'+html],{type:'application/msword'});
   var url=URL.createObjectURL(blob); var a=document.createElement('a');
   var fn=(d._name||'학원')+'_'+(d.kind==='story'?'성장스토리':'입시뉴스')+'.doc';
   a.href=url; a.download=fn.replace(/[\\/:*?"<>|]/g,'_'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(url);},1500);
+  if(bm){bm.style.color='var(--safe)';bm.textContent='✅ Word 문서 다운로드 완료';}
 };
 })();
 </script>
