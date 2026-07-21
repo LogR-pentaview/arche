@@ -1163,6 +1163,15 @@
             <div id="gp-match" style="margin-top:10px"></div>
           </div>
         </div>
+        <div class="card goip-con-only" style="margin-top:16px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
+            <div style="font-weight:700">③ 고입 종합 리포트 <span style="font-size:10px;color:#fff;background:var(--violet);border-radius:20px;padding:2px 8px;vertical-align:middle">AI</span></div>
+            <button class="btn" onclick="goipReport()">AI 종합 리포트 생성</button>
+          </div>
+          <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">성취도·활동·지원가능성·성향을 통합한 종합 리포트입니다. 좌측 ①의 성취도(+지역·유형)와 우측 ②의 활동 요약을 채운 뒤 생성하세요. 학교 유형을 선택하면 지원가능성(밴드)까지 포함됩니다.</div>
+          <div id="gp-msg3" style="font-size:12px;margin-top:4px"></div>
+          <div id="gp-report" style="margin-top:10px"></div>
+        </div>
         <div class="note">※ 밴드·적합도는 참고용 근사 추정이며 합격 예측이 아닙니다 — 최종 판단은 컨설턴트가 합니다. 성적 데이터는 서버 환산식으로, 성향 매칭은 학교 공시 특색사업·브로슈어 기반으로 산출됩니다.</div>
       </section>
 
@@ -6462,7 +6471,7 @@ async function goipShortlist(){
   var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_shortlist',payload:{types:types,region:_rg,gender:document.getElementById('gp-gender').value,grades:goipGrades()}}});
   var data=r.data,error=r.error;
   if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
-  m.style.color='var(--safe)';m.textContent=data.count+'개교 조회'+(data.gender_excluded?' · 성별 불일치 '+data.gender_excluded+'교 제외':'')+' · 밴드는 근사 추정';
+  m.style.color='var(--safe)';m.textContent=data.count+'개교 조회'+(data.gender_excluded?' · 성별 불일치 '+data.gender_excluded+'교 제외':'')+' · 밴드는 근사 추정'+(data.partial?' · ⚠부분입력 잠정':'');
   var bc={'안정':'var(--safe)','적정':'var(--lime)','도전':'var(--reach)','위험':'var(--risk)'};
   var bandOrder=['안정','적정','도전','위험','환산불가'];
   var results=(data.results||[]);
@@ -6476,12 +6485,14 @@ async function goipShortlist(){
       +'<div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px">'+bandOrder.filter(function(b){return counts[b];}).map(function(b){return '<span style="font-size:11px;color:var(--ink-dim)"><span style="display:inline-block;width:9px;height:9px;border-radius:2px;background:'+(bc[b]||'var(--ink-mute)')+';margin-right:4px"></span>'+esc(b)+' <b>'+counts[b]+'</b></span>';}).join('')+'</div>';
   }
   // 밴드순 정렬
+  var partialBanner=data.partial?'<div style="font-size:11.5px;color:var(--reach);background:var(--panel-2);border-radius:8px;padding:8px 11px;margin-bottom:10px">⚠ 반영 학기(중2-1~중3-2) 중 일부만 입력되었습니다. 입력된 학기 성취를 기준으로 판정했고, 미입력 학기는 <b>현재 성취 유지</b>를 가정한 <b>잠정 결과</b>입니다. 남은 학기 성적이 그대로 반영됩니다.</div>':'';
   var sorted=results.slice().sort(function(a,b){var ba=(a.conversion&&a.conversion.band)||'환산불가',bb=(b.conversion&&b.conversion.band)||'환산불가';return bandOrder.indexOf(ba)-bandOrder.indexOf(bb);});
-  box.innerHTML=summaryBar+sorted.map(function(x){
+  box.innerHTML=summaryBar+partialBanner+sorted.map(function(x){
     var cv=x.conversion||{};var band=cv.ok?(cv.band||''):'환산불가';var col=bc[band]||'var(--ink-mute)';
     var score=cv.ok?(cv.score!=null?cv.score+(cv.total?' / '+cv.total:''):''):(cv.reason||'');
+    var pflag=(cv.ok&&cv.partial)?'<span style="font-size:10px;color:var(--reach);border:1px solid var(--reach);border-radius:20px;padding:1px 7px;margin-left:6px">입력 '+(cv.entered_sems||0)+'/'+(cv.total_sems||4)+'학기·잠정</span>':'';
     return '<div style="border:1px solid var(--line-soft);border-left:4px solid '+col+';border-radius:10px;padding:10px 12px;margin-bottom:8px">'
-      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+esc(x.name)+'</b>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:13px">'+esc(x.name)+pflag+'</b>'
       +'<span style="font-size:11px;font-weight:700;color:#fff;background:'+col+';border-radius:20px;padding:2px 10px">'+esc(band)+'</span></div>'
       +'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">'+esc(x.school_type)+' · '+esc(x.region)+' · '+esc(x.scope)+' 모집'+(x.gender&&x.gender!=='공학'?' · '+esc(x.gender)+'고':'')+(score?' · 환산 '+esc(String(score)):'')+'</div>'
       +'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">1단계 '+esc(x.stage1||'-')+' → 2단계 '+esc(x.stage2||'-')+'</div>'
@@ -6489,6 +6500,91 @@ async function goipShortlist(){
       +(x.key_programs&&x.key_programs.length?'<div style="font-size:11px;color:var(--gold);margin-top:3px">'+x.key_programs.map(esc).join(' · ')+'</div>':'')
       +'</div>';
   }).join('')||'<div style="color:var(--ink-mute);font-size:12px">해당 조건의 학교가 없습니다.</div>';
+}
+function gReportHtml(res,partial){
+  var bc={'안정':'var(--safe)','적정':'var(--lime)','적격(정성평가 중심)':'var(--safe)','지원가능(정성평가 중심)':'var(--lime)','도전':'var(--reach)','위험':'var(--risk)','환산불가':'var(--ink-mute)'};
+  var lv={'우수':'var(--safe)','양호':'var(--lime)','보완':'var(--reach)'};
+  var h='';
+  h+='<div style="background:linear-gradient(135deg,var(--panel-2),var(--panel-3));border-radius:12px;padding:14px 16px;margin-bottom:12px">';
+  if(res.headline)h+='<div style="font-size:15px;font-weight:800;color:var(--ink);margin-bottom:6px">'+esc(res.headline)+'</div>';
+  if(res.summary)h+='<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6">'+esc(res.summary)+'</div>';
+  h+='</div>';
+  if(partial)h+='<div style="font-size:11.5px;color:var(--reach);background:var(--panel-2);border-radius:8px;padding:8px 11px;margin-bottom:12px">⚠ 성적은 입력된 학기 기준 잠정 판정입니다. 미입력 학기는 현재 성취 유지를 가정했으며, 남은 학기 성적이 그대로 반영됩니다.</div>';
+  var ac=res.academic||{};
+  if(ac.summary||(ac.by_subject&&ac.by_subject.length)){
+    h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px">학업 성취</div>';
+    if(ac.summary)h+='<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-bottom:8px">'+esc(ac.summary)+'</div>';
+    if(ac.by_subject&&ac.by_subject.length)h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px">'+ac.by_subject.map(function(s){var c=lv[s.level]||'var(--ink-mute)';return '<span style="font-size:11px;border:1px solid '+c+';color:'+c+';border-radius:20px;padding:2px 10px" title="'+esc(s.note||'')+'">'+esc(s.subject||'')+' · '+esc(s.level||'')+'</span>';}).join('')+'</div>';
+    if(ac.trend)h+='<div style="font-size:11.5px;color:var(--ink-mute)">추이 — '+esc(ac.trend)+'</div>';
+    if(ac.risks&&ac.risks.length)h+='<div style="font-size:11.5px;color:var(--reach);margin-top:4px">관리 필요 — '+ac.risks.map(esc).join(', ')+'</div>';
+    h+='</div>';
+  }
+  var ax=res.activity_axes||{};
+  var axMap=[['activity','활동'],['thinking','사고력'],['values','가치·인성'],['vision','비전']];
+  if(axMap.some(function(a){return ax[a[0]];})){
+    h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:8px">활동 역량 4축</div>';
+    h+='<div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:space-around">'+axMap.map(function(a){var o=ax[a[0]]||{};var sc=Math.max(0,Math.min(10,Number(o.score)||0));return '<div style="text-align:center;flex:0 0 auto">'+gGauge(sc,10,a[1],'var(--violet)')+'</div>';}).join('')+'</div>';
+    h+='<div style="margin-top:8px">'+axMap.map(function(a){var o=ax[a[0]]||{};return o.note?'<div style="font-size:11px;color:var(--ink-mute);margin-bottom:3px"><b style="color:var(--ink-dim)">'+esc(a[1])+'</b> — '+esc(o.note)+'</div>':'';}).join('')+'</div>';
+    h+='</div>';
+  }
+  var adm=res.admission||{};
+  if(adm.overall||(adm.tiers&&adm.tiers.length)){
+    h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px">지원 가능성</div>';
+    if(adm.overall)h+='<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-bottom:8px">'+esc(adm.overall)+'</div>';
+    if(adm.tiers&&adm.tiers.length)h+=adm.tiers.map(function(t){var c=bc[t.band]||'var(--ink-mute)';return '<div style="margin-bottom:6px"><span style="font-size:11px;font-weight:700;color:#fff;background:'+c+';border-radius:20px;padding:2px 10px">'+esc(t.band||'')+'</span> <span style="font-size:12px;color:var(--ink-dim)">'+(t.schools||[]).map(esc).join(', ')+'</span></div>';}).join('');
+    if(adm.caution)h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:4px">'+esc(adm.caution)+'</div>';
+    h+='</div>';
+  }
+  var fit=res.fit||{};
+  if(fit.summary||(fit.top_matches&&fit.top_matches.length)){
+    h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px">성향·학교 적합</div>';
+    if(fit.summary)h+='<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55;margin-bottom:6px">'+esc(fit.summary)+'</div>';
+    if(fit.top_matches&&fit.top_matches.length)h+=fit.top_matches.map(function(t){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:4px">• <b style="color:var(--ink)">'+esc(t.name||'')+'</b> — '+esc(t.why||'')+'</div>';}).join('');
+    h+='</div>';
+  }
+  var rf=res.roadmap_focus||[];
+  if(rf.length){
+    h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:8px">지금부터의 핵심 과제</div>';
+    h+=rf.map(function(t,i){return '<div style="margin-bottom:8px"><div style="font-size:12.5px;font-weight:700;color:var(--ink)">'+(i+1)+'. '+esc(t.title||'')+'</div>'+(t.why?'<div style="font-size:11.5px;color:var(--ink-mute);margin:2px 0 3px">'+esc(t.why)+'</div>':'')+((t.how&&t.how.length)?'<div style="font-size:11.5px;color:var(--ink-dim)">'+t.how.map(function(hh){return '– '+esc(hh);}).join('<br>')+'</div>':'')+'</div>';}).join('');
+    h+='</div>';
+  }
+  if(res.parent_message)h+='<div style="background:var(--panel-2);border-left:4px solid var(--violet);border-radius:10px;padding:12px 14px;margin-bottom:6px"><div style="font-size:11px;color:var(--violet);font-weight:700;margin-bottom:4px">학부모님께</div><div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6">'+esc(res.parent_message)+'</div></div>';
+  h+='<div class="note" style="margin-top:4px">※ 본 리포트의 지원 가능성은 참고용 근사 추정이며 합격을 보장하지 않습니다. 최종 판단은 컨설턴트와 상담하세요.</div>';
+  return h;
+}
+async function goipReport(){
+  var m=document.getElementById('gp-msg3'),box=document.getElementById('gp-report');
+  if(!sb){m.style.color='var(--risk)';m.textContent='연결 오류';return;}
+  var grades=goipGrades();
+  var rec=document.getElementById('gp-record').value.trim();
+  if(!rec){try{await goipCompose(true);}catch(e){} rec=document.getElementById('gp-record').value.trim();}
+  if(!grades.length&&!rec){m.style.color='var(--risk)';m.textContent='성취도 또는 활동 요약을 입력하세요.';return;}
+  var career=document.getElementById('gp-career').value.trim();
+  var region=document.getElementById('gp-region').value;
+  var s=window._gactive||window._activeStudent||{};
+  m.style.color='var(--ink-mute)';m.textContent='지원가능성 환산 중…';box.innerHTML='';
+  var shortlist=[],partial=false;
+  try{
+    var types=goipTypes();
+    if(types.length&&region){
+      var sr=await sb.functions.invoke('arche-goip',{body:{task:'goip_shortlist',payload:{types:types,region:region,gender:document.getElementById('gp-gender').value,grades:grades}}});
+      if(sr.data&&sr.data.results){partial=!!sr.data.partial;shortlist=sr.data.results.map(function(x){var cv=x.conversion||{};return {name:x.name,school_type:x.school_type,band:cv.ok?(cv.band||'환산불가'):'환산불가',partial:!!cv.partial};});}
+    }
+  }catch(e){}
+  m.textContent='AI 종합 리포트 작성 중… (30~50초)';
+  var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_report',payload:{grade:s.grade||'',career:career,target:s.goip_target||s.target||'',region:region,grades:grades,record_text:rec,shortlist:shortlist,partial:partial}}});
+  var data=r.data,error=r.error;
+  if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
+  var res=safeJson(data.text);
+  if(!res){m.style.color='var(--risk)';m.textContent='응답 해석 실패 — 다시 시도하세요.';return;}
+  if(window._gactive){try{await gSaveMetric('goip_report',{res:res,partial:partial});}catch(e){}}
+  m.style.color='var(--safe)';m.textContent='종합 리포트 완료'+(window._gactive?'·저장됨':'');
+  box.innerHTML=gReportHtml(res,partial);
 }
 async function goipCompose(silent){
   var m=document.getElementById('gp-msg2');var s=window._gactive||window._activeStudent;
