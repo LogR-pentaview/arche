@@ -251,11 +251,47 @@
       if(!ap && !a.is_demo) btns += '<button class="btn g" onclick="mApprove(\''+a.id+'\')">승인</button> ';
       if(a.is_demo) btns += '<button class="btn g" onclick="mDemo(\''+a.id+'\',false)">정회원 전환</button>';
       else btns += '<button class="btn o" onclick="mDemo(\''+a.id+'\',true)">체험 전환</button>';
-      return '<div class="row"><div><div class="nm">'+esc(a.name||'-')+' '+kind+'</div>'
+      return '<div class="row"><div><div class="nm" style="cursor:pointer" onclick="openMemberDetail(\''+a.id+'\')">'+esc(a.name||'-')+' '+kind+' <span style="font-size:11px;color:var(--text-accent);font-weight:600">상세 ›</span></div>'
         + '<div class="meta">코드 '+esc(a.code||'-')+' · 학생 '+(a.students||0)+'명 · '+String(a.created_at||'').slice(0,10)+'</div></div>'
-        + '<div style="display:flex;gap:6px">'+btns+'</div></div>';
+        + '<div style="display:flex;gap:6px"><button class="btn" onclick="openMemberDetail(\''+a.id+'\')">상세</button>'+btns+'</div></div>';
     }).join('');
   }
+  // ===== 회원 상세: 등록생 명단 + API 사용 =====
+  window.openMemberDetail = async function(id){
+    var ov=document.getElementById('memdt-ov');
+    if(!ov){ ov=document.createElement('div'); ov.id='memdt-ov';
+      ov.style.cssText='position:fixed;inset:0;background:rgba(15,20,30,.45);z-index:200;display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto';
+      ov.onclick=function(e){ if(e.target===ov)ov.remove(); };
+      document.body.appendChild(ov);
+    }
+    ov.innerHTML='<div style="background:var(--surface-1);border:1px solid var(--border);border-radius:18px;max-width:760px;width:100%;padding:26px 28px;box-shadow:0 20px 60px rgba(0,0,0,.25)"><div class="muted">불러오는 중…</div></div>';
+    var box=ov.firstChild;
+    var d=await adminApi({action:'academy_detail',academy_id:id});
+    if(d.error){ box.innerHTML='<div class="muted">오류: '+esc(d.error)+'</div><div style="margin-top:12px"><button class="btn" onclick="document.getElementById(\'memdt-ov\').remove()">닫기</button></div>'; return; }
+    var a=d.academy||{}, sts=d.students||[], u=d.usage||{}, rev=d.revenue||{}, sub=d.subscription||null;
+    var isB2c=a.account_type==='b2c';
+    var kw=apiCostKrw(u.prompt_tokens,u.output_tokens);
+    var tok=(Number(u.prompt_tokens||0)+Number(u.output_tokens||0));
+    var head='<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:4px">'
+      +'<div><div style="font-size:19px;font-weight:800;color:var(--text-primary)">'+esc(a.name||'-')+' '+(isB2c?'<span class="badge b-b2c">학부모</span>':'<span class="badge b-trial">학원</span>')+(a.is_demo?' <span class="badge b-demo">체험</span>':'')+'</div>'
+      +'<div class="meta" style="margin-top:2px">코드 '+esc(a.code||'-')+' · 가입 '+String(a.created_at||'').slice(0,10)+' · 계정 '+(d.accounts||0)+'개</div></div>'
+      +'<button class="btn" onclick="document.getElementById(\'memdt-ov\').remove()">닫기</button></div>';
+    var kpi='<div class="kpis" style="grid-template-columns:repeat(4,1fr);margin:14px 0 6px">'
+      +'<div class="kpi"><div class="lab">등록 학생</div><div class="num">'+sts.length+'<small> 명</small></div></div>'
+      +'<div class="kpi"><div class="lab">API 호출 <span style="font-size:9px;color:var(--text-muted)">(30일)</span></div><div class="num">'+(u.calls||0)+'</div></div>'
+      +'<div class="kpi"><div class="lab">토큰 <span style="font-size:9px;color:var(--text-muted)">(30일)</span></div><div class="num" style="font-size:16px">'+tok.toLocaleString()+'</div></div>'
+      +'<div class="kpi"><div class="lab">API 비용 <span style="font-size:9px;color:var(--text-muted)">(30일·추정)</span></div><div class="num" style="font-size:18px">'+won(kw)+'</div></div></div>';
+    var stTbl;
+    if(!sts.length) stTbl='<div class="muted" style="padding:8px 0">등록된 학생이 없습니다.</div>';
+    else stTbl='<table style="width:100%;font-size:12.5px"><thead><tr><th style="text-align:left">이름</th><th style="text-align:left">학년</th><th style="text-align:left">트랙</th><th style="text-align:left">목표</th><th style="text-align:right">등록일</th></tr></thead><tbody>'
+      +sts.map(function(s){var tgt=s.target_univ||s.target_school||s.target_major||'-';var trk=s.admission_track||(String(s.grade||'').indexOf("중")>=0?'고입':'대입');return '<tr><td style="font-weight:600">'+esc(s.name||'-')+'</td><td>'+esc(s.grade||'-')+'</td><td>'+esc(trk)+'</td><td class="muted">'+esc(String(tgt).slice(0,24))+'</td><td style="text-align:right;color:var(--text-muted)">'+String(s.created_at||'').slice(0,10)+'</td></tr>';}).join('')
+      +'</tbody></table>';
+    var subLine='';
+    if(sub){ subLine='<div class="meta" style="margin-top:10px">구독 상태 <b>'+esc(sub.status||'-')+'</b>'+(sub.next_charge_at?' · 다음청구 '+String(sub.next_charge_at).slice(0,10):'')+(rev.total?' · 누적결제 '+won(rev.total)+'('+(rev.count||0)+'회)':'')+'</div>'; }
+    box.innerHTML=head+kpi
+      +'<div class="card" style="margin-top:10px"><h3>등록 학생 명단 <span class="meta" style="font-weight:400">· '+sts.length+'명</span></h3>'+stTbl+subLine+'</div>'
+      +'<div style="font-size:10.5px;color:var(--text-muted);margin-top:8px">※ API 사용·비용은 최근 30일, 본사키/자체키 합산. 비용은 현재 단가('+window._apiRate.inUsd+'/'+window._apiRate.outUsd+' USD·₩'+window._apiRate.fx+') 기준 추정.</div>';
+  };
   window.mApprove = async function(id){ var r=await adminApi({action:'approve',academy_id:id,approved:true}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
   window.mDemo = async function(id,toDemo){ var r=await adminApi({action:'set_demo',academy_id:id,is_demo:toDemo}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
 
