@@ -2169,7 +2169,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.21.3";
+window.APP_VERSION="2026.07.21.5";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4454,8 +4454,9 @@ async function distributeActivity(){
   if(!f){m.style.color='var(--risk)';m.textContent='파일을 선택하세요.';return;}
   m.style.color='var(--ink-mute)';m.textContent='업로드 중…';
   try{
-    var path=s.id+'/'+Date.now()+'_'+f.name.replace(/[^\w.\-가-힣]/g,'_');
-    var up=await sb.storage.from('activity-files').upload(path,f,{upsert:true});
+    var _dext=(f.name.split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').slice(0,8)||'bin';
+    var path=s.id+'/'+Date.now()+'.'+_dext;
+    var up=await sb.storage.from('activity-files').upload(path,f,{upsert:true,contentType:(f.type||'application/octet-stream')});
     if(up.error)throw up.error;
     var row={student_id:s.id,grade:String(s.grade||''),sem:'',subject:subj,area:'과세특',title:title,goal:'컨설턴트 직접 배포 활동',detail:'첨부된 활동지를 다운로드해 작성 후 다시 제출하세요.',status:'예정',sent:true,source:'manual',dist_path:path,dist_name:f.name};
     var ins=await sb.from('design_items').insert(row);
@@ -4465,6 +4466,7 @@ async function distributeActivity(){
     renderDesign();
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+(e.message||e); }
 }
+function ensureFflate(){ return window.fflate?Promise.resolve(window.fflate):new Promise(function(res,rej){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/fflate/0.8.2/umd/index.min.js';sc.onload=function(){res(window.fflate);};sc.onerror=rej;document.head.appendChild(sc);}); }
 window.attachDesignFile=async function(id){
   var inp=document.getElementById('file-'+id); var msg=document.getElementById('fmsg-'+id);
   var f=inp&&inp.files&&inp.files[0]; if(!f)return;
@@ -4474,7 +4476,8 @@ window.attachDesignFile=async function(id){
     /* 원본 파일을 형식과 무관하게 항상 스토리지에 업로드 → 컨설턴트가 다운로드 가능 */
     var _sp=null;
     try{
-      var _p='design/sub/'+id+'/'+Date.now()+'_'+String(f.name||'file').replace(/[^\w.\-가-힣]+/g,'_').slice(-60);
+      var _pext=(String(f.name||'file').split('.').pop()||'bin').replace(/[^a-zA-Z0-9]/g,'').slice(0,8)||'bin';
+      var _p='design/sub/'+id+'/'+Date.now()+'.'+_pext;
       var _up=await sb.storage.from('activity-files').upload(_p,f,{upsert:true,contentType:(f.type||'application/octet-stream')});
       if(!_up.error)_sp=_p;
     }catch(_e){}
@@ -4486,15 +4489,30 @@ window.attachDesignFile=async function(id){
       text=out.join('\n');
     } else if(ext==='docx'){
       var ab=await f.arrayBuffer(); var res=await mammoth.extractRawText({arrayBuffer:ab}); text=res.value||'';
-    } else if(ext==='hwp'||ext==='hwpx'){
-      var _r1=await sb.from('design_items').update({file_name:f.name,sub_path:_sp,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id).select('id');
-      if(_r1.error||!(_r1.data&&_r1.data.length)){ msg.style.color='var(--risk)'; msg.textContent='제출 저장 실패: '+((_r1.error&&_r1.error.message)||'권한 오류 — 새로고침 후 다시 시도해 주세요.'); return; }
-      if(window.notify)notify('con','design','활동 결과물 제출(파일)','학생부 디자인 결과물 파일('+f.name+')이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr'));
-      if(_sp){ msg.style.color='var(--safe)'; msg.innerHTML='✅ 원본 파일 제출 완료: '+f.name+' — 컨설턴트가 다운로드할 수 있습니다. <span style="color:var(--gold,#3182f6)">hwp는 자동 텍스트 분석이 안 되므로, <b>PDF로 변환 후 다시 첨부</b>하면 AI 분석까지 가능합니다.</span>'; }
-      else { msg.style.color='var(--risk)'; msg.innerHTML='파일 업로드에 실패해 파일명만 기록되었습니다. 다시 첨부하거나 <b>PDF로 변환 후 첨부</b>해 주세요.'; }
+    } else if(ext==='hwpx'){
+      // 한글 hwpx = zip(xml). 클라이언트에서 본문 텍스트 추출 시도 → 성공하면 AI 분석까지 가능
+      try{
+        var _ff=await ensureFflate();
+        var _abx=await f.arrayBuffer();
+        var _files=_ff.unzipSync(new Uint8Array(_abx));
+        var _xml=[];
+        Object.keys(_files).forEach(function(k){ if(/section\d+\.xml$/i.test(k)){ try{_xml.push(new TextDecoder('utf-8').decode(_files[k]));}catch(_x){} } });
+        var _raw=_xml.join(' '), _buf=[], _mm, _re=/<hp:t[^>]*>([\s\S]*?)<\/hp:t>/g;
+        while((_mm=_re.exec(_raw))){ _buf.push(_mm[1]); }
+        text=(_buf.length?_buf.join(' '):_raw.replace(/<[^>]+>/g,' ')).replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&').replace(/\s+/g,' ').trim();
+      }catch(_eh){ text=''; }
+      // 추출 실패 시 아래 공통 로직이 '원본 파일만 제출'로 처리(다운로드는 가능)
+    } else if(ext==='hwp'){
+      // 구버전 .hwp 바이너리 — 자동 텍스트 추출 불가, 원본 파일만 제출(다운로드 가능)
+      if(_sp){
+        var _rh=await sb.from('design_items').update({file_name:f.name,sub_path:_sp,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id).select('id');
+        if(_rh.error||!(_rh.data&&_rh.data.length)){ msg.style.color='var(--risk)'; msg.textContent='제출 저장 실패: '+((_rh.error&&_rh.error.message)||'권한 오류 — 새로고침 후 다시 시도해 주세요.'); return; }
+        if(window.notify)notify('con','design','활동 결과물 제출(파일)','학생부 디자인 결과물 파일('+f.name+')이 제출되었습니다.',(window._designTrack==='goip'?'gdesign':'sr'));
+        msg.style.color='var(--safe)'; msg.innerHTML='✅ 원본 파일 제출 완료: '+f.name+' — 컨설턴트가 다운로드할 수 있습니다. <span style="color:var(--gold,#3182f6)">구버전 .hwp는 자동 분석이 안 되니, AI 분석이 필요하면 <b>.hwpx 또는 PDF</b>로 저장해 다시 첨부해 주세요.</span>'; }
+      else { msg.style.color='var(--risk)'; msg.innerHTML='파일 업로드에 실패했습니다. 다시 첨부하거나 <b>PDF로 변환 후 첨부</b>해 주세요.'; }
       if(window.renderDesign)renderDesign();
       return;
-    } else { msg.style.color='var(--risk)'; msg.textContent='지원하지 않는 형식(pdf/docx/hwp만).'; return; }
+    } else { msg.style.color='var(--risk)'; msg.textContent='지원하지 않는 형식(pdf/docx/hwp/hwpx만).'; return; }
     if(text.trim().length<20){
       if(_sp){
         await sb.from('design_items').update({file_name:f.name,sub_path:_sp,submitted_at:new Date().toISOString(),status:'진행중',updated_at:new Date().toISOString()}).eq('id',id);
@@ -5131,6 +5149,7 @@ async function genCourseRoadmap(){
     var term=s.grade?String(s.grade):'';
     var sems=courseArr.map(function(c){return c.sem;}).filter(Boolean).sort();
     if(sems.length)term=(term?term+'학년 · ':'')+'이수기록 최종학기 '+sems[sems.length-1];
+    term+=' [설계 범위: 현재 시점부터 고3 1학기까지 남은 학기만 이수과목(선택과목) 설계. 고3 2학기는 학생부 미반영이므로 이수설계에서 제외. summary에는 고3 여름방학 이후 수능 최저학력기준 대비 전략을 한 줄 덧붙여라 — 목표대학 최저가 2개 영역 합(2합) 조합이면 영어+탐구 조합을 우선 추천. 재수(N수) 가능성은 언급하지 않아도 됨.]';
     var d=await callAI('course_roadmap',{field:majorToField(s.target_major),career:(s.target_major||''),target:(s.target_univ||''),courses:courses,term:term});
     var o=JSON.parse(d.text);
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'course_roadmap',payload:o});
@@ -7223,6 +7242,18 @@ window.renderGRoadmap=async function(){
   if(saved)box.innerHTML=bar+gRoadmapHtml(saved.payload);
   else box.innerHTML=bar+(window._role==='stu'?'<div style="color:var(--ink-mute);padding:16px">아직 선생님이 로드맵을 생성하지 않았습니다.</div>':'<div style="color:var(--ink-mute);padding:16px">목표 학교(선택) 후 [생성]을 누르세요.</div>');
 };
+function goipPhaseHint(grade){
+  var now=new Date(),mo=now.getMonth()+1;
+  function part(m){if(m>=3&&m<=6)return '1학기';if(m===7||m===8)return '여름방학';if(m>=9&&m<=12)return '2학기';return '겨울방학';}
+  var gy=(grade&&String(grade).indexOf('중')>=0)?parseInt(String(grade).replace(/[^0-9]/g,'')):0; if(!gy||gy<1)gy=1; if(gy>3)gy=3;
+  var p=part(mo),parts=['1학기','여름방학','2학기','겨울방학'],start=(p==='1학기')?'여름방학':p,list=[];
+  for(var g=gy;g<=3;g++){var from=(g===gy)?parts.indexOf(start):0;for(var pi=from;pi<parts.length;pi++){var lbl='중'+g+' '+parts[pi];if(g===3&&parts[pi]==='2학기')lbl='중3 2학기(원서 접수·자소서·면접 마무리)';if(g===3&&parts[pi]==='겨울방학')lbl='중3 겨울방학(고교 진학 준비 학습 로드맵 — 고입 활동이 아니라 고교 입학 전 선행·기초 및 고교 학생부 대비)';list.push(lbl);}}
+  return {cur:'중'+gy+' '+p,month:mo,list:list};
+}
+function goipRoadmapHintText(grade){
+  var ph=goipPhaseHint(grade);
+  return '[★로드맵 대상 시기 — 오늘은 '+ph.month+'월, 현재 시점 '+ph.cur+'. 아래 시기들을 이 순서대로 각각 하나의 phase로 빠짐없이 생성하고 period에 라벨을 그대로 사용하라. 앞 시기(특히 곧 다가오는 2학기)를 절대 건너뛰지 말 것. 이미 지난 학기는 제외]\n'+ph.list.map(function(x,i){return (i+1)+') '+x;}).join('\n')+'\n\n';
+}
 async function runGRoadmap(){
   var m=document.getElementById('grm-msg'),box=document.getElementById('grm-result');
   var s=window._gactive; if(!s){if(m){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';}return;}
@@ -7231,7 +7262,8 @@ async function runGRoadmap(){
   var tschEl=document.getElementById('grm-school'); var tsch=tschEl?tschEl.value:'';
   if(window.showAiLoading)showAiLoading(); if(m){m.style.color='var(--ink-mute)';m.textContent='로드맵 생성 중…';}
   try{
-    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_roadmap',payload:{grade:ctx.grade,career:ctx.career,target:tsch||ctx.target,target_school:tsch||null,grades:ctx.grades,record_text:ctx.record}}});
+    var _recHint=goipRoadmapHintText(ctx.grade)+(ctx.record||'');
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_roadmap',payload:{grade:ctx.grade,career:ctx.career,target:tsch||ctx.target,target_school:tsch||null,grades:ctx.grades,record_text:_recHint}}});
     if(r.error||!r.data||r.data.error){if(m){m.style.color='var(--risk)';m.textContent=esc((r.data&&r.data.error)||(r.error&&r.error.message)||'오류');}return;}
     var o=safeJson(r.data.text);
     if(!o||!(o.phases||[]).length){if(m){m.style.color='var(--risk)';m.textContent='응답 해석 실패 — 다시 시도하세요.';}return;}
