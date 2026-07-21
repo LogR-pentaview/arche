@@ -540,6 +540,7 @@
         <div class="nav" data-v="gperf" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> 수행평가 도우미</div>
         <div class="nav" data-v="gessay" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7"/></svg> 자소서 준비</div>
         <div class="nav" data-v="ginterview" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 1v11"/><rect x="9" y="1" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v4M8 23h8"/></svg> 면접 준비</div>
+        <div class="nav" data-v="greport" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg> 고입 리포트</div>
         
       </div>
     </div>
@@ -1086,6 +1087,18 @@
         <div id="gdg-result" style="margin-top:18px"></div>
       </section>
 
+      <!-- 4.4z GOIP 종합 리포트 -->
+      <section class="view" id="v-greport">
+        <div class="eyebrow">GOIP · Report</div>
+        <div class="h1 pg-title" data-b2c="고입 종합 리포트">고입 종합 리포트</div>
+        <div class="sub">성취도 · 활동 4축 · 지원가능성(내신 환산) · 성향 적합 · 황금문장 · 핵심 과제를 한 페이지로 통합</div>
+        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
+          <select id="greport-student" onchange="selectGStudent(this.value);if(window.renderGreport)renderGreport();" style="min-width:220px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">— 학생 선택 —</option></select>
+          <span id="greport-msg" style="font-size:12px;color:var(--ink-mute)"></span>
+        </div>
+        <div id="greport-body" style="margin-top:18px"></div>
+      </section>
+
       <!-- 4.4b GOIP ROADMAP -->
       <section class="view" id="v-groadmap">
         <div class="eyebrow">GOIP · Roadmap</div>
@@ -1163,16 +1176,7 @@
             <div id="gp-match" style="margin-top:10px"></div>
           </div>
         </div>
-        <div class="card goip-con-only" style="margin-top:16px">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px">
-            <div style="font-weight:700">③ 고입 종합 리포트 <span style="font-size:10px;color:#fff;background:var(--violet);border-radius:20px;padding:2px 8px;vertical-align:middle">AI</span></div>
-            <button class="btn" onclick="goipReport()">AI 종합 리포트 생성</button>
-          </div>
-          <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">성취도·활동·지원가능성·성향을 통합한 종합 리포트입니다. 좌측 ①의 성취도(+지역·유형)와 우측 ②의 활동 요약을 채운 뒤 생성하세요. 학교 유형을 선택하면 지원가능성(밴드)까지 포함됩니다.</div>
-          <div id="gp-msg3" style="font-size:12px;margin-top:4px"></div>
-          <div id="gp-report" style="margin-top:10px"></div>
-        </div>
-        <div class="note">※ 밴드·적합도는 참고용 근사 추정이며 합격 예측이 아닙니다 — 최종 판단은 컨설턴트가 합니다. 성적 데이터는 서버 환산식으로, 성향 매칭은 학교 공시 특색사업·브로슈어 기반으로 산출됩니다.</div>
+        <div class="note">※ 밴드·적합도는 참고용 근사 추정이며 합격 예측이 아닙니다 — 최종 판단은 컨설턴트가 합니다. 종합 리포트는 좌측 <b>[고입 리포트]</b> 메뉴에서 생성합니다.</div>
       </section>
 
       <!-- 5. CURRI CHECK -->
@@ -2051,7 +2055,7 @@ window.ADMIN=ADMIN;
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"학생부 디자인",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 학생부 디자인",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){ if(window.trackSeg)trackSeg(g); }
@@ -2065,7 +2069,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2100,7 +2104,7 @@ window.addEventListener('popstate', function(e){
       else if(v==='sr'){window._designTrack='dae';renderDesign();} else if(v==='perf'){window._designTrack='dae';if(window.perfMount)perfMount('dae');} else if(v==='iv'&&window.renderInterview)renderInterview();
       else if(v==='intake'&&window.refreshIntake)refreshIntake(); else if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();}
       else if(v==='report'&&window.renderReport)renderReport(); else if(v==='basecon'&&window.renderBaseCon)renderBaseCon();
-      else if(v==='goip'&&window.renderGoip)renderGoip(); else if(v==='gstudents'&&window.renderGStudents)renderGStudents();
+      else if(v==='goip'&&window.renderGoip)renderGoip(); else if(v==='greport'&&window.renderGreport)renderGreport(); else if(v==='gstudents'&&window.renderGStudents)renderGStudents();
       else if(v==='gintake'&&window.renderGIntake)renderGIntake(); else if(v==='gconsult'&&window.renderGConsult)renderGConsult();
       else if(v==='gdiag'&&window.renderGDiag)renderGDiag(); else if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap();
       else if(v==='gdesign'){window._designTrack='goip';renderGDesign();} else if(v==='gperf'){window._designTrack='goip';if(window.perfMount)perfMount('goip');} else if(v==='gessay'&&window.renderGEssay)renderGEssay();
@@ -2165,7 +2169,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.17.1";
+window.APP_VERSION="2026.07.21.2";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2529,7 +2533,7 @@ function renderStudentHome(){
   if(window._stuTrack==='goip'){
     v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
       '<div class="grid g3" style="margin-top:20px">'+
-      [['gdiag','나의 진단','활동 4축·교과 강약점'],['goip','지원가능·성향 매칭','내신 환산·학교 스타일 적합'],['groadmap','성장 로드맵','시기별 준비 계획'],['gdesign','학생부 디자인','앞으로 할 활동 설계'],['gessay','자소서 준비','설계도·작성·평가 루프']].map(function(m){
+      [['gdiag','나의 진단','활동 4축·교과 강약점'],['goip','지원가능·성향 매칭','내신 환산·학교 스타일 적합'],['greport','고입 리포트','종합 리포트·황금문장'],['groadmap','성장 로드맵','시기별 준비 계획'],['gdesign','학생부 디자인','앞으로 할 활동 설계'],['gessay','자소서 준비','설계도·작성·평가 루프']].map(function(m){
         return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+
       '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\'ginterview\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">면접 준비 ›</div><div style="font-size:12px;color:var(--ink-dim)">예상 문항·답변 연습 루프</div></div>'+
       '</div>';
@@ -6424,16 +6428,12 @@ window.renderGoip=async function(){
     var v=document.getElementById('gp-stu-view'); if(!v)return;
     var sel=document.getElementById('gp-student'); if(sel)sel.style.display='none';
     var am=document.getElementById('gp-autofill-msg'); if(am)am.style.display='none';
-    var rep=await gLoadMetric('goip_report');
     var saved=await gLoadMetric('goip_match');
-    var html='';
-    if(rep&&rep.payload&&rep.payload.res){
-      html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0">선생님이 작성한 고입 종합 리포트입니다.'+gDateTag(rep.measured_at)+'</div>'+gReportHtml(rep.payload.res,rep.payload.partial);
-    }
     if(saved&&saved.payload&&saved.payload.res){
-      html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:16px 0 10px">지원가능·성향 매칭 결과입니다.'+gDateTag(saved.measured_at)+'</div>'+gMatchHtml(saved.payload.res,saved.payload.no_profile);
+      v.innerHTML='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0">선생님이 분석한 지원가능·성향 매칭 결과입니다.'+gDateTag(saved.measured_at)+'</div>'+gMatchHtml(saved.payload.res,saved.payload.no_profile);
+    } else {
+      v.innerHTML='<div style="color:var(--ink-mute);padding:16px">아직 선생님이 성향 매칭을 생성하지 않았습니다.</div>';
     }
-    v.innerHTML=html||'<div style="color:var(--ink-mute);padding:16px">아직 선생님이 고입 리포트·매칭을 생성하지 않았습니다.</div>';
     return;
   }
   loadGStudents().then(function(){ goipAutoFill(); });
@@ -6505,7 +6505,7 @@ async function goipShortlist(){
       +'</div>';
   }).join('')||'<div style="color:var(--ink-mute);font-size:12px">해당 조건의 학교가 없습니다.</div>';
 }
-function gReportHtml(res,partial){
+function gReportHtml(res,partial,golden){
   var bc={'안정':'var(--safe)','적정':'var(--lime)','적격(정성평가 중심)':'var(--safe)','지원가능(정성평가 중심)':'var(--lime)','도전':'var(--reach)','위험':'var(--risk)','환산불가':'var(--ink-mute)'};
   var lv={'우수':'var(--safe)','양호':'var(--lime)','보완':'var(--reach)'};
   var h='';
@@ -6550,6 +6550,15 @@ function gReportHtml(res,partial){
     if(fit.top_matches&&fit.top_matches.length)h+=fit.top_matches.map(function(t){return '<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:4px">• <b style="color:var(--ink)">'+esc(t.name||'')+'</b> — '+esc(t.why||'')+'</div>';}).join('');
     h+='</div>';
   }
+  if(golden&&((golden.subjects&&golden.subjects.length)||(golden.changche&&golden.changche.length))){
+    h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px">황금문장 하이라이트 <span style="color:var(--ink-mute);font-weight:400">· 생기부 활동에서 선별·정제</span></div>';
+    if(golden.summary)h+='<div style="font-size:12px;color:var(--ink-dim);line-height:1.55;margin-bottom:8px">'+esc(golden.summary)+'</div>';
+    var gc=function(x,k){var subj=x[k]||x.subject||x.area||'세특';return '<div style="border-left:3px solid var(--gold);padding:5px 11px;margin-bottom:8px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:2px">'+esc(subj)+(x.grade?' · '+esc(String(x.grade)):'')+'</div><div style="font-size:12.5px;color:var(--ink);font-style:italic">“'+esc(x.sentence||'')+'”</div>'+(x.why?'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(x.why)+'</div>':'')+'</div>';};
+    (golden.subjects||[]).forEach(function(x){h+=gc(x,'subject');});
+    (golden.changche||[]).forEach(function(x){h+=gc(x,'area');});
+    h+='</div>';
+  }
   var rf=res.roadmap_focus||[];
   if(rf.length){
     h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
@@ -6561,34 +6570,49 @@ function gReportHtml(res,partial){
   h+='<div class="note" style="margin-top:4px">※ 본 리포트의 지원 가능성은 참고용 근사 추정이며 합격을 보장하지 않습니다. 최종 판단은 컨설턴트와 상담하세요.</div>';
   return h;
 }
-async function goipReport(){
-  var m=document.getElementById('gp-msg3'),box=document.getElementById('gp-report');
-  if(!sb){m.style.color='var(--risk)';m.textContent='연결 오류';return;}
-  var grades=goipGrades();
-  var rec=document.getElementById('gp-record').value.trim();
-  if(!rec){try{await goipCompose(true);}catch(e){} rec=document.getElementById('gp-record').value.trim();}
-  if(!grades.length&&!rec){m.style.color='var(--risk)';m.textContent='성취도 또는 활동 요약을 입력하세요.';return;}
-  var career=document.getElementById('gp-career').value.trim();
-  var region=document.getElementById('gp-region').value;
-  var s=window._gactive||window._activeStudent||{};
-  m.style.color='var(--ink-mute)';m.textContent='지원가능성 환산 중…';box.innerHTML='';
-  var shortlist=[],partial=false;
+/* ===== 고입 종합 리포트 (전용 메뉴) ===== */
+window.renderGreport=async function(){
+  if(window._role!=='stu')await loadGStudents();
+  var box=document.getElementById('greport-body'); if(!box)return;
+  if(!window._gactive){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">상단에서 학생을 선택하세요.</div>';return;}
+  var saved=await gLoadMetric('goip_report');
+  var bar=gActionBar(!!(saved&&saved.payload&&saved.payload.res),'runGreport',null,saved&&saved.measured_at);
+  if(saved&&saved.payload&&saved.payload.res){ box.innerHTML=bar+gReportHtml(saved.payload.res,saved.payload.partial,saved.payload.golden); }
+  else{ box.innerHTML=bar+(window._role==='stu'?'<div style="color:var(--ink-mute);padding:16px">아직 선생님이 고입 리포트를 생성하지 않았습니다.</div>':'<div style="color:var(--ink-mute);padding:16px">[생성]을 눌러 성취도·활동·지원가능성·성향·황금문장을 통합한 종합 리포트를 만드세요.</div>'); }
+};
+async function runGreport(){
+  var m=document.getElementById('greport-msg'),box=document.getElementById('greport-body');
+  var s=window._gactive; if(!s){if(m){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';}return;}
+  var ctx=await gctxAll();
+  if(!ctx||(!ctx.record&&!ctx.grades.length)){if(m){m.style.color='var(--risk)';m.textContent='저장된 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.';}return;}
+  if(window.showAiLoading)showAiLoading(); if(m){m.style.color='var(--ink-mute)';m.textContent='지원가능성 환산 중…';}
   try{
-    var types=goipTypes();
-    if(types.length&&region){
-      var sr=await sb.functions.invoke('arche-goip',{body:{task:'goip_shortlist',payload:{types:types,region:region,gender:document.getElementById('gp-gender').value,grades:grades}}});
-      if(sr.data&&sr.data.results){partial=!!sr.data.partial;shortlist=sr.data.results.map(function(x){var cv=x.conversion||{};return {name:x.name,school_type:x.school_type,band:cv.ok?(cv.band||'환산불가'):'환산불가',partial:!!cv.partial};});}
-    }
-  }catch(e){}
-  m.textContent='AI 종합 리포트 작성 중… (30~50초)';
-  var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_report',payload:{grade:s.grade||'',career:career,target:s.goip_target||s.target||'',region:region,grades:grades,record_text:rec,shortlist:shortlist,partial:partial}}});
-  var data=r.data,error=r.error;
-  if(error||!data||data.error){m.style.color='var(--risk)';m.textContent=esc((data&&data.error)||(error&&error.message)||'오류');return;}
-  var res=safeJson(data.text);
-  if(!res){m.style.color='var(--risk)';m.textContent='응답 해석 실패 — 다시 시도하세요.';return;}
-  if(window._gactive){try{await gSaveMetric('goip_report',{res:res,partial:partial});}catch(e){}}
-  m.style.color='var(--safe)';m.textContent='종합 리포트 완료'+(window._gactive?'·저장됨':'');
-  box.innerHTML=gReportHtml(res,partial);
+    var region=s.region||'', types=['외고','국제고','자사고','과학고','영재학교'];
+    var shortlist=[],partial=false;
+    try{ if(region){ var sr=await sb.functions.invoke('arche-goip',{body:{task:'goip_shortlist',payload:{types:types,region:region,gender:s.gender||'',grades:ctx.grades}}});
+      if(sr.data&&sr.data.results){partial=!!sr.data.partial;shortlist=sr.data.results.map(function(x){var cv=x.conversion||{};return {name:x.name,school_type:x.school_type,band:cv.ok?(cv.band||'환산불가'):'환산불가',partial:!!cv.partial};});} } }catch(e){}
+    if(m)m.textContent='AI 종합 리포트 작성 중… (약 40초)';
+    var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_report',payload:{grade:ctx.grade,career:ctx.career,target:ctx.target,region:region,grades:ctx.grades,record_text:ctx.record,shortlist:shortlist,partial:partial}}});
+    if(r.error||!r.data||r.data.error){if(m){m.style.color='var(--risk)';m.textContent=esc((r.data&&r.data.error)||(r.error&&r.error.message)||'오류');}return;}
+    var res=safeJson(r.data.text);
+    if(!res){if(m){m.style.color='var(--risk)';m.textContent='응답 해석 실패 — 다시 시도하세요.';}return;}
+    var golden=null;
+    try{
+      if(m)m.textContent='황금문장 정제 중…';
+      var gr=await sb.from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).order('extracted_at',{ascending:false});
+      var se=gr.data||[];
+      if(se.length){ var lines=[],used=0; se.forEach(function(x){var t='['+(x.area||'교과세특')+'|'+(x.subject||'-')+'|'+(x.grade||'-')+'] '+(x.text||'');if(used+t.length>10500)return;used+=t.length;lines.push(t);});
+        var gd=await callAI('golden_sentences',{career:s.career||'',major:'',target:ctx.target||'',field:'',text:lines.join('\n')});
+        golden=JSON.parse(gd.text);
+      }
+    }catch(e){}
+    var payload={res:res,partial:partial,golden:golden};
+    var sv=await gSaveMetric('goip_report',payload);
+    if(sv&&sv.error){if(m){m.style.color='var(--risk)';m.textContent='저장 실패: '+sv.error.message;}return;}
+    box.innerHTML=gActionBar(true,'runGreport',null,new Date().toISOString())+gReportHtml(res,partial,golden);
+    if(m){m.style.color='var(--safe)';m.textContent='종합 리포트 완료 · 저장됨.';}
+  }catch(e){if(m){m.style.color='var(--risk)';m.textContent='실패: '+(e.message||e);}}
+  finally{if(window.hideAiLoading)hideAiLoading();}
 }
 async function goipCompose(silent){
   var m=document.getElementById('gp-msg2');var s=window._gactive||window._activeStudent;
@@ -6754,7 +6778,7 @@ function selectGStudent(id){
 function fillGoipPickers(){
   var cur=window._gactive?window._gactive.id:'';
   var opts='<option value="">— 학생 선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'"'+(s.id===cur?' selected':'')+'>'+esc(s.name||'-')+(s.grade?' ('+esc(s.grade)+')':'')+'</option>';}).join('');
-  ['gin-student','gcon-student','gp-student','gdg-student','grm-student','gds-student'].forEach(function(id){var el=document.getElementById(id);if(el){el.innerHTML=opts;el.value=cur;}});
+  ['gin-student','gcon-student','gp-student','gdg-student','grm-student','gds-student','greport-student'].forEach(function(id){var el=document.getElementById(id);if(el){el.innerHTML=opts;el.value=cur;}});
 }
 
 /* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
