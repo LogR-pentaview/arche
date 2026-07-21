@@ -871,7 +871,7 @@
                 <tbody id="nd-body"></tbody>
               </table></div>
               <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">
-                <div id="nd-result" class="mono" style="font-size:13px;color:var(--lime)">전체 가중평균 —</div>
+                <div id="nd-result" class="mono" style="font-size:13px;color:var(--lime)">주요과목 가중평균 —</div>
                 <button onclick="saveNaesin()" style="padding:9px 18px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">내신 저장</button>
               </div>
               <div id="nd-msg" style="min-height:14px;font-size:12px;margin-top:6px"></div>
@@ -1369,7 +1369,7 @@
           </div>
           <div class="body">
             <div class="kpiband">
-              <div class="kpi2"><div class="l">내신 (단위가중)</div><div class="v" id="rp-kpi-naesin">—</div></div>
+              <div class="kpi2"><div class="l">내신 · 주요과목 (단위가중)</div><div class="v" id="rp-kpi-naesin">—</div></div>
               <div class="kpi2"><div class="l">모평 백분위</div><div class="v" id="rp-kpi-mopyeong">—</div></div>
               <div class="kpi2"><div class="l">목표 대학</div><div class="v" id="rp-kpi-target" style="font-size:15px">—</div></div>
               <div class="kpi2"><div class="l">합격 가능성</div><div class="v" id="rp-kpi-fit" style="font-size:15px;color:#3182f6">준비중</div></div>
@@ -5438,21 +5438,28 @@ function parseNaesin(){
   });
   renderCourses();
 }
+var NAESIN_MAIN=['국어','수학','영어','사회','과학'];
+function naesinGroupOf(subj){ try{ if(window.subjectGroup)return subjectGroup(subj,''); }catch(e){} return '기타 교과'; }
 function computeNaesin(){
-  var bySem={},tU=0,tUG=0;
-  window._courses.forEach(function(c){ if(c.unit&&c.grade){ tU+=c.unit; tUG+=c.unit*c.grade; bySem[c.sem]=bySem[c.sem]||{u:0,ug:0}; bySem[c.sem].u+=c.unit; bySem[c.sem].ug+=c.unit*c.grade; }});
-  var overall=tU?(tUG/tU):null;
-  var parts=SEMS.filter(function(s){return bySem[s];}).map(function(s){return s+' '+(bySem[s].ug/bySem[s].u).toFixed(2);});
-  var r=document.getElementById('nd-result'); if(r) r.innerHTML='전체 가중평균 <b style="color:var(--ink)">'+(overall!=null?overall.toFixed(3):'—')+'</b>'+(parts.length?' <span style="color:var(--ink-mute)">· '+parts.join(' / ')+'</span>':'');
-  var bs={}; Object.keys(bySem).forEach(function(k){bs[k]=+(bySem[k].ug/bySem[k].u).toFixed(3);});
-  window._naesin={overall:(overall!=null?+overall.toFixed(3):null),bySem:bs};
+  var bySem={},tU=0,tUG=0,mySem={},mU=0,mUG=0;
+  window._courses.forEach(function(c){ if(c.unit&&c.grade){
+    tU+=c.unit; tUG+=c.unit*c.grade; bySem[c.sem]=bySem[c.sem]||{u:0,ug:0}; bySem[c.sem].u+=c.unit; bySem[c.sem].ug+=c.unit*c.grade;
+    if(NAESIN_MAIN.indexOf(naesinGroupOf(c.subject))>=0){ mU+=c.unit; mUG+=c.unit*c.grade; mySem[c.sem]=mySem[c.sem]||{u:0,ug:0}; mySem[c.sem].u+=c.unit; mySem[c.sem].ug+=c.unit*c.grade; }
+  }});
+  var allOverall=tU?(tUG/tU):null;
+  var mainOverall=mU?(mUG/mU):allOverall; /* 주요과목 데이터 없으면 전과목 폴백 */
+  var useSem=mU?mySem:bySem;
+  var parts=SEMS.filter(function(s){return useSem[s];}).map(function(s){return s+' '+(useSem[s].ug/useSem[s].u).toFixed(2);});
+  var r=document.getElementById('nd-result'); if(r) r.innerHTML='주요과목(국·수·영·사·과) 가중평균 <b style="color:var(--ink)">'+(mainOverall!=null?mainOverall.toFixed(3):'—')+'</b>'+(allOverall!=null?' <span style="color:var(--ink-mute)">· 전과목 '+allOverall.toFixed(3)+'</span>':'')+(parts.length?' <span style="color:var(--ink-mute)">· '+parts.join(' / ')+'</span>':'');
+  var bs={}; Object.keys(useSem).forEach(function(k){bs[k]=+(useSem[k].ug/useSem[k].u).toFixed(3);});
+  window._naesin={overall:(mainOverall!=null?+mainOverall.toFixed(3):null),allOverall:(allOverall!=null?+allOverall.toFixed(3):null),bySem:bs};
 }
 async function saveNaesin(){
   var m=document.getElementById('nd-msg'); var s=requireActive(m); if(!s||!sb)return;
   computeNaesin();
-  var {error}=await sb.from('student_metrics').insert({student_id:s.id,metric_type:'naesin',payload:{courses:window._courses,weighted_overall:window._naesin?window._naesin.overall:null,by_semester:window._naesin?window._naesin.bySem:null}});
+  var {error}=await sb.from('student_metrics').insert({student_id:s.id,metric_type:'naesin',payload:{courses:window._courses,weighted_overall:window._naesin?window._naesin.overall:null,by_semester:window._naesin?window._naesin.bySem:null,all_overall:window._naesin?window._naesin.allOverall:null,scope:'main'}});
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
-  m.style.color='var(--safe)';m.textContent='내신 저장 완료 · 전체 가중평균 '+(window._naesin&&window._naesin.overall!=null?window._naesin.overall.toFixed(3):'—');
+  m.style.color='var(--safe)';m.textContent='내신 저장 완료 · 주요과목 가중평균 '+(window._naesin&&window._naesin.overall!=null?window._naesin.overall.toFixed(3):'—');
 }
 
 
@@ -8324,6 +8331,8 @@ window.renderStuBrief=async function(){
 
 /* ---------- 내신 시나리오 시뮬레이터 ---------- */
 var _simSt=null;
+var _SIM_MAIN=['국어','수학','영어','사회','과학'];
+function _simGrp(subj){ try{ if(window.subjectGroup)return subjectGroup(subj,''); }catch(e){} return '기타 교과'; }
 window.renderSimCard=async function(){
   var slot=document.getElementById('sim-slot'); if(!slot)return;
   var s=window._activeStudent;
@@ -8331,26 +8340,55 @@ window.renderSimCard=async function(){
   var pl=null;
   try{ var r=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
     if(r.data&&r.data[0])pl=r.data[0].payload; }catch(e){}
-  if(!pl||pl.weighted_overall==null){ slot.innerHTML='<div class="card" style="font-size:12px;color:var(--ink-mute);line-height:1.7">\ud83d\udcc8 <b style="color:var(--ink)">\ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</b> \u2014 [\ud559\uc0dd \uc790\ub8cc \uc785\ub825]\uc5d0\uc11c \uc131\uc801\uc744 \uc785\ub825\ud558\uba74, \ub0a8\uc740 \ud559\uae30 \uc131\uc801\uc5d0 \ub530\ub77c \ucd5c\uc885 \ub0b4\uc2e0\uc774 \uc5b4\ub5bb\uac8c \ubcc0\ud558\ub294\uc9c0 \uc2dc\ubbac\ub808\uc774\uc158\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>'; return; }
-  var W=Number(pl.weighted_overall); var byS=pl.by_semester||{}; var C=Math.max(1,Object.keys(byS).length);
-  var sys=studentGradeSystem(s); var T=6; var R=Math.max(0,T-C);
-  _simSt={W:W,C:C,R:R,sys:sys};
-  var semChips=Object.keys(byS).sort().map(function(k){return '<span style="font-size:11px;background:var(--panel-2,#f9fafb);border:1px solid var(--line);border-radius:6px;padding:2px 8px;color:var(--ink-dim)">'+esc(k)+' <b>'+Number(byS[k]).toFixed(2)+'</b></span>';}).join(' ');
-  if(R===0){
-    slot.innerHTML='<div class="card"><div class="mbx-head"><span class="mbx-title">\ud83d\udcc8 \ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</span></div><div style="font-size:12.5px;color:var(--ink-dim);margin-top:8px">\ubaa8\ub4e0 \ud559\uae30('+C+'\uac1c) \uc131\uc801\uc774 \uc785\ub825\ub418\uc5b4 \ucd5c\uc885 \ub0b4\uc2e0\uc774 \ud655\uc815 \uc0c1\ud0dc\uc785\ub2c8\ub2e4 \u2014 \ub2e8\uc704\uac00\uc911 \ud3c9\uade0 <b style="color:var(--ink)">'+W.toFixed(2)+'\ub4f1\uae09</b></div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+semChips+'</div></div>';
+  var courses=(pl&&pl.courses)||[];
+  var graded=courses.filter(function(c){return c&&c.unit&&c.grade;});
+  if(!pl||(!graded.length&&pl.weighted_overall==null)){
+    slot.innerHTML='<div class="card" style="font-size:12px;color:var(--ink-mute);line-height:1.7">\ud83d\udcc8 <b style="color:var(--ink)">\ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</b> \u2014 [\ud559\uc0dd \uc790\ub8cc \uc785\ub825]\uc5d0\uc11c \uc131\uc801\uc744 \uc785\ub825\ud558\uba74, \uc8fc\uc694\uacfc\ubaa9\ubcc4\ub85c \ub0a8\uc740 \ud559\uae30 \ub4f1\uae09\uc744 \uc870\uc815\ud558\uba70 \ucd5c\uc885 \ub0b4\uc2e0 \ubcc0\ud654\ub97c \uc2dc\ubbac\ub808\uc774\uc158\ud560 \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>';
     return;
   }
-  var init=Math.min(sys,Math.max(1,Math.round(W*10)/10));
+  var sys=studentGradeSystem(s); var T=6;
+  var semSet={}; graded.forEach(function(c){ if(c.sem)semSet[c.sem]=1; });
+  var C=Object.keys(semSet).length||Object.keys(pl.by_semester||{}).length||1;
+  var R=Math.max(0,T-C);
+  /* 과목군 집계 */
+  var gmap={},otherU=0,otherUG=0,mainU=0,mainUG=0,allU=0,allUG=0;
+  graded.forEach(function(c){
+    var g=_simGrp(c.subject); allU+=c.unit; allUG+=c.unit*c.grade;
+    if(_SIM_MAIN.indexOf(g)>=0){ gmap[g]=gmap[g]||{u:0,ug:0}; gmap[g].u+=c.unit; gmap[g].ug+=c.unit*c.grade; mainU+=c.unit; mainUG+=c.unit*c.grade; }
+    else { otherU+=c.unit; otherUG+=c.unit*c.grade; }
+  });
+  var groups=_SIM_MAIN.filter(function(g){return gmap[g];}).map(function(g){return {name:g,u:gmap[g].u,avg:gmap[g].ug/gmap[g].u};});
+  var Wa=allU?(allUG/allU):(pl.weighted_overall!=null?Number(pl.weighted_overall):null);
+  var Wm=mainU?(mainUG/mainU):Wa;
+  var otherAvg=otherU?(otherUG/otherU):null;
+  var fallback=false;
+  if(!groups.length){ if(Wa==null){ slot.innerHTML=''; return; } groups=[{name:'\uc804\uccb4',u:1,avg:Wa}]; Wm=Wa; otherU=0; otherAvg=null; fallback=true; }
+  _simSt={W:Wm,Wm:Wm,Wa:Wa,C:C,R:R,sys:sys,groups:groups,otherU:otherU,otherAvg:otherAvg};
+  if(R===0){
+    slot.innerHTML='<div class="card"><div class="mbx-head"><span class="mbx-title">\ud83d\udcc8 \ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</span></div><div style="font-size:12.5px;color:var(--ink-dim);margin-top:8px">\ubaa8\ub4e0 \ud559\uae30('+C+'\uac1c) \uc131\uc801\uc774 \uc785\ub825\ub418\uc5b4 \ucd5c\uc885 \ub0b4\uc2e0\uc774 \ud655\uc815 \uc0c1\ud0dc\uc785\ub2c8\ub2e4 \u2014 \uc8fc\uc694\uacfc\ubaa9 \ud3c9\uade0 <b style="color:var(--ink)">'+(Wm!=null?Wm.toFixed(2):'\u2014')+'\ub4f1\uae09</b>'+(Wa!=null?' <span style="color:var(--ink-mute)">\u00b7 \uc804\uacfc\ubaa9 '+Wa.toFixed(2)+'\ub4f1\uae09</span>':'')+'</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">'+groups.map(function(g){return '<span style="font-size:11px;background:var(--panel-2,#f9fafb);border:1px solid var(--line);border-radius:6px;padding:3px 9px;color:var(--ink-dim)">'+esc(g.name)+' <b>'+g.avg.toFixed(2)+'</b></span>';}).join('')+'</div></div>';
+    return;
+  }
+  var rows=groups.map(function(g,i){
+    var init=Math.min(sys,Math.max(1,Math.round(g.avg*10)/10));
+    return '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px dashed var(--line)">'
+      +'<span style="flex:none;width:44px;font-size:12.5px;font-weight:700;color:var(--ink)">'+esc(g.name)+'</span>'
+      +'<span style="flex:none;width:86px;font-size:11.5px;color:var(--ink-mute)">\ud604\uc7ac <b style="color:var(--ink-dim)">'+g.avg.toFixed(2)+'</b></span>'
+      +'<input type="range" id="sim-g-'+i+'" min="1" max="'+sys+'" step="0.1" value="'+init+'" oninput="simCalc()" style="flex:1;accent-color:var(--blue,#3182f6)">'
+      +'<b id="sim-f-'+i+'" style="flex:none;width:34px;text-align:right;font-size:13px;color:var(--blue,#3182f6)">'+init.toFixed(1)+'</b>'
+      +'</div>';
+  }).join('');
   slot.innerHTML='<div class="card">'
-    +'<div class="mbx-head"><span class="mbx-title">\ud83d\udcc8 \ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130</span><span style="font-size:11px;color:var(--ink-mute)">'+sys+'\ub4f1\uae09\uc81c \u00b7 \ud559\uae30\ub2e8\uc704 \uadfc\uc0ac</span></div>'
-    +'<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px">'+semChips+'</div>'
-    +'<div class="simx-row">'
-    +'<div class="simx-kpi"><small>\ud604\uc7ac \ud3c9\uade0 ('+C+'\ud559\uae30)</small><b>'+W.toFixed(2)+'</b></div>'
-    +'<div class="simx-slider"><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink-dim);margin-bottom:4px"><span>\ub0a8\uc740 '+R+'\uac1c \ud559\uae30 \ud3c9\uade0 \ub4f1\uae09 \uac00\uc815</span><b id="sim-f" style="color:var(--blue,#3182f6)">'+init.toFixed(1)+'</b></div>'
-    +'<input type="range" id="sim-range" min="1" max="'+sys+'" step="0.1" value="'+init+'" oninput="simCalc()"></div>'
-    +'<div class="simx-kpi"><small>\uc608\uc0c1 \ucd5c\uc885 \ub0b4\uc2e0</small><b id="sim-p">\u2014</b></div>'
+    +'<div class="mbx-head"><span class="mbx-title">\ud83d\udcc8 \ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\ud130 \u00b7 \uc8fc\uc694\uacfc\ubaa9\ubcc4</span><span style="font-size:11px;color:var(--ink-mute)">'+sys+'\ub4f1\uae09\uc81c \u00b7 \ub0a8\uc740 '+R+'\uac1c \ud559\uae30 \uac00\uc815</span></div>'
+    +(fallback?'<div style="font-size:11px;color:var(--reach,#f79009);margin-top:6px">\u203b \uc800\uc7a5\ub41c \uacfc\ubaa9 \uc815\ubcf4\uac00 \uc5c6\uc5b4 \uc804\uccb4 \ud3c9\uade0 \uae30\uc900\uc73c\ub85c \ud45c\uc2dc\ud569\ub2c8\ub2e4. [\ud559\uc0dd \uc790\ub8cc \uc785\ub825]\uc5d0\uc11c \uc131\uc801\uc744 \ub2e4\uc2dc \uc800\uc7a5\ud558\uba74 \uacfc\ubaa9\ubcc4 \uc870\uc815\uc774 \uac00\ub2a5\ud569\ub2c8\ub2e4.</div>':'')
+    +'<div class="simx-row" style="margin-top:10px">'
+    +'<div class="simx-kpi"><small>\ud604\uc7ac \uc8fc\uc694\uacfc\ubaa9 \ud3c9\uade0 ('+C+'\ud559\uae30)</small><b>'+Wm.toFixed(2)+'</b></div>'
+    +'<div class="simx-kpi"><small>\uc608\uc0c1 \ucd5c\uc885 \uc8fc\uc694\uacfc\ubaa9</small><b id="sim-p">\u2014</b></div>'
+    +'<div class="simx-kpi"><small>\uc608\uc0c1 \ucd5c\uc885 \uc804\uacfc\ubaa9</small><b id="sim-pa" style="font-size:15px;color:var(--ink-dim)">\u2014</b></div>'
     +'</div>'
-    +'<div class="simx-note">\u203b \ud559\uae30\ubcc4 \uc774\uc218\ub2e8\uc704\uac00 \ub3d9\uc77c\ud558\ub2e4\uace0 \uac00\uc815\ud55c \uadfc\uc0ac\uce58\uc785\ub2c8\ub2e4. \uc2e4\uc81c \ucd5c\uc885 \ub0b4\uc2e0\uc740 \ud559\uae30\ubcc4 \uc774\uc218\ub2e8\uc704\u00b7\uacfc\ubaa9 \uad6c\uc131\uc5d0 \ub530\ub77c \ub2ec\ub77c\uc9c8 \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>'
+    +'<div style="margin-top:10px;font-size:11.5px;color:var(--ink-dim)">\ub0a8\uc740 \ud559\uae30\uc758 \uacfc\ubaa9\uad70\ubcc4 \ud3c9\uade0 \ub4f1\uae09\uc744 \uc870\uc815\ud574 \ubcf4\uc138\uc694</div>'
+    +'<div style="margin-top:4px">'+rows+'</div>'
+    +((otherAvg!=null)?'<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">\uae30\ud0c0 \uacfc\ubaa9(\ub4f1\uae09 \uc0b0\ucd9c) \ud3c9\uade0 '+otherAvg.toFixed(2)+' \u2014 \ud604\uc7ac \uc218\uc900 \uc720\uc9c0 \uac00\uc815 (\uc804\uacfc\ubaa9 \uc608\uc0c1\uce58\uc5d0\ub9cc \ubc18\uc601)</div>':'')
+    +'<div class="simx-note">\u203b \uacfc\ubaa9\uad70\ubcc4 \uc774\uc218\ub2e8\uc704 \ube44\uc911\uc774 \ub0a8\uc740 \ud559\uae30\uc5d0\ub3c4 \ub3d9\uc77c\ud558\ub2e4\uace0 \uac00\uc815\ud55c \uadfc\uc0ac\uce58\uc785\ub2c8\ub2e4. \uc2e4\uc81c \ucd5c\uc885 \ub0b4\uc2e0\uc740 \ud559\uae30\ubcc4 \uc774\uc218\uacfc\ubaa9 \uad6c\uc131\uc5d0 \ub530\ub77c \ub2ec\ub77c\uc9c8 \uc218 \uc788\uc2b5\ub2c8\ub2e4.</div>'
     +'<div style="margin-top:12px"><button class="btn" id="sim-ai-btn" style="font-size:12px;padding:8px 16px" onclick="simRunAI()">\ud83e\udd16 \uc774 \uc2dc\ub098\ub9ac\uc624\ub85c AI \uc5ed\uc124\uacc4 \ubcf4\uae30</button><span id="sim-msg" style="font-size:11.5px;color:var(--ink-mute);margin-left:10px"></span></div>'
     +'<div id="sim-ai-out"></div>'
     +'</div>';
@@ -8358,13 +8396,22 @@ window.renderSimCard=async function(){
 };
 window.simCalc=function(){
   if(!_simSt)return;
-  var el=document.getElementById('sim-range'); if(!el)return;
-  var F=parseFloat(el.value)||_simSt.W;
-  var P=(_simSt.W*_simSt.C+F*_simSt.R)/(_simSt.C+_simSt.R);
-  var fEl=document.getElementById('sim-f'); if(fEl)fEl.textContent=F.toFixed(1);
+  var gs=_simSt.groups,fu=0,fug=0;
+  for(var i=0;i<gs.length;i++){
+    var el=document.getElementById('sim-g-'+i); var F=el?parseFloat(el.value):gs[i].avg; if(!isFinite(F))F=gs[i].avg;
+    var fEl=document.getElementById('sim-f-'+i);
+    if(fEl){ fEl.textContent=F.toFixed(1); fEl.style.color=(F<gs[i].avg-0.001)?'var(--safe)':((F>gs[i].avg+0.001)?'var(--risk)':'var(--blue,#3182f6)'); }
+    fu+=gs[i].u; fug+=gs[i].u*F; gs[i].F=F;
+  }
+  var Fm=fu?(fug/fu):_simSt.Wm;
+  var Pm=(_simSt.Wm*_simSt.C+Fm*_simSt.R)/(_simSt.C+_simSt.R);
+  var fu2=fu+(_simSt.otherU||0), fug2=fug+(_simSt.otherU||0)*(_simSt.otherAvg||0);
+  var Fa=fu2?(fug2/fu2):Fm;
+  var Pa=(_simSt.Wa!=null)?((_simSt.Wa*_simSt.C+Fa*_simSt.R)/(_simSt.C+_simSt.R)):null;
   var pEl=document.getElementById('sim-p');
-  if(pEl){ pEl.textContent=P.toFixed(2); pEl.style.color=(P<_simSt.W-0.001)?'var(--safe)':((P>_simSt.W+0.001)?'var(--risk)':'var(--ink)'); }
-  _simSt.F=F; _simSt.P=P;
+  if(pEl){ pEl.textContent=Pm.toFixed(2); pEl.style.color=(Pm<_simSt.Wm-0.001)?'var(--safe)':((Pm>_simSt.Wm+0.001)?'var(--risk)':'var(--ink)'); }
+  var paEl=document.getElementById('sim-pa'); if(paEl)paEl.textContent=(Pa!=null?Pa.toFixed(2):'\u2014');
+  _simSt.F=Fm; _simSt.P=Pm; _simSt.Pa=Pa;
 };
 window.simRunAI=async function(){
   var s=window._activeStudent, m=document.getElementById('sim-msg'), out=document.getElementById('sim-ai-out'), btn=document.getElementById('sim-ai-btn');
