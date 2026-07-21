@@ -6647,12 +6647,16 @@ window.renderGoip=async function(){
     var v=document.getElementById('gp-stu-view'); if(!v)return;
     var sel=document.getElementById('gp-student'); if(sel)sel.style.display='none';
     var am=document.getElementById('gp-autofill-msg'); if(am)am.style.display='none';
+    var rep=await gLoadMetric('goip_report');
     var saved=await gLoadMetric('goip_match');
-    if(saved&&saved.payload&&saved.payload.res){
-      v.innerHTML='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0">선생님이 분석한 지원가능·성향 매칭 결과입니다.'+gDateTag(saved.measured_at)+'</div>'+gMatchHtml(saved.payload.res,saved.payload.no_profile);
-    } else {
-      v.innerHTML='<div style="color:var(--ink-mute);padding:16px">아직 선생님이 성향 매칭을 생성하지 않았습니다.</div>';
+    var html='';
+    if(rep&&rep.payload&&rep.payload.res){
+      html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:10px 0">선생님이 작성한 고입 종합 리포트입니다.'+gDateTag(rep.measured_at)+'</div>'+gReportHtml(rep.payload.res,rep.payload.partial);
     }
+    if(saved&&saved.payload&&saved.payload.res){
+      html+='<div style="font-size:11.5px;color:var(--ink-mute);margin:16px 0 10px">지원가능·성향 매칭 결과입니다.'+gDateTag(saved.measured_at)+'</div>'+gMatchHtml(saved.payload.res,saved.payload.no_profile);
+    }
+    v.innerHTML=html||'<div style="color:var(--ink-mute);padding:16px">아직 선생님이 고입 리포트·매칭을 생성하지 않았습니다.</div>';
     return;
   }
   loadGStudents().then(function(){ goipAutoFill(); });
