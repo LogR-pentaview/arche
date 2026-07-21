@@ -546,6 +546,7 @@
     </div>
 
     <div class="nav" data-v="hqnews" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></svg> 본사 소식</div>
+    <div class="nav" data-v="promo" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-2v6l-18-2z"/><path d="M8 12v5a2 2 0 002 2h1"/><circle cx="18" cy="6" r="2"/></svg> 홍보 스튜디오</div>
     <div class="nav" data-v="billing" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> 구독·결제</div>
     <div class="navlabel" style="margin-top:8px">시스템</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
@@ -755,6 +756,12 @@
           <button onclick="hqFilter('manager')" class="hqf" data-f="manager" style="background:transparent;border:none;padding:8px 16px;font-size:12.5px;color:var(--ink-dim);cursor:pointer;font-family:inherit">담당 매니저</button>
         </div>
         <div id="hq-list" style="margin-top:14px"><div style="color:var(--ink-mute);padding:16px">불러오는 중…</div></div>
+      </section>
+      <section class="view" id="v-promo">
+        <div class="eyebrow">Marketing Studio</div>
+        <div class="h1">홍보 스튜디오</div>
+        <div class="sub">학생 성장 데이터·본사 소식으로 블로그·밴드용 홍보 콘텐츠를 만듭니다 — 복사하거나 Word로 저장하세요.</div>
+        <div id="promo-body" style="margin-top:6px"></div>
       </section>
       <section class="view" id="v-students">
         <div class="eyebrow">Student Management</div>
@@ -2065,7 +2072,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake)refreshIntake(); if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake)renderGIntake(); if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2508,7 +2515,7 @@ async function enterStudentApp(session){
     var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
   }
   // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
-  ['allstudents','roi','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','roi','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing','promo'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
   // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
@@ -2729,10 +2736,7 @@ window.renderROI=async function(){
       +'</div>';
     }).join('');
     h+='</div>';
-    h+='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>AI 활용 요약</h3></div>'
-      +'<div class="grid g4" style="gap:10px">'+tile('AI 호출',calls)+tile('총 토큰',K(pt+ot))+tile('추정 비용',won(costKRW),'var(--gold)')+tile('절감 추정',savedHrs+'h','var(--lime)')+'</div>'
-      +'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:11px;line-height:1.6">AI 비용 <b style="color:var(--gold)">'+won(costKRW)+'</b>로 산출물 <b style="color:var(--ink)">'+outputs+'건</b>(설계·코칭·채점)을 자동화 — 컨설턴트 약 <b style="color:var(--ink)">'+savedHrs+'시간</b> 절감(추정). 데이터가 쌓일수록 수치가 뚜렷해집니다.</div>'
-    +'</div>';
+
         /* ── 경영 지표 · 이탈 위험 · 컨설턴트별 성과 (v2.2) ── */
     try{
       var _now=new Date(); var _m0=new Date(_now.getFullYear(),_now.getMonth(),1).getTime(); var _m1=new Date(_now.getFullYear(),_now.getMonth()-1,1).getTime();
@@ -2769,7 +2773,19 @@ window.renderROI=async function(){
       var risky=students.map(function(s){ var base=lastAct[s.id]||(s.created_at?new Date(s.created_at).getTime():Date.now()); return {s:s,days:Math.floor((Date.now()-base)/86400000)}; })
         .filter(function(x){return x.days>21;})
         .sort(function(a,b){return b.days-a.days;});
-      h+='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>이탈 위험 신호 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 21일 이상 활동 기록 없음</span></h3></div>';
+      // 재등록 방어 지표 (관리 밀도·학부모 접점·관리 공백)
+      var _density=(students.length? ((outCur+consCur)/students.length):0);
+      var _briefSet={}; metrics.forEach(function(m){ if(m.metric_type==='monthly_brief'&&_inCur(m.measured_at))_briefSet[m.student_id]=1; });
+      var _briefN=Object.keys(_briefSet).length;
+      var _profInc=students.filter(function(s){return !s.target_univ&&!s.target_major&&!s.career&&!s.target_school;}).length;
+      h+='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>재등록 방어 · 학생 관리 현황 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 관리가 촘촘한가 · 학부모 접점이 있는가</span></h3></div>'
+        +'<div class="grid g4" style="gap:10px;margin-bottom:14px">'
+        +tile('학생 1인당 관리<br><span style="font-size:9px;color:var(--ink-mute)">이번 달 산출물+상담</span>',_density.toFixed(1)+'건',(_density>=2?'var(--lime)':(_density>0?'var(--ink)':'var(--reach,#f79009)')))
+        +tile('학부모 브리핑 발송<br><span style="font-size:9px;color:var(--ink-mute)">이번 달 · 재등록 근거</span>',_briefN+'/'+students.length+'명',(_briefN>0?'var(--lime)':'var(--ink-mute)'))
+        +tile('3주+ 무활동<br><span style="font-size:9px;color:var(--ink-mute)">관리 공백 · 이탈 위험</span>',risky.length+'명',(risky.length?'var(--risk)':'var(--safe)'))
+        +tile('프로파일 미완성<br><span style="font-size:9px;color:var(--ink-mute)">목표·진로 미입력</span>',_profInc+'명',(_profInc?'var(--reach,#f79009)':'var(--ink-mute)'))
+        +'</div>'
+        +'<div style="font-size:11.5px;font-weight:700;color:var(--ink);margin:4px 0 4px">⚠ 3주 이상 활동 없는 학생 <span style="color:var(--ink-mute);font-weight:400">— 관리 소홀이 이탈로 이어지기 전에 조치하세요</span></div>';
       if(!risky.length){ h+='<div style="font-size:12.5px;color:var(--safe);padding:6px 0">✅ 최근 3주간 모든 학생에게 활동 기록이 있습니다.</div>'; }
       else {
         h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:10px">상담·제출물·AI 분석이 <b style="color:var(--risk)">'+risky.length+'명</b>에게 3주 이상 없습니다. 관리 소홀 → 이탈로 이어지기 전에 상담이나 월간 브리핑을 권장합니다.</div>';
@@ -8636,6 +8652,166 @@ window.simRunAI=async function(){
     if(m){m.style.color='var(--safe)';m.textContent='\uc644\ub8cc';}
   }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='\uc2e4\ud328: '+(e.message||e);} }
   finally{ if(btn)btn.disabled=false; }
+};
+})();
+</script>
+<style id="promo-css">
+#v-promo .ptab{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;margin:16px 0 6px}
+#v-promo .ptab button{background:transparent;border:none;padding:9px 18px;font-size:13px;color:var(--ink-dim);cursor:pointer;font-family:inherit;font-weight:600}
+#v-promo .ptab button.on{background:var(--blue,#3182f6);color:#fff}
+.promo-card{background:var(--card,#fff);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin-top:14px}
+.promo-out{border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin-top:14px;background:#fff;line-height:1.85;font-size:14px;color:#191f28}
+.promo-out h2{font-size:20px;font-weight:800;margin-bottom:12px;color:#111}
+.promo-out .tags{margin-top:14px;color:#3182f6;font-size:13px}
+.promo-out table.grow{border-collapse:collapse;width:100%;margin:14px 0;font-size:13px}
+.promo-out table.grow th{background:#f2f4f6;padding:8px 10px;text-align:left;font-size:12px;color:#4e5968;border:1px solid #e5e8eb}
+.promo-out table.grow td{padding:8px 10px;border:1px solid #e5e8eb}
+.promo-out table.grow .bar{height:9px;border-radius:5px;background:linear-gradient(90deg,#3182f6,#00b8a9)}
+.promo-btn{padding:9px 16px;border-radius:9px;font-size:12.5px;font-weight:700;cursor:pointer;border:none}
+.promo-note{font-size:11px;color:var(--ink-mute);line-height:1.7;margin-top:10px}
+</style>
+<script id="promo-js">
+(function(){
+function _S(){ return window.sb || (typeof sb!=="undefined"?sb:null); }
+async function callPromo(task,payload){
+  var S=_S(); if(!S)throw new Error('DB 미로드');
+  var sess=(await S.auth.getSession()).data.session;
+  var res=await fetch(SB_URL+'/functions/v1/promo-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({task:task,payload:payload})});
+  var d=await res.json();
+  if(!res.ok)throw new Error(d.error||'AI 오류');
+  return d;
+}
+window._promoTab='story';
+window.renderPromo=function(){
+  var b=document.getElementById('promo-body'); if(!b)return;
+  b.innerHTML='<div class="ptab"><button class="'+(window._promoTab==='story'?'on':'')+'" onclick="promoTab(\'story\')">성장 스토리</button><button class="'+(window._promoTab==='news'?'on':'')+'" onclick="promoTab(\'news\')">교육 뉴스 변환</button></div>'
+    +'<div id="promo-pane"></div>';
+  if(window._promoTab==='story')promoStoryPane(); else promoNewsPane();
+};
+window.promoTab=function(t){ window._promoTab=t; renderPromo(); };
+
+/* ---------- 성장 스토리 ---------- */
+async function promoStoryPane(){
+  var p=document.getElementById('promo-pane'); if(!p)return;
+  p.innerHTML='<div class="promo-card"><div style="font-size:13px;color:var(--ink-dim);margin-bottom:12px">학생을 선택하면, 그동안 아르케로 관리한 성장 데이터로 <b>익명 성장 스토리 블로그 글</b>을 생성합니다. <span style="color:var(--risk)">학생 정보 수집 동의된 학생만</span> 대상입니다.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="promo-stu" style="flex:1;min-width:220px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px"><option value="">불러오는 중…</option></select>'
+    +'<button class="promo-btn" style="background:var(--blue,#3182f6);color:#fff" onclick="genPromoStory()">✨ 스토리 생성</button></div>'
+    +'<div id="promo-smsg" style="font-size:12px;color:var(--ink-mute);margin-top:8px;min-height:15px"></div>'
+    +'<div class="promo-note">※ 생성된 글은 실명 없이 익명(예: ‘고2 A양’)으로 작성되며, 합격 보장 표현을 쓰지 않습니다. 게시 전 내용을 확인·수정해 주세요.</div></div>'
+    +'<div id="promo-result"></div>';
+  var acid=window._acadId||(window._academy&&window._academy.id)||null;
+  if(!acid&&_S()){ try{ var a=await _S().from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; window._acadId=acid; }catch(e){} }
+  try{
+    var r=await _S().from('students').select('id,name,grade,gender,school,admission_track,target_univ,target_major,target_school,career,consent_record').eq('academy_id',acid).order('name');
+    var sel=document.getElementById('promo-stu'); if(!sel)return;
+    var list=(r.data||[]);
+    window._promoStu={}; list.forEach(function(s){window._promoStu[s.id]=s;});
+    var ok=list.filter(function(s){return s.consent_record;});
+    if(!ok.length){ sel.innerHTML='<option value="">동의된 학생 없음 — 학생 등록 시 ‘정보 수집 동의’ 체크 필요</option>'; return; }
+    sel.innerHTML='<option value="">— 학생 선택 —</option>'+ok.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+' ('+esc(s.grade||'')+')</option>';}).join('');
+  }catch(e){ var sel2=document.getElementById('promo-stu'); if(sel2)sel2.innerHTML='<option value="">불러오기 실패</option>'; }
+}
+function _anon(s){
+  var g=String(s.grade||''); var gx=/여/.test(s.gender||'')?'양':(/남/.test(s.gender||'')?'군':'학생');
+  var stype=''; var sch=String(s.school||''); if(/외고|국제/.test(sch))stype='외고·국제계'; else if(/과학|영재/.test(sch))stype='과학·영재'; else if(/자율|자사/.test(sch))stype='자율형'; else stype='일반고';
+  return { label:(g?g+' ':'')+'A'+gx, school_type:stype };
+}
+function _compAvg(o){ if(!o)return null; var ks=['academic','inquiry','convergence','community','problem']; var v=0,n=0; ks.forEach(function(k){if(o[k]!=null){v+=Number(o[k]);n++;}}); return n?+(v/n).toFixed(1):null; }
+window.genPromoStory=async function(){
+  var sid=(document.getElementById('promo-stu')||{}).value||''; var m=document.getElementById('promo-smsg');
+  if(!sid){ if(m){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';} return; }
+  var s=window._promoStu[sid]; if(!s||!_S())return;
+  function say(t,c){ if(m){m.style.color=c||'var(--ink-mute)';m.textContent=t;} }
+  try{
+    say('성장 데이터 수집 중…');
+    var cf=null,cl=null,months=null;
+    try{ var ca=await _S().from('student_metrics').select('payload,measured_at').eq('student_id',sid).eq('metric_type','comp5').order('measured_at',{ascending:true}); var rows=ca.data||[]; if(rows.length){cf=rows[0].payload;cl=rows[rows.length-1].payload; var t0=new Date(rows[0].measured_at).getTime(); months=Math.max(1,Math.round((Date.now()-t0)/2592000000)); } }catch(e){}
+    var naesin=null; try{ var nx=await _S().from('student_metrics').select('payload').eq('student_id',sid).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1); var np=nx.data&&nx.data[0]&&nx.data[0].payload; if(np){ var bs=np.by_semester||{}; var keys=Object.keys(bs).sort(); if(keys.length>=2)naesin=keys[0]+' '+Number(bs[keys[0]]).toFixed(2)+'등급 → '+keys[keys.length-1]+' '+Number(bs[keys[keys.length-1]]).toFixed(2)+'등급'; else if(np.weighted_overall!=null)naesin='주요과목 '+Number(np.weighted_overall).toFixed(2)+'등급'; } }catch(e){}
+    async function _cnt(tbl){ try{ var r=await _S().from(tbl).select('id',{count:'exact',head:true}).eq('student_id',sid); return r.count||0; }catch(e){ return 0; } }
+    var dc=await _cnt('design_items'), pc=await _cnt('perf_submissions'), lc=await _cnt('lesson_submissions'), cc=await _cnt('consultations');
+    var an=_anon(s);
+    var cbA=_compAvg(cf), clA=_compAvg(cl);
+    var payload={ grade:s.grade||'', anon:an.label, school_type:an.school_type, career:s.career||'', major:s.target_major||'', target:(s.admission_track==='고입'?(s.target_school||''):(s.target_univ||'')), months:months||3,
+      comp_before:cf?{academic:cf.academic,inquiry:cf.inquiry,convergence:cf.convergence,community:cf.community,problem:cf.problem}:null,
+      comp_after:cl?{academic:cl.academic,inquiry:cl.inquiry,convergence:cl.convergence,community:cl.community,problem:cl.problem}:null,
+      naesin:naesin, outputs:{design:dc,perf:pc,course:lc}, consults:cc, academy:(window._academy&&window._academy.name)||'저희 학원' };
+    say('AI가 홍보글을 작성 중… (최대 1분)');
+    var d=await callPromo('promo_story',payload);
+    var o=JSON.parse(d.text);
+    o._visual={before:cf,after:cl,cbA:cbA,clA:clA,naesin:naesin,outputs:payload.outputs};
+    o._kind='story'; o._name=(window._academy&&window._academy.name)||'';
+    renderPromoResult(o);
+    say('✅ 생성 완료 — 아래에서 복사하거나 Word로 다운받으세요.','var(--safe)');
+  }catch(e){ say('실패: '+(e.message||e),'var(--risk)'); }
+};
+
+/* ---------- 뉴스 변환 ---------- */
+async function promoNewsPane(){
+  var p=document.getElementById('promo-pane'); if(!p)return;
+  p.innerHTML='<div class="promo-card"><div style="font-size:13px;color:var(--ink-dim);margin-bottom:12px">본사가 보낸 공지·입시 뉴스를 <b>우리 학원 블로그용 글</b>로 변환합니다.</div>'
+    +'<select id="promo-news" style="width:100%;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px"><option value="">불러오는 중…</option></select>'
+    +'<div style="margin-top:10px"><button class="promo-btn" style="background:var(--blue,#3182f6);color:#fff" onclick="genPromoNews()">✨ 블로그글로 변환</button><span id="promo-nmsg" style="font-size:12px;color:var(--ink-mute);margin-left:10px"></span></div></div>'
+    +'<div id="promo-result"></div>';
+  try{
+    var r=await _S().from('hq_posts').select('id,title,body,category,created_at').eq('published',true).in('category',['notice','news']).order('created_at',{ascending:false}).limit(40);
+    var sel=document.getElementById('promo-news'); if(!sel)return;
+    var list=r.data||[]; window._promoNews={}; list.forEach(function(x){window._promoNews[x.id]=x;});
+    if(!list.length){ sel.innerHTML='<option value="">본사 소식이 아직 없습니다</option>'; return; }
+    sel.innerHTML='<option value="">— 변환할 소식 선택 —</option>'+list.map(function(x){return '<option value="'+x.id+'">['+(x.category==='news'?'입시뉴스':'공지')+'] '+esc(String(x.title||'').slice(0,50))+'</option>';}).join('');
+  }catch(e){ var s2=document.getElementById('promo-news'); if(s2)s2.innerHTML='<option value="">불러오기 실패</option>'; }
+}
+window.genPromoNews=async function(){
+  var id=(document.getElementById('promo-news')||{}).value||''; var m=document.getElementById('promo-nmsg');
+  if(!id){ if(m){m.style.color='var(--risk)';m.textContent='소식을 선택하세요.';} return; }
+  var post=window._promoNews[id]; if(!post||!_S())return;
+  function say(t,c){ if(m){m.style.color=c||'var(--ink-mute)';m.textContent=t;} }
+  try{
+    say('AI가 변환 중… (최대 1분)');
+    var d=await callPromo('promo_news',{academy:(window._academy&&window._academy.name)||'저희 학원',news_title:post.title||'',news_body:post.body||''});
+    var o=JSON.parse(d.text); o._kind='news'; o._name=(window._academy&&window._academy.name)||'';
+    renderPromoResult(o);
+    say('✅ 변환 완료','var(--safe)');
+  }catch(e){ say('실패: '+(e.message||e),'var(--risk)'); }
+};
+
+/* ---------- 결과 렌더 + 복사 + Word ---------- */
+var _COMPLAB={academic:'학업역량',inquiry:'탐구역량',convergence:'융합창의',community:'공동체',problem:'문제해결'};
+function _growTable(v){
+  if(!v||!v.before||!v.after)return '';
+  var rows=Object.keys(_COMPLAB).map(function(k){ var a=v.before[k],b=v.after[k]; if(a==null||b==null)return ''; var up=(b-a); var upTxt=up>0?('+'+up.toFixed(1)):up.toFixed(1);
+    return '<tr><td>'+_COMPLAB[k]+'</td><td>'+Number(a).toFixed(1)+'</td><td><b>'+Number(b).toFixed(1)+'</b></td><td><div class="bar" style="width:'+Math.max(6,Number(b)*10)+'%"></div></td><td style="color:'+(up>0?'#12b76a':'#8b95a1')+'">'+upTxt+'</td></tr>'; }).join('');
+  if(!rows)return '';
+  return '<table class="grow"><thead><tr><th>역량</th><th>처음</th><th>현재</th><th>수준</th><th>변화</th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function renderPromoResult(o){
+  var box=document.getElementById('promo-result'); if(!box)return;
+  var body=String(o.body||'').replace(/\n/g,'<br>');
+  var visual=(o._kind==='story')?_growTable(o._visual):'';
+  var tags=(o.hashtags&&o.hashtags.length)?'<div class="tags">'+o.hashtags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' ')+'</div>':'';
+  window._promoDoc={title:o.title||'',bodyHtml:body,visual:visual,tags:(o.hashtags||[]),kind:o._kind};
+  box.innerHTML='<div class="promo-out" id="promo-doc"><h2>'+esc(o.title||'')+'</h2>'+(o.intro?'<p style="color:#4e5968">'+esc(o.intro)+'</p>':'')+visual+'<div>'+body+'</div>'+tags+'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap"><button class="promo-btn" style="background:#191f28;color:#fff" onclick="copyPromo()">📋 본문 복사 (블로그·밴드 붙여넣기)</button>'
+    +'<button class="promo-btn" style="background:var(--safe,#12b76a);color:#fff" onclick="downloadPromoDoc()">⬇ Word 문서 다운로드</button></div>'
+    +'<div class="promo-note">※ 블로그·밴드에는 [본문 복사]로 텍스트를 붙여넣고 사진을 따로 올리면 깔끔합니다. Word 문서는 표·서식까지 들어있어 보관·수정용입니다.</div>';
+}
+window.copyPromo=function(){
+  var d=window._promoDoc; if(!d)return;
+  var txt=(d.title?d.title+'\n\n':'')+d.bodyHtml.replace(/<br>/g,'\n').replace(/<[^>]+>/g,'')+(d.tags.length?'\n\n'+d.tags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' '):'');
+  if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt).then(function(){toastP('본문이 복사되었습니다');},function(){_fallbackCopy(txt);}); } else _fallbackCopy(txt);
+};
+function _fallbackCopy(txt){ var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');toastP('본문이 복사되었습니다');}catch(e){} ta.remove(); }
+function toastP(t){ var m=document.getElementById('promo-smsg')||document.getElementById('promo-nmsg'); if(m){m.style.color='var(--safe)';m.textContent=t;} }
+window.downloadPromoDoc=function(){
+  var d=window._promoDoc; if(!d)return;
+  var tags=(d.tags.length?'<p style="color:#3182f6">'+d.tags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' ')+'</p>':'');
+  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>'+esc(d.title)+'</title>'
+    +'<style>body{font-family:"맑은 고딕","Malgun Gothic",sans-serif;font-size:11pt;line-height:1.7;color:#222} h2{font-size:16pt} table{border-collapse:collapse} th,td{border:1px solid #bbb;padding:5px 8px;font-size:10pt} th{background:#eef} .bar{height:9px;background:#3182f6;border-radius:4px}</style></head><body>'
+    +'<h2>'+esc(d.title)+'</h2>'+(d.visual||'')+'<div>'+d.bodyHtml+'</div>'+tags
+    +'<hr><p style="font-size:8pt;color:#999">※ 본 콘텐츠는 아르케 홍보 스튜디오에서 생성되었으며, 학생 개인정보는 익명 처리되었습니다. 성과는 개인차가 있을 수 있습니다.</p></body></html>';
+  var blob=new Blob(['﻿'+html],{type:'application/msword'});
+  var url=URL.createObjectURL(blob); var a=document.createElement('a');
+  var fn=(d._name||'학원')+'_'+(d.kind==='story'?'성장스토리':'입시뉴스')+'.doc';
+  a.href=url; a.download=fn.replace(/[\\/:*?"<>|]/g,'_'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(url);},1500);
 };
 })();
 </script>
