@@ -1,5 +1,5 @@
 /* Arche PWA Service Worker — index는 network-first(배포 즉시 반영), 아이콘 등 정적만 캐시 */
-const CACHE = 'arche-v2.2';
+const CACHE = 'arche-v2.6';
 const STATIC = ['/manifest.json','/icon-192.png','/icon-512.png','/icon-180.png'];
 
 self.addEventListener('install', e => {
