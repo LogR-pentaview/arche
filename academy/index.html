@@ -2645,21 +2645,21 @@ window.renderROI=async function(){
   try{
     var acid=window._acadId||(window._academy&&window._academy.id)||null;
     if(!acid){ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; window._acadId=acid; }
-    var stu=await sb.from('students').select('id,name,admission_track,grade,created_at').eq('academy_id',acid);
+    var stu=await sb.from('students').select('id,name,admission_track,grade,created_at,consultant_uid').eq('academy_id',acid);
     var students=(stu.data)||[]; var sids=students.map(function(s){return s.id;}); window._allStudents=students;
     var now=Date.now(), M30=now-30*86400000;
     var dae=students.filter(function(s){return s.admission_track!=='고입';}).length;
     var goipN=students.length-dae;
     async function q(tbl,cols){ if(!sids.length)return []; try{ var r=await sb.from(tbl).select(cols).in('student_id',sids); return r.data||[]; }catch(e){ return []; } }
-    var metrics=await q('student_metrics','student_id,metric_type');
-    var di=await q('design_items','student_id,approved,submitted_at,created_at');
+    var metrics=await q('student_metrics','student_id,metric_type,measured_at');
+    var di=await q('design_items','student_id,approved,submitted_at,created_at,updated_at');
     var pa=await q('perf_assessments','student_id');
     var ps=await q('perf_submissions','student_id,status,round,completed_at');
     var iv=await q('interview_sets','student_id,status');
     var ge=await q('goip_essay_drafts','student_id');
     var ls=await q('lesson_submissions','student_id,status,round,completed_at');
-    var cons=await q('consultations','student_id');
-    var aiRows=[]; try{ var ar=await sb.from('ai_usage_log').select('task,prompt_tokens,output_tokens').eq('academy_id',acid); aiRows=ar.data||[]; }catch(e){}
+    var cons=await q('consultations','student_id,created_at');
+    var aiRows=[]; try{ var ar=await sb.from('ai_usage_log').select('task,prompt_tokens,output_tokens,created_at').eq('academy_id',acid); aiRows=ar.data||[]; }catch(e){}
     function inM(d){ return d&&new Date(d).getTime()>M30; }
     var mt={}; metrics.forEach(function(m){ (mt[m.student_id]=mt[m.student_id]||{})[m.metric_type]=1; });
     var diCnt={},diApp={}; di.forEach(function(r){ diCnt[r.student_id]=(diCnt[r.student_id]||0)+1; if(r.approved)diApp[r.student_id]=(diApp[r.student_id]||0)+1; });
@@ -2733,7 +2733,88 @@ window.renderROI=async function(){
       +'<div class="grid g4" style="gap:10px">'+tile('AI 호출',calls)+tile('총 토큰',K(pt+ot))+tile('추정 비용',won(costKRW),'var(--gold)')+tile('절감 추정',savedHrs+'h','var(--lime)')+'</div>'
       +'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:11px;line-height:1.6">AI 비용 <b style="color:var(--gold)">'+won(costKRW)+'</b>로 산출물 <b style="color:var(--ink)">'+outputs+'건</b>(설계·코칭·채점)을 자동화 — 컨설턴트 약 <b style="color:var(--ink)">'+savedHrs+'시간</b> 절감(추정). 데이터가 쌓일수록 수치가 뚜렷해집니다.</div>'
     +'</div>';
-    h+='<div class="note" style="margin-top:14px">※ 진행률은 학생별 7개 컨설팅 모듈(역량·이수검증/매칭·로드맵·역설계·학생부 디자인·수행평가·면접〔·고입 자소서〕)의 완료 상태 기준입니다. 절감·비용은 추정치(산출물 1건 ≈ 1.5h, ₩30,000/h, Gemini Flash 단가).</div>';
+        /* ── 경영 지표 · 이탈 위험 · 컨설턴트별 성과 (v2.2) ── */
+    try{
+      var _now=new Date(); var _m0=new Date(_now.getFullYear(),_now.getMonth(),1).getTime(); var _m1=new Date(_now.getFullYear(),_now.getMonth()-1,1).getTime();
+      var _ymLab=_now.getFullYear()+'년 '+(_now.getMonth()+1)+'월';
+      function _inCur(d){ var t=d&&new Date(d).getTime(); return !!t&&t>=_m0; }
+      function _inPrev(d){ var t=d&&new Date(d).getTime(); return !!t&&t>=_m1&&t<_m0; }
+      function _dl(cur,prev){ var df=cur-prev; var col=df>0?'var(--safe)':(df<0?'var(--risk)':'var(--ink-mute)'); var ar2=df>0?'▲':(df<0?'▼':'·'); return '<div style="font-size:10.5px;margin-top:3px;color:'+col+'">'+ar2+' 지난달 '+prev+'</div>'; }
+      function _mtile(lab,cur,prev,col){ return '<div style="text-align:center;padding:12px 6px;background:var(--panel-2);border-radius:11px"><div style="font-family:\'Noto Serif KR\',serif;font-size:19px;font-weight:700;color:'+(col||'var(--ink)')+'">'+cur+'</div><div style="font-size:10.5px;color:var(--ink-mute);margin-top:2px">'+lab+'</div>'+_dl(cur,prev)+'</div>'; }
+      var consCur=cons.filter(function(x){return _inCur(x.created_at);}).length, consPrev=cons.filter(function(x){return _inPrev(x.created_at);}).length;
+      var newCur=students.filter(function(s){return _inCur(s.created_at);}).length, newPrev=students.filter(function(s){return _inPrev(s.created_at);}).length;
+      var aiCur=aiRows.filter(function(x){return _inCur(x.created_at);}).length, aiPrev=aiRows.filter(function(x){return _inPrev(x.created_at);}).length;
+      function _outIn(f){ return ls.filter(function(x){return x.status==='completed'&&f(x.completed_at);}).length
+        +ps.filter(function(x){return x.status==='completed'&&f(x.completed_at);}).length
+        +di.filter(function(x){return x.approved&&f(x.submitted_at||x.created_at);}).length; }
+      var outCur=_outIn(_inCur), outPrev=_outIn(_inPrev);
+      h+='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>이번 달 경영 지표 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· '+_ymLab+' · 전월 대비</span></h3></div>'
+        +'<div class="grid g4" style="gap:10px">'
+        +_mtile('신규 등록 학생',newCur,newPrev,'var(--gold)')
+        +_mtile('상담 기록',consCur,consPrev)
+        +_mtile('완료 산출물',outCur,outPrev,'var(--lime)')
+        +_mtile('AI 분석 실행',aiCur,aiPrev)
+        +'</div>'
+        +'<div style="font-size:11px;color:var(--ink-mute);margin-top:10px">※ 월별 지표는 자동으로 누적 저장되어, 도입 성과(상담·산출물·관리량 증가)를 수치로 증명하는 데 사용됩니다.</div>'
+      +'</div>';
+      /* 이탈 위험: 최근 21일 활동(상담·제출·완료·AI분석) 없는 학생 */
+      var lastAct={};
+      function _touch(sid,d){ var t=d&&new Date(d).getTime(); if(t&&(!lastAct[sid]||t>lastAct[sid]))lastAct[sid]=t; }
+      cons.forEach(function(x){_touch(x.student_id,x.created_at);});
+      di.forEach(function(x){_touch(x.student_id,x.submitted_at||x.updated_at||x.created_at);});
+      ps.forEach(function(x){_touch(x.student_id,x.completed_at);});
+      ls.forEach(function(x){_touch(x.student_id,x.completed_at);});
+      metrics.forEach(function(x){_touch(x.student_id,x.measured_at);});
+      var D21=21*86400000;
+      var risky=students.map(function(s){ var base=lastAct[s.id]||(s.created_at?new Date(s.created_at).getTime():Date.now()); return {s:s,days:Math.floor((Date.now()-base)/86400000)}; })
+        .filter(function(x){return x.days>21;})
+        .sort(function(a,b){return b.days-a.days;});
+      h+='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>이탈 위험 신호 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 21일 이상 활동 기록 없음</span></h3></div>';
+      if(!risky.length){ h+='<div style="font-size:12.5px;color:var(--safe);padding:6px 0">✅ 최근 3주간 모든 학생에게 활동 기록이 있습니다.</div>'; }
+      else {
+        h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:10px">상담·제출물·AI 분석이 <b style="color:var(--risk)">'+risky.length+'명</b>에게 3주 이상 없습니다. 관리 소홀 → 이탈로 이어지기 전에 상담이나 월간 브리핑을 권장합니다.</div>';
+        h+=risky.slice(0,10).map(function(x){ var s=x.s; var goip=s.admission_track==='고입';
+          return '<div style="display:flex;align-items:center;gap:10px;padding:9px 2px;border-top:1px dashed var(--line)">'
+            +'<span style="flex:none;width:8px;height:8px;border-radius:50%;background:'+(x.days>45?'var(--risk)':'var(--reach,#f79009)')+'"></span>'
+            +'<b style="font-size:12.5px;color:var(--ink)">'+esc(s.name||'-')+'</b><span style="font-size:10.5px;color:var(--ink-mute)">'+esc(s.grade||'')+(goip?' · 고입':' · 대입')+'</span>'
+            +'<span style="flex:1"></span><span style="font-size:11.5px;color:'+(x.days>45?'var(--risk)':'#b25e00')+';font-weight:700">마지막 활동 '+x.days+'일 전</span>'
+            +'<button onclick="openStudentUnified(\''+s.id+'\')" style="font-size:11px;padding:5px 11px;background:var(--panel-2);color:var(--ink-dim);border:1px solid var(--line);border-radius:7px;cursor:pointer">학생 열기</button>'
+          +'</div>'; }).join('');
+        if(risky.length>10)h+='<div style="font-size:10.5px;color:var(--ink-mute);margin-top:6px">외 '+(risky.length-10)+'명</div>';
+      }
+      h+='</div>';
+      /* 컨설턴트별 성과 */
+      var team=[]; try{ var tr=await sb.from('academy_users').select('uid,email,role').eq('academy_id',acid); team=tr.data||[]; }catch(e){}
+      var emailOf={}; team.forEach(function(t){ if(t.uid)emailOf[t.uid]=String(t.email||'').split('@')[0]; });
+      var byCon={}; students.forEach(function(s){ var k=s.consultant_uid||'_none'; (byCon[k]=byCon[k]||[]).push(s); });
+      var pctMap={}; en.forEach(function(e){ pctMap[e.s.id]=e.pct; });
+      var consCurBy={}; cons.forEach(function(x){ if(_inCur(x.created_at))consCurBy[x.student_id]=(consCurBy[x.student_id]||0)+1; });
+      var riskSet={}; risky.forEach(function(x){ riskSet[x.s.id]=1; });
+      var conKeys=Object.keys(byCon);
+      if(conKeys.length>1||team.length){
+        h+='<div class="card" style="margin-top:18px"><div class="sectionhead"><span class="idx">◆</span><h3>컨설턴트별 현황</h3></div>'
+          +'<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:6px;font-size:11px;color:var(--ink-mute);padding:4px 2px;border-bottom:1px solid var(--line)"><span>담당</span><span style="text-align:center">학생</span><span style="text-align:center">평균 진행률</span><span style="text-align:center">이번 달 상담</span><span style="text-align:center">위험 신호</span></div>'
+          +conKeys.map(function(k){ var arr=byCon[k];
+            var lab=(k==='_none')?'원장 직접 · 미배정':(emailOf[k]||'컨설턴트');
+            var avg2=arr.length?Math.round(arr.reduce(function(a,s){return a+(pctMap[s.id]||0);},0)/arr.length):0;
+            var cc=arr.reduce(function(a,s){return a+(consCurBy[s.id]||0);},0);
+            var rk=arr.reduce(function(a,s){return a+(riskSet[s.id]?1:0);},0);
+            return '<div style="display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:6px;font-size:12.5px;padding:9px 2px;border-bottom:1px dashed var(--line);align-items:center">'
+              +'<b style="color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(lab)+'</b>'
+              +'<span style="text-align:center;color:var(--ink-dim)">'+arr.length+'명</span>'
+              +'<span style="text-align:center;color:var(--gold);font-weight:700">'+avg2+'%</span>'
+              +'<span style="text-align:center;color:var(--ink-dim)">'+cc+'건</span>'
+              +'<span style="text-align:center;color:'+(rk?'var(--risk)':'var(--safe)')+';font-weight:700">'+(rk||'없음')+'</span>'
+            +'</div>'; }).join('')
+        +'</div>';
+      }
+      /* KPI 월별 스냅샷 자동 축적 (성과 증거) */
+      try{
+        var _ym2=_now.getFullYear()+'-'+((_now.getMonth()+1)<10?'0':'')+(_now.getMonth()+1);
+        sb.from('academy_kpi_monthly').upsert({academy_id:acid,ym:_ym2,students:students.length,new_students:newCur,consultations:consCur,outputs:outCur,ai_calls:aiCur,risk_students:risky.length,payload:{avg_pct:avgPct,total_outputs:outputs,coach_rounds:coachR,tokens:(pt+ot),cost_krw:costKRW},updated_at:new Date().toISOString()},{onConflict:'academy_id,ym'}).then(function(){},function(){});
+      }catch(e){}
+    }catch(_mg){}
+h+='<div class="note" style="margin-top:14px">※ 진행률은 학생별 7개 컨설팅 모듈(역량·이수검증/매칭·로드맵·역설계·학생부 디자인·수행평가·면접〔·고입 자소서〕)의 완료 상태 기준입니다. 절감·비용은 추정치(산출물 1건 ≈ 1.5h, ₩30,000/h, Gemini Flash 단가).</div>';
     body.innerHTML=h;
   }catch(e){ body.innerHTML='<div style="color:var(--risk);padding:20px">집계 오류: '+esc(e.message||e)+'</div>'; }
 };
@@ -6170,7 +6251,7 @@ async function renderReport(){
 
   // ② 5역량 펜타곤
   var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체세특'],['convergence','융합창의역량','과세특·창체세특'],['community','공동체역량','자율활동·행발세특'],['problem','문제해결역량','전체 세특']];
-  var vals=COMP.map(function(c){return {key:c[1],src:c[2],v:(cp[c[0]]!=null?Number(cp[c[0]]):null)};});
+  var vals=COMP.map(function(c){return {key:c[1],ek:c[0],src:c[2],v:(cp[c[0]]!=null?Number(cp[c[0]]):null)};});
   var hasComp=vals.some(function(x){return x.v!=null;});
   if(hasComp){
     renderPentagon(document.getElementById('rp-penta'),vals.map(function(x){return {key:x.key,v:(x.v||0)};}));
@@ -6187,7 +6268,7 @@ async function renderReport(){
     var srt=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});
     var top=srt[0],low=srt[srt.length-1],tot2=vals.reduce(function(a,x){return a+(x.v||0);},0);
     document.getElementById('rp-diag-lead').innerHTML='5역량 종합 <b>'+tot2.toFixed(1)+'/50</b>. 최상위 <b>'+top.key+'('+top.v.toFixed(1)+')</b>를 축으로 한 전공적합 서사가 강점이며, <b>'+low.key+'('+low.v.toFixed(1)+')</b>가 상대적 병목 — 이 지점을 보완 서사로 설계할 때 서류 완성도가 오릅니다.';
-    document.getElementById('rp-diag').innerHTML=vals.map(function(x){return '<div class="diag-row"><div class="dk">'+x.key+'<small>'+(x.v!=null?x.v.toFixed(1):'—')+'/10</small></div><div class="dt">'+(diagTxt[x.key]||'')+'</div></div>';}).join('');
+    document.getElementById('rp-diag').innerHTML=vals.map(function(x){var rs=(cp.reasons&&cp.reasons[x.ek])||'';return '<div class="diag-row"><div class="dk">'+x.key+'<small>'+(x.v!=null?x.v.toFixed(1):'—')+'/10</small></div><div class="dt">'+(diagTxt[x.key]||'')+(rs?'<div style="margin-top:5px;font-size:11.5px;line-height:1.65;color:#4e5968;background:#f2f4f6;border-radius:8px;padding:7px 10px">🔎 <b style="color:#191f28">산출 근거</b> · '+esc(rs)+'</div>':'')+'</div></div>';}).join('')+'<div style="font-size:10.5px;color:#8b95a1;margin-top:8px;line-height:1.6">※ 위 점수는 생활기록부 기재 내용을 근거로 한 AI 근사 추정이며, 각 점수의 판단 근거(생기부 내 단서)를 함께 표기합니다.</div>';
   }else{
     document.getElementById('rp-diag-lead').innerHTML='';
     document.getElementById('rp-diag').innerHTML='<div style="color:#999;font-size:12px">5역량 산출 후 표시됩니다.</div>';
