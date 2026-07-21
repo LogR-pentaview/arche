@@ -2185,7 +2185,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.21.2";
+window.APP_VERSION="2026.07.21.3";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -7144,8 +7144,21 @@ function renderGParsed(o){
   var h='';
   // 성취도
   var gr=o.grades||[];
-  h+='<div class="card" style="margin-bottom:12px"><div style="font-weight:700;margin-bottom:8px">교과 성취도 <span style="font-size:11px;color:var(--ink-mute)">'+gr.length+'건</span></div>';
-  h+=gr.length?('<div>'+gr.map(function(g){return chip(g.sem+' '+g.subject+' '+g.ach);}).join('')+'</div>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 성취도 없음</div>';
+  var SEMS=['1-1','1-2','2-1','2-2','3-1','3-2'],ACHS=['A','B','C','D','E','P'];
+  h+='<div class="card" style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap"><div style="font-weight:700">교과 성취도 <span style="font-size:11px;color:var(--ink-mute)">'+gr.length+'건 · 잘못 읽힌 값은 바로 수정하세요</span></div><button onclick="gpGradeAdd()" style="font-size:11px;padding:4px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink-dim);cursor:pointer">+ 행 추가</button></div>';
+  if(gr.length){
+    h+='<div style="display:grid;grid-template-columns:1fr 74px 66px 22px;gap:6px;font-size:10.5px;color:var(--ink-mute);padding:0 2px 4px"><span>과목</span><span>학기</span><span>성취도</span><span></span></div>';
+    h+=gr.map(function(g,i){
+      var semO=SEMS.slice(); if(g.sem&&semO.indexOf(g.sem)<0)semO.unshift(g.sem);
+      var achO=ACHS.slice(); if(g.ach&&achO.indexOf(g.ach)<0)achO.unshift(g.ach);
+      return '<div style="display:grid;grid-template-columns:1fr 74px 66px 22px;gap:6px;margin-bottom:5px;align-items:center">'
+        +'<input value="'+esc(g.subject||'')+'" onchange="gpGradeEdit('+i+',\'subject\',this.value)" style="padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px">'
+        +'<select onchange="gpGradeEdit('+i+',\'sem\',this.value)" style="padding:6px 3px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px">'+semO.map(function(x){return '<option'+(x===g.sem?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>'
+        +'<select onchange="gpGradeEdit('+i+',\'ach\',this.value)" style="padding:6px 3px;background:var(--panel-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px">'+achO.map(function(x){return '<option'+(x===g.ach?' selected':'')+'>'+esc(x)+'</option>';}).join('')+'</select>'
+        +'<button onclick="gpGradeDel('+i+')" title="삭제" style="background:transparent;border:none;color:var(--ink-mute);cursor:pointer;font-size:15px;line-height:1">×</button>'
+      +'</div>';
+    }).join('');
+  } else { h+='<div style="font-size:12px;color:var(--ink-mute)">추출된 성취도 없음 — [+ 행 추가]로 직접 입력할 수 있습니다</div>'; }
   if(o.attendance&&(o.attendance.absent||o.attendance.late||o.attendance.note))h+='<div style="font-size:12px;color:var(--ink-dim);margin-top:6px">출결: 결석 '+(o.attendance.absent||0)+' · 지각 '+(o.attendance.late||0)+(o.attendance.note?' · '+esc(o.attendance.note):'')+'</div>';
   h+='</div>';
   // 활동 영역
@@ -7172,6 +7185,9 @@ function renderGParsed(o){
   h+='<button onclick="saveGParsed()" style="padding:10px 18px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">전체 일괄 저장</button>';
   box.innerHTML=h;
 }
+function gpGradeEdit(i,k,v){ if(window._gParsed&&window._gParsed.grades&&window._gParsed.grades[i]){ window._gParsed.grades[i][k]=(v||'').trim(); } }
+function gpGradeDel(i){ if(window._gParsed&&window._gParsed.grades){ window._gParsed.grades.splice(i,1); renderGParsed(window._gParsed); } }
+function gpGradeAdd(){ if(!window._gParsed)window._gParsed={}; if(!window._gParsed.grades)window._gParsed.grades=[]; window._gParsed.grades.push({sem:'1-1',subject:'',ach:'A'}); renderGParsed(window._gParsed); }
 async function saveGParsed(){
   var m=document.getElementById('gin-msg'); var s=window._gactive; var o=window._gParsed;
   if(!s||!sb||!o){m.style.color='var(--risk)';m.textContent='저장할 데이터가 없습니다.';return;}
@@ -7185,7 +7201,7 @@ async function saveGParsed(){
     var d2=await sb.from('student_setech').delete().eq('student_id',s.id).eq('source','goip_parsed');
     if(d2.error)throw new Error('생기부 초기화: '+d2.error.message);
     // 성취도
-    var gr=(o.grades||[]).map(function(g){var row={student_id:s.id,semester:g.sem,subject:g.subject,achievement:g.ach};if(acadId)row.academy_id=acadId;return row;});
+    var gr=(o.grades||[]).filter(function(g){return g&&g.subject&&String(g.subject).trim()&&g.sem&&g.ach;}).map(function(g){var row={student_id:s.id,semester:g.sem,subject:String(g.subject).trim(),achievement:g.ach};if(acadId)row.academy_id=acadId;return row;});
     if(gr.length){var r1=await sb.from('middle_school_grades').insert(gr);
       if(r1.error)throw new Error('성취도 저장: '+r1.error.message);}
     // 생기부 내용 → student_setech
