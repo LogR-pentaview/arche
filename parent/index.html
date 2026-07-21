@@ -6044,7 +6044,7 @@ async function renderReport(){
 
   // ② 5역량 펜타곤
   var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체세특'],['convergence','융합창의역량','과세특·창체세특'],['community','공동체역량','자율활동·행발세특'],['problem','문제해결역량','전체 세특']];
-  var vals=COMP.map(function(c){return {key:c[1],src:c[2],v:(cp[c[0]]!=null?Number(cp[c[0]]):null)};});
+  var vals=COMP.map(function(c){return {key:c[1],ek:c[0],src:c[2],v:(cp[c[0]]!=null?Number(cp[c[0]]):null)};});
   var hasComp=vals.some(function(x){return x.v!=null;});
   if(hasComp){
     renderPentagon(document.getElementById('rp-penta'),vals.map(function(x){return {key:x.key,v:(x.v||0)};}));
@@ -6061,7 +6061,7 @@ async function renderReport(){
     var srt=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});
     var top=srt[0],low=srt[srt.length-1],tot2=vals.reduce(function(a,x){return a+(x.v||0);},0);
     document.getElementById('rp-diag-lead').innerHTML='5역량 종합 <b>'+tot2.toFixed(1)+'/50</b>. 최상위 <b>'+top.key+'('+top.v.toFixed(1)+')</b>를 축으로 한 전공적합 서사가 강점이며, <b>'+low.key+'('+low.v.toFixed(1)+')</b>가 상대적 병목 — 이 지점을 보완 서사로 설계할 때 서류 완성도가 오릅니다.';
-    document.getElementById('rp-diag').innerHTML=vals.map(function(x){return '<div class="diag-row"><div class="dk">'+x.key+'<small>'+(x.v!=null?x.v.toFixed(1):'—')+'/10</small></div><div class="dt">'+(diagTxt[x.key]||'')+'</div></div>';}).join('');
+    document.getElementById('rp-diag').innerHTML=vals.map(function(x){var rs=(cp.reasons&&cp.reasons[x.ek])||'';return '<div class="diag-row"><div class="dk">'+x.key+'<small>'+(x.v!=null?x.v.toFixed(1):'—')+'/10</small></div><div class="dt">'+(diagTxt[x.key]||'')+(rs?'<div style="margin-top:5px;font-size:11.5px;line-height:1.65;color:#4e5968;background:#f2f4f6;border-radius:8px;padding:7px 10px">🔎 <b style="color:#191f28">산출 근거</b> · '+esc(rs)+'</div>':'')+'</div></div>';}).join('')+'<div style="font-size:10.5px;color:#8b95a1;margin-top:8px;line-height:1.6">※ 위 점수는 생활기록부 기재 내용을 근거로 한 AI 근사 추정이며, 각 점수의 판단 근거(생기부 내 단서)를 함께 표기합니다.</div>';
   }else{
     document.getElementById('rp-diag-lead').innerHTML='';
     document.getElementById('rp-diag').innerHTML='<div style="color:#999;font-size:12px">5역량 산출 후 표시됩니다.</div>';
