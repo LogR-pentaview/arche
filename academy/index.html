@@ -2219,7 +2219,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.23.1";
+window.APP_VERSION="2026.07.23.2";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -9221,24 +9221,56 @@ window.copyPromo=function(){
 };
 function _fallbackCopy(txt){ var ta=document.createElement('textarea'); ta.value=txt; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy');toastP('본문이 복사되었습니다');}catch(e){} ta.remove(); }
 function toastP(t){ var m=document.getElementById('promo-smsg')||document.getElementById('promo-nmsg'); if(m){m.style.color='var(--safe)';m.textContent=t;} }
+/* base64 dataURL → 바이트 배열 */
+function _dataUrlBytes(u){ try{ var b64=String(u).split(',')[1]; var bin=atob(b64); var a=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i); return a; }catch(e){ return null; } }
+/* docx 라이브러리 지연 로드(진짜 .docx = OOXML 생성용) */
+function ensureDocxLib(){ return window.docx?Promise.resolve(window.docx):new Promise(function(res,rej){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js';s.onload=function(){res(window.docx);};s.onerror=function(){rej(new Error('docx 라이브러리 로드 실패'));};document.head.appendChild(s);}); }
+/* 로고 URL → PNG 바이트 + 크기(비율 유지 축소, CORS 안전) */
+function _logoPngBytes(url,maxW){ return new Promise(function(res){ try{ var img=new Image(); img.crossOrigin='anonymous'; img.onload=function(){ try{ var w=img.naturalWidth||img.width,h=img.naturalHeight||img.height; if(!w||!h){res(null);return;} var sc=Math.min(1,(maxW||150)/w); var cw=Math.max(1,Math.round(w*sc)),ch=Math.max(1,Math.round(h*sc)); var cv=document.createElement('canvas'); cv.width=cw; cv.height=ch; cv.getContext('2d').drawImage(img,0,0,cw,ch); res({bytes:_dataUrlBytes(cv.toDataURL('image/png')),w:cw,h:ch}); }catch(e){ res(null); } }; img.onerror=function(){ res(null); }; img.src=url; }catch(e){ res(null); } }); }
+function _stripTags(h){ return String(h==null?'':h).replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#39;/g,"'").replace(/&quot;/g,'"').replace(/ /g,' ').trim(); }
 window.downloadPromoDoc=async function(){
   var d=window._promoDoc; if(!d)return;
-  var bm=document.getElementById('promo-smsg')||document.getElementById('promo-nmsg'); if(bm){bm.style.color='var(--ink-mute)';bm.textContent='Word 문서 생성 중…';}
-  var radarImg='',lineImg='';
-  try{ if(d.radar){var p=await _svgToPng(d.radar,320,300); if(p)radarImg='<img src="'+p+'" width="360" style="display:block;margin:6px 0"/>';} }catch(e){}
-  try{ if(d.line){var p2=await _svgToPng(d.line,360,170); if(p2)lineImg='<img src="'+p2+'" width="400" style="display:block;margin:6px 0"/>';} }catch(e){}
-  var charts=(radarImg||lineImg)?('<div>'+(radarImg?'<div style="font-weight:700;color:#191f28;margin-top:12px">현재 역량 프로필</div>'+radarImg:'')+(lineImg?'<div style="font-weight:700;color:#191f28;margin-top:12px">내신 성적 향상</div>'+lineImg:'')+'</div>'):'';
-  var tags=(d.tags.length?'<p style="color:#3182f6">'+d.tags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' ')+'</p>':'');
-  var monthLine=(d.months?'<p style="color:#4e5968;font-size:10pt">관리 기간 약 '+d.months+'개월</p>':'');
-  var html='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>'+esc(d.title)+'</title>'
-    +'<style>body{font-family:"맑은 고딕","Malgun Gothic",sans-serif;font-size:11pt;line-height:1.8;color:#222} h2{font-size:17pt;color:#111} td{padding:6px 8px}</style></head><body>'
-    +(d.brand||'')+'<h2>'+esc(d.title)+'</h2>'+(d.intro?'<p style="color:#555">'+esc(d.intro)+'</p>':'')+monthLine+charts+(d.tiles||'')+(d.hl||'')+'<div style="margin-top:12px">'+d.bodyHtml+'</div>'+tags
-    +'<hr><p style="font-size:8pt;color:#999">※ 본 콘텐츠는 아르케 홍보 스튜디오에서 생성되었으며, 학생 개인정보는 익명 처리되었습니다. 성과는 개인차가 있을 수 있습니다.</p></body></html>';
-  var blob=new Blob(['﻿'+html],{type:'application/msword'});
-  var url=URL.createObjectURL(blob); var a=document.createElement('a');
-  var fn=(d._name||'학원')+'_'+(d.kind==='story'?'성장스토리':'입시뉴스')+'.doc';
-  a.href=url; a.download=fn.replace(/[\\/:*?"<>|]/g,'_'); document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(url);},1500);
-  if(bm){bm.style.color='var(--safe)';bm.textContent='✅ Word 문서 다운로드 완료';}
+  var bm=document.getElementById('promo-smsg')||document.getElementById('promo-nmsg');
+  function say(t,c){ if(bm){bm.style.color=c||'var(--ink-mute)';bm.textContent=t;} }
+  say('Word(.docx) 문서 생성 중…');
+  try{
+    var X=await ensureDocxLib();
+    var P=X.Paragraph, T=X.TextRun, IR=X.ImageRun, HL=X.HeadingLevel;
+    var kids=[]; var b=window._acadBrand||{};
+    // 학원 로고
+    if(b.logo_url){ try{ var lg=await _logoPngBytes(b.logo_url,150); if(lg&&lg.bytes)kids.push(new P({children:[new IR({data:lg.bytes,transformation:{width:lg.w,height:lg.h}})]})); }catch(e){} }
+    // 학원명·연락처
+    if(b.name)kids.push(new P({children:[new T({text:b.name,bold:true,size:26})]}));
+    var contact=[]; if(b.phone)contact.push('문의 '+b.phone); if(b.address)contact.push(b.address);
+    if(contact.length)kids.push(new P({children:[new T({text:contact.join('   ·   '),color:'888888',size:18})]}));
+    kids.push(new P({text:''}));
+    // 제목·도입
+    kids.push(new P({heading:HL.HEADING_1,children:[new T({text:_stripTags(d.title)||'성장 스토리',bold:true,size:34})]}));
+    if(d.intro)kids.push(new P({children:[new T({text:_stripTags(d.intro),italics:true,color:'555555',size:22})]}));
+    if(d.months)kids.push(new P({children:[new T({text:'관리 기간 약 '+d.months+'개월',color:'4E5968',size:18})]}));
+    // 차트(레이더·내신) → 이미지
+    async function addChart(svg,cap,w,h){ if(!svg)return; try{ var du=await _svgToPng(svg,w,h); var by=du&&_dataUrlBytes(du); if(by){ kids.push(new P({children:[new T({text:cap,bold:true,size:20})]})); kids.push(new P({children:[new IR({data:by,transformation:{width:Math.round(w*1.05),height:Math.round(h*1.05)}})]})); } }catch(e){} }
+    await addChart(d.radar,'현재 역량 프로필',300,280);
+    await addChart(d.line,'내신 성적 향상',360,170);
+    // 관리 활동 통계 → 불릿
+    if(d.tiles){ var pairs=[],re=/(\d+)<\/div><div[^>]*>([^<]+)</g,mm; while((mm=re.exec(d.tiles)))pairs.push(_stripTags(mm[2])+': '+mm[1]+'건'); if(pairs.length){ kids.push(new P({children:[new T({text:'함께 쌓은 관리 활동',bold:true,size:20})]})); pairs.forEach(function(x){ kids.push(new P({text:x,bullet:{level:0}})); }); } }
+    // 강점 하이라이트 → 불릿
+    if(d.hl){ var his=[],hre=/<li>([\s\S]*?)<\/li>/g,hm; while((hm=hre.exec(d.hl)))his.push(_stripTags(hm[1])); if(his.length){ kids.push(new P({children:[new T({text:'강점·성장 포인트',bold:true,size:20})]})); his.forEach(function(x){ kids.push(new P({text:x,bullet:{level:0}})); }); } }
+    // 본문(【소제목】은 굵게)
+    kids.push(new P({text:''}));
+    String(d.bodyHtml||'').split(/<br\s*\/?>/i).forEach(function(ln){ var t=_stripTags(ln); if(!t){ kids.push(new P({text:''})); return; } var head=/^【[^】]*】/.test(t); kids.push(new P({children:[new T({text:t,bold:head,size:22})]})); });
+    // 해시태그
+    if(d.tags&&d.tags.length){ kids.push(new P({text:''})); kids.push(new P({children:[new T({text:d.tags.map(function(t){return '#'+String(t).replace(/^#/,'');}).join(' '),color:'3182F6',size:20})]})); }
+    // 안내 문구
+    kids.push(new P({text:''}));
+    kids.push(new P({children:[new T({text:'※ 본 콘텐츠는 아르케 홍보 스튜디오에서 생성되었으며, 학생 개인정보는 익명 처리되었습니다. 성과는 개인차가 있을 수 있습니다.',color:'999999',size:15})]}));
+    var doc=new X.Document({ styles:{default:{document:{run:{font:'맑은 고딕'}}}}, sections:[{children:kids}] });
+    var blob=await X.Packer.toBlob(doc);
+    var url=URL.createObjectURL(blob); var a=document.createElement('a');
+    var fn=((d._name||'학원')+'_'+(d.kind==='story'?'성장스토리':'입시뉴스')+'.docx').replace(/[\\/:*?"<>|]/g,'_');
+    a.href=url; a.download=fn; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){URL.revokeObjectURL(url);},1500);
+    say('✅ Word(.docx) 다운로드 완료 — 워드·한글에서 바로 열립니다.','var(--safe)');
+  }catch(e){ say('실패: '+((e&&e.message)||e),'var(--risk)'); }
 };
 })();
 </script>
