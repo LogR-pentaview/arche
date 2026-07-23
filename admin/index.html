@@ -435,7 +435,7 @@
   // ===== API 키 =====
   window._apiRate={inUsd:0.30,outUsd:2.50,fx:1380};
   window._apiMonth=''; window._apiPlatformOnly=true;
-  var TASK_LABEL={parse_record:'생기부 파싱(대입)',estimate_cog:'인지역량 추정',design_record:'학생부 디자인(대입)',recommend_univ:'합격 역설계',curri_check:'이수과목 검증',course_roadmap:'수강 로드맵',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',golden_sentences:'황금문장 정제(리포트)',career_match:'진로·학과 매칭',interview_prep:'면접 준비(대입)',interview_feedback:'면접 피드백',goip_parse_record:'생기부 파싱(고입)',goip_diag:'학생 진단(고입)',goip_roadmap:'성장 로드맵(고입)',goip_design:'학생부 디자인(고입)',goip_style_match:'성향 매칭(고입)',goip_shortlist:'지원가능 매칭(고입)',goip_essay_blueprint:'자소서 설계(고입)',goip_eval_essay:'자소서 평가(고입)',goip_interview:'면접 준비(고입)'};
+  var TASK_LABEL={parse_record:'생기부 파싱(대입)',estimate_cog:'인지역량 추정',design_record:'진로 징검다리(대입)',recommend_univ:'합격 역설계',curri_check:'이수과목 검증',course_roadmap:'수강 로드맵',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',golden_sentences:'황금문장 정제(리포트)',career_match:'진로·학과 매칭',interview_prep:'면접 준비(대입)',interview_feedback:'면접 피드백',goip_parse_record:'생기부 파싱(고입)',goip_diag:'학생 진단(고입)',goip_roadmap:'성장 로드맵(고입)',goip_design:'진로 징검다리(고입)',goip_style_match:'성향 매칭(고입)',goip_shortlist:'지원가능 매칭(고입)',goip_essay_blueprint:'자소서 설계(고입)',goip_eval_essay:'자소서 평가(고입)',goip_interview:'면접 준비(고입)'};
   function apiCostUsd(i,o){ var r=window._apiRate; return (Number(i||0)/1e6)*r.inUsd+(Number(o||0)/1e6)*r.outUsd; }
   function apiCostKrw(i,o){ return Math.round(apiCostUsd(i,o)*window._apiRate.fx); }
   async function renderApiCost(p){
