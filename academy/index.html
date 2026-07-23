@@ -2232,7 +2232,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.23.8";
+window.APP_VERSION="2026.07.23.9";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -8624,10 +8624,7 @@ async function renderCareerMatch(){
         +'</div><div class="cm-fitcol"><div class="cm-fitnum'+(fit<75?' lo':'')+'">'+fit+'<small>점</small></div><div class="cm-fitbar"><i style="width:'+Math.max(5,Math.min(100,fit))+'%'+(fit<75?';background:var(--ink-mute)':'')+'"></i></div>'+cnet+'</div></div>';
     });
     var fns=[];
-    if(s.gender==='남')fns.push('👤 성별 필터 · 남학생 → <b>여자대학 자동 제외</b>');
-    else if(s.gender==='여')fns.push('👤 성별 · 여학생 → <b>여자대학 포함 검토</b>');
-    fns.push('📍 대학 매칭 · <b>전국 단위 — 지역 제한 없음</b>'+(s.region?' (거주지 '+esc(s.region)+'은 <b>지역인재전형</b> 자격 참고만)':''));
-    fns.push('🔗 이 결과는 <b>합격 역설계(대학 6선)</b>에 자동 반영됩니다');
+    fns.push('🔗 이 결과는 <b>합격 역설계</b>의 근거로 이어집니다');
     h+='<div class="cm-filternote">'+fns.map(function(x){return '<span class="cm-fn">'+x+'</span>';}).join('')+'</div>';
   }
   // ③ 리스크
