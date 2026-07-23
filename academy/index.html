@@ -3855,6 +3855,29 @@ function safeJson(t){
   return null;
 }
 window.safeJson=safeJson;
+/* 잘린(truncated) 생기부 파싱 JSON에서 완전한 배열 원소만 건져낸다.
+   출력 토큰 상한에 걸려 JSON 끝이 잘려도, 그때까지 완성된 세특/과목 객체는 살린다. */
+function salvageParsed(t,keys){
+  if(!t)return null;
+  t=String(t).replace(/^```json\s*/i,'').replace(/```\s*$/i,'').trim();
+  var out={}; keys=keys||['courses','setech','changche','haengbal'];
+  keys.forEach(function(key){
+    var m=t.indexOf('"'+key+'"'); if(m<0)return;
+    var lb=t.indexOf('[',m); if(lb<0)return;
+    var arr=[],i=lb+1,depth=0,start=-1,inStr=false,escd=false;
+    for(;i<t.length;i++){
+      var ch=t[i];
+      if(inStr){ if(escd){escd=false;} else if(ch==='\\'){escd=true;} else if(ch==='"'){inStr=false;} continue; }
+      if(ch==='"'){inStr=true;continue;}
+      if(ch==='{'){ if(depth===0)start=i; depth++; }
+      else if(ch==='}'){ depth--; if(depth===0&&start>=0){ try{arr.push(JSON.parse(t.slice(start,i+1)));}catch(e){} start=-1; } }
+      else if(ch===']'&&depth===0){ break; }
+    }
+    if(arr.length)out[key]=arr;
+  });
+  return Object.keys(out).length?out:null;
+}
+window.salvageParsed=salvageParsed;
 
 /* ===== 자료 입력 · 진단 ===== */
 function requireActive(m){ if(!window._activeStudent){ if(m){m.style.color='var(--risk)';m.textContent='먼저 [학생 관리]에서 학생을 활성화하세요.';} return null;} return window._activeStudent; }
@@ -6020,8 +6043,8 @@ async function aiAutofill(){
     prog();
     async function runJob(i){
       for(var att=0;att<2;att++){
-        try{ var d=await callAI('parse_record',jobs[i]); var obj=safeJson(d.text);
-          if(obj){results[i]=obj;done++;prog();return;} }catch(e){}
+        try{ var d=await callAI('parse_record',jobs[i]); var obj=safeJson(d.text)||salvageParsed(d.text);
+          if(obj&&(obj.courses||obj.setech||obj.changche||obj.haengbal)){results[i]=obj;done++;prog();return;} }catch(e){}
       }
       failed.push(i+1);done++;prog();
     }
@@ -7261,8 +7284,8 @@ async function gintakeParse(){
           var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_parse_record',payload:jobs[i]}});
           var data=r.data,error=r.error;
           if(!error&&data&&!data.error){
-            var obj=safeJson(data.text);
-            if(obj){results[i]=obj;done++;prog();return;}
+            var obj=safeJson(data.text)||salvageParsed(data.text,['grades','autonomous','club','career_act','subject_detail','behavior','reading']);
+            if(obj&&Object.keys(obj).length){results[i]=obj;done++;prog();return;}
           }
         }catch(e){}
       }
