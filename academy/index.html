@@ -2234,7 +2234,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.24.4";
+window.APP_VERSION="2026.07.24.5";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2577,7 +2577,10 @@ async function enterStudentApp(session){
     var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
   }
   // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
-  ['allstudents','roi','consult','students','intake','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  // 학생 전용: 인터뷰·성적 제출 진입점(자료입력) 노출 + 라벨 변경
+  var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(isGoip){ _ivn.style.display='none'; } else { _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } }
+  var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn&&isGoip){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); }
   // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
@@ -2599,13 +2602,13 @@ function renderStudentHome(){
   if(window._stuTrack==='goip'){
     v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
       '<div class="grid g3" style="margin-top:20px">'+
-      [['gdiag','나의 진단','활동 4축·교과 강약점'],['goip','지원가능·성향 매칭','내신 환산·학교 스타일 적합'],['greport','고입 리포트','종합 리포트·황금문장'],['groadmap','성장 로드맵','시기별 준비 계획'],['gdesign','진로 징검다리','앞으로 할 활동 설계'],['gessay','자소서 준비','설계도·작성·평가 루프']].map(function(m){
+      [['gintake','📝 인터뷰·성적 제출','상담 전 미리 작성 · 성적표 제출'],['gdiag','나의 진단','활동 4축·교과 강약점'],['goip','지원가능·성향 매칭','내신 환산·학교 스타일 적합'],['greport','고입 리포트','종합 리포트·황금문장'],['groadmap','성장 로드맵','시기별 준비 계획'],['gdesign','진로 징검다리','앞으로 할 활동 설계'],['gessay','자소서 준비','설계도·작성·평가 루프']].map(function(m){
         return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+
       '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\'ginterview\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">면접 준비 ›</div><div style="font-size:12px;color:var(--ink-dim)">예상 문항·답변 연습 루프</div></div>'+
       '</div>';
     return;
   }
-  menus=[['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','진로 징검다리','앞으로 할 것·수행 관리'],['iv','면접 준비','예상 질문·모의 답변 연습'],['report','컨설팅 리포트','종합 리포트']];
+  menus=[['intake','📝 인터뷰·성적 제출','상담 전 미리 작성 · 성적표 제출'],['diag','나의 진단 내용','5역량·정성 4축 분석'],['arche','합격 역설계','서류 준비도·집중 육성'],['curri','이수과목 검증','권장과목 대비 점검'],['roadmap','성장 로드맵','권장과목·탐구주제'],['sr','진로 징검다리','앞으로 할 것·수행 관리'],['iv','면접 준비','예상 질문·모의 답변 연습'],['report','컨설팅 리포트','종합 리포트']];
   v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.target_univ||'')+' '+esc(s.target_major||'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
     '<div class="grid g3" style="margin-top:20px">'+menus.map(function(m){return '<div class="card" onclick="(function(){var n=document.querySelector(\'.nav[data-v=\\\''+m[0]+'\\\']\');if(n)go(n);})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">'+m[1]+' ›</div><div style="font-size:12px;color:var(--ink-dim)">'+m[2]+'</div></div>';}).join('')+'</div>';
 }
