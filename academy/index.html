@@ -479,10 +479,10 @@
       <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#3182f6);border:1px dashed var(--gold,#3182f6);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
 <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
-        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생부 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생 자료 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
         <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
         <input id="gu-org" type="text" placeholder="학원명 (선택)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-        <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:4px;cursor:pointer"><input id="gu-privacy" type="checkbox" style="margin-top:2px">체험 서비스 제공을 위한 개인정보(이메일·입력 데이터) 수집·이용에 동의합니다. 체험 중 업로드한 학생부 등 데이터는 체험 만료 시 삭제 요청할 수 있습니다. (필수)</label>
+        <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:4px;cursor:pointer"><input id="gu-privacy" type="checkbox" style="margin-top:2px">체험 서비스 제공을 위한 개인정보(이메일·입력 데이터) 수집·이용에 동의합니다. 체험 중 업로드한 학생 자료 등 데이터는 체험 만료 시 삭제 요청할 수 있습니다. (필수)</label>
         <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input id="gu-mkt" type="checkbox" style="margin-top:2px">도입 안내 등 마케팅 정보 수신에 동의합니다. (선택)</label>
         <button onclick="guestSignup()" id="gu-btn" style="width:100%;padding:11px;background:var(--gold,#3182f6);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">체험 계정 발급 & 시작</button>
         <div id="gu-msg" style="min-height:14px;font-size:12px;color:var(--risk);margin-top:6px"></div>
@@ -613,7 +613,7 @@
         <div class="card flowstrip" style="margin:16px 0 0;padding:18px 20px">
           <div style="font-size:13.5px;font-weight:800;margin-bottom:12px">컨설팅 전체 흐름 <span style="font-size:11px;color:var(--ink-mute);font-weight:500">· 단계를 누르면 바로 이동합니다</span></div>
           <div class="flowrow">
-            <div class="fcard" onclick="goView('intake')"><div class="fe">📥</div><div class="fl">자료 입력</div><div class="fs">생기부 업로드</div></div>
+            <div class="fcard" onclick="goView('intake')"><div class="fe">📥</div><div class="fl">자료 입력</div><div class="fs">학생 자료 업로드</div></div>
             <div class="fcard" onclick="goView('diag')"><div class="fe">🔍</div><div class="fl">진단</div><div class="fs">5역량·정성 4축</div></div>
             <div class="fcard" onclick="goView('arche')"><div class="fe">🎯</div><div class="fl">합격 역설계</div><div class="fs">지원가능 6선</div></div>
             <div class="fcard" onclick="goView('roadmap')"><div class="fe">🗺️</div><div class="fl">성장 로드맵</div><div class="fs">과목·탐구 설계</div></div>
@@ -639,7 +639,7 @@
               <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="var(--gold)" stroke-width="1.6"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg>
               <div style="font-size:17px;font-weight:800;color:var(--ink)">고입 컨설팅 <span style="font-size:10px;color:#fff;background:var(--gold);border-radius:20px;padding:2px 8px;vertical-align:middle">특목·자사고</span></div>
             </div>
-            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">지원가능 리스트업(내신 환산) · 학생부 성향 매칭 · 자소서 · 면접</div>
+            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.55">지원가능 리스트업(내신 환산) · 학생 자료 성향 매칭 · 자소서 · 면접</div>
             <div style="display:flex;gap:16px;margin-top:12px">
               <div><span class="mono" id="hk-goip-count" style="font-size:22px;font-weight:800;color:var(--gold)">0</span><span style="font-size:11px;color:var(--ink-mute);margin-left:4px">명</span></div>
               <div style="font-size:11px;color:var(--ink-mute);align-self:flex-end">중1~중3</div>
@@ -651,7 +651,7 @@
           <div class="card kpi"><div class="lab">담당 학생</div><div class="num" id="hk-count">0</div><div class="delta up mono" id="hk-new"></div></div>
           <div class="card kpi"><div class="lab">이번 달 신규</div><div class="num" id="hk-month">0</div><div class="delta mono" style="color:var(--ink-mute)">최근 30일 등록</div></div>
           <div class="card kpi"><div class="lab">프로파일 미완</div><div class="num" id="hk-incomplete">0</div><div class="delta down mono" id="hk-incomplete-note"></div></div>
-          <div class="card kpi"><div class="lab">학생부 활용 동의</div><div class="num" id="hk-consent">0</div><div class="delta mono" style="color:var(--gold)" id="hk-consent-note"></div></div>
+          <div class="card kpi"><div class="lab">학생 자료 활용 동의</div><div class="num" id="hk-consent">0</div><div class="delta mono" style="color:var(--gold)" id="hk-consent-note"></div></div>
         </div>
         <div class="card pad0">
           <table>
@@ -714,7 +714,7 @@
         <div class="sub" data-b2c-sub="자녀를 등록·관리합니다 · 학년에 따라 고입/대입이 자동 구분됩니다">학생을 한 곳에서 등록·관리합니다 · 학년에 따라 고입/대입이 자동 구분됩니다</div>
         <div style="background:rgba(0,184,169,.07);border:1px solid rgba(0,184,169,.25);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:12.5px;color:var(--ink-dim);line-height:1.7">
           <b style="color:var(--ink)">쉽게 등록하기</b><br>
-          <b>①</b> 이름·지역·성별·<b>학년</b> 입력 → [등록] &nbsp;→&nbsp; <b>②</b> 학생 <b>로그인 아이디 자동 생성</b> &nbsp;→&nbsp; <b>③</b> [열기]로 자료 입력(생기부 업로드)으로 이동<br>
+          <b>①</b> 이름·지역·성별·<b>학년</b> 입력 → [등록] &nbsp;→&nbsp; <b>②</b> 학생 <b>로그인 아이디 자동 생성</b> &nbsp;→&nbsp; <b>③</b> [열기]로 자료 입력(학생 자료 업로드)으로 이동<br>
           <span style="color:var(--ink-mute);font-size:11.5px">※ 중학생(중1~중3)은 <b>고입</b>, 고등학생(고1~N수)은 <b>대입</b>으로 자동 분류됩니다.</span>
         </div>
         <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
@@ -731,17 +731,17 @@
             <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input type="checkbox" id="as-rookie" onchange="asRookieToggle()" style="accent-color:var(--lime)"> <b style="color:var(--ink)">신입생</b> — 아직 생기부 기록이 거의 없어요</label>
+            <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input type="checkbox" id="as-rookie" onchange="asRookieToggle()" style="accent-color:var(--lime)"> <b style="color:var(--ink)">신입생</b> — 아직 학생 자료 기록이 거의 없어요</label>
             <div id="as-onboard" style="display:none;background:var(--panel-2);border:1px dashed var(--line);border-radius:10px;padding:13px;margin-bottom:12px">
-              <div style="font-size:11px;color:var(--ink-mute);margin-bottom:9px;line-height:1.6">생기부 대신 <b>상담 정보</b>로 진단·설계를 시작합니다. (가능한 만큼만 입력)</div>
+              <div style="font-size:11px;color:var(--ink-mute);margin-bottom:9px;line-height:1.6">학생 자료 대신 <b>상담 정보</b>로 진단·설계를 시작합니다. (가능한 만큼만 입력)</div>
               <input id="as-ob-target" placeholder="희망 특목고/대학" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
               <input id="as-ob-strong" placeholder="강점 과목·단원 (예: 수학-이차함수, 과학-화학반응)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
               <input id="as-ob-weak" placeholder="약점 과목·단원" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
               <input id="as-ob-disp" placeholder="성향 (예: 탐구형 / 발표·활동형 / 꼼꼼한 기록형)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
               <input id="as-ob-reading" placeholder="독서 이력 (중학생)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <textarea id="as-ob-recall" rows="2" placeholder="중학 활동 회고 (고1 · 중학 생기부는 등록 후 [열기]→자료입력에서 업로드 가능)" style="width:100%;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+              <textarea id="as-ob-recall" rows="2" placeholder="중학 활동 회고 (고1 · 중학 학생 자료는 등록 후 [열기]→자료입력에서 업로드 가능)" style="width:100%;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
             </div>
-            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
@@ -775,7 +775,7 @@
         <div class="sub" data-b2c-sub="자녀 정보를 등록·관리합니다">우리 학원 수강생을 등록·관리합니다 · 데이터는 학원별로 격리(RLS)됩니다</div>
         <div style="background:rgba(0,184,169,.07);border:1px solid rgba(0,184,169,.25);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:12.5px;color:var(--ink-dim);line-height:1.7">
           <b style="color:var(--ink)">처음이신가요? 이렇게 진행하세요</b><br>
-          <b>①</b> 왼쪽 폼에 <b>이름·지역·성별·학년</b>을 입력하고 [등록] &nbsp;→&nbsp; <b>②</b> 목록에서 학생을 선택 &nbsp;→&nbsp; <b>③</b> <b>학생 자료 입력</b>에서 생기부(PDF·사진 여러 장 가능)를 올리면 AI가 자동 분석 &nbsp;→&nbsp; <b>④</b> 진단·설계·리포트 활용<br>
+          <b>①</b> 왼쪽 폼에 <b>이름·지역·성별·학년</b>을 입력하고 [등록] &nbsp;→&nbsp; <b>②</b> 목록에서 학생을 선택 &nbsp;→&nbsp; <b>③</b> <b>학생 자료 입력</b>에서 학생 자료(PDF·사진 여러 장 가능)를 올리면 AI가 자동 분석 &nbsp;→&nbsp; <b>④</b> 진단·설계·리포트 활용<br>
           <span style="color:var(--ink-mute);font-size:11.5px">※ 중학생(특목·자사고 준비)은 왼쪽 <b>고입 컨설팅</b> 메뉴에서 등록하세요.</span>
         </div>
         <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
@@ -798,7 +798,7 @@
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <label id="st-bench-row" style="display:none;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여 <small style="color:var(--ink-mute)">· 개인 식별정보를 완전히 제거한 통계에만 활용</small></label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button id="st-submit" onclick="addStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -813,7 +813,7 @@
             <section class="view" id="v-consult">
               <div class="eyebrow">Consultation</div>
               <div class="h1">상담 기록</div>
-              <div class="sub">학생부가 없어도 상담 내용 기반으로 진로 징검다리을 생성합니다</div>
+              <div class="sub">학생 자료가 없어도 상담 내용 기반으로 진로 징검다리을 생성합니다</div>
               <div class="card" id="mb-card" style="margin-top:14px;padding:18px 20px;display:none"></div>
               <div style="display:flex;gap:8px;margin:14px 0">
                 <select id="con-kind" class="con-kind-sel" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="student">학생 상담</option><option value="parent">학부모 상담</option></select>
@@ -823,7 +823,7 @@
                 <input id="con-major" placeholder="희망 학과" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
               </div>
               <input id="con-career" placeholder="희망 진로" style="width:100%;margin:10px 0;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-              <textarea id="con-act" rows="4" placeholder="현재 학생부 활동 현황 (창체활동 중심: 자율·진로·동아리·봉사)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+              <textarea id="con-act" rows="4" placeholder="현재 학생 자료 활동 현황 (창체활동 중심: 자율·진로·동아리·봉사)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
               <textarea id="con-memo" rows="3" placeholder="상담 메모 (자유)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
               <button id="con-save-btn" onclick="saveConsult()" style="padding:10px 18px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">상담 저장</button>
               <div id="con-msg" style="font-size:12px;margin-top:8px"></div>
@@ -839,9 +839,9 @@
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px" class="stu-grid">
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;grid-column:1/-1">
-            <div class="sectionhead"><span class="idx">00</span><h3>학생부 업로드 · AI 자동정리 <span style="font-size:11px;color:var(--ink-mute)">(PDF)</span></h3></div>
-            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">학생부 파일을 올리면 AI가 이수과목·성적·세특을 자동 정리합니다. 폰으로 찍은 여러 장을 한 번에 올려도 됩니다. AI가 확실히 읽지 못한 값은 성적표에서 노란색으로 표시되니 직접 확인·수정하세요.</div>
-            <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>저해상도·저용량 PDF는 분석이 부정확해집니다!</b><br>글자가 흐리면 성적·세특을 잘못 읽을 수 있어요. <b>① 나이스/정부24에서 받은 원본 PDF 그대로</b> 올리거나, <b>② 화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로 올려주세요. 업로드 후 성적표의 <b class="pw-y">노란색 표시 값</b>은 반드시 직접 확인·수정하세요.</div></div>
+            <div class="sectionhead"><span class="idx">00</span><h3>학생 자료 업로드 · AI 자동정리 <span style="font-size:11px;color:var(--ink-mute)">(PDF)</span></h3></div>
+            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">학생 자료 파일을 올리면 AI가 이수과목·성적·활동을 자동 정리합니다. 폰으로 찍은 여러 장을 한 번에 올려도 됩니다. AI가 확실히 읽지 못한 값은 성적표에서 노란색으로 표시되니 직접 확인·수정하세요.</div>
+            <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>저해상도·저용량 PDF는 분석이 부정확해집니다!</b><br>글자가 흐리면 성적·활동을 잘못 읽을 수 있어요. <b>① 나이스/정부24에서 받은 원본 PDF 그대로</b> 올리거나, <b>② 화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로 올려주세요. 업로드 후 성적표의 <b class="pw-y">노란색 표시 값</b>은 반드시 직접 확인·수정하세요.</div></div>
             <input type="file" id="rec-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="uploadRecords(this.files)" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div style="font-size:11px;color:var(--ink-mute);margin-top:5px">PDF·이미지(여러 장 동시 선택 가능·폰 촬영본 OK)·DOCX·XLSX·TXT 지원 · 한글(HWP)은 PDF로 내보내 업로드</div>
             <div id="rec-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
@@ -849,14 +849,14 @@
             <div id="rec-setech" style="margin-top:12px"></div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px">
-            <div class="sectionhead"><span class="idx">01</span><h3>세특 · 창체 수동 입력 <span style="font-size:11px;color:var(--ink-mute)">(읽기·분석용 · 대필 아님)</span></h3></div>
+            <div class="sectionhead"><span class="idx">01</span><h3>활동 · 창체 수동 입력 <span style="font-size:11px;color:var(--ink-mute)">(읽기·분석용 · 대필 아님)</span></h3></div>
             <div style="display:flex;gap:8px">
               <input id="se-subject" placeholder="과목/활동명" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
               <select id="se-area" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="과세특">과세특</option><option value="자율">자율활동</option><option value="진로">진로활동</option><option value="동아리">동아리활동</option><option value="봉사">봉사활동</option><option value="독서">독서활동</option><option value="행발">행동특성·종합의견</option></select>
             </div>
-            <textarea id="se-text" rows="4" placeholder="세특/창체 활동 내용을 입력하세요 (학생부 없어도 직접 기입 가능)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
+            <textarea id="se-text" rows="4" placeholder="활동/창체 활동 내용을 입력하세요 (학생 자료 없어도 직접 기입 가능)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
             <div id="se-msg" style="min-height:14px;font-size:12px;margin-bottom:6px"></div>
-            <button onclick="saveSetech()" style="width:100%;padding:10px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">세특 저장</button>
+            <button onclick="saveSetech()" style="width:100%;padding:10px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">활동 저장</button>
             <div id="se-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
@@ -866,7 +866,7 @@
               <div style="flex:1"><label style="font-size:11px;color:var(--ink-mute);display:block;margin-bottom:4px">모평 백분위</label><input id="mx-mopyeong" type="number" placeholder="94" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
             </div>
             <div style="font-size:12px;color:var(--ink-mute);margin:4px 0 8px">학종 5역량 (0~10) · 컨설팅 진단지표 <span style="color:var(--gold,#3182f6)">· AI 자동산출/보정</span></div>
-            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">학업역량 <small style="color:var(--ink-mute)">· 내신</small></span><input id="cg-academic" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">탐구역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-inquiry" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">융합창의역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-convergence" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">공동체역량 <small style="color:var(--ink-mute)">· 자율·행발</small></span><input id="cg-community" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">문제해결역량 <small style="color:var(--ink-mute)">· 전체세특</small></span><input id="cg-problem" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">학업역량 <small style="color:var(--ink-mute)">· 내신</small></span><input id="cg-academic" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">탐구역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-inquiry" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">융합창의역량 <small style="color:var(--ink-mute)">· 과세특·창체</small></span><input id="cg-convergence" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">공동체역량 <small style="color:var(--ink-mute)">· 자율·행발</small></span><input id="cg-community" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="flex:1;font-size:12px;color:var(--ink-dim)">문제해결역량 <small style="color:var(--ink-mute)">· 전체활동</small></span><input id="cg-problem" type="number" min="0" max="10" step="0.1" style="width:82px;padding:6px 8px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:13px;text-align:right"></div>
             <div id="mx-msg" style="min-height:14px;font-size:12px;margin:6px 0"></div>
             <button onclick="saveMetrics()" style="width:100%;padding:10px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">지표 저장</button>
           </div>
@@ -874,7 +874,7 @@
       
             <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:20px;grid-column:1/-1">
               <div class="sectionhead"><span class="idx">03</span><h3>내신 · 이수과목 <span style="font-size:11px;color:var(--ink-mute)">(단위가중 환산)</span></h3></div>
-              <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">학생부 [교과학습발달상황]을 붙여넣고 자동 맵핑 → 과목·이수단위·석차등급 추출 후 단위가중 평균 계산</div>
+              <div style="font-size:12px;color:var(--ink-mute);margin-bottom:8px">학생 자료 [교과학습발달상황]을 붙여넣고 자동 맵핑 → 과목·이수단위·석차등급 추출 후 단위가중 평균 계산</div>
               <textarea id="nd-paste" rows="3" placeholder="예) 1학년 1학기  국어 4 88/72(12.3) A(250) 2" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;resize:vertical;margin-bottom:8px"></textarea>
               <div style="display:flex;gap:8px;margin-bottom:12px">
                 <button onclick="parseNaesin()" style="padding:8px 14px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px;cursor:pointer">자동 맵핑</button>
@@ -909,7 +909,7 @@
             </div>
 
             <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:20px;grid-column:1/-1">
-              <div class="sectionhead"><span class="idx" style="background:var(--gold,#3182f6)">04</span><h3>추가 자료 <span style="font-size:11px;color:var(--ink-mute)">· 아직 학생부에 없는 탐구보고서·실험자료 등 (자소서·면접 활용)</span></h3></div>
+              <div class="sectionhead"><span class="idx" style="background:var(--gold,#3182f6)">04</span><h3>추가 자료 <span style="font-size:11px;color:var(--ink-mute)">· 아직 학생 자료에 없는 탐구보고서·실험자료 등 (자소서·면접 활용)</span></h3></div>
               <div style="font-size:12px;color:var(--ink-mute);margin-bottom:12px">컨설턴트·학부모와 함께 작성해 둔 탐구보고서·실험 자료·수행평가 결과물을 저장해 두면, <b style="color:var(--ink)">자소서 설계도·면접 예상문항 생성 시 자동으로 근거 자료로 반영</b>됩니다. 파일에서 텍스트를 추출하거나 직접 붙여넣으세요.</div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
                 <select id="ex-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험자료</option><option>수행평가</option><option>대회</option><option>독서</option><option>기타</option></select>
@@ -936,11 +936,11 @@
         <div class="eyebrow">Cognitive Diagnosis</div>
         <div class="h1 pg-title" data-b2c="자녀 진단">학생 진단</div>
         <div class="sub">활성 학생: <b id="diag-who">— 미선택</b> · 저장된 최신 지표 기반</div>
-        <button onclick="estimateCog()" style="margin-top:10px;padding:9px 16px;background:var(--gold,#3182f6);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">AI 추정 (생기부 기반) · 활동 추가시 재보정</button>
+        <button onclick="estimateCog()" style="margin-top:10px;padding:9px 16px;background:var(--gold,#3182f6);color:#0a1a05;border:none;border-radius:9px;font-weight:700;cursor:pointer">AI 추정 (학생 자료 기반) · 활동 추가시 재보정</button>
         <div id="diag-body"><div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하고 [자료 입력]에서 지표를 저장하면 진단이 표시됩니다.</div></div>
         <!-- ===== 진로·학과 매칭 ===== -->
         <div class="card" id="cm-card" style="margin-top:18px">
-          <div class="sectionhead"><span class="idx">🧭</span><h3>진로·학과 매칭 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 생기부·상담·등록카드 통합 분석 · CareerNet 학과사전 검증</span></h3></div>
+          <div class="sectionhead"><span class="idx">🧭</span><h3>진로·학과 매칭 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 학생 자료·상담·등록카드 통합 분석 · CareerNet 학과사전 검증</span></h3></div>
           <div id="cm-ctrl" class="no-print" style="margin:2px 0 12px"></div>
           <div id="cm-body"><div class="cm-empty">학생을 선택하면 진로·학과 매칭을 실행할 수 있습니다.</div></div>
         </div>
@@ -1000,7 +1000,7 @@
             <input id="gst-interest" placeholder="관심 분야 (예: 국제관계, AI)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent" style="margin-top:2px"> <span>생기부 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생부 설계</b>에만 활용 · 생기부 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
+            <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="gst-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addGStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
           </div>
@@ -1021,7 +1021,7 @@
           <b id="gin-who" style="color:var(--gold)"></b>
         </div>
         <div class="card" style="margin-top:18px">
-          <div style="font-weight:700;margin-bottom:8px">중학 생기부 업로드 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">PDF · 이미지 · 스캔본 지원</span></div>
+          <div style="font-weight:700;margin-bottom:8px">중학 학생 자료 업로드 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">PDF · 이미지 · 스캔본 지원</span></div>
           <div style="font-size:12px;color:var(--ink-dim);margin-bottom:10px">업로드하면 성취도(영어·수학·과학·국어·사회) + 자율·동아리·진로·과세특·행발·<b>독서활동</b>을 자동 추출합니다.</div>
           <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>저해상도·저용량 PDF는 분석이 부정확해집니다!</b><br>글자가 흐리면 성취도·활동을 잘못 읽을 수 있어요. <b>① 원본 PDF 그대로</b> 올리거나, <b>② 화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로 올려주세요.</div></div>
           <input type="file" id="gin-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="gintakeUpload(this.files)" style="font-size:12px;margin-bottom:4px">
@@ -1035,7 +1035,7 @@
         <div id="gin-result" style="margin-top:16px"></div>
 
         <div class="card" style="margin-top:16px">
-          <div style="font-weight:700;margin-bottom:6px">추가 자료 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 생기부에 없는 탐구보고서·실험자료 등 (자소서·면접 활용)</span></div>
+          <div style="font-weight:700;margin-bottom:6px">추가 자료 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 아직 학생 자료에 없는 탐구보고서·실험자료 등 (자소서·면접 활용)</span></div>
           <div style="font-size:12px;color:var(--ink-dim);margin-bottom:12px">컨설턴트·학부모와 함께 준비한 활동 결과물을 저장하면, <b style="color:var(--ink)">자소서 설계도·면접 예상문항 생성 시 근거 자료로 자동 반영</b>됩니다.</div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">
             <select id="gex-cat" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option>탐구보고서</option><option>실험자료</option><option>수행평가</option><option>대회</option><option>독서</option><option>기타</option></select>
@@ -1096,7 +1096,7 @@
       <section class="view" id="v-ginterview">
         <div class="eyebrow">GOIP · Interview Prep</div>
         <div class="h1">고입 면접 준비</div>
-        <div class="sub">지원 학교를 선택하면 그 학교의 면접 형태·기출 경향과 학생 생기부를 결합해 예상 문항을 생성합니다. 과학고·영재학교는 제공하지 않습니다.</div>
+        <div class="sub">지원 학교를 선택하면 그 학교의 면접 형태·기출 경향과 학생 학생 자료를 결합해 예상 문항을 생성합니다. 과학고·영재학교는 제공하지 않습니다.</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
           <select id="giv-school" class="goip-con-only" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 지원 학교 선택 —</option></select>
           <button class="btn goip-con-only" onclick="runGInterview()">예상 문항 생성</button>
@@ -1146,7 +1146,7 @@
       <section class="view" id="v-gdesign">
         <div class="eyebrow">GOIP · Record Design</div>
         <div class="h1">고입 진로 징검다리</div>
-        <div class="sub">기존 활동에서 이어지는 교과탐구·동아리·자율·진로·독서 활동 <b>설계</b> — 세특 문장 대필은 하지 않습니다(주제·목표·단계·산출물만).</div>
+        <div class="sub">기존 활동에서 이어지는 교과탐구·동아리·자율·진로·독서 활동 <b>설계</b> — 활동 문장 대필은 하지 않습니다(주제·목표·단계·산출물만).</div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
           <select id="gds-student" onchange="selectGStudent(this.value)" style="min-width:220px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">— 학생 선택 —</option></select>
           <select id="gds-school" class="goip-con-only" style="min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">목표 학교 (선택)</option></select>
@@ -1168,7 +1168,7 @@
       <section class="view" id="v-goip">
         <div class="eyebrow">High School Admission</div>
         <div class="h1">고입 컨설팅 <span style="font-size:12px;color:var(--gold);vertical-align:middle;letter-spacing:.05em">특목고 · 자사고</span></div>
-        <div class="sub">지원가능 학교 리스트업(내신 환산) + 학생부 활동·진로 기반 성향 매칭</div>
+        <div class="sub">지원가능 학교 리스트업(내신 환산) + 학생 자료 활동·진로 기반 성향 매칭</div>
         <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
           <select id="gp-student" onchange="gpSelectStudent(this.value)" style="min-width:220px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">— 학생 선택 —</option></select>
           <span id="gp-autofill-msg" style="font-size:11.5px;color:var(--ink-mute)">학생을 선택하면 저장된 성취도·활동자료가 자동으로 채워집니다.</span>
@@ -1197,7 +1197,7 @@
           <div class="card">
             <div style="font-weight:700;margin-bottom:10px">② 성향 매칭 <span style="font-size:10px;color:#fff;background:var(--violet);border-radius:20px;padding:2px 8px;vertical-align:middle">AI</span></div>
             <input id="gp-career" placeholder="희망 진로 (예: 국제기구 외교관)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <textarea id="gp-record" rows="9" placeholder="생기부 활동 요약 — [활동자료 불러오기]로 자동 구성하거나 직접 입력 (자율·동아리·진로·세특·독서·행발)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
+            <textarea id="gp-record" rows="9" placeholder="학생 자료 활동 요약 — [활동자료 불러오기]로 자동 구성하거나 직접 입력 (자율·동아리·진로·활동·독서·행발)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
             <div style="display:flex;gap:8px">
               <button class="btn ghost" onclick="goipCompose()">활동자료 불러오기</button>
               <button class="btn" onclick="goipStyleMatch()">AI 성향 매칭</button>
@@ -1299,7 +1299,7 @@
       <section class="view" id="v-iv">
         <div class="eyebrow">Interview Prep</div>
         <div class="h1">면접 준비</div>
-        <div class="sub">생기부·활동 실적을 근거로 예상 질문을 설계하고 모의 답변을 연습 (답변 대필 아님 · 구조 가이드)</div>
+        <div class="sub">학생 자료·활동 실적을 근거로 예상 질문을 설계하고 모의 답변을 연습 (답변 대필 아님 · 구조 가이드)</div>
         <div class="subtabs" style="margin-top:6px">
           <button class="subtab on" data-iv="doc" onclick="ivTab(this,'doc')">서류기반 면접</button>
           <button class="subtab" data-iv="major" onclick="ivTab(this,'major')">전공기초 면접</button>
@@ -1309,7 +1309,7 @@
           <button class="btn" onclick="genInterview()">예상 질문 생성</button>
           <button class="btn ghost" onclick="renderInterview()">불러오기</button>
         </div>
-        <div id="iv-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 유형별로 <b>[예상 질문 생성]</b>을 누르세요. 생기부·진로 징검다리 활동·상담 기록을 근거로 질문·출제 의도·답변 가이드·꼬리질문이 설계됩니다.</div></div>
+        <div id="iv-body"><div style="color:var(--ink-mute);padding:20px">학생 선택 후 유형별로 <b>[예상 질문 생성]</b>을 누르세요. 학생 자료·진로 징검다리 활동·상담 기록을 근거로 질문·출제 의도·답변 가이드·꼬리질문이 설계됩니다.</div></div>
         <div class="note">※ 진행: 컨설턴트 [예상 질문 생성] → [학생에게 전달] → 학생 답변 제출 → 컨설턴트가 AI 평가 참고 또는 직접 코멘트 → [코멘트 전달] → 학생 보완·재제출 → 반복 → [세트 완료]. 답변 가이드는 <b style="color:var(--ink)">구조·핵심 포인트만</b> 제공합니다(대필 아님).</div>
       </section>
 
@@ -1428,11 +1428,11 @@
               <div class="diag-lead" id="rp-diag-lead"></div><div class="diag-grid" id="rp-diag"></div>
               <div id="rp-qual4" style="margin-top:14px"></div>
             </div>
-            <div class="sec"><div class="sec-h"><span class="no">04</span><h3>황금문장 하이라이트 <span style="font-size:11px;color:#8b95a1;font-weight:400">· 희망학과·진로 부합 세특만 AI 정제 · 과목별/창체별</span></h3></div>
+            <div class="sec"><div class="sec-h"><span class="no">04</span><h3>황금문장 하이라이트 <span style="font-size:11px;color:#8b95a1;font-weight:400">· 희망학과·진로 부합 활동만 AI 정제 · 과목별/창체별</span></h3></div>
               <div id="rp-golden-ctrl" class="no-print" style="margin-bottom:12px"></div>
-              <div id="rp-golden"><div class="gold-empty">희망 학과·진로에 부합하는 세특만 선별해 <b>황금문장</b>으로 정제합니다.</div></div>
-              <details id="rp-setech-details" class="no-print rp-raw"><summary>전체 세특 원문 보기 <span style="color:#8b95a1;font-weight:400">· 내부 검토용 (리포트 인쇄 시 제외)</span></summary>
-              <ul class="se" id="rp-setech"><li style="list-style:none;color:#999">세특 데이터 없음</li></ul>
+              <div id="rp-golden"><div class="gold-empty">희망 학과·진로에 부합하는 활동만 선별해 <b>황금문장</b>으로 정제합니다.</div></div>
+              <details id="rp-setech-details" class="no-print rp-raw"><summary>전체 활동 원문 보기 <span style="color:#8b95a1;font-weight:400">· 내부 검토용 (리포트 인쇄 시 제외)</span></summary>
+              <ul class="se" id="rp-setech"><li style="list-style:none;color:#999">활동 데이터 없음</li></ul>
               </details>
             </div>
             <div class="sec"><div class="sec-h"><span class="no">05</span><h3>지원가능 대학·학과 <span style="font-size:11px;color:#8b95a1;font-weight:400">· 희망진로·계열 기반 6선</span></h3></div>
@@ -1441,7 +1441,7 @@
             <div class="sec"><div class="sec-h"><span class="no">06</span><h3>합격 역설계 · 성장 로드맵</h3></div>
               <div id="rp-reverse" style="color:#4e5968">합격선(골든시드) 적재 후, 목표 대학 대비 현재 위치와 필요 상승폭을 자동 산출합니다. 탐구 설계는 학생이 실제 수행할 주제·구조를 제안합니다(대필 아님).</div>
             </div>
-            <div class="note2">※ 현행 대입 기준 반영: 교내수상·개인봉사·독서활동·자율동아리 등 <b>대입 미반영 항목은 평가에서 제외</b>했습니다. 세특은 읽기·분석 용도이며 문구 생성/대필이 아닙니다.</div>
+            <div class="note2">※ 현행 대입 기준 반영: 교내수상·개인봉사·독서활동·자율동아리 등 <b>대입 미반영 항목은 평가에서 제외</b>했습니다. 활동은 읽기·분석 용도이며 문구 생성/대필이 아닙니다.</div>
           </div>
           <div class="foot"><span>특허 10-2026-0053173 기반 인지 진단</span><span><span id="rp-date"></span> · penta-view.com</span></div>
         </div>
@@ -2007,7 +2007,7 @@ window.ADMIN=ADMIN;
 <!--OLD_REPORT
         <div class="eyebrow">Consulting Output</div>
         <div class="h1">컨설팅 리포트</div>
-        <div class="sub">진단·역설계·로드맵·학생부 설계를 통합한 학부모 발송용 PDF (미리보기)</div>
+        <div class="sub">진단·역설계·로드맵·학생 자료 설계를 통합한 학부모 발송용 PDF (미리보기)</div>
         <div class="report">
           <div class="rep-eye">PENTAVIEW ARCHE · 통합 입시 컨설팅 리포트</div>
           <h2>학생 · 수시 전략 브리프</h2>
@@ -2061,7 +2061,7 @@ window.ADMIN=ADMIN;
         <div class="sub">AI 분석에 사용할 Gemini API 키 방식을 선택하세요</div>
         <div id="apikey-card" style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
           <div class="sectionhead"><span class="idx">AI</span><h3>AI 엔진</h3></div>
-          <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.75">모든 AI 분석(생기부 파싱·진단·설계·자소서·면접·리포트 등)은 <b>로그·알 본사 엔진</b>으로 자동 처리됩니다.<br>별도의 API 키 등록이 필요 없습니다.</div>
+          <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.75">모든 AI 분석(학생 자료 파싱·진단·설계·자소서·면접·리포트 등)은 <b>로그·알 본사 엔진</b>으로 자동 처리됩니다.<br>별도의 API 키 등록이 필요 없습니다.</div>
         </div>
 
         <div id="brand-card" style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px;display:none">
@@ -2232,7 +2232,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.23.9";
+window.APP_VERSION="2026.07.23.10";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2366,12 +2366,12 @@ function policyPrivacyHTML(){ return `
 <ul>
 <li>계정: 이메일, 비밀번호(암호화 저장), 학원명·코드, 역할</li>
 <li>학생 정보: 이름, 학교, 학년, 희망 대학·학과·진로, 지원 트랙</li>
-<li>학생부 분석 결과: 생활기록부에서 <b>파싱된</b> 세부능력·특기사항(세특)·창의적체험활동·행동특성·독서 텍스트, 성적·성취도, 진단·리포트 결과</li>
+<li>학생 자료 분석 결과: 생활기록부에서 <b>파싱된</b> 세부능력·특기사항(활동)·창의적체험활동·행동특성·독서 텍스트, 성적·성취도, 진단·리포트 결과</li>
 <li>결제(유료 이용 시): 구독·결제 내역 (카드정보는 토스페이먼츠가 처리하며 당사는 보관하지 않음)</li>
 </ul>
-<p style="background:rgba(0,184,169,.08);border-left:3px solid var(--lime);padding:8px 10px;border-radius:6px"><b>학생부 원본 파일은 서버에 저장하지 않습니다.</b> 업로드하신 파일은 회원 기기(브라우저)에서 분석에만 사용되며, 분석에 필요한 파싱 결과만 저장됩니다.</p>
+<p style="background:rgba(0,184,169,.08);border-left:3px solid var(--lime);padding:8px 10px;border-radius:6px"><b>학생 자료 원본 파일은 서버에 저장하지 않습니다.</b> 업로드하신 파일은 회원 기기(브라우저)에서 분석에만 사용되며, 분석에 필요한 파싱 결과만 저장됩니다.</p>
 <p><b>2. 개인정보의 이용 목적</b></p>
-<ul><li>입시 컨설팅 분석·리포트·학생부 설계 등 서비스 제공</li><li>회원 인증·계정 관리, 결제·정산</li><li>서비스 품질 개선 및 통계(개인 식별 불가 형태)</li></ul>
+<ul><li>입시 컨설팅 분석·리포트·학생 자료 설계 등 서비스 제공</li><li>회원 인증·계정 관리, 결제·정산</li><li>서비스 품질 개선 및 통계(개인 식별 불가 형태)</li></ul>
 <p><b>3. 보유 및 이용 기간</b></p>
 <ul><li>회원 탈퇴 또는 계약 종료 시까지 보유하며, 목적 달성 시 지체 없이 파기합니다.</li><li>관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다.</li></ul>
 <p><b>4. 처리위탁</b> — 서비스 제공을 위해 아래에 처리를 위탁합니다.</p>
@@ -2392,7 +2392,7 @@ function policyTermsHTML(){ return `
 <h2 style="font-size:16px;color:var(--ink);margin:0 0 4px">서비스 이용약관</h2>
 <div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-07-13</div>
 <p><b>제1조(목적)</b> 본 약관은 로그.알(브랜드 '펜타뷰', 이하 '회사')이 제공하는 입시 컨설팅 지원 서비스 '아르케'의 이용 조건·절차 및 회원과 회사의 권리·의무를 규정합니다.</p>
-<p><b>제2조(서비스 내용)</b> 회사는 학생부 분석, 진단, 학생부 설계, 자기소개서 설계·평가, 면접 준비, 리포트 등 컨설팅 보조 도구를 제공합니다. 본 서비스는 컨설팅을 <b>보조</b>하며, 최종 판단과 책임은 이용자(학원·컨설턴트)에게 있습니다.</p>
+<p><b>제2조(서비스 내용)</b> 회사는 학생 자료 분석, 진단, 학생 자료 설계, 자기소개서 설계·평가, 면접 준비, 리포트 등 컨설팅 보조 도구를 제공합니다. 본 서비스는 컨설팅을 <b>보조</b>하며, 최종 판단과 책임은 이용자(학원·컨설턴트)에게 있습니다.</p>
 <p><b>제3조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않습니다. 자기소개서는 설계도(방향·소재) 방식으로만 제공되며, 이용자는 관련 법령과 각 전형의 규정을 준수해야 합니다.</p>
 <p><b>제4조(슬롯·계정)</b> 학생당 과금 구조에서 하나의 학생 슬롯을 다른 학생 자료로 재활용하는 행위는 금지되며, 적발 시 이용 제한 및 정산 소급이 이루어질 수 있습니다.</p>
 <p><b>제5조(요금·결제)</b> 이용요금은 기본료와 학생 수 기준 요금으로 구성되며, 상세 내역은 별도 안내에 따릅니다.</p>
@@ -2425,7 +2425,7 @@ function showConsentGate(user, role){
     var row=function(id,req,label,linkid,linktxt){return '<label style="display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border:1px solid var(--line,#333d4b);border-radius:10px;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="'+id+'" style="margin-top:2px;accent-color:var(--lime,#00b8a9)"><span style="flex:1;font-size:13px;color:var(--ink,#eaf3ee)"><b style="color:'+(req?'var(--risk,#f04452)':'var(--ink-mute,#8b95a1)')+'">['+(req?'필수':'선택')+']</b> '+label+(linkid?' <a href="#" id="'+linkid+'" style="color:var(--gold,#3182f6);text-decoration:underline;font-size:12px">'+linktxt+'</a>':'')+'</span></label>';};
     w.innerHTML='<div style="max-width:520px;width:100%;background:var(--panel,#191f28);border:1px solid var(--gold,#3182f6);border-radius:16px;padding:24px">'
       +'<div style="font-size:17px;font-weight:800;color:var(--ink,#eaf3ee);margin-bottom:4px">아르케 이용을 위한 동의</div>'
-      +'<div style="font-size:12px;color:var(--ink-mute,#8b95a1);margin-bottom:16px;line-height:1.6">서비스 이용을 위해 아래 내용에 동의해 주세요. 학생부 <b>원본 파일은 서버에 저장되지 않으며</b>, 분석에 필요한 정보만 안전하게 처리됩니다.</div>'
+      +'<div style="font-size:12px;color:var(--ink-mute,#8b95a1);margin-bottom:16px;line-height:1.6">서비스 이용을 위해 아래 내용에 동의해 주세요. 학생 자료 <b>원본 파일은 서버에 저장되지 않으며</b>, 분석에 필요한 정보만 안전하게 처리됩니다.</div>'
       +'<label style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(0,184,169,.07);border:1px solid var(--lime,#00b8a9);border-radius:10px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="cg-all" style="accent-color:var(--lime,#00b8a9)"><span style="font-size:13px;font-weight:700;color:var(--ink,#eaf3ee)">전체 동의</span></label>'
       +row('cg-terms',true,'서비스 이용약관에 동의합니다.','cg-view-terms','전문 보기')
       +row('cg-priv',true,'개인정보 수집·이용 및 처리위탁에 동의합니다.','cg-view-priv','전문 보기')
@@ -2498,7 +2498,7 @@ async function enterApp(session){
   loadStudents();
 }
 /* ===== 게스트 체험 모드 ===== */
-var DEMO_TASK_LABEL={parse_record:'학생부 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'진로 징검다리',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
+var DEMO_TASK_LABEL={parse_record:'학생 자료 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'진로 징검다리',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
 function toggleGuestForm(){var f=document.getElementById('guest-form');if(f)f.style.display=(f.style.display==='none')?'block':'none';}
 async function guestSignup(){
   var m=document.getElementById('gu-msg'), btn=document.getElementById('gu-btn');
@@ -3099,7 +3099,7 @@ async function addAllStudent(){
 function asRookieToggle(){ var c=document.getElementById('as-rookie'), b=document.getElementById('as-onboard'); if(b)b.style.display=(c&&c.checked)?'block':'none'; }
 window.asRookieToggle=asRookieToggle;
 function delAllStudent(id){
-  if(!sb||!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·설계 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
+  if(!sb||!confirm('이 학생을 삭제하시겠습니까?\n\n학생 자료 분석 결과·리포트·설계 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
   sb.from('students').delete().eq('id',id).then(function(r){ if(r.error){alert(r.error.message);return;} renderAllStudents(); });
 }
 window.renderAllStudents=renderAllStudents;window.openStudentUnified=openStudentUnified;window.addAllStudent=addAllStudent;window.delAllStudent=delAllStudent;
@@ -3784,7 +3784,7 @@ async function addStudent(){
   if(!wasEdit && newId && window.createStudentAccount){ try{ await createStudentAccount(newId); }catch(e){} }
 }
 async function delStudent(id){
-  if(!sb)return; if(!confirm('이 학생을 삭제하시겠습니까?\n\n생기부 분석 결과·리포트·학생부 설계·자소서·면접 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
+  if(!sb)return; if(!confirm('이 학생을 삭제하시겠습니까?\n\n학생 자료 분석 결과·리포트·학생 자료 설계·자소서·면접 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
   const {error}=await sb.from('students').delete().eq('id',id);
   if(error){alert(error.message);return;} loadStudents();
 }
@@ -3870,8 +3870,8 @@ function safeJson(t){
   return null;
 }
 window.safeJson=safeJson;
-/* 잘린(truncated) 생기부 파싱 JSON에서 완전한 배열 원소만 건져낸다.
-   출력 토큰 상한에 걸려 JSON 끝이 잘려도, 그때까지 완성된 세특/과목 객체는 살린다. */
+/* 잘린(truncated) 학생 자료 파싱 JSON에서 완전한 배열 원소만 건져낸다.
+   출력 토큰 상한에 걸려 JSON 끝이 잘려도, 그때까지 완성된 활동/과목 객체는 살린다. */
 function salvageParsed(t,keys){
   if(!t)return null;
   t=String(t).replace(/^```json\s*/i,'').replace(/```\s*$/i,'').trim();
@@ -3946,7 +3946,7 @@ async function loadExtra(track){
   var q=await sb.from('student_extra_materials').select('*').eq('student_id',s.id).order('created_at',{ascending:false});
   if(q.error){ box.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(q.error.message)+'</div>'; return; }
   var rows=q.data||[];
-  if(!rows.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">아직 등록된 추가 자료가 없습니다. 학생부에 없는 탐구보고서·실험자료 등을 넣어두면 자소서·면접에 활용됩니다.</div>'; return; }
+  if(!rows.length){ box.innerHTML='<div style="color:var(--ink-mute);font-size:12px">아직 등록된 추가 자료가 없습니다. 학생 자료에 없는 탐구보고서·실험자료 등을 넣어두면 자소서·면접에 활용됩니다.</div>'; return; }
   box.innerHTML=rows.map(function(r){
     var badge='<span style="font-size:10px;font-weight:700;color:var(--gold,#3182f6);background:rgba(49,130,246,.14);border-radius:5px;padding:1px 7px">'+esc(r.category||'기타')+'</span>';
     var src=r.source==='parent'?' · 학부모':(r.source==='student'?' · 학생':'');
@@ -3975,7 +3975,7 @@ async function extraCtx(studentId){
     var q=await sb.from('student_extra_materials').select('category,title,content').eq('student_id',studentId).order('created_at',{ascending:false}).limit(20);
     var rows=q.data||[];
     if(!rows.length)return '';
-    return '\n[추가 자료 · 아직 학생부에 미기재된 탐구·실험·수행 결과물]\n'+rows.map(function(r){return '· ['+(r.category||'기타')+'] '+(r.title||'')+': '+String(r.content||'').slice(0,600);}).join('\n');
+    return '\n[추가 자료 · 아직 학생 자료에 미기재된 탐구·실험·수행 결과물]\n'+rows.map(function(r){return '· ['+(r.category||'기타')+'] '+(r.title||'')+': '+String(r.content||'').slice(0,600);}).join('\n');
   }catch(e){ return ''; }
 }
 window.extraCtx=extraCtx;
@@ -4619,7 +4619,7 @@ async function refreshIntake(){
 async function saveSetech(){
   const m=document.getElementById('se-msg'); const s=requireActive(m); if(!s||!sb)return;
   const text=document.getElementById('se-text').value.trim();
-  if(!text){m.style.color='var(--risk)';m.textContent='세특 원문을 입력하세요.';return;}
+  if(!text){m.style.color='var(--risk)';m.textContent='활동 원문을 입력하세요.';return;}
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
   const {error}=await sb.from('student_setech').insert({student_id:s.id,subject:document.getElementById('se-subject').value.trim()||null,area:document.getElementById('se-area').value.trim()||null,text:text,source:'manual'});
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
@@ -4632,7 +4632,7 @@ async function loadSetech(){
   if(!window._activeStudent||!sb){list.innerHTML='';return;}
   const {data,error}=await sb.from('student_setech').select('*').eq('student_id',window._activeStudent.id).order('extracted_at',{ascending:false});
   if(error){list.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(error.message)+'</div>';return;}
-  if(!data.length){list.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 세특 없음</div>';return;}
+  if(!data.length){list.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 활동 없음</div>';return;}
   var grp={}; data.forEach(function(x){var g=subjectGroup(x.subject,x.area);(grp[g]=grp[g]||[]).push(x);});
   var out='';
   GORDER.forEach(function(g){var arr=grp[g];if(!arr||!arr.length)return;
@@ -4681,10 +4681,10 @@ async function estimateCog(){
     var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,8000);
     if(!setechTxt && s.is_rookie){ setechTxt=onboardingText(s); }
-    if(!setechTxt){alert('세특 데이터가 없습니다. 먼저 생기부 업로드/입력.');hideAiLoading();return;}
+    if(!setechTxt){alert('활동 데이터가 없습니다. 먼저 학생 자료 업로드/입력.');hideAiLoading();return;}
     var apr=await sb.from('design_items').select('subject,title,submission').eq('student_id',s.id).eq('approved',true);
     var aprTxt=((apr.data)||[]).filter(function(x){return x.submission;}).map(function(x){return '['+(x.subject||'')+'] '+(x.title||'')+' → '+x.submission;}).join('\n');
-    var ctx='목표:'+(s.target_univ||'')+' '+(s.target_major||'')+'\n세특/활동:\n'+setechTxt+(aprTxt?'\n\n[승인된 수행 결과물(실적)]\n'+aprTxt:'');
+    var ctx='목표:'+(s.target_univ||'')+' '+(s.target_major||'')+'\n활동:\n'+setechTxt+(aprTxt?'\n\n[승인된 수행 결과물(실적)]\n'+aprTxt:'');
     var d=await callAI('estimate_cog',{text:ctx,field:majorToField(s.target_major),target:(s.target_univ||'')});
     var o=JSON.parse(d.text);
     var naesin=(mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.weighted_overall)||null;
@@ -4701,7 +4701,7 @@ async function estimateCog(){
       if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
     }catch(ue){}
     if(window.renderDiag)renderDiag(); if(window.renderArche)renderArche(); if(window.renderReport)renderReport(); if(window.loadMetrics)loadMetrics();
-    alert('AI 분석 완료: 5역량 + 지원가능 대학 6선 (생기부 기반 근사치). 리포트 반영됨. 활동 추가 후 다시 누르면 보정됩니다.');
+    alert('AI 분석 완료: 5역량 + 지원가능 대학 6선 (학생 자료 기반 근사치). 리포트 반영됨. 활동 추가 후 다시 누르면 보정됩니다.');
   }catch(e){ alert('추정 실패: '+e.message); }
   finally{ hideAiLoading(); }
 }
@@ -5117,7 +5117,7 @@ async function genDesign(phase){
     var _exTxt=await extraCtx(s.id);
     var cnTxt=''; var cn=await careernet('major_search',(s.target_major||''));
     if(cn&&cn.items&&cn.items[0]){ var it0=cn.items[0]; cnTxt='[커리어넷 학과정보] 계열:'+(it0.series||'')+' / 학과:'+(it0.major||'')+' / 개설:'+(it0.facil||'').slice(0,150); }
-    // 세특 없으면 상담내용 반영
+    // 활동 없으면 상담내용 반영
     var conTxt='';
     if(!setechTxt || setechTxt.length<20){
       var cq=await sb.from('consultations').select('*').eq('student_id',s.id).order('created_at',{ascending:false}).limit(3);
@@ -5551,7 +5551,7 @@ async function genCourseRoadmap(){
     var term=s.grade?String(s.grade):'';
     var sems=courseArr.map(function(c){return c.sem;}).filter(Boolean).sort();
     if(sems.length)term=(term?term+'학년 · ':'')+'이수기록 최종학기 '+sems[sems.length-1];
-    term+=' [설계 범위: 현재 시점부터 고3 1학기까지 남은 학기만 이수과목(선택과목) 설계. 고3 2학기는 학생부 미반영이므로 이수설계에서 제외. summary에는 고3 여름방학 이후 수능 최저학력기준 대비 전략을 한 줄 덧붙여라 — 목표대학 최저가 2개 영역 합(2합) 조합이면 영어+탐구 조합을 우선 추천. 재수(N수) 가능성은 언급하지 않아도 됨.]';
+    term+=' [설계 범위: 현재 시점부터 고3 1학기까지 남은 학기만 이수과목(선택과목) 설계. 고3 2학기는 학생 자료 미반영이므로 이수설계에서 제외. summary에는 고3 여름방학 이후 수능 최저학력기준 대비 전략을 한 줄 덧붙여라 — 목표대학 최저가 2개 영역 합(2합) 조합이면 영어+탐구 조합을 우선 추천. 재수(N수) 가능성은 언급하지 않아도 됨.]';
     var d=await callAI('course_roadmap',{field:majorToField(s.target_major),career:(s.target_major||''),target:(s.target_univ||''),courses:courses,term:term});
     var o=JSON.parse(d.text);
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'course_roadmap',payload:o});
@@ -5822,7 +5822,7 @@ async function renderDiag(){
     var qrows=QAX.map(function(a){var o=q4[a[0]]||{};var sc=(o&&o.score!=null)?Number(o.score):null;var nt=(o&&o.note)||'';return '<div style="padding:10px 0;border-bottom:1px solid var(--line-soft,rgba(234,243,238,.06))"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><b style="color:var(--ink)">'+a[1]+'</b><b class="mono" style="color:var(--gold,#3182f6)">'+(sc!=null?sc:'—')+'<span style="color:var(--ink-mute);font-weight:400">/10</span></b></div>'+(nt?'<div style="font-size:11px;line-height:1.6;color:var(--ink-mute)">'+esc(nt)+'</div>':'')+'</div>';}).join('');
     qualCard='<div class="card" style="margin-bottom:16px"><div class="sectionhead"><span class="idx">02</span><h3>정성평가 4축 근거 <span style="font-size:11px;color:var(--ink-mute)">· 골든시드 합격사례 렌즈</span></h3></div>'+qrows+'</div>';
   }
-  var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체'],['convergence','융합창의역량','과세특·창체'],['community','공동체역량','자율·행발'],['problem','문제해결역량','전체 세특']];
+  var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체'],['convergence','융합창의역량','과세특·창체'],['community','공동체역량','자율·행발'],['problem','문제해결역량','전체 활동']];
   var vals=COMP.map(function(c){return {key:c[1],src:c[2],v:(p[c[0]]!=null?Number(p[c[0]]):0),note:(p.reasons&&p.reasons[c[0]])||''};});
   var total=vals.reduce(function(a,x){return a+x.v;},0);
   var bars=vals.map(function(x){return '<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--ink-dim);margin-bottom:3px"><span>'+x.key+' <small style="color:var(--ink-mute)">· '+x.src+'</small></span><b class="mono" style="color:var(--gold,#3182f6)">'+x.v.toFixed(1)+'<span style="color:var(--ink-mute);font-weight:400">/10</span></b></div><div style="height:6px;background:var(--panel-2);border-radius:4px;overflow:hidden"><i style="display:block;height:100%;width:'+(x.v*10)+'%;background:linear-gradient(90deg,#12b76a,var(--gold,#3182f6))"></i></div>'+(x.note?'<div style="font-size:11px;line-height:1.6;color:var(--ink-mute);margin-top:4px;padding-left:2px">↳ '+esc(x.note)+'</div>':'')+'</div>';}).join('');
@@ -5940,7 +5940,7 @@ async function saveCompetency(){
 
 
 
-/* ===== 학생부 업로드 · PDF 추출 · AI 자동정리 ===== */
+/* ===== 학생 자료 업로드 · PDF 추출 · AI 자동정리 ===== */
 window._recText=''; window._parsedSetech=[];
 window._recImages=[];
 async function renderPdfImages(pdf,maxPages,scaleW,enhance){
@@ -6060,7 +6060,7 @@ function showAiLoading(){
   o.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(6,12,8,.82);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center';
   o.innerHTML='<div style="text-align:center;color:var(--ink)"><div style="width:52px;height:52px;border:4px solid rgba(0,184,169,.2);border-top-color:var(--lime);border-radius:50%;margin:0 auto 18px;animation:aispin .9s linear infinite"></div><div id="ai-step" style="font-size:15px;font-weight:700">AI 분석 준비 중…</div><div style="font-size:12px;color:var(--ink-mute);margin-top:6px">스캔 문서를 비전으로 읽는 중 (수십 초 소요)</div><div id="ai-timer" class="mono" style="font-size:12px;color:var(--lime);margin-top:10px">0.0s</div></div>';
   document.body.appendChild(o);
-  var steps=['페이지 이미지 인식 중…','이수과목·성적 표 추출 중…','세특·창체활동 정리 중…','JSON 구조화 중…','마무리 중…'];
+  var steps=['페이지 이미지 인식 중…','이수과목·성적 표 추출 중…','활동·창체 정리 중…','JSON 구조화 중…','마무리 중…'];
   var i=0,t0=Date.now();
   o._si=setInterval(function(){i=(i+1)%steps.length;var e=document.getElementById('ai-step');if(e)e.textContent=steps[i];},2600);
   o._ti=setInterval(function(){var e=document.getElementById('ai-timer');if(e)e.textContent=((Date.now()-t0)/1000).toFixed(1)+'s';},100);
@@ -6081,7 +6081,7 @@ async function aiAutofill(){
     if(hasImg){ var imgs=window._recImages,B=2; for(var bi=0;bi<Math.ceil(imgs.length/B);bi++)jobs.push({images:imgs.slice(bi*B,(bi+1)*B)}); }
     else { var t=window._recText,LIM=11000; while(t.length){ if(t.length<=LIM){jobs.push({text:t});break;} var cut=t.lastIndexOf('\n',LIM); if(cut<LIM*0.5)cut=LIM; jobs.push({text:t.slice(0,cut)}); t=t.slice(cut); } }
     var total=jobs.length,done=0,failed=[],results=new Array(total);
-    function prog(){ m.style.color='var(--ink-mute)';m.textContent='AI 분석 중… ('+done+'/'+total+' 배치 완료)'; var se=document.getElementById('ai-step'); if(se)se.textContent='생기부 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…'; }
+    function prog(){ m.style.color='var(--ink-mute)';m.textContent='AI 분석 중… ('+done+'/'+total+' 배치 완료)'; var se=document.getElementById('ai-step'); if(se)se.textContent='학생 자료 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…'; }
     prog();
     async function runJob(i){
       for(var att=0;att<2;att++){
@@ -6097,9 +6097,9 @@ async function aiAutofill(){
     if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade)),uncertain:Array.isArray(c.uncertain)?c.uncertain:[]};}); renderCourses(); }
     window._parsedSetech=obj.setech||[]; window._parsedChangche=obj.changche||[]; window._parsedHaengbal=obj.haengbal||[];
     var se=window._parsedSetech;
-    document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 세특 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--gold);color:#ffffff;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">세특 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 세특 없음</div>';
+    document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 활동 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--gold);color:#ffffff;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">활동 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 활동 없음</div>';
     if(failed.length){ m.style.color='var(--reach)';m.textContent='자동정리 완료 · 배치 '+failed.join(', ')+' 실패(내용 일부 누락 가능) · 확인 후 저장하세요.'; }
-    else { m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/세특 확인 후 저장하세요.'; }
+    else { m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/활동 확인 후 저장하세요.'; }
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; } finally { hideAiLoading(); }
 }
 /* ===== 슬롯 무결성 · 창체 지문 결속 (슬롯 재활용 방지) ===== */
@@ -6133,7 +6133,7 @@ function _ovModal(msg){
       +'<div style="font-size:15px;font-weight:800;color:var(--risk,#f04452);margin-bottom:8px">⚠ 슬롯 재활용 의심</div>'
       +'<div style="font-size:13px;color:var(--ink-dim,#c7d2c2);line-height:1.6;margin-bottom:12px">'+msg+'</div>'
       +'<div style="font-size:12px;color:var(--ink-mute,#8b95a1);margin-bottom:6px">이 학생의 <b>갱신 자료가 맞다면</b> 사유를 입력하고 진행하세요. 진행 내역은 관리자에게 기록됩니다.</div>'
-      +'<textarea id="_ovnote" placeholder="예: 중3 2학기 생기부 마감본으로 교체" style="width:100%;height:58px;padding:9px;background:var(--panel-2,#0d1109);border:1px solid var(--line,#333d4b);border-radius:8px;color:var(--ink,#eaf3ee);font-size:12px;resize:none;margin-bottom:12px"></textarea>'
+      +'<textarea id="_ovnote" placeholder="예: 중3 2학기 학생 자료 마감본으로 교체" style="width:100%;height:58px;padding:9px;background:var(--panel-2,#0d1109);border:1px solid var(--line,#333d4b);border-radius:8px;color:var(--ink,#eaf3ee);font-size:12px;resize:none;margin-bottom:12px"></textarea>'
       +'<div style="display:flex;gap:8px;justify-content:flex-end">'
       +'<button id="_ovcancel" style="padding:8px 16px;background:transparent;color:var(--ink-mute,#8b95a1);border:1px solid var(--line,#333d4b);border-radius:8px;cursor:pointer;font-size:13px">취소(저장 안 함)</button>'
       +'<button id="_ovok" style="padding:8px 16px;background:var(--risk,#f04452);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;font-size:13px">사유 확인·진행</button>'
@@ -6154,7 +6154,7 @@ async function guardSlot(studentId, name, changcheText){
   if(!res) return true;
   if(res.status==='mismatch'){
     var pct=Math.round((res.overlap||0)*100);
-    var note=await _ovModal('이 슬롯에 이전 등록된 생기부와 <b>창체(진로·동아리·자율) 내용이 거의 겹치지 않습니다</b> (겹침 '+pct+'%). 다른 학생의 자료일 가능성이 높습니다.');
+    var note=await _ovModal('이 슬롯에 이전 등록된 학생 자료와 <b>창체(진로·동아리·자율) 내용이 거의 겹치지 않습니다</b> (겹침 '+pct+'%). 다른 학생의 자료일 가능성이 높습니다.');
     if(!note) return false;
     try{ await sb.rpc('override_fingerprint',{p_student_id:studentId,p_note:note,p_name_hash:null,p_features:fp.features}); }catch(e){}
     return true;
@@ -6174,7 +6174,7 @@ async function saveParsedSetech(){
   if(!(await guardSlot(s.id, s.name, collectChangche()))){ m.style.color='var(--ink-mute)'; m.textContent='저장이 중단되었습니다 (슬롯 재활용 의심).'; return; }
   var {error}=await sb.from('student_setech').insert(rows);
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);toast('저장 실패: '+error.message,false);return;}
-  m.style.color='var(--safe)';m.textContent='세특 '+rows.length+'건 저장 (교과+창체+행발).'; toast('세특 '+rows.length+'건 저장 완료',true); loadSetech();
+  m.style.color='var(--safe)';m.textContent='활동 '+rows.length+'건 저장 (교과+창체+행발).'; toast('활동 '+rows.length+'건 저장 완료',true); loadSetech();
 }
 
 /* ===== AI (학원 자체 키 · 엣지함수) ===== */
@@ -6499,7 +6499,7 @@ async function renderReport(){
   document.getElementById('rp-sem').innerHTML=semHtml||'<span style="color:#999;font-size:12px">내신 데이터 없음 — [자료 입력]에서 내신 저장</span>';
 
   // ② 5역량 펜타곤
-  var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체세특'],['convergence','융합창의역량','과세특·창체세특'],['community','공동체역량','자율활동·행발세특'],['problem','문제해결역량','전체 세특']];
+  var COMP=[['academic','학업역량','내신 성적'],['inquiry','탐구역량','과세특·창체세특'],['convergence','융합창의역량','과세특·창체세특'],['community','공동체역량','자율활동·행발세특'],['problem','문제해결역량','전체 활동']];
   var vals=COMP.map(function(c){return {key:c[1],ek:c[0],src:c[2],v:(cp[c[0]]!=null?Number(cp[c[0]]):null)};});
   var hasComp=vals.some(function(x){return x.v!=null;});
   if(hasComp){
@@ -6512,12 +6512,12 @@ async function renderReport(){
   }
 
   // ③ 학종 진단 서술
-  var diagTxt={'학업역량':'내신 단위가중 추이와 반영 비중 기반. 상승·방어 학기 관리로 개선 여력이 큰 축.','탐구역량':'과세특·창체의 주제 심화·변인 통제·데이터 해석의 깊이. 전공적합성 1차 근거.','융합창의역량':'교과 경계를 넘는 연결·재해석. 과세특·창체의 융합적 접근이 차별화 포인트.','공동체역량':'자율활동·행발의 협업·기여·리더십. 종합전형 공동체 평가와 직결.','문제해결역량':'전체 세특의 문제정의→가설→실행→개선 사이클. 면접·서류 실행력 서사.'};
+  var diagTxt={'학업역량':'내신 단위가중 추이와 반영 비중 기반. 상승·방어 학기 관리로 개선 여력이 큰 축.','탐구역량':'과세특·창체의 주제 심화·변인 통제·데이터 해석의 깊이. 전공적합성 1차 근거.','융합창의역량':'교과 경계를 넘는 연결·재해석. 과세특·창체의 융합적 접근이 차별화 포인트.','공동체역량':'자율활동·행발의 협업·기여·리더십. 종합전형 공동체 평가와 직결.','문제해결역량':'전체 활동의 문제정의→가설→실행→개선 사이클. 면접·서류 실행력 서사.'};
   if(hasComp){
     var srt=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});
     var top=srt[0],low=srt[srt.length-1],tot2=vals.reduce(function(a,x){return a+(x.v||0);},0);
     document.getElementById('rp-diag-lead').innerHTML='5역량 종합 <b>'+tot2.toFixed(1)+'/50</b>. 최상위 <b>'+top.key+'('+top.v.toFixed(1)+')</b>를 축으로 한 전공적합 서사가 강점이며, <b>'+low.key+'('+low.v.toFixed(1)+')</b>가 상대적 병목 — 이 지점을 보완 서사로 설계할 때 서류 완성도가 오릅니다.';
-    document.getElementById('rp-diag').innerHTML=vals.map(function(x){var rs=(cp.reasons&&cp.reasons[x.ek])||'';return '<div class="diag-row"><div class="dk">'+x.key+'<small>'+(x.v!=null?x.v.toFixed(1):'—')+'/10</small></div><div class="dt">'+(diagTxt[x.key]||'')+(rs?'<div style="margin-top:5px;font-size:11.5px;line-height:1.65;color:#4e5968;background:#f2f4f6;border-radius:8px;padding:7px 10px">🔎 <b style="color:#191f28">산출 근거</b> · '+esc(rs)+'</div>':'')+'</div></div>';}).join('')+'<div style="font-size:10.5px;color:#8b95a1;margin-top:8px;line-height:1.6">※ 위 점수는 생활기록부 기재 내용을 근거로 한 AI 근사 추정이며, 각 점수의 판단 근거(생기부 내 단서)를 함께 표기합니다.</div>';
+    document.getElementById('rp-diag').innerHTML=vals.map(function(x){var rs=(cp.reasons&&cp.reasons[x.ek])||'';return '<div class="diag-row"><div class="dk">'+x.key+'<small>'+(x.v!=null?x.v.toFixed(1):'—')+'/10</small></div><div class="dt">'+(diagTxt[x.key]||'')+(rs?'<div style="margin-top:5px;font-size:11.5px;line-height:1.65;color:#4e5968;background:#f2f4f6;border-radius:8px;padding:7px 10px">🔎 <b style="color:#191f28">산출 근거</b> · '+esc(rs)+'</div>':'')+'</div></div>';}).join('')+'<div style="font-size:10.5px;color:#8b95a1;margin-top:8px;line-height:1.6">※ 위 점수는 생활기록부 기재 내용을 근거로 한 AI 근사 추정이며, 각 점수의 판단 근거(학생 자료 내 단서)를 함께 표기합니다.</div>';
   }else{
     document.getElementById('rp-diag-lead').innerHTML='';
     document.getElementById('rp-diag').innerHTML='<div style="color:#999;font-size:12px">5역량 산출 후 표시됩니다.</div>';
@@ -6527,12 +6527,12 @@ async function renderReport(){
   var Q4=[['activity','활동'],['thinking','사고'],['values','가치관형성'],['vision','비전']];
   var hasQ4=Q4.some(function(c){return q4[c[0]]&&q4[c[0]].note;});
   if(hasQ4){
-    document.getElementById('rp-qual4').innerHTML='<div style="font-size:11px;font-weight:800;color:#191f28;letter-spacing:.02em;margin-bottom:8px">정성평가 4축 <span style="color:#8b95a1;font-weight:400">· 골든시드 합격사례 특징 대비 · 세특 기반 근거</span></div>'+Q4.map(function(c){var o=q4[c[0]]||{};var sc=(o.score!=null?Number(o.score):null);return '<div class="diag-row" style="border-left:2px solid var(--gold,#3182f6);padding-left:10px;margin-bottom:6px"><div class="dk">'+c[1]+'<small>'+(sc!=null?sc.toFixed(1):'—')+'/10</small></div><div class="dt">'+esc(o.note||'')+'</div></div>';}).join('');
+    document.getElementById('rp-qual4').innerHTML='<div style="font-size:11px;font-weight:800;color:#191f28;letter-spacing:.02em;margin-bottom:8px">정성평가 4축 <span style="color:#8b95a1;font-weight:400">· 골든시드 합격사례 특징 대비 · 활동 기반 근거</span></div>'+Q4.map(function(c){var o=q4[c[0]]||{};var sc=(o.score!=null?Number(o.score):null);return '<div class="diag-row" style="border-left:2px solid var(--gold,#3182f6);padding-left:10px;margin-bottom:6px"><div class="dk">'+c[1]+'<small>'+(sc!=null?sc.toFixed(1):'—')+'/10</small></div><div class="dt">'+esc(o.note||'')+'</div></div>';}).join('');
   }else{
     document.getElementById('rp-qual4').innerHTML='';
   }
 
-  // ④ 전체 세특 하이라이트 (과목군 분류 · 학년.학기 정렬 · 전체)
+  // ④ 전체 활동 하이라이트 (과목군 분류 · 학년.학기 정렬 · 전체)
   var catClass={'교과세특':'gyo','창체세특':'chang','행발세특':'haeng'};
   var groups={};
   se.forEach(function(x){var g=subjectGroup(x.subject,x.area);(groups[g]=groups[g]||[]).push(x);});
@@ -6541,9 +6541,9 @@ async function renderReport(){
     arr.sort(function(a,b){return semKey(a.grade)-semKey(b.grade);});
     seHtml+='<li style="list-style:none;background:transparent;border:none;padding:0;margin:6px 0 0"><div style="font-size:11px;font-weight:800;color:#191f28;letter-spacing:.02em">'+esc(g)+' <span style="color:#8b95a1;font-weight:400">('+arr.length+')</span></div></li>';
     arr.forEach(function(x){var cc=catClass[x.area]||'gyo';var lab=(x.area||'교과세특');var gl=gradeLabel(x.grade);
-      seHtml+='<li><div class="seh"><span class="cat '+cc+'">'+esc(lab)+'</span><span class="subj">'+esc(x.subject||x.area||'세특')+'</span>'+(gl?'<span class="fit">'+gl+'</span>':'')+'</div><div class="txt">'+esc((x.text||'').slice(0,160))+((x.text||'').length>160?'…':'')+'</div></li>';});
+      seHtml+='<li><div class="seh"><span class="cat '+cc+'">'+esc(lab)+'</span><span class="subj">'+esc(x.subject||x.area||'활동')+'</span>'+(gl?'<span class="fit">'+gl+'</span>':'')+'</div><div class="txt">'+esc((x.text||'').slice(0,160))+((x.text||'').length>160?'…':'')+'</div></li>';});
   });
-  document.getElementById('rp-setech').innerHTML=seHtml||'<li style="list-style:none;color:#999">세특 데이터 없음</li>';
+  document.getElementById('rp-setech').innerHTML=seHtml||'<li style="list-style:none;color:#999">활동 데이터 없음</li>';
   if(window.renderGoldenSection)renderGoldenSection(s,se);
 
   // ⑤ 지원가능 대학 6선
@@ -6995,9 +6995,9 @@ function gReportHtml(res,partial,golden){
   }
   if(golden&&((golden.subjects&&golden.subjects.length)||(golden.changche&&golden.changche.length))){
     h+='<div style="border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;margin-bottom:12px">';
-    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px">황금문장 하이라이트 <span style="color:var(--ink-mute);font-weight:400">· 생기부 활동에서 선별·정제</span></div>';
+    h+='<div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px">황금문장 하이라이트 <span style="color:var(--ink-mute);font-weight:400">· 학생 자료 활동에서 선별·정제</span></div>';
     if(golden.summary)h+='<div style="font-size:12px;color:var(--ink-dim);line-height:1.55;margin-bottom:8px">'+esc(golden.summary)+'</div>';
-    var gc=function(x,k){var subj=x[k]||x.subject||x.area||'세특';return '<div style="border-left:3px solid var(--gold);padding:5px 11px;margin-bottom:8px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:2px">'+esc(subj)+(x.grade?' · '+esc(String(x.grade)):'')+'</div><div style="font-size:12.5px;color:var(--ink);font-style:italic">“'+esc(x.sentence||'')+'”</div>'+(x.why?'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(x.why)+'</div>':'')+'</div>';};
+    var gc=function(x,k){var subj=x[k]||x.subject||x.area||'활동';return '<div style="border-left:3px solid var(--gold);padding:5px 11px;margin-bottom:8px"><div style="font-size:11px;color:var(--ink-mute);margin-bottom:2px">'+esc(subj)+(x.grade?' · '+esc(String(x.grade)):'')+'</div><div style="font-size:12.5px;color:var(--ink);font-style:italic">“'+esc(x.sentence||'')+'”</div>'+(x.why?'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(x.why)+'</div>':'')+'</div>';};
     (golden.subjects||[]).forEach(function(x){h+=gc(x,'subject');});
     (golden.changche||[]).forEach(function(x){h+=gc(x,'area');});
     h+='</div>';
@@ -7066,7 +7066,7 @@ async function goipCompose(silent){
   var parts=[];
   try{
     var se=await sb.from('student_setech').select('subject,area,text').eq('student_id',s.id).limit(30);
-    (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'세특')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
+    (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'활동')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
     var di=await sb.from('design_items').select('subject,title,goal,submission').eq('student_id',s.id).limit(20);
     (di.data||[]).forEach(function(x){parts.push('[디자인'+(x.subject?'·'+x.subject:'')+'] '+(x.title||'')+(x.goal?' — '+x.goal:'')+(x.submission?' / 수행: '+x.submission.slice(0,200):''));});
     var co=await sb.from('consultations').select('career,activities,memo').eq('student_id',s.id).limit(10);
@@ -7226,7 +7226,7 @@ function fillGoipPickers(){
   ['gin-student','gcon-student','gp-student','gdg-student','grm-student','gds-student','greport-student'].forEach(function(id){var el=document.getElementById(id);if(el){el.innerHTML=opts;el.value=cur;}});
 }
 
-/* ===== 고입 학생 자료 입력 (생기부 파싱) ===== */
+/* ===== 고입 학생 자료 입력 (학생 자료 파싱) ===== */
 window.renderGIntake=function(){ loadGStudents().then(function(){ if(window._gactive){var w=document.getElementById('gin-who');if(w)w.textContent=window._gactive.name+' 활성';} }); };
 function gintakeSelect(id){ selectGStudent(id); gintakeLoadSaved(true); if(window.loadExtra)loadExtra('goip'); }
 function selectGStudentWb(){ if(window.wbLoad)wbLoad('goip'); if(window.perfMount)perfMount('goip'); }
@@ -7250,11 +7250,11 @@ async function gintakeLoadSaved(silent){
       else if(r.area==='독서')o.reading.push({grade:r.grade||'',subject:r.subject||'',books:[],summary:r.text||''});
     });
     var cnt=grades.length+(se.data||[]).length;
-    if(!cnt){if(m){m.style.color='var(--ink-mute)';m.textContent='저장된 자료가 없습니다 — 생기부를 업로드해 분석하세요.';}var box0=document.getElementById('gin-result');if(box0)box0.innerHTML='';return;}
+    if(!cnt){if(m){m.style.color='var(--ink-mute)';m.textContent='저장된 자료가 없습니다 — 학생 자료를 업로드해 분석하세요.';}var box0=document.getElementById('gin-result');if(box0)box0.innerHTML='';return;}
     window._gParsed=o; renderGParsed(o);
     // 저장본이므로 재저장 버튼 대신 안내 표시
     var box=document.getElementById('gin-result');
-    if(box){var note=document.createElement('div');note.style.cssText='font-size:12px;color:var(--ink-mute);margin-top:6px';note.textContent='※ 저장된 자료입니다. 새 생기부를 업로드하면 최신 내용으로 교체됩니다.';box.appendChild(note);}
+    if(box){var note=document.createElement('div');note.style.cssText='font-size:12px;color:var(--ink-mute);margin-top:6px';note.textContent='※ 저장된 자료입니다. 새 학생 자료를 업로드하면 최신 내용으로 교체됩니다.';box.appendChild(note);}
     if(m){m.style.color='var(--safe)';m.textContent='저장된 자료 표시 ('+cnt+'건).';}
   }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='불러오기 실패: '+e.message;} }
 }
@@ -7314,8 +7314,8 @@ async function gintakeParse(){
     }
     var total=jobs.length, done=0, failed=[];
     function prog(){
-      m.style.color='var(--ink-mute)';m.textContent='AI 생기부 분석 중… ('+done+'/'+total+' 배치 완료)';
-      var stepEl=document.getElementById('ai-step'); if(stepEl)stepEl.textContent='생기부 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…';
+      m.style.color='var(--ink-mute)';m.textContent='AI 학생 자료 분석 중… ('+done+'/'+total+' 배치 완료)';
+      var stepEl=document.getElementById('ai-step'); if(stepEl)stepEl.textContent='학생 자료 '+done+'/'+total+' 배치 완료 — 병렬 분석 중…';
     }
     prog();
     var results=new Array(total);
@@ -7382,7 +7382,7 @@ function renderGParsed(o){
   h+=sec('자율활동',o.autonomous,fA);
   h+=sec('동아리활동',o.club,function(x){return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--line);padding:2px 0 6px 8px;margin-bottom:4px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+(x.name?'<b>'+esc(x.name)+'</b> — ':'')+esc(x.summary||'')+'</div>';});
   h+=sec('진로활동',o.career_act,fA);
-  h+=sec('과목별 세특',o.subject_detail,function(x){return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--line);padding:2px 0 6px 8px;margin-bottom:4px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+(x.subject?'<b>'+esc(x.subject)+'</b>: ':'')+esc(x.summary||'')+'</div>';});
+  h+=sec('과목별 활동',o.subject_detail,function(x){return '<div style="font-size:12px;color:var(--ink-dim);border-left:2px solid var(--line);padding:2px 0 6px 8px;margin-bottom:4px">'+(x.grade?'<b style="color:var(--gold)">'+esc(x.grade)+'</b> ':'')+(x.subject?'<b>'+esc(x.subject)+'</b>: ':'')+esc(x.summary||'')+'</div>';});
   h+=sec('행동특성·종합의견',o.behavior,fA);
   // 독서활동
   var rd=o.reading||[];
@@ -7410,12 +7410,12 @@ async function saveGParsed(){
     var d1=await sb.from('middle_school_grades').delete().eq('student_id',s.id);
     if(d1.error)throw new Error('성취도 초기화: '+d1.error.message);
     var d2=await sb.from('student_setech').delete().eq('student_id',s.id).eq('source','goip_parsed');
-    if(d2.error)throw new Error('생기부 초기화: '+d2.error.message);
+    if(d2.error)throw new Error('학생 자료 초기화: '+d2.error.message);
     // 성취도
     var gr=(o.grades||[]).filter(function(g){return g&&g.subject&&String(g.subject).trim()&&g.sem&&g.ach;}).map(function(g){var row={student_id:s.id,semester:g.sem,subject:String(g.subject).trim(),achievement:g.ach};if(acadId)row.academy_id=acadId;return row;});
     if(gr.length){var r1=await sb.from('middle_school_grades').insert(gr);
       if(r1.error)throw new Error('성취도 저장: '+r1.error.message);}
-    // 생기부 내용 → student_setech
+    // 학생 자료 내용 → student_setech
     var rows=[];
     (o.autonomous||[]).forEach(function(x){rows.push({student_id:s.id,area:'자율',subject:'자율활동',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
     (o.club||[]).forEach(function(x){rows.push({student_id:s.id,area:'동아리',subject:x.name||'동아리',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
@@ -7424,9 +7424,9 @@ async function saveGParsed(){
     (o.behavior||[]).forEach(function(x){rows.push({student_id:s.id,area:'행발',subject:'행동특성',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
     (o.reading||[]).forEach(function(x){var books=(x.books||[]).map(function(b){return (b.title||'')+(b.author?'('+b.author+')':'');}).join(', ');rows.push({student_id:s.id,area:'독서',subject:x.subject||'독서활동',grade:x.grade||null,text:(books?books+' — ':'')+(x.summary||''),source:'goip_parsed'});});
     if(rows.length){var r2=await sb.from('student_setech').insert(rows);
-      if(r2.error)throw new Error('생기부 저장: '+r2.error.message);}
-    m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 생기부 '+rows.length+'건). 지원가능·성향매칭에 자동 연동됩니다.';
-    toast('저장 완료 — 성취도 '+gr.length+'건 · 생기부 '+rows.length+'건',true);
+      if(r2.error)throw new Error('학생 자료 저장: '+r2.error.message);}
+    m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 학생 자료 '+rows.length+'건). 지원가능·성향매칭에 자동 연동됩니다.';
+    toast('저장 완료 — 성취도 '+gr.length+'건 · 학생 자료 '+rows.length+'건',true);
   }catch(e){ m.style.color='var(--risk)';m.textContent='저장 실패: '+e.message; toast('저장 실패: '+e.message,false); }
 }
 
@@ -7473,7 +7473,7 @@ async function delGCon(id){ if(!sb||!confirm('삭제하시겠습니까?'))return
 function onboardingText(s){
   var o=s&&s.onboarding; if(!o)return '';
   if(typeof o==='string'){ try{o=JSON.parse(o);}catch(e){return '';} }
-  var L=['「신입생 상담 정보 (아직 생기부 기록이 없어 아래 상담 내용을 근거로 진단·설계)」'];
+  var L=['「신입생 상담 정보 (아직 학생 자료 기록이 없어 아래 상담 내용을 근거로 진단·설계)」'];
   if(o.career)L.push('· 희망 진로/계열: '+o.career);
   if(o.target)L.push('· 희망 학교(특목고/대학): '+o.target);
   if(o.interest)L.push('· 관심 분야: '+o.interest);
@@ -7673,7 +7673,7 @@ function goipPhaseHint(grade){
   function part(m){if(m>=3&&m<=6)return '1학기';if(m===7||m===8)return '여름방학';if(m>=9&&m<=12)return '2학기';return '겨울방학';}
   var gy=(grade&&String(grade).indexOf('중')>=0)?parseInt(String(grade).replace(/[^0-9]/g,'')):0; if(!gy||gy<1)gy=1; if(gy>3)gy=3;
   var p=part(mo),parts=['1학기','여름방학','2학기','겨울방학'],start=(p==='1학기')?'여름방학':p,list=[];
-  for(var g=gy;g<=3;g++){var from=(g===gy)?parts.indexOf(start):0;for(var pi=from;pi<parts.length;pi++){var lbl='중'+g+' '+parts[pi];if(g===3&&parts[pi]==='2학기')lbl='중3 2학기(원서 접수·자소서·면접 마무리)';if(g===3&&parts[pi]==='겨울방학')lbl='중3 겨울방학(고교 진학 준비 학습 로드맵 — 고입 활동이 아니라 고교 입학 전 선행·기초 및 고교 학생부 대비)';list.push(lbl);}}
+  for(var g=gy;g<=3;g++){var from=(g===gy)?parts.indexOf(start):0;for(var pi=from;pi<parts.length;pi++){var lbl='중'+g+' '+parts[pi];if(g===3&&parts[pi]==='2학기')lbl='중3 2학기(원서 접수·자소서·면접 마무리)';if(g===3&&parts[pi]==='겨울방학')lbl='중3 겨울방학(고교 진학 준비 학습 로드맵 — 고입 활동이 아니라 고교 입학 전 선행·기초 및 고교 학생 자료 대비)';list.push(lbl);}}
   return {cur:'중'+gy+' '+p,month:mo,list:list};
 }
 function goipRoadmapHintText(grade){
@@ -7701,7 +7701,7 @@ async function runGRoadmap(){
   finally{if(window.hideAiLoading)hideAiLoading();}
 }
 
-/* ----- 진로 징검다리 (활동 설계 — 세특 대필 금지) ----- */
+/* ----- 진로 징검다리 (활동 설계 — 활동 대필 금지) ----- */
 function gDesignHtml(o){
   var h='';
   if(o.narrative)h+=gCard('성장 서사','<div style="font-size:12.5px;color:var(--ink-dim);line-height:1.6">'+esc(o.narrative)+'</div>','var(--gold)');
@@ -7894,10 +7894,10 @@ async function runGInterview(){
     if(!confirm('진행 중인 문항 세트가 있습니다("'+window._gIvCur.school_name+'"). 새로 생성하면 기존 세트는 완료 처리됩니다. 계속할까요?'))return;
     await sb.from('goip_interviews').update({status:'done'}).eq('id',window._gIvCur.id);
   }
-  m.style.color='var(--ink-mute)';m.textContent='생기부 자료 수집 중…';
+  m.style.color='var(--ink-mute)';m.textContent='학생 자료 수집 중…';
   var ctx=await gctxAll();
   var _exG=await extraCtx(s.id); if(ctx&&_exG)ctx.record=(ctx.record||'')+_exG;
-  if(!ctx||!ctx.record){m.style.color='var(--risk)';m.textContent='저장된 생기부 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.';return;}
+  if(!ctx||!ctx.record){m.style.color='var(--risk)';m.textContent='저장된 학생 자료가 없습니다 — [학생 자료 입력]에서 먼저 분석·저장하세요.';return;}
   if(window.showAiLoading)showAiLoading();
   m.textContent='면접 문항 생성 중… (수십 초)';
   try{
@@ -7934,7 +7934,7 @@ function autoRunGoipStu(pickerId,runFn){
 }
 function gesSelect(id){ selectGStudent(id); var ss=document.getElementById('ges-school'); if(ss&&window._gactive&&window._gactive.target_school)ss.value=window._gactive.target_school; document.getElementById('ges-body').innerHTML=''; gesLoad(); }
 function gesCtx(){
-  // 활성 학생 생기부 요약 텍스트 구성 (성향매칭 goipCompose와 동일 소스)
+  // 활성 학생 학생 자료 요약 텍스트 구성 (성향매칭 goipCompose와 동일 소스)
   return (async function(){
     var s=window._gactive; if(!s)return '';
     var parts=[];
@@ -7956,9 +7956,9 @@ async function gesGenBlueprint(){
   try{ await killerGate(s,'essay'); }catch(e){}
   var existing=await sb.from('goip_essay_drafts').select('id').eq('student_id',s.id).eq('school_name',school).limit(1);
   if(existing.data&&existing.data.length){ if(!confirm('이미 '+school+' 자소서 작업이 있습니다. 설계도를 새로 생성하면 기존 문항이 초기화됩니다. 계속할까요?'))return; }
-  m.style.color='var(--ink-mute)';m.textContent='생기부 자료 수집 중…';
+  m.style.color='var(--ink-mute)';m.textContent='학생 자료 수집 중…';
   var ctx=await gesCtx();
-  if(!ctx){m.style.color='var(--risk)';m.textContent='생기부 자료가 없습니다. [학생 자료 입력]에서 먼저 업로드하세요.';return;}
+  if(!ctx){m.style.color='var(--risk)';m.textContent='학생 자료가 없습니다. [학생 자료 입력]에서 먼저 업로드하세요.';return;}
   if(window.showAiLoading)showAiLoading();
   m.textContent='설계도 생성 중… (수십 초)';
   try{
@@ -8474,13 +8474,13 @@ async function renderGoldenSection(s,se){
   }catch(e){}
   if(ctrl){ ctrl.innerHTML='<button class="btn" style="font-size:12px;padding:8px 16px" onclick="genGoldenSentences()">'+(g?'황금문장 다시 정제':'✨ 황금문장 AI 정제')+'</button><span id="rp-golden-msg" style="font-size:11.5px;color:var(--ink-mute);margin-left:10px"></span>'; }
   if(!g){
-    box.innerHTML='<div class="gold-empty">희망 학과·진로에 부합하는 세특만 선별해 과목별·창체별 <b>황금문장</b>으로 정제해 리포트에 싣습니다. '+((se&&se.length)?'위 <b>[✨ 황금문장 AI 정제]</b> 버튼을 눌러 생성하세요.':'세특 데이터가 없습니다 — [학생 자료 입력]에서 생기부를 먼저 분석하세요.')+'</div>';
+    box.innerHTML='<div class="gold-empty">희망 학과·진로에 부합하는 활동만 선별해 과목별·창체별 <b>황금문장</b>으로 정제해 리포트에 싣습니다. '+((se&&se.length)?'위 <b>[✨ 황금문장 AI 정제]</b> 버튼을 눌러 생성하세요.':'활동 데이터가 없습니다 — [학생 자료 입력]에서 학생 자료를 먼저 분석하세요.')+'</div>';
     return;
   }
   var h='';
   if(g.summary){ h+='<div class="gold-sum">'+esc(g.summary)+'</div>'; }
   function goldCard(x,subjKey){
-    var subj=x[subjKey]||x.subject||x.area||'세특';
+    var subj=x[subjKey]||x.subject||x.area||'활동';
     return '<div class="gold-card"><div class="gc-head"><span class="gc-subj">'+esc(subj)+'</span>'
       +(x.grade?'<span class="gc-grade">'+esc(String(x.grade))+'</span>':'')
       +(x.tag?'<span class="gc-tag">'+esc(x.tag)+'</span>':'')
@@ -8488,7 +8488,7 @@ async function renderGoldenSection(s,se){
       +(x.why?'<div class="gc-why">'+esc(x.why)+'</div>':'')+'</div>';
   }
   var subs=g.subjects||[], chs=g.changche||[];
-  if(subs.length){ h+='<div class="gold-cat">교과 세특 · 과목별 황금문장</div><div class="gold-grid">'+subs.map(function(x){return goldCard(x,'subject');}).join('')+'</div>'; }
+  if(subs.length){ h+='<div class="gold-cat">교과 활동 · 과목별 황금문장</div><div class="gold-grid">'+subs.map(function(x){return goldCard(x,'subject');}).join('')+'</div>'; }
   if(chs.length){ h+='<div class="gold-cat">창의적 체험활동 · 영역별 황금문장</div><div class="gold-grid">'+chs.map(function(x){return goldCard(x,'area');}).join('')+'</div>'; }
   if(!subs.length&&!chs.length){ h+='<div class="gold-empty">정제 결과가 비어 있습니다. [황금문장 다시 정제]로 재시도해주세요.</div>'; }
   box.innerHTML=h;
@@ -8497,10 +8497,10 @@ async function genGoldenSentences(){
   var s=window._activeStudent; var m=document.getElementById('rp-golden-msg');
   if(!s){ alert('학생을 먼저 선택하세요.'); return; }
   try{
-    if(m){m.style.color='var(--ink-mute)';m.textContent='희망학과 부합 세특 선별·정제 중… (약 20~40초)';}
+    if(m){m.style.color='var(--ink-mute)';m.textContent='희망학과 부합 활동 선별·정제 중… (약 20~40초)';}
     var r=await _SB().from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).order('extracted_at',{ascending:false});
     var se=r.data||[];
-    if(!se.length){ if(m){m.style.color='var(--risk)';m.textContent='세특 데이터가 없습니다 — [학생 자료 입력]에서 생기부를 먼저 분석하세요.';} return; }
+    if(!se.length){ if(m){m.style.color='var(--risk)';m.textContent='활동 데이터가 없습니다 — [학생 자료 입력]에서 학생 자료를 먼저 분석하세요.';} return; }
     var lines=[],used=0;
     se.forEach(function(x){ var t='['+(x.area||'교과세특')+'|'+(x.subject||'-')+'|'+(x.grade||'-')+'] '+(x.text||''); if(used+t.length>10500)return; used+=t.length; lines.push(t); });
     var fld=''; try{ if(typeof majorToField==='function') fld=majorToField(s.target_major||'')||''; }catch(e){}
@@ -8572,7 +8572,7 @@ body.student-mode #cm-ctrl{display:none!important}
 </style>
 
 <script id="career-match-js">
-/* ═══ 진로·학과 매칭 (생기부·상담·등록카드 통합) ═══ */
+/* ═══ 진로·학과 매칭 (학생 자료·상담·등록카드 통합) ═══ */
 function cmStars(n){ n=Math.max(1,Math.min(3,Number(n)||1)); return '★★★'.slice(0,n); }
 async function renderCareerMatch(){
   var ctrl=document.getElementById('cm-ctrl'), body=document.getElementById('cm-body');
@@ -8586,8 +8586,8 @@ async function renderCareerMatch(){
   }catch(e){}
   ctrl.innerHTML='<button class="btn" style="font-size:12px;padding:8px 16px" onclick="genCareerMatch()">'+(o?'🧭 학과 매칭 다시 분석':'🧭 학과 매칭 분석')+'</button><span id="cm-msg" style="font-size:11.5px;color:var(--ink-mute);margin-left:10px"></span>';
   if(!o){
-    body.innerHTML='<div class="cm-empty">생기부 키워드 → 핵심 서사 → <b>추천 학과 Top 5</b> → 리스크까지 한 번에 분석합니다.<br>'
-      +'<b>생기부가 없거나 아직 한 학기뿐이어도 됩니다</b> — 상담 기록·학생 등록카드의 진로희망·관심사만으로도 <b>탐색형 매칭</b>을 제공합니다. 위 [🧭 학과 매칭 분석]을 눌러 실행하세요.</div>';
+    body.innerHTML='<div class="cm-empty">학생 자료 키워드 → 핵심 서사 → <b>추천 학과 Top 5</b> → 리스크까지 한 번에 분석합니다.<br>'
+      +'<b>학생 자료가 없거나 아직 한 학기뿐이어도 됩니다</b> — 상담 기록·학생 등록카드의 진로희망·관심사만으로도 <b>탐색형 매칭</b>을 제공합니다. 위 [🧭 학과 매칭 분석]을 눌러 실행하세요.</div>';
     return;
   }
   var confCls=(o.confidence==='높음')?'hi':(o.confidence==='중간'?'mid':'lo');
@@ -8649,7 +8649,7 @@ async function genCareerMatch(){
   if(!s||!_SB()){ alert('학생을 먼저 선택하세요.'); return; }
   try{
     if(m){m.style.color='var(--ink-mute)';m.textContent='자료 수집 중…';}
-    // ── 자료 수집: 세특 + 상담 + 등록카드 + 내신 ──
+    // ── 자료 수집: 활동 + 상담 + 등록카드 + 내신 ──
     var se=[],cons=[],base=[],naesin=null;
     try{ se=(await _SB().from('student_setech').select('subject,area,grade,text').eq('student_id',s.id)).data||[]; }catch(e){}
     try{ cons=(await _SB().from('consultations').select('kind,career,target_univ,target_major,activities,memo,created_at').eq('student_id',s.id).order('created_at',{ascending:false}).limit(10)).data||[]; }catch(e){}
@@ -8660,7 +8660,7 @@ async function genCareerMatch(){
     if(se.length){
       var t='';
       se.forEach(function(x){ var l='['+(x.area||'교과')+'|'+(x.subject||'-')+'|'+(x.grade||'-')+'] '+(x.text||''); if(seChars+l.length>8000)return; seChars+=l.length; t+=l+'\n'; });
-      if(t)parts.push('[생기부 세특·창체·행발]\n'+t);
+      if(t)parts.push('[학생 자료 활동·창체·행발]\n'+t);
     }
     if(cons.length){
       parts.push('[상담 기록 (최신순)]\n'+cons.map(function(c){ return '('+String(c.created_at||'').slice(0,10)+') 진로:'+(c.career||'-')+' / 목표:'+(((c.target_univ||'')+' '+(c.target_major||'')).trim()||'-')+' / 활동·관심사:'+(c.activities||'-')+' / 메모:'+(c.memo||'-'); }).join('\n').slice(0,2800));
@@ -8670,11 +8670,11 @@ async function genCareerMatch(){
     }
     var hasProfile=(s.career||s.target_major||s.target_univ);
     if(!parts.length&&!hasProfile){
-      if(m){m.style.color='var(--risk)';m.textContent='분석할 자료가 없습니다 — 생기부 업로드, 상담 기록 저장, 또는 학생 정보(희망 진로·학과) 입력 중 하나가 필요합니다.';}
+      if(m){m.style.color='var(--risk)';m.textContent='분석할 자료가 없습니다 — 학생 자료 업로드, 상담 기록 저장, 또는 학생 정보(희망 진로·학과) 입력 중 하나가 필요합니다.';}
       return;
     }
     var dataLevel=seChars>2500?'rich':(seChars>0?'partial':'minimal');
-    if(m)m.textContent=(dataLevel==='minimal'?'세특 없음 → 상담·등록카드 기반 탐색형 매칭 분석 중… (약 20~40초)':'키워드 추출·학과 매칭 분석 중… (약 20~40초)');
+    if(m)m.textContent=(dataLevel==='minimal'?'활동 없음 → 상담·등록카드 기반 탐색형 매칭 분석 중… (약 20~40초)':'키워드 추출·학과 매칭 분석 중… (약 20~40초)');
     var d=await callAI('career_match',{grade:s.grade||'',gender:s.gender||'',region:s.region||'',career:s.career||'',major:s.target_major||'',target:s.target_univ||'',gpa:(naesin!=null?naesin:''),data_level:dataLevel,text:parts.join('\n\n')});
     var o=JSON.parse(d.text);
     // ── CareerNet 학과사전 표준명 검증 (혼합형) ──
