@@ -584,7 +584,7 @@
           <button class="on" data-role="con" onclick="setRole('con')">컨설턴트 뷰</button>
           <button data-role="stu" onclick="setRole('stu')">학생 뷰</button>
         </div>
-        <button id="pwa-install" onclick="pwaInstall()" style="display:none;align-items:center;gap:5px;padding:7px 12px;background:var(--gold);border:none;border-radius:8px;color:#ffffff;font-size:11px;font-weight:700;cursor:pointer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 12l5 5 5-5M5 21h14"/></svg>앱 설치</button><button id="au-logout" style="padding:7px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink-dim);font-size:11px;cursor:pointer">로그아웃</button>
+        <button id="pwa-install" onclick="pwaInstall()" style="display:none;align-items:center;gap:5px;padding:7px 12px;background:var(--gold);border:none;border-radius:8px;color:#ffffff;font-size:11px;font-weight:700;cursor:pointer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 12l5 5 5-5M5 21h14"/></svg>앱 설치</button><button id="au-logout" style="padding:7px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink-dim);font-size:11px;cursor:pointer">로그아웃</button><button id="au-withdraw" onclick="selfWithdraw()" style="display:none;padding:7px 12px;background:transparent;border:1px solid var(--risk,#e5484d);border-radius:8px;color:var(--risk,#e5484d);font-size:11px;cursor:pointer;margin-left:6px">탈퇴</button>
       </div>
     </div>
 
@@ -840,9 +840,9 @@
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:18px" class="stu-grid">
           <div id="iv-intake-dae" style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;grid-column:1/-1"></div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;grid-column:1/-1">
-            <div class="sectionhead"><span class="idx">00</span><h3>학생 자료 업로드 · AI 자동정리 <span style="font-size:11px;color:var(--ink-mute)">(PDF)</span></h3></div>
-            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px">학생 자료 파일을 올리면 AI가 이수과목·성적·활동을 자동 정리합니다. 폰으로 찍은 여러 장을 한 번에 올려도 됩니다. AI가 확실히 읽지 못한 값은 성적표에서 노란색으로 표시되니 직접 확인·수정하세요.</div>
-            <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>흐릿한 저화질 이미지는 분석이 부정확해집니다.</b><br>글자가 흐리면 성적·활동을 잘못 읽을 수 있어요. 학생이 보유한 자료를 <b>화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로 올려주세요. 업로드 후 성적표의 <b class="pw-y">노란색 표시 값</b>은 반드시 직접 확인·수정하세요.</div></div>
+            <div class="sectionhead"><span class="idx">00</span><h3>성적표 업로드 · AI 성적 정리 <span style="font-size:11px;color:var(--ink-mute)">(성적 전용)</span></h3></div>
+            <div style="font-size:12px;color:var(--ink-mute);margin-bottom:10px"><b>성적표(교과학습발달상황) 부분만</b> 촬영·캡처해서 올려주세요. AI는 <b>성적만</b> 읽어들이며, 세특·창체·활동 등은 읽지 않습니다. 활동 내용은 <b>[인터뷰로 입력]</b>에서 학생 본인의 경험으로 받습니다.</div>
+            <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>성적표 부분만 올려주세요 — 학생부(생활기록부) 전체를 올리지 마세요.</b><br>성적 외 세특·창체·행동특성 등 활동 기록이 담긴 페이지는 업로드하지 말아 주세요. 성적표는 <b>화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로, 업로드 후 <b class="pw-y">노란색 표시 값</b>은 직접 확인·수정하세요.</div></div>
             <input type="file" id="rec-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="uploadRecords(this.files)" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div style="font-size:11px;color:var(--ink-mute);margin-top:5px">PDF·이미지(여러 장 동시 선택 가능·폰 촬영본 OK)·DOCX·XLSX·TXT 지원 · 한글(HWP)은 PDF로 내보내 업로드</div>
             <div id="rec-msg" style="min-height:14px;font-size:12px;margin:8px 0"></div>
@@ -1023,9 +1023,9 @@
         </div>
         <div class="card" id="iv-intake-goip" style="margin-top:18px"></div>
         <div class="card" style="margin-top:18px">
-          <div style="font-weight:700;margin-bottom:8px">중학 학생 자료 업로드 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">PDF · 이미지 · 스캔본 지원</span></div>
-          <div style="font-size:12px;color:var(--ink-dim);margin-bottom:10px">업로드하면 성취도(영어·수학·과학·국어·사회) + 자율·동아리·진로·과세특·행발·<b>독서활동</b>을 자동 추출합니다.</div>
-          <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>흐릿한 저화질 이미지는 분석이 부정확해집니다.</b><br>글자가 흐리면 성취도·활동을 잘못 읽을 수 있어요. 학생이 보유한 자료를 <b>화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로 올려주세요.</div></div>
+          <div style="font-weight:700;margin-bottom:8px">중학 성적표 업로드 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">성적(성취도) 전용</span></div>
+          <div style="font-size:12px;color:var(--ink-dim);margin-bottom:10px"><b>성적표(성취도) 부분만</b> 촬영·캡처해서 올려주세요. AI는 <b>성취도(영어·수학·과학·국어·사회)만</b> 읽어들이며, 자율·동아리·진로·과세특·행발·독서 등 활동은 읽지 않습니다. 활동 내용은 위 <b>[인터뷰로 입력]</b>에서 학생 본인의 경험으로 받습니다.</div>
+          <div class="pdfwarn"><span class="pw-ic">⚠️</span><div><b>성적표 부분만 올려주세요 — 학생부(생활기록부) 전체를 올리지 마세요.</b><br>성적 외 활동 기록이 담긴 페이지는 업로드하지 말아 주세요. 성적표는 <b>화면을 크게 확대해 찍은 고화질 캡처본(스크린샷)</b>으로 올려주세요.</div></div>
           <input type="file" id="gin-file" accept=".pdf,image/*,.docx,.xlsx,.xls,.txt,.md,.csv" multiple onchange="gintakeUpload(this.files)" style="font-size:12px;margin-bottom:4px">
           <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">PDF·이미지(여러 장 동시 선택·폰 촬영 OK)·DOCX·XLSX·TXT · 한글은 PDF로 내보내 업로드</div>
           <div id="gin-msg" style="font-size:12px;margin-top:6px"></div>
@@ -2234,7 +2234,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.23.12";
+window.APP_VERSION="2026.07.24.4";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2550,7 +2550,7 @@ async function enterStudentApp(session){
   window._role='stu';
   var {data:sd}=await sb.from('students').select('*').limit(1);
   var me=sd&&sd[0];
-  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); }
+  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); var _wb=document.getElementById('au-withdraw'); if(_wb)_wb.style.display='inline-block'; }
   var isGoip=me&&me.admission_track==='고입';
   window._stuTrack=isGoip?'goip':'dae';
   if(isGoip){ window._gactive=me; }
@@ -2689,6 +2689,16 @@ document.getElementById('au-signup').onclick=async()=>{
   else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='확인 메일을 보냈습니다. 인증 후 로그인하세요.<br><span style="color:var(--gold,#3182f6);font-size:11.5px;line-height:1.5">⚠️ 인증 메일은 Supabase(해외 서버)에서 발송됩니다. 메일이 안 보이면 <b>스팸함·프로모션함</b>을 꼭 확인하세요.</span>'; }
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.replace('/login');};
+window.selfWithdraw=async function(){
+  var s=window._activeStudent;
+  if(!s||!s.id){ alert('학생 정보를 찾을 수 없습니다.'); return; }
+  if(!confirm('정말 탈퇴하시겠습니까?\n\n성적·인터뷰·진단·리포트 등 내 모든 정보와 로그인 계정이 영구 파기됩니다.\n파기된 정보는 복구할 수 없습니다.'))return;
+  if(!confirm('마지막 확인입니다.\n탈퇴 후에는 어떤 정보도 되돌릴 수 없습니다. 진행할까요?'))return;
+  try{ await purgeStudentReq(s.id); }catch(e){ alert('탈퇴 처리 실패: '+(e.message||e)); return; }
+  alert('탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.');
+  try{ await sb.auth.signOut(); }catch(e){}
+  location.replace('/login');
+};
 if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ window._sessionUid=data.session.user.id; enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } });
 // 같은 브라우저 다중 로그인 감지 (탭 간 localStorage 공유로 계정이 뒤바뀌는 경우)
 if(sb) sb.auth.onAuthStateChange(function(event,session){
@@ -2946,6 +2956,17 @@ function renderHomeKPI(){
     }
   }
 }
+async function loadIVStatus(ids){
+  window._stuIV=window._stuIV||{};
+  try{ if(ids&&ids.length){ var iv=await sb.from('student_setech').select('student_id').eq('source','interview').in('student_id',ids); window._stuIV={}; (iv.data||[]).forEach(function(r){window._stuIV[r.student_id]=(window._stuIV[r.student_id]||0)+1;}); } }catch(e){}
+}
+window.loadIVStatus=loadIVStatus;
+function ivBadgeHtml(id){
+  var n=(window._stuIV||{})[id]||0;
+  return n? '<span title="상담 전 인터뷰 제출됨" style="font-size:10px;color:var(--safe,#12b76a);border:1px solid var(--safe,#12b76a);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 '+n+'</span>'
+          : '<span title="아직 인터뷰 미작성" style="font-size:10px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 미작성</span>';
+}
+window.ivBadgeHtml=ivBadgeHtml;
 async function loadStudents(){
   const list=document.getElementById('st-list'); if(!list)return;
   if(!sb){list.innerHTML='<div style="color:var(--risk)">DB 미로드</div>';return;}
@@ -2960,6 +2981,7 @@ async function loadStudents(){
     if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id,must_change').in('student_id',ids);
       window._stuAcct={};(acc.data||[]).forEach(function(a){window._stuAcct[a.student_id]=a;});}
   }catch(e){window._stuAcct={};}
+  await loadIVStatus(window._students.map(function(s){return s.id;}));
   document.getElementById('st-count').textContent=window._students.length;
   renderHomeKPI(); populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">'+(window._isB2C?'등록된 자녀가 없습니다. 좌측에서 등록하세요.':'등록된 학생이 없습니다. 좌측에서 등록하세요.')+'</div>';return;}
@@ -2975,7 +2997,7 @@ async function loadStudents(){
         ?'<button onclick="copyStuId(\''+esc(acct.login_id)+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:6px;font-size:11px;cursor:pointer">ID 복사</button><button onclick="resetStudentPw(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">비번초기화</button>'
         :'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:6px;font-size:11px;cursor:pointer">계정 생성</button>';
       return '<div onclick="selectStudent(\''+s.id+'\')" style="background:var(--panel);border:1px solid '+(on?'var(--lime)':'var(--line)')+';border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 14px;cursor:pointer">'+
-        '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+idBadge+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
+        '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+idBadge+ivBadgeHtml(s.id)+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
         '<div style="font-size:11px;color:var(--ink-dim);margin-top:2px">'+esc(s.school||'')+(s.target_univ?' · '+esc(s.target_univ)+' '+esc(s.target_major||''):'')+(s.career?' · 진로:'+esc(s.career):'')+'</div></div>'+
         '<div style="display:flex;gap:5px" onclick="event.stopPropagation()">'+
           '<button onclick="editStudent(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-dim);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">수정</button>'+
@@ -3014,6 +3036,7 @@ async function renderAllStudents(){
     window._allAcct={};
     if(ids.length){var acc=await sb.from('student_accounts').select('student_id,login_id').in('student_id',ids);(acc.data||[]).forEach(function(a){window._allAcct[a.student_id]=a;});}
   }catch(e){window._allAcct={};}
+  await loadIVStatus(window._allStudents.map(function(s){return s.id;}));
   var cnt=document.getElementById('as-count'); if(cnt)cnt.textContent=window._allStudents.length;
   if(!window._allStudents.length){ list.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._isB2C?'등록된 자녀가 없습니다. 왼쪽에서 등록하세요.':'등록된 학생이 없습니다. 왼쪽에서 등록하세요.')+'</div>'; return; }
   var _AVC={dae:'#3b7a9e',goip:'#7c3aed'};
@@ -3035,7 +3058,7 @@ async function renderAllStudents(){
         +'<div style="min-width:0;flex:1"><div style="font-family:\'Noto Serif KR\',serif;font-weight:600;font-size:15px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+esc(s.name||'-')+'</div><div style="font-size:11px;color:var(--ink-mute);margin-top:2px">'+esc(s.grade||'학년 미정')+(s.school?' · '+esc(s.school):'')+'</div></div>'
         +badge
       +'</div>'
-      +'<div style="font-size:11.5px;border-top:1px dashed var(--line);padding-top:9px;margin-bottom:12px">'+acctLbl+'</div>'
+      +'<div style="font-size:11.5px;border-top:1px dashed var(--line);padding-top:9px;margin-bottom:12px">'+acctLbl+ivBadgeHtml(s.id)+'</div>'
       +(_isOwner?('<div style="margin-bottom:11px"><div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:4px">담당 컨설턴트</div><select onchange="assignConsultant(\''+s.id+'\',this.value)" style="width:100%;padding:7px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12px">'+_teamOpts(s.consultant_uid)+'</select></div>'):'')
       +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
         +'<button onclick="openStudentUnified(\''+s.id+'\')" style="flex:1;min-width:74px;padding:7px 10px;background:var(--gold);color:#ffffff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">열기 →</button>'
@@ -3100,9 +3123,14 @@ async function addAllStudent(){
 }
 function asRookieToggle(){ var c=document.getElementById('as-rookie'), b=document.getElementById('as-onboard'); if(b)b.style.display=(c&&c.checked)?'block':'none'; }
 window.asRookieToggle=asRookieToggle;
+window.purgeStudentReq=async function(id){
+  var sess=(await sb.auth.getSession()).data.session;
+  var res=await fetch(SB_URL+'/functions/v1/arche-purge',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({mode:'student',student_id:id})});
+  var d=await res.json(); if(!res.ok||d.error)throw new Error(d.error||'삭제 실패'); return d;
+};
 function delAllStudent(id){
-  if(!sb||!confirm('이 학생을 삭제하시겠습니까?\n\n학생 자료 분석 결과·리포트·설계 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
-  sb.from('students').delete().eq('id',id).then(function(r){ if(r.error){alert(r.error.message);return;} renderAllStudents(); });
+  if(!sb||!confirm('이 학생을 삭제(퇴원)하시겠습니까?\n\n성적·인터뷰·진단·리포트·설계·업로드 파일과 로그인 계정까지 이 학생의 모든 정보가 영구 파기됩니다.\n파기된 정보는 복구할 수 없습니다.'))return;
+  purgeStudentReq(id).then(function(){ renderAllStudents(); }).catch(function(e){ alert(e.message||'삭제 실패'); });
 }
 window.renderAllStudents=renderAllStudents;window.openStudentUnified=openStudentUnified;window.addAllStudent=addAllStudent;window.delAllStudent=delAllStudent;
 
@@ -3786,9 +3814,9 @@ async function addStudent(){
   if(!wasEdit && newId && window.createStudentAccount){ try{ await createStudentAccount(newId); }catch(e){} }
 }
 async function delStudent(id){
-  if(!sb)return; if(!confirm('이 학생을 삭제하시겠습니까?\n\n학생 자료 분석 결과·리포트·학생 자료 설계·자소서·면접 등 이 학생의 모든 자료가 함께 영구 삭제됩니다. (복구 불가)'))return;
-  const {error}=await sb.from('students').delete().eq('id',id);
-  if(error){alert(error.message);return;} loadStudents();
+  if(!sb)return; if(!confirm('이 학생을 삭제(퇴원)하시겠습니까?\n\n성적·인터뷰·진단·리포트·설계·자소서·면접·업로드 파일과 로그인 계정까지 이 학생의 모든 정보가 영구 파기됩니다.\n파기된 정보는 복구할 수 없습니다.'))return;
+  try{ await purgeStudentReq(id); }catch(e){ alert(e.message||'삭제 실패'); return; }
+  loadStudents();
 }
 function selectStudent(id){
   const s=(window._students||[]).find(x=>x.id===id); if(!s)return;
@@ -4659,11 +4687,13 @@ window.renderIVIntake=function(track){
   var box=document.getElementById(track==='goip'?'iv-intake-goip':'iv-intake-dae'); if(!box||box.getAttribute('data-built')==='1')return;
   var qs=IV_QSETS[track];
   var h='<div class="sectionhead"><span class="idx">🗣</span><h3>인터뷰로 입력 <span style="font-size:11px;color:var(--ink-mute)">· 원본 없이 · 학생 본인의 경험을 직접</span></h3></div>';
-  h+='<div style="font-size:12px;color:var(--ink-dim);background:rgba(49,130,246,.08);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:12px"><b>생활기록부를 보고 옮겨 적지 마세요.</b> 학생 본인이 기억하는 경험을 그대로 적으면 됩니다. 답변은 학생 자료로 저장돼 진단·리포트·진로 징검다리에 활용됩니다.</div>';
+  h+='<div style="font-size:12px;color:var(--ink-dim);background:rgba(49,130,246,.08);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:12px"><b>생활기록부를 보고 옮겨 적지 마세요.</b> 학생 본인이 기억하는 경험을 그대로 적으면 됩니다. <b>상담 전에 미리 작성</b>해 두면 더 정확한 분석을 받을 수 있어요. 저장한 답변은 아래에서 <b>언제든 수정·추가</b>할 수 있습니다.</div>';
   qs.forEach(function(o,i){ h+='<div class="iv-q" data-area="'+o.a+'" style="margin-bottom:14px"><div class="iv-qtext" style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px">Q'+(i+1)+'. '+esc(o.q)+'</div><textarea class="iv-a" rows="3" onpaste="ivBlockPaste(event)" placeholder="직접 작성해 주세요 · 붙여넣기는 제한됩니다" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea><div class="iv-warn" style="display:none;font-size:11px;color:var(--risk);margin-top:3px">붙여넣기는 제한됩니다 — 생활기록부 문구를 옮겨 적지 말고 직접 작성해 주세요.</div><div class="iv-fu"></div><div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap"><button type="button" class="iv-fu-btn" onclick="ivFollowup(this,\''+track+'\')" style="font-size:11.5px;padding:5px 11px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:16px;cursor:pointer">🔍 AI 심화 질문 받기</button><span class="iv-fu-msg" style="font-size:11px"></span></div></div>'; });
   h+='<div id="iv-msg-'+track+'" style="min-height:14px;font-size:12px;margin-bottom:6px"></div>';
   h+='<button onclick="saveIVIntake(\''+track+'\')" style="width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">인터뷰 답변 저장</button>';
+  h+='<div id="iv-saved-'+track+'" style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px"></div>';
   box.innerHTML=h; box.setAttribute('data-built','1');
+  if(window.renderIVSaved)renderIVSaved(track);
 };
 window.saveIVIntake=async function(track){
   track=(track==='goip')?'goip':'dae';
@@ -4678,6 +4708,37 @@ window.saveIVIntake=async function(track){
   if(r.error){ if(m){m.style.color='var(--risk)';m.textContent=esc(r.error.message);} return; }
   if(m){m.style.color='var(--safe)';m.textContent='✓ '+rows.length+'개 답변이 학생 자료로 저장되었습니다 · 진단·리포트에서 활용됩니다.';}
   Array.prototype.forEach.call(box.querySelectorAll('.iv-a'),function(t){t.value='';});
+  if(track!=='goip'&&window.loadSetech)loadSetech();
+  if(window.renderIVSaved)renderIVSaved(track);
+};
+window.renderIVSaved=async function(track){
+  track=(track==='goip')?'goip':'dae';
+  var s=(track==='goip')?(window._gactive||window._activeStudent):window._activeStudent;
+  var box=document.getElementById('iv-saved-'+track); if(!box)return;
+  if(!s||!sb){ box.innerHTML=''; return; }
+  var r=await sb.from('student_setech').select('id,area,text,extracted_at').eq('student_id',s.id).eq('source','interview').order('extracted_at',{ascending:true});
+  var rows=(r&&r.data)||[];
+  if(!rows.length){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">아직 제출한 인터뷰 답변이 없습니다. 위 질문에 답하고 저장하면 여기에서 언제든 수정·추가할 수 있어요.</div>'; return; }
+  var h='<div style="font-size:13px;font-weight:700;color:var(--ink);margin:2px 0 9px">제출한 인터뷰 답변 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 언제든 수정·삭제·추가 가능 ('+rows.length+'건)</span></div>';
+  rows.forEach(function(x){
+    h+='<div class="iv-saved-item" data-id="'+x.id+'" style="border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:8px;background:var(--panel-2)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><span style="font-size:10.5px;color:var(--gold);border:1px solid var(--gold);border-radius:10px;padding:1px 8px">'+esc(x.area||'인터뷰')+'</span><button onclick="deleteIVAnswer(\''+x.id+'\',\''+track+'\')" title="삭제" style="border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:16px;line-height:1">×</button></div><textarea class="iv-sv-a" onpaste="ivBlockPaste(event)" rows="2" style="width:100%;padding:8px 10px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical">'+esc(x.text||'')+'</textarea><div style="display:flex;gap:8px;align-items:center;margin-top:5px"><button onclick="updateIVAnswer(\''+x.id+'\',this,\''+track+'\')" style="font-size:11.5px;padding:5px 11px;background:var(--gold);color:#fff;border:none;border-radius:8px;cursor:pointer">수정 저장</button><span class="iv-sv-m" style="font-size:11px"></span></div></div>';
+  });
+  box.innerHTML=h;
+};
+window.updateIVAnswer=async function(id,btn,track){
+  var item=btn.closest?btn.closest('.iv-saved-item'):null; if(!item)return;
+  var ta=item.querySelector('.iv-sv-a'); var msg=item.querySelector('.iv-sv-m');
+  var t=ta?ta.value.trim():''; if(!t){ if(msg){msg.style.color='var(--risk)';msg.textContent='내용을 입력하세요.';} return; }
+  if(msg){msg.style.color='var(--ink-mute)';msg.textContent='저장 중…';}
+  var r=await sb.from('student_setech').update({text:t}).eq('id',id);
+  if(r.error){ if(msg){msg.style.color='var(--risk)';msg.textContent='실패: '+esc(r.error.message);} return; }
+  if(msg){msg.style.color='var(--safe)';msg.textContent='✓ 수정 저장됨';}
+};
+window.deleteIVAnswer=async function(id,track){
+  if(!confirm('이 인터뷰 답변을 삭제할까요?\n삭제한 답변은 복구할 수 없습니다.'))return;
+  var r=await sb.from('student_setech').delete().eq('id',id);
+  if(r.error){ alert('삭제 실패: '+r.error.message); return; }
+  if(window.renderIVSaved)renderIVSaved(track);
   if(track!=='goip'&&window.loadSetech)loadSetech();
 };
 async function saveSetech(){
@@ -6124,7 +6185,7 @@ function showAiLoading(){
   o.style.cssText='position:fixed;inset:0;z-index:2000;background:rgba(6,12,8,.82);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center';
   o.innerHTML='<div style="text-align:center;color:var(--ink)"><div style="width:52px;height:52px;border:4px solid rgba(0,184,169,.2);border-top-color:var(--lime);border-radius:50%;margin:0 auto 18px;animation:aispin .9s linear infinite"></div><div id="ai-step" style="font-size:15px;font-weight:700">AI 분석 준비 중…</div><div style="font-size:12px;color:var(--ink-mute);margin-top:6px">스캔 문서를 비전으로 읽는 중 (수십 초 소요)</div><div id="ai-timer" class="mono" style="font-size:12px;color:var(--lime);margin-top:10px">0.0s</div></div>';
   document.body.appendChild(o);
-  var steps=['페이지 이미지 인식 중…','이수과목·성적 표 추출 중…','활동·창체 정리 중…','JSON 구조화 중…','마무리 중…'];
+  var steps=['성적표 이미지 인식 중…','이수과목·성적 표 추출 중…','성적 데이터 정리 중…','JSON 구조화 중…','마무리 중…'];
   var i=0,t0=Date.now();
   o._si=setInterval(function(){i=(i+1)%steps.length;var e=document.getElementById('ai-step');if(e)e.textContent=steps[i];},2600);
   o._ti=setInterval(function(){var e=document.getElementById('ai-timer');if(e)e.textContent=((Date.now()-t0)/1000).toFixed(1)+'s';},100);
@@ -6149,8 +6210,8 @@ async function aiAutofill(){
     prog();
     async function runJob(i){
       for(var att=0;att<2;att++){
-        try{ var d=await callAI('parse_record',jobs[i]); var obj=safeJson(d.text)||salvageParsed(d.text);
-          if(obj&&(obj.courses||obj.setech||obj.changche||obj.haengbal)){results[i]=obj;done++;prog();return;} }catch(e){}
+        try{ var d=await callGrades(jobs[i]); var obj=safeJson(d.text)||salvageParsed(d.text);
+          if(obj&&obj.courses){results[i]={courses:obj.courses};done++;prog();return;} }catch(e){}
       }
       failed.push(i+1);done++;prog();
     }
@@ -6159,11 +6220,11 @@ async function aiAutofill(){
     var obj={}; for(var ri=0;ri<total;ri++)if(results[ri])obj=mergeDaeParsed(obj,results[ri]);
     if(!obj||!Object.keys(obj).length){m.style.color='var(--risk)';m.textContent='AI 응답 파싱 실패 — 다시 시도하세요.';return;}
     if(obj.courses&&obj.courses.length){ window._courses=obj.courses.map(function(c){return {subject:c.subject||'',sem:c.sem||'3-1',unit:(c.unit==null?null:Number(c.unit)),grade:(c.grade==null?null:Number(c.grade)),uncertain:Array.isArray(c.uncertain)?c.uncertain:[]};}); renderCourses(); }
-    window._parsedSetech=obj.setech||[]; window._parsedChangche=obj.changche||[]; window._parsedHaengbal=obj.haengbal||[];
-    var se=window._parsedSetech;
-    document.getElementById('rec-setech').innerHTML=se.length?('<div style="font-size:12px;color:var(--ink-dim);margin-bottom:6px">추출 활동 '+se.length+'건 · 창체 '+(window._parsedChangche||[]).length+' · 행발 '+(window._parsedHaengbal||[]).length+'건 (확인 후 저장)</div>'+se.map(function(x){return '<div style="background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px"><b style="color:var(--lime)">'+esc(x.subject||'')+'</b> '+esc(x.summary||'')+'</div>';}).join('')+'<button onclick="saveParsedSetech()" style="padding:8px 14px;background:var(--gold);color:#ffffff;border:none;border-radius:8px;font-weight:700;cursor:pointer;margin-top:4px">활동 일괄 저장</button>'):'<div style="font-size:12px;color:var(--ink-mute)">추출된 활동 없음</div>';
-    if(failed.length){ m.style.color='var(--reach)';m.textContent='자동정리 완료 · 배치 '+failed.join(', ')+' 실패(내용 일부 누락 가능) · 확인 후 저장하세요.'; }
-    else { m.style.color='var(--safe)';m.textContent='자동정리 완료 · 과목표/활동 확인 후 저장하세요.'; }
+    window._parsedSetech=[]; window._parsedChangche=[]; window._parsedHaengbal=[];
+    var seBox=document.getElementById('rec-setech');
+    if(seBox)seBox.innerHTML='<div style="font-size:12px;color:var(--ink-dim);background:rgba(49,130,246,.08);border:1px solid var(--line);border-radius:8px;padding:10px 12px;line-height:1.6">📌 성적표에서는 <b>성적만</b> 읽어들입니다. 세특·창체·활동 등 활동 내용은 이미지로 저장하지 않으며, <b>[인터뷰로 입력]</b>에서 학생 본인의 경험으로 직접 받습니다.</div>';
+    if(failed.length){ m.style.color='var(--reach)';m.textContent='성적 정리 완료 · 배치 '+failed.join(', ')+' 실패(일부 누락 가능) · 성적표 확인 후 저장하세요.'; }
+    else { m.style.color='var(--safe)';m.textContent='성적 정리 완료 · 성적표 확인 후 저장하세요. (활동은 [인터뷰로 입력]에서)'; }
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; } finally { hideAiLoading(); }
 }
 /* ===== 슬롯 무결성 · 창체 지문 결속 (슬롯 재활용 방지) ===== */
@@ -6255,6 +6316,13 @@ async function callAI(task,payload){
   return d;
 }
 window.callAI=callAI;
+async function callGrades(payload){
+  if(!sb) throw new Error('DB 미로드');
+  var sess=(await sb.auth.getSession()).data.session;
+  var res=await fetch(SB_URL+'/functions/v1/arche-grades',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({payload:payload})});
+  var d=await res.json(); if(!res.ok||d.error)throw new Error(d.error||'AI 오류'); return d;
+}
+window.callGrades=callGrades;
 async function careernet(action,query){
   if(!sb) return null;
   var sess=(await sb.auth.getSession()).data.session;
@@ -7270,8 +7338,8 @@ async function addGStudent(){
   if(gNewId && window.createStudentAccount){ try{ await createStudentAccount(gNewId); }catch(e){} }
 }
 async function delGStudent(id){
-  if(!sb||!confirm('삭제하시겠습니까? 관련 자료도 함께 삭제됩니다.'))return;
-  await sb.from('students').delete().eq('id',id);
+  if(!sb||!confirm('이 학생을 삭제(퇴원)하시겠습니까?\n\n성적·인터뷰·진단·리포트·업로드 파일과 로그인 계정까지 이 학생의 모든 정보가 영구 파기됩니다.\n파기된 정보는 복구할 수 없습니다.'))return;
+  try{ await purgeStudentReq(id); }catch(e){ alert(e.message||'삭제 실패'); return; }
   if(window._gactive&&window._gactive.id===id)window._gactive=null;
   renderGStudents();
 }
@@ -7387,12 +7455,9 @@ async function gintakeParse(){
       // 실패 또는 JSON 해석 실패 시 1회 재시도
       for(var att=0;att<2;att++){
         try{
-          var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_parse_record',payload:jobs[i]}});
-          var data=r.data,error=r.error;
-          if(!error&&data&&!data.error){
-            var obj=safeJson(data.text)||salvageParsed(data.text,['grades','autonomous','club','career_act','subject_detail','behavior','reading']);
-            if(obj&&Object.keys(obj).length){results[i]=obj;done++;prog();return;}
-          }
+          var d=await callGrades(Object.assign({level:'goip'},jobs[i]));
+          var obj=safeJson(d.text)||salvageParsed(d.text,['grades']);
+          if(obj&&obj.grades){ results[i]={grades:obj.grades.map(function(g){return {subject:(g.subject||'').trim(),sem:g.sem||'1-1',ach:(g.achievement||g.ach||'')};}).filter(function(g){return g.subject;})}; done++;prog();return; }
         }catch(e){}
       }
       failed.push(i+1); done++; prog();
@@ -7407,7 +7472,7 @@ async function gintakeParse(){
     window._gParseWarn=failed.length?('배치 '+failed.join(', ')+' 실패 — 해당 페이지 내용 누락 가능'):'';
     window._gParsed=merged;
     renderGParsed(merged);
-    var cnt=(merged.grades||[]).length+(merged.autonomous||[]).length+(merged.club||[]).length+(merged.career_act||[]).length+(merged.subject_detail||[]).length+(merged.behavior||[]).length+(merged.reading||[]).length;
+    var cnt=(merged.grades||[]).length;
     if(window._gParseWarn){ m.style.color='var(--reach)';m.textContent='분석 완료 ('+cnt+'개 항목) · '+window._gParseWarn+' · 확인 후 [일괄 저장]하세요.'; }
     else { m.style.color='var(--safe)';m.textContent='분석 완료 ('+cnt+'개 항목) · 아래에서 확인 후 [일괄 저장]하세요.'; }
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+e.message; }
