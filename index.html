@@ -54,7 +54,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);backdr
 .btn.big{font-size:15.5px;padding:15px 28px;border-radius:15px}
 
 /* ── 히어로 ── */
-.hero{background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);padding:68px 0 0;text-align:center;position:relative;overflow:hidden}
+.hero{background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);padding:44px 0 62px;text-align:center;position:relative;overflow:hidden;transition:background .45s ease}
 .hero::before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:520px;background:radial-gradient(closest-side,rgba(49,130,246,.1),transparent);pointer-events:none;animation:float 7s ease-in-out infinite}
 @keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(18px)}}
 .hero .patent{font-size:11.5px;font-weight:700;color:var(--ink-mute);letter-spacing:.04em;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 15px;display:inline-flex;align-items:center;gap:7px;margin-bottom:22px}
@@ -71,7 +71,7 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);backdr
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
 
 /* 히어로 목업 (살아있는 버전) */
-.mock{max-width:920px;margin:46px auto 0;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 -8px 60px rgba(25,31,40,.12);border:1px solid var(--line-soft);border-bottom:none;padding:22px 24px 6px;text-align:left}
+.mock{max-width:920px;margin:38px auto 0;background:#fff;border-radius:22px;box-shadow:0 18px 50px rgba(25,31,40,.12);border:1px solid var(--line-soft);padding:22px 24px 16px;text-align:left}
 .mock .mhead{display:flex;align-items:center;gap:9px;margin-bottom:16px}
 .mock .dot{width:10px;height:10px;border-radius:50%}
 .mock .live{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--safe);background:var(--safe-soft);border-radius:20px;padding:4px 11px;display:flex;align-items:center;gap:5px}
@@ -94,6 +94,27 @@ header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);backdr
 .mrow .bell{font-size:13px;opacity:0;transform:scale(.4);transition:.35s}
 .mrow .bell.on{opacity:1;transform:scale(1)}
 
+/* ── 3-way 탭 히어로 ── */
+.rswitch-label{font-size:12.5px;font-weight:700;color:var(--ink-mute);margin-bottom:12px}
+.rswitch{display:inline-flex;background:var(--bg);border-radius:16px;padding:5px;gap:4px;margin-bottom:36px;position:relative}
+.rswitch button{border:none;background:none;font-family:inherit;font-size:14.5px;font-weight:700;color:var(--ink-mute);padding:11px 24px;border-radius:12px;cursor:pointer;transition:color .22s;position:relative;z-index:1;display:flex;align-items:center;gap:7px}
+.rswitch button .re{font-size:15px}
+.rswitch button.on{color:#fff}
+.rswitch .rglider{position:absolute;top:5px;bottom:5px;border-radius:12px;transition:transform .32s cubic-bezier(.4,0,.2,1),background .32s,width .32s;z-index:0;background:var(--blue)}
+.rpane{display:none}
+.rpane.on{display:block;animation:rfade .42s ease}
+@keyframes rfade{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.rgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-top:38px;text-align:left}
+.rcard{background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:20px 17px;transition:.18s}
+.rcard:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(25,31,40,.07)}
+.rcard .ric{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;margin-bottom:12px}
+.rcard .rct{font-size:14.5px;font-weight:800;letter-spacing:-.02em}
+.rcard .rcd{font-size:12px;color:var(--ink-mute);font-weight:500;margin-top:5px;line-height:1.55}
+.rcard.clickable{cursor:pointer}
+.rcard.clickable .rpeek{display:block;margin-top:9px;font-size:11px;font-weight:800;color:var(--ink-mute);transition:.14s}
+.rcard.clickable:hover{border-color:var(--line)}
+.rcard.clickable:hover .rpeek{color:var(--ink-dim)}
+
 /* ── 공통 섹션 ── */
 section{padding:76px 0}
 section.alt{background:var(--bg)}
@@ -113,12 +134,39 @@ section.alt{background:var(--bg)}
 .core p{font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:10px;line-height:1.7}
 .core .tagline{margin-top:14px;font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:10px;display:inline-block}
 
+/* 핵심 엔진 4카드 · 클릭 샘플 */
+.core4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.core.clickable{cursor:pointer;position:relative;display:flex;flex-direction:column}
+.core.clickable .peek{margin-top:auto;padding-top:14px;font-size:12px;font-weight:800;color:var(--blue);display:flex;align-items:center;gap:5px;opacity:.85;transition:.16s}
+.core.clickable:hover .peek{gap:9px;opacity:1}
+/* 샘플 모달 */
+.emodal{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(15,20,30,.55);backdrop-filter:blur(4px)}
+.emodal.on{display:flex;animation:emfade .2s ease}
+@keyframes emfade{from{opacity:0}to{opacity:1}}
+.emodal .ebox{background:#fff;border-radius:24px;max-width:560px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 30px 80px rgba(15,20,30,.4);animation:emrise .28s cubic-bezier(.4,0,.2,1)}
+@keyframes emrise{from{transform:translateY(24px);opacity:.6}to{transform:none;opacity:1}}
+.emodal .ehead{display:flex;align-items:center;gap:12px;padding:22px 24px 16px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:#fff;border-radius:24px 24px 0 0}
+.emodal .ehead .eic{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none}
+.emodal .ehead h4{font-size:16px;font-weight:800;letter-spacing:-.02em}
+.emodal .ehead small{display:block;font-size:11.5px;color:var(--ink-mute);font-weight:500;margin-top:1px}
+.emodal .ehead .sim{margin-left:auto;font-size:10px;font-weight:800;color:var(--blue);background:var(--blue-soft);border-radius:20px;padding:4px 11px;display:flex;align-items:center;gap:5px}
+.emodal .ehead .sim i{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:pulse 1.4s infinite}
+.emodal .ebody{padding:20px 24px}
+.emodal .eclose{margin-left:8px;width:30px;height:30px;border-radius:50%;border:none;background:var(--bg);color:var(--ink-mute);font-size:16px;cursor:pointer;flex:none;transition:.14s}
+.emodal .eclose:hover{background:var(--line);color:var(--ink)}
+.emodal .efoot{padding:4px 24px 22px;text-align:center}
+.emodal .efoot a{font-size:12.5px;font-weight:800;color:var(--blue)}
+.emodal .samp-note{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:12px;font-weight:500}
+
 /* ═══ 실시간 체험관 ═══ */
 .demo-sec{background:linear-gradient(180deg,var(--bg),#fff)}
 .trackseg{display:inline-flex;background:#e5e8eb;border-radius:16px;padding:5px;margin-top:28px;gap:4px}
 .trackseg button{border:none;background:transparent;font-family:inherit;font-size:14.5px;font-weight:800;color:var(--ink-mute);padding:12px 30px;border-radius:12px;cursor:pointer;transition:.18s}
 .trackseg button.on{background:#fff;color:var(--blue);box-shadow:0 2px 8px rgba(25,31,40,.14)}
 .trackseg button.on.gp{color:var(--mint)}
+.trackseg button.on.pv{color:var(--violet)}
+.track-intro{max-width:760px;margin:22px auto 0;font-size:13.5px;color:var(--ink-dim);line-height:1.7;background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:15px 20px;text-align:left}
+.track-intro b{color:var(--ink)}
 .demo-shell{display:grid;grid-template-columns:250px 1fr;gap:18px;margin-top:26px;text-align:left}
 .demo-tabs{display:flex;flex-direction:column;gap:6px}
 .dtab{display:flex;align-items:center;gap:11px;background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:13px 15px;cursor:pointer;transition:.16s;position:relative;overflow:hidden}
@@ -289,6 +337,9 @@ footer .fr b{color:var(--ink)}
 footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--ink-faint);font-weight:500;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 
 @media(max-width:900px){
+  .rgrid{grid-template-columns:repeat(2,1fr)}
+  .core4{grid-template-columns:repeat(2,1fr)}
+  .rswitch button{padding:11px 16px;font-size:13.5px}
   .core3,.trust{grid-template-columns:1fr}
   .loop,.loopline{grid-template-columns:repeat(2,1fr)}
   .lstep:not(:last-child)::after{display:none}
@@ -304,6 +355,148 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
   .trial-r{border-left:none;border-top:1px solid var(--line-soft)}
   footer .fr{text-align:left}
 }
+@media(max-width:430px){
+  .rgrid{grid-template-columns:1fr}
+  .core4{grid-template-columns:1fr}
+  .rswitch button .rt{display:none}
+  .rswitch button{padding:12px 22px}
+}
+
+/* ══════════ 지속성장(비전) 파이프라인 상단 · .vision-top 스코프 ══════════ */
+.vision-top .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.vision-top section{padding:64px 0}
+.vision-top .eyebrow{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:10px}
+.vision-top .eyebrow.mint{color:var(--mint)}
+.vision-top .sec-h{font-size:clamp(24px,3.4vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1.3}
+.vision-top .sec-sub{font-size:15px;color:var(--ink-dim);margin-top:12px;line-height:1.7;max-width:640px}
+
+/* 규제 배너 */
+.vision-top .regbar{background:linear-gradient(90deg,#0f9d8f,#12b76a);color:#fff;text-align:center;padding:11px 18px;font-size:13px;font-weight:600}
+.vision-top .regbar b{font-weight:800}
+.vision-top .regbar .pill{display:inline-block;background:rgba(255,255,255,.22);border-radius:99px;padding:2px 10px;font-size:11px;font-weight:800;margin-right:8px;vertical-align:middle}
+
+/* 비전 히어로 */
+.vision-top .vhero{background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);padding:46px 0 60px;text-align:center}
+.vision-top .vhero .patent{font-size:11.5px;font-weight:700;color:var(--ink-mute);letter-spacing:.04em;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 15px;display:inline-flex;align-items:center;gap:7px;margin-bottom:22px}
+.vision-top .vhero .patent i{width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block;animation:pulse 1.8s infinite}
+.vision-top .vhero h1{font-size:clamp(30px,4.6vw,48px);font-weight:800;letter-spacing:-.03em;line-height:1.22}
+.vision-top .vhero h1 .hl{color:var(--blue)}
+.vision-top .vhero .lead{font-size:16px;color:var(--ink-dim);margin:20px auto 0;line-height:1.75;max-width:600px}
+.vision-top .vhero .cta{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap;justify-content:center}
+.vision-top .vhero .stats{display:flex;gap:38px;justify-content:center;margin-top:42px;flex-wrap:wrap}
+.vision-top .vhero .stat b{font-size:26px;font-weight:800;letter-spacing:-.03em;color:var(--ink);display:block}
+.vision-top .vhero .stat b .cnt{font-size:inherit;color:inherit;font-weight:inherit}
+.vision-top .vhero .stat b i{font-style:normal;color:var(--blue)}
+.vision-top .vhero .stat>span{font-size:12px;color:var(--ink-mute);font-weight:600;line-height:1.5}
+
+/* 3트랙 라인업 */
+.vision-top .track-flow{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:14px;align-items:stretch;margin-top:32px}
+.vision-top .track{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:18px;padding:24px 22px;position:relative}
+.vision-top .track.high{background:linear-gradient(180deg,rgba(94,234,212,.12),rgba(255,255,255,.04));border-color:rgba(94,234,212,.4)}
+.vision-top .track-badge{position:absolute;top:-10px;left:22px;background:#5eead4;color:#0f1720;font-size:10px;font-weight:800;padding:3px 10px;border-radius:99px}
+.vision-top .track-badge.soon{background:#475569;color:#e2e8f0}
+.vision-top .track-age{font-size:11px;font-weight:800;color:#5eead4;letter-spacing:.05em;margin-bottom:8px;font-family:ui-monospace,monospace}
+.vision-top .track.mid .track-age{color:#f5c451}
+.vision-top .track.elem .track-age{color:#7dd3fc}
+.vision-top .track-name{font-size:17px;font-weight:800;line-height:1.3}
+.vision-top .track-en{font-size:11px;color:#64748b;font-weight:700;margin:2px 0 12px;letter-spacing:.03em}
+.vision-top .track-desc{font-size:12.5px;color:#94a3b8;line-height:1.6;margin-bottom:14px}
+.vision-top .track-feat{list-style:none;display:flex;flex-direction:column;gap:6px}
+.vision-top .track-feat li{font-size:12px;color:#cbd5e1;padding-left:16px;position:relative}
+.vision-top .track-feat li:before{content:'✓';position:absolute;left:0;color:#5eead4;font-weight:800}
+.vision-top .track-arrow{display:flex;align-items:center;color:#475569;font-size:20px;font-weight:800}
+.vision-top .track-note{margin-top:26px;background:rgba(94,234,212,.06);border:1px solid rgba(94,234,212,.2);border-radius:12px;padding:15px 18px;font-size:13px;color:#cbd5e1;line-height:1.6}
+
+/* 킬러 카드 */
+.vision-top .killer-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:8px;align-items:start}
+.vision-top .killer-grid.two{grid-template-columns:1fr 1fr}
+.vision-top .kcard{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:26px 24px;position:relative;overflow:hidden}
+.vision-top .kcard .tag{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.04em;border-radius:99px;padding:4px 11px;margin-bottom:14px}
+.vision-top .kcard.a .tag{background:var(--mint-soft);color:var(--mint)}
+.vision-top .kcard.b .tag{background:var(--blue-soft);color:var(--blue-deep)}
+.vision-top .kcard.c .tag{background:var(--violet-soft);color:var(--violet)}
+.vision-top .kcard h3{font-size:19px;font-weight:800;letter-spacing:-.01em;line-height:1.35;margin-bottom:9px}
+.vision-top .kcard p{font-size:13.5px;color:var(--ink-dim);line-height:1.65}
+.vision-top .kcard .demo{margin-top:16px;background:var(--bg);border-radius:12px;padding:14px}
+.vision-top .dna-layers{display:flex;flex-direction:column;gap:6px}
+.vision-top .dna-row{display:flex;align-items:center;gap:8px}
+.vision-top .dna-row .ln{font-size:9px;font-weight:800;color:var(--ink-mute);width:16px}
+.vision-top .dna-row .bar{flex:1;height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.vision-top .dna-row .bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--mint),var(--blue))}
+.vision-top .dna-verdict{display:flex;align-items:center;gap:7px;margin-top:10px;font-size:11px;font-weight:800;color:var(--safe)}
+.vision-top .dna-verdict .dot{width:8px;height:8px;border-radius:99px;background:var(--safe)}
+.vision-top .dq{font-size:12px;font-weight:700;color:var(--ink);line-height:1.55;background:#fff;border:1px solid var(--mint-soft);border-radius:10px;padding:11px 13px}
+.vision-top .dq-badge{font-size:10px;font-weight:800;color:var(--mint);margin-bottom:6px}
+
+/* 자기비교 리포트 카드 */
+.vision-top .report-card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:28px 30px;margin-top:26px;box-shadow:0 4px 24px rgba(0,23,51,.06);max-width:720px}
+.vision-top .rc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.vision-top .rc-subj{font-size:16px;font-weight:800}
+.vision-top .rc-badge{font-size:11px;font-weight:800;border-radius:99px;padding:4px 12px}
+.vision-top .rc-badge.watch{background:var(--warn-soft);color:var(--warn)}
+.vision-top .rc-dual{display:flex;flex-direction:column;gap:9px;margin-bottom:14px}
+.vision-top .rc-line{display:flex;align-items:center;gap:11px}
+.vision-top .rc-lbl{flex:none;width:74px;font-size:12px;font-weight:700;color:var(--ink-dim)}
+.vision-top .rc-track{flex:1;height:10px;border-radius:99px;background:var(--line);overflow:hidden}
+.vision-top .rc-track i{display:block;height:100%;border-radius:99px}
+.vision-top .rc-track i.naesin{background:linear-gradient(90deg,#8b95a1,#b0b8c1)}
+.vision-top .rc-track i.think{background:linear-gradient(90deg,var(--blue),var(--mint))}
+.vision-top .rc-v{flex:none;width:58px;text-align:right;font-size:13px;font-weight:800;font-family:ui-monospace,monospace}
+.vision-top .rc-lead{font-size:13px;color:var(--ink-dim);line-height:1.65;background:var(--bg);border-radius:10px;padding:12px 15px;margin-bottom:14px}
+.vision-top .rc-diag{border:1px solid rgba(247,144,9,.25);border-radius:14px;overflow:hidden}
+.vision-top .rc-block{padding:16px 18px}
+.vision-top .rc-block+.rc-block{border-top:1px solid var(--line-soft)}
+.vision-top .rc-block-h{font-size:11.5px;font-weight:800;letter-spacing:.03em;margin-bottom:8px}
+.vision-top .rc-block-h.cause{color:var(--warn)}
+.vision-top .rc-block-h.rx{color:var(--blue)}
+.vision-top .rc-block-t{font-size:13px;color:var(--ink-dim);line-height:1.7}
+.vision-top .rc-block-t b{color:var(--ink);font-weight:700}
+.vision-top .rc-metrics{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.vision-top .rc-m{flex:1;min-width:120px;background:var(--bg);border-radius:9px;padding:9px 12px}
+.vision-top .rc-m-n{font-size:11px;font-weight:700;margin-bottom:5px}
+.vision-top .rc-m-b{height:6px;border-radius:99px;background:var(--line);overflow:hidden}
+.vision-top .rc-m-b i{display:block;height:100%;border-radius:99px}
+.vision-top .rc-m.hi .rc-m-n{color:var(--safe)}
+.vision-top .rc-m.hi .rc-m-b i{background:var(--safe)}
+.vision-top .rc-m.lo .rc-m-n{color:var(--risk)}
+.vision-top .rc-m.lo .rc-m-b i{background:var(--risk)}
+.vision-top .rc-rx{display:flex;gap:11px;margin-top:12px}
+.vision-top .rc-rx-ic{flex:none;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.vision-top .rc-rx-ic.think{background:var(--mint-soft)}
+.vision-top .rc-rx-ic.study{background:var(--blue-soft)}
+.vision-top .rc-rx-t{font-size:12.5px;font-weight:800;margin-bottom:3px}
+.vision-top .rc-rx-t.think{color:var(--mint)}
+.vision-top .rc-rx-t.study{color:var(--blue-deep)}
+.vision-top .rc-rx-d{font-size:12.5px;color:var(--ink-dim);line-height:1.6}
+.vision-top .rc-rx-d b{color:var(--ink)}
+.vision-top .rc-cta{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:var(--blue);background:var(--blue-soft);border-radius:9px;padding:9px 15px;margin-top:14px}
+.vision-top .rc-foot{font-size:11.5px;color:var(--ink-mute);margin-top:14px;display:flex;align-items:center;gap:6px}
+
+/* 타이핑DNA 5계층 */
+.vision-top .dna-detail{background:#0f1720;border-radius:24px;padding:44px 40px;color:#fff;margin-top:8px}
+.vision-top .dna-detail .eyebrow{color:#5eead4}
+.vision-top .dna-detail h2{font-size:clamp(22px,2.8vw,30px);font-weight:800;letter-spacing:-.02em;line-height:1.3;color:#fff}
+.vision-top .dna-detail .sub{font-size:14px;color:#94a3b8;margin-top:12px;line-height:1.7;max-width:600px}
+.vision-top .layer-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:30px}
+.vision-top .lchip{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px 14px}
+.vision-top .lchip .ln{font-size:11px;font-weight:800;color:#5eead4;font-family:ui-monospace,monospace}
+.vision-top .lchip .lt{font-size:13.5px;font-weight:800;margin:8px 0 5px}
+.vision-top .lchip .ld{font-size:11px;color:#94a3b8;line-height:1.5}
+
+/* 입시 파이프라인 브리지 */
+.vision-bridge{background:#141d2b;color:#cbd5e1;text-align:center;padding:30px 22px}
+.vision-bridge .vb-eyebrow{font-size:12px;font-weight:800;letter-spacing:.1em;color:#5eead4;margin-bottom:8px}
+.vision-bridge .vb-h{font-size:clamp(18px,2.4vw,24px);font-weight:800;color:#fff;line-height:1.4}
+.vision-bridge .vb-h em{font-style:normal;color:#5eead4}
+.vision-bridge .vb-arrow{font-size:22px;color:#475569;margin-top:10px}
+
+@media(max-width:900px){
+  .vision-top .killer-grid{grid-template-columns:1fr}
+  .vision-top .layer-strip{grid-template-columns:1fr 1fr}
+  .vision-top .track-flow{grid-template-columns:1fr}
+  .vision-top .track-arrow{transform:rotate(90deg);justify-content:center;padding:2px 0}
+}
+
 </style>
 </head>
 <body>
@@ -327,43 +520,304 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
   </div>
 </header>
 
-<!-- ═══ 히어로 ═══ -->
-<div class="hero">
+<!-- ══════════ 지속성장(비전) 파이프라인 · 신규 상단 ══════════ -->
+<div class="vision-top">
+
+  <!-- 규제 대응 배너 -->
+  <div class="regbar">
+    <span class="pill">2026 개정 교육법 대응</span>
+    <b>타인 생기부 없이, 학생 본인 자료만.</b> 아르케는 학생부 상업이용 규제로부터 안전하게 설계된 컨설팅 플랫폼입니다.
+  </div>
+
+  <!-- 비전 히어로 -->
+  <div class="vhero">
+    <div class="wrap">
+      <div class="patent"><i></i>특허 출원 10-2026-0053173 · 다차원 통합지능 평가</div>
+      <h1>AI가 대신 쓰는 시대에,<br><span class="hl">직접 했음을 증명하는</span> 컨설팅</h1>
+      <p class="lead">아르케는 완성 문장을 대필하지 않습니다. 학생이 스스로 사고하고 작성한 과정을 <b>타이핑DNA 5계층</b>으로 기록해, 진정성을 데이터로 증명합니다. 속도가 아니라 — 진짜 성장을 파는 플랫폼입니다.</p>
+      <div class="cta">
+        <a class="btn pri big" href="#trial">🎫 7일 무료 체험 시작 →</a>
+        <a class="btn ghost big" href="#demo">🕹️ 실시간 체험관</a>
+      </div>
+      <div class="stats">
+        <div class="stat"><b><span class="cnt" data-n="5">0</span><i>계층</i></b><span>타이핑DNA 작성 무결성</span></div>
+        <div class="stat"><b><span class="cnt" data-n="3">0</span><i>층</i></b><span>지성·감각 지표 진단</span></div>
+        <div class="stat"><b>0<i>건</i></b><span>완성 문장 대필 — 설계만</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3트랙 8년 지성 엔진 -->
+  <section style="background:linear-gradient(180deg,#0f1720,#141d2b);color:#fff;padding:70px 0">
+    <div class="wrap">
+      <div class="eyebrow" style="color:#5eead4">하나의 엔진 · 8년</div>
+      <h2 class="sec-h" style="color:#fff">초등 사고력의 씨앗부터<br><span style="color:#f5c451">고등 입시의 열매</span>까지, 하나의 엔진으로</h2>
+      <p class="sec-sub" style="color:#94a3b8">아르케는 입시 도구 하나가 아닙니다. 같은 특허 지성 엔진이 초등·중등·고등 8년을 관통하며, 아이의 사고 성장을 데이터로 이어갑니다.</p>
+
+      <div class="track-flow">
+        <div class="track elem">
+          <div class="track-badge soon">준비 중</div>
+          <div class="track-age">초4 – 초6</div>
+          <div class="track-name">펜타 비전 · 사고력 트랙</div>
+          <div class="track-en">Thinking Loop</div>
+          <div class="track-desc">5대 지성 주파수로 아이 고유의 사고 성향을 발견. 딜레마로 '정답이 아닌 논리'를 세우는 힘을 기릅니다.</div>
+          <ul class="track-feat">
+            <li>지성 레이더 진단</li>
+            <li>에러 랩(딜레마) 사고훈련</li>
+            <li>성장 리포트 발행</li>
+          </ul>
+        </div>
+        <div class="track-arrow">→</div>
+        <div class="track mid">
+          <div class="track-badge soon">준비 중</div>
+          <div class="track-age">중1 – 중3</div>
+          <div class="track-name">펜타 트랙 · 진로·융합</div>
+          <div class="track-en">Convergence Loop</div>
+          <div class="track-desc">교과 경계를 허무는 융합 사고로 진로 주파수를 확정. 고교학점제 선택과목과 탐구 주제를 미리 설계합니다.</div>
+          <ul class="track-feat">
+            <li>진로 주파수 누적 분석</li>
+            <li>탐구 주제 추출</li>
+            <li>고교학점제 로드맵</li>
+          </ul>
+        </div>
+        <div class="track-arrow">→</div>
+        <div class="track high">
+          <div class="track-badge">현재 아르케</div>
+          <div class="track-age">고1 – 고3</div>
+          <div class="track-name">아르케 · 입시 트랙</div>
+          <div class="track-en">Arche Loop</div>
+          <div class="track-desc">누적된 지성 데이터를 입시 전략으로. 활동 설계·자소서·면접·합격 역설계까지 대입 전 과정을 완성합니다.</div>
+          <ul class="track-feat">
+            <li>활동·세특 설계</li>
+            <li>타이핑DNA 무결성 인증</li>
+            <li>합격 역설계·컨설팅</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="track-note">💡 초등부터 쌓인 지성 성장 궤적이 고등 입시의 <b style="color:#5eead4">"과거의 나"</b> 데이터가 됩니다. 8년을 함께한 아이만이 가질 수 있는 대체 불가한 자산입니다. <span style="color:#94a3b8">(초등·중등 트랙은 준비 중입니다.)</span></div>
+    </div>
+  </section>
+
+  <!-- 킬러 2분할 -->
+  <section>
+    <div class="wrap">
+      <div class="eyebrow mint">아르케만의 무기</div>
+      <h2 class="sec-h">다른 곳은 결과물을 뽑아줍니다.<br>아르케는 <span style="color:var(--mint)">사고한 과정을 증명</span>합니다.</h2>
+      <p class="sec-sub">학생이 실제로 사고했다는 것을, 데이터로 증명하는 기술입니다.</p>
+
+      <div class="killer-grid two">
+        <div class="kcard a">
+          <span class="tag">🧬 타이핑DNA 인증</span>
+          <h3>이 글, 학생이 직접 썼습니다</h3>
+          <p>붙여넣기·AI 대필을 5계층으로 탐지. 타이핑 리듬부터 수정 흐름, 의미 변화, 본인 고유 패턴까지 분석해 진짜 작성을 증명합니다.</p>
+          <div class="demo">
+            <div class="dna-layers">
+              <div class="dna-row"><span class="ln">L1</span><span class="bar"><i style="width:92%"></i></span></div>
+              <div class="dna-row"><span class="ln">L2</span><span class="bar"><i style="width:85%"></i></span></div>
+              <div class="dna-row"><span class="ln">L3</span><span class="bar"><i style="width:71%"></i></span></div>
+              <div class="dna-row"><span class="ln">L4</span><span class="bar"><i style="width:88%"></i></span></div>
+            </div>
+            <div class="dna-verdict"><span class="dot"></span>신뢰 · 직접 작성 (87/100)</div>
+          </div>
+        </div>
+
+        <div class="kcard c">
+          <span class="tag">🧭 소크라테스 딜레마</span>
+          <h3>AI가 답을 주지 않고 되묻습니다</h3>
+          <p>결과를 빨리 뽑는 건 교육이 아닙니다. 아르케는 학생의 결론에 반박 질문을 던져, 스스로 더 깊이 사고하고 성장하게 만듭니다.</p>
+          <div class="demo">
+            <div class="dq">
+              <div class="dq-badge">◆ 아르케 AI</div>
+              "촉매 농도가 포화된다고 했는데 — 온도를 함께 높였다면? 진짜 원인이 포화였을까요, 조건이 고정돼 그렇게 보였을까요?"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 자기비교 리포트 -->
+  <section style="padding-top:20px;background:linear-gradient(180deg,#fff,#f7f9fb)">
+    <div class="wrap">
+      <div class="eyebrow mint">실제 산출물 · 자기비교 리포트</div>
+      <h2 class="sec-h">성적표가 못 본 격차,<br><span style="color:var(--mint)">원인과 처방</span>까지 나옵니다</h2>
+      <p class="sec-sub">남과 줄 세우지 않습니다. 내신과 사고력의 어긋남을 짚고 — 왜 그런지, 어떻게 끌어올릴지 사고법·학습법으로 답합니다. 아래는 실제 리포트 화면입니다.</p>
+
+      <div class="report-card">
+        <div class="rc-head">
+          <div class="rc-subj">📖 국어 · 살펴볼 지점</div>
+          <div class="rc-badge watch">△ 내신 대비 사고력 격차</div>
+        </div>
+        <div class="rc-dual">
+          <div class="rc-line"><span class="rc-lbl">내신 등급</span><span class="rc-track"><i class="naesin" style="width:80%"></i></span><span class="rc-v">2등급</span></div>
+          <div class="rc-line"><span class="rc-lbl">사고력</span><span class="rc-track"><i class="think" style="width:64%"></i></span><span class="rc-v">6.4/10</span></div>
+        </div>
+        <div class="rc-lead">내신은 좋지만(2등급) 사고력 측정치는 낮습니다(6.4). 이 격차에는 이유가 있습니다 — 아래에서 원인과 개선 방향을 짚어드립니다.</div>
+
+        <div class="rc-diag">
+          <div class="rc-block">
+            <div class="rc-block-h cause">🔍 원인 진단 · 어느 지성에서 격차가 나는가</div>
+            <div class="rc-block-t">국어는 <b>성취기준 도달도(정답 부합)는 높은데</b>, <b>탐구 심화력과 논리적 회복지성이 낮습니다.</b> 즉 "정해진 답은 정확히 쓰지만(→ 그래서 내신은 좋음), 스스로 논지를 넓히거나 반박에 맞서 다시 세우는 힘은 약하다"는 신호입니다. 전형적인 <b>암기·정답형 고득점</b> 패턴입니다.</div>
+            <div class="rc-metrics">
+              <div class="rc-m hi"><div class="rc-m-n">성취기준 도달도</div><div class="rc-m-b"><i style="width:88%"></i></div></div>
+              <div class="rc-m lo"><div class="rc-m-n">탐구 심화력</div><div class="rc-m-b"><i style="width:41%"></i></div></div>
+              <div class="rc-m lo"><div class="rc-m-n">논리적 회복지성</div><div class="rc-m-b"><i style="width:38%"></i></div></div>
+            </div>
+          </div>
+          <div class="rc-block">
+            <div class="rc-block-h cause">🧩 사고 습관 · 왜 이런 패턴인가</div>
+            <div class="rc-block-t">딜레마 질문을 받았을 때, 자기 주장을 <b>방어·발전시키기보다 질문에 맞춰 답을 바꾸는 경향</b>이 관찰됩니다. 정답을 빨리 찾는 데는 강하지만, "왜 이게 답인가"를 스스로 파고드는 훈련이 부족한 상태입니다.</div>
+          </div>
+          <div class="rc-block">
+            <div class="rc-block-h rx">💡 개선 방향 · 사고법 + 학습법</div>
+            <div class="rc-rx">
+              <div class="rc-rx-ic think">🧠</div>
+              <div class="rc-rx-body">
+                <div class="rc-rx-t think">사고법</div>
+                <div class="rc-rx-d">정답을 정하기 전에 <b>"이 주장의 반대편은 뭘까"를 먼저 한 문단 써보기.</b> 딜레마 질문에 답을 바꾸지 말고, 내 논지를 지키며 근거를 더하는 연습.</div>
+              </div>
+            </div>
+            <div class="rc-rx">
+              <div class="rc-rx-ic study">📚</div>
+              <div class="rc-rx-body">
+                <div class="rc-rx-t study">학습법</div>
+                <div class="rc-rx-d">국어 지문을 요약만 하지 말고, <b>필자 주장에 반대 입장을 세워 반박문 한 편 쓰기.</b> 서술·논증형 문제 비중을 늘려 "정답 고르기"에서 "논지 세우기"로 전환.</div>
+              </div>
+            </div>
+            <div class="rc-cta">＋ 국어 논증형 탐구 1건 설계하기 →</div>
+          </div>
+        </div>
+        <div class="rc-foot">🖊️ 이 진단·처방은 담당 컨설턴트가 검토·확정했습니다.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 타이핑DNA 5계층 -->
+  <section style="padding-top:20px">
+    <div class="wrap">
+      <div class="dna-detail">
+        <div class="eyebrow">타이핑DNA · 5계층 무결성</div>
+        <h2>위조하려면, 5번을 동시에 속여야 합니다</h2>
+        <p class="sub">한 계층은 우연히 통과할 수 있습니다. 하지만 리듬·수정위치·의미변화·본인이력·세션일관성을 모두 자연스럽게 위장하는 건 사실상 불가능합니다. 그래서 아르케의 인증은 신뢰됩니다.</p>
+        <div class="layer-strip">
+          <div class="lchip"><div class="ln">L1</div><div class="lt">리듬 패턴</div><div class="ld">타이핑 간격의 자연스러운 버스트-정지. 기계적 균일 탐지</div></div>
+          <div class="lchip"><div class="ln">L2</div><div class="lt">수정 위치</div><div class="ld">글 전체 퇴고 vs 끝만 손댄 붙여넣기 위장 구분</div></div>
+          <div class="lchip"><div class="ln">L3</div><div class="lt">의미 변화</div><div class="ld">초안→최종 의미 발전. 통째 복사는 변화 0</div></div>
+          <div class="lchip"><div class="ln">L4</div><div class="lt">본인 이력</div><div class="ld">평소 패턴 대비 급격한 도약 = 대필 의심</div></div>
+          <div class="lchip"><div class="ln">L5</div><div class="lt">세션 일관성</div><div class="ld">사전·본작성·회고 세 구간의 타이핑이 같은 사람인가</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /.vision-top -->
+
+<!-- 입시 파이프라인 브리지 -->
+<div class="vision-bridge">
+  <div class="vb-eyebrow">여기서부터 · 입시 파이프라인</div>
+  <div class="vb-h">그 성장이, 입시에서 <em>이렇게 완성</em>됩니다</div>
+  <div class="vb-arrow">↓</div>
+</div>
+
+
+<!-- ═══ 히어로 (3-way 탭) ═══ -->
+<div class="hero" id="hero">
   <div class="wrap">
     <div class="patent"><i></i>Patent 10-2026-0053173 · PentaView 인지 진단 엔진</div>
-    <h1>학생을 이해하는 순간,<br><em>합격까지의 설계도</em>가 나옵니다</h1>
-    <p class="sub">학생 한 명의 자료로 — 5역량 진단, 진로·학과 매칭, 합격 역설계, 진로 징검다리, 면접, 리포트까지.<br>재원생의 성장을 돕고 학원이 함께 성장하는 AI 컨설팅 파트너, <b>아르케</b>입니다.</p>
-    <div class="cta">
-      <a class="btn pri big" href="#trial">🎫 7일 무료 체험 시작 →</a>
-      <a class="btn ghost big" href="#demo">🕹️ 실시간 체험관 둘러보기</a>
-    </div>
-    <div class="stats">
-      <div class="stat"><b><span class="cnt" data-n="7">0</span><i>단계</i></b><span>대입 컨설팅 전 과정</span></div>
-      <div class="stat"><b><span class="cnt" data-n="5">0</span><i>역량</i></b><span>PentaView 특허 진단</span></div>
-      <div class="stat"><b><span class="cnt" data-n="3">0</span><i>초</i></b><span>학생 등록 → 계정 발급</span></div>
-      <div class="stat"><b>0<i>건</i></b><span>완성 문장 대필 — 설계만 합니다</span></div>
+    <div class="rswitch-label">누구의 눈으로 아르케를 보시겠어요?</div>
+    <div class="rswitch" id="rswitch">
+      <span class="rglider" id="rglider"></span>
+      <button class="on" data-role="director"><span class="re">🎓</span><span class="rt">원장님</span></button>
+      <button data-role="parent"><span class="re">🌱</span><span class="rt">학부모님</span></button>
+      <button data-role="student"><span class="re">🧭</span><span class="rt">학생</span></button>
     </div>
 
-    <!-- 살아있는 대시보드 목업 -->
-    <div class="mock">
-      <div class="mhead">
-        <span class="dot" style="background:#f04452"></span><span class="dot" style="background:#f79009"></span><span class="dot" style="background:#12b76a"></span>
-        <span style="font-size:12px;font-weight:700;color:var(--ink-mute)">arche.penta-view.com · 컨설팅 홈</span>
-        <span class="live"><i></i>LIVE</span>
+    <!-- 원장 -->
+    <div class="rpane on" data-pane="director">
+      <h1>원장님의 제자가,<br><em>남의 정답만 쫓는 아이</em>이길<br>바라십니까.</h1>
+      <p class="sub">이제, 원장님의 선택에 달렸습니다. 아르케는 재원생 한 명 한 명이 스스로의 힘으로 성장하도록 돕고, 그 과정을 데이터로 증명하는 AI 컨설팅 파트너입니다. AI는 컨설턴트의 판단을 <b>보조</b>합니다.</p>
+      <div class="cta">
+        <a class="btn pri big" href="#trial">🎫 7일 무료 체험 시작 →</a>
+        <a class="btn ghost big" href="#demo">🕹️ 실시간 체험관 둘러보기</a>
       </div>
-      <div class="flowrow" id="heroFlow">
-        <div class="fcard"><div class="fe">📥</div><div class="fl">자료 입력</div><div class="fbar"><i data-w="100"></i></div></div>
-        <div class="fcard"><div class="fe">🔍</div><div class="fl">진단</div><div class="fbar"><i data-w="79"></i></div></div>
-        <div class="fcard"><div class="fe">🧭</div><div class="fl">학과 매칭</div><div class="fbar"><i data-w="52"></i></div></div>
-        <div class="fcard"><div class="fe">🎯</div><div class="fl">합격 역설계</div><div class="fbar"><i data-w="38"></i></div></div>
-        <div class="fcard"><div class="fe">✏️</div><div class="fl">진로 징검다리</div><div class="fbar"><i data-w="24"></i></div></div>
-        <div class="fcard"><div class="fe">🎤</div><div class="fl">면접</div><div class="fbar"><i data-w="10"></i></div></div>
-        <div class="fcard"><div class="fe">📄</div><div class="fl">리포트</div><div class="fbar"><i data-w="12"></i></div></div>
+      <div class="stats">
+        <div class="stat"><b><span class="cnt" data-n="7">0</span><i>단계</i></b><span>대입 컨설팅 전 과정</span></div>
+        <div class="stat"><b><span class="cnt" data-n="5">0</span><i>역량</i></b><span>PentaView 특허 진단</span></div>
+        <div class="stat"><b><span class="cnt" data-n="3">0</span><i>초</i></b><span>학생 등록 → 계정 발급</span></div>
+        <div class="stat"><b>0<i>건</i></b><span>완성 문장 대필 — 설계만 합니다</span></div>
       </div>
-      <div class="rows">
-        <div class="mrow"><div class="ph" style="background:var(--blue-soft);color:var(--blue)">서</div><div class="nm">김서연<small>고2 · 이과</small></div><span class="st" id="hst1" style="background:var(--blue-soft);color:var(--blue-deep)">학과 매칭 분석 중…</span><div class="gg" id="hgg1">키워드 추출 중</div></div>
-        <div class="mrow"><div class="ph" style="background:var(--mint-soft);color:var(--mint)">준</div><div class="nm">이준호<small>고3 · 문과</small></div><span class="st" id="hst2" style="background:var(--bg);color:var(--ink-mute)">면접 답변 작성 중</span><span class="bell" id="hbell">🔔</span><div class="gg" id="hgg2">고려대 경영</div></div>
-        <div class="mrow"><div class="ph" style="background:var(--warn-soft);color:var(--warn)">민</div><div class="nm">박민지<small>중3</small></div><span class="st" style="background:var(--violet-soft);color:var(--violet)">고입 · 자소서 3차</span><div class="gg">대원외고 영어과</div></div>
+
+      <div class="rgrid">
+        <div class="rcard clickable" onclick="openEngineSample('penta')"><div class="ric" style="background:var(--blue-soft)">📊</div><div class="rct">5역량 진단</div><div class="rcd">PentaView 특허 · 근거까지 정량화</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('integrity')"><div class="ric" style="background:var(--safe-soft)">⌨️</div><div class="rct">타이핑DNA</div><div class="rcd">스스로 작성했음을 데이터로 증명</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('career')"><div class="ric" style="background:var(--mint-soft)">🧭</div><div class="rct">진로·학과 매칭</div><div class="rcd">키워드→서사→추천 학과 상위 5</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('reverse')"><div class="ric" style="background:var(--blue-soft)">🎯</div><div class="rct">합격 역설계</div><div class="rcd">지원가능 대학을 소신·적정·안정으로</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('promo')"><div class="ric" style="background:var(--blue-soft)">📣</div><div class="rct">홍보 스튜디오</div><div class="rcd">익명 성장 스토리·교육 글 자동 생성</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('brief')"><div class="ric" style="background:var(--warn-soft)">📬</div><div class="rct">학부모 월간 브리핑</div><div class="rcd">매달 학부모용 글을 자동 작성·게시</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('gradesim')"><div class="ric" style="background:var(--mint-soft)">📈</div><div class="rct">내신 시뮬레이터</div><div class="rcd">과목 슬라이더로 예상 내신 즉시 계산</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('retention')"><div class="ric" style="background:var(--blue-soft)">🛡️</div><div class="rct">재등록 방어</div><div class="rcd">이탈 위험 학생을 대시보드가 경고</div><span class="rpeek">샘플 보기 →</span></div>
+      </div>
+
+      <!-- 살아있는 대시보드 목업 -->
+      <div class="mock">
+        <div class="mhead">
+          <span class="dot" style="background:#f04452"></span><span class="dot" style="background:#f79009"></span><span class="dot" style="background:#12b76a"></span>
+          <span style="font-size:12px;font-weight:700;color:var(--ink-mute)">arche.penta-view.com · 컨설팅 홈</span>
+          <span class="live"><i></i>실시간</span>
+        </div>
+        <div class="flowrow" id="heroFlow">
+          <div class="fcard"><div class="fe">📥</div><div class="fl">자료 입력</div><div class="fbar"><i data-w="100"></i></div></div>
+          <div class="fcard"><div class="fe">🔍</div><div class="fl">진단</div><div class="fbar"><i data-w="79"></i></div></div>
+          <div class="fcard"><div class="fe">🧭</div><div class="fl">학과 매칭</div><div class="fbar"><i data-w="52"></i></div></div>
+          <div class="fcard"><div class="fe">🎯</div><div class="fl">합격 역설계</div><div class="fbar"><i data-w="38"></i></div></div>
+          <div class="fcard"><div class="fe">✏️</div><div class="fl">진로 징검다리</div><div class="fbar"><i data-w="24"></i></div></div>
+          <div class="fcard"><div class="fe">🎤</div><div class="fl">면접</div><div class="fbar"><i data-w="10"></i></div></div>
+          <div class="fcard"><div class="fe">📄</div><div class="fl">리포트</div><div class="fbar"><i data-w="12"></i></div></div>
+        </div>
+        <div class="rows">
+          <div class="mrow"><div class="ph" style="background:var(--blue-soft);color:var(--blue)">서</div><div class="nm">김서연<small>고2 · 이과</small></div><span class="st" id="hst1" style="background:var(--blue-soft);color:var(--blue-deep)">학과 매칭 분석 중…</span><div class="gg" id="hgg1">키워드 추출 중</div></div>
+          <div class="mrow"><div class="ph" style="background:var(--mint-soft);color:var(--mint)">준</div><div class="nm">이준호<small>고3 · 문과</small></div><span class="st" id="hst2" style="background:var(--bg);color:var(--ink-mute)">면접 답변 작성 중</span><span class="bell" id="hbell">🔔</span><div class="gg" id="hgg2">고려대 경영</div></div>
+          <div class="mrow"><div class="ph" style="background:var(--warn-soft);color:var(--warn)">민</div><div class="nm">박민지<small>중3</small></div><span class="st" style="background:var(--violet-soft);color:var(--violet)">고입 · 진로 징검다리</span><div class="gg">대원외고 영어과</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 학부모 -->
+    <div class="rpane" data-pane="parent">
+      <h1>성적표 너머,<br><em style="color:var(--mint)">아이의 성장 과정</em>이<br>보입니다.</h1>
+      <p class="sub">아르케는 결과가 아니라 성장의 과정을 봅니다. 아이가 무엇을 고민하고 어떻게 스스로 답을 찾아가는지 — 성적표 뒤에 가려졌던 진짜 성장을, 학부모님이 곁에서 함께 확인하실 수 있습니다.</p>
+      <div class="cta">
+        <a class="btn pri big" href="#trial" style="background:var(--mint);box-shadow:0 6px 18px rgba(0,184,169,.3)">🌱 아이의 성장 지켜보기 →</a>
+        <a class="btn ghost big" href="#loop">협업 루프 살펴보기</a>
+      </div>
+      <div class="rgrid">
+        <div class="rcard clickable" onclick="openEngineSample('brief')"><div class="ric" style="background:var(--mint-soft)">📬</div><div class="rct">월간 브리핑</div><div class="rcd">이번 달 상담·활동·성적을 학부모용 글로</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('penta')"><div class="ric" style="background:var(--mint-soft)">📈</div><div class="rct">성장 리포트</div><div class="rcd">역량 진단과 변화를 알기 쉽게</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('career')"><div class="ric" style="background:var(--mint-soft)">🧭</div><div class="rct">진로 방향</div><div class="rcd">아이의 관심·적성에 맞는 진로 탐색</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard"><div class="ric" style="background:var(--mint-soft)">💬</div><div class="rct">컨설턴트 소통</div><div class="rcd">담당 컨설턴트와 진행 상황 확인</div></div>
+        <div class="rcard"><div class="ric" style="background:var(--mint-soft)">📝</div><div class="rct">활동 진행 현황</div><div class="rcd">준비가 어디까지 왔는지 한눈에</div></div>
+        <div class="rcard"><div class="ric" style="background:var(--mint-soft)">🔒</div><div class="rct">자료 보호</div><div class="rcd">자녀의 자료는 본인 컨설팅에만 사용</div></div>
+      </div>
+    </div>
+
+    <!-- 학생 -->
+    <div class="rpane" data-pane="student">
+      <h1>언제까지 <em style="color:var(--violet)">남의 정답</em>을<br>쫓아갈래?</h1>
+      <p class="sub">네 삶의 주인공은 너 자신이야. 네 안엔 아직 깨어나지 않은 가능성이 잠들어 있어. AI가 대신 정해주는 시대에, 스스로 방향을 잡는 사람으로 — 아르케가 그 나침반이 되어줄게.</p>
+      <div class="cta">
+        <a class="btn pri big" href="#trial" style="background:var(--violet);box-shadow:0 6px 18px rgba(124,58,237,.3)">🧭 7일 무료로 시작하기 →</a>
+        <a class="btn ghost big" href="#demo">기능 미리 보기</a>
+      </div>
+      <div class="rgrid">
+        <div class="rcard clickable" onclick="openEngineSample('penta')"><div class="ric" style="background:var(--violet-soft)">📊</div><div class="rct">5역량 진단</div><div class="rcd">지금 나의 강점과 성장 지점 찾기</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('career')"><div class="ric" style="background:var(--violet-soft)">🧭</div><div class="rct">진로·학과 매칭</div><div class="rcd">내 관심에서 출발하는 학과 탐색</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard clickable" onclick="openEngineSample('reverse')"><div class="ric" style="background:var(--violet-soft)">🎯</div><div class="rct">합격 역설계</div><div class="rcd">가고 싶은 곳에서 거꾸로 계획 세우기</div><span class="rpeek">샘플 보기 →</span></div>
+        <div class="rcard"><div class="ric" style="background:var(--violet-soft)">✏️</div><div class="rct">진로 징검다리</div><div class="rcd">대신 써주지 않는, 스스로 짜는 설계도</div></div>
+        <div class="rcard"><div class="ric" style="background:var(--violet-soft)">📚</div><div class="rct">선택과목 로드맵</div><div class="rcd">진로에 맞는 과목 선택 방향 잡기</div></div>
+        <div class="rcard"><div class="ric" style="background:var(--violet-soft)">🎤</div><div class="rct">면접 준비</div><div class="rcd">내 자료에서 나올 질문·꼬리질문 연습</div></div>
+        <div class="rcard"><div class="ric" style="background:var(--violet-soft)">📝</div><div class="rct">수행평가 도우미</div><div class="rcd">관점 설계 → 작성 → 예상 채점</div></div>
+        <div class="rcard clickable" onclick="openEngineSample('integrity')"><div class="ric" style="background:var(--violet-soft)">⌨️</div><div class="rct">타이핑 무결성</div><div class="rcd">스스로 쓴 과정을 진정성으로 증명</div><span class="rpeek">샘플 보기 →</span></div>
       </div>
     </div>
   </div>
@@ -390,22 +844,30 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
 <!-- ═══ 핵심 엔진 3종 ═══ -->
 <section id="core">
   <div class="wrap center">
-    <div class="sec-eyebrow reveal">CORE ENGINES</div>
-    <h2 class="sec-h reveal">20년 경력 입시 컨설턴트의 노하우를 담은 로직을,<br>세 개의 엔진에 담았습니다</h2>
-    <p class="sec-p reveal d1">단순 요약 AI가 아닙니다. 학생 본인의 활동을 <b>평가자의 관점</b>으로 해석하고, 학과의 언어로 정리합니다.</p>
-    <div class="core3" style="text-align:left">
-      <div class="core reveal"><div class="ci" style="background:var(--blue-soft)">📊</div>
-        <h3>PentaView 5역량 진단<small>Patent 10-2026-0053173</small></h3>
-        <p>학업·탐구·융합창의·공동체·문제해결 5축을 학생의 활동 근거와 함께 정량화. Log.R 입시연구소의 <b>20년 입시 지도 노하우</b>를 판단 렌즈로 교차 검증합니다.</p>
-        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">점수마다 "왜"가 붙습니다</span></div>
-      <div class="core reveal d1"><div class="ci" style="background:var(--warn-soft)">✨</div>
-        <h3>황금문장 정제<small>Golden Sentence Refinery</small></h3>
-        <p>학생 활동 내용 전체를 복붙하는 리포트는 그만. 희망 학과·진로에 부합하는 활동만 선별해 과목별·활동별 <b>한 문장의 분석</b>으로 정제합니다.</p>
-        <span class="tagline" style="background:var(--warn-soft);color:#b25e00">전체의 30~60%만 남기는 용기</span></div>
-      <div class="core reveal d2"><div class="ci" style="background:var(--mint-soft)">🧭</div>
-        <h3>진로·학과 매칭<small>CareerNet 학과사전 검증</small></h3>
-        <p>키워드 맵 → 핵심 서사 → 추천 학과 Top 5 → 리스크 진단. 학생 자료가 없어도 상담·등록카드만으로 <b>탐색형 매칭</b>이 가능합니다.</p>
-        <span class="tagline" style="background:var(--mint-soft);color:#00897d">신입생 첫 상담부터 무기가 됩니다</span></div>
+    <div class="sec-eyebrow reveal">핵심 엔진</div>
+    <h2 class="sec-h reveal">하나의 특허, <br><b style="color:var(--blue)">다차원 통합지능</b>을 네 갈래로</h2>
+    <p class="sec-p reveal d1">단순 요약 AI가 아닙니다. 학생 본인의 활동을 <b>평가자의 관점</b>으로 정량·정성 다차원으로 해석하고, 스스로 했음까지 증명합니다. <b>카드를 누르면 샘플을 볼 수 있어요.</b></p>
+    <div class="core4" style="text-align:left">
+      <div class="core clickable reveal" onclick="openEngineSample('penta')"><div class="ci" style="background:var(--blue-soft)">📊</div>
+        <h3>5역량 정량 진단<small>특허 10-2026-0053173</small></h3>
+        <p>학업·탐구·융합창의·공동체·문제해결 5축을 활동 근거와 함께 <b>50점 만점</b>으로 정량화. 점수마다 "왜"가 붙습니다.</p>
+        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">정량 축 · PentaView 수식</span>
+        <span class="peek">샘플 보기 →</span></div>
+      <div class="core clickable reveal d1" onclick="openEngineSample('qual4')"><div class="ci" style="background:var(--violet-soft)">🧩</div>
+        <h3>4축 정성 평가<small>활동·사고·가치관형성·비전</small></h3>
+        <p>점수로 안 잡히는 질적 특성을 4축으로 평가. 서류통과 신호를 정량화하고 5역량 진단의 <b>정성 근거</b>가 됩니다.</p>
+        <span class="tagline" style="background:var(--violet-soft);color:var(--violet)">정성 축 · 서류 신호 정량화</span>
+        <span class="peek">샘플 보기 →</span></div>
+      <div class="core clickable reveal d2" onclick="openEngineSample('integrity')"><div class="ci" style="background:var(--safe-soft)">⌨️</div>
+        <h3>AI 인터랙션 무결성<small>타이핑DNA · 진정성 증명</small></h3>
+        <p>작성 과정을 타이핑 단위로 기록해 복사·붙여넣기가 아닌 <b>직접 작성</b>을 판별. 스스로 사고·완성했음을 데이터로 증명합니다.</p>
+        <span class="tagline" style="background:var(--safe-soft);color:var(--safe)">대필이 아니라, 직접 했음</span>
+        <span class="peek">샘플 보기 →</span></div>
+      <div class="core clickable reveal d3" onclick="openEngineSample('career')"><div class="ci" style="background:var(--mint-soft)">🧭</div>
+        <h3>진로·학과 매칭<small>커리어넷 학과사전 검증</small></h3>
+        <p>키워드 맵 → 핵심 서사 → 추천 학과 상위 5개 → 리스크 진단. 자료가 없어도 상담·등록카드만으로 <b>탐색형 매칭</b>이 가능합니다.</p>
+        <span class="tagline" style="background:var(--mint-soft);color:#00897d">응용 · 첫 상담부터 무기</span>
+        <span class="peek">샘플 보기 →</span></div>
     </div>
   </div>
 </section>
@@ -413,26 +875,26 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
 <!-- ═══ 새로워진 아르케 ═══ -->
 <section class="alt" id="whatsnew">
   <div class="wrap center">
-    <div class="sec-eyebrow reveal" style="color:var(--blue-deep)">WHAT'S NEW</div>
+    <div class="sec-eyebrow reveal" style="color:var(--blue-deep)">새로워진 아르케</div>
     <h2 class="sec-h reveal">컨설팅을 넘어, 학부모 소통·경영·홍보까지</h2>
     <p class="sec-p reveal d1">현장의 목소리를 담아 아르케는 계속 넓어지고 있습니다. 최근 더해진 기능들입니다.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:16px;margin-top:40px;text-align:left">
-      <div class="core reveal"><div class="ci" style="background:var(--blue-soft)">📣</div>
-        <h3>홍보 스튜디오<small>Marketing Studio</small></h3>
+      <div class="core clickable reveal" onclick="openEngineSample('promo')"><div class="ci" style="background:var(--blue-soft)">📣</div>
+        <h3>홍보 스튜디오<small>홍보 콘텐츠 자동 생성</small></h3>
         <p>관리 데이터로 <b>익명 성장 스토리</b>와 교육 뉴스 글을 자동 생성. 역량 그래프까지 담아 네이버 블로그·밴드에 바로 올립니다.</p>
-        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">홍보비를 아끼는 콘텐츠 생산기</span></div>
-      <div class="core reveal d1"><div class="ci" style="background:var(--warn-soft)">📬</div>
-        <h3>학부모 월간 브리핑<small>Monthly Brief</small></h3>
+        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">홍보비를 아끼는 콘텐츠 생산기</span><span class="peek">샘플 보기 →</span></div>
+      <div class="core clickable reveal d1" onclick="openEngineSample('brief')"><div class="ci" style="background:var(--warn-soft)">📬</div>
+        <h3>학부모 월간 브리핑<small>매달 자동 작성</small></h3>
         <p>이번 달 상담·활동·성적을 모아 <b>학부모용 글</b>을 매달 자동 작성. 학생·학부모 홈에 게시되고 🔔 알림이 갑니다.</p>
-        <span class="tagline" style="background:var(--warn-soft);color:#b25e00">재등록의 결정적 근거</span></div>
-      <div class="core reveal d2"><div class="ci" style="background:var(--mint-soft)">📈</div>
-        <h3>내신 시나리오 시뮬레이터<small>Grade Simulator</small></h3>
+        <span class="tagline" style="background:var(--warn-soft);color:#b25e00">재등록의 결정적 근거</span><span class="peek">샘플 보기 →</span></div>
+      <div class="core clickable reveal d2" onclick="openEngineSample('gradesim')"><div class="ci" style="background:var(--mint-soft)">📈</div>
+        <h3>내신 시나리오 시뮬레이터<small>예상 내신 즉시 계산</small></h3>
         <p>국·수·영·사·과 <b>과목별 슬라이더</b>로 남은 학기 성적을 조정하면 예상 최종 내신이 즉시 계산됩니다.</p>
-        <span class="tagline" style="background:var(--mint-soft);color:#00897d">상담 테이블의 하이라이트</span></div>
-      <div class="core reveal d3"><div class="ci" style="background:var(--blue-soft)">🛡️</div>
-        <h3>재등록 방어 대시보드<small>Retention Radar</small></h3>
+        <span class="tagline" style="background:var(--mint-soft);color:#00897d">상담 테이블의 하이라이트</span><span class="peek">샘플 보기 →</span></div>
+      <div class="core clickable reveal d3" onclick="openEngineSample('retention')"><div class="ci" style="background:var(--blue-soft)">🛡️</div>
+        <h3>재등록 방어 대시보드<small>이탈 위험 자동 경고</small></h3>
         <p>3주 이상 관리 기록이 없는 <b>이탈 위험 학생</b>을 원장 대시보드가 자동 경고. 매월 경영 지표도 함께 쌓입니다.</p>
-        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">이탈은 미리 잡습니다</span></div>
+        <span class="tagline" style="background:var(--blue-soft);color:var(--blue-deep)">이탈은 미리 잡습니다</span><span class="peek">샘플 보기 →</span></div>
     </div>
   </div>
 </section>
@@ -440,13 +902,16 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
 <!-- ═══ 실시간 체험관 ═══ -->
 <section class="demo-sec" id="demo">
   <div class="wrap center">
-    <div class="sec-eyebrow reveal">🕹️ LIVE SHOWROOM</div>
+    <div class="sec-eyebrow reveal">🕹️ 실시간 체험관</div>
     <h2 class="sec-h reveal">실시간 체험관</h2>
-    <p class="sec-p reveal d1">실제 엔진이 일하는 모습을 시뮬레이션으로 보여드립니다. 트랙을 고르고, 기능을 눌러보세요 — 자동으로 재생됩니다.</p>
+    <p class="sec-p reveal d1">초등 사고력(펜타 비전)부터 고등 입시(아르케)까지 — 8년을 관통하는 하나의 엔진이 실제로 일하는 모습입니다. 트랙을 고르고 기능을 눌러보세요.</p>
     <div class="trackseg reveal d2">
       <button id="segDae" class="on" onclick="demoTrack('dae')">🎓 대입 컨설팅 엔진</button>
       <button id="segGoip" class="gp" onclick="demoTrack('goip')">🏫 고입 컨설팅 엔진</button>
+      <button id="segPvision" class="pv" onclick="demoTrack('pvision')">🌱 펜타 비전·초등</button>
+      <button id="segPtrack" class="pv" onclick="demoTrack('ptrack')">🧩 펜타 트랙·중등</button>
     </div>
+    <div class="track-intro" id="trackIntro"></div>
     <div class="demo-shell reveal d2">
       <div class="demo-tabs" id="demoTabs"></div>
       <div class="demo-stage" id="demoStage"></div>
@@ -468,7 +933,7 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
       <div class="strow reveal"><div class="no">2</div><div>
         <h4>진단은 상담의 근거 — 진단·매칭이 지원 전략의 참고가 됩니다</h4>
         <p>5역량 진단과 진로·학과 매칭은 컨설턴트가 지원 전략(지원가능 대학 참고안)을 설계할 때 활용하는 근거입니다. <b>최종 판단은 담당 컨설턴트가 학생 상담을 통해 내립니다.</b></p>
-        <div class="chips"><span class="chip">reach/fit/safe 6선</span><span class="chip">컨설턴트 최종 판단</span></div></div></div>
+        <div class="chips"><span class="chip">소신·적정·안정 6선</span><span class="chip">컨설턴트 최종 판단</span></div></div></div>
       <div class="strow reveal"><div class="no">3</div><div>
         <h4>2022 개정 교육과정 네이티브 — 이수과목 검증·선택과목 로드맵</h4>
         <p>계열 권장과목 DB 대비 이수 현황을 점검하고, 위계를 지키는 남은 학기 로드맵을 설계합니다.</p>
@@ -488,7 +953,7 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
 <!-- ═══ 협업 루프 ═══ -->
 <section id="loop">
   <div class="wrap center">
-    <div class="sec-eyebrow reveal">CONSULTANT ↔ STUDENT</div>
+    <div class="sec-eyebrow reveal">컨설턴트 ↔ 학생</div>
     <h2 class="sec-h reveal">속도가 아니라, 협업 구조입니다</h2>
     <p class="sec-p reveal d1">아르케의 본질은 "AI가 대신 써주는 것"이 아니라 <b>컨설턴트와 학생이 함께 완성하는 루프</b>입니다. 전달·제출·코멘트가 오갈 때마다 🔔 알림이 도착합니다.</p>
     <div class="loop">
@@ -531,7 +996,7 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
 <!-- ═══ 회사 소개 ═══ -->
 <section id="about">
   <div class="wrap center">
-    <div class="sec-eyebrow reveal">ABOUT LOG.R</div>
+    <div class="sec-eyebrow reveal">회사 소개</div>
     <h2 class="sec-h reveal">과정을 기록하는 회사,<br>Log.R Intelligence Loop Lab</h2>
     <p class="sec-p reveal d1">Log.R은 <b>20년 입시 지도 노하우</b> 위에 세워진 에듀테크 기업입니다. 우리는 결과 점수가 아니라 <b>학생의 사고 과정</b>을 기록하고, 그 기록으로 성장을 증명하는 엔진을 만듭니다.</p>
 
@@ -541,7 +1006,7 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
       <div class="tcard reveal d2"><div class="te">🏛️</div><h4>교사와 컨설턴트의 권위 회복</h4><p>행정과 반복 업무는 엔진이 맡고, 사람은 판단과 지도에 집중합니다. 기술은 사람을 대체하는 것이 아니라 권위를 되찾아 주는 도구입니다.</p></div>
     </div>
 
-    <div class="sec-eyebrow reveal" style="margin-top:56px">OUR ENGINES</div>
+    <div class="sec-eyebrow reveal" style="margin-top:56px">우리의 엔진</div>
     <h2 class="sec-h reveal" style="font-size:clamp(20px,2.6vw,26px)">하나의 특허 엔진, 세 개의 현장</h2>
     <div class="core3" style="text-align:left">
       <a class="core reveal" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block;cursor:pointer">
@@ -558,14 +1023,14 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
       </div>
       <div class="core reveal d2">
         <div class="ci" style="background:var(--violet-soft)">🌱</div>
-        <h3>확장 라인<small>Next</small></h3>
+        <h3>확장 라인<small>준비 중</small></h3>
         <p>특수학교를 위한 발달 단계별 인지 트래킹·IEP 목표 기록 엔진을 준비하고 있습니다. 배움의 과정을 기록받을 권리는 모든 학생에게 있어야 합니다.</p>
         <span class="tagline" style="background:var(--violet-soft);color:var(--violet)">특수학교 엔진 개발 예정</span>
       </div>
     </div>
 
     <div class="reveal" style="margin-top:44px;background:var(--bg);border-radius:20px;padding:30px 34px;text-align:left;max-width:860px;margin-left:auto;margin-right:auto">
-      <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">VISION</div>
+      <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">비전</div>
       <div style="font-size:clamp(15px,2vw,18px);font-weight:800;line-height:1.6">학교와 학원이 학생의 성장을 같은 언어로 말하는 세상.</div>
       <div style="font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:10px;line-height:1.8">수업에서의 사고 기록이 학교 기록이 되고, 학생 본인의 그 기록이 자신의 컨설팅 근거가 되며, 결국 학생 자신의 성장 서사가 되는 것 — Log.R이 특허 기반 프로세스 분석 기술로 만들어가는 미래입니다. 우리는 점수 경쟁의 도구가 아니라, <b>과정이 존중받는 입시 문화의 인프라</b>가 되고자 합니다.</div>
     </div>
@@ -575,13 +1040,12 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
 <!-- ═══ 신뢰·보안 ═══ -->
 <section class="alt" id="trust" style="padding-top:0">
   <div class="wrap center" style="padding-top:76px">
-    <div class="sec-eyebrow reveal">TRUST & SAFETY</div>
+    <div class="sec-eyebrow reveal">신뢰·보안</div>
     <h2 class="sec-h reveal">민감한 자료를 다루기에,<br>더 깐깐하게 만들었습니다</h2>
     <div class="trust">
-      <div class="tcard reveal"><div class="te">🗂️</div><h4>성적표만 · 원본 미저장</h4><p>성적표(성적) 부분만 업로드하며 학생부 전체는 올리지 않습니다. 원본 파일은 저장하지 않고, 세특·창체 등 활동은 학생 본인 인터뷰로 받습니다.</p></div>
+      <div class="tcard reveal"><div class="te">🗂️</div><h4>성적표만 · 원본 미저장</h4><p>성적표(성적) 부분만 업로드하며 학생부 내용은 올리지 않습니다. 성적표의 원본 파일도 저장하지 않습니다.</p></div>
       <div class="tcard reveal d1"><div class="te">🔐</div><h4>담당자·본인만 열람</h4><p>학생 데이터는 담당 컨설턴트와 학생 본인만 접근합니다. 원장·컨설턴트 권한이 분리되어 있습니다.</p></div>
       <div class="tcard reveal d2"><div class="te">🗑️</div><h4>삭제·탈퇴 시 완전 파기</h4><p>퇴원(삭제)이나 회원 탈퇴 시 성적·인터뷰·진단·리포트와 로그인 계정까지 영구 파기되며, 복구되지 않습니다.</p></div>
-      <div class="tcard reveal d3"><div class="te">🧾</div><h4>대입 미반영 항목 제외</h4><p>교내수상·개인봉사·자율동아리 등 현행 대입 미반영 항목은 평가에서 제외해 혼선을 막습니다.</p></div>
     </div>
   </div>
 </section>
@@ -621,6 +1085,105 @@ footer .copy{margin-top:26px;padding-top:18px;border-top:1px solid var(--line-so
     </div>
   </div>
 </section>
+
+<!-- ═══ 핵심 엔진 샘플 모달 ═══ -->
+<div class="emodal" id="engineModal" onclick="if(event.target===this)closeEngineSample()">
+  <div class="ebox">
+    <div class="ehead">
+      <div class="eic" id="em-ic"></div>
+      <div><h4 id="em-title"></h4><small id="em-sub"></small></div>
+      <span class="sim"><i></i>시뮬레이션</span>
+      <button class="eclose" onclick="closeEngineSample()" aria-label="닫기">✕</button>
+    </div>
+    <div class="ebody" id="em-body"></div>
+    <div class="efoot"><a href="#demo" onclick="closeEngineSample()">🕹️ 실시간 체험관에서 더 보기 →</a><div class="samp-note">※ 샘플은 이해를 돕기 위한 가상의 예시 데이터입니다.</div></div>
+  </div>
+</div>
+
+<script>
+var ENGINE_SAMPLES={
+ penta:{ic:"📊",icbg:"var(--blue-soft)",title:"5역량 정량 진단",sub:"학업·탐구·융합창의·공동체·문제해결 · 50점",
+  body:"<div class='penta-wrap2'><div style='text-align:center'>"
+   +"<svg viewBox='0 0 220 200' style='width:190px'><polygon points='110,14 205,83 169,190 51,190 15,83' fill='none' stroke='#e5e8eb'/><polygon points='110,52 160,89 141,146 79,146 60,89' fill='none' stroke='#eef1f4'/><polygon points='110,26 190,88 155,178 70,170 32,86' fill='rgba(49,130,246,.15)' stroke='#3182f6' stroke-width='2' stroke-linejoin='round'/><text x='110' y='8' text-anchor='middle' font-size='10' font-weight='800' fill='#4e5968'>학업</text><text x='215' y='80' text-anchor='end' font-size='10' font-weight='800' fill='#4e5968'>탐구</text><text x='175' y='199' font-size='10' font-weight='800' fill='#4e5968' text-anchor='middle'>융합</text><text x='45' y='199' font-size='10' font-weight='800' fill='#4e5968' text-anchor='middle'>공동체</text><text x='6' y='80' font-size='10' font-weight='800' fill='#4e5968'>문제해결</text></svg>"
+   +"<div style='font-size:11px;font-weight:800;color:var(--blue)'>종합 35.4 / 50</div></div><div>"
+   +"<div class='pbar2'><div class='pl'><span>탐구역량</span><b>8.2</b></div><div class='pt'><i style='width:82%'></i></div></div>"
+   +"<div class='pbar2'><div class='pl'><span>문제해결역량</span><b>7.9</b></div><div class='pt'><i style='width:79%'></i></div></div>"
+   +"<div class='pbar2'><div class='pl'><span>학업역량</span><b>6.1</b></div><div class='pt'><i style='width:61%'></i></div></div>"
+   +"<div class='exrow' style='font-size:11px'>↳ <b>탐구 8.2 근거:</b> \"반응 속도 실험에서 변인 통제 설계를 주도…\" (화학Ⅰ 활동 인용)</div>"
+   +"</div></div>"},
+ qual4:{ic:"🧩",icbg:"var(--violet-soft)",title:"4축 정성 평가",sub:"활동·사고·가치관형성·비전 · 서류통과 신호",
+  body:"<div class='gauge' style='margin-top:0'><div class='gl'><span>활동 — 구체성·주도성·지속성</span><b style='color:var(--violet)'>8/10</b></div><div class='gt'><i style='width:80%;background:linear-gradient(90deg,#a78bfa,var(--violet))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>사고 — 깊이·확장·비판성</span><b style='color:var(--violet)'>9/10</b></div><div class='gt'><i style='width:90%;background:linear-gradient(90deg,#a78bfa,var(--violet))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>가치관형성 — 태도·성찰</span><b style='color:var(--violet)'>6/10</b></div><div class='gt'><i style='width:60%;background:linear-gradient(90deg,#a78bfa,var(--violet))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>비전 — 진로 방향·일관성</span><b style='color:var(--violet)'>8/10</b></div><div class='gt'><i style='width:80%;background:linear-gradient(90deg,#a78bfa,var(--violet))'></i></div></div>"
+   +"<div class='exrow' style='margin-top:12px'>📊 <b>서류통과 신호</b> — 4축 종합 상위 · \"가치관형성 축 보강 시 완성도 상승\" <span class='ok'>정성 근거</span></div>"},
+ integrity:{ic:"⌨️",icbg:"var(--safe-soft)",title:"AI 인터랙션 무결성",sub:"타이핑DNA · 스스로 작성했음을 증명",
+  body:"<div class='exrow'>⌨️ <b>작성 로그</b> — 붙여넣기 0회 · 작성 52분 · 키입력 3,140타 <span class='ok'>직접 작성</span></div>"
+   +"<div class='exrow'>📊 <b>무결성 판정</b> — 키입력수 ≥ 글자수 → 복붙 아님 <span class='ok'>진정성 확인</span></div>"
+   +"<div class='exrow'>🔁 <b>과정 기록</b> — 초안→수정 14회 · 사고 흐름 보존 <span class='ok'>성장 이력</span></div>"
+   +"<div class='exrow'>🔔 <b>컨설턴트 알림</b> — 제출 완료 · 진정성 데이터 첨부 <span class='ok'>완료</span></div>"
+   +"<div class='chipline' style='margin-top:10px'><span class='mchip'>대필 아님</span><span class='mchip g'>과정을 증명</span></div>"},
+ career:{ic:"🧭",icbg:"var(--mint-soft)",title:"진로·학과 매칭",sub:"키워드 → 서사 → 추천 학과 상위 5",
+  body:"<div class='chipline'><span class='mchip'>감염병 확산 모델링</span><span class='mchip'>AI 진단 보조</span><span class='mchip'>데이터 공중보건</span></div>"
+   +"<div class='exrow' style='background:var(--blue-soft);border:none;margin-top:8px'><b>핵심 서사</b> — \"데이터·AI로 공중보건 위험을 예측\" · 3년 일관</div>"
+   +"<div class='mjr top'><div class='rank'>1</div><div class='mn'>보건의료정보·의료AI학과<small>3개 활동이 한 방향 · 커리어넷 검증 ✓</small></div><div class='fit'>92<small>점</small></div></div>"
+   +"<div class='mjr'><div class='rank'>2</div><div class='mn'>소프트웨어·인공지능학과<small>정보 활동 + 인공지능수학</small></div><div class='fit'>88<small>점</small></div></div>"
+   +"<div class='mjr'><div class='rank'>3</div><div class='mn'>환경공학과(대기환경)<small>예측 시스템 서사 성립</small></div><div class='fit' style='color:var(--mint)'>84<small>점</small></div></div>"},
+ reverse:{ic:"🎯",icbg:"var(--blue-soft)",title:"합격 역설계",sub:"지원가능 대학 6선 · 소신·적정·안정",
+  body:"<div class='exrow' style='background:var(--blue-soft);border:none'><b>입력</b> — 내신 4.3(단위가중) · 학과 매칭 상위 5</div>"
+   +"<div class='unigrid'>"
+   +"<div class='ucard'><b>OO대 바이오헬스</b>학종·수시<span class='pos reach'>소신</span></div>"
+   +"<div class='ucard'><b>OO대 의료IT공학</b>학종·수시<span class='pos fit'>적정</span></div>"
+   +"<div class='ucard'><b>OO대 SW융합</b>교과·수시<span class='pos fit'>적정</span></div>"
+   +"<div class='ucard'><b>OO대 환경공학</b>학종·수시<span class='pos safe'>안정</span></div>"
+   +"<div class='ucard'><b>OO대 데이터사이언스</b>교과<span class='pos safe'>안정</span></div>"
+   +"<div class='ucard'><b>OO대 보건행정</b>교과<span class='pos safe'>안정</span></div></div>"
+   +"<div class='exrow' style='margin-top:8px'>💡 <b>다음 한 걸음</b> — 수학 등급 방어 + 3학년 활동 확보 <span class='ok'>전략 제안</span></div>"},
+ promo:{ic:"📣",icbg:"var(--blue-soft)",title:"홍보 스튜디오",sub:"관리 데이터로 성장 스토리 자동 생성",
+  body:"<div class='exrow' style='background:var(--blue-soft);border:none'><b>입력</b> — OO학원 · 고1 A군 · 관리 3개월 · 상담 4회 <span class='ok'>익명·비식별</span></div>"
+   +"<div class='gold-card'><div class='gc-head'><span class='gc-subj'>자동 생성 · 성장 스토리</span><span class='gc-tag'>블로그 게시용</span></div><div class='gc-sent'>“진정한 꿈을 찾아가는 고1 A군의 이야기 — 문학에서 과학으로”</div><div class='gc-why'>문학 작가를 꿈꾸던 A군이 융합 탐구를 거쳐 생명공학자로 진로를 스스로 재설정한 3개월의 성장 서사.</div></div>"
+   +"<div class='chipline'><span class='mchip'>#진로탐색</span><span class='mchip'>#자기주도학습</span><span class='mchip g'>#문학에서과학으로</span></div>"
+   +"<div class='exrow'>📤 <b>바로 게시</b> — 네이버 블로그·밴드에 역량 그래프와 함께 자동 발행 <span class='ok'>홍보비 절감</span></div>"},
+ brief:{ic:"📬",icbg:"var(--warn-soft)",title:"학부모 월간 브리핑",sub:"이번 달 상담·활동·성적 자동 집계",
+  body:"<div class='exrow' style='background:var(--warn-soft);border:none'>👤 <b>이서우 (대입 고1)</b> · 최근 생성 2026-07</div>"
+   +"<div class='gold-card'><div class='gc-head'><span class='gc-subj'>학부모용 월간 브리핑</span><span class='gc-tag'>매달 자동</span></div><div class='gc-sent'>“이서우 학생, 진로 탐색의 폭을 넓히며 성장하는 한 달”</div><div class='gc-why'>진로에 대한 깊은 고민을 통해 문학 작가·평론가라는 희망 진로를 더욱 확고히 다진 한 달.</div></div>"
+   +"<div class='exrow'>🗣 <b>상담</b> — 관심 분야를 찾아가는 과정을 심도 있게 논의</div>"
+   +"<div class='exrow'>🧭 <b>진로 매칭</b> — 문예창작학과 높은 적합도 · 융합 탐구 흥미 파악</div>"
+   +"<div class='exrow'>🎨 <b>활동 설계</b> — 문학 멘토링 봉사·비평 스터디·대학 커리큘럼 분석 계획</div>"
+   +"<div class='exrow' style='background:var(--bg);border:none'>💬 <b>학부모님께</b> — 자신의 길을 찾아가는 의미 있는 성장 · 가정의 격려 부탁</div>"},
+ gradesim:{ic:"📈",icbg:"var(--mint-soft)",title:"내신 시나리오 시뮬레이터",sub:"주요과목별 · 9등급제 · 남은 2개 학기 가정",
+  body:"<div style='display:flex;gap:8px;margin-bottom:14px'>"
+   +"<div style='flex:1;background:var(--bg);border-radius:12px;padding:11px;text-align:center'><div style='font-size:10px;color:var(--ink-mute);font-weight:600'>현재 주요과목 평균</div><div style='font-size:19px;font-weight:800'>2.78</div></div>"
+   +"<div style='flex:1;background:var(--bg);border-radius:12px;padding:11px;text-align:center'><div style='font-size:10px;color:var(--ink-mute);font-weight:600'>예상 최종 주요과목</div><div style='font-size:19px;font-weight:800;color:var(--risk)'>2.78</div></div>"
+   +"<div style='flex:1;background:var(--bg);border-radius:12px;padding:11px;text-align:center'><div style='font-size:10px;color:var(--ink-mute);font-weight:600'>예상 최종 전과목</div><div style='font-size:19px;font-weight:800'>2.76</div></div></div>"
+   +"<div class='gauge' style='margin-top:0'><div class='gl'><span>국어 <small style='color:var(--ink-mute)'>현재 2.50</small></span><b>2.5</b></div><div class='gt'><i style='width:81%;background:linear-gradient(90deg,#5ea2ff,var(--blue))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>수학 <small style='color:var(--ink-mute)'>현재 3.14</small></span><b>3.1</b></div><div class='gt'><i style='width:74%;background:linear-gradient(90deg,#5ea2ff,var(--blue))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>영어 <small style='color:var(--ink-mute)'>현재 3.10</small></span><b>3.1</b></div><div class='gt'><i style='width:74%;background:linear-gradient(90deg,#5ea2ff,var(--blue))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>사회 <small style='color:var(--ink-mute)'>현재 2.67</small></span><b>2.7</b></div><div class='gt'><i style='width:79%;background:linear-gradient(90deg,#5ea2ff,var(--blue))'></i></div></div>"
+   +"<div class='gauge'><div class='gl'><span>과학 <small style='color:var(--ink-mute)'>현재 2.48</small></span><b>2.5</b></div><div class='gt'><i style='width:81%;background:linear-gradient(90deg,#5ea2ff,var(--blue))'></i></div></div>"
+   +"<div class='exrow' style='margin-top:10px'>🚀 <b>이 시나리오로 AI 역설계</b> — 목표 대학 대비 필요 상승폭 자동 산출 <span class='ok'>연결</span></div>"},
+ retention:{ic:"🛡️",icbg:"var(--blue-soft)",title:"재등록 방어",sub:"이탈 위험 자동 경고 · 경영 지표",
+  body:"<div class='exrow' style='background:var(--risk-soft);border:none'>🚨 <b>이탈 위험</b> — 김OO · 관리 기록 24일 공백 <span class='ok' style='color:var(--risk)'>경고</span></div>"
+   +"<div class='exrow'>🟡 <b>주의</b> — 이OO · 상담 3주 경과 <span class='ok' style='color:var(--warn)'>확인 필요</span></div>"
+   +"<div class='exrow'>✅ <b>안정</b> — 박OO · 최근 활동 제출 <span class='ok'>양호</span></div>"
+   +"<div class='exrow' style='margin-top:6px'>📊 <b>경영 지표</b> — 이번 달 관리율 87% · 이탈 위험 2명 조기 감지 <span class='ok'>미리 잡습니다</span></div>"}
+};
+function openEngineSample(k){
+  var s=ENGINE_SAMPLES[k]; if(!s)return;
+  document.getElementById('em-ic').textContent=s.ic;
+  document.getElementById('em-ic').style.background=s.icbg;
+  document.getElementById('em-title').textContent=s.title;
+  document.getElementById('em-sub').textContent=s.sub;
+  document.getElementById('em-body').innerHTML=s.body;
+  document.getElementById('engineModal').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function closeEngineSample(){
+  document.getElementById('engineModal').classList.remove('on');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeEngineSample();});
+</script>
 
 <footer>
   <div class="wrap">
@@ -683,6 +1246,28 @@ document.querySelectorAll('.cnt').forEach(function(el){cio.observe(el);});
   mio.observe(document.querySelector('.mock'));
 })();
 
+/* ═══ 3-way 탭 전환 ═══ */
+(function(){
+  var roleTint={
+    director:{bg:'linear-gradient(180deg,#fff 0%,var(--bg) 100%)',g:'var(--blue)'},
+    parent:{bg:'linear-gradient(180deg,#fff 0%,var(--mint-soft) 100%)',g:'var(--mint)'},
+    student:{bg:'linear-gradient(180deg,#fff 0%,var(--violet-soft) 100%)',g:'var(--violet)'}
+  };
+  var sw=document.getElementById('rswitch'),glider=document.getElementById('rglider'),hero=document.getElementById('hero');
+  if(!sw)return;
+  var btns=sw.querySelectorAll('button'),panes=document.querySelectorAll('.rpane');
+  function move(btn){glider.style.width=btn.offsetWidth+'px';glider.style.transform='translateX('+(btn.offsetLeft-5)+'px)';}
+  function activate(role,btn){
+    btns.forEach(function(b){b.classList.toggle('on',b===btn);});
+    panes.forEach(function(p){p.classList.toggle('on',p.dataset.pane===role);});
+    var t=roleTint[role];hero.style.background=t.bg;glider.style.background=t.g;move(btn);
+  }
+  btns.forEach(function(b){b.addEventListener('click',function(){activate(b.dataset.role,b);});});
+  var first=sw.querySelector('button.on');
+  requestAnimationFrame(function(){move(first);});
+  window.addEventListener('resize',function(){var c=sw.querySelector('button.on');if(c)move(c);});
+})();
+
 /* ═══ 실시간 체험관 ═══ */
 var DEMOS={
 dae:[
@@ -701,7 +1286,7 @@ dae:[
    +'<div class="pbar2" data-s="3"><div class="pl"><span>학업역량</span><b>6.1</b></div><div class="pt"><i style="--w:61%"></i></div></div>'
    +'<div class="exrow" data-s="4" style="font-size:11px">↳ <b>탐구 8.2 근거:</b> "반응 속도 실험에서 변인 통제 설계를 주도…" (화학Ⅰ 활동 인용)</div>'
    +'</div></div>';}},
- {k:'career',e:'🧭',t:'진로·학과 매칭',d:'키워드 → 서사 → 학과 Top5',dur:10,html:function(){return ''
+ {k:'career',e:'🧭',t:'진로·학과 매칭',d:'키워드 → 서사 → 학과 상위 5',dur:10,html:function(){return ''
    +'<div class="chipline" data-s="0"><span class="mchip">로지스틱 회귀 위생도 예측</span><span class="mchip">감염병 확산 모델링</span><span class="mchip">AI 진단 보조</span><span class="mchip">황사·미세먼지 예측</span></div>'
    +'<div class="exrow" data-s="1" style="background:var(--blue-soft);border:none"><b>핵심 서사</b> — "데이터·AI로 공중보건 위험을 예측하는 시스템" · 3년 일관</div>'
    +'<div class="mjr top" data-s="2"><div class="rank">1</div><div class="mn">보건의료정보·의료AI학과<small>3개 활동이 한 방향 · CareerNet 검증 ✓</small></div><div class="fit">92<small>점</small></div></div>'
@@ -709,7 +1294,7 @@ dae:[
    +'<div class="mjr" data-s="4"><div class="rank">3</div><div class="mn">환경공학과(대기환경)<small>예측 시스템 서사 성립</small></div><div class="fit" style="color:var(--mint)">84<small>점</small></div></div>'
    +'<div class="chipline" data-s="5"><span class="mchip g">자료 없어도 탐색형 매칭</span></div>';}},
  {k:'reverse',e:'🎯',t:'합격 역설계',d:'지원가능 대학 6선',dur:9,html:function(){return ''
-   +'<div class="exrow" data-s="0" style="background:var(--blue-soft);border:none"><b>입력</b> — 내신 4.3(단위가중) · 학과 매칭 Top5</div>'
+   +'<div class="exrow" data-s="0" style="background:var(--blue-soft);border:none"><b>입력</b> — 내신 4.3(단위가중) · 학과 매칭 상위 5</div>'
    +'<div class="unigrid">'
    +'<div class="ucard" data-s="1"><b>OO대 바이오헬스</b>학종·수시<span class="pos reach">소신</span></div>'
    +'<div class="ucard" data-s="2"><b>OO대 의료IT공학</b>학종·수시<span class="pos fit">적정</span></div>'
@@ -728,19 +1313,14 @@ dae:[
  {k:'design',e:'✏️',t:'진로 징검다리 루프',d:'설계 → 수행 → 코칭 → 피드백',dur:10,html:function(){return ''
    +'<div class="loopline"><div class="lnode" data-s="0"><div class="le">📐</div><div class="lt">컨설턴트 설계 전달</div></div><div class="lnode" data-s="1"><div class="le">⌨️</div><div class="lt">학생 탐구 수행</div></div><div class="lnode" data-s="2"><div class="le">🤖</div><div class="lt">AI 코칭</div></div><div class="lnode" data-s="3"><div class="le">💬</div><div class="lt">피드백 → 보완</div></div></div>'
    +'<div class="exrow" data-s="4">📐 <b>탐구 설계</b> — "촉매 효율 정량 분석" · 성취기준 [12화학Ⅰ02-03] 연계 <span class="ok">성취기준 안에서만</span></div>'
-   +'<div class="exrow" data-s="5">⌨️ <b>학생 제출</b> — 붙여넣기 0회 · 작성 52분 → 🔔 컨설턴트 알림 <span class="ok">AUTHENTIC</span></div>'
+   +'<div class="exrow" data-s="5">⌨️ <b>학생 제출</b> — 붙여넣기 0회 · 작성 52분 → 🔔 컨설턴트 알림 <span class="ok">진정성 확인</span></div>'
    +'<div class="exrow" data-s="6">💬 <b>코칭+피드백 전달</b> — "변인 통제 근거를 3장에 보강" → 🔔 학생 알림 · 2라운드 <span class="ok">루프 반복</span></div>';}},
  {k:'perf',e:'📝',t:'수행평가 도우미',d:'평가계획 파싱 → 예상 채점 루프',dur:10,html:function(){return ''
    +'<div class="exrow" data-s="0">📄 <b>평가계획서 파싱</b> — "화학Ⅰ 탐구보고서" · 루브릭 4영역 40점 · 마감 10/24 <span class="ok">가정통신문 OK</span></div>'
    +'<div class="exrow" data-s="1">🎯 <b>관점 설계</b> — 학생이 주제 각도·진로 연결을 직접 선택 → 맞춤 설계도 <span class="ok">대필 아님</span></div>'
-   +'<div class="exrow" data-s="2">⌨️ <b>학생 작성·제출</b> — 타이핑 무결성 검증 → 🔔 컨설턴트 알림 <span class="ok">AUTHENTIC</span></div>'
+   +'<div class="exrow" data-s="2">⌨️ <b>학생 작성·제출</b> — 타이핑 무결성 검증 → 🔔 컨설턴트 알림 <span class="ok">진정성 확인</span></div>'
    +'<div class="gauge" data-s="3"><div class="gl"><span>예상 채점 — 루브릭 기준</span><b>34/40</b></div><div class="gt"><i style="--w:85%;background:linear-gradient(90deg,#5ea2ff,var(--blue))"></i></div></div>'
    +'<div class="exrow" data-s="4">💬 <b>컨설턴트 피드백</b> — "결론에 오차 분석 추가 시 상 등급" → 🔔 학생 보완 <span class="ok">예상 성취수준 A</span></div>';}},
- {k:'golden',e:'✨',t:'황금문장 정제',d:'활동 복붙 → 한 문장 분석',dur:9,html:function(){return ''
-   +'<div class="rawline" data-s="0" id="rawl">화학Ⅰ: 반응 속도 단원에서 촉매의 역할에 관심을 갖고 조사하여 발표함. 수업 태도가 성실하며 과제를 기한 내 제출함. 모둠 활동에서 협동심을 보임…</div>'
-   +'<div style="text-align:center;font-size:16px;margin:6px 0" data-s="1">⬇ <span style="font-size:11px;font-weight:800;color:var(--blue)">희망학과 부합 활동만 선별 · 정제</span></div>'
-   +'<div class="gold-card" data-s="2"><div class="gc-head"><span class="gc-subj">화학Ⅰ · 2-1</span><span class="gc-tag">전공적합</span></div><div class="gc-sent">"반응 속도 실험에서 변인 통제 설계를 주도하며 촉매 효율 데이터를 정량 분석한 탐구 역량이 돋보임."</div><div class="gc-why">화공생명공학의 핵심인 반응공학적 사고의 기초 근거.</div></div>'
-   +'<div class="gold-card" data-s="3"><div class="gc-head"><span class="gc-subj">동아리 · 2학년</span><span class="gc-tag">리더십</span></div><div class="gc-sent">"폐수 정화 프로젝트를 기획·주도하며 지역 문제와 전공 지식을 연결함."</div><div class="gc-why">전공 지식의 사회적 적용 — 학종 서사의 정점 소재.</div></div>';}},
  {k:'iv',e:'🎤',t:'면접 시뮬레이션',d:'예상질문 · 꼬리질문 · 피드백',dur:9,html:function(){return ''
    +'<div class="qcard" data-s="0"><div class="qq">Q1. 화학Ⅰ 활동에서 반응 속도 실험의 변인 통제를 직접 설계했다고 되어 있는데, 어떤 변인을 왜 통제했나요?</div><div class="qb">출제 근거: <b>화학Ⅰ 활동(2-1)</b> · 평가 요소: 탐구 과정의 주도성</div><div class="qtail"><span>꼬리) 결과가 가설과 달랐다면?</span><span>꼬리) 오차 원인은?</span></div></div>'
    +'<div class="qcard" data-s="1"><div class="qq">Q2. 지원 학과에서 AI가 의료 진단을 보조할 때 생길 수 있는 윤리적 문제는?</div><div class="qb">유형: <b>전공기초</b> · 학생 탐구활동과 연결 출제</div></div>'
@@ -762,11 +1342,11 @@ goip:[
  {k:'gessay',e:'📝',t:'자소서 루프',d:'설계 → 작성 → 4축 평가',dur:9,html:function(){return ''
    +'<div class="loopline"><div class="lnode" data-s="0" id="gn0"><div class="le">📐</div><div class="lt">설계도 전달</div></div><div class="lnode" data-s="1" id="gn1"><div class="le">⌨️</div><div class="lt">학생 작성</div></div><div class="lnode" data-s="2" id="gn2"><div class="le">📊</div><div class="lt">4축 평가</div></div><div class="lnode" data-s="3" id="gn3"><div class="le">🔁</div><div class="lt">코멘트·보완</div></div></div>'
    +'<div class="exrow" data-s="4">📊 <b>4축 평가</b> — 활동 8 · 사고 7 · 가치관 6 · 비전 8 → "가치관 형성 경험을 구체화" <span class="ok">3차 라운드</span></div>'
-   +'<div class="exrow" data-s="5">⌨️ <b>타이핑 무결성</b> — 붙여넣기 0회 · 작성 47분 → 진정성 검증 <span class="ok">AUTHENTIC</span></div>';}},
+   +'<div class="exrow" data-s="5">⌨️ <b>타이핑 무결성</b> — 붙여넣기 0회 · 작성 47분 → 진정성 검증 <span class="ok">진정성 확인</span></div>';}},
  {k:'gdesign',e:'✏️',t:'진로 징검다리 루프',d:'중학생 눈높이 활동 설계',dur:10,html:function(){return ''
    +'<div class="loopline"><div class="lnode" data-s="0"><div class="le">📐</div><div class="lt">활동 설계 전달</div></div><div class="lnode" data-s="1"><div class="le">⌨️</div><div class="lt">학생 활동 수행</div></div><div class="lnode" data-s="2"><div class="le">🤖</div><div class="lt">AI 코칭</div></div><div class="lnode" data-s="3"><div class="le">💬</div><div class="lt">피드백 → 보완</div></div></div>'
    +'<div class="exrow" data-s="4">📐 <b>활동 설계</b> — "우리 동네 영어 안내판 오류 조사 프로젝트" · 자유학기·동아리 연계 <span class="ok">중학생 수행 가능</span></div>'
-   +'<div class="exrow" data-s="5">⌨️ <b>활동기록 제출</b> — 붙여넣기 0회 · 작성 38분 → 🔔 컨설턴트 알림 <span class="ok">AUTHENTIC</span></div>'
+   +'<div class="exrow" data-s="5">⌨️ <b>활동기록 제출</b> — 붙여넣기 0회 · 작성 38분 → 🔔 컨설턴트 알림 <span class="ok">진정성 확인</span></div>'
    +'<div class="exrow" data-s="6">💬 <b>눈높이 코칭</b> — "느낀 점에 ‘다음 목표’를 한 줄 더!" → 🔔 학생 알림 · 2라운드 <span class="ok">격려형</span></div>';}},
  {k:'gperf',e:'📝',t:'수행평가 도우미',d:'중학교 수행평가 · 예상 채점',dur:9,html:function(){return ''
    +'<div class="exrow" data-s="0">📄 <b>평가계획서 파싱</b> — "영어 말하기 수행평가" · 루브릭 3영역 30점 <span class="ok">가정통신문 OK</span></div>'
@@ -777,13 +1357,54 @@ goip:[
    +'<div class="qcard" data-s="0"><div class="qq">Q1. 영어 신문 동아리에서 기사를 직접 썼다고 했는데, 가장 기억에 남는 기사와 그 이유는?</div><div class="qb">출제 근거: <b>동아리활동(중2)</b> · 외고 공통 유형</div><div class="qtail"><span>꼬리) 취재는 어떻게?</span><span>꼬리) 반대 의견이 있었다면?</span></div></div>'
    +'<div class="exrow" data-s="1">🤖 <b>모의답변 피드백</b> — "경험→배움→다음 목표 순서로 말하면 좋아요" (중학생 눈높이) <span class="ok">격려형 코칭</span></div>'
    +'<div class="chipline" data-s="2"><span class="mchip g">학교 유형별 기출 경향</span><span class="mchip g">답변 대필 없음</span></div>';}}
-]};
+],
+pvision:[
+ {k:'pv_wb',e:'📓',t:'비주얼 다이빙 워크북',d:'효율 vs 존엄 · 5대 주파수 딜레마',dur:12,html:function(){return ''
+   +'<div class="exrow" data-s="0" style="background:var(--violet-soft);border:none"><b>지성 예열</b> — 펜타 레이더 초기 진단 · "효율성 vs 존엄성" 좌표 설정</div>'
+   +'<div class="exrow" data-s="1">🎬 <b>비주얼 다이빙</b> — 오펜하이머 "창조자의 고뇌"·자율주행 윤리 영상으로 가치관에 균열</div>'
+   +'<div class="chipline" data-s="2"><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">F1 수학·효율의 비극</span><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">F2 과학·구현의 책임</span><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">F3 역사·기술 소외</span></div>'
+   +'<div class="chipline" data-s="3"><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">F4 심리·도파민 루프</span><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">F5 예술·감성적 기만</span></div>'
+   +'<div class="exrow" data-s="4">🔒 <b>지성 통합</b> — 오작동 방지 "윤리적 락(Lock)" 설계 · 피어 리뷰 무결성 검증</div>'
+   +'<div class="exrow" data-s="5">📜 <b>Final Declaration</b> — 확장된 지성 레이더 + "마스터 공학자 선언" <span class="ok">PentaView 저장</span></div>';}},
+ {k:'pv_report',e:'📊',t:'지성 전략 리포트',d:'PentaView · 5대 지성 지표',dur:12,html:function(){return ''
+   +'<div class="penta-wrap2"><div data-s="0" style="text-align:center"><svg viewBox="0 0 230 210" style="width:196px"><polygon points="115,16 214,86 176,196 54,196 16,86" fill="none" stroke="#e5e8eb"/><polygon points="115,30 196,90 160,180 76,176 36,90" fill="rgba(124,58,237,.14)" stroke="#7c3aed" stroke-width="2" stroke-linejoin="round"/><text x="115" y="10" text-anchor="middle" font-size="8.5" font-weight="800" fill="#4e5968">창의적 관점</text><text x="226" y="84" text-anchor="end" font-size="8.5" font-weight="800" fill="#4e5968">연결지성</text><text x="183" y="208" font-size="8.5" font-weight="800" fill="#4e5968" text-anchor="middle">비판적 성찰</text><text x="47" y="208" font-size="8.5" font-weight="800" fill="#4e5968" text-anchor="middle">윤리적 성찰</text><text x="3" y="84" font-size="8.5" font-weight="800" fill="#4e5968">논리적 추론</text></svg><div style="font-size:11px;font-weight:800;color:var(--violet)">이서윤 · 거시적 시스템 설계자</div></div><div>'
+   +'<div class="pbar2" data-s="1"><div class="pl"><span>윤리적 성찰</span><b>9.8</b></div><div class="pt"><i style="--w:98%;background:linear-gradient(90deg,#a78bfa,var(--violet))"></i></div></div>'
+   +'<div class="pbar2" data-s="2"><div class="pl"><span>연결지성</span><b>9.2</b></div><div class="pt"><i style="--w:92%;background:linear-gradient(90deg,#a78bfa,var(--violet))"></i></div></div>'
+   +'<div class="pbar2" data-s="3"><div class="pl"><span>비판적 성찰</span><b>8.5</b></div><div class="pt"><i style="--w:85%;background:linear-gradient(90deg,#a78bfa,var(--violet))"></i></div></div>'
+   +'<div class="exrow" data-s="4" style="font-size:11px">↳ <b>총평:</b> 연결지성·윤리적 성찰 마스터 등급 · 성인 전문가급 시스템 사고</div></div></div>'
+   +'<div class="gold-card" data-s="5"><div class="gc-head"><span class="gc-subj">오늘의 황금 문장</span><span class="gc-tag">메타인지</span></div><div class="gc-sent">"사람의 가치가 숫자로 취급되는 것에 근원적인 지적 충격을 받았다."</div><div class="gc-why">윤리 체계와 정보가 충돌하는 각성의 순간 포착 — 고등 메타인지 증명.</div></div>';}}
+],
+ptrack:[
+ {k:'pt_wb',e:'📓',t:'융합 사고 워크북',d:'수학×국어 · 필터버블 해부',dur:11,html:function(){return ''
+   +'<div class="exrow" data-s="0" style="background:var(--violet-soft);border:none"><b>STAGE 1 · 인문 성찰</b> — 알고리즘의 편집권이 세계관에 미치는 영향 · 필터버블 진단</div>'
+   +'<div class="chipline" data-s="1"><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">확증편향 82%</span><span class="mchip" style="background:var(--violet-soft);color:var(--violet)">반대담론 접촉 15%</span></div>'
+   +'<div class="exrow" data-s="2">➗ <b>STAGE 2 · 수학 모델링</b> — 추천결과 R⊂U 집합 조건 · "지적 사각지대" 정의 <span class="ok">집합론</span></div>'
+   +'<div class="exrow" data-s="3">🔍 <b>STAGE 3 · 비판적 재구성</b> — "조력자" 수사 해체 · 진로 큐레이션 6선 도출</div>'
+   +'<div class="exrow" data-s="4">✍️ <b>ARCHE-LOG 세특 디자인</b> — 오늘의 기록이 통합사회·공통수학 생기부 자산으로 <span class="ok">PENTA CLOUD 저장</span></div>';}},
+ {k:'pt_report',e:'🧭',t:'진로 전략 리포트',d:'페르소나 · 진로 · 로드맵',dur:12,html:function(){return ''
+   +'<div class="exrow" data-s="0" style="background:var(--violet-soft);border:none">🎭 <b>전략 페르소나</b> — "존엄성 거버넌스 아키텍트" · 인간 경외심을 설계 변수로</div>'
+   +'<div class="gauge" data-s="1"><div class="gl"><span>사고 가속도 (Velocity)</span><b>3.0x</b></div><div class="gt"><i style="--w:90%;background:linear-gradient(90deg,#a78bfa,var(--violet))"></i></div></div>'
+   +'<div class="exrow" data-s="2">⚖️ <b>딜레마 결단</b> — "다수 이익이 있더라도 소수 권리를 배제할 수 없다" <span class="ok">[거부]</span></div>'
+   +'<div class="mjr top" data-s="3"><div class="rank">1</div><div class="mn">생명윤리 정책 연구원<small>비판적 사고 · 생명과학 이해 · 법적 통찰</small></div><div class="fit" style="color:var(--violet);font-size:13px">추천</div></div>'
+   +'<div class="mjr" data-s="4"><div class="rank">2</div><div class="mn">AI 거버넌스 설계자<small>논리적 추론 · 데이터 윤리 · 시스템 모델링</small></div></div>'
+   +'<div class="exrow" data-s="5">🗺️ <b>고1~3 로드맵</b> — 유전자편집·사회 불평등 탐구 → 존엄성 거버넌스 프레임워크 설계</div>';}}
+]
+};
 
 var demoState={track:'dae',idx:0,timer:null,stepTimers:[],lock:false};
+window.TRACK_INTRO={
+ dae:'🎓 <b>대입 컨설팅 엔진</b> — 자료 입력·5역량 진단부터 학과 매칭·합격 역설계·면접·리포트까지, 고등 입시 전 과정을 하나의 흐름으로.',
+ goip:'🏫 <b>고입 컨설팅 엔진</b> — 특목·자사고 74개교 DB 기반 지원가능 매칭·자소서·면접까지, 중학생의 고입을 전담.',
+ pvision:'🌱 <b>펜타 비전 · 초등(상위 1%)</b> — 지식 전달이 아니라 "지적 드라마". 효율보다 존엄을 묻는 5대 지성 주파수 딜레마로, 스스로 윤리적 기술을 설계하는 사고력을 깨웁니다.',
+ ptrack:'🧩 <b>펜타 트랙 · 중등</b> — 교과의 경계를 허무는 고밀도 융합 사고. 문학·사회 현상을 수학·과학 논리로 해부하고, 진로 주파수를 확정해 세특 자산으로 잇습니다.'
+};
 function demoTrack(t){
   demoState.track=t; demoState.idx=0; demoState.lock=false;
   document.getElementById('segDae').classList.toggle('on',t==='dae');
   document.getElementById('segGoip').classList.toggle('on',t==='goip');
+  var _pv=document.getElementById('segPvision'); if(_pv)_pv.classList.toggle('on',t==='pvision');
+  var _pt=document.getElementById('segPtrack'); if(_pt)_pt.classList.toggle('on',t==='ptrack');
+  var _ti=document.getElementById('trackIntro'); if(_ti)_ti.innerHTML=(window.TRACK_INTRO&&window.TRACK_INTRO[t])||'';
   renderTabs(); playDemo(0);
 }
 function renderTabs(){
@@ -801,7 +1422,7 @@ function playDemo(i){
   tabs.forEach(function(_,k){var el=document.getElementById('dtab'+k);if(el){el.classList.toggle('on',k===i); if(k===i){var p=el.querySelector('.prog');p.style.animation='none';void p.offsetWidth;p.style.animation='';el.style.setProperty('--dur',tabs[i].dur+'s');}}});
   var d=tabs[i];
   var stage=document.getElementById('demoStage');
-  stage.innerHTML='<div class="stage-head"><div class="ic">'+d.e+'</div><div><h4>'+d.t+'</h4><small>'+d.d+'</small></div><div class="sim"><i></i>SIMULATION</div></div><div id="simBody">'+d.html()+'</div>';
+  stage.innerHTML='<div class="stage-head"><div class="ic">'+d.e+'</div><div><h4>'+d.t+'</h4><small>'+d.d+'</small></div><div class="sim"><i></i>시뮬레이션</div></div><div id="simBody">'+d.html()+'</div>';
   var steps=stage.querySelectorAll('[data-s]');
   var sorted=Array.prototype.slice.call(steps).sort(function(a,b){return Number(a.dataset.s)-Number(b.dataset.s);});
   sorted.forEach(function(el,k){ demoState.stepTimers.push(setTimeout(function(){el.classList.add('on');},400+k*850)); });
