@@ -2120,6 +2120,34 @@ window.ADMIN=ADMIN;
 <script src="https://js.tosspayments.com/v1/payment"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<!-- ▼▼ 아르케 무결성·회고·리포트 모듈 (shared) — 2026-07-25 추가 ▼▼ -->
+<script src="/shared/arche_typing_v2.js"></script>
+<script src="/shared/arche_writing_diff.js"></script>
+<script src="/shared/arche_integrity.js"></script>
+<script src="/shared/arche_reflection.js"></script>
+<script src="/shared/arche_report_typingdna.js"></script>
+<script src="/shared/arche_report_selfcompare.js"></script>
+<script>
+/* 제출 직후 사후 회고 인터뷰를 모달 오버레이로 띄우는 헬퍼 (실패해도 앱 동작 불변) */
+window.archeReflectOverlay=function(opts){
+  try{
+    if(!window.ArcheReflection||!window.ArcheReflection.renderPost)return;
+    var ov=document.createElement('div');
+    ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(15,21,40,.55);overflow:auto;padding:22px 12px;-webkit-overflow-scrolling:touch';
+    var box=document.createElement('div');
+    box.style.cssText='max-width:748px;margin:0 auto;background:#f2f4f6;border-radius:18px;padding:16px 14px 30px;position:relative';
+    var close=document.createElement('button');
+    close.textContent='나중에 하기 ✕';
+    close.style.cssText='display:block;margin:0 0 8px auto;border:0;background:#191f28;color:#fff;font-weight:700;border-radius:99px;padding:7px 14px;cursor:pointer;font-family:inherit;font-size:12px';
+    close.onclick=function(){ov.remove();};
+    var mount=document.createElement('div');
+    box.appendChild(close); box.appendChild(mount); ov.appendChild(box); document.body.appendChild(ov);
+    var od=opts.onDone; opts.onDone=function(r){ try{if(od)od(r);}catch(_){} setTimeout(function(){ov.remove();},1600); };
+    window.ArcheReflection.renderPost(mount,opts);
+  }catch(e){ if(window.console)console.warn('[arche] reflect overlay',e); }
+};
+</script>
+<!-- ▲▲ 아르케 무결성·회고·리포트 모듈 끝 ▲▲ -->
 <script>
 const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",roi:"원장 대시보드",hqnews:"본사 소식",notice:"안내문 스튜디오",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
@@ -3663,7 +3691,7 @@ async function cbStuLesson(lid,cid){
       +'<div id="cb-smsg" style="font-size:11.5px;min-height:14px;margin-top:6px"></div>';
   }
   pane.innerHTML=h+'</div>';
-  var ed=document.getElementById('cb-ed'); if(ed){ ed.innerHTML=sub.content||''; cbCapAttach(ed); ed.addEventListener('paste',cbEdPaste); cbEdCount(); try{ed.focus();}catch(_){} }
+  var ed=document.getElementById('cb-ed'); if(ed){ ed.innerHTML=sub.content||''; cbCapAttach(ed); if(window.ArcheIntegrity){try{ArcheIntegrity.attach(ed);}catch(_e){}} ed.addEventListener('paste',cbEdPaste); cbEdCount(); try{ed.focus();}catch(_){} }
 }
 async function cbStuSave(){
   var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
@@ -3686,6 +3714,7 @@ async function cbStuRequestReview(){
   if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='요청 실패';} return; }
   if(window.notify)notify('con','course','보고서 검토 요청','코스웨어 보고서가 제출되었습니다. 코칭해 주세요.',(window._designTrack==='goip'?'gdesign':'sr'));
   if(window.toast)toast('검토를 요청했습니다 — 선생님의 코칭을 기다려 주세요',true);
+  try{ if(window.archeReflectOverlay){ var _rs=cbStu()||{}; archeReflectOverlay({ academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(_rs.id||null), sourceType:'lesson', sourceId:cbCur.id, kind:'lesson', title:'', reportText:t, banner:{title:'탐구보고서 제출 완료', sub:t.length+'자 · 직접 작성 확인됨'} }); } }catch(_e){}
   cbStuOpen(cbCur.courseId);
 }
 window.cbMount=cbMount;window.cbList=cbList;window.cbNew=cbNew;window.cbDelCourse=cbDelCourse;window.cbOpen=cbOpen;
@@ -4343,7 +4372,9 @@ async function perfStuSubmit(aid,track){
   var u=await sb.from('perf_submissions').update({draft_content:html,final_content:html,typing_meta:tm,status:'review',verdict:(ch?'SUSPICIOUS':'AUTHENTIC'),verdict_reason:(ch||('키입력 '+tm.keyCount+' / 글자수 '+tm.charCount+' / 작성 '+Math.round(tm.totalMs/60000)+'분 — 정상 작성 패턴')),submitted_at:new Date().toISOString()}).eq('assessment_id',aid).eq('student_id',s.id);
   if(!u.error&&window.notify)notify('con','perf','수행평가 제출','수행평가 결과물이 제출되었습니다. 예상 채점·진단해 주세요.',(window._designTrack==='goip'?'gperf':'perf'));
   if(u.error){ if(m){m.style.color='var(--risk)';m.textContent='요청 실패';} return; }
-  if(window.toast)toast('검토를 요청했어요 — 선생님의 코칭을 기다려 주세요',true); perfStuWork(aid,track);
+  if(window.toast)toast('검토를 요청했어요 — 선생님의 코칭을 기다려 주세요',true);
+  try{ if(window.archeReflectOverlay){ archeReflectOverlay({ academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(s&&s.id)||null, sourceType:'perf', sourceId:aid, kind:'perf', title:'', reportText:t, banner:{title:'수행평가 제출 완료', sub:t.length+'자 · 직접 작성 확인됨'} }); } }catch(_e){}
+  perfStuWork(aid,track);
 }
 function perfDoneUI(a,sub,track){
   var h='<div style="margin-top:12px"><div style="padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성되었습니다. 결과물과 예상등급 평가지를 확인하고 내려받으세요.</div>';
