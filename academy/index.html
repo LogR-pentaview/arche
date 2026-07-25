@@ -3691,6 +3691,7 @@ async function cbStuLesson(lid,cid){
       +'<div style="border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.content||'')+'</div>';
   } else {
     if(st==='returned')h+='<div style="margin-top:10px;padding:8px 11px;background:rgba(49,130,246,.08);border-radius:8px;font-size:12px;color:var(--reach,#3182f6)">↩ 선생님이 피드백과 함께 돌려보냈어요. 위 코칭·피드백을 반영해 수정한 뒤 <b>다시 검토 요청</b>하세요.</div>';
+    h+='<div id="cb-pre" style="margin:12px 0"></div>';
     h+='<div style="border-top:1px dashed var(--line);padding-top:10px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다. 이미지·수식도 붙여넣거나 삽입할 수 있어요.</div>'
       +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
         +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="cbInsertImg(this)"></label>'
@@ -3704,7 +3705,13 @@ async function cbStuLesson(lid,cid){
   }
   pane.innerHTML=h+'</div>';
   var ed=document.getElementById('cb-ed'); if(ed){ ed.innerHTML=sub.content||''; cbCapAttach(ed); if(window.ArcheIntegrity){try{ArcheIntegrity.attach(ed);}catch(_e){}} ed.addEventListener('paste',cbEdPaste); cbEdCount(); try{ed.focus();}catch(_){} }
-  if(st==='todo' && window.archeReflectPre){ window._arPreLesson=window._arPreLesson||{}; if(!window._arPreLesson[cbCur.id]){ window._arPreLesson[cbCur.id]=1; try{ archeReflectPre({academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(cbStu()&&cbStu().id)||null, sourceType:'lesson', sourceId:cbCur.id}); }catch(_e){} } }
+  var _pre=document.getElementById('cb-pre');
+  if(st==='todo' && _pre){
+    if(window.ArcheReflection && window.ArcheReflection.renderPre){
+      (async function(){ var pf=null; try{ var rq=await sb.from('reflection_snapshots').select('s_before').eq('source_type','lesson').eq('source_id',String(cbCur.id)).eq('student_id',(cbStu()&&cbStu().id)).maybeSingle(); pf=(rq.data&&rq.data.s_before)||null; }catch(_e){}
+        try{ window.ArcheReflection.renderPre(_pre,{academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(cbStu()&&cbStu().id)||null, sourceType:'lesson', sourceId:cbCur.id, prefill:pf}); }catch(_e){} })();
+    } else { _pre.innerHTML='<div style="font-size:12px;color:var(--risk,#f04452);padding:10px;border:1px solid var(--risk,#f04452);border-radius:8px">사전 스냅샷 모듈 미로드 — /shared/arche_reflection.js 업로드·경로를 확인하세요.</div>'; }
+  }
 }
 async function cbStuSave(){
   var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
@@ -4297,7 +4304,11 @@ async function perfStuWork(aid,track){
   else if(step===6)h+=perfDoneUI(a,sub,track);
   pane.innerHTML=h+'</div>';
   if(step===4){ var ed=document.getElementById('pf-ed'); if(ed){ ed.innerHTML=sub.draft_content||''; pfCapInit(); pfCapAttach(ed); if(window.ArcheIntegrity){try{ArcheIntegrity.attach(ed);}catch(_e){}} ed.addEventListener('paste',pfEdPaste); pfEdCount(); try{ed.focus();}catch(_){}
-    if(!sub.draft_content && window.archeReflectPre){ window._arPrePerf=window._arPrePerf||{}; if(!window._arPrePerf[a.id]){ window._arPrePerf[a.id]=1; try{ archeReflectPre({academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(perfStu(track)&&perfStu(track).id)||null, sourceType:'perf', sourceId:a.id}); }catch(_e){} } }
+    var _pfp=document.getElementById('pf-pre');
+    if(!sub.draft_content && _pfp && window.ArcheReflection && window.ArcheReflection.renderPre){
+      (async function(){ var pf=null; try{ var rq=await sb.from('reflection_snapshots').select('s_before').eq('source_type','perf').eq('source_id',String(a.id)).eq('student_id',(perfStu(track)&&perfStu(track).id)).maybeSingle(); pf=(rq.data&&rq.data.s_before)||null; }catch(_e){}
+        try{ window.ArcheReflection.renderPre(_pfp,{academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(perfStu(track)&&perfStu(track).id)||null, sourceType:'perf', sourceId:a.id, prefill:pf}); }catch(_e){} })();
+    }
   } }
 }
 function perfStuFeedback(sub){
@@ -4364,6 +4375,7 @@ function perfGuideHtml(gd){
 }
 function perfWriteUI(a,sub,gd,track){
   var h='<div style="margin-top:12px">'+perfGuideHtml(gd)
+    +'<div id="pf-pre" style="margin:12px 0"></div>'
     +'<div style="font-size:12px;font-weight:700;color:var(--gold,#3182f6);margin-bottom:6px">④ 수행평가 결과물 작성</div>'
     +'<div style="border-top:1px dashed var(--line);padding-top:8px;font-size:11px;color:var(--ink-mute);margin-bottom:7px">작성 과정(입력 패턴·저장 기록)이 함께 저장되어 <b>본인 작성 검증</b>에 활용됩니다. 이미지·수식도 넣을 수 있어요.</div>'
     +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px"><label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="pfInsertImg(this)"></label><button type="button" onclick="pfOpenMath()" style="font-size:12px;color:var(--reach,#3182f6);border:1px solid var(--reach,#3182f6);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;white-space:nowrap">∑ 수식</button><span id="pf-cc" style="font-size:11px;color:var(--ink-mute)">0자</span></div>'
