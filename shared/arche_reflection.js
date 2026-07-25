@@ -95,6 +95,7 @@
       + card(3, "가장 궁금한 점은?", "탐구하며 풀고 싶은 질문.", "curious")
       + '<div class="act"><button class="btn" data-go>스냅샷 저장하고 탐구 시작 →</button></div>';
     mount.innerHTML = ""; mount.appendChild(root);
+    if (o.prefill) { ["why", "expect", "curious"].forEach(function (k) { var t = root.querySelector('[data-k="' + k + '"]'); if (t && o.prefill[k]) t.value = o.prefill[k]; }); }
     root.querySelector("[data-go]").onclick = async function () {
       var btn = this; btn.disabled = true; btn.textContent = "저장 중…";
       var before = { why: val(root, "why"), expect: val(root, "expect"), curious: val(root, "curious") };
