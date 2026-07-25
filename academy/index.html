@@ -2128,24 +2128,36 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script>
-/* 제출 직후 사후 회고 인터뷰를 모달 오버레이로 띄우는 헬퍼 (실패해도 앱 동작 불변) */
-window.archeReflectOverlay=function(opts){
-  try{
-    if(!window.ArcheReflection||!window.ArcheReflection.renderPost)return;
+/* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
+(function(){
+  function _box(closeLabel){
     var ov=document.createElement('div');
     ov.style.cssText='position:fixed;inset:0;z-index:99999;background:rgba(15,21,40,.55);overflow:auto;padding:22px 12px;-webkit-overflow-scrolling:touch';
     var box=document.createElement('div');
     box.style.cssText='max-width:748px;margin:0 auto;background:#f2f4f6;border-radius:18px;padding:16px 14px 30px;position:relative';
     var close=document.createElement('button');
-    close.textContent='나중에 하기 ✕';
+    close.textContent=closeLabel||'닫기 ✕';
     close.style.cssText='display:block;margin:0 0 8px auto;border:0;background:#191f28;color:#fff;font-weight:700;border-radius:99px;padding:7px 14px;cursor:pointer;font-family:inherit;font-size:12px';
     close.onclick=function(){ov.remove();};
     var mount=document.createElement('div');
     box.appendChild(close); box.appendChild(mount); ov.appendChild(box); document.body.appendChild(ov);
-    var od=opts.onDone; opts.onDone=function(r){ try{if(od)od(r);}catch(_){} setTimeout(function(){ov.remove();},1600); };
-    window.ArcheReflection.renderPost(mount,opts);
-  }catch(e){ if(window.console)console.warn('[arche] reflect overlay',e); }
-};
+    return {ov:ov,mount:mount};
+  }
+  var _warned=false;
+  function _need(){ if(window.ArcheReflection)return true; if(!_warned){_warned=true;try{alert('회고 모듈(/shared/arche_reflection.js)이 로드되지 않았습니다. shared 폴더 업로드·스크립트 경로를 확인하세요.');}catch(_){}} return false; }
+  window.archeReflectOverlay=function(opts){ // 사후 회고
+    try{ if(!_need()||!window.ArcheReflection.renderPost)return; var b=_box('나중에 하기 ✕');
+      var od=opts.onDone; opts.onDone=function(r){ try{if(od)od(r);}catch(_){} setTimeout(function(){b.ov.remove();},1600); };
+      window.ArcheReflection.renderPost(b.mount,opts);
+    }catch(e){ if(window.console)console.warn('[arche] post',e); }
+  };
+  window.archeReflectPre=function(opts){ // 사전 스냅샷
+    try{ if(!_need()||!window.ArcheReflection.renderPre)return; var b=_box('건너뛰기 ✕');
+      var od=opts.onDone; opts.onDone=function(r){ try{if(od)od(r);}catch(_){} b.ov.remove(); };
+      window.ArcheReflection.renderPre(b.mount,opts);
+    }catch(e){ if(window.console)console.warn('[arche] pre',e); }
+  };
+})();
 </script>
 <!-- ▲▲ 아르케 무결성·회고·리포트 모듈 끝 ▲▲ -->
 <script>
@@ -3692,6 +3704,7 @@ async function cbStuLesson(lid,cid){
   }
   pane.innerHTML=h+'</div>';
   var ed=document.getElementById('cb-ed'); if(ed){ ed.innerHTML=sub.content||''; cbCapAttach(ed); if(window.ArcheIntegrity){try{ArcheIntegrity.attach(ed);}catch(_e){}} ed.addEventListener('paste',cbEdPaste); cbEdCount(); try{ed.focus();}catch(_){} }
+  if(st==='todo' && window.archeReflectPre){ window._arPreLesson=window._arPreLesson||{}; if(!window._arPreLesson[cbCur.id]){ window._arPreLesson[cbCur.id]=1; try{ archeReflectPre({academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(cbStu()&&cbStu().id)||null, sourceType:'lesson', sourceId:cbCur.id}); }catch(_e){} } }
 }
 async function cbStuSave(){
   var ed=document.getElementById('cb-ed'), m=document.getElementById('cb-smsg'); if(!ed)return;
@@ -4283,7 +4296,9 @@ async function perfStuWork(aid,track){
   else if(step===5)h+='<div style="margin-top:10px;padding:9px 12px;border:1px dashed var(--reach,#3182f6);border-radius:8px;font-size:12px;color:var(--reach,#3182f6)">📤 검토 요청됨 — 선생님의 코칭·피드백을 기다리는 중입니다. 도착하면 이어서 수정할 수 있어요.</div><div style="border-top:1px dashed var(--line);margin-top:10px;padding-top:10px;font-size:13px;line-height:1.9;color:var(--ink);word-break:keep-all">'+(sub.draft_content||'')+'</div>';
   else if(step===6)h+=perfDoneUI(a,sub,track);
   pane.innerHTML=h+'</div>';
-  if(step===4){ var ed=document.getElementById('pf-ed'); if(ed){ ed.innerHTML=sub.draft_content||''; pfCapInit(); pfCapAttach(ed); ed.addEventListener('paste',pfEdPaste); pfEdCount(); try{ed.focus();}catch(_){} } }
+  if(step===4){ var ed=document.getElementById('pf-ed'); if(ed){ ed.innerHTML=sub.draft_content||''; pfCapInit(); pfCapAttach(ed); if(window.ArcheIntegrity){try{ArcheIntegrity.attach(ed);}catch(_e){}} ed.addEventListener('paste',pfEdPaste); pfEdCount(); try{ed.focus();}catch(_){}
+    if(!sub.draft_content && window.archeReflectPre){ window._arPrePerf=window._arPrePerf||{}; if(!window._arPrePerf[a.id]){ window._arPrePerf[a.id]=1; try{ archeReflectPre({academyId:(window._acadId||(window._academy&&window._academy.id)||null), studentId:(perfStu(track)&&perfStu(track).id)||null, sourceType:'perf', sourceId:a.id}); }catch(_e){} } }
+  } }
 }
 function perfStuFeedback(sub){
   if(sub.status!=='returned')return '';
