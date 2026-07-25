@@ -792,7 +792,9 @@
               <select id="st-track" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">계열</option><option>인문</option><option>자연</option><option>공학</option><option>의약</option><option>예체능</option><option>기타</option></select>
             </div>
             <input id="st-univ" placeholder="목표 대학" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <div style="display:flex;gap:6px;margin-bottom:10px"><input id="st-major" placeholder="목표 학과" style="flex:1;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><button type="button" class="btn ghost" onclick="searchMajor()" style="white-space:nowrap">학과 검색</button></div>
+            <div style="display:flex;gap:6px;margin-bottom:7px"><input id="st-major" placeholder="목표 학과 1순위" style="flex:1;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><button type="button" class="btn ghost" onclick="searchMajor()" style="white-space:nowrap">학과 검색</button></div>
+            <input id="st-major2" placeholder="목표 학과 2순위 (선택)" style="width:100%;margin-bottom:7px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+            <input id="st-major3" placeholder="목표 학과 3순위 (선택)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div id="major-results" style="margin-bottom:10px"></div>
             <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -2234,7 +2236,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.07.24.5";
+window.APP_VERSION="2026.07.25.1";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -3768,7 +3770,7 @@ async function editStudent(id){
   var s=(window._students||[]).find(function(x){return x.id===id;}); if(!s)return;
   window._editId=id;
   var set=function(i,v){var e=document.getElementById(i);if(e)e.value=(v||'');};
-  set('st-name',s.name);set('st-school',s.school);set('st-univ',s.target_univ);set('st-major',s.target_major);set('st-career',s.career);set('st-interest',s.interest);
+  set('st-name',s.name);set('st-school',s.school);set('st-univ',s.target_univ);set('st-major',s.target_major);set('st-major2',s.target_major2);set('st-major3',s.target_major3);set('st-career',s.career);set('st-interest',s.interest);
   document.getElementById('st-grade').value=s.grade||'';document.getElementById('st-track').value=s.track||'';
   document.getElementById('st-region').value=s.region||'';document.getElementById('st-gender').value=s.gender||'';
   document.getElementById('st-consent').checked=!!s.consent_record;document.getElementById('st-bench').checked=!!s.benchmark_opt_in;
@@ -3794,6 +3796,8 @@ async function addStudent(){
     track:document.getElementById('st-track').value||null,
     target_univ:document.getElementById('st-univ').value.trim()||null,
     target_major:document.getElementById('st-major').value.trim()||null,
+    target_major2:(document.getElementById('st-major2')?document.getElementById('st-major2').value.trim():'')||null,
+    target_major3:(document.getElementById('st-major3')?document.getElementById('st-major3').value.trim():'')||null,
     career:document.getElementById('st-career').value.trim()||null,
     interest:document.getElementById('st-interest').value.trim()||null,
     club_name:(document.getElementById('st-club')?document.getElementById('st-club').value.trim():'')||null,
@@ -3808,7 +3812,7 @@ async function addStudent(){
   if(err){m.style.color='var(--risk)';m.textContent=esc(err.message);return;}
   m.style.color='var(--safe)';m.textContent=wasEdit?'수정 완료.':'등록 완료. 학생 로그인 계정을 생성합니다…';
   window._editId=null; var sb2=document.getElementById('st-submit'); if(sb2)sb2.textContent='등록';
-  ['st-name','st-school','st-univ','st-major','st-career','st-interest'].forEach(id=>document.getElementById(id).value='');
+  ['st-name','st-school','st-univ','st-major','st-major2','st-major3','st-career','st-interest'].forEach(id=>{var e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('st-grade').value='';document.getElementById('st-track').value='';
   document.getElementById('st-region').value='';document.getElementById('st-gender').value='';
   document.getElementById('st-consent').checked=false;document.getElementById('st-bench').checked=false;
@@ -4819,12 +4823,25 @@ async function estimateCog(){
     await sb.from('student_metrics').insert({student_id:s.id,metric_type:'comp5',payload:{academic:o.academic,inquiry:o.inquiry,convergence:o.convergence,community:o.community,problem:o.problem,reasons:o.reasons||null,naesin:naesin,source:'ai_estimate'}});
     if(o.qual){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'qual4',payload:{activity:o.qual.activity,thinking:o.qual.thinking,values:o.qual.values,vision:o.qual.vision,source:'ai_estimate'}}); }
     try{
-      var _cmCtx='';
-    try{ var _cmr=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','career_match').order('measured_at',{ascending:false}).limit(1);
-      var _cm=_cmr.data&&_cmr.data[0]&&_cmr.data[0].payload;
-      if(_cm&&_cm.majors&&_cm.majors.length){ _cmCtx='[진로·학과 매칭 결과 — 학과 선정에 우선 반영] '+_cm.majors.slice(0,5).map(function(x,i){return (x.rank||i+1)+'.'+x.major+'(적합도 '+x.fit+')';}).join(' · ')+(_cm.narrative&&_cm.narrative.headline?' / 핵심서사: '+_cm.narrative.headline:'')+'\n'; }
-    }catch(e){}
-    var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:(naesin!=null?naesin:''),gpa_sys:studentGradeSystem(s),context:(_cmCtx+setechTxt).slice(0,3400)});
+      // 목표학과 1~3순위
+      var ranked=[s.target_major,s.target_major2,s.target_major3].map(function(x){return (x||'').trim();}).filter(Boolean);
+      var rankedTxt=ranked.map(function(mm,i){return (i+1)+'순위 '+mm;}).join(', ')||'(목표학과 미입력)';
+      // 학생부 기반 관련 학과 (career_match)
+      var _cmCtx='', relatedTxt='';
+      try{ var _cmr=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','career_match').order('measured_at',{ascending:false}).limit(1);
+        var _cm=_cmr.data&&_cmr.data[0]&&_cmr.data[0].payload;
+        if(_cm&&_cm.majors&&_cm.majors.length){ relatedTxt=_cm.majors.slice(0,5).map(function(x){return x.major;}).join(', ');
+          _cmCtx='[학생부 기반 관련 학과 매칭 Top5] '+_cm.majors.slice(0,5).map(function(x,i){return (x.rank||i+1)+'.'+x.major+'(적합도 '+x.fit+')';}).join(' · ')+(_cm.narrative&&_cm.narrative.headline?' / 핵심서사: '+_cm.narrative.headline:'')+'\n'; }
+      }catch(e){}
+      // 상담 기록
+      var consTxt='';
+      try{ var _cq=await sb.from('consultations').select('kind,career,target_univ,target_major,activities,memo,created_at').eq('student_id',s.id).order('created_at',{ascending:false}).limit(8);
+        var _cd=_cq.data||[];
+        if(_cd.length){ consTxt='[상담 기록 (최신순)]\n'+_cd.map(function(c){return '('+String(c.created_at||'').slice(0,10)+') 희망:'+(((c.target_univ||'')+' '+(c.target_major||'')).trim()||'-')+' / 진로:'+(c.career||'-')+' / 활동:'+(c.activities||'-')+' / 메모:'+(c.memo||'-');}).join('\n').slice(0,2000)+'\n'; }
+      }catch(e){}
+      var careerComposite='목표학과 '+rankedTxt+(relatedTxt?(' / 학생부 기반 관련 학과: '+relatedTxt):'')+(s.career?(' / 희망 진로: '+s.career):'');
+      var recoCtx=('★추천 원칙: 목표학과 1~3순위를 우선하되, 학생부 기반 관련 학과와 상담 희망을 함께 고려해 6개를 폭넓게 매칭하라(단일 학과에 갇히지 말 것).\n'+_cmCtx+consTxt+'[활동]\n'+setechTxt).slice(0,4200);
+    var rc=await callAI('recommend_univ',{career:careerComposite,field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:(naesin!=null?naesin:''),gpa_sys:studentGradeSystem(s),context:recoCtx});
       var ulist=JSON.parse(rc.text);
       if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
     }catch(ue){}
@@ -8807,7 +8824,8 @@ async function genCareerMatch(){
     }
     var dataLevel=seChars>2500?'rich':(seChars>0?'partial':'minimal');
     if(m)m.textContent=(dataLevel==='minimal'?'활동 없음 → 상담·등록카드 기반 탐색형 매칭 분석 중… (약 20~40초)':'키워드 추출·학과 매칭 분석 중… (약 20~40초)');
-    var d=await callAI('career_match',{grade:s.grade||'',gender:s.gender||'',region:s.region||'',career:s.career||'',major:s.target_major||'',target:s.target_univ||'',gpa:(naesin!=null?naesin:''),data_level:dataLevel,text:parts.join('\n\n')});
+    var _rankedMj=[s.target_major,s.target_major2,s.target_major3].map(function(x){return (x||'').trim();}).filter(Boolean).join(', ');
+    var d=await callAI('career_match',{grade:s.grade||'',gender:s.gender||'',region:s.region||'',career:s.career||'',major:(_rankedMj||s.target_major||''),target:s.target_univ||'',gpa:(naesin!=null?naesin:''),data_level:dataLevel,text:parts.join('\n\n')});
     var o=JSON.parse(d.text);
     // ── CareerNet 학과사전 표준명 검증 (혼합형) ──
     if(m)m.textContent='CareerNet 학과사전 검증 중…';
