@@ -32,6 +32,10 @@
     + ".pnta .badge{display:inline-block;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:99px;align-self:flex-start;margin-top:9px}"
     + ".pnta .b-assigned{background:#eef1ff;color:#1A237E}.pnta .b-submitted{background:#fff4e0;color:#b8860b}"
     + ".pnta .b-reviewed{background:#e7f0ff;color:#2b64c4}.pnta .b-sent{background:#e9f9ef;color:#137a44}.pnta .b-none{background:#f0f2f6;color:#8b95a1}"
+    + ".pnta .b-done{background:#12b76a;color:#fff}"
+    + ".pnta .c.done{border-color:#12b76a;background:#f6fdf9}"
+    + ".pnta .c .donetag{position:absolute;top:10px;right:10px;background:#12b76a;color:#fff;font-size:10.5px;font-weight:800;padding:3px 9px;border-radius:99px}"
+    + ".pnta .c{position:relative}"
     + ".pnta .row{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}"
     + ".pnta button.act{font:inherit;font-weight:800;font-size:12.5px;padding:9px 14px;border-radius:10px;border:0;cursor:pointer}"
     + ".pnta .act.pri{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff}"
@@ -45,10 +49,10 @@
     + ".pnta .cat{background:#fff;border:1px solid #e6e9f0;border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:12px;margin-bottom:9px}"
     + ".pnta .cat .cc{flex:1}.pnta .cat .cc .ti{font-size:14px;font-weight:900;color:#1A237E}.pnta .cat .cc .th{font-size:12px;color:#6b7688;margin-top:2px}"
     + ".pnta .chip{font-size:10.5px;font-weight:800;padding:3px 8px;border-radius:6px;background:#eef1ff;color:#1A237E}"
-    + ".pnta .ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:9999;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px}"
-    + ".pnta .ovc{background:#eef1f8;border-radius:18px;max-width:900px;width:100%;padding:16px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35)}"
-    + ".pnta .ovx{position:sticky;top:0;display:flex;justify-content:flex-end;z-index:2}"
-    + ".pnta .ovx button{font:inherit;font-weight:800;font-size:13px;padding:8px 14px;border-radius:10px;border:0;background:#1A237E;color:#fff;cursor:pointer}"
+    + ".pnta-ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:2147483000;display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px 12px;font-family:'Noto Sans KR',sans-serif}"
+    + ".pnta-ovc{background:#eef1f8;border-radius:18px;max-width:900px;width:100%;padding:16px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35)}"
+    + ".pnta-ovx{position:sticky;top:0;display:flex;justify-content:flex-end;z-index:2}"
+    + ".pnta-ovx button{font:inherit;font-weight:800;font-size:13px;padding:8px 14px;border-radius:10px;border:0;background:#1A237E;color:#fff;cursor:pointer}"
     + ".pnta .edit{background:#fff;border:1px solid #e6e9f0;border-radius:14px;padding:16px;margin-bottom:12px}"
     + ".pnta .edit h4{margin:0 0 4px;font-size:14px;color:#1A237E}"
     + ".pnta .edit .fl{font-size:11.5px;font-weight:800;color:#8b95a1;margin:10px 0 4px}"
@@ -161,9 +165,11 @@
     if(!rows.length){ list.innerHTML='<div class="empty">아직 배정된 '+esc(spec.title)+' 회차가 없어요.<br>선생님이 회차를 배정하면 여기에 나타나요 😊</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
     rows.forEach(function(a){
-      var c=document.createElement('div'); c.className='c';
+      var submitted=(a.status==='submitted'||a.status==='reviewed'||a.status==='sent');
+      var c=document.createElement('div'); c.className='c'+(submitted?' done':'');
       var done=(a.status==='sent');
-      c.innerHTML='<div class="stg">펜타 '+(a.stage==='track'?'트랙':'비전')+(a.level?(' · '+(a.level==='starter'?'스타터':'아키텍처')):'')+'</div>'
+      c.innerHTML=(submitted?'<div class="donetag">✓ 완료</div>':'')
+        +'<div class="stg">펜타 '+(a.stage==='track'?'트랙':'비전')+(a.level?(' · '+(a.level==='starter'?'스타터':'아키텍처')):'')+'</div>'
         +'<div class="ti">'+esc(a.title)+'</div><div class="th">'+esc(a.theme||'')+' · 시즌'+esc(a.season)+' '+esc(a.week)+'주차</div>'
         +'<div class="meta">'+esc(a.grade_band||'')+' · 예상 '+esc(a.est_min||40)+'분</div>'+badge(a.status);
       var row=document.createElement('div'); row.className='row';
@@ -183,9 +189,9 @@
     if(readOnly || a.status!=='assigned'){
       try{ var sub=await getSubmissionBy(studentId,a.stage,a.season,a.week); if(sub)pre={answers:sub.answers,radar_before:sub.radar_before,radar_after:sub.radar_after,compass:sub.compass}; }catch(e){}
     }
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
+    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), {
       lesson: a.content, academyId: acadId(), studentId: studentId,
       mode:'live', readOnly: !!readOnly, prefill: pre,
@@ -197,9 +203,9 @@
   function openWorkbookPreview(c){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
     if(!c || !c.content){ toast('이 회차의 워크북 내용이 없습니다'); return; }
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><span style="flex:1;color:#8b95a1;font-size:12px;font-weight:700;align-self:center">📖 미리보기 · 저장되지 않습니다</span><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
+    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><span style="flex:1;color:#8b95a1;font-size:12px;font-weight:700;align-self:center">📖 미리보기 · 저장되지 않습니다</span><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), { lesson: c.content, mode:'preview', readOnly:false });
   }
 
@@ -207,9 +213,9 @@
     if(!window.ArchePentaReport){ toast('리포트 모듈(arche_penta_report.js) 미로드'); return; }
     var sub; try{ sub=await getSubmission(submissionId); }catch(e){ toast('리포트를 불러오지 못했어요'); return; }
     if(!sub||!sub.report){ toast('아직 발행된 리포트가 없어요'); return; }
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
+    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
     ArchePentaReport.render(ov.querySelector('.rpmount'), sub.report);
   }
 
@@ -293,8 +299,8 @@
     var students; try{ students=await loadPentaStudents(); }catch(e){ students=[]; }
     var cand=students.filter(function(s){ return bands.indexOf(gradeBand(s.grade))>=0 && s.penta_course!==course; });
     var gradeOpts=[]; if(bands.indexOf('초등')>=0)['초3','초4','초5','초6'].forEach(function(x){gradeOpts.push(x);}); if(bands.indexOf('중등')>=0)['중1','중2','중3'].forEach(function(x){gradeOpts.push(x);});
-    var ov=el('<div class="ov"><div class="ovc" style="max-width:540px"><div class="ovx"><button>✕ 닫기</button></div></div></div>');
-    var box=ov.querySelector('.ovc');
+    var ov=el('<div class="pnta-ov"><div class="pnta-ovc" style="max-width:540px"><div class="pnta-ovx"><button>✕ 닫기</button></div></div></div>');
+    var box=ov.querySelector('.pnta-ovc');
     box.appendChild(el('<div class="edit"><h4>'+esc(spec.title)+' 수강 등록</h4><div class="sub">기존 초·중등 학생을 이 코스로 등록하거나, 새 학생을 추가하세요.</div></div>'));
     var ex=el('<div class="edit"><div class="fl">기존 학생 등록 (복수 선택)</div></div>');
     var exChecks=[];
@@ -315,7 +321,7 @@
     });
     nw.appendChild(nb); box.appendChild(nw);
     document.body.appendChild(ov);
-    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
   }
 
   // 제출·리포트 탭 (코스 수강생 선택 → 회차별 리포트)
@@ -358,9 +364,9 @@
   // 리포트 생성·검토·발행 오버레이
   async function openReview(a, stu){
     if(!window.ArchePentaReport){ toast('리포트 모듈 미로드'); return; }
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div id="pn-rv"><div class="empty">제출물 불러오는 중…</div></div></div></div>');
+    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div id="pn-rv"><div class="empty">제출물 불러오는 중…</div></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
     var wrap=ov.querySelector('#pn-rv');
     var sub;
     try{ sub=await getSubmissionBy(stu.id, a.stage, a.season, a.week); }catch(e){ wrap.innerHTML='<div class="warn">제출물을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
@@ -460,9 +466,9 @@
   // report 객체를 바로 렌더(학부모용 — id 재조회 불필요)
   function openReportData(report){
     if(!window.ArchePentaReport || !report){ toast('리포트를 열 수 없어요'); return; }
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
+    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
     ArchePentaReport.render(ov.querySelector('.rpmount'), report);
   }
 
