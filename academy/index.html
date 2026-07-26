@@ -561,6 +561,7 @@
     <div class="nav" data-v="hqnews" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></svg> 본사 소식</div>
     <div class="nav" data-v="promo" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-2v6l-18-2z"/><path d="M8 12v5a2 2 0 002 2h1"/><circle cx="18" cy="6" r="2"/></svg> 홍보 스튜디오</div>
     <div class="nav" data-v="notice" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8h13l4-3v14l-4-3H3z"/><path d="M7 19v2"/></svg> 안내문 스튜디오</div>
+    <div class="nav" data-v="psend" onclick="go(this);if(window.ArcheParentHub)ArcheParentHub.mountSend(document.getElementById('parent-hub-mount'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg> 학부모 전송</div>
     <div class="nav" data-v="billing" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> 구독·결제</div>
     <div class="navlabel navlabel-con" style="margin-top:8px">시스템</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
@@ -2121,6 +2122,13 @@ window.ADMIN=ADMIN;
         <div class="sub">학원 시간표·신설 강좌 안내문을 학원 로고·연락처가 들어간 자료로 만들어 학부모·학생에게 배포하세요.</div>
         <div id="notice-body" style="margin-top:18px"></div>
       </section>
+      <!-- ▼ 학부모 전송 (parent_inbox) ▼ -->
+      <section class="view" id="v-psend">
+        <div class="eyebrow">Parent Hub</div>
+        <div class="h1">학부모 전송</div>
+        <div class="sub">소식지·시간표·새 강좌·월간 분석표, 진로/수행 결과 등을 학부모 대시보드로 보냅니다.</div>
+        <div id="parent-hub-mount" style="margin-top:18px"></div>
+      </section>
       <!-- ▼ 펜타 시리즈 통합 뷰 (2026-07-25 추가) ▼ -->
       <section class="view" id="v-penta">
         <div class="eyebrow">Penta Series</div>
@@ -2146,6 +2154,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js"></script>
 <script src="/shared/arche_penta_report.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
+<script src="/shared/arche_parent_hub.js"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2180,7 +2189,7 @@ window.ADMIN=ADMIN;
 </script>
 <!-- ▲▲ 아르케 무결성·회고·리포트 모듈 끝 ▲▲ -->
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",roi:"원장 대시보드",hqnews:"본사 소식",notice:"안내문 스튜디오",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"펜타 시리즈"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",roi:"원장 대시보드",hqnews:"본사 소식",notice:"안내문 스튜디오",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"펜타 시리즈",psend:"학부모 전송"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){ if(window.trackSeg)trackSeg(g); }
@@ -2521,6 +2530,7 @@ async function enterApp(session){
   var role=(u.user_metadata&&u.user_metadata.role)||'con';
   window._appRole=role;
   if(role==='student'){ return enterStudentApp(session); }
+  if(role==='parent'){ return enterParentViewer(session); }
   // 컨설턴트/관리자
   const ac=await ensureAcademy(u);
   if(!ac && u.user_metadata && u.user_metadata.academy_id){ return; }
@@ -2605,6 +2615,138 @@ function updateDemoBanner(){
     '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
     '<a href="mailto:gwkim06@gmail.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#3182f6);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
+/* ═══ 학부모 뷰어 대시보드 (자녀 상황 열람 · 수강 게이팅 · 샘플 유도) ═══ */
+async function enterParentViewer(session){
+  try{ gate.style.display='none'; }catch(e){}
+  document.body.classList.add('parent-viewer');
+  window._role='parent'; window.__PENTA_ROLE='parent';
+  var uid=session.user.id; window._myUid=uid;
+  // 자녀 연결 조회
+  var stu=null;
+  try{
+    var pa=await sb.from('parent_accounts').select('student_id,academy_id').eq('auth_uid',uid).limit(1);
+    if(pa.data&&pa.data[0]){
+      window._acadId=pa.data[0].academy_id;
+      var sr=await sb.from('students').select('*').eq('id',pa.data[0].student_id).limit(1);
+      if(sr.data&&sr.data[0]) stu=sr.data[0];
+    }
+  }catch(e){}
+  window._activeStudent=stu;
+  pvInjectCss();
+  var root=document.getElementById('pv-root'); if(!root){ root=document.createElement('div'); root.id='pv-root'; document.body.appendChild(root); }
+  if(!stu){ root.innerHTML='<div class="pv-wrap"><div class="pv-empty">연결된 자녀 정보를 찾지 못했어요.<br>학원에서 발급한 학부모 아이디로 로그인했는지 확인해 주세요.<br><br><button class="pv-btn" onclick="sbSignOutReload()">로그아웃</button></div></div>'; return; }
+  pvRenderDashboard(root, stu);
+}
+function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/login'); }); }catch(e){ location.replace('/login'); } }
+window.sbSignOutReload=sbSignOutReload;
+
+function pvInjectCss(){
+  if(document.getElementById('pv-css'))return;
+  var s=document.createElement('style'); s.id='pv-css';
+  s.textContent=""
+    +"#pv-root{position:fixed;inset:0;z-index:900;overflow:auto;background:#eef1f8;font-family:'Noto Sans KR',sans-serif;color:#243244}"
+    +".pv-wrap{max-width:860px;margin:0 auto;padding:20px 16px 60px}"
+    +".pv-top{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;border-radius:18px;padding:22px 22px;position:relative;overflow:hidden}"
+    +".pv-top::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 10%,rgba(212,175,55,.22),transparent 45%)}"
+    +".pv-top .eb{position:relative;font-size:11px;font-weight:800;letter-spacing:2px;color:#E8D9A0}"
+    +".pv-top h1{position:relative;font-size:22px;font-weight:900;margin:7px 0 3px}"
+    +".pv-top .meta{position:relative;font-size:13px;color:#c7cdf0}"
+    +".pv-top .lo{position:absolute;top:16px;right:16px;z-index:2;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}"
+    +".pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}"
+    +".pv-card{background:#fff;border:1px solid #e6e9f0;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,23,51,.04);display:flex;flex-direction:column}"
+    +".pv-card .ic{width:44px;height:44px;border-radius:12px;background:#eef1ff;display:grid;place-items:center;font-size:22px;margin-bottom:10px}"
+    +".pv-card h3{margin:0;font-size:16px;font-weight:900;color:#1A237E}"
+    +".pv-card .d{font-size:12.5px;color:#6b7688;line-height:1.6;margin:5px 0 12px;flex:1}"
+    +".pv-badge{align-self:flex-start;font-size:10.5px;font-weight:800;border-radius:99px;padding:3px 10px;margin-bottom:10px}"
+    +".pv-on{background:#e9f9ef;color:#137a44}.pv-off{background:#f0f2f6;color:#8b95a1}"
+    +".pv-btn{border:none;border-radius:10px;padding:11px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff}"
+    +".pv-btn.lock{background:#fff;color:#1A237E;border:1.5px solid #cfd6ea}"
+    +".pv-lockwrap{position:relative}.pv-lockwrap .lockmsg{font-size:11.5px;color:#b8860b;background:rgba(212,175,55,.12);border:1px solid #E8D9A0;border-radius:8px;padding:8px 11px;margin-bottom:10px;line-height:1.5}"
+    +".pv-empty{text-align:center;color:#6b7688;font-size:14px;padding:60px 20px;line-height:1.8}"
+    +".pv-ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:1200;overflow:auto;padding:20px 12px}"
+    +".pv-ovc{max-width:900px;margin:0 auto;background:#eef1f8;border-radius:18px;padding:14px}"
+    +".pv-ovx{display:flex;justify-content:flex-end;position:sticky;top:0}"
+    +".pv-ovx button{border:none;background:#1A237E;color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}"
+    +".pv-note{font-size:11px;color:#8b95a1;text-align:center;margin-top:20px;line-height:1.7}";
+  document.head.appendChild(s);
+}
+
+function pvGradeBand(g){ g=String(g||''); if(/초/.test(g))return '초등'; if(/중/.test(g))return '중등'; if(/고|N수/.test(g))return '고등'; return ''; }
+function pvCourseLabel(c){ return c==='vision_basic'?'펜타 비전 기초':c==='vision_adv'?'펜타 비전 심화':c==='track'?'펜타 트랙':''; }
+
+async function pvRenderDashboard(root, stu){
+  var band=pvGradeBand(stu.grade);
+  var pentaOn=!!stu.penta_course;
+  var h='<div class="pv-wrap">';
+  h+='<div class="pv-top"><button class="lo" onclick="sbSignOutReload()">로그아웃</button>'
+    +'<div class="eb">PENTAVIEW · 학부모 대시보드</div>'
+    +'<h1>'+pvEsc(stu.name||'자녀')+' 학부모님</h1>'
+    +'<div class="meta">'+pvEsc(stu.grade||'')+(band?(' · '+band):'')+(pentaOn?(' · '+pvCourseLabel(stu.penta_course)+' 수강 중'):'')+'</div></div>';
+  h+='<div class="pv-grid" id="pv-grid"><div class="pv-empty">불러오는 중…</div></div>';
+  h+='<div class="pv-note">자녀가 수강 중인 항목은 실제 결과를, 아직 수강하지 않은 항목은 샘플을 보여드립니다.<br>수강 확대·문의는 담당 선생님께 연락해 주세요.</div>';
+  h+='</div>';
+  root.innerHTML=h;
+  var grid=root.querySelector('#pv-grid');
+
+  // 학원 전송함(소식지·시간표·새강좌·월간분석표·진로·수행 등) 로드
+  var inbox=[];
+  try{ if(window.ArcheParentHub) inbox=await ArcheParentHub.loadInbox(stu.academy_id, stu.id); }catch(e){}
+  function ofType(){ var ts=Array.prototype.slice.call(arguments); return inbox.filter(function(it){return ts.indexOf(it.type)>=0;}); }
+  var notices=ofType('notice','timetable','new_course');
+  var monthlies=ofType('monthly');
+  var designs=ofType('design');
+  var perfs=ofType('perf');
+
+  var cards=[
+    { ic:'🧠', title:'펜타 시리즈', desc:'자녀의 사고력 워크북 성장 리포트(비전·트랙)를 확인하세요.', on:pentaOn, count:0,
+      onOpen:function(){ pvOpenPenta(stu); }, sample:'수업 후 발행되는 PentaView 리포트(지성 레이더·황금문장·추천도서·가정 대화)를 여기서 받아보실 수 있어요.' },
+    { ic:'🧭', title:'진로 징검다리', desc:'진로 설계 결과지를 학생과 함께 받아보세요.', on:designs.length>0, count:designs.length,
+      onOpen:function(){ pvOpenList('진로 징검다리', designs); }, sample:'컨설턴트가 자녀의 진로 탐색을 분석해 만든 결과지를 학생·학부모가 동시에 받습니다.' },
+    { ic:'📝', title:'수행평가 도우미', desc:'수행평가 준비 결과지를 확인하세요.', on:perfs.length>0, count:perfs.length,
+      onOpen:function(){ pvOpenList('수행평가 도우미', perfs); }, sample:'과목별 수행평가 설계·피드백 결과지를 학생·학부모가 함께 받아봅니다.' },
+    { ic:'📊', title:'월간 분석표', desc:'자녀의 월간 학습·성장 분석 리포트입니다.', on:monthlies.length>0, count:monthlies.length,
+      onOpen:function(){ pvOpenList('월간 분석표', monthlies); }, sample:'매달 자녀의 학습 상황을 정리한 분석표를 이곳에서 받아보실 수 있어요.' },
+    { ic:'📢', title:'학원 소식·안내', desc:'소식지·시간표·새 강좌 안내를 확인하세요.', on:notices.length>0, count:notices.length,
+      onOpen:function(){ pvOpenList('학원 소식·안내', notices); }, sample:'학원 소식지, 시간표, 새 강좌 안내가 이곳으로 전달됩니다.' }
+  ];
+  grid.innerHTML='';
+  cards.forEach(function(c){
+    var card=document.createElement('div'); card.className='pv-card';
+    var badge = c.on ? ('<span class="pv-badge pv-on">'+(c.count?('새 소식 '+c.count):'이용 중')+'</span>') : '<span class="pv-badge pv-off">미수강</span>';
+    var inner='<div class="ic">'+c.ic+'</div><h3>'+pvEsc(c.title)+'</h3>'+badge+'<div class="d">'+pvEsc(c.desc)+'</div>';
+    if(c.on){ inner+='<button class="pv-btn">열람하기'+(c.count?(' ('+c.count+')'):'')+'</button>'; }
+    else { inner+='<div class="pv-lockwrap"><div class="lockmsg">🔒 '+pvEsc(c.sample)+'</div><button class="pv-btn lock">샘플 보기 · 수강 문의</button></div>'; }
+    card.innerHTML=inner;
+    var btn=card.querySelector('button');
+    if(c.on) btn.addEventListener('click', c.onOpen);
+    else btn.addEventListener('click', function(){ pvSample(c); });
+    grid.appendChild(card);
+  });
+}
+function pvOpenList(title, items){
+  var body=pvOverlay();
+  var wrap=document.createElement('div');
+  wrap.style.cssText='background:#fff;border-radius:16px;padding:18px';
+  wrap.innerHTML='<h2 style="color:#1A237E;margin:0 0 12px;font-size:18px">'+pvEsc(title)+'</h2><div class="aph" id="pv-listmount"></div>';
+  body.appendChild(wrap);
+  if(window.ArcheParentHub) ArcheParentHub.renderList(wrap.querySelector('#pv-listmount'), items||[]);
+}
+function pvEsc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x];});}
+function pvOverlay(){ var ov=document.createElement('div'); ov.className='pv-ov'; ov.innerHTML='<div class="pv-ovc"><div class="pv-ovx"><button>✕ 닫기</button></div><div class="pv-ovbody"></div></div>'; document.body.appendChild(ov); ov.querySelector('.pv-ovx button').addEventListener('click',function(){ov.remove();}); return ov.querySelector('.pv-ovbody'); }
+function pvOpenPenta(stu){
+  var body=pvOverlay();
+  if(window.ArchePentaApp){ window.__PENTA_ROLE='parent'; window._activeStudent=stu; ArchePentaApp.mountRole(body, 'parent', {course:null}); }
+  else body.innerHTML='<div class="pv-empty">펜타 모듈을 불러오지 못했어요. shared 폴더 업로드를 확인해 주세요.</div>';
+}
+function pvSample(c){
+  var body=pvOverlay();
+  body.innerHTML='<div style="background:#fff;border-radius:16px;padding:26px 22px;text-align:center">'
+    +'<div style="font-size:40px">'+c.ic+'</div><h2 style="color:#1A237E;margin:8px 0 6px">'+pvEsc(c.title)+' · 미리보기</h2>'
+    +'<div style="font-size:13.5px;color:#39465a;line-height:1.8;max-width:520px;margin:0 auto">'+pvEsc(c.sample)+'</div>'
+    +'<div style="margin-top:18px;font-size:12.5px;color:#8b95a1">수강을 원하시면 담당 선생님께 문의해 주세요.</div></div>';
+}
+window.enterParentViewer=enterParentViewer;
+
 async function enterStudentApp(session){
   if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
@@ -2639,7 +2781,7 @@ async function enterStudentApp(session){
     var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
   }
   // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
-  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice','psend'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
   // 학생 전용: 인터뷰·성적 제출 진입점(자료입력) 노출 + 라벨 변경
   var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(isGoip){ _ivn.style.display='none'; } else { _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } }
   var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn&&isGoip){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); }
