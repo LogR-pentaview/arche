@@ -65,15 +65,36 @@
   function acadId(){ return window._acadId || (window._academy&&window._academy.id) || null; }
   function toast(msg){ var t=document.querySelector('.pnta .toast'); if(!t){t=el('<div class="toast"></div>'); (document.querySelector('.pnta')||document.body).appendChild(t);} t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2200); }
 
-  function stageTitle(s){ return s==='vision'?'펜타 비전':(s==='track'?'펜타 트랙':'펜타 시리즈'); }
-  function stageDesc(s){ return s==='vision'?'초등 고학년~중2 · 5대 지성 주파수 발견':(s==='track'?'중3 · 교과 융합 + 고교학점제·세특 연계':'비전·트랙 통합'); }
+  // 코스 정의: vision_basic(비전 기초) · vision_adv(비전 심화) · track(펜타 트랙)
+  var COURSES={
+    vision_basic:{ stage:'vision', level:'starter',      title:'펜타 비전 기초', short:'비전 기초', bands:['초등'],        desc:'초등 · 5대 지성 주파수 발견(쉬운 언어)' },
+    vision_adv:  { stage:'vision', level:'architecture', title:'펜타 비전 심화', short:'비전 심화', bands:['초등','중등'], desc:'초등 고학년~중등 · 논리적 사고 확장' },
+    track:       { stage:'track',  level:'',             title:'펜타 트랙',     short:'트랙',     bands:['중등'],        desc:'중3 · 교과 융합 + 고교학점제·세특 연계' }
+  };
+  function courseSpec(c){ return COURSES[c]||{ title:'펜타 시리즈', short:'전체', desc:'비전·트랙 통합', stage:null, level:null }; }
+  function courseLabel(c){ return COURSES[c]?COURSES[c].short:'미수강'; }
+  function stageTitle(s){ return COURSES[s]?COURSES[s].title:(s==='vision'?'펜타 비전':(s==='track'?'펜타 트랙':'펜타 시리즈')); }
+  function stageDesc(s){ return COURSES[s]?COURSES[s].desc:'비전·트랙 통합'; }
+  function gradeBand(g){ g=String(g||''); if(/초/.test(g))return '초등'; if(/중/.test(g))return '중등'; if(/고|N수/.test(g))return '고등'; return '기타'; }
+  function eligibleCourses(grade){ var b=gradeBand(grade); return Object.keys(COURSES).filter(function(k){return COURSES[k].bands.indexOf(b)>=0;}); }
   function byStage(rows, stage){ return stage ? (rows||[]).filter(function(r){return r.stage===stage;}) : (rows||[]); }
+  // 코스 스펙에 맞는 카탈로그/배정 행 필터 (stage + level)
+  function bySpec(rows, spec){ if(!spec||!spec.stage)return rows||[]; return (rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); }
   async function loadStudents(){
     var students=(window._students||[]).slice();
     if(!students.length){ try{ var r=await window.sb.from('students').select('id,name').eq('academy_id',acadId()).order('name'); if(r&&r.data)students=r.data; }catch(e){} }
     if(!students.length && window._activeStudent) students=[window._activeStudent];
     return students;
   }
+  // 펜타 대상(초·중등) 학생 로드 — 컨설턴트는 담당 학생만
+  async function loadPentaStudents(){
+    var q=window.sb.from('students').select('id,name,grade,penta_course,consultant_uid').eq('academy_id',acadId());
+    if(window._isOwner===false && window._myUid){ q=q.eq('consultant_uid',window._myUid); }
+    var r; try{ r=await q; }catch(e){ return []; }
+    var rows=(r&&r.data)||[];
+    return rows.filter(function(s){ var b=gradeBand(s.grade); return b==='초등'||b==='중등'; });
+  }
+  async function setPentaCourse(studentId, course){ var r=await window.sb.from('students').update({penta_course:course}).eq('id',studentId); if(r.error)throw r.error; return true; }
 
   var STLABEL={ assigned:'배정됨', in_progress:'작성 중', submitted:'제출됨 · 검토 대기', reviewed:'리포트 검토중', sent:'학부모 발행 완료' };
   function badge(status){ var k=STLABEL[status]?status:'none'; return '<span class="badge b-'+k+'">'+(STLABEL[status]||'미배정')+'</span>'; }
@@ -114,15 +135,14 @@
 
   // ── 학생 뷰 ─────────────────────────────────────────────────────────────
   async function renderStudent(root, opts){
-    opts=opts||{}; var stage=opts.stage||null;
+    opts=opts||{}; var course=opts.course||null; var spec=courseSpec(course);
     var studentId = (window._activeStudent&&window._activeStudent.id) || null;
-    var name = (window._activeStudent&&(window._activeStudent.name||window._activeStudent.student_name)) || '';
-    root.innerHTML = '<div class="ph"><div><h2>'+esc(stageTitle(stage))+'</h2><div class="sub">선생님이 배정한 회차를 열어 워크북을 작성하고 [제출]하면 돼요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
+    root.innerHTML = '<div class="ph"><div><h2>'+esc(spec.title)+'</h2><div class="sub">선생님이 배정한 회차를 열어 워크북을 작성하고 [제출]하면 돼요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
     var list=root.querySelector('#pn-list');
     if(!studentId){ list.innerHTML='<div class="warn">학생 정보를 불러오지 못했어요. 다시 로그인해 주세요.</div>'; return; }
     var rows;
-    try{ rows=byStage(await listAssignments(studentId), stage); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
-    if(!rows.length){ list.innerHTML='<div class="empty">아직 배정된 '+esc(stageTitle(stage))+' 회차가 없어요.<br>선생님이 회차를 배정하면 여기에 나타나요 😊</div>'; return; }
+    try{ rows=bySpec(await listAssignments(studentId), spec); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
+    if(!rows.length){ list.innerHTML='<div class="empty">아직 배정된 '+esc(spec.title)+' 회차가 없어요.<br>선생님이 회차를 배정하면 여기에 나타나요 😊</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
     rows.forEach(function(a){
       var c=document.createElement('div'); c.className='c';
@@ -167,60 +187,118 @@
     ArchePentaReport.render(ov.querySelector('.rpmount'), sub.report);
   }
 
-  // ── 컨설턴트/원장 뷰 ─────────────────────────────────────────────────────
+  // ── 컨설턴트/원장 뷰 (코스 기반: 학년폴더 · 일괄/개별 전송 · 수강 등록/진급) ──
   async function renderStaff(root, opts){
-    opts=opts||{}; var stage=opts.stage||null;
-    root.innerHTML='<div class="ph"><div><h2>'+esc(stageTitle(stage))+' · 컨설턴트</h2><div class="sub">'+esc(stageDesc(stage))+' — 학생을 선택해 회차를 배정하고, 제출물로 리포트를 생성·검토·발행하세요.</div></div>'
-      +'<div class="pick"><span>학생</span><select id="pn-stu"><option value="">불러오는 중…</option></select></div></div>'
-      +'<div class="tabs"><button data-t="assign" class="on">회차 배정</button><button data-t="review">제출·리포트</button></div>'
-      +'<div id="pn-body"><div class="empty">학생을 선택하세요.</div></div>';
-    var sel=root.querySelector('#pn-stu');
-    var active=window._activeStudent;
-    var students=await loadStudents();
-    if(!students.length){ sel.innerHTML='<option value="">학생 없음 — 먼저 학생을 등록하세요</option>'; }
-    else {
-      sel.innerHTML=students.map(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name||id; return '<option value="'+esc(id)+'"'+((active&&(active.id||active.student_id)===id)?' selected':'')+'>'+esc(nm)+'</option>'; }).join('');
-    }
-    function curStu(){ var id=sel.value; var s=students.filter(function(x){return (x.id||x.student_id)===id;})[0]||active||{}; return {id:id, name:(s.name||s.student_name||id)}; }
+    opts=opts||{}; var course=opts.course||null; var spec=courseSpec(course);
+    root.innerHTML='<div class="ph"><div><h2>'+esc(spec.title)+' · 컨설턴트</h2><div class="sub">'+esc(spec.desc)+'</div></div></div>'
+      +'<div class="tabs"><button data-t="assign" class="on">회차 배정·전송</button><button data-t="review">제출·리포트</button></div>'
+      +'<div id="pn-body"><div class="empty">불러오는 중…</div></div>';
     var tab='assign';
     root.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){ root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); tab=b.dataset.t; draw(); }); });
-    sel.addEventListener('change', draw);
-    async function draw(){
-      var body=root.querySelector('#pn-body'); var stu=curStu();
-      if(!stu.id){ body.innerHTML='<div class="empty">학생을 선택하세요. (등록된 학생이 없으면 먼저 학생 관리에서 추가해 주세요.)</div>'; return; }
-      body.innerHTML='<div class="empty">불러오는 중…</div>';
-      if(tab==='assign') return drawAssign(body, stu, stage);
-      return drawReview(body, stu, stage);
-    }
+    async function draw(){ var body=root.querySelector('#pn-body'); body.innerHTML='<div class="empty">불러오는 중…</div>';
+      if(tab==='assign') return drawAssign(body, course, spec); return drawReviewCourse(body, course, spec); }
     draw();
   }
 
-  async function drawAssign(body, stu, stage){
-    var cat, asg;
-    try{ cat=byStage(await listCatalog(), stage); asg=await listAssignments(stu.id); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
-    var asgIds={}; asg.forEach(function(a){ asgIds[a.catalog_id]=a; });
-    if(!cat.length){ body.innerHTML='<div class="empty">이 분류의 회차가 아직 없습니다.</div>'; return; }
-    body.innerHTML='<div class="sub" style="margin-bottom:10px;color:#6b7688;font-size:12.5px">미리 제작된 회차입니다. <b>'+esc(stu.name)+'</b> 학생에게 배정할 회차를 선택하세요.</div>';
-    cat.forEach(function(c){
-      var on=!!asgIds[c.id];
-      var box=el('<div class="cat"><div class="cc"><div class="ti">'+esc(c.title)+' <span class="chip">'+(c.stage==='track'?'트랙':'비전')+(c.level?('·'+(c.level==='starter'?'스타터':'아키텍처')):'')+'</span></div><div class="th">'+esc(c.theme||'')+' · '+esc(c.grade_band||'')+' · 시즌'+esc(c.season)+' '+esc(c.week)+'주차</div></div></div>');
-      var btn=el('<button class="act '+(on?'mut':'pri')+'">'+(on?'배정 취소':'배정하기')+'</button>');
-      btn.addEventListener('click', async function(){
-        btn.disabled=true;
-        try{
-          if(on){ await unassign(asgIds[c.id].assignment_id); toast('배정을 취소했어요'); }
-          else { await assign(stu.id, c.id, null); toast('배정했어요 · 학생 화면에 나타납니다'); }
-          drawAssign(body, stu);
-        }catch(e){ toast('실패: '+(e.message||e)); btn.disabled=false; }
+  // 회차 배정·전송: 회차 선택 → 코스 수강생(학년폴더) → 일괄/개별 전송
+  async function drawAssign(body, course, spec){
+    var cat, students;
+    try{ cat=bySpec(await listCatalog(), spec); students=await loadPentaStudents(); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
+    var enrolled = course ? students.filter(function(s){return s.penta_course===course;}) : students;
+    body.innerHTML='';
+    // 1) 회차 선택
+    var top=el('<div class="edit"><h4>① 전송할 회차 선택</h4></div>');
+    if(!cat.length){ top.appendChild(el('<div class="sub" style="margin-top:6px">이 코스의 회차가 아직 없습니다.</div>')); }
+    else { var cs=el('<select id="pn-csel" style="width:100%;margin-top:8px"></select>'); cs.innerHTML=cat.map(function(c){return '<option value="'+c.id+'">시즌'+esc(c.season)+' '+esc(c.week)+'주차 · '+esc(c.title)+'</option>';}).join(''); top.appendChild(cs); }
+    body.appendChild(top);
+    // 2) 학생 선택 (학년폴더)
+    var head=el('<div class="edit" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h4 style="margin:0">② 받을 학생 선택 <span style="font-size:11px;color:#8b95a1;font-weight:600">· '+esc(spec.short)+' 수강생 '+enrolled.length+'명</span></h4></div>');
+    var addBtn=el('<button class="act gh">＋ 수강생 등록</button>'); addBtn.addEventListener('click',function(){ openEnroll(course, function(){ drawAssign(body, course, spec); }); }); head.appendChild(addBtn);
+    body.appendChild(head);
+    if(!enrolled.length){ body.appendChild(el('<div class="empty">이 코스 수강생이 없습니다.<br>[＋ 수강생 등록]으로 초·중등 학생을 이 코스에 등록하세요.</div>')); return; }
+    var byGrade={}; enrolled.forEach(function(s){ var g=s.grade||'기타'; (byGrade[g]=byGrade[g]||[]).push(s); });
+    var checks=[];
+    Object.keys(byGrade).sort().forEach(function(g){
+      var folder=el('<div class="edit" style="padding:12px 14px"></div>');
+      var fh=el('<label class="ck" style="font-weight:800;color:#1A237E;margin:0 0 4px"><input type="checkbox"> 📁 '+esc(g)+' <span style="font-size:11px;color:#8b95a1;font-weight:600">('+byGrade[g].length+'명)</span></label>');
+      var fchk=fh.querySelector('input'); folder.appendChild(fh);
+      var kids=[];
+      byGrade[g].forEach(function(s){
+        var rowl=el('<label class="ck" style="padding:5px 0 5px 18px;display:flex;align-items:center"><input type="checkbox"> <span style="flex:1">'+esc(s.name)+'</span></label>');
+        var cb=rowl.querySelector('input'); cb.value=s.id; checks.push(cb); kids.push(cb);
+        var cc=el('<select style="font-size:11px;padding:3px 6px;margin-left:6px"></select>');
+        var elig=eligibleCourses(s.grade);
+        cc.innerHTML='<option value="">코스 변경…</option>'+elig.map(function(k){return '<option value="'+k+'"'+(s.penta_course===k?' selected':'')+'>'+COURSES[k].short+'</option>';}).join('')+'<option value="__none">미수강</option>';
+        cc.addEventListener('change', async function(){ var v=cc.value; if(!v)return; try{ await setPentaCourse(s.id, v==='__none'?null:v); toast(s.name+' 코스 변경'); drawAssign(body, course, spec); }catch(e){ toast('변경 실패: '+(e.message||e)); } });
+        rowl.appendChild(cc); folder.appendChild(rowl);
       });
-      box.appendChild(btn); body.appendChild(box);
+      fchk.addEventListener('change',function(){ kids.forEach(function(k){k.checked=fchk.checked;}); });
+      body.appendChild(folder);
     });
+    // 3) 전송
+    var bar=el('<div class="edit" style="position:sticky;bottom:0"><button class="act pri" style="width:100%">③ 선택한 학생에게 이 회차 전송</button><div class="sub" style="margin-top:6px;text-align:center">전송하면 학생 화면에 회차가 나타납니다.</div></div>');
+    var send=bar.querySelector('button');
+    send.addEventListener('click', async function(){
+      var cs=body.querySelector('#pn-csel'); var cid=cs&&cs.value?+cs.value:null;
+      if(!cid){ toast('먼저 회차를 선택하세요'); return; }
+      var ids=checks.filter(function(c){return c.checked;}).map(function(c){return c.value;});
+      if(!ids.length){ toast('학생을 선택하세요'); return; }
+      send.disabled=true; send.textContent='전송 중…'; var okc=0, ec=0;
+      for(var i=0;i<ids.length;i++){ try{ await assign(ids[i], cid, null); okc++; }catch(e){ ec++; } }
+      send.disabled=false; send.textContent='③ 선택한 학생에게 이 회차 전송';
+      toast(okc+'명 전송 완료'+(ec?(' · '+ec+'명 실패'):''));
+    });
+    body.appendChild(bar);
   }
 
-  async function drawReview(body, stu, stage){
+  // 수강 등록 오버레이 (기존 학생 등록 + 새 학생 추가)
+  async function openEnroll(course, cb){
+    var spec=courseSpec(course); var bands=(COURSES[course]&&COURSES[course].bands)||['초등','중등'];
+    var students; try{ students=await loadPentaStudents(); }catch(e){ students=[]; }
+    var cand=students.filter(function(s){ return bands.indexOf(gradeBand(s.grade))>=0 && s.penta_course!==course; });
+    var gradeOpts=[]; if(bands.indexOf('초등')>=0)['초3','초4','초5','초6'].forEach(function(x){gradeOpts.push(x);}); if(bands.indexOf('중등')>=0)['중1','중2','중3'].forEach(function(x){gradeOpts.push(x);});
+    var ov=el('<div class="ov"><div class="ovc" style="max-width:540px"><div class="ovx"><button>✕ 닫기</button></div></div></div>');
+    var box=ov.querySelector('.ovc');
+    box.appendChild(el('<div class="edit"><h4>'+esc(spec.title)+' 수강 등록</h4><div class="sub">기존 초·중등 학생을 이 코스로 등록하거나, 새 학생을 추가하세요.</div></div>'));
+    var ex=el('<div class="edit"><div class="fl">기존 학생 등록 (복수 선택)</div></div>');
+    var exChecks=[];
+    if(!cand.length) ex.appendChild(el('<div class="sub">등록 가능한 초·중등 학생이 없습니다.</div>'));
+    cand.forEach(function(s){ var l=el('<label class="ck"><input type="checkbox" value="'+esc(s.id)+'"> '+esc(s.name)+' · '+esc(s.grade||'')+(s.penta_course?(' <span style="font-size:10px;color:#8b95a1">(현재 '+esc(courseLabel(s.penta_course))+')</span>'):'')+'</label>'); exChecks.push(l.querySelector('input')); ex.appendChild(l); });
+    if(cand.length){ var eb=el('<button class="act pri" style="margin-top:8px">선택 학생 이 코스로 등록</button>'); eb.addEventListener('click',async function(){ var ids=exChecks.filter(function(c){return c.checked;}).map(function(c){return c.value;}); if(!ids.length){toast('학생을 선택하세요');return;} eb.disabled=true; for(var i=0;i<ids.length;i++){try{await setPentaCourse(ids[i],course);}catch(e){}} toast(ids.length+'명 등록 완료'); ov.remove(); if(cb)cb(); }); ex.appendChild(eb); }
+    box.appendChild(ex);
+    var nw=el('<div class="edit"><div class="fl">새 학생 추가</div></div>');
+    var nin=el('<input id="pe-name" placeholder="이름" style="width:100%">'); nw.appendChild(nin);
+    var gsel=el('<select id="pe-grade" style="width:100%;margin-top:8px"><option value="">학년 선택</option>'+gradeOpts.map(function(g){return '<option>'+g+'</option>';}).join('')+'</select>'); nw.appendChild(gsel);
+    var nb=el('<button class="act dn" style="margin-top:10px">새 학생 추가 + 이 코스 등록</button>');
+    nb.addEventListener('click', async function(){
+      var nm=nin.value.trim(), gr=gsel.value;
+      if(!nm||!gr){ toast('이름과 학년을 입력하세요'); return; }
+      nb.disabled=true;
+      try{ var ins={academy_id:acadId(), name:nm, grade:gr, penta_course:course}; if(window._myUid)ins.consultant_uid=window._myUid; var r=await window.sb.from('students').insert(ins).select('id').single(); if(r.error)throw r.error; toast('학생 추가·등록 완료'); ov.remove(); if(cb)cb(); }
+      catch(e){ toast('추가 실패: '+(e.message||e)); nb.disabled=false; }
+    });
+    nw.appendChild(nb); box.appendChild(nw);
+    document.body.appendChild(ov);
+    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+  }
+
+  // 제출·리포트 탭 (코스 수강생 선택 → 회차별 리포트)
+  async function drawReviewCourse(body, course, spec){
+    var students; try{ students=await loadPentaStudents(); }catch(e){ body.innerHTML='<div class="warn">'+esc(e.message||e)+'</div>'; return; }
+    var enrolled = course ? students.filter(function(s){return s.penta_course===course;}) : students;
+    if(!enrolled.length){ body.innerHTML='<div class="empty">이 코스 수강생이 없습니다. [회차 배정·전송] 탭에서 수강생을 등록하세요.</div>'; return; }
+    body.innerHTML='<div class="pick" style="margin-bottom:12px"><span>학생</span><select id="pn-rstu"></select></div><div id="pn-rbody"></div>';
+    var sel=body.querySelector('#pn-rstu');
+    sel.innerHTML=enrolled.map(function(s){return '<option value="'+esc(s.id)+'">'+esc(s.name)+' · '+esc(s.grade||'')+'</option>';}).join('');
+    function cur(){ var id=sel.value; var s=enrolled.filter(function(x){return x.id===id;})[0]||{}; return {id:id,name:s.name||id}; }
+    async function d(){ var b=body.querySelector('#pn-rbody'); b.innerHTML='<div class="empty">불러오는 중…</div>'; drawReview(b, cur(), spec); }
+    sel.addEventListener('change', d); d();
+  }
+
+  async function drawReview(body, stu, spec){
     var asg;
-    try{ asg=byStage(await listAssignments(stu.id), stage); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
-    if(!asg.length){ body.innerHTML='<div class="empty">배정된 회차가 없습니다. 먼저 [회차 배정] 탭에서 배정하세요.</div>'; return; }
+    try{ asg=bySpec(await listAssignments(stu.id), spec); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
+    if(!asg.length){ body.innerHTML='<div class="empty">배정된 회차가 없습니다. [회차 배정·전송] 탭에서 전송하세요.</div>'; return; }
     body.innerHTML='';
     var g=document.createElement('div'); g.className='grid';
     asg.forEach(function(a){
@@ -321,12 +399,12 @@
 
   // ── 학부모 뷰(발행된 리포트 열람) ────────────────────────────────────────
   async function renderParent(root, opts){
-    opts=opts||{}; var stage=opts.stage||null;
+    opts=opts||{}; var course=opts.course||null; var spec=courseSpec(course);
     var studentId=(window._activeStudent&&window._activeStudent.id)||null;
-    root.innerHTML='<div class="ph"><div><h2>'+esc(stageTitle(stage))+' · 성장 리포트</h2><div class="sub">선생님이 발행한 우리 아이의 리포트를 확인하세요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
+    root.innerHTML='<div class="ph"><div><h2>'+esc(spec.title)+' · 성장 리포트</h2><div class="sub">선생님이 발행한 우리 아이의 리포트를 확인하세요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
     var list=root.querySelector('#pn-list');
     var rows;
-    try{ rows=byStage(await listAssignments(studentId), stage); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
+    try{ rows=bySpec(await listAssignments(studentId), spec); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
     var sent=rows.filter(function(a){return a.status==='sent'&&a.has_report;});
     if(!sent.length){ list.innerHTML='<div class="empty">아직 발행된 리포트가 없어요.<br>수업 후 선생님이 리포트를 발행하면 여기에서 볼 수 있어요.</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
