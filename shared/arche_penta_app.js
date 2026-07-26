@@ -65,6 +65,16 @@
   function acadId(){ return window._acadId || (window._academy&&window._academy.id) || null; }
   function toast(msg){ var t=document.querySelector('.pnta .toast'); if(!t){t=el('<div class="toast"></div>'); (document.querySelector('.pnta')||document.body).appendChild(t);} t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2200); }
 
+  function stageTitle(s){ return s==='vision'?'펜타 비전':(s==='track'?'펜타 트랙':'펜타 시리즈'); }
+  function stageDesc(s){ return s==='vision'?'초등 고학년~중2 · 5대 지성 주파수 발견':(s==='track'?'중3 · 교과 융합 + 고교학점제·세특 연계':'비전·트랙 통합'); }
+  function byStage(rows, stage){ return stage ? (rows||[]).filter(function(r){return r.stage===stage;}) : (rows||[]); }
+  async function loadStudents(){
+    var students=(window._students||[]).slice();
+    if(!students.length){ try{ var r=await window.sb.from('students').select('id,name').eq('academy_id',acadId()).order('name'); if(r&&r.data)students=r.data; }catch(e){} }
+    if(!students.length && window._activeStudent) students=[window._activeStudent];
+    return students;
+  }
+
   var STLABEL={ assigned:'배정됨', in_progress:'작성 중', submitted:'제출됨 · 검토 대기', reviewed:'리포트 검토중', sent:'학부모 발행 완료' };
   function badge(status){ var k=STLABEL[status]?status:'none'; return '<span class="badge b-'+k+'">'+(STLABEL[status]||'미배정')+'</span>'; }
 
@@ -103,15 +113,16 @@
   }
 
   // ── 학생 뷰 ─────────────────────────────────────────────────────────────
-  async function renderStudent(root){
+  async function renderStudent(root, opts){
+    opts=opts||{}; var stage=opts.stage||null;
     var studentId = (window._activeStudent&&window._activeStudent.id) || null;
     var name = (window._activeStudent&&(window._activeStudent.name||window._activeStudent.student_name)) || '';
-    root.innerHTML = '<div class="ph"><div><h2>펜타 시리즈</h2><div class="sub">선생님이 배정한 회차를 열어 워크북을 작성하고 [제출]하면 돼요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
+    root.innerHTML = '<div class="ph"><div><h2>'+esc(stageTitle(stage))+'</h2><div class="sub">선생님이 배정한 회차를 열어 워크북을 작성하고 [제출]하면 돼요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
     var list=root.querySelector('#pn-list');
     if(!studentId){ list.innerHTML='<div class="warn">학생 정보를 불러오지 못했어요. 다시 로그인해 주세요.</div>'; return; }
     var rows;
-    try{ rows=await listAssignments(studentId); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
-    if(!rows.length){ list.innerHTML='<div class="empty">아직 배정된 회차가 없어요.<br>선생님이 회차를 배정하면 여기에 나타나요 😊</div>'; return; }
+    try{ rows=byStage(await listAssignments(studentId), stage); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
+    if(!rows.length){ list.innerHTML='<div class="empty">아직 배정된 '+esc(stageTitle(stage))+' 회차가 없어요.<br>선생님이 회차를 배정하면 여기에 나타나요 😊</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
     rows.forEach(function(a){
       var c=document.createElement('div'); c.className='c';
@@ -157,17 +168,16 @@
   }
 
   // ── 컨설턴트/원장 뷰 ─────────────────────────────────────────────────────
-  async function renderStaff(root){
-    root.innerHTML='<div class="ph"><div><h2>펜타 시리즈 · 컨설턴트</h2><div class="sub">학생을 선택해 회차를 배정하고, 제출물로 리포트를 생성·검토·발행하세요.</div></div>'
-      +'<div class="pick"><span>학생</span><select id="pn-stu"></select></div></div>'
+  async function renderStaff(root, opts){
+    opts=opts||{}; var stage=opts.stage||null;
+    root.innerHTML='<div class="ph"><div><h2>'+esc(stageTitle(stage))+' · 컨설턴트</h2><div class="sub">'+esc(stageDesc(stage))+' — 학생을 선택해 회차를 배정하고, 제출물로 리포트를 생성·검토·발행하세요.</div></div>'
+      +'<div class="pick"><span>학생</span><select id="pn-stu"><option value="">불러오는 중…</option></select></div></div>'
       +'<div class="tabs"><button data-t="assign" class="on">회차 배정</button><button data-t="review">제출·리포트</button></div>'
       +'<div id="pn-body"><div class="empty">학생을 선택하세요.</div></div>';
-    // 학생 셀렉트
     var sel=root.querySelector('#pn-stu');
-    var students=(window._students||[]).slice();
     var active=window._activeStudent;
-    if(!students.length && active) students=[active];
-    if(!students.length){ sel.innerHTML='<option value="">학생 없음</option>'; }
+    var students=await loadStudents();
+    if(!students.length){ sel.innerHTML='<option value="">학생 없음 — 먼저 학생을 등록하세요</option>'; }
     else {
       sel.innerHTML=students.map(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name||id; return '<option value="'+esc(id)+'"'+((active&&(active.id||active.student_id)===id)?' selected':'')+'>'+esc(nm)+'</option>'; }).join('');
     }
@@ -177,18 +187,19 @@
     sel.addEventListener('change', draw);
     async function draw(){
       var body=root.querySelector('#pn-body'); var stu=curStu();
-      if(!stu.id){ body.innerHTML='<div class="empty">학생을 선택하세요.</div>'; return; }
+      if(!stu.id){ body.innerHTML='<div class="empty">학생을 선택하세요. (등록된 학생이 없으면 먼저 학생 관리에서 추가해 주세요.)</div>'; return; }
       body.innerHTML='<div class="empty">불러오는 중…</div>';
-      if(tab==='assign') return drawAssign(body, stu);
-      return drawReview(body, stu);
+      if(tab==='assign') return drawAssign(body, stu, stage);
+      return drawReview(body, stu, stage);
     }
     draw();
   }
 
-  async function drawAssign(body, stu){
+  async function drawAssign(body, stu, stage){
     var cat, asg;
-    try{ cat=await listCatalog(); asg=await listAssignments(stu.id); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
+    try{ cat=byStage(await listCatalog(), stage); asg=await listAssignments(stu.id); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
     var asgIds={}; asg.forEach(function(a){ asgIds[a.catalog_id]=a; });
+    if(!cat.length){ body.innerHTML='<div class="empty">이 분류의 회차가 아직 없습니다.</div>'; return; }
     body.innerHTML='<div class="sub" style="margin-bottom:10px;color:#6b7688;font-size:12.5px">미리 제작된 회차입니다. <b>'+esc(stu.name)+'</b> 학생에게 배정할 회차를 선택하세요.</div>';
     cat.forEach(function(c){
       var on=!!asgIds[c.id];
@@ -206,9 +217,9 @@
     });
   }
 
-  async function drawReview(body, stu){
+  async function drawReview(body, stu, stage){
     var asg;
-    try{ asg=await listAssignments(stu.id); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
+    try{ asg=byStage(await listAssignments(stu.id), stage); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
     if(!asg.length){ body.innerHTML='<div class="empty">배정된 회차가 없습니다. 먼저 [회차 배정] 탭에서 배정하세요.</div>'; return; }
     body.innerHTML='';
     var g=document.createElement('div'); g.className='grid';
@@ -309,12 +320,13 @@
   }
 
   // ── 학부모 뷰(발행된 리포트 열람) ────────────────────────────────────────
-  async function renderParent(root){
+  async function renderParent(root, opts){
+    opts=opts||{}; var stage=opts.stage||null;
     var studentId=(window._activeStudent&&window._activeStudent.id)||null;
-    root.innerHTML='<div class="ph"><div><h2>펜타 시리즈 · 성장 리포트</h2><div class="sub">선생님이 발행한 우리 아이의 리포트를 확인하세요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
+    root.innerHTML='<div class="ph"><div><h2>'+esc(stageTitle(stage))+' · 성장 리포트</h2><div class="sub">선생님이 발행한 우리 아이의 리포트를 확인하세요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
     var list=root.querySelector('#pn-list');
     var rows;
-    try{ rows=await listAssignments(studentId); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
+    try{ rows=byStage(await listAssignments(studentId), stage); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
     var sent=rows.filter(function(a){return a.status==='sent'&&a.has_report;});
     if(!sent.length){ list.innerHTML='<div class="empty">아직 발행된 리포트가 없어요.<br>수업 후 선생님이 리포트를 발행하면 여기에서 볼 수 있어요.</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
@@ -334,21 +346,21 @@
     if(window._isParentApp || window.__PENTA_ROLE==='parent') return 'parent';
     return 'staff';
   }
-  function mount(container){
+  function mount(container, opts){
     inject();
     container = container || document.getElementById('penta-mount');
     if(!container) return;
     var root=container.querySelector('.pnta'); if(!root){ root=el('<div class="pnta"></div>'); container.innerHTML=''; container.appendChild(root); }
     if(!window.sb){ root.innerHTML='<div class="warn">로그인 후 이용할 수 있어요. (Supabase 미연결)</div>'; return; }
-    mountRole(root, detectRole());
+    mountRole(root, detectRole(), opts||{});
   }
-  function mountRole(root, role){
-    inject();
+  function mountRole(root, role, opts){
+    inject(); opts=opts||{};
     if(root && !root.classList.contains('pnta')){ var inner=root.querySelector('.pnta'); if(!inner){ inner=el('<div class="pnta"></div>'); root.innerHTML=''; root.appendChild(inner);} root=inner; }
-    if(role==='student') return renderStudent(root);
-    if(role==='parent') return renderParent(root);
-    return renderStaff(root);
+    if(role==='student') return renderStudent(root, opts);
+    if(role==='parent') return renderParent(root, opts);
+    return renderStaff(root, opts);
   }
 
-  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.0', _callPenta: callPenta };
+  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.1', _callPenta: callPenta };
 })();
