@@ -60,6 +60,8 @@
   .navgroup.dae>.grouphead svg.gi{color:var(--lime)}
   .navgroup.goip>.grouphead{color:var(--gold)}
   .navgroup.goip>.grouphead svg.gi{color:var(--gold)}
+  .navgroup.penta>.grouphead{color:#8b5cf6}
+  .navgroup.penta>.grouphead svg.gi{color:#8b5cf6}
   .navgroup>.grouphead:hover{background:var(--panel-2)}
   .navsub{overflow:hidden;max-height:0;transition:max-height .22s ease;display:flex;flex-direction:column;gap:2px}
   .navgroup.open>.navsub{max-height:640px}
@@ -331,6 +333,8 @@
   .navgroup.dae>.grouphead svg.gi{color:var(--lime)!important}
   .navgroup.goip>.grouphead{color:#ecd8ad!important}
   .navgroup.goip>.grouphead svg.gi{color:var(--gold)!important}
+  .navgroup.penta>.grouphead{color:#c7b3f5!important}
+  .navgroup.penta>.grouphead svg.gi{color:#a78bfa!important}
   .navgroup>.grouphead .gcaret{opacity:.5;color:#c2cbc4}
   .navsub .nav::before{display:none!important}
   .navsub .nav{padding-left:9px!important}
@@ -545,8 +549,8 @@
       </div>
     </div>
 
-    <div class="navgroup open" id="grp-penta">
-      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 펜타 시리즈<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+    <div class="navgroup penta open" id="grp-penta">
+      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 융합사고 역량 코스<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="navsub">
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
@@ -719,7 +723,7 @@
               <select id="as-region" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">지역(시·도) *</option><option>서울</option><option>부산</option><option>대구</option><option>인천</option><option>광주</option><option>대전</option><option>울산</option><option>세종</option><option>경기</option><option>강원</option><option>충북</option><option>충남</option><option>전북</option><option>전남</option><option>경북</option><option>경남</option><option>제주</option></select>
               <select id="as-gender" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">성별 *</option><option value="남">남</option><option value="여">여</option></select>
             </div>
-            <select id="as-grade" style="width:100%;margin-bottom:10px;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년 * · 고입/대입 자동 구분</option><optgroup label="중학생 → 고입"><option>중1</option><option>중2</option><option>중3</option></optgroup><optgroup label="고등학생 → 대입"><option>고1</option><option>고2</option><option>고3</option><option>N수</option></optgroup></select>
+            <select id="as-grade" style="width:100%;margin-bottom:10px;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년 * · 코스 자동 구분</option><optgroup label="초등 → 융합사고 역량"><option>초5</option><option>초6</option></optgroup><optgroup label="중학생 → 고입+융합사고"><option>중1</option><option>중2</option><option>중3</option></optgroup><optgroup label="고등학생 → 대입"><option>고1</option><option>고2</option><option>고3</option><option>N수</option></optgroup></select>
             <input id="as-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -839,15 +843,8 @@
             <div id="rec-setech" style="margin-top:12px"></div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px">
-            <div class="sectionhead"><span class="idx">01</span><h3>활동 · 창체 수동 입력 <span style="font-size:11px;color:var(--ink-mute)">(읽기·분석용 · 대필 아님)</span></h3></div>
-            <div style="display:flex;gap:8px">
-              <input id="se-subject" placeholder="과목/활동명" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-              <select id="se-area" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="과세특">과세특</option><option value="자율">자율활동</option><option value="진로">진로활동</option><option value="동아리">동아리활동</option><option value="봉사">봉사활동</option><option value="독서">독서활동</option><option value="행발">행동특성·종합의견</option></select>
-            </div>
-            <textarea id="se-text" rows="4" placeholder="활동/창체 활동 내용을 입력하세요 (학생 자료 없어도 직접 기입 가능)" style="width:100%;margin-bottom:10px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea>
-            <div id="se-msg" style="min-height:14px;font-size:12px;margin-bottom:6px"></div>
-            <button onclick="saveSetech()" style="width:100%;padding:10px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">활동 저장</button>
-            <div id="se-list" style="margin-top:14px;display:flex;flex-direction:column;gap:8px"></div>
+            <div class="sectionhead"><span class="idx">01</span><h3>활동 기록 <span style="font-size:11px;color:var(--ink-mute)">· 학생 인터뷰로만 수집</span></h3></div>
+            <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.7;background:rgba(49,130,246,.06);border:1px solid var(--line);border-radius:10px;padding:12px 14px">📌 학생부(세특·창체·활동) 수동 입력·저장 기능은 <b>학생부 상업이용 규제</b>에 따라 제거되었습니다.<br>활동 내용은 <b>[인터뷰로 입력]</b>에서 학생 본인이 직접 작성한 내용만 사용합니다. 성적표(교과 성적)는 정상적으로 파싱·저장됩니다.</div>
           </div>
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
             <div class="sectionhead"><span class="idx">02</span><h3>성적 · 인지지표</h3></div>
@@ -2042,8 +2039,8 @@ window.ADMIN=ADMIN;
       </section>
       <!-- ▼ 펜타 시리즈 통합 뷰 (2026-07-25 추가) ▼ -->
       <section class="view" id="v-penta">
-        <div class="eyebrow">Penta Series</div>
-        <div class="h1">펜타 시리즈</div>
+        <div class="eyebrow">융합사고 역량 코스 · Penta</div>
+        <div class="h1">융합사고 역량 코스</div>
         <div class="sub">펜타 비전·트랙 워크북과 PentaView 성장 리포트를 확인하세요.</div>
         <div id="penta-mount" style="margin-top:18px"></div>
       </section>
@@ -2101,7 +2098,7 @@ window.ADMIN=ADMIN;
 </script>
 <!-- ▲▲ 아르케 무결성·회고·리포트 모듈 끝 ▲▲ -->
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"펜타 시리즈"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"융합사고 역량 코스"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){ if(window.trackSeg)trackSeg(g); }
@@ -2674,36 +2671,38 @@ async function enterStudentApp(session){
   var {data:sd}=await sb.from('students').select('*').limit(1);
   var me=sd&&sd[0];
   if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); var _az=document.getElementById('au-account-zone'); if(_az)_az.style.display='block'; }
-  var isGoip=me&&me.admission_track==='고입';
+  // 학년 레벨 판별: 초(융합만) / 중(고입+융합) / 고(대입)
+  var lvl=(function(){ var g=(me&&me.grade)||''; if(g.indexOf('초')>=0)return '초'; if(g.indexOf('중')>=0)return '중'; return '고'; })();
+  window._stuLevel=lvl;
+  var isGoip=(lvl==='중');
   window._stuTrack=isGoip?'goip':'dae';
   if(isGoip){ window._gactive=me; }
   // 상단 뷰토글·활성학생·크럼 숨김
   var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
   var stg=document.getElementById('topbar-studenttag'); if(stg)stg.style.display='none';
   var cb=document.getElementById('topbar-crumbs'); if(cb)cb.style.display='none';
-
-  if(isGoip){
-    // 고입 학생: 대입 그룹 + 대입 전용 메뉴 전부 숨김, 고입 메뉴 중 학생용만 노출
-    var d=document.getElementById('grp-dae'); if(d)d.style.display='none';
-    var bc=document.querySelector('.nav[data-v="basecon"]'); if(bc)bc.style.display='none';
-    // 고입 컨설턴트 전용(학생관리·자료입력·상담관리) 숨김, 학생 노출 메뉴만 유지
+  // 학년별 메뉴 그룹 노출
+  var _gD=document.getElementById('grp-dae'), _gG=document.getElementById('grp-goip'), _gP=document.getElementById('grp-penta');
+  var _sg=function(el,on){ if(el)el.style.display=on?'':'none'; };
+  var _bc=document.querySelector('.nav[data-v="basecon"]'); if(_bc)_bc.style.display='none';
+  var _ts=document.getElementById('trackseg'); if(_ts)_ts.style.display='none';
+  if(lvl==='고'){
+    _sg(_gD,true); _sg(_gG,false); _sg(_gP,false);
+    var dn=document.querySelector('.nav[data-v="diag"]'); if(dn)dn.innerHTML=dn.innerHTML.replace('학생 진단','나의 진단 내용');
+  } else if(lvl==='중'){
+    _sg(_gD,false); _sg(_gG,true); _sg(_gP,true);
     ['gstudents','gintake','gconsult'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
-    // 고입 학생 진단 메뉴명 → 나의 진단
     var gd=document.querySelector('.nav[data-v="gdiag"]'); if(gd)gd.innerHTML=gd.innerHTML.replace('학생 진단','나의 진단');
-    // 고입 그룹 항상 펼침
-    var gg=document.getElementById('grp-goip'); if(gg)gg.classList.add('open');
-    // 면접 준비(고입)는 준비중 표시 유지 (이미 disabled)
+    if(_gG)_gG.classList.add('open');
   } else {
-    // 대입 학생: 기존 동작
-    var dn=document.querySelector('.nav[data-v="diag"]'); if(dn){dn.innerHTML=dn.innerHTML.replace('학생 진단','나의 진단 내용');}
-    var gpg=document.getElementById('grp-goip'); if(gpg)gpg.style.display='none';
-    var bc2=document.querySelector('.nav[data-v="basecon"]'); if(bc2)bc2.style.display='none';
+    _sg(_gD,false); _sg(_gG,false); _sg(_gP,true);
   }
-  // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김 (본사 소식도 학생에겐 숨김)
+  if(_gP)_gP.classList.add('open');
+  // 공통: 컨설턴트/관리 전용 시스템 메뉴 숨김
   ['allstudents','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
-  // 학생 전용: 인터뷰·성적 제출 진입점(자료입력) 노출 + 라벨 변경
-  var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(isGoip){ _ivn.style.display='none'; } else { _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } }
-  var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn&&isGoip){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); }
+  // 인터뷰·성적 제출: 고=대입 / 중=고입 / 초=없음
+  var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(lvl==='고'){ _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _ivn.style.display='none'; } }
+  var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn){ if(lvl==='중'){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _givn.style.display='none'; } }
   // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
@@ -2722,6 +2721,13 @@ function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
   var s=window._activeStudent||{};
   var menus;
+  if(window._stuLevel==='초'){
+    v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">융합사고 역량 코스</div>'+
+      '<div class="grid g3" style="margin-top:20px">'+
+      '<div class="card" onclick="(function(){var n=document.querySelector(\'#grp-penta .nav\');if(n)n.click();})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">🧠 융합사고 역량 코스 ›</div><div style="font-size:12px;color:var(--ink-dim)">오늘의 사고력 워크북을 시작해요</div></div>'+
+      '</div>';
+    return;
+  }
   if(window._stuTrack==='goip'){
     v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">'+esc(s.school||'')+(s.target_school?' → '+esc(s.target_school):'')+(s.career?' · 진로 '+esc(s.career):'')+'</div>'+
       '<div class="grid g3" style="margin-top:20px">'+
@@ -3432,7 +3438,7 @@ async function cbGenLesson(name){
   // 학생 컨텍스트
   var ctxTxt='';
   try{
-    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(20);
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).eq('source','interview').limit(20);
     ctxTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'').slice(0,200);}).join('\n').slice(0,2500);
   }catch(e){}
   if(!ctxTxt && s.is_rookie && window.onboardingText) ctxTxt=onboardingText(s);
@@ -4665,7 +4671,7 @@ async function saveSetech(){
   const text=document.getElementById('se-text').value.trim();
   if(!text){m.style.color='var(--risk)';m.textContent='활동 원문을 입력하세요.';return;}
   m.style.color='var(--ink-mute)';m.textContent='저장 중…';
-  const {error}=await sb.from('student_setech').insert({student_id:s.id,subject:document.getElementById('se-subject').value.trim()||null,area:document.getElementById('se-area').value.trim()||null,text:text,source:'manual'});
+  const error={message:'학생부 규제로 수동 활동 저장이 비활성화되었습니다. 활동은 [인터뷰로 입력]을 이용하세요.'};
   if(error){m.style.color='var(--risk)';m.textContent=esc(error.message);return;}
   m.style.color='var(--safe)';m.textContent='저장 완료.';
   document.getElementById('se-text').value='';document.getElementById('se-subject').value='';document.getElementById('se-area').value='';
@@ -4674,7 +4680,7 @@ async function saveSetech(){
 async function loadSetech(){
   const list=document.getElementById('se-list'); if(!list)return;
   if(!window._activeStudent||!sb){list.innerHTML='';return;}
-  const {data,error}=await sb.from('student_setech').select('*').eq('student_id',window._activeStudent.id).order('extracted_at',{ascending:false});
+  const {data,error}=await sb.from('student_setech').select('*').eq('student_id',window._activeStudent.id).eq('source','interview').order('extracted_at',{ascending:false});
   if(error){list.innerHTML='<div style="color:var(--risk);font-size:12px">'+esc(error.message)+'</div>';return;}
   if(!data.length){list.innerHTML='<div style="color:var(--ink-mute);font-size:12px">저장된 활동 없음</div>';return;}
   var grp={}; data.forEach(function(x){var g=subjectGroup(x.subject,x.area);(grp[g]=grp[g]||[]).push(x);});
@@ -4721,7 +4727,7 @@ async function estimateCog(){
   var s=window._activeStudent; if(!s||!sb){alert('먼저 학생을 선택하세요.');return;}
   showAiLoading();
   try{
-    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).eq('source','interview').limit(30);
     var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,8000);
     if(!setechTxt && s.is_rookie){ setechTxt=onboardingText(s); }
@@ -5161,7 +5167,7 @@ async function genDesign(phase){
   showGen(true, phase==='changche'?'창체활동을 설계하고 있어요…':'주요과목 탐구활동을 설계하고 있어요…');
   try{
     genStep('학생 자료를 불러오는 중…');
-    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).eq('source','interview').limit(30);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,3500);
     var mx=await sb.from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
     var subjList=Array.from(new Set(((mx.data&&mx.data[0]&&mx.data[0].payload&&mx.data[0].payload.courses)||[]).map(function(c){return c.subject;}).filter(Boolean)));
@@ -5266,7 +5272,7 @@ async function genInterview(){
   showGen(true, IV_LABEL[_ivType]+' 면접 예상 질문을 설계하고 있어요…');
   try{
     genStep('학생 자료를 불러오는 중…');
-    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).limit(30);
+    var se=await sb.from('student_setech').select('subject,text').eq('student_id',s.id).eq('source','interview').limit(30);
     var setechTxt=(se.data||[]).map(function(x){return (x.subject||'')+': '+(x.text||'');}).join('\n').slice(0,3000);
     var di=await sb.from('design_items').select('grade,subject,area,title,goal,submission').eq('student_id',s.id).order('seq',{ascending:true}).limit(30);
     var diTxt=(di.data||[]).map(function(x){return '['+(x.grade?x.grade+'학년 ':'')+(x.area||'')+'/'+(x.subject||'')+'] '+(x.title||'')+(x.submission?' — 수행: '+String(x.submission).slice(0,200):'');}).join('\n').slice(0,2500);
@@ -6219,9 +6225,6 @@ async function saveParsedSetech(){
   var m=document.getElementById('rec-msg'); var s=requireActive(m); if(!s||!sb)return;
   function _gt(x){var g=(x.grade!=null&&x.grade!==0)?x.grade:null;var t=(x.term!=null&&x.term!==0)?x.term:null;return g?(t?(g+'-'+t):(''+g)):null;}
   var rows=[];
-  (window._parsedSetech||[]).forEach(function(x){rows.push({student_id:s.id,subject:x.subject||null,area:'교과세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
-  (window._parsedChangche||[]).forEach(function(x){rows.push({student_id:s.id,subject:(x.area||'창체'),area:'창체세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
-  (window._parsedHaengbal||[]).forEach(function(x){rows.push({student_id:s.id,subject:'행동특성',area:'행발세특',grade:_gt(x),text:x.summary||'',source:'ai_parsed'});});
   if(!rows.length)return;
   if(!(await guardSlot(s.id, s.name, collectChangche()))){ m.style.color='var(--ink-mute)'; m.textContent='저장이 중단되었습니다 (슬롯 재활용 의심).'; return; }
   var {error}=await sb.from('student_setech').insert(rows);
@@ -6542,7 +6545,7 @@ async function renderReport(){
   var res=await Promise.all([
     sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','comp5').order('measured_at',{ascending:false}).limit(1),
     sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1),
-    sb.from('student_setech').select('*').eq('student_id',s.id).order('extracted_at',{ascending:false}),
+    sb.from('student_setech').select('*').eq('student_id',s.id).eq('source','interview').order('extracted_at',{ascending:false}),
     sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','univ_reco').order('measured_at',{ascending:false}).limit(1),
     sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','qual4').order('measured_at',{ascending:false}).limit(1)
   ]);
@@ -7102,7 +7105,7 @@ async function runGreport(){
     var golden=null;
     try{
       if(m)m.textContent='황금문장 정제 중…';
-      var gr=await sb.from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).order('extracted_at',{ascending:false});
+      var gr=await sb.from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).eq('source','interview').order('extracted_at',{ascending:false});
       var se=gr.data||[];
       if(se.length){ var lines=[],used=0; se.forEach(function(x){var t='['+(x.area||'교과세특')+'|'+(x.subject||'-')+'|'+(x.grade||'-')+'] '+(x.text||'');if(used+t.length>10500)return;used+=t.length;lines.push(t);});
         var gd=await callAI('golden_sentences',{career:s.career||'',major:'',target:ctx.target||'',field:'',text:lines.join('\n')});
@@ -7123,7 +7126,7 @@ async function goipCompose(silent){
   if(!silent&&m){m.style.color='var(--ink-mute)';m.textContent='활동자료 수집 중…';}
   var parts=[];
   try{
-    var se=await sb.from('student_setech').select('subject,area,text').eq('student_id',s.id).limit(30);
+    var se=await sb.from('student_setech').select('subject,area,text').eq('student_id',s.id).eq('source','interview').limit(30);
     (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'활동')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
     var di=await sb.from('design_items').select('subject,title,goal,submission').eq('student_id',s.id).limit(20);
     (di.data||[]).forEach(function(x){parts.push('[디자인'+(x.subject?'·'+x.subject:'')+'] '+(x.title||'')+(x.goal?' — '+x.goal:'')+(x.submission?' / 수행: '+x.submission.slice(0,200):''));});
@@ -7295,7 +7298,7 @@ async function gintakeLoadSaved(silent){
   if(!silent&&m){m.style.color='var(--ink-mute)';m.textContent='저장된 자료 불러오는 중…';}
   try{
     var g=await sb.from('middle_school_grades').select('semester,subject,achievement').eq('student_id',s.id);
-    var se=await sb.from('student_setech').select('area,subject,grade,text').eq('student_id',s.id).eq('source','goip_parsed').order('extracted_at',{ascending:true});
+    var se=await sb.from('student_setech').select('area,subject,grade,text').eq('student_id',s.id).eq('source','interview').order('extracted_at',{ascending:true});
     var grades=(g.data||[]).map(function(r){return {sem:r.semester,subject:r.subject,ach:r.achievement};});
     var o={grades:grades,autonomous:[],club:[],career_act:[],subject_detail:[],behavior:[],reading:[]};
     (se.data||[]).forEach(function(r){
@@ -7470,16 +7473,7 @@ async function saveGParsed(){
     var gr=(o.grades||[]).filter(function(g){return g&&g.subject&&String(g.subject).trim()&&g.sem&&g.ach;}).map(function(g){var row={student_id:s.id,semester:g.sem,subject:String(g.subject).trim(),achievement:g.ach};if(acadId)row.academy_id=acadId;return row;});
     if(gr.length){var r1=await sb.from('middle_school_grades').insert(gr);
       if(r1.error)throw new Error('성취도 저장: '+r1.error.message);}
-    // 학생 자료 내용 → student_setech
-    var rows=[];
-    (o.autonomous||[]).forEach(function(x){rows.push({student_id:s.id,area:'자율',subject:'자율활동',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
-    (o.club||[]).forEach(function(x){rows.push({student_id:s.id,area:'동아리',subject:x.name||'동아리',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
-    (o.career_act||[]).forEach(function(x){rows.push({student_id:s.id,area:'진로',subject:'진로활동',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
-    (o.subject_detail||[]).forEach(function(x){rows.push({student_id:s.id,area:'과세특',subject:x.subject||null,grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
-    (o.behavior||[]).forEach(function(x){rows.push({student_id:s.id,area:'행발',subject:'행동특성',grade:x.grade||null,text:x.summary||'',source:'goip_parsed'});});
-    (o.reading||[]).forEach(function(x){var books=(x.books||[]).map(function(b){return (b.title||'')+(b.author?'('+b.author+')':'');}).join(', ');rows.push({student_id:s.id,area:'독서',subject:x.subject||'독서활동',grade:x.grade||null,text:(books?books+' — ':'')+(x.summary||''),source:'goip_parsed'});});
-    if(rows.length){var r2=await sb.from('student_setech').insert(rows);
-      if(r2.error)throw new Error('학생 자료 저장: '+r2.error.message);}
+    var rows=[]; // 학생부 활동 저장 제거(학생부 상업이용 규제) — 활동은 인터뷰로만 수집
     m.style.color='var(--safe)';m.textContent='저장 완료 (성취도 '+gr.length+' · 학생 자료 '+rows.length+'건). 지원가능·성향매칭에 자동 연동됩니다.';
     toast('저장 완료 — 성취도 '+gr.length+'건 · 학생 자료 '+rows.length+'건',true);
   }catch(e){ m.style.color='var(--risk)';m.textContent='저장 실패: '+e.message; toast('저장 실패: '+e.message,false); }
@@ -7546,7 +7540,7 @@ async function gctxAll(){
   try{
     var g=await sb.from('middle_school_grades').select('semester,subject,achievement').eq('student_id',s.id);
     grades=(g.data||[]).map(function(r){return {sem:r.semester,subject:r.subject,ach:r.achievement};});
-    var se=await sb.from('student_setech').select('area,subject,text').eq('student_id',s.id).limit(50);
+    var se=await sb.from('student_setech').select('area,subject,text').eq('student_id',s.id).eq('source','interview').limit(50);
     (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,350));});
     var co=await sb.from('consultations').select('activities,memo,career').eq('student_id',s.id).limit(10);
     (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담] '+x.activities.slice(0,250));});
@@ -7994,7 +7988,7 @@ function gesCtx(){
     var s=window._gactive; if(!s)return '';
     var parts=[];
     try{
-      var se=await sb.from('student_setech').select('area,subject,text').eq('student_id',s.id).limit(40);
+      var se=await sb.from('student_setech').select('area,subject,text').eq('student_id',s.id).eq('source','interview').limit(40);
       (se.data||[]).forEach(function(x){if(x.text)parts.push('['+(x.area||'')+(x.subject?'·'+x.subject:'')+'] '+x.text.slice(0,300));});
       var co=await sb.from('consultations').select('activities,memo').eq('student_id',s.id).limit(10);
       (co.data||[]).forEach(function(x){if(x.activities)parts.push('[상담] '+x.activities.slice(0,250));});
@@ -8553,7 +8547,7 @@ async function genGoldenSentences(){
   if(!s){ alert('학생을 먼저 선택하세요.'); return; }
   try{
     if(m){m.style.color='var(--ink-mute)';m.textContent='희망학과 부합 활동 선별·정제 중… (약 20~40초)';}
-    var r=await _SB().from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).order('extracted_at',{ascending:false});
+    var r=await _SB().from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).eq('source','interview').order('extracted_at',{ascending:false});
     var se=r.data||[];
     if(!se.length){ if(m){m.style.color='var(--risk)';m.textContent='활동 데이터가 없습니다 — [학생 자료 입력]에서 학생 자료를 먼저 분석하세요.';} return; }
     var lines=[],used=0;
@@ -8706,7 +8700,7 @@ async function genCareerMatch(){
     if(m){m.style.color='var(--ink-mute)';m.textContent='자료 수집 중…';}
     // ── 자료 수집: 활동 + 상담 + 등록카드 + 내신 ──
     var se=[],cons=[],base=[],naesin=null;
-    try{ se=(await _SB().from('student_setech').select('subject,area,grade,text').eq('student_id',s.id)).data||[]; }catch(e){}
+    try{ se=(await _SB().from('student_setech').select('subject,area,grade,text').eq('student_id',s.id).eq('source','interview')).data||[]; }catch(e){}
     try{ cons=(await _SB().from('consultations').select('kind,career,target_univ,target_major,activities,memo,created_at').eq('student_id',s.id).order('created_at',{ascending:false}).limit(10)).data||[]; }catch(e){}
     try{ base=(await _SB().from('base_consultations').select('grade,career,target,memo,created_at').eq('name',s.name).order('created_at',{ascending:false}).limit(3)).data||[]; }catch(e){}
     try{ var nr=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
@@ -8934,7 +8928,7 @@ window.genMonthlyBrief=async function(){
     try{ var di=await _SB().from('design_items').select('subject,title,status,approved,submitted_at,updated_at').eq('student_id',s.id).order('updated_at',{ascending:false}).limit(30);
       var dd=(di.data||[]).filter(function(x){return (x.submitted_at&&x.submitted_at>=ms)||(x.updated_at&&x.updated_at>=ms);});
       if(dd.length)parts.push('[\uc774\ubc88 \ub2ec \ud559\uc0dd\ubd80 \ub514\uc790\uc778 \ud65c\ub3d9 '+dd.length+'\uac74]\n'+dd.slice(0,10).map(function(x){return '- ['+(x.subject||'')+'] '+(x.title||'')+' \u2014 '+(x.approved?'\uc644\ub8cc(\uc2b9\uc778)':(x.status||''))+((x.submitted_at&&x.submitted_at>=ms)?' \u00b7 \uacb0\uacfc\ubb3c \uc81c\ucd9c':'');}).join('\n')); }catch(e){}
-    try{ var st=await _SB().from('student_setech').select('id',{count:'exact',head:true}).eq('student_id',s.id).gte('extracted_at',ms); if(st.count)parts.push('[\uc774\ubc88 \ub2ec \uc0c8\ub85c \ub4f1\ub85d\ub41c \uc0dd\uae30\ubd80 \uc138\ud2b9 '+st.count+'\uac74]'); }catch(e){}
+    try{ var st=await _SB().from('student_setech').select('id',{count:'exact',head:true}).eq('student_id',s.id).eq('source','interview').gte('extracted_at',ms); if(st.count)parts.push('[\uc774\ubc88 \ub2ec \uc0c8\ub85c \ub4f1\ub85d\ub41c \uc0dd\uae30\ubd80 \uc138\ud2b9 '+st.count+'\uac74]'); }catch(e){}
     try{ var pf=await _SB().from('perf_submissions').select('status').eq('student_id',s.id);
       var pd=pf.data||[]; if(pd.length)parts.push('[\uc218\ud589\ud3c9\uac00 \ud604\ud669] \ucd1d '+pd.length+'\uac74 \uc9c4\ud589 \uc911'); }catch(e){}
     try{ var nx=await _SB().from('student_metrics').select('payload').eq('student_id',s.id).eq('metric_type','naesin').order('measured_at',{ascending:false}).limit(1);
