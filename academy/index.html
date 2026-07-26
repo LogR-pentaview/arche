@@ -2698,28 +2698,32 @@ async function pvRenderDashboard(root, stu){
   var perfs=ofType('perf');
 
   var cards=[
-    { ic:'🧠', title:'펜타 시리즈', desc:'자녀의 사고력 워크북 성장 리포트(비전·트랙)를 확인하세요.', on:pentaOn, count:0,
-      onOpen:function(){ pvOpenPenta(stu); }, sample:'수업 후 발행되는 PentaView 리포트(지성 레이더·황금문장·추천도서·가정 대화)를 여기서 받아보실 수 있어요.' },
-    { ic:'🧭', title:'진로 징검다리', desc:'진로 설계 결과지를 학생과 함께 받아보세요.', on:designs.length>0, count:designs.length,
-      onOpen:function(){ pvOpenList('진로 징검다리', designs); }, sample:'컨설턴트가 자녀의 진로 탐색을 분석해 만든 결과지를 학생·학부모가 동시에 받습니다.' },
-    { ic:'📝', title:'수행평가 도우미', desc:'수행평가 준비 결과지를 확인하세요.', on:perfs.length>0, count:perfs.length,
-      onOpen:function(){ pvOpenList('수행평가 도우미', perfs); }, sample:'과목별 수행평가 설계·피드백 결과지를 학생·학부모가 함께 받아봅니다.' },
-    { ic:'📊', title:'월간 분석표', desc:'자녀의 월간 학습·성장 분석 리포트입니다.', on:monthlies.length>0, count:monthlies.length,
-      onOpen:function(){ pvOpenList('월간 분석표', monthlies); }, sample:'매달 자녀의 학습 상황을 정리한 분석표를 이곳에서 받아보실 수 있어요.' },
-    { ic:'📢', title:'학원 소식·안내', desc:'소식지·시간표·새 강좌 안내를 확인하세요.', on:notices.length>0, count:notices.length,
-      onOpen:function(){ pvOpenList('학원 소식·안내', notices); }, sample:'학원 소식지, 시간표, 새 강좌 안내가 이곳으로 전달됩니다.' }
+    { ic:'🧠', title:'펜타 시리즈', desc:'자녀의 사고력 워크북 성장 리포트(비전·트랙)를 확인하세요.', gated:true, on:pentaOn, count:0, sampleType:'penta',
+      onOpen:function(){ pvOpenPenta(stu); } },
+    { ic:'🧭', title:'진로 징검다리', desc:'진로 설계 결과지를 학생과 함께 받아보세요.', gated:true, on:designs.length>0, count:designs.length, sampleType:'design',
+      onOpen:function(){ pvOpenList('진로 징검다리', designs); } },
+    { ic:'📝', title:'수행평가 도우미', desc:'수행평가 준비 결과지를 확인하세요.', gated:true, on:perfs.length>0, count:perfs.length, sampleType:'perf',
+      onOpen:function(){ pvOpenList('수행평가 도우미', perfs); } },
+    { ic:'📊', title:'월간 분석표', desc:'자녀의 월간 학습·성장 분석 리포트입니다.', gated:false, count:monthlies.length,
+      onOpen:function(){ pvOpenList('월간 분석표', monthlies); } },
+    { ic:'📢', title:'학원 소식·안내', desc:'소식지·시간표·새 강좌 안내를 확인하세요.', gated:false, count:notices.length,
+      onOpen:function(){ pvOpenList('학원 소식·안내', notices); } }
   ];
   grid.innerHTML='';
   cards.forEach(function(c){
     var card=document.createElement('div'); card.className='pv-card';
-    var badge = c.on ? ('<span class="pv-badge pv-on">'+(c.count?('새 소식 '+c.count):'이용 중')+'</span>') : '<span class="pv-badge pv-off">미수강</span>';
+    var active = c.gated ? c.on : true;
+    var badge;
+    if(!c.gated){ badge = c.count ? '<span class="pv-badge pv-on">새 소식 '+c.count+'</span>' : '<span class="pv-badge" style="background:#eef1ff;color:#1A237E">상시 제공</span>'; }
+    else if(c.on){ badge = '<span class="pv-badge pv-on">'+(c.count?('새 소식 '+c.count):'이용 중')+'</span>'; }
+    else { badge = '<span class="pv-badge pv-off">미수강</span>'; }
     var inner='<div class="ic">'+c.ic+'</div><h3>'+pvEsc(c.title)+'</h3>'+badge+'<div class="d">'+pvEsc(c.desc)+'</div>';
-    if(c.on){ inner+='<button class="pv-btn">열람하기'+(c.count?(' ('+c.count+')'):'')+'</button>'; }
-    else { inner+='<div class="pv-lockwrap"><div class="lockmsg">🔒 '+pvEsc(c.sample)+'</div><button class="pv-btn lock">샘플 보기 · 수강 문의</button></div>'; }
+    if(active){ inner+='<button class="pv-btn">열람하기'+(c.count?(' ('+c.count+')'):'')+'</button>'; }
+    else { inner+='<div class="pv-lockwrap"><div class="lockmsg">🔒 아직 수강 전이에요. 어떤 걸 받게 되는지 샘플로 확인해 보세요.</div><button class="pv-btn lock">📄 샘플 보기 · 수강 문의</button></div>'; }
     card.innerHTML=inner;
     var btn=card.querySelector('button');
-    if(c.on) btn.addEventListener('click', c.onOpen);
-    else btn.addEventListener('click', function(){ pvSample(c); });
+    if(active){ btn.addEventListener('click', c.onOpen); }
+    else { btn.addEventListener('click', function(){ pvSample(c); }); }
     grid.appendChild(card);
   });
 }
@@ -2740,10 +2744,8 @@ function pvOpenPenta(stu){
 }
 function pvSample(c){
   var body=pvOverlay();
-  body.innerHTML='<div style="background:#fff;border-radius:16px;padding:26px 22px;text-align:center">'
-    +'<div style="font-size:40px">'+c.ic+'</div><h2 style="color:#1A237E;margin:8px 0 6px">'+pvEsc(c.title)+' · 미리보기</h2>'
-    +'<div style="font-size:13.5px;color:#39465a;line-height:1.8;max-width:520px;margin:0 auto">'+pvEsc(c.sample)+'</div>'
-    +'<div style="margin-top:18px;font-size:12.5px;color:#8b95a1">수강을 원하시면 담당 선생님께 문의해 주세요.</div></div>';
+  if(window.ArcheParentHub&&ArcheParentHub.renderSample){ ArcheParentHub.renderSample(body, c.sampleType, c.title); return; }
+  body.innerHTML='<div style="background:#fff;border-radius:16px;padding:26px 22px;text-align:center"><div style="font-size:40px">'+c.ic+'</div><h2 style="color:#1A237E;margin:8px 0 6px">'+pvEsc(c.title)+' · 미리보기</h2><div style="font-size:12.5px;color:#8b95a1">수강을 원하시면 담당 선생님께 문의해 주세요.</div></div>';
 }
 window.enterParentViewer=enterParentViewer;
 
@@ -3203,7 +3205,7 @@ async function loadStudents(){
       var acct=(window._stuAcct||{})[s.id];
       var idBadge=acct?'<span style="font-size:10.5px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;margin-left:6px;font-weight:700">'+esc(acct.login_id)+'</span>'+(acct.must_change?'<span style="font-size:9.5px;color:var(--ink-mute);margin-left:4px">(초기 pw 0000)</span>':''):'';
       var acctBtn=acct
-        ?'<button onclick="copyStuId(\''+esc(acct.login_id)+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:6px;font-size:11px;cursor:pointer">ID 복사</button><button onclick="resetStudentPw(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">비번초기화</button>'
+        ?'<button onclick="copyStuId(\''+esc(acct.login_id)+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:6px;font-size:11px;cursor:pointer">ID 복사</button><button onclick="createParentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:#1A237E;border:1px solid #1A237E;border-radius:6px;font-size:11px;cursor:pointer">👪 학부모</button><button onclick="resetStudentPw(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">비번초기화</button>'
         :'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:5px 9px;background:transparent;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:6px;font-size:11px;cursor:pointer">계정 생성</button>';
       return '<div onclick="selectStudent(\''+s.id+'\')" style="background:var(--panel);border:1px solid '+(on?'var(--lime)':'var(--line)')+';border-radius:10px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;margin:6px 0 0 14px;cursor:pointer">'+
         '<div><div style="font-weight:700;color:var(--ink);font-size:13px">'+esc(s.name||'-')+idBadge+ivBadgeHtml(s.id)+(on?' <span style="font-size:10px;color:var(--lime)">● 활성</span>':'')+'</div>'+
@@ -7542,7 +7544,7 @@ window.renderGStudents=async function(){
     var acct=window._gstuAcct[s.id];
     var idBadge=acct?'<span style="font-size:10px;color:var(--gold);background:var(--panel-3);border-radius:5px;padding:1px 7px;font-weight:700">'+esc(acct.login_id)+'</span>':'';
     var acctBtn=acct
-      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">ID 복사</button>'
+      ?'<button onclick="event.stopPropagation();copyStuId(\''+esc(acct.login_id)+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">ID 복사</button><button onclick="event.stopPropagation();createParentAccount(\''+s.id+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid #1A237E;border-radius:8px;cursor:pointer;color:#1A237E">👪 학부모</button>'
       :'<button onclick="event.stopPropagation();createStudentAccount(\''+s.id+'\')" style="font-size:11px;padding:7px 10px;background:transparent;border:1px solid var(--gold);border-radius:8px;cursor:pointer;color:var(--gold)">계정</button>';
     var _ini=esc(String(s.name||'-').trim().charAt(0)||'·');
     return '<div onclick="selectGStudent(\''+s.id+'\')" style="cursor:pointer;background:var(--panel);border:1px solid '+(act?'var(--gold)':'var(--line)')+';border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(25,31,40,.03),0 10px 26px rgba(25,31,40,.04)">'
