@@ -523,6 +523,7 @@
         <div class="nav" data-v="perf" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> 수행평가 도우미</div>
         <div class="nav" data-v="iv" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg> 면접 준비</div>
         <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg> 컨설팅 리포트</div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 펜타 비전·트랙</div>
       </div>
     </div>
 
@@ -577,7 +578,7 @@
           <button class="on" data-role="con" onclick="setRole('con')">컨설턴트 뷰</button>
           <button data-role="stu" onclick="setRole('stu')">학생 뷰</button>
         </div>
-        <button id="pwa-install" onclick="pwaInstall()" style="display:none;align-items:center;gap:5px;padding:7px 12px;background:var(--gold);border:none;border-radius:8px;color:#ffffff;font-size:11px;font-weight:700;cursor:pointer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 12l5 5 5-5M5 21h14"/></svg>앱 설치</button><button id="au-logout" style="padding:7px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink-dim);font-size:11px;cursor:pointer">로그아웃</button><button id="au-withdraw" onclick="selfWithdraw()" style="display:none;padding:7px 12px;background:transparent;border:1px solid var(--risk,#e5484d);border-radius:8px;color:var(--risk,#e5484d);font-size:11px;cursor:pointer;margin-left:6px">회원 탈퇴</button>
+        <button id="pwa-install" onclick="pwaInstall()" style="display:none;align-items:center;gap:5px;padding:7px 12px;background:var(--gold);border:none;border-radius:8px;color:#ffffff;font-size:11px;font-weight:700;cursor:pointer"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 12l5 5 5-5M5 21h14"/></svg>앱 설치</button><button id="au-logout" style="padding:7px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink-dim);font-size:11px;cursor:pointer">로그아웃</button>
       </div>
     </div>
 
@@ -2060,6 +2061,13 @@ window.ADMIN=ADMIN;
           <div id="tm-list" style="margin-top:8px"></div>
         </div>
       </section>
+      <!-- ▼ 펜타 시리즈 통합 뷰 (2026-07-25 추가) ▼ -->
+      <section class="view" id="v-penta">
+        <div class="eyebrow">Penta Series</div>
+        <div class="h1">펜타 시리즈</div>
+        <div class="sub">펜타 비전·트랙 워크북과 PentaView 성장 리포트를 확인하세요.</div>
+        <div id="penta-mount" style="margin-top:18px"></div>
+      </section>
   </main>
 </div>
 
@@ -2075,6 +2083,9 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_reflection.js"></script>
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
+<script src="/shared/arche_penta_workbook.js"></script>
+<script src="/shared/arche_penta_report.js"></script>
+<script src="/shared/arche_penta_app.js"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2109,7 +2120,7 @@ window.ADMIN=ADMIN;
 </script>
 <!-- ▲▲ 아르케 무결성·회고·리포트 모듈 끝 ▲▲ -->
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"펜타 시리즈"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){ if(window.trackSeg)trackSeg(g); }
@@ -2284,7 +2295,7 @@ async function ensureAcademy(user){
 window._acctType='b2b';
 function applyB2CLabels(){
   if(!window._isB2C)return;
-  var _wb=document.getElementById('au-withdraw'); if(_wb&&window._isOwner)_wb.style.display='inline-block';
+  if(window._isOwner){ var _az0=document.getElementById('au-account-zone'); if(_az0)_az0.style.display='block'; }
   // 1) 사이드바 메뉴·화면 제목: data-b2c 속성이 있는 요소 텍스트 치환
   document.querySelectorAll('.nav-lbl[data-b2c],.pg-title[data-b2c]').forEach(function(el){
     if(el.dataset.b2cDone)return; el.textContent=el.dataset.b2c; el.dataset.b2cDone='1';
@@ -2539,7 +2550,7 @@ async function enterStudentApp(session){
   window._role='stu';
   var {data:sd}=await sb.from('students').select('*').limit(1);
   var me=sd&&sd[0];
-  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); var _wb=document.getElementById('au-withdraw'); if(_wb)_wb.style.display='inline-block'; }
+  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); var _az=document.getElementById('au-account-zone'); if(_az)_az.style.display='block'; }
   var isGoip=me&&me.admission_track==='고입';
   window._stuTrack=isGoip?'goip':'dae';
   if(isGoip){ window._gactive=me; }
@@ -2681,6 +2692,8 @@ document.getElementById('au-signup').onclick=async()=>{
   else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='확인 메일을 보냈습니다. 인증 후 로그인하세요.<br><span style="color:var(--gold,#3182f6);font-size:11.5px;line-height:1.5">⚠️ 인증 메일은 Supabase(해외 서버)에서 발송됩니다. 메일이 안 보이면 <b>스팸함·프로모션함</b>을 꼭 확인하세요.</span>'; }
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.replace('/login');};
+/* 회원 탈퇴 — 상단 로그아웃과 분리해 페이지 맨 아래로 이동(실수 클릭 방지). 대상자에게만 표시 */
+(function(){ try{ if(document.getElementById('au-account-zone'))return; var z=document.createElement('div'); z.id='au-account-zone'; z.style.cssText='display:none;max-width:900px;margin:52px auto 30px;padding:18px 16px 0;text-align:center;border-top:1px solid var(--line)'; z.innerHTML='<button id="au-withdraw" onclick="selfWithdraw()" style="padding:9px 18px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ink-mute);font-size:12px;cursor:pointer">회원 탈퇴</button><div style="font-size:11px;color:var(--ink-mute);margin-top:8px">탈퇴 시 모든 정보가 영구 파기되며 되돌릴 수 없습니다.</div>'; document.body.appendChild(z); }catch(_e){} })();
 window.selfWithdraw=async function(){
   var isStu=(window._role==='stu');
   if(isStu){
