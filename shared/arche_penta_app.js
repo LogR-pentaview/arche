@@ -107,6 +107,22 @@
     var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:task,payload:payload})});
     var d=await r.json(); if(!r.ok) throw new Error(d.error||'AI 오류'); return d;
   }
+  async function callFn(name, payload){
+    var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/'+name;
+    var tok=await token();
+    var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(payload||{})});
+    var d=await r.json(); if(!r.ok) throw new Error(d.error||('오류('+r.status+')')); return d;
+  }
+  async function issueParent(studentId, studentName){
+    try{
+      var d=await callFn('create-parent',{student_id:studentId});
+      if(d.existed){ toast('이미 학부모 계정 있음 · '+d.login_id); alert('학부모 계정(이미 발급됨)\n아이디: '+d.login_id+'\n\n학부모용 앱 로그인에서 이 아이디로 접속하면 자녀 리포트를 볼 수 있어요.'); }
+      else { alert('학부모 계정 발급 완료 ('+esc(studentName||'')+')\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n\n학부모용 앱 로그인 화면의 "학생 아이디" 칸에 이 아이디로 접속하면 됩니다.'); }
+    }catch(e){
+      if(/학생 로그인 계정/.test(e.message||'')) alert('먼저 이 학생의 로그인 계정을 만들어야 학부모 계정을 발급할 수 있어요.\n(학생 관리에서 학생 계정 생성 후 다시 시도)');
+      else toast('발급 실패: '+(e.message||e));
+    }
+  }
   async function listCatalog(){ var r=await window.sb.rpc('list_penta_catalog'); if(r.error)throw r.error; return r.data||[]; }
   async function listAssignments(studentId){ var r=await window.sb.rpc('list_penta_assignments',{p_academy:acadId(),p_student:studentId||null}); if(r.error)throw r.error; return r.data||[]; }
   async function assign(studentId,catalogId,note){ var r=await window.sb.rpc('assign_penta',{p_academy:acadId(),p_student:studentId,p_catalog_id:catalogId,p_note:note||null,p_due:null}); if(r.error)throw r.error; return r.data; }
@@ -230,7 +246,11 @@
         var elig=eligibleCourses(s.grade);
         cc.innerHTML='<option value="">코스 변경…</option>'+elig.map(function(k){return '<option value="'+k+'"'+(s.penta_course===k?' selected':'')+'>'+COURSES[k].short+'</option>';}).join('')+'<option value="__none">미수강</option>';
         cc.addEventListener('change', async function(){ var v=cc.value; if(!v)return; try{ await setPentaCourse(s.id, v==='__none'?null:v); toast(s.name+' 코스 변경'); drawAssign(body, course, spec); }catch(e){ toast('변경 실패: '+(e.message||e)); } });
-        rowl.appendChild(cc); folder.appendChild(rowl);
+        rowl.appendChild(cc);
+        var pbtn=el('<button class="act mut" title="학부모 로그인 계정 발급" style="padding:4px 8px;font-size:11px;margin-left:5px">👪 학부모ID</button>');
+        pbtn.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); issueParent(s.id, s.name); });
+        rowl.appendChild(pbtn);
+        folder.appendChild(rowl);
       });
       fchk.addEventListener('change',function(){ kids.forEach(function(k){k.checked=fchk.checked;}); });
       body.appendChild(folder);
@@ -403,19 +423,31 @@
     var studentId=(window._activeStudent&&window._activeStudent.id)||null;
     root.innerHTML='<div class="ph"><div><h2>'+esc(spec.title)+' · 성장 리포트</h2><div class="sub">선생님이 발행한 우리 아이의 리포트를 확인하세요.</div></div></div><div id="pn-list"><div class="empty">불러오는 중…</div></div>';
     var list=root.querySelector('#pn-list');
-    var rows;
-    try{ rows=bySpec(await listAssignments(studentId), spec); }catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
-    var sent=rows.filter(function(a){return a.status==='sent'&&a.has_report;});
-    if(!sent.length){ list.innerHTML='<div class="empty">아직 발행된 리포트가 없어요.<br>수업 후 선생님이 리포트를 발행하면 여기에서 볼 수 있어요.</div>'; return; }
+    if(!studentId){ list.innerHTML='<div class="warn">자녀 정보를 불러오지 못했어요.</div>'; return; }
+    // 학부모는 학원 소속이 아니므로 RPC 대신 RLS 직접 조회(발행된 리포트만)
+    var subs;
+    try{ var r=await window.sb.from('penta_submissions').select('id,stage,level,season,week,theme,title,report,status,sent_at').eq('student_id',studentId).eq('status','sent'); if(r.error)throw r.error; subs=r.data||[]; }
+    catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
+    var sent=subs.filter(function(s){ if(!s.report)return false; if(spec&&spec.stage){ return s.stage===spec.stage && ((s.level||'')===(spec.level||'')); } return true; });
+    if(!sent.length){ list.innerHTML='<div class="empty">아직 발행된 '+esc(spec.title)+' 리포트가 없어요.<br>수업 후 선생님이 리포트를 발행하면 여기에서 볼 수 있어요.</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
-    sent.forEach(function(a){
+    sent.sort(function(a,b){return (b.sent_at||'').localeCompare(a.sent_at||'');});
+    sent.forEach(function(s){
       var c=document.createElement('div'); c.className='c';
-      c.innerHTML='<div class="stg">펜타 '+(a.stage==='track'?'트랙':'비전')+'</div><div class="ti">'+esc(a.title)+'</div><div class="th">'+esc(a.theme||'')+' · 시즌'+esc(a.season)+' '+esc(a.week)+'주차</div>'+badge('sent');
+      c.innerHTML='<div class="stg">펜타 '+(s.stage==='track'?'트랙':'비전')+'</div><div class="ti">'+esc(s.title)+'</div><div class="th">'+esc(s.theme||'')+' · 시즌'+esc(s.season)+' '+esc(s.week)+'주차</div>'+badge('sent');
       var row=document.createElement('div'); row.className='row';
-      var rv=el('<button class="act dn">리포트 보기</button>'); rv.addEventListener('click',function(){ viewReport(a.submission_id); });
+      var rv=el('<button class="act dn">리포트 보기</button>'); rv.addEventListener('click',function(){ openReportData(s.report); });
       row.appendChild(rv); c.appendChild(row); g.appendChild(c);
     });
     list.innerHTML=''; list.appendChild(g);
+  }
+  // report 객체를 바로 렌더(학부모용 — id 재조회 불필요)
+  function openReportData(report){
+    if(!window.ArchePentaReport || !report){ toast('리포트를 열 수 없어요'); return; }
+    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
+    document.body.appendChild(ov);
+    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ArchePentaReport.render(ov.querySelector('.rpmount'), report);
   }
 
   // ── 진입점 ──────────────────────────────────────────────────────────────
