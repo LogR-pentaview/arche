@@ -140,5 +140,65 @@
     refresh();
   }
 
-  window.ArcheParentHub={ mountSend:mountSend, loadInbox:loadInbox, openItem:openItem, renderList:renderList, typeLabel:typeLabel, TYPES:TYPES, version:'1.0' };
+  // ── 샘플(미리보기) — 미수강 카드에서 "이런 걸 받게 됩니다" 풍부 미리보기 ──
+  function samplePentaReport(){
+    return {level:'starter',stage:'vision',student:{name:'○○(예시)',grade:''},lesson:{season:1,week:1,theme:'천부인권',title:'나에게는 소중한 권리가 있어요',date:'예시'},
+      persona:{name:'따뜻한 규칙 디자이너',tagline:'친구의 마음까지 살피며 모두를 위한 규칙을 그리는 눈을 가졌어요.'},
+      radar:{axes:['숫자·논리','과학·발명','역사·사회','마음','예술·디자인'],before:[5,4,5,6,5],after:[7,6,7,9,8],growthPct:41,note:'마음과 역사·사회의 눈이 크게 자랐어요.'},
+      frequencies:[{name:'💗 마음의 눈',score:9,note:'친구 입장을 잘 헤아려요'},{name:'🎨 예술·디자인',score:8,note:'표현으로 설득해요'},{name:'🏛 역사·사회',score:7,note:'옛날과 지금을 비교해요'},{name:'🔢 숫자·논리',score:7,note:'공평하게 따져요'},{name:'🔬 과학·발명',score:6,note:'방법을 찾아내요'}],
+      compass:{value:64,label:'“많은 사람이 편해도 한 사람도 속상하지 않아야 해요” — 존엄 쪽에 마음이 더 가 있어요.'},
+      benchmark:{topic:'다수가 좋아하지만 소수가 다치는 상황에 대한 생각의 깊이',levels:[{label:'또래 평균',text:'많은 사람이 좋아하니까 그냥 해요.'},{label:'우리 아이',text:'다치는 친구를 위해 규칙을 살짝 바꾸면 모두 할 수 있어요.'},{label:'생각 마스터',text:'원인을 없애고 안 되면 다른 선택권을 줘요.'}]},
+      golden:{sentence:'내 권리가 소중하면, 친구 권리도 똑같이 소중해요.',critique:'‘나’에서 ‘우리’로 시야를 넓히는, 공동체 감수성이 뛰어난 표현이에요.'},
+      book:{title:'거짓말 같은 이야기',author:'강경수 글·그림',publisher:'시공주니어',desc:'세계 곳곳에서 기본 권리를 누리지 못하는 어린이들의 이야기를 담담히 보여주는 그림책이에요.',why:'권리에 대한 이해를 세계로 넓히기에 좋은 책이에요.'},
+      homeTalk:{intro:'오늘 배운 권리 이야기를 저녁 식탁에서 가볍게 이어가 보세요.',items:[{q:'우리 집에서 네가 꼭 지켰으면 하는 권리는?',tip:'왜 그렇게 생각했는지 한 번 더 물어봐 주세요.'},{q:'네가 만든 규칙을 집에도 적용한다면?',tip:'부모님도 함께 지킬 규칙 하나를 정해보세요.'}]},
+      roadmap:{items:[{icon:'📝',title:'추천 활동',desc:'우리 반 권리 약속 포스터 만들기'},{icon:'🎬',title:'추천 영상',desc:'유니세프 어린이 권리 애니메이션'}],nextQuestion:'모두의 권리를 지키면서 규칙을 어긴 친구는 어떻게 대할까?'},
+      consultantConfirmed:false };
+  }
+  function sampleSheet(title, subtitle, sections){
+    var h='<div style="background:#fff;border-radius:16px;padding:22px 22px;font-family:\'Noto Sans KR\',sans-serif;color:#243244">'
+      +'<div style="font-size:11px;font-weight:800;letter-spacing:1px;color:#8b95a1">'+esc(title)+'</div>'
+      +'<div style="font-size:19px;font-weight:900;color:#1A237E;margin:3px 0 2px">'+esc(subtitle)+'</div>'
+      +'<div style="font-size:12px;color:#8b95a1;margin-bottom:14px">예시 리포트 — 수강 시 자녀 맞춤으로 제공됩니다</div>';
+    sections.forEach(function(sec){
+      h+='<div style="border:1px solid #e6e9f0;border-radius:12px;padding:14px 16px;margin-bottom:10px">'
+        +'<div style="font-size:13px;font-weight:800;color:#1A237E;margin-bottom:6px">'+esc(sec.h)+'</div>'
+        +'<div style="font-size:13px;color:#39465a;line-height:1.75">'+sec.b+'</div></div>';
+    });
+    return h+'</div>';
+  }
+  function sampleDesign(){
+    return sampleSheet('진로 징검다리 · CAREER STEPPING','진로 설계 결과지',[
+      {h:'🧭 진로 성향 요약', b:'논리적 분석력과 사회 현상에 대한 관심이 함께 높게 나타납니다. 데이터로 사회 문제를 해석하는 활동에서 몰입도가 높았습니다.'},
+      {h:'🎯 추천 진로 방향', b:'· 1순위: 데이터·사회과학 융합 분야<br>· 2순위: 미디어·커뮤니케이션<br>· 3순위: 정책·법'},
+      {h:'📚 고교 연계 제안', b:'확률과 통계, 사회·문화, 정보 과목과 연계한 탐구를 권장합니다. (세특 방향 제안이며 대필이 아닙니다.)'},
+      {h:'👪 가정 연계', b:'“요즘 관심 있는 사회 문제가 뭐야?”처럼 열린 질문으로 대화를 이어가 보세요.'}
+    ]);
+  }
+  function samplePerf(){
+    return sampleSheet('수행평가 도우미 · PERFORMANCE','수행평가 준비 결과지',[
+      {h:'📝 과제 이해도', b:'주제의 핵심 요구사항을 정확히 파악했고, 자료 조사의 방향 설정이 우수합니다.'},
+      {h:'🧩 구조 설계', b:'서론–본론–결론의 논리 흐름을 스스로 설계했습니다. 근거 자료 2건을 적절히 배치했습니다.'},
+      {h:'💡 보완 피드백', b:'주장에 대한 반론을 한 가지 추가하면 설득력이 더 높아집니다. (내용 대필이 아닌 방향 코칭입니다.)'},
+      {h:'👪 가정 연계', b:'발표 리허설을 집에서 한 번 들어봐 주시면 자신감 형성에 도움이 됩니다.'}
+    ]);
+  }
+  function renderSample(container, type, title){
+    inject();
+    var head='<div style="background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px">'
+      +'<div style="font-size:11px;font-weight:800;letter-spacing:1px;color:#E8D9A0">SAMPLE · 미리보기</div>'
+      +'<div style="font-size:18px;font-weight:900;margin-top:4px">'+esc(title||'')+' — 이런 결과를 받아보실 수 있어요</div></div>';
+    var wrap=document.createElement('div'); wrap.innerHTML=head; container.appendChild(wrap);
+    var sb=document.createElement('div'); wrap.appendChild(sb);
+    if(type==='penta' && window.ArchePentaReport){ try{ window.ArchePentaReport.render(sb, samplePentaReport()); }catch(e){ sb.innerHTML='<div style="padding:20px;color:#39465a">샘플 리포트를 불러오지 못했어요.</div>'; } }
+    else if(type==='design'){ sb.innerHTML=sampleDesign(); }
+    else if(type==='perf'){ sb.innerHTML=samplePerf(); }
+    else { sb.innerHTML='<div style="background:#fff;border-radius:14px;padding:20px;color:#39465a;line-height:1.8">곧 제공되는 기능입니다.</div>'; }
+    var cta=document.createElement('div');
+    cta.style.cssText='background:#fffdf4;border:1px solid #E8D9A0;border-radius:14px;padding:16px 18px;margin-top:14px;text-align:center';
+    cta.innerHTML='<div style="font-size:13.5px;font-weight:800;color:#b8860b">이 리포트는 예시입니다. 수강하시면 자녀 맞춤 리포트를 받아보실 수 있어요.</div>'
+      +'<div style="font-size:12.5px;color:#8b95a1;margin-top:6px">수강·상담 문의는 담당 선생님께 연락해 주세요 🙏</div>';
+    wrap.appendChild(cta);
+  }
+
+  window.ArcheParentHub={ mountSend:mountSend, loadInbox:loadInbox, openItem:openItem, renderList:renderList, renderSample:renderSample, typeLabel:typeLabel, TYPES:TYPES, version:'1.1' };
 })();
