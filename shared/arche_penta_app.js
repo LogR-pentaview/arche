@@ -193,6 +193,16 @@
     });
   }
 
+  // 컨설턴트용 워크북 미리보기(빈 워크북 · 저장 안 함)
+  function openWorkbookPreview(c){
+    if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
+    if(!c || !c.content){ toast('이 회차의 워크북 내용이 없습니다'); return; }
+    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><span style="flex:1;color:#8b95a1;font-size:12px;font-weight:700;align-self:center">📖 미리보기 · 저장되지 않습니다</span><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
+    document.body.appendChild(ov);
+    ov.querySelector('.ovx button').addEventListener('click',function(){ ov.remove(); });
+    ArchePentaWorkbook.render(ov.querySelector('.wbmount'), { lesson: c.content, mode:'preview', readOnly:false });
+  }
+
   async function viewReport(submissionId){
     if(!window.ArchePentaReport){ toast('리포트 모듈(arche_penta_report.js) 미로드'); return; }
     var sub; try{ sub=await getSubmission(submissionId); }catch(e){ toast('리포트를 불러오지 못했어요'); return; }
@@ -225,7 +235,13 @@
     // 1) 회차 선택
     var top=el('<div class="edit"><h4>① 전송할 회차 선택</h4></div>');
     if(!cat.length){ top.appendChild(el('<div class="sub" style="margin-top:6px">이 코스의 회차가 아직 없습니다.</div>')); }
-    else { var cs=el('<select id="pn-csel" style="width:100%;margin-top:8px"></select>'); cs.innerHTML=cat.map(function(c){return '<option value="'+c.id+'">시즌'+esc(c.season)+' '+esc(c.week)+'주차 · '+esc(c.title)+'</option>';}).join(''); top.appendChild(cs); }
+    else {
+      var selrow=el('<div class="row" style="margin-top:8px;align-items:center"></div>');
+      var cs=el('<select id="pn-csel" style="flex:1;min-width:200px"></select>'); cs.innerHTML=cat.map(function(c){return '<option value="'+c.id+'">시즌'+esc(c.season)+' '+esc(c.week)+'주차 · '+esc(c.title)+'</option>';}).join('');
+      var pv=el('<button class="act gh" style="flex:none">📖 워크북 미리보기</button>');
+      pv.addEventListener('click', function(){ var id=+cs.value; var c=cat.filter(function(x){return x.id===id;})[0]; if(c) openWorkbookPreview(c); });
+      selrow.appendChild(cs); selrow.appendChild(pv); top.appendChild(selrow);
+    }
     body.appendChild(top);
     // 2) 학생 선택 (학년폴더)
     var head=el('<div class="edit" style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h4 style="margin:0">② 받을 학생 선택 <span style="font-size:11px;color:#8b95a1;font-weight:600">· '+esc(spec.short)+' 수강생 '+enrolled.length+'명</span></h4></div>');
