@@ -64,9 +64,9 @@
     +".acb .qa{border-top:1px solid #eef1f4;padding:8px 0}.acb .qa .q{font-size:12.5px;font-weight:800;color:#1A237E}.acb .qa .a{font-size:13px;color:#39465a;line-height:1.7;white-space:pre-wrap;margin-top:2px}"
     +".acb textarea,.acb input{width:100%;border:1.5px solid #dfe3ec;border-radius:9px;padding:9px 11px;font:inherit;font-size:13px}"
     +".acb .qedit{border:1px solid #e6e9f0;border-radius:10px;padding:10px;margin-bottom:8px;background:#fbfcfe}"
-    +".acb .ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:9999;overflow:auto;padding:22px 12px}"
-    +".acb .ovc{max-width:820px;margin:0 auto;background:#eef1f8;border-radius:16px;padding:14px}"
-    +".acb .ovx{display:flex;justify-content:flex-end;position:sticky;top:0}.acb .ovx button{border:0;background:#1A237E;color:#fff;border-radius:9px;padding:7px 13px;font-weight:800;cursor:pointer}"
+    +".acb-ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:2147483000;overflow:auto;padding:22px 12px;font-family:'Noto Sans KR',sans-serif}"
+    +".acb-ovc{max-width:820px;margin:0 auto;background:#eef1f8;border-radius:16px;padding:14px}"
+    +".acb-ovx{display:flex;justify-content:flex-end;position:sticky;top:0;z-index:1}.acb-ovx button{border:0;background:#1A237E;color:#fff;border-radius:9px;padding:7px 13px;font-weight:800;cursor:pointer}"
     +".acb .note{font-size:11.5px;color:#8b95a1;margin-top:6px}"
     +".acb .coach{background:#eef4ff;border:1px solid #cfe0ff;border-radius:12px;padding:12px 14px;margin-bottom:12px}.acb .coach .h{font-weight:900;color:#1A237E;font-size:13px;margin-bottom:5px}"
     +".acb .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:acbsp .7s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes acbsp{to{transform:rotate(360deg)}}";
@@ -127,8 +127,8 @@
     });
   }
   function openProfile(sid, prev){
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="m"></div></div></div>');
-    document.body.appendChild(ov); ov.querySelector('.ovx button').addEventListener('click',function(){ov.remove();});
+    var ov=el('<div class="acb-ov"><div class="acb-ovc"><div class="acb-ovx"><button>✕ 닫기</button></div><div class="m"></div></div></div>');
+    document.body.appendChild(ov); ov.querySelector('.acb-ovx button').addEventListener('click',function(){ov.remove();});
     ArchePentaWorkbook.render(ov.querySelector('.m'), { lesson:PROFILE_LESSON, mode:'live', prefill: prev?{answers:prev.answers||{}}:null,
       submitOkText:'인터뷰 제출 완료! 선생님이 맞춤 워크북을 보내줄 거예요.',
       submitFn:function(d){ return saveProfile(sid, (d.answers&&d.answers.field)||null, d.answers||{}); },
@@ -136,8 +136,8 @@
   }
   function openWorksheet(sid, rep){
     var ro = (rep.status!=='assigned');  // 이미 제출한 것은 열람(수정 가능하게 하려면 false)
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="ctx"></div><div class="m"></div></div></div>');
-    document.body.appendChild(ov); ov.querySelector('.ovx button').addEventListener('click',function(){ov.remove();});
+    var ov=el('<div class="acb-ov"><div class="acb-ovc"><div class="acb-ovx"><button>✕ 닫기</button></div><div class="ctx"></div><div class="m"></div></div></div>');
+    document.body.appendChild(ov); ov.querySelector('.acb-ovx button').addEventListener('click',function(){ov.remove();});
     if(rep.coach_feedback){ ov.querySelector('.ctx').innerHTML='<div class="acb">'+coachBanner(rep.coach_feedback)+'</div>'; }
     ArchePentaWorkbook.render(ov.querySelector('.m'), { lesson:worksheetLesson(rep), mode:'live', prefill: rep.answers?{answers:rep.answers}:null,
       submitOkText:'제출 완료! 🎉 선생님 코칭을 기다려요.',
@@ -175,13 +175,13 @@
     });
   }
   function openInterview(p, name){
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="bd"></div></div></div>'); document.body.appendChild(ov); ov.querySelector('.ovx button').addEventListener('click',function(){ov.remove();});
+    var ov=el('<div class="acb-ov"><div class="acb-ovc"><div class="acb-ovx"><button>✕ 닫기</button></div><div class="bd"></div></div></div>'); document.body.appendChild(ov); ov.querySelector('.acb-ovx button').addEventListener('click',function(){ov.remove();});
     var a=p.answers||{}; var h='<div class="acb"><div class="card"><h2 style="margin:0 0 8px">'+esc(name||'학생')+' · 진로 인터뷰</h2>';
     Object.keys(QP).forEach(function(k){ if(a[k]!=null&&String(a[k]).length){ h+='<div class="qa"><div class="q">'+esc(QP[k])+'</div><div class="a">'+esc(a[k])+'</div></div>'; } });
     ov.querySelector('.bd').innerHTML=h+'</div></div>';
   }
   function openBuilder(p, name){
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="bd"></div></div></div>'); document.body.appendChild(ov); ov.querySelector('.ovx button').addEventListener('click',function(){ov.remove();});
+    var ov=el('<div class="acb-ov"><div class="acb-ovc"><div class="acb-ovx"><button>✕ 닫기</button></div><div class="bd"></div></div></div>'); document.body.appendChild(ov); ov.querySelector('.acb-ovx button').addEventListener('click',function(){ov.remove();});
     var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
     card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · 맞춤 탐구 워크북 만들기</h2>'
       +'<div class="note" style="margin-bottom:8px">AI가 학생 인터뷰 기반으로 <b>탐구 질문 초안</b>을 제안합니다. 검토·수정 후 학생에게 전달하세요. (AI는 질문만, 대필 아님)</div>'
@@ -217,7 +217,7 @@
     });
   }
   async function openCoach(r, name){
-    var ov=el('<div class="ov"><div class="ovc"><div class="ovx"><button>✕ 닫기</button></div><div class="bd"></div></div></div>'); document.body.appendChild(ov); ov.querySelector('.ovx button').addEventListener('click',function(){ov.remove();});
+    var ov=el('<div class="acb-ov"><div class="acb-ovc"><div class="acb-ovx"><button>✕ 닫기</button></div><div class="bd"></div></div></div>'); document.body.appendChild(ov); ov.querySelector('.acb-ovx button').addEventListener('click',function(){ov.remove();});
     var profile=null; try{ profile=await getProfile(r.student_id); }catch(e){}
     var fb=r.coach_feedback||{};
     var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
@@ -239,5 +239,5 @@
     });
   }
 
-  window.ArcheCareerBridge={ mount:mount, PROFILE_LESSON:PROFILE_LESSON, version:'3.0' };
+  window.ArcheCareerBridge={ mount:mount, PROFILE_LESSON:PROFILE_LESSON, version:'3.1' };
 })();
