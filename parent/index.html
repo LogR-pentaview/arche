@@ -545,8 +545,13 @@
       </div>
     </div>
 
-    <div class="navlabel">🧠 펜타 시리즈</div>
-    <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 펜타 비전·트랙</div>
+    <div class="navgroup open" id="grp-penta">
+      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 펜타 시리즈<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="navsub">
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{stage:'vision'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{stage:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
+      </div>
+    </div>
     <div class="nav" data-v="hqnews" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></svg> 본사 소식</div>
     <div class="nav" data-v="billing" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> 구독·결제</div>
     <div class="navlabel" style="margin-top:8px">시스템</div>
