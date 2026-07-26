@@ -2093,6 +2093,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js"></script>
 <script src="/shared/arche_penta_report.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
+<script src="/shared/arche_parent_hub.js"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2468,6 +2469,7 @@ async function enterApp(session){
   var role=(u.user_metadata&&u.user_metadata.role)||'con';
   window._appRole=role;
   if(role==='student'){ return enterStudentApp(session); }
+  if(role==='parent'){ return enterParentViewer(session); }
   // 컨설턴트/관리자
   const ac=await ensureAcademy(u);
   if(!ac && u.user_metadata && u.user_metadata.academy_id){ return; }
@@ -2550,6 +2552,140 @@ function updateDemoBanner(){
     '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
     '<a href="mailto:gwkim06@gmail.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#3182f6);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
+/* ═══ 학부모 뷰어 대시보드 (자녀 상황 열람 · 수강 게이팅 · 샘플 유도) ═══ */
+async function enterParentViewer(session){
+  try{ gate.style.display='none'; }catch(e){}
+  document.body.classList.add('parent-viewer');
+  window._role='parent'; window.__PENTA_ROLE='parent';
+  var uid=session.user.id; window._myUid=uid;
+  // 자녀 연결 조회
+  var stu=null;
+  try{
+    var pa=await sb.from('parent_accounts').select('student_id,academy_id').eq('auth_uid',uid).limit(1);
+    if(pa.data&&pa.data[0]){
+      window._acadId=pa.data[0].academy_id;
+      var sr=await sb.from('students').select('*').eq('id',pa.data[0].student_id).limit(1);
+      if(sr.data&&sr.data[0]) stu=sr.data[0];
+    }
+  }catch(e){}
+  window._activeStudent=stu;
+  pvInjectCss();
+  var root=document.getElementById('pv-root'); if(!root){ root=document.createElement('div'); root.id='pv-root'; document.body.appendChild(root); }
+  if(!stu){ root.innerHTML='<div class="pv-wrap"><div class="pv-empty">연결된 자녀 정보를 찾지 못했어요.<br>학원에서 발급한 학부모 아이디로 로그인했는지 확인해 주세요.<br><br><button class="pv-btn" onclick="sbSignOutReload()">로그아웃</button></div></div>'; return; }
+  pvRenderDashboard(root, stu);
+}
+function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/login'); }); }catch(e){ location.replace('/login'); } }
+window.sbSignOutReload=sbSignOutReload;
+
+function pvInjectCss(){
+  if(document.getElementById('pv-css'))return;
+  var s=document.createElement('style'); s.id='pv-css';
+  s.textContent=""
+    +"#pv-root{position:fixed;inset:0;z-index:900;overflow:auto;background:#eef1f8;font-family:'Noto Sans KR',sans-serif;color:#243244}"
+    +".pv-wrap{max-width:860px;margin:0 auto;padding:20px 16px 60px}"
+    +".pv-top{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;border-radius:18px;padding:22px 22px;position:relative;overflow:hidden}"
+    +".pv-top::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 10%,rgba(212,175,55,.22),transparent 45%)}"
+    +".pv-top .eb{position:relative;font-size:11px;font-weight:800;letter-spacing:2px;color:#E8D9A0}"
+    +".pv-top h1{position:relative;font-size:22px;font-weight:900;margin:7px 0 3px}"
+    +".pv-top .meta{position:relative;font-size:13px;color:#c7cdf0}"
+    +".pv-top .lo{position:absolute;top:16px;right:16px;z-index:2;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}"
+    +".pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}"
+    +".pv-card{background:#fff;border:1px solid #e6e9f0;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,23,51,.04);display:flex;flex-direction:column}"
+    +".pv-card .ic{width:44px;height:44px;border-radius:12px;background:#eef1ff;display:grid;place-items:center;font-size:22px;margin-bottom:10px}"
+    +".pv-card h3{margin:0;font-size:16px;font-weight:900;color:#1A237E}"
+    +".pv-card .d{font-size:12.5px;color:#6b7688;line-height:1.6;margin:5px 0 12px;flex:1}"
+    +".pv-badge{align-self:flex-start;font-size:10.5px;font-weight:800;border-radius:99px;padding:3px 10px;margin-bottom:10px}"
+    +".pv-on{background:#e9f9ef;color:#137a44}.pv-off{background:#f0f2f6;color:#8b95a1}"
+    +".pv-btn{border:none;border-radius:10px;padding:11px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff}"
+    +".pv-btn.lock{background:#fff;color:#1A237E;border:1.5px solid #cfd6ea}"
+    +".pv-lockwrap{position:relative}.pv-lockwrap .lockmsg{font-size:11.5px;color:#b8860b;background:rgba(212,175,55,.12);border:1px solid #E8D9A0;border-radius:8px;padding:8px 11px;margin-bottom:10px;line-height:1.5}"
+    +".pv-empty{text-align:center;color:#6b7688;font-size:14px;padding:60px 20px;line-height:1.8}"
+    +".pv-ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:1200;overflow:auto;padding:20px 12px}"
+    +".pv-ovc{max-width:900px;margin:0 auto;background:#eef1f8;border-radius:18px;padding:14px}"
+    +".pv-ovx{display:flex;justify-content:flex-end;position:sticky;top:0}"
+    +".pv-ovx button{border:none;background:#1A237E;color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}"
+    +".pv-note{font-size:11px;color:#8b95a1;text-align:center;margin-top:20px;line-height:1.7}";
+  document.head.appendChild(s);
+}
+
+function pvGradeBand(g){ g=String(g||''); if(/초/.test(g))return '초등'; if(/중/.test(g))return '중등'; if(/고|N수/.test(g))return '고등'; return ''; }
+function pvCourseLabel(c){ return c==='vision_basic'?'펜타 비전 기초':c==='vision_adv'?'펜타 비전 심화':c==='track'?'펜타 트랙':''; }
+
+async function pvRenderDashboard(root, stu){
+  var band=pvGradeBand(stu.grade);
+  var pentaOn=!!stu.penta_course;
+  var h='<div class="pv-wrap">';
+  h+='<div class="pv-top"><button class="lo" onclick="sbSignOutReload()">로그아웃</button>'
+    +'<div class="eb">PENTAVIEW · 학부모 대시보드</div>'
+    +'<h1>'+pvEsc(stu.name||'자녀')+' 학부모님</h1>'
+    +'<div class="meta">'+pvEsc(stu.grade||'')+(band?(' · '+band):'')+(pentaOn?(' · '+pvCourseLabel(stu.penta_course)+' 수강 중'):'')+'</div></div>';
+  h+='<div class="pv-grid" id="pv-grid"><div class="pv-empty">불러오는 중…</div></div>';
+  h+='<div class="pv-note">자녀가 수강 중인 항목은 실제 결과를, 아직 수강하지 않은 항목은 샘플을 보여드립니다.<br>수강 확대·문의는 담당 선생님께 연락해 주세요.</div>';
+  h+='</div>';
+  root.innerHTML=h;
+  var grid=root.querySelector('#pv-grid');
+
+  // 학원 전송함(소식지·시간표·새강좌·월간분석표·진로·수행 등) 로드
+  var inbox=[];
+  try{ if(window.ArcheParentHub) inbox=await ArcheParentHub.loadInbox(stu.academy_id, stu.id); }catch(e){}
+  function ofType(){ var ts=Array.prototype.slice.call(arguments); return inbox.filter(function(it){return ts.indexOf(it.type)>=0;}); }
+  var notices=ofType('notice','timetable','new_course');
+  var monthlies=ofType('monthly');
+  var designs=ofType('design');
+  var perfs=ofType('perf');
+
+  var cards=[
+    { ic:'🧠', title:'펜타 시리즈', desc:'자녀의 사고력 워크북 성장 리포트(비전·트랙)를 확인하세요.', gated:true, on:pentaOn, count:0, sampleType:'penta',
+      onOpen:function(){ pvOpenPenta(stu); } },
+    { ic:'🧭', title:'진로 징검다리', desc:'진로 설계 결과지를 학생과 함께 받아보세요.', gated:true, on:designs.length>0, count:designs.length, sampleType:'design',
+      onOpen:function(){ pvOpenList('진로 징검다리', designs); } },
+    { ic:'📝', title:'수행평가 도우미', desc:'수행평가 준비 결과지를 확인하세요.', gated:true, on:perfs.length>0, count:perfs.length, sampleType:'perf',
+      onOpen:function(){ pvOpenList('수행평가 도우미', perfs); } },
+    { ic:'📊', title:'월간 분석표', desc:'자녀의 월간 학습·성장 분석 리포트입니다.', gated:false, count:monthlies.length,
+      onOpen:function(){ pvOpenList('월간 분석표', monthlies); } },
+    { ic:'📢', title:'학원 소식·안내', desc:'소식지·시간표·새 강좌 안내를 확인하세요.', gated:false, count:notices.length,
+      onOpen:function(){ pvOpenList('학원 소식·안내', notices); } }
+  ];
+  grid.innerHTML='';
+  cards.forEach(function(c){
+    var card=document.createElement('div'); card.className='pv-card';
+    var active = c.gated ? c.on : true;
+    var badge;
+    if(!c.gated){ badge = c.count ? '<span class="pv-badge pv-on">새 소식 '+c.count+'</span>' : '<span class="pv-badge" style="background:#eef1ff;color:#1A237E">상시 제공</span>'; }
+    else if(c.on){ badge = '<span class="pv-badge pv-on">'+(c.count?('새 소식 '+c.count):'이용 중')+'</span>'; }
+    else { badge = '<span class="pv-badge pv-off">미수강</span>'; }
+    var inner='<div class="ic">'+c.ic+'</div><h3>'+pvEsc(c.title)+'</h3>'+badge+'<div class="d">'+pvEsc(c.desc)+'</div>';
+    if(active){ inner+='<button class="pv-btn">열람하기'+(c.count?(' ('+c.count+')'):'')+'</button>'; }
+    else { inner+='<div class="pv-lockwrap"><div class="lockmsg">🔒 아직 수강 전이에요. 어떤 걸 받게 되는지 샘플로 확인해 보세요.</div><button class="pv-btn lock">📄 샘플 보기 · 수강 문의</button></div>'; }
+    card.innerHTML=inner;
+    var btn=card.querySelector('button');
+    if(active){ btn.addEventListener('click', c.onOpen); }
+    else { btn.addEventListener('click', function(){ pvSample(c); }); }
+    grid.appendChild(card);
+  });
+}
+function pvOpenList(title, items){
+  var body=pvOverlay();
+  var wrap=document.createElement('div');
+  wrap.style.cssText='background:#fff;border-radius:16px;padding:18px';
+  wrap.innerHTML='<h2 style="color:#1A237E;margin:0 0 12px;font-size:18px">'+pvEsc(title)+'</h2><div class="aph" id="pv-listmount"></div>';
+  body.appendChild(wrap);
+  if(window.ArcheParentHub) ArcheParentHub.renderList(wrap.querySelector('#pv-listmount'), items||[]);
+}
+function pvEsc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x];});}
+function pvOverlay(){ var ov=document.createElement('div'); ov.className='pv-ov'; ov.innerHTML='<div class="pv-ovc"><div class="pv-ovx"><button>✕ 닫기</button></div><div class="pv-ovbody"></div></div>'; document.body.appendChild(ov); ov.querySelector('.pv-ovx button').addEventListener('click',function(){ov.remove();}); return ov.querySelector('.pv-ovbody'); }
+function pvOpenPenta(stu){
+  var body=pvOverlay();
+  if(window.ArchePentaApp){ window.__PENTA_ROLE='parent'; window._activeStudent=stu; ArchePentaApp.mountRole(body, 'parent', {course:null}); }
+  else body.innerHTML='<div class="pv-empty">펜타 모듈을 불러오지 못했어요. shared 폴더 업로드를 확인해 주세요.</div>';
+}
+function pvSample(c){
+  var body=pvOverlay();
+  if(window.ArcheParentHub&&ArcheParentHub.renderSample){ ArcheParentHub.renderSample(body, c.sampleType, c.title); return; }
+  body.innerHTML='<div style="background:#fff;border-radius:16px;padding:26px 22px;text-align:center"><div style="font-size:40px">'+c.ic+'</div><h2 style="color:#1A237E;margin:8px 0 6px">'+pvEsc(c.title)+' · 미리보기</h2><div style="font-size:12.5px;color:#8b95a1">수강을 원하시면 담당 선생님께 문의해 주세요.</div></div>';
+}
+window.enterParentViewer=enterParentViewer;
+
 async function enterStudentApp(session){
   if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
