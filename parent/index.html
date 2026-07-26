@@ -3762,9 +3762,9 @@ function selectStudent(id){
   const s=(window._students||[]).find(x=>x.id===id); if(!s)return;
   window._activeStudent=s;
   var td=document.getElementById('topbar-student'); if(td)td.value=id;
-  var sv=document.getElementById('v-students'); if(sv&&sv.classList.contains('on')&&window.loadStudents)loadStudents();
-  if(window.refreshIntake)refreshIntake(); if(window.renderDiag)renderDiag(); if(window.renderReport)renderReport();
-  if(window.loadExtra)loadExtra('dae'); if(window.wbLoad)wbLoad('dae'); if(window.perfMount)perfMount('dae');
+  // 현재 보고 있는 화면만 새 학생 데이터로 1회 재렌더(전 패널 중복 렌더 → 깜빡임/멈춤 방지)
+  if(window._curView && window.goView){ goView(window._curView); }
+  else { var sv=document.getElementById('v-students'); if(sv&&sv.classList.contains('on')&&window.loadStudents)loadStudents(); if(window.refreshIntake)refreshIntake(); }
 }
 function fillStudentPickers(){
   var td=document.getElementById('topbar-student');
@@ -3791,9 +3791,10 @@ function topbarSelect(id){
     // 지원가능·성향매칭 화면이면 성적·활동 자동 재연동
     var gv=document.getElementById('v-goip');
     if(gv&&gv.classList.contains('on')&&window.goipAutoFill)goipAutoFill();
-  } else { selectStudent(id); }
-  // 학생 전환 시 현재 보고 있던 화면을 새 학생 데이터로 자동 재로딩
-  if(window._curView && window.goView)goView(window._curView);
+    if(window._curView && window.goView)goView(window._curView);  // 현재 화면 1회 재렌더
+  } else {
+    selectStudent(id);  // selectStudent 내부에서 현재 화면 1회 재렌더
+  }
 }
 async function syncTopbarPicker(v){
   var td=document.getElementById('topbar-student'); if(!td)return;
