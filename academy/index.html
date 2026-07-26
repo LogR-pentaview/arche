@@ -1158,24 +1158,10 @@
 
       <!-- 4.4c GOIP DESIGN -->
       <section class="view" id="v-gdesign">
-        <div class="eyebrow">GOIP · Record Design</div>
+        <div class="eyebrow">GOIP · Career Stepping-Stones · 학생 주도</div>
         <div class="h1">고입 진로 징검다리</div>
-        <div class="sub">기존 활동에서 이어지는 교과탐구·동아리·자율·진로·독서 활동 <b>설계</b> — 활동 문장 대필은 하지 않습니다(주제·목표·단계·산출물만).</div>
-        <div style="display:flex;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap">
-          <select id="gds-student" onchange="selectGStudent(this.value)" style="min-width:220px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">— 학생 선택 —</option></select>
-          <select id="gds-school" class="goip-con-only" style="min-width:200px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">목표 학교 (선택)</option></select>
-          <span id="gds-msg" style="font-size:12px;color:var(--ink-mute)"></span>
-        </div>
-        <div id="gdesign-priority-top" style="margin:14px 0 0"></div>
-        <div class="goip-con-only" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
-          <button class="btn ghost" onclick="renderDesign()">불러오기</button>
-          <button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button>
-          <span id="goip-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span>
-        </div>
-        <div id="gds-result" style="display:none"></div>
-        <div id="cwb-gdesign" style="margin:16px 0 18px"></div>
-        <div id="gdesign-body" style="margin-top:16px"></div>
-
+        <div class="sub">학생이 인터뷰로 스스로 관심·주제를 정하고, 컨설턴트는 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 학생이 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
+        <div id="career-mount-goip" style="margin-top:16px"></div>
       </section>
 
       <!-- 4.5 GOIP CONSULTING -->
@@ -1275,24 +1261,10 @@
 
       <!-- 7. SR DESIGN -->
       <section class="view" id="v-sr">
-        <div class="eyebrow">Student Record Design</div>
+        <div class="eyebrow">Career Stepping-Stones · 학생 주도</div>
         <div class="h1">진로 징검다리</div>
-        <div class="sub">학생이 앞으로 수행할 활동을 과목·창체별로 설계합니다. 생활기록부 기재 문구는 생성하지 않습니다(방향·구조·목차만).</div>
-        <div id="design-priority-top" style="margin:14px 0 0"></div>
-        <div id="cwb-sr" style="margin:16px 0 18px"></div>
-        <div class="card" id="dist-box" style="margin-bottom:14px;padding:14px">
-          <div class="sectionhead" style="margin-bottom:8px"><span class="idx">직접</span><h3>컨설턴트 직접 활동 배포 <span style="font-size:11px;color:var(--ink-mute)">· 활동지 파일을 학생에게 전송</span></h3></div>
-          <div class="fieldrow"><input id="dist-subj" placeholder="탐구 대상 과목/영역" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><input id="dist-title" placeholder="탐구 주제" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"></div>
-          <div style="display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap">
-            <input type="file" id="dist-file" accept=".hwp,.hwpx,.pdf,.docx,.doc,.xlsx,.pptx" style="font-size:12px;color:var(--ink-dim)">
-            <button class="btn" onclick="distributeActivity()">파일 업로드 후 전송</button>
-          </div>
-          <div id="dist-msg" style="font-size:11px;color:var(--ink-mute);margin-top:6px">※ 한글(hwp)·pdf·docx 등 업로드 가능. 전송 즉시 학생이 다운로드할 수 있습니다.</div>
-        </div>
-        <div id="design-actions" style="display:flex;gap:10px;margin:6px 0 10px;flex-wrap:wrap"><button class="btn ghost" onclick="renderDesign()">불러오기</button><button class="btn ghost" style="color:var(--risk)" onclick="delAllDesign()">전체 삭제</button><span id="dae-quota" style="font-size:11px;color:var(--ink-mute);align-self:center"></span></div>
-        <div id="design-body"><div style="color:var(--ink-mute);padding:20px">아래 <b>코스웨어</b>에서 코스를 만들고 차시를 구성하면 학생이 순서대로 진행합니다. 직접 배포한 활동·제출물은 여기에 표시됩니다.</div></div>
-        <div class="note">※ 학원 엔진은 <b style="color:var(--ink)">학생이 수행할 방향을 설계</b>합니다(대필 아님). 실제 활동·기록은 학생·학교의 몫이며, 엔진은 방향·구조·위계만 제공.</div>
-
+        <div class="sub">학생이 인터뷰로 스스로 관심·주제를 정하고, 컨설턴트는 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 학생이 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
+        <div id="career-mount" style="margin-top:16px"></div>
       </section>
 
             <!-- 수행평가 도우미 (독립 메뉴) -->
@@ -2155,6 +2127,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_report.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
 <script src="/shared/arche_parent_hub.js"></script>
+<script src="/shared/arche_career_bridge.js"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2203,7 +2176,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
-  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.renderDesign)renderDesign(); if(window.wbLoad)wbLoad('dae'); if(window.showDesignQuota)showDesignQuota('dae'); if(window.cbMount)cbMount();} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.renderGDesign)renderGDesign(); if(window.wbLoad)wbLoad('goip'); if(window.showDesignQuota)showDesignQuota('goip'); if(window.cbMount)cbMount();} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2213,6 +2186,13 @@ function toggleMobileNav(){
   if(!s)return; var open=s.classList.toggle('open'); if(b)b.classList.toggle('open',open);
 }
 window.toggleMobileNav=toggleMobileNav;
+// 진로 징검다리(학생 주도 루프) 마운트 — v-sr(대입)/v-gdesign(고입) 공용
+function careerMount(which){
+  var id=(which==='goip')?'career-mount-goip':'career-mount';
+  var m=document.getElementById(id);
+  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
+}
+window.careerMount=careerMount;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
 function goView(v){
   var el=document.querySelector('.nav[data-v="'+v+'"]');
@@ -2235,14 +2215,14 @@ window.addEventListener('popstate', function(e){
       if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} else if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();}
       else if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();}
       else if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();}
-      else if(v==='sr'){window._designTrack='dae';renderDesign();} else if(v==='perf'){window._designTrack='dae';if(window.perfMount)perfMount('dae');} else if(v==='iv'&&window.renderInterview)renderInterview();
+      else if(v==='sr'){window._designTrack='dae';if(window.careerMount)careerMount('dae');} else if(v==='perf'){window._designTrack='dae';if(window.perfMount)perfMount('dae');} else if(v==='iv'&&window.renderInterview)renderInterview();
       else if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} else if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();}
       else if(v==='report'&&window.renderReport)renderReport(); else if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); else if(v==='roi'&&window.renderROI)renderROI();
       else if(v==='notice'&&window.renderNotice)renderNotice();
       else if(v==='goip'&&window.renderGoip)renderGoip(); else if(v==='greport'&&window.renderGreport)renderGreport(); else if(v==='gstudents'&&window.renderGStudents)renderGStudents();
       else if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} else if(v==='gconsult'&&window.renderGConsult)renderGConsult();
       else if(v==='gdiag'&&window.renderGDiag)renderGDiag(); else if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap();
-      else if(v==='gdesign'){window._designTrack='goip';renderGDesign();} else if(v==='gperf'){window._designTrack='goip';if(window.perfMount)perfMount('goip');} else if(v==='gessay'&&window.renderGEssay)renderGEssay();
+      else if(v==='gdesign'){window._designTrack='goip';if(window.careerMount)careerMount('goip');} else if(v==='gperf'){window._designTrack='goip';if(window.perfMount)perfMount('goip');} else if(v==='gessay'&&window.renderGEssay)renderGEssay();
       else if(v==='ginterview'&&window.renderGInterview)renderGInterview();
       else if(v==='admin'&&window.ADMIN)window.ADMIN.init(); else if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init();
       else if(v==='billing'&&window.renderBilling){renderBilling();} else if(v==='settings'&&window.loadApiKey){loadApiKey();if(window.loadTeam)loadTeam();if(window.brandLoad)brandLoad();}
