@@ -552,8 +552,9 @@
     <div class="navgroup open" id="grp-penta">
       <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 펜타 시리즈<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="navsub">
-        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{stage:'vision'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
-        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{stage:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
       </div>
     </div>
     <div class="navlabel navlabel-con">학원 운영 · 마케팅</div>
@@ -798,6 +799,7 @@
               <select id="st-grade" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년</option><option>고1</option><option>고2</option><option>고3</option><option>N수</option></select>
               <select id="st-track" style="flex:1;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">계열</option><option>인문</option><option>자연</option><option>공학</option><option>의약</option><option>예체능</option><option>기타</option></select>
             </div>
+            <select id="st-penta" title="펜타 시리즈 수강 코스" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">펜타 코스 (미수강)</option><option value="vision_basic">펜타 비전 기초 (초등)</option><option value="vision_adv">펜타 비전 심화 (초·중1~2)</option><option value="track">펜타 트랙 (중3)</option></select>
             <input id="st-univ" placeholder="목표 대학" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <div style="display:flex;gap:6px;margin-bottom:7px"><input id="st-major" placeholder="목표 학과 1순위" style="flex:1;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><button type="button" class="btn ghost" onclick="searchMajor()" style="white-space:nowrap">학과 검색</button></div>
             <input id="st-major2" placeholder="목표 학과 2순위 (선택)" style="width:100%;margin-bottom:7px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -3841,6 +3843,7 @@ async function editStudent(id){
   var set=function(i,v){var e=document.getElementById(i);if(e)e.value=(v||'');};
   set('st-name',s.name);set('st-school',s.school);set('st-univ',s.target_univ);set('st-major',s.target_major);set('st-major2',s.target_major2);set('st-major3',s.target_major3);set('st-career',s.career);set('st-interest',s.interest);
   document.getElementById('st-grade').value=s.grade||'';document.getElementById('st-track').value=s.track||'';
+  var _pe=document.getElementById('st-penta'); if(_pe)_pe.value=s.penta_course||'';
   document.getElementById('st-region').value=s.region||'';document.getElementById('st-gender').value=s.gender||'';
   document.getElementById('st-consent').checked=!!s.consent_record;document.getElementById('st-bench').checked=!!s.benchmark_opt_in;
   var b=document.getElementById('st-submit'); if(b)b.textContent='수정 저장';
@@ -3863,6 +3866,7 @@ async function addStudent(){
     school:document.getElementById('st-school').value.trim()||null,
     grade:document.getElementById('st-grade').value||null,
     track:document.getElementById('st-track').value||null,
+    penta_course:(document.getElementById('st-penta')?document.getElementById('st-penta').value:'')||null,
     target_univ:document.getElementById('st-univ').value.trim()||null,
     target_major:document.getElementById('st-major').value.trim()||null,
     target_major2:(document.getElementById('st-major2')?document.getElementById('st-major2').value.trim():'')||null,
@@ -3883,6 +3887,7 @@ async function addStudent(){
   window._editId=null; var sb2=document.getElementById('st-submit'); if(sb2)sb2.textContent='등록';
   ['st-name','st-school','st-univ','st-major','st-major2','st-major3','st-career','st-interest'].forEach(id=>{var e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('st-grade').value='';document.getElementById('st-track').value='';
+  var _pe2=document.getElementById('st-penta'); if(_pe2)_pe2.value='';
   document.getElementById('st-region').value='';document.getElementById('st-gender').value='';
   document.getElementById('st-consent').checked=false;document.getElementById('st-bench').checked=false;
   loadStudents();
