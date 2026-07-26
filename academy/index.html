@@ -3231,6 +3231,19 @@ async function createStudentAccount(id,code){
   refreshStudentLists();
 }
 function refreshStudentLists(){ if(window.loadStudents)loadStudents(); if(window.renderGStudents&&document.getElementById('v-gstudents')&&document.getElementById('v-gstudents').classList.contains('on'))renderGStudents(); if(window.renderAllStudents&&document.getElementById('v-allstudents')&&document.getElementById('v-allstudents').classList.contains('on'))renderAllStudents(); }
+/* 학부모(재원생) 계정 발급 — 학생 로그인 계정이 먼저 있어야 함(학생ID+P) */
+async function createParentAccount(id){
+  if(!sb)return; var sess=(await sb.auth.getSession()).data.session; if(!sess)return alert('로그인이 필요합니다.');
+  try{
+    var r=await fetch(SB_URL+'/functions/v1/create-parent',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify({student_id:id})});
+    var d=await r.json();
+    if(d.need_student)return alert('먼저 이 학생의 로그인 계정(학생 아이디)을 만들어 주세요.\n학생 계정 생성 후 다시 [학부모] 버튼을 눌러 주세요.');
+    if(d.error)return alert('학부모 계정 발급 실패: '+d.error);
+    if(d.existed)return alert('이미 학부모 계정이 있습니다.\n학부모 아이디: '+d.login_id+'\n\n학원 앱 로그인의 "학생 아이디" 칸에 이 아이디로 접속하면 자녀 대시보드가 열립니다.');
+    alert('학부모 계정 발급 완료 🎉\n학부모 아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n\n학부모가 학원 앱 로그인 화면의 "학생 아이디" 칸에 이 아이디로 접속하면 자녀 전용 대시보드가 열립니다.');
+  }catch(e){ alert('학부모 계정 발급 오류: '+(e&&e.message||e)); }
+}
+window.createParentAccount=createParentAccount;
 
 /* ===== 통합 학생 관리 (대입/고입 자동 분기 · 계정 자동생성) ===== */
 async function renderAllStudents(){
@@ -3272,6 +3285,7 @@ async function renderAllStudents(){
       +'<div style="display:flex;gap:6px;flex-wrap:wrap">'
         +'<button onclick="openStudentUnified(\''+s.id+'\')" style="flex:1;min-width:74px;padding:7px 10px;background:var(--gold);color:#ffffff;border:none;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">열기 →</button>'
         +(acct?'':'<button onclick="createStudentAccount(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--gold);border:1px solid var(--gold);border-radius:8px;font-size:11px;cursor:pointer">계정</button>')
+        +(acct?'<button onclick="createParentAccount(\''+s.id+'\')" title="학부모 로그인 계정 발급" style="padding:7px 10px;background:transparent;color:#1A237E;border:1px solid #1A237E;border-radius:8px;font-size:11px;cursor:pointer">👪 학부모</button>':'')
         +(acct?'<button onclick="resetStudentPw(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:8px;font-size:11px;cursor:pointer">비번초기화</button>':'')
         +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:7px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:8px;font-size:11px;cursor:pointer">삭제</button>'
       +'</div>'
