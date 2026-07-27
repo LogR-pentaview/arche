@@ -2670,7 +2670,7 @@ async function enterStudentApp(session){
   window._role='stu';
   var {data:sd}=await sb.from('students').select('*').limit(1);
   var me=sd&&sd[0];
-  if(me){ window._activeStudent=me; document.getElementById('acadname').textContent=(me.name||'학생'); var _az=document.getElementById('au-account-zone'); if(_az)_az.style.display='block'; }
+  if(me){ window._activeStudent=me; if(me.academy_id)window._acadId=me.academy_id; document.getElementById('acadname').textContent=(me.name||'학생'); var _az=document.getElementById('au-account-zone'); if(_az)_az.style.display='block'; }
   // 학년 레벨 판별: 초(융합만) / 중(고입+융합) / 고(대입)
   var lvl=(function(){ var g=(me&&me.grade)||''; if(g.indexOf('초')>=0)return '초'; if(g.indexOf('중')>=0)return '중'; return '고'; })();
   window._stuLevel=lvl;
