@@ -262,16 +262,20 @@
       var fchk=fh.querySelector('input'); folder.appendChild(fh);
       var kids=[];
       byGrade[g].forEach(function(s){
-        var rowl=el('<label class="ck" style="padding:5px 0 5px 18px;display:flex;align-items:center"><input type="checkbox"> <span style="flex:1">'+esc(s.name)+'</span></label>');
-        var cb=rowl.querySelector('input'); cb.value=s.id; checks.push(cb); kids.push(cb);
-        var cc=el('<select style="font-size:11px;padding:3px 6px;margin-left:6px"></select>');
+        var rowl=el('<div style="padding:8px 0 8px 20px;border-top:1px solid #eef1f6"></div>');
+        var line1=el('<label style="display:flex;align-items:center;gap:8px;margin:0;font-size:13.5px;font-weight:700;color:#243244;cursor:pointer"><input type="checkbox"> <span>'+esc(s.name)+'</span><span style="font-size:11px;color:#8b95a1;font-weight:600">'+esc(s.grade||'')+'</span></label>');
+        var cb=line1.querySelector('input'); cb.value=s.id; checks.push(cb); kids.push(cb);
+        rowl.appendChild(line1);
+        var line2=el('<div style="display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 0 26px"></div>');
+        var cc=el('<select style="font-size:11px;padding:4px 8px"></select>');
         var elig=eligibleCourses(s.grade);
         cc.innerHTML='<option value="">코스 변경…</option>'+elig.map(function(k){return '<option value="'+k+'"'+(s.penta_course===k?' selected':'')+'>'+COURSES[k].short+'</option>';}).join('')+'<option value="__none">미수강</option>';
         cc.addEventListener('change', async function(){ var v=cc.value; if(!v)return; try{ await setPentaCourse(s.id, v==='__none'?null:v); toast(s.name+' 코스 변경'); drawAssign(body, course, spec); }catch(e){ toast('변경 실패: '+(e.message||e)); } });
-        rowl.appendChild(cc);
-        var pbtn=el('<button class="act mut" title="학부모 로그인 계정 발급" style="padding:4px 8px;font-size:11px;margin-left:5px">👪 학부모ID</button>');
+        line2.appendChild(cc);
+        var pbtn=el('<button class="act mut" title="학부모 로그인 계정 발급" style="padding:4px 10px;font-size:11px">👪 학부모ID</button>');
         pbtn.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); issueParent(s.id, s.name); });
-        rowl.appendChild(pbtn);
+        line2.appendChild(pbtn);
+        rowl.appendChild(line2);
         folder.appendChild(rowl);
       });
       fchk.addEventListener('change',function(){ kids.forEach(function(k){k.checked=fchk.checked;}); });

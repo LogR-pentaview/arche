@@ -107,7 +107,7 @@
     var root=document.createElement('div'); root.className='apw'+(ro?' ro':'');
 
     // 커버
-    var cover='<div class="wbcover"><div class="wbeb">PENTA '+(L.stage==='track'?'TRACK':'VISION')+' · 워크북'+(L.season?(' · 시즌'+esc(L.season)+' '+esc(L.week||1)+'주차'):'')+'</div>'
+    var cover='<div class="wbcover"><div class="wbeb">'+esc(L.eyebrow || ('PENTA '+(L.stage==='track'?'TRACK':'VISION')+' · 워크북'))+(L.season?(' · 시즌'+esc(L.season)+' '+esc(L.week||1)+'주차'):'')+'</div>'
       +'<h1>'+esc(L.title||'펜타 워크북')+'</h1>'
       +(L.subtitle?'<div class="sub">'+esc(L.subtitle)+'</div>':'')
       +(L.theme?'<div class="sub">주제 · '+esc(L.theme)+'</div>':'')
@@ -147,6 +147,18 @@
     function doSubmit(btn,msg,noteEl){
       var miss=required.filter(function(id){return (state.answers[id]||'').toString().trim().length===0;});
       if(miss.length){ msg.className='msg err'; msg.textContent='아직 '+miss.length+'개 문항이 비어 있어요. 모두 채운 뒤 제출해 주세요.'; try{root.querySelector('[data-id="'+miss[0]+'"]').scrollIntoView({behavior:'smooth',block:'center'});}catch(_){} return; }
+      // 커스텀 저장 훅(진로 징검다리 등 다른 저장 경로 재사용). data=수집 답변
+      if(typeof opts.submitFn==='function'){
+        var data={answers:state.answers, radar_before:state.radar_before, radar_after:state.radar_after, compass:+state.compass};
+        if(mode==='preview'){ msg.className='msg ok'; msg.textContent='미리보기 모드 — 저장하지 않았어요. 내용은 잘 작성됐습니다! 👍'; if(opts.onSubmit)opts.onSubmit({preview:true,data:data}); return; }
+        btn.disabled=true; var _ot=btn.textContent; btn.textContent='제출 중…';
+        Promise.resolve(opts.submitFn(data)).then(function(r){
+          btn.disabled=false; btn.textContent=_ot;
+          if(r&&r.error){ msg.className='msg err'; msg.textContent='제출 실패: '+((r.error&&r.error.message)||r.error); }
+          else { msg.className='msg ok'; msg.textContent=(opts.submitOkText)||'제출 완료! 🎉'; btn.style.display='none'; if(noteEl)noteEl.style.display='none'; if(opts.onSubmit)opts.onSubmit({data:data,result:r}); }
+        }, function(e){ btn.disabled=false; btn.textContent=_ot; msg.className='msg err'; msg.textContent='제출 실패: '+((e&&e.message)||e); });
+        return;
+      }
       var payload={
         p_academy: academyId, p_student: studentId,
         p_stage: L.stage||'vision', p_level: L.level||'',
@@ -180,6 +192,16 @@
       if(t==='info'){
         w.innerHTML='<div class="info">'+(b.title?'<div class="it">'+esc(b.title)+'</div>':'')+'<div class="ib">'+esc(b.body||'')+'</div></div>';
         return w;
+      }
+      if(t==='read'){
+        w.innerHTML='<div class="info" style="border-left-color:#1A237E;background:#f6f8ff">'+(b.title?'<div class="it">📖 '+esc(b.title)+'</div>':'<div class="it">📖 읽기 자료</div>')+'<div class="ib" style="white-space:pre-wrap;line-height:1.85">'+esc(b.body||'')+'</div>'+(b.source?'<div style="font-size:11px;color:#8b95a1;margin-top:6px">— '+esc(b.source)+'</div>':'')+'</div>';
+        return w;
+      }
+      if(t==='video'){
+        var _vu=b.url||''; var vin='<div class="info" style="border-left-color:#c0313d;background:#fff7f7"><div class="it">🎬 '+esc(b.title||'영상으로 생각 넓히기')+'</div>'+(b.body?'<div class="ib">'+esc(b.body)+'</div>':'');
+        if(_vu){ vin+='<a href="'+esc(_vu)+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:8px;background:#c0313d;color:#fff;text-decoration:none;font-weight:800;font-size:13px;padding:9px 16px;border-radius:10px">▶ 영상 보기</a>'; }
+        else if(b.search){ vin+='<div style="margin-top:8px;font-size:12.5px;color:#8a6d1f;background:#fffdf4;border:1px solid #E8D9A0;border-radius:9px;padding:8px 12px">🔎 추천 검색어: <b>'+esc(b.search)+'</b> <span style="color:#b0b7c3">(유튜브 등에서 검색)</span></div>'; }
+        w.innerHTML=vin+'</div>'; return w;
       }
       if(t==='stats'){
         var s='<div class="stats">';
