@@ -188,6 +188,13 @@
   function el(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
   function ytSearch(q){return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);}
   function gSearch(q){return 'https://www.google.com/search?q='+encodeURIComponent(q);}
+  // 질문 박스 색조: navy(기본) · shadow(어려운점) · green(안전장치) · gold(나의 답)
+  function toneStyle(tone){
+    if(tone==='shadow') return {box:'background:#4a2d1d',h:'color:#ffe0c2',p:'color:#ffe9d6',m:'border-color:#ffcfa3;background:rgba(255,180,120,.16)'};
+    if(tone==='green')  return {box:'background:#1d3a2e',h:'color:#c6f6d5',p:'color:#d9fbe6',m:'border-color:#86efac;background:rgba(134,239,172,.16)'};
+    if(tone==='gold')   return {box:'background:var(--gold)',h:'color:var(--navy2)',p:'color:var(--navy2)',m:'border-color:var(--navy2);background:rgba(15,21,72,.12);color:var(--navy2)'};
+    return {box:'',h:'',p:'',m:''};
+  }
 
   function render(mount, opts){
     inject();
@@ -244,7 +251,7 @@
     if(stages.length>=2){
       var v=addView('순서');
       var rm='';
-      stages.forEach(function(s){ rm+='<div class="rm"><div class="em">'+esc(s.icon||'✦')+'</div><h4>'+esc((s.name||'').replace(/^STAGE\s*\d+\s*·?\s*/,''))+'</h4><p>'+esc(s.desc||'')+'</p></div>'; });
+      stages.forEach(function(s){ rm+='<div class="rm"><div class="em">'+esc(s.icon||'✦')+'</div><h4>'+esc((s.name||'').replace(/^(STAGE|STEP)\s*\d+\s*·?\s*/i,''))+'</h4><p>'+esc(s.desc||'')+'</p></div>'; });
       var pills=axes.map(function(a){return '<span class="pill">'+esc(a)+'</span>';}).join('');
       v.innerHTML='<div class="page"><span class="eyebrow">오늘의 순서</span>'
         +'<div class="ph"><h2 class="title serif">'+(isKid?'이렇게 해볼 거예요':'오늘의 탐구 흐름')+'</h2></div>'
@@ -257,7 +264,7 @@
     // ── 2~) 스테이지별 페이지 ─────────────────────────────────────
     var stepNoRef={n:0};
     stages.forEach(function(stg,si){
-      var v=addView((stg.name||'').replace(/^STAGE\s*\d+\s*·?\s*/,'').slice(0,8) || ('단계'+(si+1)));
+      var v=addView((stg.name||'').replace(/^(STAGE|STEP)\s*\d+\s*·?\s*/i,'').trim().slice(0,10) || ('단계'+(si+1)));
       var page=document.createElement('div'); page.className='page';
       var rawName=stg.name||('STAGE '+(si+1));
       var shortName=rawName.replace(/^(STAGE|STEP)\s*\d+\s*·?\s*/i,'').trim()||rawName;
@@ -420,10 +427,12 @@
       if(t==='text'){
         if(!b.optional && b.id) required.push(b.id);
         var qn=b.n?'<span style="display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;font-size:11px;background:var(--gold);color:var(--navy2);border-radius:6px;margin-right:7px;font-weight:900">'+esc(b.n)+'</span>':'';
+        var tn=toneStyle(b.tone);
+        var head=b.head || ('🤔 '+(isKid?'만약에?':'생각해 보기'));
         w.innerHTML='<div class="sym">'
-          +'<div class="qbox"><h4>🤔 '+(isKid?'만약에?':'생각해 보기')+'</h4><p>'+qn+esc(b.q||'')+'</p>'
-            +(b.hint?'<div class="mission">✏️ '+esc(b.hint)+'</div>':(isKid?'<div class="mission">✏️ 정답은 없어요. 네 생각을 자유롭게 써봐요!</div>':''))+'</div>'
-          +'<div class="abox"><label><span class="pen">✎</span> 내 생각</label>'
+          +'<div class="qbox" style="'+tn.box+'"><h4 style="'+tn.h+'">'+esc(head)+'</h4><p style="'+tn.p+'">'+qn+esc(b.q||'')+'</p>'
+            +(b.hint?'<div class="mission" style="'+tn.m+'">✏️ '+esc(b.hint)+'</div>':(isKid&&b.tone==null?'<div class="mission">✏️ 정답은 없어요. 네 생각을 자유롭게 써봐요!</div>':''))+'</div>'
+          +'<div class="abox"><label><span class="pen">✎</span> '+esc(b.ansLabel||'내 생각')+'</label>'
             +'<textarea rows="'+(b.rows||4)+'" placeholder="'+esc(b.placeholder||'여기에 생각을 적어 보세요')+'">'+esc(state.answers[b.id]||'')+'</textarea></div></div>';
         var ta=w.querySelector('textarea'); ta.addEventListener('input',function(){state.answers[b.id]=ta.value;});
         return w;
