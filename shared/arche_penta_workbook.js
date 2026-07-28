@@ -403,13 +403,15 @@
         return w;
       }
       if(t==='video'){
-        var q=b.search||b.title||'';
         var links='<div class="vlinks">';
-        if(b.url) links+='<a class="primary" href="'+esc(b.url)+'" target="_blank" rel="noopener">▶ 영상 보기</a>';
-        else if(b.search){ links+='<a class="primary" href="'+esc(ytSearch(b.search))+'" target="_blank" rel="noopener">▶ 유튜브에서 보기</a>'
-          +'<a class="search" href="'+esc(gSearch(b.search))+'" target="_blank" rel="noopener">🔍 검색</a>'; }
+        if(b.url){ links+='<a class="primary" href="'+esc(b.url)+'" target="_blank" rel="noopener">▶ 영상 보기</a>'; }
+        else if(b.search){
+          // 영상 찾기 우선순위: ①지식채널e ②유튜브 10분 내외 ③추천순
+          links+='<a class="primary" href="'+esc(ytSearch('지식채널e '+b.search))+'" target="_blank" rel="noopener">▶ 지식채널e에서 찾기</a>'
+            +'<a class="search" href="'+esc(ytSearch(b.search))+'" target="_blank" rel="noopener">▶ 유튜브(10분 내외)</a>';
+        }
         links+='</div>';
-        var mid=b.search&&!b.url ? '<div class="vsearch">🔎 추천 검색어: <b>'+esc(b.search)+'</b></div>':'';
+        var mid=b.search&&!b.url ? '<div class="vsearch">🔎 <b>'+esc(b.search)+'</b> <span style="opacity:.85">· 지식채널e 우선 → 없으면 10분 내외 → 추천순</span></div>':'';
         var hasAns = b.id||b.ask;
         var qbox='<div class="qbox"><h4>🎬 '+esc(b.title||'영상으로 생각 넓히기')+'</h4>'
           +(b.body?'<p>'+esc(b.body)+'</p>':'')+links+mid
