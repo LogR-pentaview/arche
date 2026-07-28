@@ -2059,7 +2059,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_reflection.js"></script>
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
-<script src="/shared/arche_penta_workbook.js"></script>
+<script src="/shared/arche_penta_workbook.js?v=25"></script>
 <script src="/shared/arche_penta_report.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
 <script src="/shared/arche_parent_hub.js"></script>
@@ -2558,30 +2558,42 @@ function pvInjectCss(){
   if(document.getElementById('pv-css'))return;
   var s=document.createElement('style'); s.id='pv-css';
   s.textContent=""
-    +"#pv-root{position:fixed;inset:0;z-index:900;overflow:auto;background:#eef1f8;font-family:'Noto Sans KR',sans-serif;color:#243244}"
-    +".pv-wrap{max-width:860px;margin:0 auto;padding:20px 16px 60px}"
-    +".pv-top{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;border-radius:18px;padding:22px 22px;position:relative;overflow:hidden}"
-    +".pv-top::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 10%,rgba(212,175,55,.22),transparent 45%)}"
-    +".pv-top .eb{position:relative;font-size:11px;font-weight:800;letter-spacing:2px;color:#E8D9A0}"
-    +".pv-top h1{position:relative;font-size:22px;font-weight:900;margin:7px 0 3px}"
-    +".pv-top .meta{position:relative;font-size:13px;color:#c7cdf0}"
-    +".pv-top .lo{position:absolute;top:16px;right:16px;z-index:2;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer}"
-    +".pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;margin-top:16px}"
-    +".pv-card{background:#fff;border:1px solid #e6e9f0;border-radius:16px;padding:18px;box-shadow:0 1px 3px rgba(0,23,51,.04);display:flex;flex-direction:column}"
-    +".pv-card .ic{width:44px;height:44px;border-radius:12px;background:#eef1ff;display:grid;place-items:center;font-size:22px;margin-bottom:10px}"
-    +".pv-card h3{margin:0;font-size:16px;font-weight:900;color:#1A237E}"
-    +".pv-card .d{font-size:12.5px;color:#6b7688;line-height:1.6;margin:5px 0 12px;flex:1}"
-    +".pv-badge{align-self:flex-start;font-size:10.5px;font-weight:800;border-radius:99px;padding:3px 10px;margin-bottom:10px}"
-    +".pv-on{background:#e9f9ef;color:#137a44}.pv-off{background:#f0f2f6;color:#8b95a1}"
-    +".pv-btn{border:none;border-radius:10px;padding:11px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff}"
-    +".pv-btn.lock{background:#fff;color:#1A237E;border:1.5px solid #cfd6ea}"
-    +".pv-lockwrap{position:relative}.pv-lockwrap .lockmsg{font-size:11.5px;color:#b8860b;background:rgba(212,175,55,.12);border:1px solid #E8D9A0;border-radius:8px;padding:8px 11px;margin-bottom:10px;line-height:1.5}"
-    +".pv-empty{text-align:center;color:#6b7688;font-size:14px;padding:60px 20px;line-height:1.8}"
+    +"#pv-root{position:fixed;inset:0;z-index:900;overflow:auto;background:#f2f4f6;font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',sans-serif;color:#191f28;letter-spacing:-.012em}"
+    +".pv-wrap{max-width:900px;margin:0 auto;padding:22px 18px 70px}"
+    +".pv-top{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;border-radius:20px;padding:26px 24px;position:relative;overflow:hidden;display:flex;align-items:center;gap:16px}"
+    +".pv-top::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 88% 12%,rgba(212,175,55,.22),transparent 46%);pointer-events:none}"
+    +".pv-top .av{position:relative;width:54px;height:54px;border-radius:16px;background:linear-gradient(135deg,#3182f6,#00b8a9);display:grid;place-items:center;font-size:22px;font-weight:900;flex:none;box-shadow:0 6px 16px rgba(0,0,0,.25)}"
+    +".pv-top .who{position:relative;min-width:0}"
+    +".pv-top .eb{font-size:11px;font-weight:800;letter-spacing:2px;color:#E8D9A0}"
+    +".pv-top h1{font-size:22px;font-weight:900;margin:5px 0 4px;line-height:1.2}"
+    +".pv-top .meta{font-size:12.5px;color:#c7cdf0;display:flex;flex-wrap:wrap;gap:6px;align-items:center}"
+    +".pv-top .chip{background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-weight:700;font-size:11.5px}"
+    +".pv-top .chip.gold{background:rgba(212,175,55,.2);border-color:rgba(212,175,55,.4);color:#f0e2b0}"
+    +".pv-top .lo{position:absolute;top:16px;right:16px;z-index:2;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.28);color:#fff;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;transition:.14s}"
+    +".pv-top .lo:hover{background:rgba(255,255,255,.24)}"
+    +".pv-sec{font-size:12.5px;font-weight:800;color:#8b95a1;margin:22px 4px 10px;letter-spacing:.02em}"
+    +".pv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}"
+    +".pv-card{background:#fff;border:1px solid #eef1f4;border-radius:18px;padding:20px 20px;box-shadow:0 1px 3px rgba(25,31,40,.04);display:flex;flex-direction:column;position:relative;overflow:hidden;transition:.16s}"
+    +".pv-card:hover{transform:translateY(-3px);box-shadow:0 14px 34px rgba(25,31,40,.10);border-color:#dfe6f5}"
+    +".pv-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,#1A237E,#3182f6);opacity:0;transition:.16s}"
+    +".pv-card.on::before{opacity:1}"
+    +".pv-card .chd{display:flex;align-items:center;gap:11px;margin-bottom:12px}"
+    +".pv-card .ic{width:46px;height:46px;border-radius:13px;background:#eef3ff;display:grid;place-items:center;font-size:23px;flex:none}"
+    +".pv-card h3{margin:0;font-size:16px;font-weight:800;color:#191f28;flex:1;min-width:0}"
+    +".pv-badge{font-size:10.5px;font-weight:800;border-radius:99px;padding:4px 10px;white-space:nowrap;flex:none}"
+    +".pv-on{background:#e9f9ef;color:#0e8a4f}.pv-off{background:#f0f2f6;color:#8b95a1}.pv-std{background:#eef3ff;color:#1b64da}"
+    +".pv-card .d{font-size:12.5px;color:#6b7688;line-height:1.65;margin:0 0 14px;flex:1}"
+    +".pv-btn{border:none;border-radius:11px;padding:12px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;background:linear-gradient(135deg,#1A237E,#1b64da);color:#fff;transition:.14s;text-align:center}"
+    +".pv-btn:hover{filter:brightness(1.06)}"
+    +".pv-btn.lock{background:#fff;color:#1b64da;border:1.5px solid #cfd9f0}"
+    +".pv-lockwrap{position:relative}.pv-lockwrap .lockmsg{font-size:11.5px;color:#8a6d1f;background:#fffaeb;border:1px solid #f2e2b0;border-radius:9px;padding:9px 11px;margin-bottom:10px;line-height:1.55}"
+    +".pv-empty{grid-column:1/-1;text-align:center;color:#8b95a1;font-size:14px;padding:50px 20px;line-height:1.8}"
     +".pv-ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:1200;overflow:auto;padding:20px 12px}"
     +".pv-ovc{max-width:900px;margin:0 auto;background:#eef1f8;border-radius:18px;padding:14px}"
     +".pv-ovx{display:flex;justify-content:flex-end;position:sticky;top:0}"
     +".pv-ovx button{border:none;background:#1A237E;color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}"
-    +".pv-note{font-size:11px;color:#8b95a1;text-align:center;margin-top:20px;line-height:1.7}";
+    +".pv-note{font-size:11.5px;color:#8b95a1;text-align:center;margin-top:24px;line-height:1.75}"
+    +"@media(max-width:560px){.pv-top{flex-direction:column;text-align:center;padding-top:44px}.pv-top .meta{justify-content:center}.pv-grid{grid-template-columns:1fr}}";
   document.head.appendChild(s);
 }
 
@@ -2593,9 +2605,13 @@ async function pvRenderDashboard(root, stu){
   var pentaOn=!!stu.penta_course;
   var h='<div class="pv-wrap">';
   h+='<div class="pv-top"><button class="lo" onclick="sbSignOutReload()">로그아웃</button>'
-    +'<div class="eb">PENTAVIEW · 학부모 대시보드</div>'
+    +'<div class="av">'+pvEsc((stu.name||'자').slice(0,1))+'</div>'
+    +'<div class="who"><div class="eb">PENTAVIEW · 학부모 대시보드</div>'
     +'<h1>'+pvEsc(stu.name||'자녀')+' 학부모님</h1>'
-    +'<div class="meta">'+pvEsc(stu.grade||'')+(band?(' · '+band):'')+(pentaOn?(' · '+pvCourseLabel(stu.penta_course)+' 수강 중'):'')+'</div></div>';
+    +'<div class="meta">'+(stu.grade?'<span class="chip">'+pvEsc(stu.grade)+'</span>':'')
+      +(band?'<span class="chip">'+band+'</span>':'')
+      +(pentaOn?'<span class="chip gold">'+pvEsc(pvCourseLabel(stu.penta_course))+' 수강 중</span>':'')+'</div></div></div>';
+  h+='<div class="pv-sec">자녀 학습 현황</div>';
   h+='<div class="pv-grid" id="pv-grid"><div class="pv-empty">불러오는 중…</div></div>';
   h+='<div class="pv-note">자녀가 수강 중인 항목은 실제 결과를, 아직 수강하지 않은 항목은 샘플을 보여드립니다.<br>수강 확대·문의는 담당 선생님께 연락해 주세요.</div>';
   h+='</div>';
@@ -2628,11 +2644,12 @@ async function pvRenderDashboard(root, stu){
     var card=document.createElement('div'); card.className='pv-card';
     var active = c.gated ? c.on : true;
     var badge;
-    if(!c.gated){ badge = c.count ? '<span class="pv-badge pv-on">새 소식 '+c.count+'</span>' : '<span class="pv-badge" style="background:#eef1ff;color:#1A237E">상시 제공</span>'; }
+    if(!c.gated){ badge = c.count ? '<span class="pv-badge pv-on">새 소식 '+c.count+'</span>' : '<span class="pv-badge pv-std">상시 제공</span>'; }
     else if(c.on){ badge = '<span class="pv-badge pv-on">'+(c.count?('새 소식 '+c.count):'이용 중')+'</span>'; }
     else { badge = '<span class="pv-badge pv-off">미수강</span>'; }
-    var inner='<div class="ic">'+c.ic+'</div><h3>'+pvEsc(c.title)+'</h3>'+badge+'<div class="d">'+pvEsc(c.desc)+'</div>';
-    if(active){ inner+='<button class="pv-btn">열람하기'+(c.count?(' ('+c.count+')'):'')+'</button>'; }
+    if(active){ card.className+=' on'; }
+    var inner='<div class="chd"><div class="ic">'+c.ic+'</div><h3>'+pvEsc(c.title)+'</h3>'+badge+'</div><div class="d">'+pvEsc(c.desc)+'</div>';
+    if(active){ inner+='<button class="pv-btn">열람하기'+(c.count?(' ('+c.count+')'):'')+' →</button>'; }
     else { inner+='<div class="pv-lockwrap"><div class="lockmsg">🔒 아직 수강 전이에요. 어떤 걸 받게 되는지 샘플로 확인해 보세요.</div><button class="pv-btn lock">📄 샘플 보기 · 수강 문의</button></div>'; }
     card.innerHTML=inner;
     var btn=card.querySelector('button');
