@@ -34,8 +34,9 @@
 
   var CSS = ""
     // ── 컨테이너/폰트 ─────────────────────────────────────────────
-    + ".apw{--navy:#1A237E;--navy2:#0F1548;--gold:#D4AF37;--golds:#E8D9A0;--ink:#243244;--muted:#6b7688;--line:#e6e9f0;--sky:#eaf1ff;--cream:#FFFDF4;max-width:900px;margin:0 auto;font-family:'Noto Sans KR',sans-serif;color:var(--ink);line-height:1.85}"
-    + ".apw *{box-sizing:border-box}"
+    + ".apw{--navy:#1A237E;--navy2:#0F1548;--gold:#D4AF37;--golds:#E8D9A0;--ink:#243244;--muted:#6b7688;--line:#e6e9f0;--sky:#eaf1ff;--cream:#FFFDF4;max-width:900px;width:100%;margin:0 auto;font-family:'Noto Sans KR',sans-serif;color:var(--ink);line-height:1.85;word-break:keep-all;overflow-wrap:break-word}"
+    + ".apw *{box-sizing:border-box;min-width:0}"
+    + ".apw h1,.apw h2,.apw h3,.apw h4,.apw h5,.apw p,.apw div,.apw span,.apw li{word-break:keep-all;overflow-wrap:break-word}"
     + ".apw .serif{font-family:'Playfair Display',serif}"
     // ── 상단 스텝바 ───────────────────────────────────────────────
     + ".apw .apw-top{position:sticky;top:0;z-index:6;background:rgba(15,21,72,.97);backdrop-filter:blur(8px);color:#fff;border-bottom:3px solid var(--gold);border-radius:14px 14px 0 0;margin-bottom:2px}"
@@ -65,7 +66,8 @@
     + ".apw .cover{background:linear-gradient(150deg,var(--navy) 0%,var(--navy2) 60%,#080b2e 100%);color:#fff;border-radius:20px;padding:42px 30px;text-align:center;position:relative;overflow:hidden}"
     + ".apw .cover::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 82% 12%,rgba(212,175,55,.22),transparent 45%)}"
     + ".apw .cover .badge{position:relative;font-size:12px;letter-spacing:1px;color:var(--golds);border:1px solid rgba(212,175,55,.5);display:inline-block;padding:6px 15px;border-radius:20px;font-weight:700}"
-    + ".apw .cover h1{position:relative;font-size:32px;font-weight:900;margin:16px 0 8px;line-height:1.25}"
+    + ".apw .cover .fusiontag{position:relative;display:inline-block;margin-top:12px;font-size:12px;font-weight:800;color:var(--navy2);background:linear-gradient(90deg,var(--gold),#e6c766);border-radius:20px;padding:5px 14px;letter-spacing:.01em}"
+    + ".apw .cover h1{position:relative;font-size:32px;font-weight:900;margin:14px 0 8px;line-height:1.25}"
     + ".apw .cover h1 em{color:var(--gold);font-style:normal}"
     + ".apw .cover .csub{position:relative;color:#c7cdf0;font-size:14.5px;max-width:540px;margin:0 auto 22px;line-height:1.8}"
     + ".apw .cover .idcard{position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;max-width:640px;margin:0 auto;text-align:left}"
@@ -75,8 +77,9 @@
     + ".apw .cover .idcard input{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:15px;padding:4px 0}"
     + ".apw .cover .idcard input:focus{outline:0;border-color:var(--gold)}"
     // ── 로드맵 ────────────────────────────────────────────────────
-    + ".apw .roadmap{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px}"
-    + ".apw .rm{background:#f7f9fd;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:center}"
+    + ".apw .roadmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}"
+    + "@media(max-width:560px){.apw .roadmap{grid-template-columns:1fr 1fr}}"
+    + ".apw .rm{background:#f7f9fd;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:center;min-width:0}"
     + ".apw .rm .em{font-size:26px}"
     + ".apw .rm h4{color:var(--navy);font-size:14px;margin:6px 0 4px}"
     + ".apw .rm p{font-size:12.5px;color:var(--muted);line-height:1.6}"
@@ -185,6 +188,8 @@
     if(!document.getElementById('apw-font')){var l=document.createElement('link');l.id='apw-font';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Noto+Sans+KR:wght@400;500;700;900&display=swap';document.head.appendChild(l);}
   }
   function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  // 신뢰된 콘텐츠(카탈로그)용: 이스케이프 후 <b>·<br>만 복원
+  function richEsc(s){return esc(s).replace(/&lt;b&gt;/g,'<b>').replace(/&lt;\/b&gt;/g,'</b>').replace(/&lt;br\s*\/?&gt;/g,'<br>');}
   function el(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
   function ytSearch(q){return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);}
   function gSearch(q){return 'https://www.google.com/search?q='+encodeURIComponent(q);}
@@ -219,7 +224,7 @@
 
     // ── 상단 스텝바 (뷰 구성 이후 채움) ──────────────────────────
     var top=el('<div class="apw-top"><div class="apw-topin">'
-      +'<div class="apw-brand"><span class="apw-mk">P</span><div>'+esc(L.stage==='track'?'펜타 트랙':'펜타 비전')+'<small>'+esc((L.gradeBand||'')+' · '+(L.theme||'워크북'))+'</small></div></div>'
+      +'<div class="apw-brand"><span class="apw-mk">P</span><div>'+esc(L.stage==='track'?'펜타 트랙':'펜타 비전')+'<small>'+esc((L.gradeBand||'')+' · '+(L.theme||'워크북'))+(L.fusion?'  ·  🔀 '+esc(L.fusion):'')+'</small></div></div>'
       +'<div class="apw-steps"></div></div><div class="apw-prog"><i></i></div></div>');
     root.appendChild(top);
     var stepsWrap=top.querySelector('.apw-steps');
@@ -235,6 +240,7 @@
       var titleHtml=esc(L.title||'펜타 워크북');
       var page='<div class="cover">'
         +'<span class="badge">'+esc((L.stage==='track'?'펜타 트랙':'펜타 비전')+' · '+(L.gradeBand||'')+(L.season?(' · 시즌'+L.season):''))+'</span>'
+        +(L.fusion?'<div class="fusiontag">🔀 학문융합 · '+esc(L.fusion)+'</div>':'')
         +'<h1 class="serif">'+titleHtml+'</h1>'
         +(L.subtitle?'<div class="csub">'+esc(L.subtitle)+'</div>':(L.intro?'<div class="csub">'+esc(L.intro)+'</div>':''))
         +'<div class="idcard">'
@@ -386,12 +392,12 @@
       var t=b.t||b.type;
 
       if(t==='info'){
-        w.innerHTML='<div class="infobox">'+(b.title?'<div class="it">'+esc(b.title)+'</div>':'')+'<div class="ib">'+esc(b.body||'')+'</div></div>';
+        w.innerHTML='<div class="infobox">'+(b.title?'<div class="it">'+esc(b.title)+'</div>':'')+'<div class="ib">'+richEsc(b.body||'')+'</div></div>';
         return w;
       }
       if(t==='read'){
-        w.innerHTML='<div class="rc"><div class="who">📖 '+esc(b.title||'읽기 자료')+'</div>'
-          +'<div class="core">'+esc(b.body||'')+'</div>'
+        w.innerHTML='<div class="rc"><div class="who">'+(/^\p{Emoji}/u.test(b.title||'')?'':'📖 ')+esc(b.title||'읽기 자료')+'</div>'
+          +'<div class="core">'+richEsc(b.body||'')+'</div>'
           +(b.source?'<div class="src">— '+esc(b.source)+'</div>':'')+'</div>';
         return w;
       }
