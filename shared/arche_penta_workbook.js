@@ -77,12 +77,13 @@
     + ".apw .cover .idcard input{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.3);color:#fff;font-family:inherit;font-size:15px;padding:4px 0}"
     + ".apw .cover .idcard input:focus{outline:0;border-color:var(--gold)}"
     // ── 로드맵 ────────────────────────────────────────────────────
-    + ".apw .roadmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}"
-    + "@media(max-width:560px){.apw .roadmap{grid-template-columns:1fr 1fr}}"
-    + ".apw .rm{background:#f7f9fd;border:1px solid var(--line);border-radius:14px;padding:15px;text-align:center;min-width:0}"
-    + ".apw .rm .em{font-size:26px}"
-    + ".apw .rm h4{color:var(--navy);font-size:14px;margin:6px 0 4px}"
-    + ".apw .rm p{font-size:12.5px;color:var(--muted);line-height:1.6}"
+    + ".apw .roadmap{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}"
+    + "@media(max-width:620px){.apw .roadmap{grid-template-columns:1fr}}"
+    + ".apw .rm{background:#f7f9fd;border:1px solid var(--line);border-radius:14px;padding:13px 15px;min-width:0;display:flex;align-items:flex-start;gap:12px;text-align:left}"
+    + ".apw .rm .em{font-size:23px;flex:none;line-height:1.25}"
+    + ".apw .rm .rmtx{min-width:0}"
+    + ".apw .rm h4{color:var(--navy);font-size:14px;margin:0 0 3px;word-break:keep-all}"
+    + ".apw .rm p{font-size:12.5px;color:var(--muted);line-height:1.55;word-break:keep-all}"
     + ".apw .pill-row{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 0}"
     + ".apw .pill{font-size:12.5px;background:var(--sky);color:var(--navy);border-radius:20px;padding:6px 12px;font-weight:700}"
     + ".apw .help{background:var(--sky);border-radius:12px;padding:12px 15px;font-size:13.5px;color:var(--navy);margin-top:14px;line-height:1.7}"
@@ -257,7 +258,7 @@
     if(stages.length>=2){
       var v=addView('순서');
       var rm='';
-      stages.forEach(function(s){ rm+='<div class="rm"><div class="em">'+esc(s.icon||'✦')+'</div><h4>'+esc((s.name||'').replace(/^(STAGE|STEP)\s*\d+\s*·?\s*/i,''))+'</h4><p>'+esc(s.desc||'')+'</p></div>'; });
+      stages.forEach(function(s){ rm+='<div class="rm"><div class="em">'+esc(s.icon||'✦')+'</div><div class="rmtx"><h4>'+esc((s.name||'').replace(/^(STAGE|STEP)\s*\d+\s*·?\s*/i,''))+'</h4><p>'+esc(s.desc||'')+'</p></div></div>'; });
       var pills=axes.map(function(a){return '<span class="pill">'+esc(a)+'</span>';}).join('');
       v.innerHTML='<div class="page"><span class="eyebrow">오늘의 순서</span>'
         +'<div class="ph"><h2 class="title serif">'+(isKid?'이렇게 해볼 거예요':'오늘의 탐구 흐름')+'</h2></div>'
