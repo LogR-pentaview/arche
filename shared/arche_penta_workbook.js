@@ -411,7 +411,7 @@
             +'<a class="search" href="'+esc(ytSearch(b.search))+'" target="_blank" rel="noopener">▶ 유튜브(10분 내외)</a>';
         }
         links+='</div>';
-        var mid=b.search&&!b.url ? '<div class="vsearch">🔎 <b>'+esc(b.search)+'</b> <span style="opacity:.85">· 지식채널e 우선 → 없으면 10분 내외 → 추천순</span></div>':'';
+        var mid='';
         var hasAns = b.id||b.ask;
         var qbox='<div class="qbox"><h4>🎬 '+esc(b.title||'영상으로 생각 넓히기')+'</h4>'
           +(b.body?'<p>'+esc(b.body)+'</p>':'')+links+mid
