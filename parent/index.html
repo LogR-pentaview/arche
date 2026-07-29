@@ -2744,9 +2744,9 @@ function b2cOpenChildPenta(child, key){
 function b2cToggleGrp(id){ var g=document.getElementById(id); if(!g)return; var sub=g.querySelector('.navsub'); var open=g.classList.toggle('open'); if(sub){ sub.style.setProperty('max-height', open?'820px':'0px','important'); } }
 window.b2cToggleGrp=b2cToggleGrp;
 // B2C 사이드바: [홈] · [아르케▸] · [펜타 시리즈▸](초기 접힘) · 자녀관리 · 구독결제 · 설정
-function applyB2CSidebar(band){
+function applyB2CSidebar(band, mode){
   var side=document.querySelector('.side'); if(!side) return;
-  band=band||'중';
+  band=band||'중'; mode=mode||'parent';
   if(!document.getElementById('b2c-side-css')){
     var st=document.createElement('style'); st.id='b2c-side-css';
     st.textContent='#b2c-side .navsub .nav{padding:8px 11px 8px 30px!important}'
@@ -2763,9 +2763,9 @@ function applyB2CSidebar(band){
   var arche = (band==='고') ? [['sr','🪜','진로 징검다리'],['perf','📝','수행평가 도우미']]
             : (band==='중') ? [['gdesign','🪜','진로 징검다리'],['gperf','📝','수행평가 도우미']]
             : [];
-  var penta = (band==='초') ? [['vision_basic','📘','펜타 비전 기초'],['track','📙','펜타 트랙']]
-            : (band==='고') ? []
-            : [['vision_adv','📗','펜타 비전 심화'],['track','📙','펜타 트랙']];
+  var penta = (band==='초') ? [['vision_basic','📘','펜타 비전 기초'],['vision_adv','📗','펜타 비전 심화']]
+            : (band==='중') ? [['vision_adv','📗','펜타 비전 심화'],['track','📙','펜타 트랙']]
+            : []; // 고: 펜타 없음
   function e2(s){ return String(s).replace(/'/g,"\\'"); }
   function emo(e){ return '<span style="width:20px;display:inline-block;text-align:center">'+e+'</span>'; }
   function itemsHTML(list, isPenta){
@@ -2787,9 +2787,13 @@ function applyB2CSidebar(band){
     +'<div class="nav" onclick="b2cHqOpen(\'news\')">'+emo('📰')+' 교육뉴스</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>'
     +'</div></div>';
-  h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
-  h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
-  h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
+  if(mode==='parent'){
+    h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
+    h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
+    h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
+  } else {
+    h+='<div class="nav" onclick="goView(\'stuset\')" style="margin-top:8px">'+emo('⚙️')+' 설정</div>';
+  }
   host.innerHTML=h;
 }
 window.applyB2CSidebar=applyB2CSidebar;
@@ -2899,6 +2903,7 @@ async function enterStudentApp(session){
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
   renderStudentHome();
+  try{ if(window.applyB2CSidebar) applyB2CSidebar(lvl,'student'); }catch(e){}
   var {data:sa}=await sb.from('student_accounts').select('must_change').eq('auth_uid',session.user.id).limit(1);
   var mustChange=sa&&sa[0]&&sa[0].must_change;
   try{ if(localStorage.getItem('arche_pw_ok_'+session.user.id)==='1')mustChange=false; }catch(e){}
