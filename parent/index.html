@@ -2301,6 +2301,8 @@ function applyB2CLabels(){
   document.querySelectorAll('[data-b2c-sub]').forEach(function(el){ el.textContent=el.dataset.b2cSub; });
   // 3-3) 자녀 기본 정보 입력 메뉴 숨김 (학부모는 자녀 관리에서 바로 등록)
   var bcNav=document.querySelector('.nav[data-v="basecon"]'); if(bcNav)bcNav.style.display='none';
+  // B2C 사이드바를 아르케/펜타 아코디언 구조로 재구성 (입시 전용 메뉴는 비노출)
+  try{ if(window.applyB2CSidebar) applyB2CSidebar(window._activeStudent?b2cBand(window._activeStudent.grade):'중'); }catch(e){}
   var cwSub=document.getElementById('cwb-sub'); if(cwSub)cwSub.textContent='선생님이 배포한 코스입니다 · 차시를 순서대로 진행하세요';
   // 3-4) 익명 벤치마크 동의는 학부모(법정대리인 본인 동의) 모드에서만 노출 — 학원(B2B)은 미제공
   var benchRow=document.getElementById('st-bench-row'); if(benchRow)benchRow.style.display='flex';
@@ -2730,6 +2732,54 @@ function b2cOpenChildPenta(child, key){
   var navs=document.querySelectorAll('#grp-penta .nav');
   if(navs[idx]) navs[idx].click(); else if(navs[0]) navs[0].click();
 }
+// 아코디언 토글(인라인 max-height로 확실히 펼침/접힘)
+function b2cToggleGrp(id){ var g=document.getElementById(id); if(!g)return; var sub=g.querySelector('.navsub'); var open=g.classList.toggle('open'); if(sub){ sub.style.setProperty('max-height', open?'820px':'0px','important'); } }
+window.b2cToggleGrp=b2cToggleGrp;
+// B2C 사이드바: [홈] · [아르케▸] · [펜타 시리즈▸](초기 접힘) · 자녀관리 · 구독결제 · 설정
+function applyB2CSidebar(band){
+  var side=document.querySelector('.side'); if(!side) return;
+  band=band||'중';
+  if(!document.getElementById('b2c-side-css')){
+    var st=document.createElement('style'); st.id='b2c-side-css';
+    st.textContent='#b2c-side .navsub .nav{padding:8px 11px 8px 30px!important}'
+      +'#b2c-side .navsub::before{display:none!important}'
+      +'#b2c-side .navsub .nav::before{content:""!important;display:none!important}'
+      +'#b2c-side .navsub .nav svg{display:inline!important}'
+      +'#b2c-side .navgroup>.navsub{max-height:0!important}'
+      +'#b2c-side .navgroup.open>.navsub{max-height:820px!important}';
+    document.head.appendChild(st);
+  }
+  var host=document.getElementById('b2c-side');
+  if(!host){ host=document.createElement('div'); host.id='b2c-side'; var brand=side.querySelector('.brand'); if(brand){ side.insertBefore(host, brand.nextSibling); } else { side.insertBefore(host, side.firstChild); } }
+  Array.prototype.forEach.call(side.children, function(ch){ if(ch===host||ch.classList.contains('brand')||ch.classList.contains('foot')) return; ch.style.display='none'; });
+  var arche = (band==='고') ? [['sr','🪜','진로 징검다리'],['perf','📝','수행평가 도우미']]
+            : (band==='중') ? [['gdesign','🪜','진로 징검다리'],['gperf','📝','수행평가 도우미']]
+            : [];
+  var penta = (band==='초') ? [['vision_basic','📘','펜타 비전 기초'],['track','📙','펜타 트랙']]
+            : (band==='고') ? []
+            : [['vision_adv','📗','펜타 비전 심화'],['track','📙','펜타 트랙']];
+  function e2(s){ return String(s).replace(/'/g,"\\'"); }
+  function emo(e){ return '<span style="width:20px;display:inline-block;text-align:center">'+e+'</span>'; }
+  function itemsHTML(list, isPenta){
+    return list.map(function(it){
+      var oc = isPenta ? ("b2cOpenChildPenta(window._activeStudent||{},'"+e2(it[0])+"')") : ("goView('"+e2(it[0])+"')");
+      return '<div class="nav" onclick="'+oc+'">'+emo(it[1])+' '+it[2]+'</div>';
+    }).join('');
+  }
+  var caret='<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+  var h='<div class="nav" onclick="goView(\'home\')">'+emo('🏠')+' 홈</div>';
+  if(arche.length){
+    h+='<div class="navgroup" id="b2c-grp-arche"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-arche\')">'+emo('🎓')+'아르케'+caret+'</div><div class="navsub">'+itemsHTML(arche,false)+'</div></div>';
+  }
+  if(penta.length){
+    h+='<div class="navgroup penta" id="b2c-grp-penta"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-penta\')">'+emo('✦')+'펜타 시리즈'+caret+'</div><div class="navsub">'+itemsHTML(penta,true)+'</div></div>';
+  }
+  h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
+  h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
+  h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
+  host.innerHTML=h;
+}
+window.applyB2CSidebar=applyB2CSidebar;
 async function renderB2CParentHome(){
   if(!window._isB2C || !window.ArcheParentDash) return;
   var v=document.getElementById('v-home'); if(!v) return;
@@ -2738,6 +2788,7 @@ async function renderB2CParentHome(){
     try{ var r=await sb.from('students').select('*').order('created_at',{ascending:true}).limit(1); if(r&&r.data&&r.data[0]){ child=r.data[0]; window._activeStudent=child; } }catch(e){}
   }
   if(!child) return; // 등록된 자녀 없으면 기존 홈(등록 안내) 유지
+  try{ applyB2CSidebar(b2cBand(child.grade)); }catch(e){}
   ArcheParentDash.mount(v, {
     parent:{ name: (window._parentName||'학부모') },
     child:{ name: child.name, grade: child.grade },
