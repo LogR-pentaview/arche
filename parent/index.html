@@ -2918,16 +2918,35 @@ function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
   var s=window._activeStudent||{};
   if(window.ArcheChildDash){
+    /* [자녀 대시보드 학년별 노출] 고=아르케만 / 중=아르케+펜타(심화·트랙) / 초=펜타(기초·심화)만 */
+    var _band=b2cBand(s.grade);
+    var _arche = (_band==='초') ? [] : [
+      {ic:'🪜',title:'진로 징검다리',key:'sr',desc:'관심사 인터뷰에서 출발해 나만의 진로 탐구를 시작해요.',actions:[['pri','시작하기 →','sr']]},
+      {ic:'📝',title:'수행평가 도우미',key:'perf',desc:'학교 수행평가 안내문을 올리면 관점부터 함께 잡아줘요.',actions:[['pri','시작하기 →','perf']]}
+    ];
+    var _penta = (_band==='초') ? [
+      {ic:'📘',title:'펜타비전 기초',key:'vision_basic',desc:'5가지 지성의 눈으로 세상을 보는 사고력 워크북이에요.',actions:[['gold','워크북 열기 →','open']]},
+      {ic:'📗',title:'펜타비전 심화',key:'vision_adv',desc:'딜레마를 파고드는 심화 사고력 코스예요.',actions:[['gold','워크북 열기 →','open']]}
+    ] : (_band==='중') ? [
+      {ic:'📗',title:'펜타비전 심화',key:'vision_adv',desc:'딜레마를 파고드는 심화 사고력 코스예요.',actions:[['gold','워크북 열기 →','open']]},
+      {ic:'📙',title:'펜타트랙',key:'track',desc:'교과 융합 인과율 해부 · 고교 진로 브릿지예요.',actions:[['gold','워크북 열기 →','open']]}
+    ] : [];
     ArcheChildDash.mount(v, {
-      student:{ name:s.name, grade:s.grade },
+      student:{ name:s.name, grade:s.grade }, band:_band,
+      inbox:[], arche:_arche, penta:_penta,
       onLogout: function(){ if(window.sbSignOutReload) sbSignOutReload(); else location.reload(); },
       onAction: function(sec, act, key){
         var band=b2cBand(s.grade);
-        if(sec==='penta' || act==='open'){ var pi=(band==='초')?0:1; var navs=document.querySelectorAll('#grp-penta .nav'); if(navs[pi])navs[pi].click(); else if(navs[0])navs[0].click(); return; }
+        if(sec==='penta' || act==='open'){
+          var idx=(key==='vision_basic')?0:(key==='vision_adv')?1:(key==='track')?2:((band==='초')?0:1);
+          var navs=document.querySelectorAll('#grp-penta .nav'); if(navs[idx])navs[idx].click(); else if(navs[0])navs[0].click(); return;
+        }
         var v2 = (key==='sr1'||key==='sr')? (band==='중'?'gdesign':'sr') : (key==='perf')? (band==='중'?'gperf':'perf') : null;
         if(v2){ var n=document.querySelector('.nav[data-v="'+v2+'"]'); if(n)n.click(); }
       }
     });
+    /* 받은 과제(inbox) 미연동 → 빈 섹션 숨김 */
+    try{ var ib=v.querySelector('#b2cd-c-inbox'); if(ib && !ib.children.length){ var st2=ib.previousElementSibling; if(st2&&st2.classList&&st2.classList.contains('sec-t'))st2.remove(); ib.remove(); } }catch(e){}
     return;
   }
   var menus;
