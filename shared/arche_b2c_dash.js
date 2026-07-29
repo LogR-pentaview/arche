@@ -83,6 +83,12 @@
   function visionMeta(band){ return band==='초'
     ? {key:'vision_basic',title:'펜타비전 기초',ic:'📘',recSub:'초5~6'}
     : {key:'vision_adv',title:'펜타비전 심화',ic:'📗',recSub:'중1~2'}; }
+  // 학년별 펜타 코스: 초=기초+심화 / 중=심화+트랙 / 고=없음
+  function pentaCards(band){
+    return band==='초' ? [{key:'vision_basic',ic:'📘',title:'펜타비전 기초'},{key:'vision_adv',ic:'📗',title:'펜타비전 심화'}]
+         : band==='중' ? [{key:'vision_adv',ic:'📗',title:'펜타비전 심화'},{key:'track',ic:'📙',title:'펜타트랙'}]
+         : [];
+  }
 
   /* ── ② 학부모 대시보드 ── */
   function mountParent(root, opts){
@@ -99,10 +105,11 @@
       {ic:'🪜',title:'진로 징검다리',key:'sr',desc:'자녀에게 진로 탐구 회차를 보내고, 완성 리포트를 받아 코칭하세요.',badge:['b-trial','체험 1회'],actions:[['pri','자녀에게 보내기','send'],['ghost','샘플 리포트','sample']]},
       {ic:'📝',title:'수행평가 도우미',key:'perf',desc:'학교 수행평가 준비 도구를 자녀에게 전달하세요.',badge:['b-trial','체험 1회'],actions:[['pri','자녀에게 보내기','send'],['ghost','샘플 리포트','sample']]}
     ];
-    var penta=opts.penta||[
-      {ic:vm.ic,title:vm.title,key:vm.key,sub:esc(cName)+' · '+(cGrade||vm.recSub)+' 권장',desc:'이번 주 회차를 보내면 자녀가 수행하고 성장 리포트가 회신됩니다.',badge:['b-new','새 리포트 1'],actions:[['gold','회차 보내기','send'],['ghost','리포트 보기','report']]},
-      {ic:'📙',title:'펜타트랙',key:'track',sub:'중3 · 학문융합 브릿지',desc:'과목의 경계를 넘는 융합 탐구. 중3 진학 브릿지 코스로 이어집니다.',badge:['b-off','미수강'],actions:[['ghost','샘플 보기','sample']]}
-    ];
+    var penta=opts.penta||pentaCards(band).map(function(pc,i){
+      return (i===0)
+        ? {ic:pc.ic,title:pc.title,key:pc.key,sub:esc(cName)+' · '+(cGrade||vm.recSub)+' 권장',desc:'이번 주 회차를 보내면 자녀가 수행하고 성장 리포트가 회신됩니다.',badge:['b-new','새 리포트 1'],actions:[['gold','회차 보내기','send'],['ghost','리포트 보기','report']]}
+        : {ic:pc.ic,title:pc.title,key:pc.key,sub:'다음 단계',desc:'준비되면 이 코스로 이어집니다.',badge:['b-off','미수강'],actions:[['ghost','샘플 보기','sample']]};
+    });
 
     var toolNames=[]; if(showArche)toolNames.push('진로 징검다리·수행평가'); if(showPenta)toolNames.push('펜타');
     var creditDesc=toolNames.join(' · ')+' 각 1회 · 남은 체험 '+esc(credits)+'개';
@@ -143,10 +150,11 @@
     var arche=opts.arche||[
       {ic:'📝',title:'수행평가 도우미',key:'perf',desc:'학교 수행평가 안내문을 올리면 관점부터 함께 잡아줘요.',badge:['b-trial','체험 1회'],actions:[['pri','시작하기 →','start']]}
     ];
-    var penta=opts.penta||[
-      {ic:vm.ic,title:vm.title,key:vm.key,sub:'내 코스',desc:'받은 회차를 수행하고, 탐구 전/후 지성 레이더로 성장을 확인해요.',badge:['b-new','회차 1'],actions:[['gold','워크북 열기 →','open']]},
-      {ic:'📙',title:'펜타트랙',key:'track',sub:'중3 · 학문융합',desc:'과목의 경계를 넘는 융합 탐구. 다음 단계로 이어지는 코스예요.',badge:['b-off','준비 중'],actions:[['ghost','미리 보기','sample']]}
-    ];
+    var penta=opts.penta||pentaCards(band).map(function(pc,i){
+      return (i===0)
+        ? {ic:pc.ic,title:pc.title,key:pc.key,sub:'내 코스',desc:'받은 회차를 수행하고, 탐구 전/후 지성 레이더로 성장을 확인해요.',badge:['b-new','회차 1'],actions:[['gold','워크북 열기 →','open']]}
+        : {ic:pc.ic,title:pc.title,key:pc.key,sub:'다음 단계',desc:'다음 단계로 이어지는 코스예요.',badge:['b-off','준비 중'],actions:[['ghost','미리 보기','sample']]};
+    });
     var got=inbox.length;
 
     var html='<section class="b2cd-view">'
