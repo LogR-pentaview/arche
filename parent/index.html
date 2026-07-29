@@ -2065,6 +2065,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=1"></script>
 <script src="/shared/arche_b2c.js?v=1"></script>
+<script src="/shared/arche_b2c_dash.js?v=1"></script>
 <script src="/shared/arche_career_bridge.js"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
@@ -2114,6 +2115,7 @@ function go(el){
   document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
   var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
+  if(v==='home' && window._isB2C && window.renderB2CParentHome){ try{ renderB2CParentHome(); }catch(e){} }
   if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
@@ -2471,6 +2473,7 @@ async function enterApp(session){
   document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+u.email+(isAdmin?' · 관리자':'');
   gate.style.display='none';
   try{ applyB2CLabels(); }catch(e){}
+  try{ if(window._isB2C && window.renderB2CParentHome) setTimeout(renderB2CParentHome,0); }catch(e){}
   if(isAdmin){
     document.body.classList.add('admin-mode');
     var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
@@ -2551,9 +2554,26 @@ async function enterParentViewer(session){
   pvInjectCss();
   var root=document.getElementById('pv-root'); if(!root){ root=document.createElement('div'); root.id='pv-root'; document.body.appendChild(root); }
   if(!stu){ root.innerHTML='<div class="pv-wrap"><div class="pv-empty">연결된 자녀 정보를 찾지 못했어요.<br>학원에서 발급한 학부모 아이디로 로그인했는지 확인해 주세요.<br><br><button class="pv-btn" onclick="sbSignOutReload()">로그아웃</button></div></div>'; return; }
-  // 신규 B2C 메뉴 엔진(아르케/펜타 · 시즌 골라담기). 미로드 시 기존 대시보드로 폴백.
-  if(window.ArcheParentMenu){ pvMountMenuEngine(root, stu); }
+  // 학부모 대시보드(b2c) 우선 → 메뉴 엔진 → 기존 대시보드 순 폴백.
+  if(window.ArcheParentDash){ pvMountParentDash(root, stu); }
+  else if(window.ArcheParentMenu){ pvMountMenuEngine(root, stu); }
   else { pvRenderDashboard(root, stu); }
+}
+function pvMountParentDash(root, stu){
+  function openPenta(){ pvOpenPenta(stu); }
+  ArcheParentDash.mount(root, {
+    parent:{ name:'학부모' },
+    child:{ name: stu.name, grade: stu.grade },
+    onLogout: sbSignOutReload,
+    onUpsell: openPenta,
+    onAction: function(sec, act, key){
+      if(sec==='penta'){ openPenta(); return; }
+      var body=pvOverlay();
+      body.innerHTML='<div style="background:#fff;border-radius:16px;padding:26px 22px;text-align:center">'
+        +'<h2 style="color:#1A237E;margin:0 0 8px;font-size:18px">아르케 · 자녀에게 보내기</h2>'
+        +'<div style="font-size:12.5px;color:#8b95a1;line-height:1.7">진로 징검다리·수행평가는 <b>자녀 계정</b>에서 수행합니다. 곧 제공될 전송 기능으로 자녀에게 회차를 보낼 수 있어요.</div></div>';
+    }
+  });
 }
 function pvMountMenuEngine(root, stu){
   function openPenta(){ pvOpenPenta(stu); }
@@ -2701,6 +2721,38 @@ function pvSample(c){
 }
 window.enterParentViewer=enterParentViewer;
 
+// ── B2C 학부모(메인 앱) 홈 = 학부모 대시보드 ──
+function b2cBand(g){ g=String(g||''); if(g.indexOf('중')>=0)return '중'; if(g.indexOf('초')>=0)return '초'; return '고'; }
+function b2cOpenChildPenta(child, key){
+  try{ window._activeStudent=child; }catch(e){}
+  var band=b2cBand(child&&child.grade);
+  var idx = (key==='vision_basic')?0 : (key==='track')?2 : (key==='vision_adv')?1 : (band==='초'?0:1);
+  var navs=document.querySelectorAll('#grp-penta .nav');
+  if(navs[idx]) navs[idx].click(); else if(navs[0]) navs[0].click();
+}
+async function renderB2CParentHome(){
+  if(!window._isB2C || !window.ArcheParentDash) return;
+  var v=document.getElementById('v-home'); if(!v) return;
+  var child=window._activeStudent;
+  if(!child){
+    try{ var r=await sb.from('students').select('*').order('created_at',{ascending:true}).limit(1); if(r&&r.data&&r.data[0]){ child=r.data[0]; window._activeStudent=child; } }catch(e){}
+  }
+  if(!child) return; // 등록된 자녀 없으면 기존 홈(등록 안내) 유지
+  ArcheParentDash.mount(v, {
+    parent:{ name: (window._parentName||'학부모') },
+    child:{ name: child.name, grade: child.grade },
+    onLogout: function(){ if(window.sbSignOutReload) sbSignOutReload(); else location.reload(); },
+    onUpsell: function(){ var b=document.querySelector('.nav[data-v="billing"]'); if(b) go(b); },
+    onAction: function(sec, act, key){
+      if(sec==='penta' || (sec==='inbox' && act==='open')){ b2cOpenChildPenta(child, key); return; }
+      var band=b2cBand(child.grade);
+      var v2 = (key==='sr')? (band==='중'?'gdesign':'sr') : (key==='perf')? (band==='중'?'gperf':'perf') : null;
+      if(v2){ var n=document.querySelector('.nav[data-v="'+v2+'"]'); if(n) go(n); }
+    }
+  });
+}
+window.renderB2CParentHome=renderB2CParentHome;
+
 async function enterStudentApp(session){
   if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
@@ -2758,6 +2810,19 @@ async function enterStudentApp(session){
 function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
   var s=window._activeStudent||{};
+  if(window.ArcheChildDash){
+    ArcheChildDash.mount(v, {
+      student:{ name:s.name, grade:s.grade },
+      onLogout: function(){ if(window.sbSignOutReload) sbSignOutReload(); else location.reload(); },
+      onAction: function(sec, act, key){
+        var band=b2cBand(s.grade);
+        if(sec==='penta' || act==='open'){ var pi=(band==='초')?0:1; var navs=document.querySelectorAll('#grp-penta .nav'); if(navs[pi])navs[pi].click(); else if(navs[0])navs[0].click(); return; }
+        var v2 = (key==='sr1'||key==='sr')? (band==='중'?'gdesign':'sr') : (key==='perf')? (band==='중'?'gperf':'perf') : null;
+        if(v2){ var n=document.querySelector('.nav[data-v="'+v2+'"]'); if(n)n.click(); }
+      }
+    });
+    return;
+  }
   var menus;
   if(window._stuLevel==='초'){
     v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">융합사고 역량 코스</div>'+
