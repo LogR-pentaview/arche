@@ -2303,6 +2303,14 @@ function applyB2CLabels(){
   var bcNav=document.querySelector('.nav[data-v="basecon"]'); if(bcNav)bcNav.style.display='none';
   // B2C 사이드바를 아르케/펜타 아코디언 구조로 재구성 (입시 전용 메뉴는 비노출)
   try{ if(window.applyB2CSidebar) applyB2CSidebar(window._activeStudent?b2cBand(window._activeStudent.grade):'중'); }catch(e){}
+  // 모든 data-b2c 라벨 치환 (학생→자녀 등)
+  document.querySelectorAll('[data-b2c]').forEach(function(el){ if(el.dataset.b2cDone)return; el.textContent=el.dataset.b2c; el.dataset.b2cDone='1'; });
+  // 관리 화면 하드코딩 '학생' → '자녀'
+  try{ if(window.b2cRelabelText) b2cRelabelText(); }catch(e){}
+  // 등록 학년 select 코스 라벨 (중=아르케+융합사고 / 고=아르케)
+  try{ var gsel=document.getElementById('as-grade'); if(gsel){ var og=gsel.querySelectorAll('optgroup'); if(og[0])og[0].label='초등 → 융합사고(펜타)'; if(og[1])og[1].label='중학생 → 아르케 + 융합사고'; if(og[2])og[2].label='고등학생 → 아르케'; } }catch(e){}
+  // 설정: B2C 비밀번호 변경 패널
+  try{ if(window.b2cRenderSettings) b2cRenderSettings(); }catch(e){}
   var cwSub=document.getElementById('cwb-sub'); if(cwSub)cwSub.textContent='선생님이 배포한 코스입니다 · 차시를 순서대로 진행하세요';
   // 3-4) 익명 벤치마크 동의는 학부모(법정대리인 본인 동의) 모드에서만 노출 — 학원(B2B)은 미제공
   var benchRow=document.getElementById('st-bench-row'); if(benchRow)benchRow.style.display='flex';
@@ -2774,12 +2782,55 @@ function applyB2CSidebar(band){
   if(penta.length){
     h+='<div class="navgroup penta" id="b2c-grp-penta"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-penta\')">'+emo('✦')+'펜타 시리즈'+caret+'</div><div class="navsub">'+itemsHTML(penta,true)+'</div></div>';
   }
+  h+='<div class="navgroup" id="b2c-grp-news" style="margin-top:6px"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-news\')">'+emo('📢')+'본사 소식'+caret+'</div><div class="navsub">'
+    +'<div class="nav" onclick="b2cHqOpen(\'notice\')">'+emo('📌')+' 공지</div>'
+    +'<div class="nav" onclick="b2cHqOpen(\'news\')">'+emo('📰')+' 교육뉴스</div>'
+    +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>'
+    +'</div></div>';
   h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
   h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
   h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
   host.innerHTML=h;
 }
 window.applyB2CSidebar=applyB2CSidebar;
+// 본사 소식 열기(카테고리 필터)
+function b2cHqOpen(f){ goView('hqnews'); setTimeout(function(){ if(window.hqFilter){ try{ hqFilter(f); }catch(e){} } },80); }
+window.b2cHqOpen=b2cHqOpen;
+// 관리 화면 하드코딩 '학생' → '자녀' (중/고등/대학생 보호)
+function b2cRelabelText(){
+  function rep(t){ return t.replace(/중학생/g,'@@MS@@').replace(/고등학생/g,'@@HS@@').replace(/대학생/g,'@@US@@').replace(/학생/g,'자녀').replace(/@@MS@@/g,'중학생').replace(/@@HS@@/g,'고등학생').replace(/@@US@@/g,'대학생'); }
+  ['v-allstudents','v-students','v-gstudents'].forEach(function(id){
+    var root=document.getElementById(id); if(!root)return;
+    var w=document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), nodes=[]; while(w.nextNode())nodes.push(w.currentNode);
+    nodes.forEach(function(tn){ if(tn.nodeValue.indexOf('학생')>=0){ var nt=rep(tn.nodeValue); if(nt!==tn.nodeValue)tn.nodeValue=nt; } });
+    root.querySelectorAll('input,textarea').forEach(function(el){ if(el.placeholder&&el.placeholder.indexOf('학생')>=0)el.placeholder=rep(el.placeholder); });
+  });
+}
+// 설정: B2C용 비밀번호 변경 패널
+function b2cRenderSettings(){
+  var v=document.getElementById('v-settings'); if(!v) return;
+  var ak=document.getElementById('apikey-card'); if(ak)ak.style.display='none';
+  var tc=document.getElementById('team-card'); if(tc)tc.style.display='none';
+  var sub=v.querySelector('.sub'); if(sub)sub.textContent='계정·비밀번호를 관리합니다';
+  if(document.getElementById('b2c-settings')) return;
+  var panel=document.createElement('div'); panel.id='b2c-settings';
+  panel.style.cssText='max-width:560px;margin-top:18px;display:flex;flex-direction:column;gap:16px';
+  panel.innerHTML=
+    '<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
+      +'<div class="sectionhead"><span class="idx">🔑</span><h3>학부모 비밀번호 변경</h3></div>'
+      +'<div style="font-size:12.5px;color:var(--ink-dim);margin:6px 0 12px">학부모 계정(로그인) 비밀번호를 변경합니다.</div>'
+      +'<button onclick="b2cChangeParentPw()" style="background:var(--blue);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit">학부모 비밀번호 변경</button>'
+    +'</div>'
+    +'<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
+      +'<div class="sectionhead"><span class="idx">👧</span><h3>자녀 비밀번호 변경</h3></div>'
+      +'<div style="font-size:12.5px;color:var(--ink-dim);margin:6px 0 12px">자녀 로그인 비밀번호를 초기 비밀번호(0000)로 재설정합니다. 자녀는 다음 로그인 후 새 비밀번호로 바꾸게 됩니다.</div>'
+      +'<button onclick="b2cResetChildPw()" style="background:var(--gold);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit">자녀 비밀번호 초기화</button>'
+    +'</div>';
+  v.appendChild(panel);
+}
+function b2cChangeParentPw(){ var np=prompt('새 비밀번호 입력 (4자 이상)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.'); sb.auth.updateUser({password:np}).then(function(r){ if(r.error)return alert('변경 실패: '+r.error.message); alert('학부모 비밀번호가 변경되었습니다.'); }); }
+function b2cResetChildPw(){ var c=window._activeStudent; if(!c||!c.id)return alert('자녀 정보를 찾을 수 없습니다. 홈에서 자녀를 먼저 등록/선택하세요.'); if(window.resetStudentPw)resetStudentPw(c.id); }
+window.b2cChangeParentPw=b2cChangeParentPw; window.b2cResetChildPw=b2cResetChildPw; window.b2cRelabelText=b2cRelabelText; window.b2cRenderSettings=b2cRenderSettings;
 async function renderB2CParentHome(){
   if(!window._isB2C || !window.ArcheParentDash) return;
   var v=document.getElementById('v-home'); if(!v) return;
