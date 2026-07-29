@@ -236,6 +236,26 @@ section.alt{background:var(--bg)}
 .pbridge .pbt h4{font-size:15px;font-weight:800;color:#fff}
 .pbridge .pbt p{font-size:12.5px;color:#aab6c8;font-weight:500;margin-top:6px;line-height:1.7}
 
+/* 펜타 시즌 구성 */
+.pseason{margin-top:40px;text-align:left}
+.pseason .psh{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:.05em;text-align:center}
+.pseason .psl{font-size:13px;color:#aab6c8;font-weight:500;text-align:center;max-width:620px;margin:10px auto 0;line-height:1.7}
+.pseason .psl b{color:#fff}
+.psgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:22px}
+.pscol{background:#1b2334;border:1px solid #283349;border-radius:20px;padding:22px 22px}
+.pscol.vision{border-color:rgba(200,162,74,.35)}
+.pscol.track{border-color:rgba(182,227,74,.3)}
+.pscol .pch{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:800;color:#fff;flex-wrap:wrap}
+.pscol .pcsub{font-size:11.5px;color:#8b97ab;font-weight:600;margin:6px 0 4px;line-height:1.55}
+.psrow{display:flex;gap:12px;padding:12px 0;border-top:1px solid #283349;align-items:flex-start}
+.psrow .psn{flex:none;font-size:10px;font-weight:800;color:var(--gold);background:rgba(200,162,74,.14);border-radius:20px;padding:4px 9px;white-space:nowrap;margin-top:1px}
+.pscol.track .psrow .psn{color:var(--lime);background:rgba(182,227,74,.14)}
+.psrow .pst b{display:block;font-size:13px;font-weight:700;color:#fff;line-height:1.45}
+.psrow .pst span{display:block;font-size:11px;color:#8b97ab;font-weight:600;margin-top:2px}
+.pscol .psfoot{margin-top:14px;font-size:10.5px;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:6px}
+.pscol.track .psfoot{color:var(--lime)}
+@media(max-width:900px){.psgrid{grid-template-columns:1fr}}
+
 /* 펜타 샘플 미리보기 */
 .psub{font-size:12px;font-weight:800;color:var(--gold);letter-spacing:.05em;margin:40px 0 16px;text-align:center}
 .psample{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:8px}
@@ -696,6 +716,30 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
           <li>담당 컨설턴트가 리포트를 해석해 학부모에게 전달</li>
         </ul>
         <div class="pcta"><a class="btn navy" href="mailto:gwkim06@naver.com?subject=펜타 트랙 문의">트랙 상담 문의</a></div>
+      </div>
+    </div>
+
+    <!-- 시즌별 구성 안내 -->
+    <div class="pseason reveal">
+      <div class="psh">SEASON LINEUP · 시즌별 구성</div>
+      <p class="psl">각 코스는 <b>시즌으로 구성</b>되어, 원하는 시즌부터 골라 담아 시작합니다. 각 시즌은 <b>독립적으로 수강·완주</b>할 수 있고, <b>첫 강은 무료 체험</b>입니다.</p>
+      <div class="psgrid">
+        <div class="pscol vision">
+          <div class="pch">📘 펜타 비전 <span style="font-size:11px;font-weight:700;color:#8b97ab">· 기초(초5~6) · 심화(중1~2)</span></div>
+          <div class="pcsub">5대 지성으로 세상을 읽는 사고력 — 시즌마다 분야를 고르게</div>
+          <div class="psrow"><span class="psn">시즌 1</span><div class="pst"><b>근대 민주주의와 경제의 탄생</b><span>역사 · 정치 · 경제 · 11강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 2</span><div class="pst"><b>세상을 읽는 눈</b><span>통계 · 문화 · 문학 · 15강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>원인을 묻고 미래를 설계하다</b><span>철학 · 과학 · 디지털 · 15강</span></div></div>
+          <div class="psfoot">🎟️ 각 시즌 1강 무료 체험</div>
+        </div>
+        <div class="pscol track">
+          <div class="pch">📙 펜타 트랙 <span style="font-size:11px;font-weight:700;color:#8b97ab">· 중3 · 학문융합</span></div>
+          <div class="pcsub">과목의 경계를 넘는 융합 탐구 — 시즌마다 12주제</div>
+          <div class="psrow"><span class="psn">시즌 1</span><div class="pst"><b>기후·감염·경제 등 융합 탐구</b><span>과학×사회 · 수학×보건 등 · 12강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 2</span><div class="pst"><b>AI·백신·화폐 등 융합 탐구</b><span>기술×경제 · 생명×윤리 등 · 12강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>재난·뇌과학·에너지 등 융합 탐구</b><span>통계×사회 · 과학×철학 등 · 12강</span></div></div>
+          <div class="psfoot">🎟️ 각 시즌 1강 무료 체험</div>
+        </div>
       </div>
     </div>
 
