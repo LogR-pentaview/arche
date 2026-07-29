@@ -81,6 +81,14 @@ async function resolveRole(user) {
     info.academy = ac;
     info.isAdmin = !!ac.is_admin;
     info.accountType = ac.account_type || info.accountType;   // b2b(학원) / b2c(학부모)
+  } else if (info.role === 'student' || info.role === 'parent') {
+    /* 학생·학부모(자녀 계정)는 학원 소유자도 academy_users 소속도 아니라
+       위 조회로 account_type을 못 찾음 → 기본값 b2b로 잘못 라우팅되던 버그.
+       SECURITY DEFINER RPC my_account_type()로 본인 학원 유형을 판별한다. */
+    try {
+      const { data: at } = await sb.rpc('my_account_type');
+      if (at) info.accountType = at;   // 'b2c'면 /parent 로 라우팅됨
+    } catch (e) { /* RPC 미배포 등 → 기본값 유지 */ }
   }
   return info;
 }
