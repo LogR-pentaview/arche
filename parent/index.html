@@ -2719,7 +2719,13 @@ function pvOpenList(title, items){
   if(window.ArcheParentHub) ArcheParentHub.renderList(wrap.querySelector('#pv-listmount'), items||[]);
 }
 function pvEsc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(x){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x];});}
-function pvOverlay(){ var ov=document.createElement('div'); ov.className='pv-ov'; ov.innerHTML='<div class="pv-ovc"><div class="pv-ovx"><button>✕ 닫기</button></div><div class="pv-ovbody"></div></div>'; document.body.appendChild(ov); ov.querySelector('.pv-ovx button').addEventListener('click',function(){ov.remove();}); return ov.querySelector('.pv-ovbody'); }
+function pvOverlay(){ var ov=document.createElement('div'); ov.className='pv-ov';
+  /* [모달 고정] pv 스타일 미주입 플로우(b2c 대시보드 등)에서도 항상 화면 중앙 모달로 뜨도록 인라인 스타일 강제 */
+  ov.style.cssText='position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:3000;overflow:auto;padding:20px 12px;-webkit-overflow-scrolling:touch';
+  ov.innerHTML='<div class="pv-ovc" style="max-width:900px;margin:0 auto;background:#eef1f8;border-radius:18px;padding:14px"><div class="pv-ovx" style="display:flex;justify-content:flex-end;position:sticky;top:0;z-index:1"><button style="border:none;background:#1A237E;color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer">✕ 닫기</button></div><div class="pv-ovbody"></div></div>';
+  document.body.appendChild(ov); document.body.style.overflow='hidden';
+  ov.querySelector('.pv-ovx button').addEventListener('click',function(){ ov.remove(); document.body.style.overflow=''; });
+  return ov.querySelector('.pv-ovbody'); }
 function pvOpenPenta(stu){
   var body=pvOverlay();
   if(window.ArchePentaApp){ window.__PENTA_ROLE='parent'; window._activeStudent=stu; ArchePentaApp.mountRole(body, 'parent', {course:null}); }
