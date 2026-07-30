@@ -152,6 +152,8 @@
     document.getElementById('s-name').placeholder = (t==='b2b') ? '학원명' : '성함 (또는 학생 이름)';
   }
   window.setType = setType;
+  /* [b2c 전용 운영] 신규 가입은 학부모(b2c)만 — 학원 토글 숨기고 기본 b2c 고정 */
+  try{ setType('b2c'); var _tb2b=document.getElementById('t-b2b'); if(_tb2b)_tb2b.style.display='none'; }catch(_e){}
 
   /* 아이디 → 이메일 변환 (기존 규칙과 동일) */
   var ADMIN_EMAIL = 'admin@arche.penta-view.com';
@@ -247,6 +249,8 @@
 
     signupBtn.disabled = true; setMsg(sMsg,'가입 중…');
     try{
+      /* [b2c 전용 운영] 학원(b2b) 신규 가입 차단 — 학부모(b2c)만 허용 */
+      if(signupType!=='b2c'){ setMsg(sMsg,'현재 신규 학원(원장) 가입은 받지 않습니다. 도입 문의는 본사로 연락해 주세요.'); signupBtn.disabled=false; return; }
       var meta = { academy_name:name, account_type:signupType };
       if(refManagerId) meta.referred_by = refManagerId;   // 매니저 귀속 (서버 트리거가 검증·적용)
       var up = await sb.auth.signUp({ email: email, password: pw, options:{ data: meta } });
