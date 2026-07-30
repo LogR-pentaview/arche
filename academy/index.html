@@ -2127,7 +2127,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_career_bridge.js"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
-<script src="/shared/arche_b2c_dash.js?v=3"></script>
+<script src="/shared/arche_b2c_dash.js?v=4"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2567,7 +2567,9 @@ async function guestSignup(){
     alert('체험 계정이 발급되었습니다.\n\n아이디: '+d.login_id+'\n비밀번호: '+d.password+'\n유효기간: '+(d.expires_at||'').slice(0,10)+'까지\n\n※ 이 정보를 꼭 메모해 두세요. 지금 바로 로그인합니다.');
     var {data:sd,error:se}=await sb.auth.signInWithPassword({email:d.auth_email,password:d.password});
     if(se){m.style.color='var(--risk)';m.textContent='자동 로그인 실패: '+se.message;btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
-    enterApp(sd.session);
+    /* [b2c 전용 운영] 체험 계정을 b2c로 전환하고 무조건 학부모(parent) 앱으로 진입 */
+    try{ await sb.from('academies').update({account_type:'b2c'}).eq('owner_uid', sd.session.user.id); }catch(_e){}
+    location.replace('/parent');
   }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';}
 }
 function setupDemoMode(){
@@ -2881,6 +2883,8 @@ document.getElementById('au-login').onclick=async()=>{
 document.getElementById('au-signup').onclick=async()=>{
   if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
   var isParent=(window._loginRole==='parent');
+  /* [b2c 전용 운영] 학원(원장·b2b) 신규 가입 차단 */
+  if(!isParent)return msg('현재 신규 학원(원장) 가입은 받지 않습니다. 도입 문의는 본사로 연락해 주세요.');
   var nmv=document.getElementById('au-name').value.trim();
   if(!nmv)return msg(isParent?'성함(또는 학생 이름)을 입력하세요.':'학원명을 입력하세요.');
   msg('가입 중…',true);
