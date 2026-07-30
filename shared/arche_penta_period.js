@@ -90,6 +90,17 @@
   + ".ppr .mrow .fbar{display:flex;align-items:center;gap:8px;margin-top:10px}.ppr .mrow .fbar .bt{flex:1;height:7px;border-radius:5px;background:var(--line-soft);overflow:hidden}.ppr .mrow .fbar .bt i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--acc),var(--acc-l))}.ppr .mrow .fbar .bn{font-family:var(--mono);font-size:9px;color:var(--mute);font-weight:700}"
   + ".ppr .mrow .why{font-size:11.5px;color:var(--dim);line-height:1.62;margin-top:10px;padding-top:10px;border-top:1px solid var(--line-soft)}.ppr .mrow .why b{color:var(--ink)}"
   + ".ppr .mrow .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}.ppr .mrow .tags span{font-size:10px;font-weight:700;color:var(--dim);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 8px}.ppr .mrow .tags .k{color:var(--acc-d);background:var(--acc-soft);border-color:var(--acc-l)}"
+  + ".ppr .cninfo{margin-top:11px;padding-top:11px;border-top:1px dashed var(--line)}"
+  + ".ppr .cninfo .cnh{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--navy);margin-bottom:6px}"
+  + ".ppr .cninfo .cnh .src{font-family:var(--mono);font-size:8.5px;color:#fff;background:#3182f6;border-radius:4px;padding:2px 6px;letter-spacing:.03em}"
+  + ".ppr .cninfo .cnh .maj{color:var(--acc-d)}"
+  + ".ppr .cninfo .sum{font-size:11.5px;color:var(--dim);line-height:1.65;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}"
+  + ".ppr .cninfo .cnrow{display:flex;gap:7px;margin-top:6px;align-items:flex-start}"
+  + ".ppr .cninfo .cnk{font-size:9.5px;font-weight:800;color:var(--mute);flex:none;width:52px;padding-top:3px}"
+  + ".ppr .cninfo .cnv{display:flex;flex-wrap:wrap;gap:4px;flex:1}"
+  + ".ppr .cninfo .cnv span{font-size:10px;font-weight:700;color:var(--dim);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 7px}"
+  + ".ppr .cninfo .cnv.subj span{color:#1b64da;background:#eef3ff;border-color:#d7e4fb}"
+  + ".ppr .cninfo .cnv.job span{color:var(--acc-d);background:var(--acc-soft);border-color:var(--acc-l)}"
   + ".ppr .stair{display:flex;align-items:flex-end;gap:8px;margin:2px 18px 4px;background:#fff;border:1px solid var(--line-soft);border-radius:15px;padding:15px 13px 13px}"
   + ".ppr .stp{flex:1;border-radius:10px 10px 8px 8px;padding:10px 6px 9px;text-align:center;color:#fff}"
   + ".ppr .stp.s1{height:82px;background:#46527a}.ppr .stp.s2{height:102px;background:#2a3a58}.ppr .stp.s3{height:122px;background:var(--navy)}"
@@ -236,6 +247,7 @@
           + '<div class="fbar"><div class="bt"><i style="width:'+fit+'%"></i></div><span class="bn">'+fit+' / 100</span></div>'
           + (c.why?('<div class="why"><b>왜 잘 맞나요?</b> '+esc(c.why)+'</div>'):'')
           + (tags?('<div class="tags">'+tags+'</div>'):'')
+          + cnInfoHTML(c.cn)
           + '</div>'));
       });
       box.appendChild(mm);
@@ -289,6 +301,21 @@
     return out.slice(0,4);
   }
 
+  // 커리어넷 학과·진로 정보 블록(대학 목록 없음)
+  function cnInfoHTML(cn){
+    if(!cn || (!cn.summary && !(cn.subjects&&cn.subjects.length) && !(cn.jobs&&cn.jobs.length)))return '';
+    var subj=(cn.subjects||[]).map(function(s){return '<span>'+esc(s)+'</span>';}).join('');
+    var jobs=(cn.jobs||[]).map(function(s){return '<span>'+esc(s)+'</span>';}).join('');
+    var rel=(cn.related||[]).map(function(s){return '<span>'+esc(s)+'</span>';}).join('');
+    return '<div class="cninfo">'
+      + '<div class="cnh"><span class="src">커리어넷</span> 관련 학과 · <span class="maj">'+esc(cn.major||'')+'</span>'+(cn.series?(' <span style="color:var(--mute);font-weight:600">('+esc(cn.series)+')</span>'):'')+'</div>'
+      + (cn.summary?('<div class="sum">'+esc(cn.summary)+'</div>'):'')
+      + (subj?('<div class="cnrow"><span class="cnk">관련 교과</span><div class="cnv subj">'+subj+'</div></div>'):'')
+      + (jobs?('<div class="cnrow"><span class="cnk">관련 직업</span><div class="cnv job">'+jobs+'</div></div>'):'')
+      + (rel?('<div class="cnrow"><span class="cnk">관련 학과</span><div class="cnv">'+rel+'</div></div>'):'')
+      + '</div>';
+  }
+
   // ── 발행자(학부모/컨설턴트) 관리 UI ─────────────────────────────────────
   var PERIODS=[{k:'monthly',n:'월간'},{k:'quarterly',n:'분기'},{k:'half',n:'반기'},{k:'annual',n:'연간'}];
 
@@ -321,6 +348,31 @@
     var tok=await token();
     var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:'penta_period_report',payload:payload})});
     var d=await r.json(); if(!r.ok)throw new Error(d.error||'AI 오류'); return d;
+  }
+  // 커리어넷 학과·진로 정보 보강(대학 목록 없음). 실패해도 리포트는 그대로.
+  async function callCareernet(payload){
+    var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/careernet';
+    var tok=await token();
+    var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(payload)});
+    var d=await r.json(); if(!r.ok)throw new Error(d.error||'careernet 오류'); return d;
+  }
+  function majorQueryOf(c){
+    var q=(c.major_query||'').trim();
+    if(!q){ var nm=String(c.name||''); var parts=nm.split(/[·・\/]/); q=(parts[parts.length-1]||nm).trim(); }
+    return q;
+  }
+  async function enrichCareers(rep){
+    if(!rep||!rep.career_match||!rep.career_match.length)return;
+    await Promise.all(rep.career_match.slice(0,3).map(async function(c){
+      try{
+        var q=majorQueryOf(c); if(!q)return;
+        var d=await callCareernet({action:'major_info',query:q});
+        if(d&&d.found){
+          var subj=[]; if(d.subjects&&d.subjects[0]) subj=String(d.subjects[0]).split(/[,ㆍ·]/).map(function(s){return s.trim();}).filter(Boolean).slice(0,6);
+          c.cn={ series:d.series||'', major:d.major||'', summary:d.summary||'', subjects:subj, jobs:(d.jobs||[]).slice(0,5), related:(d.related_majors||[]).slice(0,6) };
+        }
+      }catch(_e){}
+    }));
   }
 
   function mountManage(mount, ctx){
@@ -381,6 +433,7 @@
         var res=await callPeriod(payload);
         var ai; try{ ai=JSON.parse(res.text); }catch(pe){ throw new Error('AI 응답 파싱 실패'); }
         ai.stage=stage; ai.period_type=state.type; ai.period_key=key; ai.period_label=payload.period_label; ai.counts={total:lessons.length}; ai.meta={name:ctx.name,grade:ctx.grade}; ai.status='draft';
+        if(stage==='track'){ try{ await enrichCareers(ai); }catch(_ce){} }
         await sb().rpc('save_penta_period_report',{ p_student:ctx.studentId, p_stage:stage, p_level:level, p_period_type:state.type, p_period_key:key, p_period_label:payload.period_label, p_report:ai, p_status:'draft' });
         toast('분석 완료 · 초안 생성됨'); openReportOverlay(ai); redraw();
       }catch(e){ toast('실패: '+(e.message||e)); btn.disabled=false; btn.innerHTML='✨ 이 기간 분석 실행'; }
