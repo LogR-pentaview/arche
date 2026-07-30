@@ -2063,7 +2063,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_report.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_season_picker.js?v=3"></script>
+<script src="/shared/arche_season_picker.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=4"></script>
 <script src="/shared/arche_career_bridge.js"></script>
@@ -2764,6 +2764,51 @@ function b2cShowSample(sec, key){
   alert('샘플 리포트를 준비 중입니다.');
 }
 window.b2cShowSample=b2cShowSample;
+/* [홈 복귀] b2c 파생 뷰(시즌폴더·가이드)에서 대시보드로 돌아가기 — 학부모/자녀 공용 */
+function b2cGoHome(){ if(window._isB2C && window.renderB2CParentHome){ renderB2CParentHome(); } else if(window.renderStudentHome){ renderStudentHome(); } }
+window.b2cGoHome=b2cGoHome;
+/* [시즌 폴더 뷰] 펜타 코스 클릭 → 시즌(폴더) 명함 목록(ArcheSeasonPicker). 폴더에서 시작하면 워크북으로 진입 */
+function b2cOpenSeasonPicker(child, key){
+  try{ window._activeStudent=child; }catch(e){}
+  var map={ vision_basic:['vision','starter','펜타 비전 기초'], vision_adv:['vision','architecture','펜타 비전 심화'], track:['track','','펜타 트랙'] };
+  var m=map[key]; if(!m){ b2cOpenChildPenta(child,key); return; }
+  var v=document.getElementById('v-home'); if(!v) return;
+  v.innerHTML='<div style="max-width:1000px;margin:0 auto;padding:16px 14px 60px">'
+    +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button>'
+    +'<div id="b2c-season-host"></div></div>';
+  var host=document.getElementById('b2c-season-host');
+  if(window.ArcheSeasonPicker && host){
+    ArcheSeasonPicker.mount(host,{ course:m[0], level:m[1], studentId:(child&&child.id),
+      onOpen:function(){ b2cOpenChildPenta(child,key); },
+      onTrial:function(){ b2cOpenChildPenta(child,key); },
+      onStart:function(){ b2cOpenChildPenta(child,key); } });
+  } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
+}
+window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
+/* [사용 안내] 아르케 사용법 / 융합사고(펜타) 사용법 — 기능별 단계 안내 */
+function b2cOpenGuide(){
+  var v=document.getElementById('v-home'); if(!v) return;
+  function feat(ic,title,desc,steps){
+    return '<div style="background:#fff;border:1px solid #eef1f4;border-radius:14px;padding:16px 18px;margin-bottom:12px">'
+      +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><span style="font-size:20px">'+ic+'</span><div style="font-weight:800;font-size:15px">'+title+'</div></div>'
+      +'<div style="font-size:12.5px;color:#4e5968;line-height:1.6;margin-bottom:10px">'+desc+'</div>'
+      +'<ol style="margin:0;padding-left:18px;font-size:12.5px;color:#191f28;line-height:1.9">'+steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol></div>';
+  }
+  var arche='<div style="font-size:12px;font-weight:800;color:#1b64da;letter-spacing:.02em;margin:6px 2px 10px;display:flex;align-items:center;gap:7px"><span style="width:22px;height:22px;border-radius:7px;background:#e8f3ff;display:grid;place-items:center">🎓</span>아르케 사용법 · 진로/입시 역량</div>'
+    +feat('🪜','진로 징검다리','관심사 인터뷰에서 출발해 진로 탐구 주제를 찾고 보고서 구조를 잡습니다. 자녀가 직접 답하며 진행하고 AI는 방향만 코칭합니다(대필 없음).',['자녀 계정으로 로그인해 <b>진로 징검다리</b>를 엽니다','AI의 관심사 질문에 자녀가 직접 답합니다','나만의 탐구 주제와 보고서 뼈대가 도출됩니다','완성되면 <b>학부모 대시보드</b>에서 리포트를 확인해 코칭합니다'])
+    +feat('📝','수행평가 도우미','학교 수행평가 안내문을 올리면 관점을 스스로 고르게 하고, 그 학생만의 접근 설계도와 예상 채점 기준을 제공합니다. 작성은 자녀 본인이 합니다.',['학교에서 받은 <b>수행평가 안내문</b>을 업로드합니다','AI 인터뷰로 자녀가 관점을 선택합니다','나만의 접근 설계도·예상 채점기준을 확인합니다','자녀가 직접 작성하고 스스로 점검합니다']);
+  var penta='<div style="font-size:12px;font-weight:800;color:#9a7b28;letter-spacing:.02em;margin:22px 2px 10px;display:flex;align-items:center;gap:7px"><span style="width:22px;height:22px;border-radius:7px;background:#f6efdb;display:grid;place-items:center">✦</span>융합사고 사용법 · 펜타 시리즈</div>'
+    +'<div style="background:#fffdf4;border:1px solid #f2e2b0;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#6b5a2a;line-height:1.65;margin-bottom:12px">펜타는 <b>비전 기초(초5~6) → 비전 심화(중1~2) → 트랙(중3)</b> 3단계로 이어지는 융합사고 코스입니다. 5대 지성(수학·논리 / 과학·기술 / 역사·사회 / 심리·인지 / 예술·디자인)을 균형 있게 키웁니다.</div>'
+    +feat('🗂','시즌 폴더 고르기','각 코스는 <b>시즌(폴더)</b>으로 묶여 있고 시즌마다 하나의 큰 주제가 있습니다(예: 근대 민주주의와 경제). 폴더의 명함에서 주제·학습목적을 보고 고릅니다.',['왼쪽 <b>펜타 시리즈</b>에서 코스를 선택합니다','시즌 폴더(시즌1·2·3)의 명함에서 주제를 확인합니다','관심 가는 시즌을 <b>체험 1강</b> 또는 <b>시즌 시작</b>으로 엽니다'])
+    +feat('📘','워크북 학습·성장 확인','자녀가 회차별 워크북을 단계(스텝)대로 풀며 사고를 확장합니다. 탐구 전/후 <b>지성 확장 레이더</b>로 성장을 눈으로 확인합니다.',['시즌 안의 회차(워크북)를 순서대로 진행합니다','읽기·영상·딜레마로 생각을 넓히고 직접 씁니다','탐구 전/후 레이더와 리포트로 성장을 확인합니다','학부모는 리포트를 읽고 아이와 대화로 이어갑니다']);
+  v.innerHTML='<div style="max-width:820px;margin:0 auto;padding:16px 14px 60px">'
+    +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:14px">← 대시보드로</button>'
+    +'<div style="font-size:21px;font-weight:800;margin:2px 2px 2px">사용 안내</div>'
+    +'<div style="font-size:13px;color:#8b95a1;margin:2px 2px 16px">각 기능의 사용 방법을 아르케·펜타로 나눠 안내합니다.</div>'
+    +arche+penta+'</div>';
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.b2cOpenGuide=b2cOpenGuide;
 // 아코디언 토글(인라인 max-height로 확실히 펼침/접힘)
 function b2cToggleGrp(id){ var g=document.getElementById(id); if(!g)return; var sub=g.querySelector('.navsub'); var open=g.classList.toggle('open'); if(sub){ sub.style.setProperty('max-height', open?'820px':'0px','important'); } }
 window.b2cToggleGrp=b2cToggleGrp;
@@ -2794,13 +2839,14 @@ function applyB2CSidebar(band, mode){
   function emo(e){ return '<span style="width:20px;display:inline-block;text-align:center">'+e+'</span>'; }
   function itemsHTML(list, isPenta){
     return list.map(function(it){
-      var oc = isPenta ? ("b2cOpenChildPenta(window._activeStudent||{},'"+e2(it[0])+"')") : ("goView('"+e2(it[0])+"')");
+      var oc = isPenta ? ("b2cOpenSeasonPicker(window._activeStudent||{},'"+e2(it[0])+"')") : ("goView('"+e2(it[0])+"')");
       return '<div class="nav" onclick="'+oc+'">'+emo(it[1])+' '+it[2]+'</div>';
     }).join('');
   }
   /* [사이드바 평면화] 아코디언 접힘으로 본사소식이 안 보이던 문제 → 라벨+항목을 항상 펼친 평면 목록으로 렌더 */
   function lbl(t){ return '<div style="font-size:10.5px;font-weight:800;color:var(--ink-mute,#8b95a1);padding:12px 12px 4px;letter-spacing:.03em">'+t+'</div>'; }
   var h='<div class="nav" onclick="goView(\'home\')">'+emo('🏠')+' 홈</div>';
+  h+='<div class="nav" onclick="b2cOpenGuide()">'+emo('📖')+' 사용 안내</div>';
   if(arche.length){ h+=lbl('아르케')+itemsHTML(arche,false); }
   if(penta.length){ h+=lbl('펜타 시리즈')+itemsHTML(penta,true); }
   h+=lbl('본사 소식')
@@ -2871,12 +2917,15 @@ async function renderB2CParentHome(){
     onUpsell: function(){ var b=document.querySelector('.nav[data-v="billing"]'); if(b) go(b); },
     onAction: function(sec, act, key){
       if(act==='sample'){ b2cShowSample(sec, key); return; }
-      if(sec==='penta' || (sec==='inbox' && act==='open')){ b2cOpenChildPenta(child, key); return; }
+      if(sec==='penta'){ b2cOpenSeasonPicker(child, key); return; }
+      if(sec==='inbox' && act==='open'){ b2cOpenChildPenta(child, key); return; }
       var band=b2cBand(child.grade);
       var v2 = (key==='sr')? (band==='중'?'gdesign':'sr') : (key==='perf')? (band==='중'?'gperf':'perf') : null;
       if(v2){ var n=document.querySelector('.nav[data-v="'+v2+'"]'); if(n) go(n); }
     }
   });
+  /* [사용 안내] 학부모 홈 상단에 사용안내 배너 삽입 */
+  try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cOpenGuide()'); _bn.innerHTML='<span style="font-size:22px">📖</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 사용 안내 보기</div><div style="font-size:12px;color:#6b7688">아르케·펜타 각 기능 사용법을 한눈에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
 }
 window.renderB2CParentHome=renderB2CParentHome;
 
