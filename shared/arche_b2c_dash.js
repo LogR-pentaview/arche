@@ -94,7 +94,7 @@
   function mountParent(root, opts){
     opts=opts||{}; injectCSS(); root=el(root); if(!root)return;
     var p=opts.parent||{}, c=opts.child||{};
-    var pName=p.name||'학부모', cName=c.name||'자녀', cGrade=c.grade||'';
+    var pName=(p.name||'').trim(); if(pName==='학부모')pName=''; var cName=c.name||'자녀', cGrade=c.grade||'';
     var credits=(opts.credits!=null)?opts.credits:4;
     var band=opts.band||bandOf(cGrade);
     var showArche=(band!=='초'), showPenta=(band!=='고');
@@ -116,8 +116,8 @@
 
     var html='<section class="b2cd-view">'
       +'<div class="hero blue"><button class="lo" data-lo>로그아웃</button>'
-        +'<div class="av">'+esc(pName.slice(0,1))+'</div>'
-        +'<div class="who"><div class="eb">ARCHE · 학부모</div><h1>'+esc(pName)+' 학부모님</h1>'
+        +'<div class="av">'+(pName?esc(pName.slice(0,1)):'👤')+'</div>'
+        +'<div class="who"><div class="eb">ARCHE · 학부모</div><h1>'+(pName?esc(pName)+' ':'')+'학부모님</h1>'
         +'<div class="meta"><span class="chip">자녀 · '+esc(cName)+(cGrade?(' ('+esc(cGrade)+')'):'')+'</span><span class="chip">학부모–학생 루프</span></div></div></div>'
       +'<div class="credit"><span class="ci">🎟️</span><div><div class="ct">체험 크레딧 사용 중</div><div class="cd">'+creditDesc+'</div></div><a class="btn pri sm cta" data-upsell>구독으로 전환</a></div>';
     if(showArche) html+='<div class="sec-t"><span class="pip a">🎓</span>아르케 · 진로/입시 역량</div><div class="grid" id="b2cd-p-arche"></div>';
