@@ -2065,7 +2065,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
-<script src="/shared/arche_b2c_dash.js?v=3"></script>
+<script src="/shared/arche_b2c_dash.js?v=4"></script>
 <script src="/shared/arche_career_bridge.js"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
@@ -2517,7 +2517,9 @@ async function guestSignup(){
     alert('체험 계정이 발급되었습니다.\n\n아이디: '+d.login_id+'\n비밀번호: '+d.password+'\n유효기간: '+(d.expires_at||'').slice(0,10)+'까지\n\n※ 이 정보를 꼭 메모해 두세요. 지금 바로 로그인합니다.');
     var {data:sd,error:se}=await sb.auth.signInWithPassword({email:d.auth_email,password:d.password});
     if(se){m.style.color='var(--risk)';m.textContent='자동 로그인 실패: '+se.message;btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
-    enterApp(sd.session);
+    /* [b2c 전용 운영] 체험 계정을 b2c로 전환하고 무조건 학부모(parent) 앱으로 진입 */
+    try{ await sb.from('academies').update({account_type:'b2c'}).eq('owner_uid', sd.session.user.id); }catch(_e){}
+    location.replace('/parent');
   }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';}
 }
 function setupDemoMode(){
@@ -2796,19 +2798,15 @@ function applyB2CSidebar(band, mode){
       return '<div class="nav" onclick="'+oc+'">'+emo(it[1])+' '+it[2]+'</div>';
     }).join('');
   }
-  var caret='<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>';
+  /* [사이드바 평면화] 아코디언 접힘으로 본사소식이 안 보이던 문제 → 라벨+항목을 항상 펼친 평면 목록으로 렌더 */
+  function lbl(t){ return '<div style="font-size:10.5px;font-weight:800;color:var(--ink-mute,#8b95a1);padding:12px 12px 4px;letter-spacing:.03em">'+t+'</div>'; }
   var h='<div class="nav" onclick="goView(\'home\')">'+emo('🏠')+' 홈</div>';
-  if(arche.length){
-    h+='<div class="navgroup" id="b2c-grp-arche"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-arche\')">'+emo('🎓')+'아르케'+caret+'</div><div class="navsub">'+itemsHTML(arche,false)+'</div></div>';
-  }
-  if(penta.length){
-    h+='<div class="navgroup penta" id="b2c-grp-penta"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-penta\')">'+emo('✦')+'펜타 시리즈'+caret+'</div><div class="navsub">'+itemsHTML(penta,true)+'</div></div>';
-  }
-  h+='<div class="navgroup" id="b2c-grp-news" style="margin-top:6px"><div class="grouphead" onclick="b2cToggleGrp(\'b2c-grp-news\')">'+emo('📢')+'본사 소식'+caret+'</div><div class="navsub">'
+  if(arche.length){ h+=lbl('아르케')+itemsHTML(arche,false); }
+  if(penta.length){ h+=lbl('펜타 시리즈')+itemsHTML(penta,true); }
+  h+=lbl('본사 소식')
     +'<div class="nav" onclick="b2cHqOpen(\'notice\')">'+emo('📌')+' 공지</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'news\')">'+emo('📰')+' 교육뉴스</div>'
-    +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>'
-    +'</div></div>';
+    +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>';
   if(mode==='parent'){
     h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
     h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
