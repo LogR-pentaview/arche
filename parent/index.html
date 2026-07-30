@@ -2062,6 +2062,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js?v=25"></script>
 <script src="/shared/arche_penta_report.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
+<script src="/shared/arche_penta_period.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
@@ -2785,6 +2786,59 @@ function b2cOpenSeasonPicker(child, key){
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
 }
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
+/* [정기 성장 리포트] 학부모가 월간/분기/연간 종합 리포트를 분석·발행. 코스 선택 → ArchePentaPeriod.mountManage */
+function b2cPeriodCourses(grade){
+  var g=String(grade||''); if(/초/.test(g)) return [['vision','starter','펜타 비전 기초'],['vision','architecture','펜타 비전 심화']];
+  if(/중/.test(g)) return [['vision','architecture','펜타 비전 심화'],['track','','펜타 트랙']];
+  return [];
+}
+function b2cOpenPeriodReport(child, presetStage){
+  try{ if(child) window._activeStudent=child; }catch(e){}
+  child = child || window._activeStudent;
+  var v=document.getElementById('v-home'); if(!v) return;
+  if(!child || !child.id){ v.innerHTML='<div style="max-width:820px;margin:0 auto;padding:16px 14px"><button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button><div style="text-align:center;color:#8b95a1;padding:40px">자녀를 먼저 등록·선택해 주세요.</div></div>'; return; }
+  if(!window.ArchePentaPeriod){ alert('정기 리포트 모듈(/shared/arche_penta_period.js)이 로드되지 않았습니다. shared 폴더·스크립트 경로를 확인하세요.'); return; }
+  var courses=b2cPeriodCourses(child.grade);
+  if(!courses.length){ v.innerHTML='<div style="max-width:820px;margin:0 auto;padding:16px 14px"><button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button><div style="text-align:center;color:#8b95a1;padding:40px">이 자녀 학년은 펜타 정기 리포트 대상이 아니에요.<br>(초·중등 펜타 수강생 대상)</div></div>'; return; }
+  var sel = presetStage ? (courses.filter(function(c){return c[0]===presetStage;})[0]||courses[0]) : courses[0];
+  v.innerHTML='<div style="max-width:520px;margin:0 auto;padding:16px 14px 60px">'
+    +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button>'
+    +'<div style="font-size:20px;font-weight:800;margin:2px 2px 2px">'+esc2(child.name||'자녀')+' · 정기 성장 리포트</div>'
+    +'<div style="font-size:12.5px;color:#8b95a1;margin:2px 2px 14px">월간·분기·연간 활동을 종합해 성향·발전을 분석하고 발행합니다.</div>'
+    +(courses.length>1?'<div id="b2c-pr-cs" style="display:flex;gap:6px;margin-bottom:14px"></div>':'')
+    +'<div id="b2c-pr-host"></div></div>';
+  function esc2(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var host=document.getElementById('b2c-pr-host');
+  function draw(c){
+    ArchePentaPeriod.mountManage(host, { studentId:child.id, name:child.name, grade:child.grade, stage:c[0], level:c[1] });
+  }
+  if(courses.length>1){
+    var csw=document.getElementById('b2c-pr-cs');
+    courses.forEach(function(c){
+      var on=(c===sel);
+      var b=document.createElement('button');
+      b.textContent=c[2];
+      b.style.cssText='flex:1;border:1px solid '+(on?'#141a29':'#dfe3ec')+';background:'+(on?'#141a29':'#fff')+';color:'+(on?'#fff':'#4e5968')+';font-weight:700;font-size:12.5px;padding:9px 8px;border-radius:10px;cursor:pointer';
+      b.addEventListener('click',function(){ sel=c; Array.prototype.forEach.call(csw.children,function(x){x.style.background='#fff';x.style.color='#4e5968';x.style.borderColor='#dfe3ec';}); b.style.background='#141a29';b.style.color='#fff';b.style.borderColor='#141a29'; draw(c); });
+      csw.appendChild(b);
+    });
+  }
+  draw(sel);
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.b2cOpenPeriodReport=b2cOpenPeriodReport;
+/* [정기 리포트 열람] 자녀(학생) 계정 — 발행된 정기 리포트만 목록·열람 */
+function b2cOpenPeriodViewer(){
+  var v=document.getElementById('v-home'); if(!v) return;
+  if(!window.ArchePentaPeriod){ alert('정기 리포트 모듈이 로드되지 않았습니다.'); return; }
+  var stu=window._activeStudent||{};
+  v.innerHTML='<div style="max-width:520px;margin:0 auto;padding:16px 14px 60px">'
+    +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button>'
+    +'<div id="b2c-prv-host"></div></div>';
+  ArchePentaPeriod.mountViewer(document.getElementById('b2c-prv-host'), { studentId:stu.id, name:stu.name, grade:stu.grade });
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.b2cOpenPeriodViewer=b2cOpenPeriodViewer;
 /* [사용 안내] 아르케 사용법 / 융합사고(펜타) 사용법 — 기능별 단계 안내 */
 function b2cOpenGuide(){
   var v=document.getElementById('v-home'); if(!v) return;
@@ -2853,7 +2907,8 @@ function applyB2CSidebar(band, mode){
   var h='<div class="nav" onclick="goView(\'home\')">'+emo('🏠')+' 홈</div>';
   h+='<div class="nav" onclick="b2cOpenGuide()">'+emo('📖')+' 사용 안내</div>';
   if(arche.length){ h+=lbl('아르케')+itemsHTML(arche,false); }
-  if(penta.length){ h+=lbl('펜타 시리즈')+itemsHTML(penta,true); }
+  if(penta.length){ h+=lbl('펜타 시리즈')+itemsHTML(penta,true)
+    +'<div class="nav" onclick="'+(mode==='parent'?"b2cOpenPeriodReport(window._activeStudent)":"b2cOpenPeriodViewer()")+'">'+emo('📈')+' 정기 성장 리포트</div>'; }
   h+=lbl('본사 소식')
     +'<div class="nav" onclick="b2cHqOpen(\'notice\')">'+emo('📌')+' 공지</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'news\')">'+emo('📰')+' 교육뉴스</div>'
