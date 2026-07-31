@@ -2063,14 +2063,14 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js?v=27"></script>
 <script src="/shared/arche_soke_chat.js?v=2"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
-<script src="/shared/arche_penta_app.js?v=2"></script>
-<script src="/shared/arche_penta_period.js?v=3"></script>
+<script src="/shared/arche_penta_app.js?v=3"></script>
+<script src="/shared/arche_penta_period.js?v=4"></script>
 <script src="/shared/arche_kg_billing.js?v=2"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=22"></script>
-<script src="/shared/arche_career_bridge.js?v=7"></script>
+<script src="/shared/arche_career_bridge.js?v=8"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2560,6 +2560,8 @@ function updateDemoBanner(){
 /* ═══ 학부모 뷰어 대시보드 (자녀 상황 열람 · 수강 게이팅 · 샘플 유도) ═══ */
 async function enterParentViewer(session){
   try{ gate.style.display='none'; }catch(e){}
+  // [법정대리인 동의] 미성년 자녀 데이터 열람 전 약관·개인정보 동의 필수
+  if(!(await ensureConsent(session.user,'parent'))) return;
   document.body.classList.add('parent-viewer');
   window._role='parent'; window.__PENTA_ROLE='parent';
   var uid=session.user.id; window._myUid=uid;
@@ -3230,7 +3232,7 @@ if(sb) sb.auth.onAuthStateChange(function(event,session){
     alert('다른 탭에서 다른 계정으로 로그인되어 이 창의 세션이 변경되었습니다.\n\n같은 브라우저에서는 한 계정만 유지됩니다. 여러 역할(관리자·컨설턴트·학생)을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.\n\n확인을 누르면 새 계정으로 새로고침합니다.');
     location.reload(); return;
   }
-  if(event==='SIGNED_OUT'){ window._sessionUid=null; }
+  if(event==='SIGNED_OUT'){ var _was=window._sessionUid; window._sessionUid=null; if(_was){ try{ location.replace('/login'); }catch(e){} } return; }  // 세션 만료·로그아웃 시 로그인 화면으로
   if(newUid)window._sessionUid=newUid;
 });
 
