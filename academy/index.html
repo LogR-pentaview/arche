@@ -2121,10 +2121,10 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=25"></script>
-<script src="/shared/arche_penta_report.js"></script>
+<script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_career_bridge.js?v=5"></script>
+<script src="/shared/arche_career_bridge.js?v=6"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
@@ -4686,6 +4686,36 @@ async function perfDownloadHWPX(aid,track){
   }catch(e){ alert('HWPX 생성 실패: '+(e.message||e)); }
 }
 async function perfEvalPDF(aid,track){ var r=await perfDocData(aid,track); var ev=r.eval; if(ev&&typeof ev==='string'){try{ev=JSON.parse(ev);}catch(_){ev=null;}} if(!ev){alert('아직 채점 결과가 없습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다.');return;} var sheet=perfEvalSheet(ev,true); var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>수행평가 예상등급 평가지</title><style>@page{size:A4;margin:16mm}body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;color:#191f28;padding:8px 4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:20px;margin:0 0 2px}.meta{font-size:12px;color:#667;margin-bottom:4px}.rule{height:2px;background:#12211a;margin:8px 0 4px}.foot{margin-top:18px;font-size:10px;color:#889;border-top:1px solid #ddd;padding-top:8px}b{color:#191f28}</style></head><body><h1>수행평가 예상등급 평가지</h1><div class="meta">학생: <b>'+esc(r.who)+'</b> · 과제: <b>'+esc(r.title)+'</b>'+(r.subject?(' ('+esc(r.subject)+')'):'')+'</div><div class="rule"></div>'+sheet+'<div class="foot">ARCHE 수행평가 도우미 · 본 평가지는 학교 채점기준 기반 AI 예상 진단으로 컨설팅 참고용이며, 실제 학교 성적·평가와 다를 수 있습니다.</div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},350);}</scr'+'ipt></body></html>'; w.document.open(); w.document.write(doc); w.document.close(); }
+/* ===== 범용 문서 내보내기 (PDF/DOCX/HWPX) — 리포트·진로·수행 공용 ===== */
+window.ArcheExport=(function(){
+  function fn(t){ return String(t||'문서').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60); }
+  function _save(blob,name){ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1200); }
+  function pdf(o){ o=o||{}; var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.');return;}
+    var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(o.title||'문서')+'</title>'
+      +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'
+      +'<style>@page{margin:15mm}body{font-family:"Noto Sans KR",-apple-system,sans-serif;max-width:780px;margin:28px auto;padding:0 24px;line-height:1.85;color:#111;word-break:keep-all;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:21px;border-bottom:2px solid #333;padding-bottom:9px;margin:0 0 6px}.m{color:#667;font-size:12px;margin-bottom:15px}img{max-width:100%}table{border-collapse:collapse;width:100%;margin:8px 0}td,th{border:1px solid #ccc;padding:6px 8px;font-size:12.5px}ul,ol{margin:4px 0 4px 18px}</style></head><body>'
+      +'<h1>'+esc(o.title||'문서')+'</h1>'+(o.subtitle?('<div class="m">'+esc(o.subtitle)+'</div>'):'')
+      +'<div>'+(o.html||'')+'</div>'
+      +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},450);};</scr'+'ipt></body></html>';
+    w.document.open(); w.document.write(doc); w.document.close(); }
+  async function docx(o){ o=o||{};
+    var inner='<h1 style="font-size:18pt">'+esc(o.title||'문서')+'</h1>'+(o.subtitle?('<p style="color:#667;font-size:11pt">'+esc(o.subtitle)+'</p>'):'')+(o.html||'');
+    var full='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:"Malgun Gothic",sans-serif;line-height:1.8}img{max-width:480px}h1{border-bottom:1px solid #333;padding-bottom:8px}table{border-collapse:collapse}td,th{border:1px solid #999;padding:5px 7px}</style></head><body>'+inner+'</body></html>';
+    var lib=await cbLoadDocx(); var blob,ext; if(lib&&lib.asBlob){blob=lib.asBlob(full);ext='docx';}else{blob=new Blob(['﻿'+full],{type:'application/msword'});ext='doc';}
+    _save(blob, fn(o.title)+'.'+ext); }
+  async function hwpx(o){ o=o||{};
+    try{ var zip=await hwpxBuildFromHtml(o.title||'문서', (o.subtitle?('<p>'+esc(o.subtitle)+'</p>'):'')+(o.html||'')); _save(new Blob([zip],{type:'application/hwp+zip'}), fn(o.title)+'.hwpx'); }
+    catch(e){ alert('HWPX 생성 실패: '+(e.message||e)); } }
+  function printNode(node,o){ o=o||{}; if(!node){alert('내보낼 리포트를 찾지 못했습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.');return;}
+    var styles=''; (o.styleIds||[]).forEach(function(id){ var s=document.getElementById(id); if(s)styles+='<style>'+s.textContent+'</style>'; });
+    var html='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(o.title||'리포트')+'</title>'
+      +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'+styles
+      +'<style>@page{margin:11mm}body{margin:0;padding:14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>'
+      +node.outerHTML
+      +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},500);};</scr'+'ipt></body></html>';
+    w.document.open(); w.document.write(html); w.document.close(); }
+  return {pdf:pdf, docx:docx, hwpx:hwpx, printNode:printNode};
+})();
 /* ---------- 수행평가 전용 리치 에디터 (pf-ed) ---------- */
 var pfCap=null;
 function pfCapInit(){ pfCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
