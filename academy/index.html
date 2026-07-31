@@ -483,12 +483,13 @@
       <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#3182f6);border:1px dashed var(--gold,#3182f6);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
 <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
-        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생 자료 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">본인 이메일로 가입하면 <b>인증 메일</b>이 발송됩니다. 메일의 링크로 인증을 마치면 <b>7일 무료 체험</b>이 시작됩니다.</div>
         <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-        <input id="gu-org" type="text" placeholder="학원명 (선택)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+        <input id="gu-pw" type="password" placeholder="비밀번호 (필수·6자 이상)" autocomplete="new-password" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+        <input id="gu-org" type="text" placeholder="이름/학부모명 (선택)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
         <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:4px;cursor:pointer"><input id="gu-privacy" type="checkbox" style="margin-top:2px">체험 서비스 제공을 위한 개인정보(이메일·입력 데이터) 수집·이용에 동의합니다. 체험 중 업로드한 학생 자료 등 데이터는 체험 만료 시 삭제 요청할 수 있습니다. (필수)</label>
         <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input id="gu-mkt" type="checkbox" style="margin-top:2px">도입 안내 등 마케팅 정보 수신에 동의합니다. (선택)</label>
-        <button onclick="guestSignup()" id="gu-btn" style="width:100%;padding:11px;background:var(--gold,#3182f6);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">체험 계정 발급 & 시작</button>
+        <button onclick="guestSignup()" id="gu-btn" style="width:100%;padding:11px;background:var(--gold,#3182f6);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">체험 시작 (이메일 인증)</button>
         <div id="gu-msg" style="min-height:14px;font-size:12px;color:var(--risk);margin-top:6px"></div>
       </div>
     </div>
@@ -2336,7 +2337,11 @@ async function ensureAcademy(user){
     || (user.user_metadata&&user.user_metadata.academy_name)
     || (user.email.split('@')[0]+' 학원');
   var acctype=(user.user_metadata&&user.user_metadata.account_type)||'b2b';
-  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id,account_type:acctype}).select('id,name,account_type').single();
+  var _isTrial=!!(user.user_metadata&&user.user_metadata.is_trial);
+  if(_isTrial) acctype='b2c';   // [보안] 체험 계정은 무조건 b2c(학부모)
+  var _acRow={name:nm,owner_uid:user.id,account_type:acctype};
+  if(_isTrial){ _acRow.is_demo=true; _acRow.approved=true; _acRow.demo_expires_at=new Date(Date.now()+7*24*3600*1000).toISOString(); _acRow.demo_credits={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,course_roadmap:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3,golden_sentences:1,career_match:1,monthly_brief:1,eval_essay:0}; }
+  const {data:ins,error}=await sb.from('academies').insert(_acRow).select('id,name,account_type').single();
   if(error){console.error('[academy]',error);return null;}
   window._isOwner=true; window._myRole='owner';
   try{ await sb.from('academy_users').insert({academy_id:ins.id,uid:user.id,email:user.email,role:'owner'}); }catch(e){}
@@ -2557,20 +2562,21 @@ function toggleGuestForm(){var f=document.getElementById('guest-form');if(f)f.st
 async function guestSignup(){
   var m=document.getElementById('gu-msg'), btn=document.getElementById('gu-btn');
   var email=(document.getElementById('gu-email').value||'').trim();
-  if(!email||email.indexOf('@')<1){m.textContent='이메일을 입력하세요.';return;}
-  if(!document.getElementById('gu-privacy').checked){m.textContent='개인정보 수집·이용 동의(필수)가 필요합니다.';return;}
-  btn.disabled=true;btn.textContent='발급 중…';m.style.color='var(--ink-mute)';m.textContent='';
+  var pw=(document.getElementById('gu-pw')&&document.getElementById('gu-pw').value||'').trim();
+  if(!email||email.indexOf('@')<1){m.style.color='var(--risk)';m.textContent='이메일을 입력하세요.';return;}
+  if(pw.length<6){m.style.color='var(--risk)';m.textContent='비밀번호를 6자 이상 입력하세요.';return;}
+  if(!document.getElementById('gu-privacy').checked){m.style.color='var(--risk)';m.textContent='개인정보 수집·이용 동의(필수)가 필요합니다.';return;}
+  btn.disabled=true;btn.textContent='가입 중…';m.style.color='var(--ink-mute)';m.textContent='';
   try{
-    var r=await fetch(SB_URL+'/functions/v1/guest-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'self_signup',email:email,org_name:(document.getElementById('gu-org').value||'').trim(),consent_privacy:true,consent_marketing:document.getElementById('gu-mkt').checked})});
-    var d=await r.json();
-    if(!r.ok||d.error){m.style.color='var(--risk)';m.textContent=d.error||'발급 실패';btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
-    alert('체험 계정이 발급되었습니다.\n\n아이디: '+d.login_id+'\n비밀번호: '+d.password+'\n유효기간: '+(d.expires_at||'').slice(0,10)+'까지\n\n※ 이 정보를 꼭 메모해 두세요. 지금 바로 로그인합니다.');
-    var {data:sd,error:se}=await sb.auth.signInWithPassword({email:d.auth_email,password:d.password});
-    if(se){m.style.color='var(--risk)';m.textContent='자동 로그인 실패: '+se.message;btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
-    /* [b2c 전용 운영] 체험 계정을 b2c로 전환하고 무조건 학부모(parent) 앱으로 진입 */
-    try{ await sb.from('academies').update({account_type:'b2c'}).eq('owner_uid', sd.session.user.id); }catch(_e){}
-    location.replace('/parent');
-  }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';}
+    /* [보안] 본인 이메일 인증 가입만 허용 — b2c 체험 계정. 인증 메일 확인 후 로그인해야 활성. */
+    var org=(document.getElementById('gu-org').value||'').trim();
+    var {data,error}=await sb.auth.signUp({email:email,password:pw,options:{data:{account_type:'b2c',academy_name:org||null,is_trial:true,consent_marketing:!!(document.getElementById('gu-mkt')&&document.getElementById('gu-mkt').checked)},emailRedirectTo:location.origin+'/parent'}});
+    if(error){m.style.color='var(--risk)';m.textContent=(/registered|already/i.test(error.message)?'이미 가입된 이메일입니다. 로그인해 주세요.':error.message);btn.disabled=false;btn.textContent='체험 시작 (이메일 인증)';return;}
+    if(data&&data.session){ location.replace('/parent'); return; }
+    m.style.color='var(--safe)';
+    m.innerHTML='✅ <b>'+esc(email)+'</b>로 인증 메일을 보냈습니다.<br>메일의 링크를 클릭해 이메일을 인증한 뒤 로그인하면 7일 무료 체험이 시작됩니다.<br><span style="color:var(--gold,#3182f6);font-size:11px">⚠️ 메일이 안 보이면 <b>스팸함·프로모션함</b>을 확인하세요. (해외 서버 발송)</span>';
+    btn.disabled=false;btn.textContent='체험 시작 (이메일 인증)';
+  }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 시작 (이메일 인증)';}
 }
 function setupDemoMode(){
   document.body.classList.add('demo-mode');
