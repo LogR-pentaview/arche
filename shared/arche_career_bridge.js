@@ -175,10 +175,14 @@
         tm=wi&&wi.tm||null; if(wi&&wi.verdict&&wi.verdict.tier){ var tr=wi.verdict.tier; vSummary={tier:tr, composite:(wi.verdict.composite!=null?Math.round(wi.verdict.composite):null)}; } } }catch(e){}
       try{ var answers={ text:t, html:html, typing_meta:tm, submitted_at:new Date().toISOString() };
         var res=await submitAnswers(sid, rep.id, rep.topic||rep.title, rep.field, answers); if(res&&res.error)throw res.error;
-        msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉';
-        // 사후 회고
-        try{ if(window.archeReflectOverlay){ archeReflectOverlay({ academyId:acadId(), studentId:sid, sourceType:'design', sourceId:rep.id, kind:'design', title:rep.title||'', reportText:t, banner:{title:'탐구보고서 제출 완료', sub:t.length+'자 · 직접 작성 확인됨'} }); } }catch(_e){}
-        setTimeout(function(){ ov.remove(); remount(container,'student'); }, 900);
+        msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉 잠시 후 사후 회고가 열려요.';
+        // 워크북 오버레이(최상위 z-index)를 먼저 닫고 → 사후 회고 인터뷰를 깨끗한 화면에 표시
+        setTimeout(function(){
+          ov.remove(); remount(container,'student');
+          try{ if(window.archeReflectOverlay){ archeReflectOverlay({ academyId:acadId(), studentId:sid, sourceType:'design', sourceId:rep.id, kind:'design', title:rep.title||'', reportText:t, banner:{title:'탐구보고서 제출 완료', sub:t.length+'자 · 직접 작성 확인됨'} }); }
+            else if(window.ArcheReflection && window.ArcheReflection.renderPost){ var mo=document.createElement('div'); mo.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(15,21,40,.55);overflow:auto;padding:22px 12px'; var bx=document.createElement('div'); bx.style.cssText='max-width:748px;margin:0 auto;background:#f2f4f6;border-radius:18px;padding:16px 14px 30px'; var cx=document.createElement('button'); cx.textContent='나중에 하기 ✕'; cx.style.cssText='display:block;margin:0 0 8px auto;border:0;background:#191f28;color:#fff;font-weight:700;border-radius:99px;padding:7px 14px;cursor:pointer;font:inherit;font-size:12px'; cx.onclick=function(){mo.remove();}; var mt=document.createElement('div'); bx.appendChild(cx); bx.appendChild(mt); mo.appendChild(bx); document.body.appendChild(mo); window.ArcheReflection.renderPost(mt,{ academyId:acadId(), studentId:sid, sourceType:'design', sourceId:rep.id, kind:'design', title:rep.title||'', reportText:t, banner:{title:'탐구보고서 제출 완료', sub:t.length+'자 · 직접 작성 확인됨'} }); }
+          }catch(_e){}
+        }, 700);
       }catch(e){ this.disabled=false; msg.style.color='#c0313d'; msg.textContent='제출 실패: '+(e.message||e); }
     });
   }
