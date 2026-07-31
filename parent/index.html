@@ -2062,13 +2062,13 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js?v=27"></script>
 <script src="/shared/arche_soke_chat.js?v=2"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
-<script src="/shared/arche_penta_app.js"></script>
+<script src="/shared/arche_penta_app.js?v=2"></script>
 <script src="/shared/arche_penta_period.js?v=3"></script>
 <script src="/shared/arche_kg_billing.js?v=2"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
-<script src="/shared/arche_b2c_dash.js?v=5"></script>
+<script src="/shared/arche_b2c_dash.js?v=22"></script>
 <script src="/shared/arche_career_bridge.js?v=6"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
@@ -2609,7 +2609,7 @@ function pvMountMenuEngine(root, stu){
     onSeasonTrial: openPenta
   });
 }
-function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/login'); }); }catch(e){ location.replace('/login'); } }
+function sbSignOutReload(){ try{ var p=sb.auth.signOut(); if(p&&p.then)p.then(function(){ location.replace('/login'); }); }catch(e){} setTimeout(function(){ location.replace('/login'); }, 200); }
 window.sbSignOutReload=sbSignOutReload;
 
 function pvInjectCss(){
@@ -2746,12 +2746,16 @@ window.enterParentViewer=enterParentViewer;
 
 // ── B2C 학부모(메인 앱) 홈 = 학부모 대시보드 ──
 function b2cBand(g){ g=String(g||''); if(g.indexOf('중')>=0)return '중'; if(g.indexOf('초')>=0)return '초'; return '고'; }
-function b2cOpenChildPenta(child, key){
+function b2cOpenChildPenta(child, key, p){
   try{ window._activeStudent=child; }catch(e){}
+  var season = (p && p.season!=null) ? p.season : null;   // 시즌 피커에서 고른 시즌(없으면 전체)
+  var course = ({vision_basic:'vision_basic',vision_adv:'vision_adv',track:'track'})[key] || 'vision_basic';
   var band=b2cBand(child&&child.grade);
   var idx = (key==='vision_basic')?0 : (key==='track')?2 : (key==='vision_adv')?1 : (band==='초'?0:1);
   var navs=document.querySelectorAll('#grp-penta .nav');
-  if(navs[idx]) navs[idx].click(); else if(navs[0]) navs[0].click();
+  var navEl=navs[idx]||navs[0];
+  if(navEl && window.go){ try{ go(navEl); }catch(e){} }   // 펜타 뷰로 전환(인라인 mount는 실행 안 됨)
+  if(window.ArchePentaApp){ try{ ArchePentaApp.mount(document.getElementById('penta-mount'), {course:course, season:season}); }catch(e){} }
 }
 /* [샘플 리포트] "샘플 리포트/미리보기" 클릭 시 실제 도구로 이동하던 버그 → 진짜 샘플 오버레이 표시 */
 /* [상품 대상 학년 라벨] 비대상 학년 안내·체험용 */
@@ -2772,10 +2776,13 @@ function b2cShowSample(sec, key){
 }
 window.b2cShowSample=b2cShowSample;
 /* [홈 복귀] b2c 파생 뷰(시즌폴더·가이드)에서 대시보드로 돌아가기 — 학부모/자녀 공용 */
-function b2cGoHome(){ if(window._isB2C && window.renderB2CParentHome){ renderB2CParentHome(); } else if(window.renderStudentHome){ renderStudentHome(); } }
+/* v-home 뷰를 화면에 활성화(다른 메뉴 사용 후에도 홈 컨테이너가 보이도록) */
+function b2cActivateHome(){ try{ document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on');}); var vh=document.getElementById('v-home'); if(vh)vh.classList.add('on'); document.querySelectorAll('.nav').forEach(function(n){n.classList.remove('on');}); var hn=document.querySelector('.nav[data-v="home"]'); if(hn)hn.classList.add('on'); var cb=document.getElementById('crumb'); if(cb&&window.crumbMap)cb.textContent=(crumbMap.home||'홈'); window.scrollTo(0,0); }catch(e){} }
+window.b2cActivateHome=b2cActivateHome;
+function b2cGoHome(){ if(window._isB2C && window.renderB2CParentHome){ b2cActivateHome(); renderB2CParentHome(); } else if(window.renderStudentHome){ renderStudentHome(); } }
 window.b2cGoHome=b2cGoHome;
 /* [시즌 폴더 뷰] 펜타 코스 클릭 → 시즌(폴더) 명함 목록(ArcheSeasonPicker). 폴더에서 시작하면 워크북으로 진입 */
-function b2cOpenSeasonPicker(child, key){
+function b2cOpenSeasonPicker(child, key){ b2cActivateHome();
   try{ window._activeStudent=child; }catch(e){}
   var map={ vision_basic:['vision','starter','펜타 비전 기초'], vision_adv:['vision','architecture','펜타 비전 심화'], track:['track','','펜타 트랙'] };
   var m=map[key]; if(!m){ b2cOpenChildPenta(child,key); return; }
@@ -2786,9 +2793,9 @@ function b2cOpenSeasonPicker(child, key){
   var host=document.getElementById('b2c-season-host');
   if(window.ArcheSeasonPicker && host){
     ArcheSeasonPicker.mount(host,{ course:m[0], level:m[1], studentId:(child&&child.id),
-      onOpen:function(){ b2cOpenChildPenta(child,key); },
-      onTrial:function(){ b2cOpenChildPenta(child,key); },
-      onStart:function(){ b2cOpenChildPenta(child,key); } });
+      onOpen:function(p){ b2cOpenChildPenta(child,key,p); },
+      onTrial:function(p){ b2cOpenChildPenta(child,key,p); },
+      onStart:function(p){ b2cOpenChildPenta(child,key,p); } });
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
 }
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
@@ -2798,7 +2805,7 @@ function b2cPeriodCourses(grade){
   if(/중/.test(g)) return [['vision','architecture','펜타 비전 심화'],['track','','펜타 트랙']];
   return [];
 }
-function b2cOpenPeriodReport(child, presetStage){
+function b2cOpenPeriodReport(child, presetStage){ b2cActivateHome();
   try{ if(child) window._activeStudent=child; }catch(e){}
   child = child || window._activeStudent;
   var v=document.getElementById('v-home'); if(!v) return;
@@ -2834,7 +2841,7 @@ function b2cOpenPeriodReport(child, presetStage){
 }
 window.b2cOpenPeriodReport=b2cOpenPeriodReport;
 /* [정기 리포트 열람] 자녀(학생) 계정 — 발행된 정기 리포트만 목록·열람 */
-function b2cOpenPeriodViewer(){
+function b2cOpenPeriodViewer(){ b2cActivateHome();
   var v=document.getElementById('v-home'); if(!v) return;
   if(!window.ArchePentaPeriod){ alert('정기 리포트 모듈이 로드되지 않았습니다.'); return; }
   var stu=window._activeStudent||{};
@@ -2846,7 +2853,7 @@ function b2cOpenPeriodViewer(){
 }
 window.b2cOpenPeriodViewer=b2cOpenPeriodViewer;
 /* [사용 안내] 아르케 사용법 / 융합사고(펜타) 사용법 — 기능별 단계 안내 */
-function b2cOpenGuide(){
+function b2cOpenGuide(){ b2cActivateHome();
   var v=document.getElementById('v-home'); if(!v) return;
   function feat(ic,title,desc,steps){
     return '<div style="background:#fff;border:1px solid #eef1f4;border-radius:14px;padding:16px 18px;margin-bottom:12px">'
@@ -2961,6 +2968,11 @@ function b2cRenderSettings(){
       +'<div class="sectionhead"><span class="idx">👧</span><h3>자녀 비밀번호 변경</h3></div>'
       +'<div style="font-size:12.5px;color:var(--ink-dim);margin:6px 0 12px">자녀 로그인 비밀번호를 초기 비밀번호(0000)로 재설정합니다. 자녀는 다음 로그인 후 새 비밀번호로 바꾸게 됩니다.</div>'
       +'<button onclick="b2cResetChildPw()" style="background:var(--gold);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit">자녀 비밀번호 초기화</button>'
+    +'</div>'
+    +'<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
+      +'<div class="sectionhead"><span class="idx">🚪</span><h3>로그아웃</h3></div>'
+      +'<div style="font-size:12.5px;color:var(--ink-dim);margin:6px 0 12px">현재 학부모 계정에서 로그아웃합니다.</div>'
+      +'<button onclick="sbSignOutReload()" style="background:#4e5968;color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit">로그아웃</button>'
     +'</div>';
   v.appendChild(panel);
 }
