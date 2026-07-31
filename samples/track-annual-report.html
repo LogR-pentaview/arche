@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>펜타 트랙 · 연간 성장 리포트 (프리미엄)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --navy:#141a29;--navy2:#1f2740;--lime:#6fa81c;--lime2:#7db521;--lime-soft:#eef7db;--lime-l:#b6e34a;
+    --ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--faint:#b0b8c1;
+    --line:#e5e8eb;--line-soft:#eef1f4;--bg:#eef1f5;--panel:#fff;--gold:#c8a24a;
+    --mono:'SFMono-Regular',ui-monospace,'Roboto Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#dfe3ea;color:var(--ink);letter-spacing:-.012em;-webkit-font-smoothing:antialiased;line-height:1.6;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 12px 30px}
+  .hint{max-width:394px;font-size:12.5px;color:#5a6472;text-align:center;margin:0 auto 12px;line-height:1.6}
+  .hint b{color:#2a3240}
+  .phone{width:100%;max-width:394px;background:#0b0f18;border-radius:44px;padding:9px;box-shadow:0 30px 70px rgba(20,26,41,.34)}
+  .screen{background:var(--bg);border-radius:35px;overflow:hidden;position:relative;height:820px;display:flex;flex-direction:column}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#0b0f18;border-radius:20px;z-index:80}
+  .stat{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11.5px;font-weight:700;color:#fff;flex:none;position:relative;z-index:2}
+  .body{flex:1;overflow:auto}
+  .body::-webkit-scrollbar{width:0}
+
+  /* 헤더 */
+  .hd{background:linear-gradient(160deg,#10151f,#20304a 70%,#243a54);color:#fff;padding:6px 20px 22px;position:relative;overflow:hidden}
+  .hd:after{content:"";position:absolute;right:-40px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(182,227,74,.16),transparent 68%)}
+  .hd .top{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:#9fb0c8;position:relative}
+  .hd .top b{color:var(--lime-l)}
+  .hd h1{font-size:23px;font-weight:800;margin:9px 0 3px;letter-spacing:-.02em;position:relative}
+  .hd .sub{font-size:12px;color:#aeb9c9;position:relative}
+  .hd .pub{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#0e3a2a;background:var(--lime-l);border-radius:20px;padding:4px 11px;margin-top:13px;position:relative}
+  .hd .grade{position:absolute;right:18px;top:52px;font-family:var(--mono);font-size:34px;font-weight:800;color:rgba(182,227,74,.9);line-height:1;text-align:right}
+  .hd .grade small{display:block;font-size:9px;color:#9fb0c8;letter-spacing:.14em;font-weight:700;margin-top:4px}
+
+  .seg{display:flex;gap:6px;padding:13px 20px 4px;overflow:auto;background:var(--bg);position:sticky;top:0;z-index:5;box-shadow:0 6px 10px -8px rgba(20,26,41,.15)}
+  .seg::-webkit-scrollbar{height:0}
+  .seg button{flex:none;border:1px solid var(--line);background:#fff;color:var(--dim);font:inherit;font-weight:700;font-size:12.5px;padding:8px 16px;border-radius:20px;cursor:pointer}
+  .seg button.on{background:var(--navy);border-color:var(--navy);color:#fff}
+  .seg .depth{flex:none;display:flex;align-items:center;font-family:var(--mono);font-size:9.5px;color:var(--lime);background:var(--lime-soft);border:1px solid #d9ecb5;border-radius:20px;padding:0 11px;font-weight:800;letter-spacing:.03em}
+
+  .sect{font-size:12.5px;font-weight:800;color:var(--navy);letter-spacing:.01em;padding:20px 20px 9px;display:flex;align-items:center;gap:8px}
+  .sect .n{font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:800}
+  .sect .badge{font-family:var(--mono);font-size:9px;color:#fff;background:var(--navy);border-radius:5px;padding:2px 6px;letter-spacing:.04em;margin-left:auto}
+  .sect .badge.lime{background:var(--lime2);color:#123}
+
+  /* 컨설턴트 총평 */
+  .brief{margin:2px 20px;background:linear-gradient(165deg,#fbfdf6,#f4f9ea);border:1px solid #e2eec6;border-radius:18px;padding:18px 17px 16px;position:relative}
+  .brief .qm{position:absolute;top:8px;right:16px;font-size:44px;color:#d6e6b2;font-family:Georgia,serif;line-height:1}
+  .brief .bt{font-size:11px;font-weight:800;color:var(--lime);letter-spacing:.04em;margin-bottom:8px}
+  .brief p{font-size:13.5px;color:#2c3547;line-height:1.85;margin:0 0 10px}
+  .brief p b{color:var(--navy);background:linear-gradient(transparent 62%,rgba(182,227,74,.5) 0)}
+  .brief .sign{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:12px;border-top:1px dashed #d6e0c0}
+  .brief .sav{width:30px;height:30px;border-radius:9px;background:var(--navy);color:var(--lime-l);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:800}
+  .brief .sign .st{font-size:11px;color:var(--dim);line-height:1.4}
+  .brief .sign .st b{color:var(--ink);display:block;font-size:12px}
+
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:2px 20px}
+  .kpi{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:13px 14px}
+  .kpi .v{font-size:21px;font-weight:800;letter-spacing:-.01em}
+  .kpi .v em{font-style:normal;font-size:12px;color:var(--lime);font-weight:800}
+  .kpi .l{font-size:10.5px;color:var(--mute);margin-top:2px;font-weight:600}
+  .kpi .d{font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5;border-top:1px solid var(--line-soft);padding-top:6px}
+
+  .card{background:#fff;border:1px solid var(--line-soft);border-radius:16px;margin:2px 20px;padding:16px}
+  .radar-row{display:flex;align-items:center;gap:14px}
+  .radar-row .rt{font-size:12.5px;color:var(--dim);line-height:1.7}
+  .radar-row .rt b{color:var(--ink)}
+  .lg{display:flex;gap:14px;font-size:10.5px;font-weight:700;margin-top:8px}
+  .lg span{display:flex;align-items:center;gap:5px;color:var(--dim)}
+  .lg .d{width:9px;height:9px;border-radius:3px}
+  /* 성향 축별 근거 */
+  .axis{margin-top:14px;border-top:1px solid var(--line-soft);padding-top:12px;display:grid;gap:11px}
+  .ax{display:flex;gap:10px}
+  .ax .abar{width:46px;flex:none}
+  .ax .abar .an{font-size:10px;font-weight:800;color:var(--ink);margin-bottom:3px}
+  .ax .abar .track{height:5px;border-radius:4px;background:var(--line);overflow:hidden}
+  .ax .abar .track i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--lime2),var(--lime-l))}
+  .ax .abar .av{font-family:var(--mono);font-size:9px;color:var(--lime);font-weight:800;margin-top:2px}
+  .ax .atx{font-size:11.5px;color:var(--dim);line-height:1.6;flex:1}
+  .ax .atx b{color:var(--ink)}
+
+  .trend{display:flex;align-items:flex-end;gap:10px;padding:4px 2px 2px}
+  .trend .tcol{flex:1;text-align:center}
+  .trend .tbar{height:74px;display:flex;align-items:flex-end;justify-content:center}
+  .trend .tbar i{width:26px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--lime-l),var(--lime2))}
+  .trend .tq{font-size:10px;color:var(--mute);margin-top:5px;font-weight:600}
+  .trend .tv{font-size:10px;font-family:var(--mono);color:var(--lime);font-weight:800}
+  .trend-note{font-size:11.5px;color:var(--dim);line-height:1.7;margin-top:12px;border-top:1px solid var(--line-soft);padding-top:11px}
+  .trend-note b{color:var(--ink)}
+  .trend-note .qb{display:inline-block;font-family:var(--mono);font-size:9.5px;color:var(--lime);font-weight:800;margin-right:6px}
+
+  /* 핵심 성장 근거 */
+  .evid{margin:2px 20px;display:grid;gap:9px}
+  .ev{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:13px 15px;display:flex;gap:11px}
+  .ev .ei{width:30px;height:30px;flex:none;border-radius:9px;background:var(--lime-soft);display:grid;place-items:center;font-size:15px}
+  .ev .eh{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:3px}
+  .ev .ed{font-size:11.5px;color:var(--dim);line-height:1.6}
+  .ev .ed em{font-style:normal;color:var(--lime);font-weight:700}
+
+  /* 진로 매칭 상세 */
+  .match{margin:2px 20px;display:grid;gap:11px}
+  .mrow{background:#fff;border:1px solid var(--line-soft);border-radius:15px;padding:15px;overflow:hidden}
+  .mrow .mtop{display:flex;align-items:center;gap:12px}
+  .mrow .rk{font-family:var(--mono);font-size:12px;font-weight:800;color:#fff;background:var(--navy);width:24px;height:24px;border-radius:8px;display:grid;place-items:center;flex:none}
+  .mrow.top .rk{background:var(--gold)}
+  .mrow .mn{font-size:14.5px;font-weight:800}
+  .mrow .md{font-size:11px;color:var(--mute)}
+  .mrow .fit{margin-left:auto;text-align:right;flex:none}
+  .mrow .fit .fv{font-size:19px;font-weight:800;color:var(--lime)}
+  .mrow .fit .fl{font-size:8.5px;color:var(--mute);font-weight:700;letter-spacing:.06em}
+  .mrow .why{font-size:11.5px;color:var(--dim);line-height:1.7;margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft)}
+  .mrow .why b{color:var(--ink)}
+  .mrow .tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+  .mrow .tags span{font-size:10px;font-weight:700;color:var(--dim);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:3px 8px}
+  .mrow .tags .k{color:var(--lime);background:var(--lime-soft);border-color:#d9ecb5}
+  .mrow .fbar{display:flex;align-items:center;gap:8px;margin-top:11px}
+  .mrow .fbar .bt{flex:1;height:7px;border-radius:5px;background:var(--line-soft);overflow:hidden}
+  .mrow .fbar .bt i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--lime2),var(--lime-l))}
+  .mrow .fbar .bn{font-family:var(--mono);font-size:9.5px;color:var(--mute);font-weight:700;flex:none}
+  /* 3년 탐구 심화 계단 */
+  .stair{display:flex;align-items:flex-end;gap:9px;margin:2px 20px 6px;background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:16px 14px 14px}
+  .stp{flex:1;border-radius:11px 11px 9px 9px;padding:11px 7px 10px;text-align:center;color:#fff;position:relative}
+  .stp.s1{height:88px;background:#46527a}.stp.s2{height:108px;background:#2a3a58}.stp.s3{height:130px;background:var(--navy);box-shadow:0 0 0 2px rgba(182,227,74,.4)}
+  .stp .sl{font-family:var(--mono);font-size:9.5px;font-weight:800;opacity:.72;display:block}
+  .stp .sn{font-size:14px;font-weight:800;display:block;margin-top:5px}
+  .stp.s3 .sn{color:var(--lime-l)}
+  .stp .sd{font-size:9.5px;opacity:.82;display:block;margin-top:4px;line-height:1.3}
+
+  /* 고교 로드맵 */
+  .roadhead{margin:2px 20px 4px;font-size:11.5px;color:var(--dim);line-height:1.7;background:#f7faf0;border:1px solid #e4eece;border-radius:12px;padding:11px 14px}
+  .roadhead b{color:var(--navy)}
+  .road{padding:8px 20px 6px}
+  .gnode{position:relative;padding:0 0 16px 48px}
+  .gnode .gl{position:absolute;left:16px;top:34px;bottom:-2px;width:2px;background:linear-gradient(var(--line),var(--line-soft))}
+  .gnode:last-child .gl{display:none}
+  .gnode .gdot{position:absolute;left:0;top:0;width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:800;color:#fff}
+  .gnode.g1 .gdot{background:#46527a}.gnode.g2 .gdot{background:#2a3a58}.gnode.g3 .gdot{background:var(--navy);box-shadow:0 0 0 3px rgba(182,227,74,.35)}
+  .gcard{background:#fff;border:1px solid var(--line-soft);border-radius:15px;padding:15px;box-shadow:0 3px 10px -8px rgba(20,26,41,.2)}
+  .gcard .gh{font-size:15px;font-weight:800;letter-spacing:-.01em}
+  .gcard .gg{font-size:11px;color:var(--lime);font-weight:700;margin:2px 0 12px}
+  .grow{margin-bottom:12px}
+  .grow:last-child{margin-bottom:0}
+  .grow .gk{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:800;color:#fff;background:var(--navy2);border-radius:6px;padding:3px 9px;letter-spacing:.02em;margin-bottom:7px}
+  .grow .gk.t{background:var(--lime2);color:#123}
+  .grow .gk.s{background:#6b7688}
+  .subj{display:flex;flex-wrap:wrap;gap:6px}
+  .subj .s{font-size:11px;font-weight:700;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:5px 9px;line-height:1.35}
+  .subj .s b{color:var(--lime);font-weight:800}
+  .subj .s .rz{display:block;font-size:9.5px;color:var(--mute);font-weight:600;margin-top:2px}
+  .tamgu{background:#fbfcf7;border:1px solid #eaf0d9;border-radius:11px;padding:11px 12px}
+  .tamgu .tt{font-size:12.5px;font-weight:800;color:var(--navy);line-height:1.4}
+  .tamgu .tt .qz{font-family:var(--mono);font-size:9px;color:var(--lime);font-weight:800;display:block;margin-bottom:2px;letter-spacing:.06em}
+  .tamgu .tmeta{display:grid;gap:5px;margin-top:9px}
+  .tamgu .tm{display:flex;gap:8px;font-size:11px;line-height:1.55}
+  .tamgu .tm .mk{font-size:9.5px;font-weight:800;color:var(--lime);width:40px;flex:none;padding-top:1px;letter-spacing:.02em}
+  .tamgu .tm .mv{color:var(--dim);flex:1}
+  .tamgu .tm .mv b{color:var(--ink)}
+  .setuk{font-size:11px;color:var(--dim);line-height:1.6;margin-top:8px}
+  .setuk b{color:var(--ink)}
+
+  /* 다음 분기 액션 */
+  .todo{margin:2px 20px;display:grid;gap:8px}
+  .td{background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .td .ck{width:18px;height:18px;flex:none;border-radius:6px;border:2px solid var(--lime2);margin-top:1px;position:relative}
+  .td .ck:after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid var(--lime2);border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .td .tx{font-size:12px;color:var(--ink);line-height:1.55}
+  .td .tx b{color:var(--navy)}
+  .td .tx .when{font-size:10px;color:var(--lime);font-weight:700}
+
+  .foot{padding:16px 20px 24px}
+  .foot .note{font-size:11px;color:var(--mute);line-height:1.75;background:#fff;border:1px solid var(--line-soft);border-radius:13px;padding:13px 15px}
+  .foot .note b{color:var(--dim)}
+  .cap{font-size:11px;color:#4a5468;text-align:center;margin-top:14px;line-height:1.6}
+</style>
+</head>
+<body>
+  <div class="hint">펜타 <b>트랙 · 연간 성장 리포트</b> (프리미엄) · 컨설턴트 총평 → 성향 근거 → 진로 → 고1~고3 상세 로드맵</div>
+  <div class="phone"><div class="notch"></div><div class="screen">
+    <div class="stat"><span>9:41</span><span>📶 5G 🔋</span></div>
+    <div class="body">
+
+      <div class="hd">
+        <div class="top">PENTA TRACK <span style="color:#41506e">/</span> ANNUAL <span style="color:#41506e">/</span> <b>2026</b></div>
+        <div class="grade">A<small>종합 성장</small></div>
+        <h1>소율님의 연간 성장 리포트</h1>
+        <div class="sub">펜타 트랙 · 중3 · 진단기간 2026.03 ~ 2027.02</div>
+        <div class="pub">✓ 부모님이 분석·발행함 · 2일 전 · v4</div>
+      </div>
+
+      <div class="seg">
+        <button>월간</button><button>분기</button><button>반기</button><button class="on">연간</button>
+        <span class="depth">심층 12p</span>
+      </div>
+
+      <!-- 01 컨설턴트 총평 -->
+      <div class="sect"><span class="n">01</span> 진단 컨설턴트 총평</div>
+      <div class="brief">
+        <div class="qm">&rdquo;</div>
+        <div class="bt">ANNUAL BRIEFING</div>
+        <p>소율 학생은 올 한 해 <b>"현상을 데이터로 바꿔 인과를 따지는" 사고 습관</b>을 확실히 몸에 익혔습니다. 3월엔 "왜 그럴까"에서 멈췄다면, 지금은 <b>가설을 세우고 근거를 수집해 반박까지 스스로 검토</b>합니다. 트랙 12강을 거치며 사고 가속도가 <b>Lv1→Lv3</b>로 두 단계 올랐고, 특히 4분기 크리티컬 랩에서 자기 주장을 스스로 무너뜨려 본 경험이 결정적이었습니다.</p>
+        <p>다음 국면의 과제는 <b>강점(논리·비판)을 진로라는 장기 서사로 엮는 것</b>입니다. 아래 진로 매칭과 고1~고3 로드맵은 소율이 <b>고교학점제에서 "일관된 탐구 서사"</b>를 만들도록 설계했습니다. 지금부터 방향만 잡아두면, 고교 3년이 흩어진 활동이 아니라 <b>하나의 이야기</b>가 됩니다.</p>
+        <div class="sign">
+          <div class="sav">P</div>
+          <div class="st"><b>펜타 진단 엔진 · 트랙 컨설팅</b>성향·활동 로그 1,240건 · 4개 분기 리포트 종합</div>
+        </div>
+      </div>
+
+      <!-- 02 한 해 요약 -->
+      <div class="sect"><span class="n">02</span> 한 해 지표 요약</div>
+      <div class="kpis">
+        <div class="kpi"><div class="v">12<em>강</em></div><div class="l">완주 회차</div><div class="d">비전 대비 심화 문항 비중 2.4배</div></div>
+        <div class="kpi"><div class="v">Lv1<em>→3</em></div><div class="l">사고 가속도</div><div class="d">상위 12% 성장폭 · 2단계 상승</div></div>
+        <div class="kpi"><div class="v">3<em>편</em></div><div class="l">탐구 산출물</div><div class="d">인포그래픽·소논문·정책제안</div></div>
+        <div class="kpi"><div class="v">88<em>점</em></div><div class="l">진로 적합도 Top1</div><div class="d">환경·에너지공학 방향</div></div>
+      </div>
+
+      <!-- 03 성향 분석 -->
+      <div class="sect"><span class="n">03</span> 성향 분석 · 5관점 <span class="badge">다관점</span></div>
+      <div class="card">
+        <div class="radar-row">
+          <svg width="118" height="112" viewBox="0 0 120 114">
+            <g fill="none" stroke="#e5e8eb" stroke-width="1.3"><polygon points="60,10 106,42 88,100 32,100 14,42"/><polygon points="60,34 84,50 74,82 46,82 36,50"/></g>
+            <polygon points="60,30 82,46 70,80 50,78 40,50" fill="rgba(139,149,161,.14)" stroke="#b0b8c1" stroke-width="1.4"/>
+            <polygon points="60,13 101,44 78,96 40,90 25,45" fill="rgba(125,181,33,.18)" stroke="var(--lime2)" stroke-width="2.4"/>
+            <text x="60" y="7" text-anchor="middle" font-size="8.5" fill="#8b95a1" font-weight="700">논리·분석</text>
+            <text x="114" y="44" text-anchor="middle" font-size="8.5" fill="#8b95a1" font-weight="700">과학·수리</text>
+            <text x="90" y="112" text-anchor="middle" font-size="8.5" fill="#8b95a1" font-weight="700">예술·정서</text>
+            <text x="30" y="112" text-anchor="middle" font-size="8.5" fill="#8b95a1" font-weight="700">사회·공동체</text>
+            <text x="7" y="44" text-anchor="middle" font-size="8.5" fill="#8b95a1" font-weight="700">비판</text>
+          </svg>
+          <div class="rt"><b>논리·비판 축이 압도적 강점</b>. 예술·정서 축은 얕아, 이 관점을 더하면 사고의 폭이 넓어집니다.</div>
+        </div>
+        <div class="lg"><span><span class="d" style="background:#b0b8c1"></span>연초(3월)</span><span><span class="d" style="background:var(--lime2)"></span>연말(2월)</span></div>
+        <div class="axis">
+          <div class="ax"><div class="abar"><div class="an">논리·분석</div><div class="track"><i style="width:92%"></i></div><div class="av">92</div></div>
+            <div class="atx"><b>최상위 강점.</b> 8강 "탄소 데이터" 활동에서 상관과 인과를 구분해 서술 — 또래 대비 드문 수준.</div></div>
+          <div class="ax"><div class="abar"><div class="an">비판</div><div class="track"><i style="width:86%"></i></div><div class="av">86</div></div>
+            <div class="atx"><b>가장 크게 성장(+34).</b> 크리티컬 랩에서 <b>자기 주장을 스스로 반박</b>하는 습관이 자리 잡음.</div></div>
+          <div class="ax"><div class="abar"><div class="an">과학·수리</div><div class="track"><i style="width:78%"></i></div><div class="av">78</div></div>
+            <div class="atx">수치·모델을 두려워하지 않음. 통계 도구를 배우면 폭발적으로 성장할 지점.</div></div>
+          <div class="ax"><div class="abar"><div class="an">사회·공동체</div><div class="track"><i style="width:64%"></i></div><div class="av">64</div></div>
+            <div class="atx">문제를 개인이 아닌 <b>시스템</b>으로 보는 시선이 싹틈 — 진로(환경·정책)와 연결됨.</div></div>
+          <div class="ax"><div class="abar"><div class="an">예술·정서</div><div class="track"><i style="width:41%"></i></div><div class="av">41</div></div>
+            <div class="atx"><b>보완 권장.</b> "사람 관점"의 서술을 더하면 데이터에 설득력·온기가 붙습니다.</div></div>
+        </div>
+      </div>
+
+      <!-- 04 발전 추이 -->
+      <div class="sect"><span class="n">04</span> 발전 추이 · 사고 가속도</div>
+      <div class="card">
+        <div class="trend">
+          <div class="tcol"><div class="tbar"><i style="height:28px"></i></div><div class="tv">Lv1</div><div class="tq">1분기</div></div>
+          <div class="tcol"><div class="tbar"><i style="height:42px"></i></div><div class="tv">Lv2</div><div class="tq">2분기</div></div>
+          <div class="tcol"><div class="tbar"><i style="height:56px"></i></div><div class="tv">Lv2+</div><div class="tq">3분기</div></div>
+          <div class="tcol"><div class="tbar"><i style="height:74px"></i></div><div class="tv">Lv3</div><div class="tq">4분기</div></div>
+        </div>
+        <div class="trend-note">
+          <div><span class="qb">Q1→Q2</span><b>질문의 결이 바뀜.</b> "무엇"을 묻다가 "왜·어떻게"를 묻기 시작.</div>
+          <div style="margin-top:6px"><span class="qb">Q3→Q4</span><b>도약 지점.</b> 근거를 모아 스스로 <b>반증을 시도</b> — 트랙이 노리는 핵심 사고력에 도달.</div>
+        </div>
+      </div>
+
+      <!-- 05 핵심 성장 근거 -->
+      <div class="sect"><span class="n">05</span> 눈에 띈 성장 장면</div>
+      <div class="evid">
+        <div class="ev"><div class="ei">🔍</div><div><div class="eh">데이터로 말하기 시작</div><div class="ed">"급식 잔반이 많다"를 <em>배출계수로 환산해 kgCO₂로</em> 표현 — 체감을 수치로 바꾼 첫 순간.</div></div></div>
+        <div class="ev"><div class="ei">⚖️</div><div><div class="eh">스스로 반박하기</div><div class="ed">자기 주장에 "그런데 이 데이터만으론 부족하다"며 <em>반대 근거를 먼저 검토</em>. 비판 사고의 핵심.</div></div></div>
+        <div class="ev"><div class="ei">🧩</div><div><div class="eh">문제를 시스템으로 보기</div><div class="ed">개인 실천을 넘어 <em>정책·제도 층위</em>에서 해법을 상상 — 진로(환경·정책)와 직결.</div></div></div>
+      </div>
+
+      <!-- 06 진로 매칭 -->
+      <div class="sect"><span class="n">06</span> 진로 매칭 Top 3 <span class="badge lime">TRACK</span></div>
+      <div class="match">
+        <div class="mrow top">
+          <div class="mtop"><span class="rk">1</span><div><div class="mn">환경·에너지공학</div><div class="md">기후·에너지 시스템을 데이터로 설계</div></div><div class="fit"><div class="fv">88</div><div class="fl">FIT</div></div></div>
+          <div class="fbar"><div class="bt"><i style="width:88%"></i></div><span class="bn">88 / 100</span></div>
+          <div class="why"><b>왜 잘 맞나요?</b> 소율의 <b>논리·수리 강점 + 시스템적 시선</b>이 이 분야의 핵심 역량과 겹칩니다. 탄소·에너지 문제를 "감정"이 아니라 "정량 모델"로 다루려는 성향이 뚜렷합니다.</div>
+          <div class="tags"><span class="k">필요역량 · 미적분</span><span class="k">데이터·통계</span><span class="k">과학 모델링</span><span>연계 학과 · 환경공학/에너지시스템/기후과학</span></div>
+        </div>
+        <div class="mrow">
+          <div class="mtop"><span class="rk">2</span><div><div class="mn">데이터과학·통계</div><div class="md">수치 뒤의 인과를 읽는 힘</div></div><div class="fit"><div class="fv">82</div><div class="fl">FIT</div></div></div>
+          <div class="fbar"><div class="bt"><i style="width:82%"></i></div><span class="bn">82 / 100</span></div>
+          <div class="why"><b>왜 잘 맞나요?</b> 상관과 인과를 구분하는 습관은 데이터과학의 출발점입니다. 통계 도구만 얹으면 강점이 폭발할 영역.</div>
+          <div class="tags"><span class="k">필요역량 · 확률과 통계</span><span class="k">프로그래밍 기초</span><span>연계 학과 · 통계/데이터사이언스/산업공학</span></div>
+        </div>
+        <div class="mrow">
+          <div class="mtop"><span class="rk">3</span><div><div class="mn">도시·환경계획</div><div class="md">문제를 공동체 단위로 해결</div></div><div class="fit"><div class="fv">76</div><div class="fl">FIT</div></div></div>
+          <div class="fbar"><div class="bt"><i style="width:76%"></i></div><span class="bn">76 / 100</span></div>
+          <div class="why"><b>왜 잘 맞나요?</b> 성장 중인 "사회·공동체" 축을 살리는 진로. 데이터 강점에 <b>사람·정책 관점</b>을 더하면 폭이 넓어집니다.</div>
+          <div class="tags"><span class="k">필요역량 · 사회탐구</span><span class="k">정책·통계</span><span>연계 학과 · 도시계획/환경정책/행정</span></div>
+        </div>
+      </div>
+
+      <!-- 07 고교 로드맵 -->
+      <div class="sect"><span class="n">07</span> 고1~고3 로드맵 <span class="badge lime">TRACK</span></div>
+      <div class="roadhead">2022 개정 <b>고교학점제</b> 기준. Top 진로 <b>「환경·에너지공학」</b>을 향해 <b>선택과목·탐구·진로목표</b>가 3년간 하나의 서사로 이어지도록 설계했습니다. <b>탐구는 매년 한 단계씩 심화</b>됩니다.</div>
+      <div class="stair">
+        <div class="stp s1"><span class="sl">고1</span><span class="sn">씨앗</span><span class="sd">체감 → 수치화</span></div>
+        <div class="stp s2"><span class="sl">고2</span><span class="sn">분석</span><span class="sd">인과 검증·통계</span></div>
+        <div class="stp s3"><span class="sl">고3</span><span class="sn">설계</span><span class="sd">정책 제안·종합</span></div>
+      </div>
+      <div class="road">
+
+        <!-- 고1 -->
+        <div class="gnode g1"><span class="gl"></span><span class="gdot">고1</span>
+          <div class="gcard">
+            <div class="gh">씨앗 심기 · 관심을 데이터로</div>
+            <div class="gg">공통과목 충실 + 진로 3개로 좁히기</div>
+            <div class="grow"><span class="gk">선택과목 · 왜</span>
+              <div class="subj">
+                <div class="s"><b>공통수학1·2</b><span class="rz">모든 정량 탐구의 토대</span></div>
+                <div class="s"><b>통합과학1·2</b><span class="rz">기후·에너지 단원에서 관심 확정</span></div>
+                <div class="s"><b>통합사회1·2</b><span class="rz">환경을 사회문제로 보는 눈</span></div>
+              </div>
+            </div>
+            <div class="grow"><span class="gk t">탐구 · 씨앗</span>
+              <div class="tamgu">
+                <div class="tt"><span class="qz">THEME 01</span>우리 학교 급식 잔반의 탄소발자국 추정</div>
+                <div class="tmeta">
+                  <div class="tm"><span class="mk">목적</span><span class="mv">"체감"을 <b>정량 지표(kgCO₂)</b>로 바꾸는 첫 경험 — 데이터로 말하는 습관 만들기</span></div>
+                  <div class="tm"><span class="mk">방법</span><span class="mv">1주 잔반량 측정 → 식품별 배출계수 적용 → 학급 단위로 환산</span></div>
+                  <div class="tm"><span class="mk">산출물</span><span class="mv">인포그래픽 1p + 짧은 발표</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="grow"><span class="gk s">진로목표</span><div class="setuk"><b>관심의 확정.</b> 이 탐구를 "왜 골랐는지"가 곧 진로 관심의 첫 단서가 됩니다.</div></div>
+          </div>
+        </div>
+
+        <!-- 고2 -->
+        <div class="gnode g2"><span class="gl"></span><span class="gdot">고2</span>
+          <div class="gcard">
+            <div class="gh">심화 · 도구를 손에 쥐기</div>
+            <div class="gg">진로선택으로 방향 구체화 + 통계 무장</div>
+            <div class="grow"><span class="gk">선택과목 · 왜</span>
+              <div class="subj">
+                <div class="s"><b>미적분Ⅰ</b><span class="rz">변화율·모델링 언어</span></div>
+                <div class="s"><b>확률과 통계</b><span class="rz">데이터 분석의 필수 도구</span></div>
+                <div class="s"><b>화학 / 지구과학</b><span class="rz">에너지·기후의 과학 기반</span></div>
+                <div class="s"><b>사회와 문화</b><span class="rz">환경정책의 사회 맥락</span></div>
+              </div>
+            </div>
+            <div class="grow"><span class="gk t">탐구 · 심화</span>
+              <div class="tamgu">
+                <div class="tt"><span class="qz">THEME 02</span>우리 지역 3년치 기온·대기질 공공데이터 회귀분석</div>
+                <div class="tmeta">
+                  <div class="tm"><span class="mk">목적</span><span class="mv">상관과 <b>인과</b>를 구분하며, 통계로 주장을 검증 — 고1 씨앗을 "분석"으로 격상</span></div>
+                  <div class="tm"><span class="mk">방법</span><span class="mv">공공데이터포털 수집 → 스프레드시트/파이썬 회귀 → 교란변수 검토</span></div>
+                  <div class="tm"><span class="mk">산출물</span><span class="mv">8p 소논문 + 데이터 시각화</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="grow"><span class="gk s">진로목표</span><div class="setuk"><b>방향의 구체화.</b> 분석 역량이 "환경·에너지" 진로와 일관되게 쌓이는 단계.</div></div>
+          </div>
+        </div>
+
+        <!-- 고3 -->
+        <div class="gnode g3"><span class="gl"></span><span class="gdot">고3</span>
+          <div class="gcard">
+            <div class="gh">융합·완성 · 하나의 이야기로</div>
+            <div class="gg">융합선택 + 3년 탐구를 서류로 연결</div>
+            <div class="grow"><span class="gk">선택과목 · 왜</span>
+              <div class="subj">
+                <div class="s"><b>미적분Ⅱ</b><span class="rz">공학 계열 심화 대비</span></div>
+                <div class="s"><b>기후변화와 지속가능한 세계</b><span class="rz">진로 정체성의 정점</span></div>
+                <div class="s"><b>융합과학 탐구</b><span class="rz">과학+데이터 종합</span></div>
+                <div class="s"><b>실용 통계</b><span class="rz">탐구를 근거로 완성</span></div>
+              </div>
+            </div>
+            <div class="grow"><span class="gk t">탐구 · 종합</span>
+              <div class="tamgu">
+                <div class="tt"><span class="qz">THEME 03</span>우리 지역 탄소중립 정책 제안서</div>
+                <div class="tmeta">
+                  <div class="tm"><span class="mk">목적</span><span class="mv">문제→분석→<b>해결 설계</b>의 완결. 데이터에 "사람·정책" 관점을 더해 약점 축까지 보완</span></div>
+                  <div class="tm"><span class="mk">방법</span><span class="mv">고1·고2 탐구 종합 → 비용·효과 간이 시뮬 → 실행안 제안</span></div>
+                  <div class="tm"><span class="mk">산출물</span><span class="mv">정책 제안 보고서 + 발표 + 성장 서사 정리</span></div>
+                </div>
+              </div>
+            </div>
+            <div class="grow"><span class="gk s">진로목표</span><div class="setuk"><b>진로 정체성 완성.</b> 3년 탐구가 "환경을 데이터로 설계하는 사람"이라는 한 문장으로 모입니다.</div></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 08 다음 분기 액션 -->
+      <div class="sect"><span class="n">08</span> 다음 분기, 이것부터</div>
+      <div class="todo">
+        <div class="td"><div class="ck"></div><div class="tx"><b>예술·정서 관점 1회 연습</b> — 데이터 글에 "사람 이야기" 한 문단 덧붙이기. <span class="when">이번 달</span></div></div>
+        <div class="td"><div class="ck"></div><div class="tx"><b>스프레드시트 회귀 기초</b> 익히기 — 고2 탐구의 무기 미리 준비. <span class="when">여름</span></div></div>
+        <div class="td"><div class="ck"></div><div class="tx"><b>관심 진로 3개 → 2개로</b> 좁히기. 다음 분기 리포트에서 재매칭. <span class="when">다음 분기</span></div></div>
+      </div>
+
+      <div class="foot"><div class="note">📌 이 리포트는 소율님의 <b>트랙 활동 로그·성향 분석</b>을 근거로 <b>부모님이 직접 분석·발행</b>했습니다. 관심·성적이 바뀌면 <b>다시 분석해 갱신</b>할 수 있어요. 선택과목·학과명은 방향 예시이며, <b>합격 보장·서열화가 아니라 "탐구 서사 설계"</b>를 위한 것입니다.</div></div>
+    </div>
+  </div></div>
+  <div class="cap">펜타 트랙 · 연간 프리미엄 리포트 목업<br>총평 · 성향 5축 근거 · 진로 상세 · 고1~고3 선택과목/탐구주제·목적·산출물/진로목표 로드맵</div>
+</body>
+</html>
