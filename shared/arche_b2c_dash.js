@@ -130,7 +130,7 @@
     var arche=opts.arche||archeLine(band).map(function(x){ return archeCardObj(x,'parent'); });
 
     var html='<section class="b2cd-view">'
-      +'<div class="hero blue"><button class="lo" data-lo>로그아웃</button>'
+      +'<div class="hero blue">'
         +'<div class="av">'+(pName?esc(pName.slice(0,1)):'👤')+'</div>'
         +'<div class="who"><div class="eb">PENTA · 학부모</div><h1>'+(pName?esc(pName)+' ':'')+'학부모님</h1>'
         +'<div class="meta"><span class="chip">자녀 · '+esc(cName)+(cGrade?(' ('+esc(cGrade)+')'):'')+'</span><span class="chip">학부모–학생 루프</span></div></div></div>'

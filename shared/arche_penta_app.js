@@ -92,7 +92,7 @@
   function eligibleCourses(grade){ var b=gradeBand(grade); return Object.keys(COURSES).filter(function(k){return COURSES[k].bands.indexOf(b)>=0;}); }
   function byStage(rows, stage){ return stage ? (rows||[]).filter(function(r){return r.stage===stage;}) : (rows||[]); }
   // 코스 스펙에 맞는 카탈로그/배정 행 필터 (stage + level)
-  function bySpec(rows, spec){ if(!spec||!spec.stage)return rows||[]; return (rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); }
+  function bySpec(rows, spec){ var out=(!spec||!spec.stage)?(rows||[]):(rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); try{ if(window._pentaSeason!=null){ out=out.filter(function(r){ return String(r.season)===String(window._pentaSeason); }); } }catch(e){} return out; }
   async function loadStudents(){
     var students=(window._students||[]).slice();
     if(!students.length){ try{ var r=await window.sb.from('students').select('id,name').eq('academy_id',acadId()).order('name'); if(r&&r.data)students=r.data; }catch(e){} }
@@ -463,7 +463,7 @@
     var subs;
     try{ var r=await window.sb.from('penta_submissions').select('id,stage,level,season,week,theme,title,report,status,sent_at').eq('student_id',studentId).eq('status','sent'); if(r.error)throw r.error; subs=r.data||[]; }
     catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
-    var sent=subs.filter(function(s){ if(!s.report)return false; if(spec&&spec.stage){ return s.stage===spec.stage && ((s.level||'')===(spec.level||'')); } return true; });
+    var sent=subs.filter(function(s){ if(!s.report)return false; if(window._pentaSeason!=null && String(s.season)!==String(window._pentaSeason))return false; if(spec&&spec.stage){ return s.stage===spec.stage && ((s.level||'')===(spec.level||'')); } return true; });
     if(!sent.length){ list.innerHTML='<div class="empty">아직 발행된 '+esc(spec.title)+' 리포트가 없어요.<br>수업 후 선생님이 리포트를 발행하면 여기에서 볼 수 있어요.</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
     sent.sort(function(a,b){return (b.sent_at||'').localeCompare(a.sent_at||'');});
@@ -501,6 +501,8 @@
   }
   function mountRole(root, role, opts){
     inject(); opts=opts||{};
+    /* 시즌 선택 반영: 시즌 피커에서 넘어온 season이 있으면 그 시즌만, 없으면 전체 */
+    try{ window._pentaSeason = (opts.season!=null && opts.season!=='') ? opts.season : null; }catch(e){}
     if(root && !root.classList.contains('pnta')){ var inner=root.querySelector('.pnta'); if(!inner){ inner=el('<div class="pnta"></div>'); root.innerHTML=''; root.appendChild(inner);} root=inner; }
     if(role==='student') return renderStudent(root, opts);
     if(role==='parent') return renderParent(root, opts);
