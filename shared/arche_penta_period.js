@@ -287,7 +287,16 @@
 
     box.appendChild(el('<div class="foot"><div class="note">📌 이 리포트는 <b>'+esc((report.meta&&report.meta.name)||'자녀')+'</b>의 펜타 활동 로그·성향 분석을 근거로 <b>부모님이 직접 분석·발행</b>했습니다. 관심·활동이 바뀌면 <b>다시 분석해 갱신</b>할 수 있어요. '+(stage==='track'?'선택과목·학과명은 방향 예시이며 <b>합격 보장·서열화가 아니라 "탐구 서사 설계"</b>를 위한 것입니다.':'성장은 아이마다 속도가 달라요. <b>비교가 아닌, 어제의 아이와의 비교</b>로 읽어주세요.')+'</div></div>'));
 
-    mount.innerHTML=''; mount.appendChild(wrap);
+    mount.innerHTML='';
+    if(window.ArcheExport){
+      var _rt=(((report.meta&&report.meta.name)||'자녀')+'님 '+(PTLABEL[report.period_type]||'정기')+' 리포트');
+      var tb=el('<div class="ppr-toolbar" style="display:flex;justify-content:flex-end;gap:7px;margin:0 0 8px;flex-wrap:wrap"></div>');
+      function _mk(lbl,fn){ var b=el('<button style="font:inherit;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid '+acc+';background:#fff;color:'+acc+';cursor:pointer">'+lbl+'</button>'); b.addEventListener('click',fn); return b; }
+      tb.appendChild(_mk('📄 PDF 저장·인쇄',function(){ ArcheExport.printNode(wrap,{title:_rt,styleIds:['ppr-css']}); }));
+      tb.appendChild(_mk('📝 DOCX',function(){ ArcheExport.docx({title:_rt,html:wrap.innerHTML}); }));
+      mount.appendChild(tb);
+    }
+    mount.appendChild(wrap);
     return wrap;
   }
 

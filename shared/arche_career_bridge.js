@@ -98,6 +98,27 @@
     else { qs.forEach(function(q,i){ var v=ans?ans['a'+i]:''; h+='<div class="qa"><div class="q">'+(i+1)+'. '+esc(q.q||'')+'</div><div class="a">'+(v&&String(v).length?esc(v):'<span style="color:#c0313d">미작성</span>')+'</div></div>'; }); }
     return h||'<div class="note">내용이 없습니다.</div>'; }
 
+  // ── 내보내기(PDF/DOCX/HWPX) ────────────────────────────────────────────
+  function exportBodyHtml(rep){ var h='';
+    if(rep.coach_feedback) h+=reportHtml(rep.coach_feedback);
+    var a=rep.answers||{}; var rich=a.html||''; var text=a.text||'';
+    if(rich){ h+='<h3 style="font-size:15px;color:#1A237E;margin:12px 0 4px">✍️ 탐구보고서</h3><div>'+rich+'</div>'; }
+    else if(text){ h+='<h3 style="font-size:15px;color:#1A237E;margin:12px 0 4px">✍️ 탐구보고서</h3><div style="white-space:pre-wrap">'+esc(text)+'</div>'; }
+    else h+=wsQaHtml(rep);
+    return h; }
+  function exportBar(rep, who){
+    if(!window.ArcheExport) return null;
+    var title=(rep.title||rep.topic||'진로 탐구보고서');
+    var sub=(who?who+' · ':'')+(rep.topic||rep.field||'진로 징검다리');
+    var body=exportBodyHtml(rep);
+    var bar=el('<div class="row" style="margin-top:8px;border-top:1px dashed #e6e9f0;padding-top:10px"></div>');
+    bar.appendChild(el('<div style="width:100%;font-size:11.5px;color:#8b95a1;margin-bottom:4px">📤 내보내기</div>'));
+    function mk(lbl,cls,fn){ var b=el('<button class="act '+cls+'">'+lbl+'</button>'); b.addEventListener('click',fn); return b; }
+    bar.appendChild(mk('📄 PDF','gh',function(){ ArcheExport.pdf({title:title,subtitle:sub,html:body}); }));
+    bar.appendChild(mk('📝 DOCX','mut',function(){ ArcheExport.docx({title:title,subtitle:sub,html:body}); }));
+    bar.appendChild(mk('📗 HWPX','mut',function(){ ArcheExport.hwpx({title:title,subtitle:sub,html:body}); }));
+    return bar; }
+
   // ── 학생 ──────────────────────────────────────────────────────────────
   async function renderStudent(container){
     var stu=window._activeStudent||{}; var sid=stu.id||null;
@@ -190,6 +211,7 @@
     var ov=ovOpen(); var box=el('<div class="acb"><div class="card"><h2 style="margin:0 0 6px">'+esc(rep.title||'탐구 결과')+'</h2></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
     if(rep.coach_feedback) card.insertAdjacentHTML('beforeend', reportHtml(rep.coach_feedback));
     card.insertAdjacentHTML('beforeend', wsQaHtml(rep));
+    var _xb=exportBar(rep, (window._activeStudent&&window._activeStudent.name)||''); if(_xb)card.appendChild(_xb);
   }
 
   // ── 학부모(컨설턴트) ──────────────────────────────────────────────────
@@ -304,6 +326,17 @@
         setTimeout(function(){ ov.remove(); remount(container,'staff'); },800);
       }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='회신 실패: '+(e.message||e); }
     });
+    if(window.ArcheExport){
+      var xbar=el('<div class="row" style="margin-top:10px;border-top:1px dashed #e6e9f0;padding-top:10px"></div>');
+      xbar.appendChild(el('<div style="width:100%;font-size:11.5px;color:#8b95a1;margin-bottom:4px">📤 내보내기 (평가 리포트 + 탐구보고서)</div>'));
+      var tt=(r.title||r.topic||'진로 탐구보고서'), ss=((name||'')+' · '+(r.topic||r.field||'진로 징검다리'));
+      function curBody(){ var rr={}; for(var k in r)rr[k]=r[k]; if(repData)rr.coach_feedback={report:repData,note:repData.note,questions:repData.questions}; return exportBodyHtml(rr); }
+      function mkx(lbl,cls,fn){ var b=el('<button class="act '+cls+'">'+lbl+'</button>'); b.addEventListener('click',fn); return b; }
+      xbar.appendChild(mkx('📄 PDF','gh',function(){ ArcheExport.pdf({title:tt,subtitle:ss,html:curBody()}); }));
+      xbar.appendChild(mkx('📝 DOCX','mut',function(){ ArcheExport.docx({title:tt,subtitle:ss,html:curBody()}); }));
+      xbar.appendChild(mkx('📗 HWPX','mut',function(){ ArcheExport.hwpx({title:tt,subtitle:ss,html:curBody()}); }));
+      card.appendChild(xbar);
+    }
   }
 
   window.ArcheCareerBridge={ mount:mount, version:'4.0' };

@@ -96,6 +96,16 @@
     if(!document.getElementById('apr-font')){var l=document.createElement('link');l.id='apr-font';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Noto+Sans+KR:wght@400;700;900&display=swap';document.head.appendChild(l);} }
   function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 
+  function _xbar(mount,root,d){ if(!window.ArcheExport)return;
+    var nm=(d&&d.student&&d.student.name)||'자녀'; var stg=(d&&d.stage==='track')?'트랙':'비전';
+    var title=nm+'님 펜타 '+stg+' 리포트'+((d&&d.lesson&&d.lesson.title)?(' · '+d.lesson.title):'');
+    var c=(d&&d.stage==='track')?'#6fa81c':'#c8a24a';
+    var tb=document.createElement('div'); tb.style.cssText='display:flex;justify-content:flex-end;gap:7px;margin:0 0 8px;flex-wrap:wrap';
+    function mk(l,fn){ var b=document.createElement('button'); b.textContent=l; b.style.cssText='font:inherit;font-size:12px;font-weight:700;padding:7px 12px;border-radius:8px;border:1px solid '+c+';background:#fff;color:'+c+';cursor:pointer'; b.onclick=fn; return b; }
+    tb.appendChild(mk('📄 PDF 저장·인쇄',function(){ ArcheExport.printNode(root,{title:title,styleIds:['apr-css']}); }));
+    tb.appendChild(mk('📝 DOCX',function(){ ArcheExport.docx({title:title,html:root.innerHTML}); }));
+    mount.appendChild(tb); }
+
   function radarSVG(axes,before,after){
     var C=150,cy=140,R=100,N=axes.length||5;
     function pt(i,r){var a=-Math.PI/2+i*2*Math.PI/N;return [C+r*Math.cos(a),cy+r*Math.sin(a)];}
@@ -190,7 +200,7 @@
     if(d.consultantConfirmed) h+='<div class="ctag">🖊️ 이 리포트는 담당 컨설턴트가 검토·확정 후 발행했습니다.</div>';
     h+='<div class="disc">본 리포트는 특허 출원 기술(10-2026-0053173) 기반 인지 진단 <b>참고 자료</b>로, 타 학생과의 서열·순위 비교를 포함하지 않으며 합격을 보장하지 않습니다. 진학 정보는 탐색 제안입니다.</div>'
       +'<div class="foot"><span>PentaView · 펜타 트랙</span><span>'+esc(d.date||'')+' · penta-view.com</span></div>';
-    root.innerHTML=h; mount.innerHTML=''; mount.appendChild(root); return root;
+    root.innerHTML=h; mount.innerHTML=''; _xbar(mount,root,d); mount.appendChild(root); return root;
   }
 
   function render(mount,d){
@@ -270,7 +280,7 @@
     if(d.consultantConfirmed) h+='<div class="ctag">🖊️ 이 리포트는 담당 컨설턴트가 검토·확정 후 발행했습니다.</div>';
     h+='<div class="disc">본 리포트는 특허 출원 기술(10-2026-0053173) 기반 인지 진단 <b>참고 자료</b>로, 타 학생과의 서열·순위 비교를 포함하지 않으며 학교 성적·평가를 대체하지 않습니다. 성장에는 개인차가 있습니다.</div>'
       +'<div class="foot"><span>PentaView · 펜타 비전</span><span>'+esc(d.date||'')+' · penta-view.com</span></div>';
-    root.innerHTML=h; mount.innerHTML=''; mount.appendChild(root); return root;
+    root.innerHTML=h; mount.innerHTML=''; _xbar(mount,root,d); mount.appendChild(root); return root;
   }
   window.ArchePentaReport={ render:render, version:'1.0' };
 })();
