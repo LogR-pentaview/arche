@@ -8665,6 +8665,19 @@ window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자
 // 초기: 모든 그룹 접힘 — 메뉴 이동/홈 카드 클릭 시에만 해당 그룹 펼침
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
+// 홍보홈 '무료 체험 시작'(?trial=1) → 로그인 게이트가 뜨면 게스트 체험 폼 자동 열기
+try{ if(/[?&](trial|guest)=1/.test(location.search)){
+  var _tn=0, _tiv=setInterval(function(){
+    var ag=document.getElementById('authgate');
+    var gf=document.getElementById('guest-form');
+    var visible=ag && getComputedStyle(ag).display!=='none';
+    if(visible && gf){ if(gf.style.display==='none' || !gf.style.display){ try{toggleGuestForm();}catch(e){} }
+      try{ ag.scrollIntoView(); var em=document.getElementById('gu-email'); if(em)em.focus(); }catch(e){}
+      clearInterval(_tiv); }
+    else if(++_tn>40){ clearInterval(_tiv); }  // 로그인돼 게이트가 없으면(이미 로그인) 조용히 종료
+  }, 250);
+}}catch(e){}
+
 </script>
 <script>
 // ===== PWA: Service Worker 등록 =====
