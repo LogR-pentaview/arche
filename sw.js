@@ -1,5 +1,5 @@
 /* Arche PWA Service Worker — index는 network-first(배포 즉시 반영), 아이콘 등 정적만 캐시 */
-const CACHE = 'arche-v5.0';
+const CACHE = 'arche-v5.1';
 const STATIC = ['/manifest.json','/icon-192.png','/icon-512.png','/icon-180.png'];
 
 self.addEventListener('install', e => {
@@ -15,9 +15,10 @@ self.addEventListener('fetch', e => {
   if (url.origin !== location.origin) return;
   // 페이지 이동: network-first, 오프라인 시 캐시 폴백
   if (e.request.mode === 'navigate') {
+    // 경로별로 캐시/폴백(/parent·/academy·/login 구분) — 오프라인에서 직전 다른 앱이 뜨던 문제 방지
     e.respondWith(
-      fetch(e.request).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put('/', cp)); return r; })
-        .catch(() => caches.match('/'))
+      fetch(e.request).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(url.pathname, cp)); return r; })
+        .catch(() => caches.match(url.pathname).then(m => m || caches.match('/')))
     );
     return;
   }
