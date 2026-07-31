@@ -197,6 +197,7 @@
       try{ var answers={ text:t, html:html, typing_meta:tm, submitted_at:new Date().toISOString() };
         var res=await submitAnswers(sid, rep.id, rep.topic||rep.title, rep.field, answers); if(res&&res.error)throw res.error;
         msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉 잠시 후 사후 회고가 열려요.';
+        try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'con', kind:'design', title:((stu&&stu.name)?('['+stu.name+'] '):'')+'진로 탐구보고서 제출', body:'자녀가 탐구보고서를 제출했어요. 평가·코칭을 진행해 주세요.', view:(window._designTrack==='goip'?'gdesign':'sr')}); }catch(_e){}
         // 워크북 오버레이(최상위 z-index)를 먼저 닫고 → 사후 회고 인터뷰를 깨끗한 화면에 표시
         setTimeout(function(){
           ov.remove(); remount(container,'student');
@@ -322,6 +323,7 @@
       var feedback={ report:repData, note:repData.note, questions:repData.questions };
       try{ var res=await saveCoaching(r.id, feedback, 'sent'); if(res&&res.error)throw res.error;
         try{ await window.sb.rpc('push_parent_item',{p_academy:acadId(),p_student:r.student_id,p_type:'design',p_title:(name||'학생')+' 진로 탐구 평가',p_body:(repData.note||'')+'\n\n※ 학생이 스스로 진행한 진로 탐색 성장 기록이며 생기부 기재용이 아닙니다.',p_data:null,p_link:null}); }catch(_e){}
+        try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:r.student_id, recipient:'stu', kind:'design', title:'진로 탐구 평가 도착', body:'학부모(선생님)가 진로 탐구 평가를 보냈어요.', view:(window._designTrack==='goip'?'gdesign':'sr')}); }catch(_e){}
         m.style.color='#137a44'; m.textContent='자녀에게 회신했어요 ✅';
         setTimeout(function(){ ov.remove(); remount(container,'staff'); },800);
       }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='회신 실패: '+(e.message||e); }
