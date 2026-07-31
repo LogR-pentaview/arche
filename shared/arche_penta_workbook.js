@@ -468,8 +468,22 @@
           +'<div class="qbox" style="'+tn.box+'"><h4 style="'+tn.h+'">'+esc(head)+'</h4><p style="'+tn.p+'">'+qn+esc(b.q||'')+'</p>'
             +(b.hint?'<div class="mission" style="'+tn.m+'">✏️ '+esc(b.hint)+'</div>':(isKid&&b.tone==null?'<div class="mission">✏️ 정답은 없어요. 네 생각을 자유롭게 써봐요!</div>':''))+'</div>'
           +'<div class="abox"><label><span class="pen">✎</span> '+esc(b.ansLabel||'내 생각')+'</label>'
-            +'<textarea rows="'+(b.rows||4)+'" placeholder="'+esc(b.placeholder||'여기에 생각을 적어 보세요')+'">'+esc(state.answers[b.id]||'')+'</textarea></div></div>';
+            +'<textarea rows="'+(b.rows||4)+'" placeholder="'+esc(b.placeholder||'여기에 생각을 적어 보세요')+'">'+esc(state.answers[b.id]||'')+'</textarea>'
+            +((b.soke!==false && !ro && window.ArcheSoke)?'<button type="button" class="soke-ask" style="margin-top:8px;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:'+(L.stage==='track'?'#eef7db':'#eef3ff')+';color:'+(L.stage==='track'?'#4c7a12':'#1b64da')+';border:1px solid '+(L.stage==='track'?'#cfe89a':'#cfe0ff')+';border-radius:20px;padding:7px 13px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer">🤔 소크에게 물어보기</button>':'')
+            +'</div></div>';
         var ta=w.querySelector('textarea'); ta.addEventListener('input',function(){state.answers[b.id]=ta.value;});
+        var sokeBtn=w.querySelector('.soke-ask');
+        if(sokeBtn){ sokeBtn.addEventListener('click',function(){
+          window.ArcheSoke.open({
+            stage:L.stage, level:L.level,
+            topic:(L.theme||L.title||''), question:(b.q||b.head||''),
+            skin:(L.stage==='track'?'track':'vision'),
+            getPartial:function(){ return ta.value; },
+            studentId:(opts.studentId||window._activeStudent||window._activeStudentId||''),
+            lessonKey:(String(L.stage||'')+':'+String(L.season||'')+':'+String(L.week||'')+':'+String(b.id||'')),
+            tier:L.tier
+          });
+        }); }
         return w;
       }
       if(t==='scale'){
@@ -588,5 +602,5 @@
       collect:function(){ return { answers:state.answers, radar_before:state.radar_before, radar_after:state.radar_after, compass:+state.compass }; } };
   }
 
-  window.ArchePentaWorkbook = { render: render, version: '2.0' };
+  window.ArchePentaWorkbook = { render: render, version: '2.1' };
 })();
