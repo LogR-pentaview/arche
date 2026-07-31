@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>펜타 비전 · 연간 성장 리포트 (프리미엄)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+  :root{
+    --navy:#141a29;--navy2:#22293c;
+    --gold:#c8a24a;--gold-d:#a9852f;--gold-l:#e6c877;--gold-soft:#f7efdb;--cream:#fbf7ee;
+    --ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--faint:#b0b8c1;
+    --line:#e8e3d8;--line-soft:#f0ebe0;--bg:#f4f1ea;--panel:#fff;
+    --mono:'SFMono-Regular',ui-monospace,'Roboto Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:#e5e0d5;color:var(--ink);letter-spacing:-.012em;-webkit-font-smoothing:antialiased;line-height:1.6;display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:18px 12px 30px}
+  .hint{max-width:394px;font-size:12.5px;color:#6a6152;text-align:center;margin:0 auto 12px;line-height:1.6}
+  .hint b{color:#3a3427}
+  .phone{width:100%;max-width:394px;background:#0b0f18;border-radius:44px;padding:9px;box-shadow:0 30px 70px rgba(40,32,12,.3)}
+  .screen{background:var(--bg);border-radius:35px;overflow:hidden;position:relative;height:820px;display:flex;flex-direction:column}
+  .notch{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:110px;height:22px;background:#0b0f18;border-radius:20px;z-index:80}
+  .stat{height:36px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:11.5px;font-weight:700;color:#fff;flex:none;position:relative;z-index:2}
+  .body{flex:1;overflow:auto}
+  .body::-webkit-scrollbar{width:0}
+
+  .hd{background:linear-gradient(160deg,#171d2c,#2b3040 68%,#3a3524);color:#fff;padding:6px 20px 22px;position:relative;overflow:hidden}
+  .hd:after{content:"";position:absolute;right:-40px;top:-30px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,rgba(230,200,119,.22),transparent 68%)}
+  .hd .top{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:#c7bda6;position:relative}
+  .hd .top b{color:var(--gold-l)}
+  .hd h1{font-size:23px;font-weight:800;margin:9px 0 3px;letter-spacing:-.02em;position:relative}
+  .hd .sub{font-size:12px;color:#bcb4a3;position:relative}
+  .hd .pub{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;color:#3a2c07;background:var(--gold-l);border-radius:20px;padding:4px 11px;margin-top:13px;position:relative}
+  .hd .grade{position:absolute;right:18px;top:52px;font-family:var(--mono);font-size:34px;font-weight:800;color:var(--gold-l);line-height:1;text-align:right}
+  .hd .grade small{display:block;font-size:9px;color:#c7bda6;letter-spacing:.14em;font-weight:700;margin-top:4px}
+
+  .seg{display:flex;gap:6px;padding:13px 20px 4px;overflow:auto;background:var(--bg);position:sticky;top:0;z-index:5;box-shadow:0 6px 10px -8px rgba(40,32,12,.14)}
+  .seg::-webkit-scrollbar{height:0}
+  .seg button{flex:none;border:1px solid var(--line);background:#fff;color:var(--dim);font:inherit;font-weight:700;font-size:12.5px;padding:8px 16px;border-radius:20px;cursor:pointer}
+  .seg button.on{background:var(--gold-d);border-color:var(--gold-d);color:#fff}
+  .seg .depth{flex:none;display:flex;align-items:center;font-family:var(--mono);font-size:9.5px;color:var(--gold-d);background:var(--gold-soft);border:1px solid #ecdcb4;border-radius:20px;padding:0 11px;font-weight:800;letter-spacing:.03em}
+
+  .sect{font-size:12.5px;font-weight:800;color:var(--navy);letter-spacing:.01em;padding:20px 20px 9px;display:flex;align-items:center;gap:8px}
+  .sect .n{font-family:var(--mono);font-size:10px;color:var(--faint);font-weight:800}
+  .sect .badge{font-family:var(--mono);font-size:9px;color:#3a2c07;background:var(--gold-l);border-radius:5px;padding:2px 6px;letter-spacing:.04em;margin-left:auto}
+
+  .brief{margin:2px 20px;background:linear-gradient(165deg,#fefcf7,#f8f1e2);border:1px solid #ecdcb4;border-radius:18px;padding:18px 17px 16px;position:relative}
+  .brief .qm{position:absolute;top:8px;right:16px;font-size:44px;color:#e6d3a4;font-family:Georgia,serif;line-height:1}
+  .brief .bt{font-size:11px;font-weight:800;color:var(--gold-d);letter-spacing:.04em;margin-bottom:8px}
+  .brief p{font-size:13.5px;color:#33302a;line-height:1.85;margin:0 0 10px}
+  .brief p b{color:var(--navy);background:linear-gradient(transparent 62%,rgba(230,200,119,.55) 0)}
+  .brief .sign{display:flex;align-items:center;gap:9px;margin-top:12px;padding-top:12px;border-top:1px dashed #e0d2ad}
+  .brief .sav{width:30px;height:30px;border-radius:9px;background:var(--navy);color:var(--gold-l);display:grid;place-items:center;font-family:var(--mono);font-size:11px;font-weight:800}
+  .brief .sign .st{font-size:11px;color:var(--dim);line-height:1.4}
+  .brief .sign .st b{color:var(--ink);display:block;font-size:12px}
+
+  .kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:2px 20px}
+  .kpi{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:13px 14px}
+  .kpi .v{font-size:21px;font-weight:800;letter-spacing:-.01em}
+  .kpi .v em{font-style:normal;font-size:12px;color:var(--gold-d);font-weight:800}
+  .kpi .l{font-size:10.5px;color:var(--mute);margin-top:2px;font-weight:600}
+  .kpi .d{font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5;border-top:1px solid var(--line-soft);padding-top:6px}
+
+  .card{background:#fff;border:1px solid var(--line-soft);border-radius:16px;margin:2px 20px;padding:16px}
+  .radar-row{display:flex;align-items:center;gap:14px}
+  .radar-row .rt{font-size:12.5px;color:var(--dim);line-height:1.7}
+  .radar-row .rt b{color:var(--ink)}
+  .lg{display:flex;gap:14px;font-size:10.5px;font-weight:700;margin-top:8px}
+  .lg span{display:flex;align-items:center;gap:5px;color:var(--dim)}
+  .lg .d{width:9px;height:9px;border-radius:3px}
+  .axis{margin-top:14px;border-top:1px solid var(--line-soft);padding-top:12px;display:grid;gap:11px}
+  .ax{display:flex;gap:10px}
+  .ax .abar{width:52px;flex:none}
+  .ax .abar .an{font-size:10px;font-weight:800;color:var(--ink);margin-bottom:3px}
+  .ax .abar .track{height:5px;border-radius:4px;background:var(--line);overflow:hidden}
+  .ax .abar .track i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold-l))}
+  .ax .abar .av{font-family:var(--mono);font-size:9px;color:var(--gold-d);font-weight:800;margin-top:2px}
+  .ax .atx{font-size:11.5px;color:var(--dim);line-height:1.6;flex:1}
+  .ax .atx b{color:var(--ink)}
+
+  /* 8단계 여정 */
+  .journey{margin:2px 20px;background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:16px 14px 14px}
+  .jbars{display:flex;align-items:flex-end;gap:6px;height:96px}
+  .jcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+  .jcol .jb{width:100%;max-width:22px;border-radius:5px 5px 3px 3px;background:linear-gradient(180deg,var(--gold-l),var(--gold))}
+  .jcol.todo .jb{background:repeating-linear-gradient(135deg,#efe8d8,#efe8d8 4px,#e5dcc6 4px,#e5dcc6 8px)}
+  .jcol .jn{font-family:var(--mono);font-size:8.5px;color:var(--mute);margin-top:5px;font-weight:800}
+  .jcol.done .jn{color:var(--gold-d)}
+  .jlabels{display:flex;justify-content:space-between;margin-top:9px;font-size:9.5px;color:var(--mute);font-weight:600}
+  .jnote{font-size:11.5px;color:var(--dim);line-height:1.7;margin-top:11px;border-top:1px solid var(--line-soft);padding-top:11px}
+  .jnote b{color:var(--ink)}
+
+  .trend{display:flex;align-items:flex-end;gap:10px;padding:4px 2px 2px}
+  .trend .tcol{flex:1;text-align:center}
+  .trend .tbar{height:74px;display:flex;align-items:flex-end;justify-content:center}
+  .trend .tbar i{width:26px;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--gold-l),var(--gold))}
+  .trend .tq{font-size:10px;color:var(--mute);margin-top:5px;font-weight:600}
+  .trend .tv{font-size:10px;font-family:var(--mono);color:var(--gold-d);font-weight:800}
+  .trend-note{font-size:11.5px;color:var(--dim);line-height:1.7;margin-top:12px;border-top:1px solid var(--line-soft);padding-top:11px}
+  .trend-note b{color:var(--ink)}
+  .trend-note .qb{display:inline-block;font-family:var(--mono);font-size:9.5px;color:var(--gold-d);font-weight:800;margin-right:6px}
+
+  .evid{margin:2px 20px;display:grid;gap:9px}
+  .ev{background:#fff;border:1px solid var(--line-soft);border-radius:14px;padding:13px 15px;display:flex;gap:11px}
+  .ev .ei{width:30px;height:30px;flex:none;border-radius:9px;background:var(--gold-soft);display:grid;place-items:center;font-size:15px}
+  .ev .eh{font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:3px}
+  .ev .ed{font-size:11.5px;color:var(--dim);line-height:1.6}
+  .ev .ed em{font-style:normal;color:var(--gold-d);font-weight:700}
+
+  /* 코칭 포인트 */
+  .coach{margin:2px 20px;display:grid;gap:10px}
+  .co{background:#fff;border:1px solid var(--line-soft);border-radius:15px;padding:14px 15px;border-left:4px solid var(--gold)}
+  .co.warn{border-left-color:#e0b34a}
+  .co.home{border-left-color:#8fb0d8}
+  .co .ct{font-size:12.5px;font-weight:800;color:var(--navy);display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .co .ct .cg{font-size:9.5px;font-weight:800;color:#fff;background:var(--gold-d);border-radius:5px;padding:2px 7px;letter-spacing:.02em}
+  .co.warn .ct .cg{background:#c99326}.co.home .ct .cg{background:#5f82ad}
+  .co .cd{font-size:12px;color:var(--dim);line-height:1.72}
+  .co .cd b{color:var(--ink)}
+
+  .todo{margin:2px 20px;display:grid;gap:8px}
+  .td{background:#fff;border:1px solid var(--line-soft);border-radius:12px;padding:12px 14px;display:flex;gap:10px;align-items:flex-start}
+  .td .ck{width:18px;height:18px;flex:none;border-radius:6px;border:2px solid var(--gold);margin-top:1px;position:relative}
+  .td .ck:after{content:"";position:absolute;left:4px;top:1px;width:5px;height:9px;border:solid var(--gold);border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .td .tx{font-size:12px;color:var(--ink);line-height:1.55}
+  .td .tx b{color:var(--navy)}
+  .td .tx .when{font-size:10px;color:var(--gold-d);font-weight:700}
+
+  .foot{padding:16px 20px 24px}
+  .foot .note{font-size:11px;color:var(--mute);line-height:1.75;background:#fff;border:1px solid var(--line-soft);border-radius:13px;padding:13px 15px}
+  .foot .note b{color:var(--dim)}
+  .cap{font-size:11px;color:#5a5344;text-align:center;margin-top:14px;line-height:1.6}
+</style>
+</head>
+<body>
+  <div class="hint">펜타 <b>비전 · 연간 성장 리포트</b> (프리미엄) · 총평 → 융합사고 5역량 → 8단계 여정 → 코칭 포인트</div>
+  <div class="phone"><div class="notch"></div><div class="screen">
+    <div class="stat"><span>9:41</span><span>📶 5G 🔋</span></div>
+    <div class="body">
+
+      <div class="hd">
+        <div class="top">PENTA VISION <span style="color:#5a5340">/</span> ANNUAL <span style="color:#5a5340">/</span> <b>2026</b></div>
+        <div class="grade">A<small>융합사고</small></div>
+        <h1>하준님의 연간 성장 리포트</h1>
+        <div class="sub">펜타 비전 · 초5 · 진단기간 2026.03 ~ 2027.02</div>
+        <div class="pub">✓ 부모님이 분석·발행함 · 1일 전 · v4</div>
+      </div>
+
+      <div class="seg">
+        <button>월간</button><button>분기</button><button>반기</button><button class="on">연간</button>
+        <span class="depth">심층 10p</span>
+      </div>
+
+      <!-- 01 총평 -->
+      <div class="sect"><span class="n">01</span> 진단 컨설턴트 총평</div>
+      <div class="brief">
+        <div class="qm">&rdquo;</div>
+        <div class="bt">ANNUAL BRIEFING</div>
+        <p>하준이는 올 한 해 <b>"서로 상관없어 보이는 것을 이어 보는" 융합적 시선</b>이 부쩍 자랐습니다. 3월엔 사실을 하나씩 나열했다면, 지금은 <b>"이건 저것과 이렇게 연결돼요"라며 자기만의 지도</b>를 그립니다. 비전 8단계 중 6단계를 완주했고, 특히 <b>연결·융합 역량</b>에서 또래 대비 뚜렷한 강점을 보였습니다.</p>
+        <p>앞으로의 성장 포인트는 <b>"생각을 끝까지 표현하기"</b>입니다. 머릿속 아이디어는 풍부한데, 글·말로 펼칠 때 짧게 끝나는 경향이 있어요. 아래 <b>코칭 포인트</b>와 <b>가정에서 도울 점</b>을 참고하시면, 하준이의 좋은 생각이 <b>더 멀리까지 전달</b>됩니다.</p>
+        <div class="sign">
+          <div class="sav">P</div>
+          <div class="st"><b>펜타 진단 엔진 · 비전 코칭</b>성향·활동 로그 860건 · 4개 분기 리포트 종합</div>
+        </div>
+      </div>
+
+      <!-- 02 지표 요약 -->
+      <div class="sect"><span class="n">02</span> 한 해 지표 요약</div>
+      <div class="kpis">
+        <div class="kpi"><div class="v">6<em>/8단계</em></div><div class="l">여정 진행</div><div class="d">비전 8단계 중 6단계 완주</div></div>
+        <div class="kpi"><div class="v">Lv1<em>→2+</em></div><div class="l">융합사고력</div><div class="d">상위 20% 성장폭</div></div>
+        <div class="kpi"><div class="v">9<em>편</em></div><div class="l">생각 표현물</div><div class="d">글·그림·마인드맵 누적</div></div>
+        <div class="kpi"><div class="v">4<em>회</em></div><div class="l">리포트 발행</div><div class="d">분기마다 성장 확인</div></div>
+      </div>
+
+      <!-- 03 융합사고 5역량 -->
+      <div class="sect"><span class="n">03</span> 융합사고 5역량 <span class="badge">다관점</span></div>
+      <div class="card">
+        <div class="radar-row">
+          <svg width="118" height="112" viewBox="0 0 120 114">
+            <g fill="none" stroke="#eae4d6" stroke-width="1.3"><polygon points="60,10 106,42 88,100 32,100 14,42"/><polygon points="60,34 84,50 74,82 46,82 36,50"/></g>
+            <polygon points="60,32 80,47 70,80 50,80 42,50" fill="rgba(139,149,161,.14)" stroke="#c3bba8" stroke-width="1.4"/>
+            <polygon points="60,14 102,44 76,96 42,92 26,45" fill="rgba(200,162,74,.20)" stroke="var(--gold)" stroke-width="2.4"/>
+            <text x="60" y="7" text-anchor="middle" font-size="8.5" fill="#9a917e" font-weight="700">연결·융합</text>
+            <text x="113" y="44" text-anchor="middle" font-size="8.5" fill="#9a917e" font-weight="700">관찰력</text>
+            <text x="90" y="112" text-anchor="middle" font-size="8.5" fill="#9a917e" font-weight="700">표현력</text>
+            <text x="30" y="112" text-anchor="middle" font-size="8.5" fill="#9a917e" font-weight="700">공감·정서</text>
+            <text x="8" y="44" text-anchor="middle" font-size="8.5" fill="#9a917e" font-weight="700">질문력</text>
+          </svg>
+          <div class="rt"><b>연결·융합이 대표 강점</b>. 표현력은 아이디어에 비해 아직 짧아, 조금만 도우면 크게 자랄 부분이에요.</div>
+        </div>
+        <div class="lg"><span><span class="d" style="background:#c3bba8"></span>연초(3월)</span><span><span class="d" style="background:var(--gold)"></span>연말(2월)</span></div>
+        <div class="axis">
+          <div class="ax"><div class="abar"><div class="an">연결·융합</div><div class="track"><i style="width:90%"></i></div><div class="av">90</div></div>
+            <div class="atx"><b>최상위 강점.</b> "물의 순환"과 "우리 동네 홍수"를 스스로 이어 설명 — 개념을 삶으로 연결.</div></div>
+          <div class="ax"><div class="abar"><div class="an">관찰력</div><div class="track"><i style="width:82%"></i></div><div class="av">82</div></div>
+            <div class="atx">작은 차이를 잘 알아챕니다. 관찰이 질문으로 이어지면 더 깊어져요.</div></div>
+          <div class="ax"><div class="abar"><div class="an">질문력</div><div class="track"><i style="width:74%"></i></div><div class="av">74</div></div>
+            <div class="atx"><b>크게 성장(+28).</b> "왜?"에서 "그럼 만약에?"로 질문의 폭이 넓어짐.</div></div>
+          <div class="ax"><div class="abar"><div class="an">공감·정서</div><div class="track"><i style="width:68%"></i></div><div class="av">68</div></div>
+            <div class="atx">이야기 속 인물의 마음을 잘 헤아립니다. 안정적으로 성장 중.</div></div>
+          <div class="ax"><div class="abar"><div class="an">표현력</div><div class="track"><i style="width:52%"></i></div><div class="av">52</div></div>
+            <div class="atx"><b>집중 코칭 영역.</b> 생각은 풍부한데 글·말이 짧게 끝남. 한 문장만 더 붙이는 연습이 열쇠.</div></div>
+        </div>
+      </div>
+
+      <!-- 04 8단계 여정 -->
+      <div class="sect"><span class="n">04</span> 비전 8단계 여정</div>
+      <div class="journey">
+        <div class="jbars">
+          <div class="jcol done"><div class="jb" style="height:46%"></div><div class="jn">1</div></div>
+          <div class="jcol done"><div class="jb" style="height:54%"></div><div class="jn">2</div></div>
+          <div class="jcol done"><div class="jb" style="height:60%"></div><div class="jn">3</div></div>
+          <div class="jcol done"><div class="jb" style="height:70%"></div><div class="jn">4</div></div>
+          <div class="jcol done"><div class="jb" style="height:82%"></div><div class="jn">5</div></div>
+          <div class="jcol done"><div class="jb" style="height:94%"></div><div class="jn">6</div></div>
+          <div class="jcol todo"><div class="jb" style="height:64%"></div><div class="jn">7</div></div>
+          <div class="jcol todo"><div class="jb" style="height:64%"></div><div class="jn">8</div></div>
+        </div>
+        <div class="jlabels"><span>씨앗 · 관찰</span><span>지금 여기 ▲</span><span>확장 · 표현</span></div>
+        <div class="jnote"><b>6단계까지 완주.</b> 단계가 오를수록 막대(참여 깊이)도 함께 높아졌어요 — <b>갈수록 더 몰입</b>했다는 신호입니다. 남은 7·8단계는 "표현·나눔" 중심이라, 지금의 코칭 포인트와 딱 맞물립니다.</div>
+      </div>
+
+      <!-- 05 발전 추이 -->
+      <div class="sect"><span class="n">05</span> 발전 추이 · 융합사고력</div>
+      <div class="card">
+        <div class="trend">
+          <div class="tcol"><div class="tbar"><i style="height:30px"></i></div><div class="tv">Lv1</div><div class="tq">1분기</div></div>
+          <div class="tcol"><div class="tbar"><i style="height:44px"></i></div><div class="tv">Lv1+</div><div class="tq">2분기</div></div>
+          <div class="tcol"><div class="tbar"><i style="height:58px"></i></div><div class="tv">Lv2</div><div class="tq">3분기</div></div>
+          <div class="tcol"><div class="tbar"><i style="height:70px"></i></div><div class="tv">Lv2+</div><div class="tq">4분기</div></div>
+        </div>
+        <div class="trend-note">
+          <div><span class="qb">Q1→Q2</span><b>연결의 시작.</b> 배운 것을 일상과 잇는 문장이 등장.</div>
+          <div style="margin-top:6px"><span class="qb">Q3→Q4</span><b>질문이 자람.</b> "만약에 반대라면?" 같은 가정형 질문이 늘며 사고가 넓어짐.</div>
+        </div>
+      </div>
+
+      <!-- 06 성장 장면 -->
+      <div class="sect"><span class="n">06</span> 올해 빛난 순간</div>
+      <div class="evid">
+        <div class="ev"><div class="ei">🔗</div><div><div class="eh">개념을 삶으로 연결</div><div class="ed">"물의 순환"을 배우고 <em>우리 동네 장마·홍수</em>와 스스로 이어 설명 — 융합의 대표 장면.</div></div></div>
+        <div class="ev"><div class="ei">💭</div><div><div class="eh">가정형 질문 등장</div><div class="ed">"만약 비가 반대로 땅에서 하늘로 내린다면?" — <em>상상으로 원리를 뒤집어</em> 보는 질문.</div></div></div>
+        <div class="ev"><div class="ei">🎨</div><div><div class="eh">생각을 지도로</div><div class="ed">배운 내용을 <em>마인드맵</em>으로 정리 — 표현력이 자라는 첫 신호.</div></div></div>
+      </div>
+
+      <!-- 07 코칭 포인트 -->
+      <div class="sect"><span class="n">07</span> 영역별 코칭 포인트</div>
+      <div class="coach">
+        <div class="co"><div class="ct"><span class="cg">강점 살리기</span> 연결·융합</div><div class="cd">이미 잘하는 <b>"이어 보기"</b>를 칭찬으로 강화하세요. "이건 뭐랑 비슷해?"라고 물어주면 강점이 더 단단해집니다.</div></div>
+        <div class="co warn"><div class="ct"><span class="cg">집중 보완</span> 표현력</div><div class="cd">아이디어를 <b>한 문장만 더</b> 늘리는 연습이 핵심. "왜 그렇게 생각했어?"로 이유 한 줄을 덧붙이게 도와주세요.</div></div>
+        <div class="co home"><div class="ct"><span class="cg">가정에서</span> 이렇게</div><div class="cd">저녁마다 <b>"오늘 새로 연결한 것 하나"</b>를 말하게 해보세요. 표현 기회가 곧 표현력이 됩니다. (하루 2분이면 충분)</div></div>
+      </div>
+
+      <!-- 08 다음 목표 -->
+      <div class="sect"><span class="n">08</span> 다음 분기, 이것부터</div>
+      <div class="todo">
+        <div class="td"><div class="ck"></div><div class="tx"><b>표현 한 문장 늘리기</b> — 활동마다 "왜냐하면…" 한 줄 붙이기. <span class="when">이번 달</span></div></div>
+        <div class="td"><div class="ck"></div><div class="tx"><b>7단계 "나눔" 도전</b> — 만든 생각을 가족 앞에서 발표. <span class="when">다음 분기</span></div></div>
+        <div class="td"><div class="ck"></div><div class="tx"><b>질문 노트 만들기</b> — 궁금한 "만약에?" 모으기. <span class="when">상시</span></div></div>
+      </div>
+
+      <div class="foot"><div class="note">📌 이 리포트는 하준님의 <b>비전 활동 로그·성향 분석</b>을 근거로 <b>부모님이 직접 분석·발행</b>했습니다. 성장은 아이마다 속도가 달라요. <b>비교가 아닌, 어제의 하준이와의 비교</b>로 읽어주세요. 관심·활동이 바뀌면 <b>다시 분석해 갱신</b>할 수 있습니다.</div></div>
+    </div>
+  </div></div>
+  <div class="cap">펜타 비전 · 연간 프리미엄 리포트 목업<br>총평 · 융합사고 5역량 근거 · 8단계 여정 도표 · 발전 추이 · 영역별 코칭·가정 가이드</div>
+</body>
+</html>
