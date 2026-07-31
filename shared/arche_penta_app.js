@@ -201,10 +201,13 @@
     var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
     document.body.appendChild(ov);
     ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
+    /* [정합성] 배정 row의 stage/season/week/level을 lesson에 병합 — 저장(save_penta)이 (vision,1,1)로 어긋나 리포트가 "제출물 없음"에 고착되던 것 방지 */
+    var _lc=a.content; if(typeof _lc==='string'){ try{ _lc=JSON.parse(_lc); }catch(_e){ _lc={}; } } if(!_lc||typeof _lc!=='object')_lc={};
+    var _lesson=Object.assign({}, _lc, { stage:a.stage, level:(a.level!=null?a.level:(_lc.level||'')), season:a.season, week:a.week, theme:(_lc.theme||a.theme||''), title:(_lc.title||a.title||''), gradeBand:(_lc.gradeBand||a.grade_band||'') });
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), {
-      lesson: a.content, academyId: acadId(), studentId: studentId,
+      lesson: _lesson, academyId: acadId(), studentId: studentId,
       mode:'live', readOnly: !!readOnly, prefill: pre,
-      onSubmit: function(){ toast('제출 완료! 🎉'); setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode); },900); }
+      onSubmit: function(){ toast('제출 완료! 🎉'); setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },900); }
     });
   }
 
@@ -419,7 +422,7 @@
       var pub=ctl.querySelector('#rv-pub');
       if(pub) pub.addEventListener('click', async function(){
         pub.disabled=true; pub.innerHTML='<span class="spin"></span>발행 중…';
-        try{ await saveReport(sub.id, report, null, 'sent', true); toast('학부모에게 발행했어요 ✅'); pub.textContent='발행 완료'; setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode); },800);
+        try{ await saveReport(sub.id, report, null, 'sent', true); toast('학부모에게 발행했어요 ✅'); pub.textContent='발행 완료'; setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },800);
         }catch(e){ toast('발행 실패: '+(e.message||e)); pub.disabled=false; pub.textContent='학부모에게 발행'; }
       });
 
@@ -503,6 +506,7 @@
     inject(); opts=opts||{};
     /* 시즌 선택 반영: 시즌 피커에서 넘어온 season이 있으면 그 시즌만, 없으면 전체 */
     try{ window._pentaSeason = (opts.season!=null && opts.season!=='') ? opts.season : null; }catch(e){}
+    try{ if(opts.course) window._pentaCourse=opts.course; }catch(e){}   // [정합성] 재마운트 시 코스 컨텍스트 유지
     if(root && !root.classList.contains('pnta')){ var inner=root.querySelector('.pnta'); if(!inner){ inner=el('<div class="pnta"></div>'); root.innerHTML=''; root.appendChild(inner);} root=inner; }
     if(role==='student') return renderStudent(root, opts);
     if(role==='parent') return renderParent(root, opts);
