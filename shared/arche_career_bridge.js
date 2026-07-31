@@ -266,7 +266,7 @@
     card.querySelector('#ai').addEventListener('click', async function(){
       var btn=this; btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>생성 중…';
       try{ var fieldWithLv=(p.field||'')+(grade?(' · [학생: '+grade+' — 이 수준에 맞춰 질문 난이도 조절]'):'');
-        var res=await callPenta('career_worksheet',{interview:p.answers||{}, field:fieldWithLv, topic:(p.answers&&p.answers.topic_want)||''}); var d=JSON.parse(res.text);
+        var res=await callPenta('career_worksheet',{interview:p.answers||{}, field:fieldWithLv, topic:(p.answers&&p.answers.topic_want)||'', grade:(grade||''), level:lvl}); var d=JSON.parse(res.text);
         if(d.title)card.querySelector('#wtitle').value=d.title; if(d.topic)card.querySelector('#wtopic').value=d.topic;
         qlist.innerHTML=''; (d.questions||[]).forEach(function(q){ addQ(q.q, q.hint); }); if(!(d.questions&&d.questions.length))addQ('','');
         var m=card.querySelector('#msg'); m.style.color='#137a44'; m.textContent='AI 초안을 불러왔어요. 검토·수정 후 전달하세요.';

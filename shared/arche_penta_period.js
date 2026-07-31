@@ -336,7 +336,7 @@
   function periodLabel(type,key){ if(type==='monthly'){var p=key.split('-');return p[0]+'년 '+(+p[1])+'월';} if(type==='quarterly'){return key.replace('-Q','년 ')+'분기';} if(type==='half'){var q=key.split('-H');return q[0]+'년 '+(q[1]==='1'?'상반기':'하반기');} return key+'년';}
 
   async function loadSentSubs(studentId, stage, level){
-    var q=sb().from('penta_submissions').select('id,stage,level,season,week,theme,title,report,status,sent_at,created_at,radar_before,radar_after,compass').eq('student_id',studentId).eq('status','sent').eq('stage',stage);
+    var q=sb().from('penta_submissions').select('id,stage,level,season,week,theme,title,report,status,sent_at,created_at,radar_before,radar_after,compass,answers').eq('student_id',studentId).eq('status','sent').eq('stage',stage);
     var r=await q; if(r.error)throw r.error;
     return (r.data||[]).filter(function(s){ return (s.level||'')===(level||''); });
   }
