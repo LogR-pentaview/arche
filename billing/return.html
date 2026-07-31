@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"><title>결제 처리 중…</title></head>
+<body style="font-family:Pretendard,sans-serif;text-align:center;padding:40px;color:#4e5968">
+<p>카드 등록을 확인하는 중이에요…</p>
+<!--
+  KG이니시스 빌링 인증창은 인증 성공 시 이 페이지(returnUrl)로 POST 합니다.
+  전달 파라미터(예): resultCode, authToken, authUrl, mid, orderNumber ...
+  서버(권장) 또는 여기서 authToken/authUrl 을 kg-billing(issue_billkey) 로 넘겨 billKey 발급.
+  아래는 클라이언트 처리 예시 스캐폴드 — 실제로는 POST 바디를 서버 페이지에서 받아 처리 권장.
+-->
+<script>
+(function(){
+  // TODO: KG POST 파라미터 수신 방식에 맞게 구현
+  //   - 서버 렌더 페이지면: 서버가 POST body 파싱 → kg-billing issue_billkey 호출 → 결과를 window에 주입
+  //   - 정적 페이지면: 쿼리/해시로 전달된 authToken/authUrl 사용
+  function qp(n){ return new URLSearchParams(location.search).get(n); }
+  var authToken = qp('authToken'), authUrl = qp('authUrl'), resultCode = qp('resultCode');
+  function done(ok, data){ try{ (window.opener||window.parent).postMessage(Object.assign({type:'kg-billkey', ok:ok}, data||{}), '*'); }catch(e){} setTimeout(function(){ try{window.close();}catch(_){}}, 400); }
+  if(resultCode && resultCode!=='0000'){ done(false, {error:'인증 취소/실패('+resultCode+')'}); return; }
+  if(!authToken || !authUrl){ done(false, {error:'authToken 누락 — 서버 리턴 처리 필요'}); return; }
+  // Supabase 세션 토큰 필요 → 부모창에서 처리하도록 위임하거나, 여기서 fetch 시 Authorization 주입
+  (window.opener||window.parent).postMessage({type:'kg-billauth-raw', authToken:authToken, authUrl:authUrl}, '*');
+  // 실제 issue_billkey 호출은 세션이 있는 부모창(arche_kg_billing) 또는 서버에서 수행 권장.
+  done(true, {pending:true});
+})();
+</script>
+</body></html>
