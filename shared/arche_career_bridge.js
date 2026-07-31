@@ -181,6 +181,8 @@
     ed.addEventListener('input', cbEdCount); ed.addEventListener('paste', function(){ setTimeout(cbEdCount,30); }); cbEdCount();
     var msg=el('<div class="note" id="wmsg"></div>'); card.appendChild(msg);
     var row=el('<div class="row"><button class="act pri" id="wsub">📤 저장 후 제출</button></div>'); card.appendChild(row);
+    // [정합성] 이미지 업로드가 perf의 stale 세션 경로를 쓰지 않도록 진로 전용 네임스페이스 지정
+    try{ window._pfCurSub='career'+(rep&&rep.id||''); }catch(e){}
     // 타이핑 캡처
     try{ if(window.ArcheIntegrity) ArcheIntegrity.attach(ed); }catch(e){}
     // 사전 인터뷰
