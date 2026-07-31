@@ -2123,9 +2123,9 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=25"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
-<script src="/shared/arche_penta_app.js?v=2"></script>
+<script src="/shared/arche_penta_app.js?v=3"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_career_bridge.js?v=7"></script>
+<script src="/shared/arche_career_bridge.js?v=8"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
@@ -2920,7 +2920,7 @@ if(sb) sb.auth.onAuthStateChange(function(event,session){
     alert('다른 탭에서 다른 계정으로 로그인되어 이 창의 세션이 변경되었습니다.\n\n같은 브라우저에서는 한 계정만 유지됩니다. 여러 역할(관리자·컨설턴트·학생)을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.\n\n확인을 누르면 새 계정으로 새로고침합니다.');
     location.reload(); return;
   }
-  if(event==='SIGNED_OUT'){ window._sessionUid=null; }
+  if(event==='SIGNED_OUT'){ var _was=window._sessionUid; window._sessionUid=null; if(_was){ try{ location.replace('/login'); }catch(e){} } return; }  // 세션 만료·로그아웃 시 로그인 화면으로
   if(newUid)window._sessionUid=newUid;
 });
 
