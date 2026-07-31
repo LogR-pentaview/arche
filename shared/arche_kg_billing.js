@@ -28,7 +28,12 @@
 
   // API
   function plans(){ return call('plans'); }
-  function status(){ return call('status'); }
+  async function status(){ var d=await call('status');
+    // 소크 등 티어 게이팅용 전역 주입: 활성 구독 플랜 → window._pentaTier
+    try{ var a=(d.subscriptions||[]).filter(function(s){return s.status==='active';})[0]; window._pentaTier = a ? a.plan : ((d.trial||d.demo||window._demo)?'trial':''); }catch(e){}
+    return d; }
+  // 앱 로드 시 1회 티어 프라임(구독 화면 미진입에도 소크 상한 반영)
+  function primeTier(){ try{ if(window._tierPrimed)return; window._tierPrimed=1; status().catch(function(){}); }catch(e){} }
   function subscribe(plan, cycle, studentId, billingKeyId){ return call('subscribe',{plan:plan,cycle:cycle||'monthly',student_id:studentId||null,billing_key_id:billingKeyId}); }
   function cancel(subId){ return call('cancel',{subscription_id:subId}); }
 
@@ -99,5 +104,5 @@
     draw();
   }
 
-  window.ArcheKGBilling={ plans:plans, status:status, subscribe:subscribe, cancel:cancel, registerCard:registerCard, mount:mount, version:'0.1-scaffold' };
+  window.ArcheKGBilling={ plans:plans, status:status, subscribe:subscribe, cancel:cancel, registerCard:registerCard, mount:mount, primeTier:primeTier, version:'0.1-scaffold' };
 })();
