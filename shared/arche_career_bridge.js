@@ -149,8 +149,15 @@
     var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
     card.insertAdjacentHTML('beforeend', guideHtml(rep));
     card.insertAdjacentHTML('beforeend', '<div id="cb-pre" style="margin:10px 0"></div>');
-    card.insertAdjacentHTML('beforeend', '<div style="font-size:12px;font-weight:800;color:#1A237E;margin:6px 0 4px">✍️ 탐구보고서 작성</div>');
-    var ed=el('<div class="ed" contenteditable="true" data-ph="설계도 질문에 답하며, 내가 조사·생각한 내용을 자유롭게 써보세요"></div>'); card.appendChild(ed);
+    card.insertAdjacentHTML('beforeend', '<div style="font-size:12px;font-weight:800;color:var(--gold,#1A237E);margin:6px 0 4px">✍️ 탐구보고서 작성</div>'
+      +'<div style="border-top:1px dashed var(--line,#dfe3ec);padding-top:8px;font-size:11px;color:var(--ink-mute,#8b95a1);margin-bottom:7px">작성 과정(입력 패턴)이 함께 기록돼 <b>본인 작성 검증</b>에 활용돼요. 이미지·수식도 넣을 수 있어요.</div>'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+        +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="if(window.pfInsertImg)pfInsertImg(this)"></label>'
+        +'<button type="button" onclick="if(window.pfOpenMath)pfOpenMath()" style="font-size:12px;color:var(--reach,#3182f6);border:1px solid var(--reach,#3182f6);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;white-space:nowrap">∑ 수식</button>'
+        +'<span id="pf-cc" style="font-size:11px;color:var(--ink-mute,#8b95a1)">0자</span></div>');
+    var ed=el('<div class="ed" id="pf-ed" contenteditable="true" data-ph="설계도 질문에 답하며, 내가 조사·생각한 내용을 자유롭게 써보세요" style="width:100%;min-height:240px;background:var(--panel-2,#fbfcfe);border:1px solid var(--line,#dfe3ec);border-radius:11px;padding:13px 14px;color:var(--ink,#191f28);font-size:13.5px;line-height:1.9;outline:none;box-sizing:border-box;word-break:keep-all"></div>'); card.appendChild(ed);
+    function cbEdCount(){ var c=card.querySelector('#pf-cc'); if(!c)return; if(window.pfEdLen){try{c.textContent=pfEdLen()+'자';return;}catch(_e){}} c.textContent=((ed.innerText||ed.textContent||'').length)+'자'; }
+    ed.addEventListener('input', cbEdCount); ed.addEventListener('paste', function(){ setTimeout(cbEdCount,30); }); cbEdCount();
     var msg=el('<div class="note" id="wmsg"></div>'); card.appendChild(msg);
     var row=el('<div class="row"><button class="act pri" id="wsub">📤 저장 후 제출</button></div>'); card.appendChild(row);
     // 타이핑 캡처
