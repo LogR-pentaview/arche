@@ -39,6 +39,7 @@
   // ── 데이터 ────────────────────────────────────────────────────────────
   async function token(){ try{var s=await window.sb.auth.getSession(); return (s&&s.data&&s.data.session)?s.data.session.access_token:'';}catch(e){return '';} }
   async function callPenta(task,payload){ var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/penta-ai'; var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await token())},body:JSON.stringify({task:task,payload:payload})}); var d=await r.json(); if(!r.ok)throw new Error(d.error||'AI 오류'); return d; }
+  async function callCoach(payload){ var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/career-coach'; var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await token())},body:JSON.stringify(payload||{})}); var d=await r.json(); if(!r.ok)throw new Error(d.error||'AI 코칭 오류'); return d; }
   async function getProfile(sid){ var r=await window.sb.from('career_profile').select('*').eq('student_id',sid).limit(1); return (r.data&&r.data[0])||null; }
   async function listProfiles(){ var r=await window.sb.from('career_profile').select('*').eq('academy_id',acadId()).order('updated_at',{ascending:false}); return (r&&r.data)||[]; }
   async function listReports(sid){ var r=await window.sb.from('career_report').select('*').eq('student_id',sid).order('created_at',{ascending:false}); return (r&&r.data)||[]; }
@@ -224,10 +225,22 @@
     card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · '+esc(r.title||'탐구보고서')+'</h2><div class="note" style="margin-bottom:8px">완성 문장을 대신 써주지 마세요. <b>질문·방향</b>만 남깁니다.</div>'
       +(profile?('<div style="background:#f4f7fc;border:1px solid #e0e7f3;border-radius:10px;padding:8px 11px;margin-bottom:8px;font-size:12.5px;color:#39465a">관심 분야: '+esc(profile.field||'-')+'</div>'):'')
       +wsQaHtml(r)
+      +'<div class="row" style="margin-top:12px"><button class="act gd" id="cbai">🤖 AI 코칭 초안 생성</button></div>'
+      +'<div class="note" id="cbaimsg" style="margin-top:4px"></div>'
       +'<div style="margin-top:14px"><div class="q" style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">코칭 코멘트(격려·방향)</div><textarea id="cbn" rows="2">'+esc(fb.note||'')+'</textarea></div>'
       +'<div style="margin-top:10px"><div class="q" style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">더 생각해볼 질문(한 줄에 하나)</div><textarea id="cbq" rows="4">'+esc((fb.questions||[]).join('\n'))+'</textarea></div>'
       +'<div class="row"><button class="act gh" id="cbsave">코칭 저장(학생에게만)</button><button class="act dn" id="cbsend">학생·학부모에게 발행</button></div><div class="note" id="cbmsg" style="margin-top:6px"></div>';
     function collect(){ return {note:card.querySelector('#cbn').value.trim(), questions:card.querySelector('#cbq').value.split('\n').map(function(x){return x.trim();}).filter(Boolean)}; }
+    card.querySelector('#cbai').addEventListener('click', async function(){
+      var btn=this, m=card.querySelector('#cbaimsg'); btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>AI 코칭 생성 중…'; m.textContent='';
+      try{
+        var d=await callCoach({ questions:(r.questions||[]), answers:(r.answers||{}), field:(r.field||(profile&&profile.field)||''), topic:(r.topic||r.title||''), name:(name||'') });
+        if(d.note) card.querySelector('#cbn').value=d.note;
+        if(d.questions&&d.questions.length) card.querySelector('#cbq').value=d.questions.join('\n');
+        m.style.color='#137a44'; m.textContent='AI 코칭 초안을 채웠어요. 검토·수정 후 자녀에게 회신(발행)하세요.';
+      }catch(e){ m.style.color='#c0313d'; m.textContent='AI 코칭 실패: '+(e.message||e); }
+      btn.disabled=false; btn.textContent=_t;
+    });
     card.querySelector('#cbsave').addEventListener('click',async function(){ var m=card.querySelector('#cbmsg'); try{ var res=await saveCoaching(r.id,collect(),'coached'); if(res&&res.error)throw res.error; m.style.color='#137a44'; m.textContent='코칭 저장 완료. 학생 화면에 표시됩니다.'; }catch(e){ m.style.color='#c0313d'; m.textContent='저장 실패: '+(e.message||e); } });
     card.querySelector('#cbsend').addEventListener('click',async function(){ var m=card.querySelector('#cbmsg'); var fbk=collect();
       try{ var res=await saveCoaching(r.id,fbk,'sent'); if(res&&res.error)throw res.error;
@@ -239,5 +252,5 @@
     });
   }
 
-  window.ArcheCareerBridge={ mount:mount, PROFILE_LESSON:PROFILE_LESSON, version:'3.1' };
+  window.ArcheCareerBridge={ mount:mount, PROFILE_LESSON:PROFILE_LESSON, version:'3.2' };
 })();
