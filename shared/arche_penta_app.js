@@ -58,6 +58,15 @@
     + ".pnta .edit .fl{font-size:11.5px;font-weight:800;color:#8b95a1;margin:10px 0 4px}"
     + ".pnta .edit textarea,.pnta .edit input{width:100%;border:1.5px solid #dfe3ec;border-radius:9px;padding:9px 11px;font:inherit;font-size:13px}"
     + ".pnta .edit label.ck{display:flex;align-items:center;gap:8px;font-size:12.5px;margin-top:10px;color:#39465a}"
+    + ".pnta .stu-fold{background:#fff;border:1px solid #e6e9f0;border-radius:13px;padding:12px 14px;margin-bottom:10px}"
+    + ".pnta .stu-fh{display:flex;align-items:center;gap:8px;margin:0;font-size:13px;font-weight:800;color:#1A237E;cursor:pointer}"
+    + ".pnta .stu-fh .cnt{margin-left:auto;font-size:11px;font-weight:600;color:#8b95a1}"
+    + ".pnta .stu-kid{display:flex;align-items:center;justify-content:space-between;gap:10px 12px;flex-wrap:wrap;padding:11px 0 3px;margin-top:9px;border-top:1px solid #eef1f6}"
+    + ".pnta .stu-kid .nm{display:flex;align-items:center;gap:8px;margin:0;font-size:13.5px;font-weight:700;color:#243244;cursor:pointer;min-width:0;flex:1}"
+    + ".pnta .stu-kid .nm .gr{font-size:11px;font-weight:600;color:#8b95a1}"
+    + ".pnta .stu-act{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:none}"
+    + ".pnta .stu-act select{font-size:11px;padding:5px 8px}"
+    + ".pnta .stu-fold input[type=checkbox]{width:17px;height:17px;flex:none;accent-color:#1A237E;margin:0;cursor:pointer}"
     + ".pnta .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#1A237E;color:#fff;font-size:13px;font-weight:700;padding:11px 18px;border-radius:99px;z-index:10001;box-shadow:0 8px 24px rgba(0,0,0,.3);opacity:0;transition:.2s}"
     + ".pnta .toast.on{opacity:1}"
     + ".pnta .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:pnspin .7s linear infinite;vertical-align:-2px;margin-right:6px}"
@@ -257,26 +266,26 @@
     var byGrade={}; enrolled.forEach(function(s){ var g=s.grade||'기타'; (byGrade[g]=byGrade[g]||[]).push(s); });
     var checks=[];
     Object.keys(byGrade).sort().forEach(function(g){
-      var folder=el('<div class="edit" style="padding:12px 14px"></div>');
-      var fh=el('<label class="ck" style="font-weight:800;color:#1A237E;margin:0 0 4px"><input type="checkbox"> 📁 '+esc(g)+' <span style="font-size:11px;color:#8b95a1;font-weight:600">('+byGrade[g].length+'명)</span></label>');
+      var folder=el('<div class="stu-fold"></div>');
+      var fh=el('<label class="stu-fh"><input type="checkbox"> 📁 '+esc(g)+' <span class="cnt">'+byGrade[g].length+'명</span></label>');
       var fchk=fh.querySelector('input'); folder.appendChild(fh);
       var kids=[];
       byGrade[g].forEach(function(s){
-        var rowl=el('<div style="padding:8px 0 8px 20px;border-top:1px solid #eef1f6"></div>');
-        var line1=el('<label style="display:flex;align-items:center;gap:8px;margin:0;font-size:13.5px;font-weight:700;color:#243244;cursor:pointer"><input type="checkbox"> <span>'+esc(s.name)+'</span><span style="font-size:11px;color:#8b95a1;font-weight:600">'+esc(s.grade||'')+'</span></label>');
-        var cb=line1.querySelector('input'); cb.value=s.id; checks.push(cb); kids.push(cb);
-        rowl.appendChild(line1);
-        var line2=el('<div style="display:flex;gap:6px;flex-wrap:wrap;margin:7px 0 0 26px"></div>');
-        var cc=el('<select style="font-size:11px;padding:4px 8px"></select>');
+        var row=el('<div class="stu-kid"></div>');
+        var nm=el('<label class="nm"><input type="checkbox"> <span>'+esc(s.name)+'</span><span class="gr">'+esc(s.grade||'')+'</span></label>');
+        var cb=nm.querySelector('input'); cb.value=s.id; checks.push(cb); kids.push(cb);
+        row.appendChild(nm);
+        var act=el('<div class="stu-act"></div>');
+        var cc=el('<select></select>');
         var elig=eligibleCourses(s.grade);
         cc.innerHTML='<option value="">코스 변경…</option>'+elig.map(function(k){return '<option value="'+k+'"'+(s.penta_course===k?' selected':'')+'>'+COURSES[k].short+'</option>';}).join('')+'<option value="__none">미수강</option>';
         cc.addEventListener('change', async function(){ var v=cc.value; if(!v)return; try{ await setPentaCourse(s.id, v==='__none'?null:v); toast(s.name+' 코스 변경'); drawAssign(body, course, spec); }catch(e){ toast('변경 실패: '+(e.message||e)); } });
-        line2.appendChild(cc);
-        var pbtn=el('<button class="act mut" title="학부모 로그인 계정 발급" style="padding:4px 10px;font-size:11px">👪 학부모ID</button>');
+        act.appendChild(cc);
+        var pbtn=el('<button class="act mut" title="학부모 로그인 계정 발급" style="padding:5px 10px;font-size:11px">👪 학부모ID</button>');
         pbtn.addEventListener('click', function(ev){ ev.preventDefault(); ev.stopPropagation(); issueParent(s.id, s.name); });
-        line2.appendChild(pbtn);
-        rowl.appendChild(line2);
-        folder.appendChild(rowl);
+        act.appendChild(pbtn);
+        row.appendChild(act);
+        folder.appendChild(row);
       });
       fchk.addEventListener('change',function(){ kids.forEach(function(k){k.checked=fchk.checked;}); });
       body.appendChild(folder);
