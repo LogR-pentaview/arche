@@ -458,10 +458,10 @@
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 26px">
     <div style="font-family:'Pretendard Variable',Pretendard;font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
-    <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
+    <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">펜타 시리즈 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
-      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
-      <button data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
+      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
+      <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
@@ -470,7 +470,7 @@
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-name" type="text" placeholder="이름/학부모명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
@@ -1134,7 +1134,7 @@
       <section class="view" id="v-gdesign">
         <div class="eyebrow">GOIP · Career Stepping-Stones · 학생 주도</div>
         <div class="h1">고입 진로 징검다리</div>
-        <div class="sub">학생이 인터뷰로 스스로 관심·주제를 정하고, 컨설턴트는 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 학생이 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
+        <div class="sub">자녀가 인터뷰로 스스로 관심·주제를 정하고, 학부모가 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 자녀가 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
         <div id="career-mount-goip" style="margin-top:16px"></div>
       </section>
 
@@ -1237,7 +1237,7 @@
       <section class="view" id="v-sr">
         <div class="eyebrow">Career Stepping-Stones · 학생 주도</div>
         <div class="h1">진로 징검다리</div>
-        <div class="sub">학생이 인터뷰로 스스로 관심·주제를 정하고, 컨설턴트는 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 학생이 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
+        <div class="sub">자녀가 인터뷰로 스스로 관심·주제를 정하고, 학부모가 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 자녀가 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
         <div id="career-mount" style="margin-top:16px"></div>
       </section>
 
@@ -1245,13 +1245,13 @@
       <section class="view" id="v-perf">
         <div class="eyebrow">Performance Assessment</div>
         <div class="h1">수행평가 도우미</div>
-        <div class="sub">학교 평가지 → 관점 설계 → 학습가이드 → 작성 · AI 코칭 → 컨설턴트 검토 → 예상등급. 컨설턴트·학생 협업으로 진행합니다.</div>
+        <div class="sub">학교 평가지 → 관점 설계 → 학습가이드 → 작성 · AI 코칭 → 학부모 검토 → 예상등급. 자녀가 스스로 작성하고 학부모가 검토·코칭합니다.</div>
         <div id="perf-root-dae"></div>
       </section>
       <section class="view" id="v-gperf">
         <div class="eyebrow">Performance Assessment · 고입</div>
         <div class="h1">수행평가 도우미</div>
-        <div class="sub">중학교 수행평가를 관점 설계부터 예상등급까지 단계별로. 컨설턴트·학생 협업으로 진행합니다.</div>
+        <div class="sub">중학교 수행평가를 관점 설계부터 예상등급까지 단계별로. 자녀가 스스로 작성하고 학부모가 검토·코칭합니다.</div>
         <div id="perf-root-goip"></div>
       </section>
 
@@ -2060,16 +2060,16 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=27"></script>
-<script src="/shared/arche_soke_chat.js?v=1"></script>
-<script src="/shared/arche_penta_report.js"></script>
+<script src="/shared/arche_soke_chat.js?v=2"></script>
+<script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js"></script>
-<script src="/shared/arche_penta_period.js?v=2"></script>
-<script src="/shared/arche_kg_billing.js?v=1"></script>
+<script src="/shared/arche_penta_period.js?v=3"></script>
+<script src="/shared/arche_kg_billing.js?v=2"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
-<script src="/shared/arche_career_bridge.js?v=5"></script>
+<script src="/shared/arche_career_bridge.js?v=6"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2353,14 +2353,14 @@ function setLoginRole(r){
   var desc=document.getElementById('login-role-desc');
   if(desc){
     desc.textContent = con?'학원·교습소 · 팀 운영 가능':
-      parent?'개인 학부모 · 자녀 직접 관리 (월 15만~)':
+      parent?'개인 학부모 · 자녀 직접 관리 (월 12,900원~)':
       stu?'학원/학부모가 발급한 학생 계정':
       '플랫폼 관리자 전용';
   }
   var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
 }
-// 초기 진입 시 기본(학원) 안내 표시
-try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(e){}
+// 초기 진입 시 기본(학부모) 안내 표시
+try{ if(document.getElementById('login-role-desc')) setLoginRole('parent'); }catch(e){}
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 /* ===== 개인정보/이용 동의 게이트 ===== */
@@ -2476,7 +2476,7 @@ async function enterApp(session){
   if(window._demo && window._demo.expires && new Date(window._demo.expires)<new Date()){
     await sb.auth.signOut();
     gate.style.display='flex';
-    return msg('체험 기간(7일)이 만료되었습니다. 도입 문의: penta-view.com');
+    return msg('체험 기간(7일)이 만료되었습니다. 구독하시면 계속 이용할 수 있어요.');
   }
   if(!isAdmin && approved===false){
     await sb.auth.signOut();
@@ -2549,7 +2549,7 @@ function updateDemoBanner(){
   var left=Object.keys(DEMO_TASK_LABEL).filter(function(k){return (c[k]||0)>0;}).map(function(k){return DEMO_TASK_LABEL[k]+' '+c[k]+'회';});
   b.innerHTML='<b>🎫 체험 모드</b><b style="color:#1b64da">크레딧 '+remain+'/'+total+' 남음'+(used?' ('+used+' 사용)':'')+'</b><span title="'+left.join(' · ')+'">'+(left.length?('세부: '+left.join(' · ')):'체험 크레딧을 모두 사용했습니다')+'</span>'+
     '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
-    '<a href="mailto:gwkim06@gmail.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#3182f6);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
+    '<a onclick="try{goView(\'billing\')}catch(e){}" style="margin-left:auto;background:var(--gold,#3182f6);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700;cursor:pointer">구독하고 계속 →</a>';
 }
 /* ═══ 학부모 뷰어 대시보드 (자녀 상황 열람 · 수강 게이팅 · 샘플 유도) ═══ */
 async function enterParentViewer(session){
@@ -2969,6 +2969,7 @@ function b2cResetChildPw(){ var c=window._activeStudent; if(!c||!c.id)return ale
 window.b2cChangeParentPw=b2cChangeParentPw; window.b2cResetChildPw=b2cResetChildPw; window.b2cRelabelText=b2cRelabelText; window.b2cRenderSettings=b2cRenderSettings;
 async function renderB2CParentHome(){
   if(!window._isB2C || !window.ArcheParentDash) return;
+  try{ if(window.ArcheKGBilling&&ArcheKGBilling.primeTier)ArcheKGBilling.primeTier(); }catch(e){}
   var v=document.getElementById('v-home'); if(!v) return;
   var child=window._activeStudent;
   if(!child){
@@ -4759,6 +4760,36 @@ async function perfDownloadHWPX(aid,track){
   }catch(e){ alert('HWPX 생성 실패: '+(e.message||e)); }
 }
 async function perfEvalPDF(aid,track){ var r=await perfDocData(aid,track); var ev=r.eval; if(ev&&typeof ev==='string'){try{ev=JSON.parse(ev);}catch(_){ev=null;}} if(!ev){alert('아직 채점 결과가 없습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다.');return;} var sheet=perfEvalSheet(ev,true); var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>수행평가 예상등급 평가지</title><style>@page{size:A4;margin:16mm}body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;color:#191f28;padding:8px 4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:20px;margin:0 0 2px}.meta{font-size:12px;color:#667;margin-bottom:4px}.rule{height:2px;background:#12211a;margin:8px 0 4px}.foot{margin-top:18px;font-size:10px;color:#889;border-top:1px solid #ddd;padding-top:8px}b{color:#191f28}</style></head><body><h1>수행평가 예상등급 평가지</h1><div class="meta">학생: <b>'+esc(r.who)+'</b> · 과제: <b>'+esc(r.title)+'</b>'+(r.subject?(' ('+esc(r.subject)+')'):'')+'</div><div class="rule"></div>'+sheet+'<div class="foot">ARCHE 수행평가 도우미 · 본 평가지는 학교 채점기준 기반 AI 예상 진단으로 컨설팅 참고용이며, 실제 학교 성적·평가와 다를 수 있습니다.</div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},350);}</scr'+'ipt></body></html>'; w.document.open(); w.document.write(doc); w.document.close(); }
+/* ===== 범용 문서 내보내기 (PDF/DOCX/HWPX) — 리포트·진로·수행 공용 ===== */
+window.ArcheExport=(function(){
+  function fn(t){ return String(t||'문서').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60); }
+  function _save(blob,name){ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1200); }
+  function pdf(o){ o=o||{}; var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.');return;}
+    var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(o.title||'문서')+'</title>'
+      +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'
+      +'<style>@page{margin:15mm}body{font-family:"Noto Sans KR",-apple-system,sans-serif;max-width:780px;margin:28px auto;padding:0 24px;line-height:1.85;color:#111;word-break:keep-all;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:21px;border-bottom:2px solid #333;padding-bottom:9px;margin:0 0 6px}.m{color:#667;font-size:12px;margin-bottom:15px}img{max-width:100%}table{border-collapse:collapse;width:100%;margin:8px 0}td,th{border:1px solid #ccc;padding:6px 8px;font-size:12.5px}ul,ol{margin:4px 0 4px 18px}</style></head><body>'
+      +'<h1>'+esc(o.title||'문서')+'</h1>'+(o.subtitle?('<div class="m">'+esc(o.subtitle)+'</div>'):'')
+      +'<div>'+(o.html||'')+'</div>'
+      +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},450);};</scr'+'ipt></body></html>';
+    w.document.open(); w.document.write(doc); w.document.close(); }
+  async function docx(o){ o=o||{};
+    var inner='<h1 style="font-size:18pt">'+esc(o.title||'문서')+'</h1>'+(o.subtitle?('<p style="color:#667;font-size:11pt">'+esc(o.subtitle)+'</p>'):'')+(o.html||'');
+    var full='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:"Malgun Gothic",sans-serif;line-height:1.8}img{max-width:480px}h1{border-bottom:1px solid #333;padding-bottom:8px}table{border-collapse:collapse}td,th{border:1px solid #999;padding:5px 7px}</style></head><body>'+inner+'</body></html>';
+    var lib=await cbLoadDocx(); var blob,ext; if(lib&&lib.asBlob){blob=lib.asBlob(full);ext='docx';}else{blob=new Blob(['﻿'+full],{type:'application/msword'});ext='doc';}
+    _save(blob, fn(o.title)+'.'+ext); }
+  async function hwpx(o){ o=o||{};
+    try{ var zip=await hwpxBuildFromHtml(o.title||'문서', (o.subtitle?('<p>'+esc(o.subtitle)+'</p>'):'')+(o.html||'')); _save(new Blob([zip],{type:'application/hwp+zip'}), fn(o.title)+'.hwpx'); }
+    catch(e){ alert('HWPX 생성 실패: '+(e.message||e)); } }
+  function printNode(node,o){ o=o||{}; if(!node){alert('내보낼 리포트를 찾지 못했습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.');return;}
+    var styles=''; (o.styleIds||[]).forEach(function(id){ var s=document.getElementById(id); if(s)styles+='<style>'+s.textContent+'</style>'; });
+    var html='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(o.title||'리포트')+'</title>'
+      +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'+styles
+      +'<style>@page{margin:11mm}body{margin:0;padding:14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>'
+      +node.outerHTML
+      +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},500);};</scr'+'ipt></body></html>';
+    w.document.open(); w.document.write(html); w.document.close(); }
+  return {pdf:pdf, docx:docx, hwpx:hwpx, printNode:printNode};
+})();
 /* ---------- 수행평가 전용 리치 에디터 (pf-ed) ---------- */
 var pfCap=null;
 function pfCapInit(){ pfCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
