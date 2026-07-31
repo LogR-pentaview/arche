@@ -60,10 +60,16 @@
   async function callSoke(payload){
     var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/soke';
     var tok=await token();
-    var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(payload)});
-    var d=await r.json().catch(function(){return {};});
-    if(!r.ok) throw new Error(d.error||('오류('+r.status+')'));
-    return d.reply||'';
+    var ctrl=new AbortController(); var timer=setTimeout(function(){ try{ctrl.abort();}catch(_e){} }, 45000);
+    try{
+      var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(payload),signal:ctrl.signal});
+      var d=await r.json().catch(function(){return {};});
+      if(!r.ok) throw new Error(d.error||('오류('+r.status+')'));
+      return d.reply||'';
+    }catch(e){
+      if(e&&e.name==='AbortError') throw new Error('응답이 지연되고 있어요. 잠시 후 다시 시도해 주세요.');
+      throw e;
+    }finally{ clearTimeout(timer); }
   }
 
   var CSS = `
