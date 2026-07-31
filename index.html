@@ -290,6 +290,31 @@ section.alt{background:var(--bg)}
 .gauge2 .gt i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--gold),var(--lime));width:76%}
 .gauge2 .fr{margin-top:12px;font-size:10.5px;color:#8b97ab;font-weight:600;line-height:1.6}
 .gauge2 .fr b{color:var(--gold)}
+/* 연말 분석 리포트 샘플 카드 */
+.annual{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:6px}
+.acard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 2px 10px -6px rgba(20,26,41,.18)}
+.acard:hover{transform:translateY(-3px);box-shadow:0 16px 34px -18px rgba(20,26,41,.45)}
+.acard .ahero{padding:18px 18px 16px;color:#fff;position:relative}
+.acard.vision .ahero{background:linear-gradient(150deg,#1d2438,#141a29 62%);border-bottom:3px solid var(--gold)}
+.acard.track .ahero{background:linear-gradient(150deg,#16351f,#0f2417 62%);border-bottom:3px solid #6fa81c}
+.acard .aeyebrow{font-size:9.5px;font-weight:800;letter-spacing:.14em;padding:3px 9px;border-radius:20px;background:rgba(255,255,255,.12)}
+.acard.vision .aeyebrow{color:var(--gold)}.acard.track .aeyebrow{color:#b6e34a}
+.acard .atitle{font-size:15px;font-weight:800;margin:11px 0 4px;letter-spacing:-.01em}
+.acard .ameta{font-size:11px;font-weight:600;color:#b9c3da}
+.acard .astat{display:flex;gap:8px;margin-top:14px}
+.acard .as{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:8px 6px;text-align:center}
+.acard .as b{display:block;font-size:14px;font-weight:900;letter-spacing:-.02em}
+.acard.vision .as b{color:var(--gold)}.acard.track .as b{color:#b6e34a}
+.acard .as span{display:block;font-size:9px;color:#9aa6bb;font-weight:600;margin-top:2px;line-height:1.3}
+.acard .alist{list-style:none;margin:0;padding:15px 18px 6px;display:flex;flex-direction:column;gap:9px}
+.acard .alist li{position:relative;padding-left:20px;font-size:12.5px;font-weight:600;color:var(--ink-dim);line-height:1.5}
+.acard .alist li::before{content:"✓";position:absolute;left:0;top:0;font-weight:900;font-size:11px}
+.acard.vision .alist li::before{color:var(--gold)}.acard.track .alist li::before{color:#6fa81c}
+.acard .alist li b{color:var(--ink);font-weight:800}
+.acard .alink{margin:6px 18px 18px;padding:11px 0;text-align:center;border-radius:11px;font-size:13px;font-weight:800;color:#fff}
+.acard.vision .alink{background:linear-gradient(135deg,#c8a24a,#a9852f)}
+.acard.track .alink{background:linear-gradient(135deg,#6fa81c,#5c8f16)}
+@media(max-width:560px){.annual{grid-template-columns:1fr}}
 
 /* 도입 문의 밴드 */
 .biz{background:#fff;border-top:1px solid var(--line-soft)}
@@ -800,6 +825,43 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
         </div>
       </div>
     </div>
+
+    <!-- 연말 분석 리포트 샘플 -->
+    <div class="psub reveal" style="margin-top:34px">연말 분석 리포트 · 프리미엄 샘플</div>
+    <p class="sec-p reveal d1" style="margin-bottom:20px">월·분기 리포트가 쌓이면, 한 해를 통째로 진단하는 <b>연간 성장 리포트</b>가 나옵니다. 성장 궤적·사고 성향·다음 학년 로드맵까지 — <b>학부모가 직접 발행</b>하는, 대치동 컨설팅보다 깊은 한 편의 분석서입니다.</p>
+
+    <div class="annual" style="text-align:left">
+      <a class="acard vision reveal" href="samples/vision-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 비전 연간 성장 리포트 샘플 전체 보기">
+        <div class="ahero">
+          <span class="aeyebrow">ANNUAL REPORT</span>
+          <div class="atitle">📘 펜타 비전 · 연간 성장 리포트</div>
+          <div class="ameta">STAGE 1 · 초등~중2 · 학부모 발행</div>
+          <div class="astat"><div class="as"><b>+28</b><span>융합사고 5역량</span></div><div class="as"><b>상위 20%</b><span>또래 성장폭</span></div><div class="as"><b>4분기</b><span>궤적 추적</span></div></div>
+        </div>
+        <ul class="alist">
+          <li>분기→연간 <b>성장 궤적</b> · 5역량 확장 레이더</li>
+          <li><b>올해 빛난 순간</b> · 사고 성향 페르소나 분석</li>
+          <li>다음 학년 <b>성장 포인트</b> 제안</li>
+        </ul>
+        <span class="alink">연간 리포트 전체 보기 →</span>
+      </a>
+
+      <a class="acard track reveal d1" href="samples/track-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 트랙 연간 성장 리포트 샘플 전체 보기">
+        <div class="ahero">
+          <span class="aeyebrow">ANNUAL REPORT</span>
+          <div class="atitle">📗 펜타 트랙 · 연간 성장 리포트</div>
+          <div class="ameta">STAGE 2 · 중3 · 진로 매칭 포함</div>
+          <div class="astat"><div class="as"><b>Lv.2→3</b><span>사고 가속도</span></div><div class="as"><b>F2·F1</b><span>진로 주파수</span></div><div class="as"><b>고1~고3</b><span>로드맵</span></div></div>
+        </div>
+        <ul class="alist">
+          <li>사고 가속도 <b>Lv 변화</b> · 진로 주파수 매칭</li>
+          <li>관련 <b>학과·진로 정보</b> (커리어넷 연동)</li>
+          <li>고1~고3 <b>선택과목·탐구활동 로드맵</b></li>
+        </ul>
+        <span class="alink">연간 리포트 전체 보기 →</span>
+      </a>
+    </div>
+    <p class="reveal" style="font-size:12px;color:var(--ink-mute);margin-top:12px;text-align:center">※ 샘플은 예시 데이터로 구성된 목업입니다. 실제 리포트는 학생 본인의 활동·워크북 기록에서 생성됩니다.</p>
 
     <!-- 공통 축 연결 -->
     <div class="pbridge reveal" style="text-align:left">
