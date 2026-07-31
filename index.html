@@ -316,6 +316,41 @@ section.alt{background:var(--bg)}
 .acard.track .alink{background:linear-gradient(135deg,#6fa81c,#5c8f16)}
 @media(max-width:560px){.annual{grid-template-columns:1fr}}
 
+/* 요금제 (KG 사전심사: 상품·가격) */
+.pricing{background:#fff;border-top:1px solid var(--line-soft)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;text-align:left}
+.plan{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 20px;position:relative}
+.plan.hot{border-color:var(--blue);box-shadow:0 14px 34px -18px rgba(49,130,246,.5)}
+.plan .rec{position:absolute;top:-11px;left:20px;background:var(--blue);color:#fff;font-size:10.5px;font-weight:800;padding:4px 11px;border-radius:20px;letter-spacing:.02em}
+.plan .pnm{font-size:16px;font-weight:800}
+.plan .pdesc{font-size:11.5px;color:var(--ink-mute);font-weight:600;margin-top:3px;min-height:32px}
+.plan .price{margin-top:12px;font-size:26px;font-weight:900;letter-spacing:-.02em}
+.plan .price small{font-size:13px;font-weight:700;color:var(--ink-mute)}
+.plan .yr{font-size:11.5px;color:var(--blue-deep);font-weight:700;margin-top:3px}
+.plan ul{list-style:none;margin:14px 0 0;padding:14px 0 0;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;gap:8px;flex:1}
+.plan ul li{position:relative;padding-left:19px;font-size:12.5px;font-weight:600;color:var(--ink-dim);line-height:1.5}
+.plan ul li::before{content:"✓";position:absolute;left:0;color:var(--safe);font-weight:900;font-size:11px}
+.plan .ptrial{font-size:11px;font-weight:700;color:var(--gold);margin-top:12px}
+.plan .pbtn{margin-top:12px;display:block;text-align:center;padding:11px 0;border-radius:11px;font-size:13px;font-weight:800;text-decoration:none;background:var(--ink);color:#fff}
+.plan.hot .pbtn{background:linear-gradient(135deg,var(--blue),var(--blue-deep))}
+.paddon{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;font-size:12.5px;color:var(--ink-dim);font-weight:600;text-align:center}
+.paddon b{color:var(--ink)}
+.paddon .chip{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:6px 13px}
+.payinfo{margin-top:22px;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:18px 20px;text-align:left;max-width:860px;margin-left:auto;margin-right:auto}
+.payinfo h4{font-size:12.5px;font-weight:800;color:var(--ink);margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.payinfo dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:12px;line-height:1.6}
+.payinfo dt{font-weight:800;color:var(--blue-deep);white-space:nowrap}
+.payinfo dd{margin:0;color:var(--ink-dim);font-weight:500}
+.payinfo .plink{margin-top:12px;font-size:11.5px}
+.payinfo .plink a{color:var(--blue);font-weight:700;text-decoration:none;margin-right:14px}
+@media(max-width:760px){.plans{grid-template-columns:1fr}.payinfo dl{grid-template-columns:1fr;gap:2px 0}.payinfo dd{margin-bottom:8px}}
+
+/* 하단 사업자정보 (KG 사전심사) */
+footer .bizinfo{margin-top:22px;padding-top:16px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--ink-dim);font-weight:500;line-height:1.95}
+footer .bizinfo b{color:var(--ink);font-weight:700}
+footer .bizinfo .plinks{margin-top:8px}
+footer .bizinfo .plinks a{color:var(--ink-dim);font-weight:700;text-decoration:none;margin-right:14px;border-bottom:1px solid var(--line)}
+
 /* 도입 문의 밴드 */
 .biz{background:#fff;border-top:1px solid var(--line-soft)}
 .biz .row{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;text-align:center}
@@ -920,6 +955,85 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
   </div>
 </section>
 
+<!-- ═══ 요금제 (KG 사전심사: 상품·가격·환불) ═══ -->
+<section class="pricing" id="pricing">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PRICING</div>
+    <h2 class="sec-h reveal">정직한 구독,<br><em>명확한 가격</em></h2>
+    <p class="sec-p reveal d1">모든 요금은 부가세 포함 월 구독가입니다. 첫 강은 무료 체험, 연간 결제 시 2개월이 무료입니다.</p>
+
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="pnm">📘 펜타 비전</div>
+        <div class="pdesc">초등~중2 · 5대 지성 사고력</div>
+        <div class="price">12,900<small>원 / 월</small></div>
+        <div class="yr">연간 129,000원 (2개월 무료)</div>
+        <ul>
+          <li>펜타 비전 워크북 전 회차</li>
+          <li>회차 리포트 + 월간 성장 리포트</li>
+          <li>AI 소크 발문 회차당 10회</li>
+        </ul>
+        <div class="ptrial">🎟️ 첫 강 무료 체험</div>
+        <a class="pbtn" href="https://arche.penta-view.com" target="_blank" rel="noopener">구독 시작</a>
+      </div>
+
+      <div class="plan hot reveal d1">
+        <span class="rec">추천</span>
+        <div class="pnm">📗 펜타 트랙</div>
+        <div class="pdesc">중3 · 융합 탐구 + 진로 설계</div>
+        <div class="price">19,900<small>원 / 월</small></div>
+        <div class="yr">연간 199,000원 (2개월 무료)</div>
+        <ul>
+          <li>펜타 트랙 워크북 전 회차</li>
+          <li>진로 매칭 · 커리어넷 · 고교 로드맵</li>
+          <li>반기 / 연간 성장 리포트</li>
+          <li>AI 소크 발문 회차당 15회</li>
+        </ul>
+        <div class="ptrial">🎟️ 첫 강 무료 체험</div>
+        <a class="pbtn" href="https://arche.penta-view.com" target="_blank" rel="noopener">구독 시작</a>
+      </div>
+
+      <div class="plan reveal d2">
+        <div class="pnm">🪜 올인원 (가정)</div>
+        <div class="pdesc">비전·트랙·아르케 모두</div>
+        <div class="price">29,900<small>원 / 월</small></div>
+        <div class="yr">연간 299,000원 (2개월 무료)</div>
+        <ul>
+          <li>펜타 비전 · 트랙 전체</li>
+          <li>펜타 아르케(진로·수행) 무제한</li>
+          <li>분기 · 연간 프리미엄 리포트</li>
+          <li>AI 소크 발문 넉넉히</li>
+        </ul>
+        <div class="ptrial">🎟️ 첫 강 무료 체험</div>
+        <a class="pbtn" href="https://arche.penta-view.com" target="_blank" rel="noopener">구독 시작</a>
+      </div>
+    </div>
+
+    <div class="paddon reveal">
+      <span class="chip">단품 · <b>펜타 아르케 5회권 9,900원</b></span>
+      <span class="chip">👨‍👩‍👧 <b>형제 할인</b> 둘째부터 30%</span>
+      <span class="chip">🎟️ 각 코스 <b>첫 강 무료</b></span>
+    </div>
+
+    <div class="payinfo reveal">
+      <h4>💳 결제 · 이용 · 환불 안내</h4>
+      <dl>
+        <dt>상품 형태</dt><dd>온라인 디지털 학습 구독 서비스 (실물 배송 없음)</dd>
+        <dt>이용 개시</dt><dd>결제 승인 즉시 계정에서 이용 가능 (배송 기간 해당 없음)</dd>
+        <dt>결제 방식</dt><dd>신용·체크카드 정기결제(구독) 및 단건 결제 · 매월 자동 청구</dd>
+        <dt>청약철회</dt><dd>결제 후 7일 이내, 콘텐츠를 이용·다운로드하지 않은 경우 전액 환불</dd>
+        <dt>중도 해지</dt><dd>언제든 다음 결제일 전 해지 시 다음 주기부터 청구 중단 · 잔여기간 이용 가능</dd>
+        <dt>환불 문의</dt><dd>gwkim06@gmail.com · 010-2557-5342 (평일 10:00~18:00)</dd>
+      </dl>
+      <div class="plink">
+        <a href="policy/terms.html" target="_blank" rel="noopener">이용약관</a>
+        <a href="policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
+        <a href="policy/refund.html" target="_blank" rel="noopener">청약철회·환불정책</a>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- ═══ 학부모–학생 루프 상세 모달 ═══ -->
 <div class="lmodal-bd" id="loopModal" onclick="if(event.target===this)closeLoop()">
   <div class="lmodal" role="dialog" aria-modal="true" aria-label="학부모–학생 루프 설명">
@@ -958,10 +1072,20 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
         </p>
       </div>
       <div class="fr">
-        <b>로그·알 입시연구소</b><br>
+        <b>로그.알 (로그·알 입시연구소)</b><br>
         대표 김기욱<br>
-        문의 <b>gwkim06@naver.com</b><br>
+        문의 <b>gwkim06@gmail.com</b><br>
         penta-view.com
+      </div>
+    </div>
+    <div class="bizinfo">
+      <b>상호</b> 로그.알 &nbsp;·&nbsp; <b>대표자</b> 김기욱 &nbsp;·&nbsp; <b>사업자등록번호</b> 538-10-03175 &nbsp;·&nbsp; <b>통신판매업신고번호</b> 제0000-지역-0000호<br>
+      <b>사업장 주소</b> 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) &nbsp;·&nbsp; <b>연락처</b> 010-2557-5342 &nbsp;·&nbsp; <b>이메일</b> gwkim06@gmail.com<br>
+      <b>개인정보보호책임자</b> 김기욱 (gwkim06@gmail.com)
+      <div class="plinks">
+        <a href="policy/terms.html" target="_blank" rel="noopener">이용약관</a>
+        <a href="policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
+        <a href="policy/refund.html" target="_blank" rel="noopener">청약철회·환불정책</a>
       </div>
     </div>
     <div class="copy">© 2026 Log.R Intelligence Loop Lab. All rights reserved.</div>
