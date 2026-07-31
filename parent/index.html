@@ -2364,47 +2364,48 @@ try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 /* ===== 개인정보/이용 동의 게이트 ===== */
-var POLICY_VER='2026.07.13';
+var POLICY_VER='2026.08.01';
 function policyPrivacyHTML(){ return `
 <h2 style="font-size:16px;color:var(--ink);margin:0 0 4px">개인정보 처리방침</h2>
-<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-07-13 · 서비스: 아르케(Arche) · 운영: 로그.알 (대표 김기욱)</div>
+<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-08-01 · 서비스: 펜타 시리즈(펜타 비전·트랙·아르케) · 운영: 로그.알 (브랜드 '펜타뷰', 대표 김기욱)</div>
 <p><b>1. 수집하는 개인정보 항목</b></p>
 <ul>
-<li>계정: 이메일, 비밀번호(암호화 저장), 학원명·코드, 역할</li>
-<li>학생 정보: 이름, 학교, 학년, 희망 대학·학과·진로, 지원 트랙</li>
-<li>학생 자료 분석 결과: 생활기록부에서 <b>파싱된</b> 세부능력·특기사항(활동)·창의적체험활동·행동특성·독서 텍스트, 성적·성취도, 진단·리포트 결과</li>
-<li>결제(유료 이용 시): 구독·결제 내역 (카드정보는 토스페이먼츠가 처리하며 당사는 보관하지 않음)</li>
+<li>계정: 이메일, 비밀번호(암호화 저장), 학생 이름(또는 별칭), 학년, 역할</li>
+<li>서비스 이용: 워크북 작성 내용, 학습·진단 기록, AI 소크(소크라테스식 발문) 대화 로그, 리포트 결과</li>
+<li>펜타 아르케 이용 시: 학생 본인이 입력·업로드한 진로·활동·수행 자료</li>
+<li>결제(유료 이용 시): 구독·결제 내역 (카드정보는 결제대행사가 처리하며 당사는 보관하지 않음)</li>
 </ul>
-<p style="background:rgba(0,184,169,.08);border-left:3px solid var(--lime);padding:8px 10px;border-radius:6px"><b>학생 자료 원본 파일은 서버에 저장하지 않습니다.</b> 업로드하신 파일은 회원 기기(브라우저)에서 분석에만 사용되며, 분석에 필요한 파싱 결과만 저장됩니다.</p>
+<p style="background:rgba(0,184,169,.08);border-left:3px solid var(--lime);padding:8px 10px;border-radius:6px"><b>펜타 아르케에서 업로드한 학생 자료 원본 파일은 서버에 저장하지 않습니다.</b> 업로드 파일은 회원 기기(브라우저)에서 분석에만 사용되며, 분석에 필요한 결과만 저장됩니다.</p>
 <p><b>2. 개인정보의 이용 목적</b></p>
-<ul><li>입시 컨설팅 분석·리포트·학생 자료 설계 등 서비스 제공</li><li>회원 인증·계정 관리, 결제·정산</li><li>서비스 품질 개선 및 통계(개인 식별 불가 형태)</li></ul>
+<ul><li>학습 워크북·성장 리포트·진로 설계 등 서비스 제공</li><li>회원 인증·계정 관리, 결제·정산</li><li>서비스 품질 개선 및 통계(개인 식별 불가 형태)</li></ul>
 <p><b>3. 보유 및 이용 기간</b></p>
-<ul><li>회원 탈퇴 또는 계약 종료 시까지 보유하며, 목적 달성 시 지체 없이 파기합니다.</li><li>관계 법령에 따라 보존이 필요한 경우 해당 기간 동안 보관합니다.</li></ul>
+<ul><li>회원 탈퇴 또는 계약 종료 시까지 보유하며, 목적 달성 시 지체 없이 파기합니다.</li><li>관계 법령(전자상거래법 등)에 따라 보존이 필요한 거래·결제 기록은 해당 법정 기간 동안 보관합니다.</li></ul>
 <p><b>4. 처리위탁</b> — 서비스 제공을 위해 아래에 처리를 위탁합니다.</p>
 <ul>
-<li>Google LLC (Gemini API): 생활기록부 텍스트·이미지의 AI 분석·문자인식(OCR). 스캔본 분석 시 이미지가 전송되며, 처리 목적 외 저장·이용되지 않습니다. (국외 처리 포함)</li>
+<li>Google LLC (Gemini API): 워크북 텍스트의 AI 분석·발문 생성. 처리 목적 외 저장·이용되지 않습니다. (국외 처리 포함)</li>
 <li>Supabase Inc.: 데이터베이스·서버 인프라 (리전: 서울)</li>
 <li>Vercel Inc.: 웹 호스팅</li>
-<li>토스페이먼츠(주): 결제 처리 (유료 이용 시)</li>
+<li>KG이니시스(주): 신용카드 등 결제 처리 (유료 이용 시)</li>
 </ul>
 <p><b>5. 제3자 제공</b> — 원칙적으로 제공하지 않으며, 법령에 근거하거나 정보주체의 동의가 있는 경우에 한합니다.</p>
 <p><b>6. 정보주체의 권리</b> — 언제든지 개인정보의 열람·정정·삭제·처리정지를 요구할 수 있습니다. (요청: 개인정보 보호책임자 연락처)</p>
-<p><b>7. 미성년자(만 14세 미만)</b> — 만 14세 미만 아동의 개인정보는 <b>법정대리인(보호자)의 동의</b>가 있어야 처리합니다. 학원(B2B) 이용 시 학원은 학생 등록 전 보호자 동의를 확보한 것으로 하며, 학부모(B2C) 이용 시 회원 본인이 법정대리인으로서 동의합니다.</p>
+<p><b>7. 미성년자(만 14세 미만)</b> — 만 14세 미만 아동의 개인정보는 <b>법정대리인(보호자)의 동의</b>가 있어야 처리합니다. 학부모 이용 시 회원 본인이 법정대리인으로서 동의하며, 학원 단체 이용 시 학원은 학생 등록 전 보호자 동의를 확보한 것으로 봅니다.</p>
 <p><b>8. 개인정보 보호책임자</b> — 성명: 김기욱(대표) · 이메일: gwkim06@gmail.com · 전화: 010-2557-5342</p>
 <p><b>9. 사업자 정보</b> — 상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임)</p>
 <p style="font-size:11px;color:var(--ink-mute)">※ 본 방침은 법령·서비스 변경에 따라 개정될 수 있으며, 개정 시 앱 내 고지 후 재동의를 받을 수 있습니다.</p>
 `; }
 function policyTermsHTML(){ return `
 <h2 style="font-size:16px;color:var(--ink);margin:0 0 4px">서비스 이용약관</h2>
-<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-07-13</div>
-<p><b>제1조(목적)</b> 본 약관은 로그.알(브랜드 '펜타뷰', 이하 '회사')이 제공하는 입시 컨설팅 지원 서비스 '아르케'의 이용 조건·절차 및 회원과 회사의 권리·의무를 규정합니다.</p>
-<p><b>제2조(서비스 내용)</b> 회사는 학생 자료 분석, 진단, 학생 자료 설계, 자기소개서 설계·평가, 면접 준비, 리포트 등 컨설팅 보조 도구를 제공합니다. 본 서비스는 컨설팅을 <b>보조</b>하며, 최종 판단과 책임은 이용자(학원·컨설턴트)에게 있습니다.</p>
-<p><b>제3조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않습니다. 자기소개서는 설계도(방향·소재) 방식으로만 제공되며, 이용자는 관련 법령과 각 전형의 규정을 준수해야 합니다.</p>
-<p><b>제4조(슬롯·계정)</b> 학생당 과금 구조에서 하나의 학생 슬롯을 다른 학생 자료로 재활용하는 행위는 금지되며, 적발 시 이용 제한 및 정산 소급이 이루어질 수 있습니다.</p>
-<p><b>제5조(요금·결제)</b> 이용요금은 기본료와 학생 수 기준 요금으로 구성되며, 상세 내역은 별도 안내에 따릅니다.</p>
-<p><b>제6조(책임의 제한)</b> 회사는 AI 분석 결과의 정확성·합격을 보장하지 않으며, 결과는 참고 자료입니다. 회사는 관계 법령이 허용하는 범위에서 책임을 부담합니다.</p>
-<p style="font-size:11px;color:var(--ink-mute)">※ 본 약관은 개정될 수 있으며, 개정 시 앱 내 고지합니다.</p>
-<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
+<div style="font-size:11px;color:var(--ink-mute);margin-bottom:12px">시행일: 2026-08-01 · 서비스: 펜타 시리즈</div>
+<p><b>제1조(목적)</b> 본 약관은 로그.알(브랜드 '펜타뷰', 이하 '회사')이 제공하는 온라인 학습 서비스 '펜타 시리즈'(펜타 비전·펜타 트랙·펜타 아르케, 이하 '서비스')의 이용 조건·절차 및 회원과 회사의 권리·의무를 규정합니다.</p>
+<p><b>제2조(서비스 내용)</b> 회사는 초·중등 학생의 사고력·진로 역량 성장을 돕는 디지털 워크북, 성장 리포트, AI 소크라테스식 발문('소크') 등을 제공합니다. 본 서비스는 학습을 <b>보조</b>하며, 결과·성적·합격을 보장하지 않습니다.</p>
+<p><b>제3조(회원가입·계정)</b> 회원은 자신의 계정(ID/PW)을 선량하게 관리할 책임이 있습니다. 만 14세 미만 아동은 법정대리인(보호자)의 동의가 있는 경우에 한하여 이용할 수 있습니다.</p>
+<p><b>제4조(요금·결제)</b> 이용요금은 서비스 화면에 게시된 금액(부가세 포함)을 따릅니다. 주요 요금: 펜타 비전 월 12,900원, 펜타 트랙 월 19,900원, 올인원 월 29,900원, 펜타 아르케 5회권 9,900원. 구독은 결제수단을 통해 매 주기 자동 청구되며, 회원은 언제든지 다음 결제일 전에 해지할 수 있습니다. 연간 결제 시 2개월분이 무료로 제공되며, 형제 할인(둘째부터 30%) 등 프로모션이 적용될 수 있습니다.</p>
+<p><b>제5조(청약철회·환불)</b> 결제 후 7일 이내이며 콘텐츠를 이용·다운로드하지 않은 경우 전액 환불됩니다. 디지털 콘텐츠 특성상 이용이 개시된 부분은 청약철회가 제한될 수 있습니다. 구독 해지 시 다음 주기부터 청구가 중단되며, 자세한 내용은 청약철회·환불정책에 따릅니다.</p>
+<p><b>제6조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않으며, AI 발문('소크')은 <b>정답·대필을 제공하지 않고</b> 학생이 스스로 사고하도록 질문으로만 돕습니다. 계정의 부정 공유·콘텐츠 무단 복제·배포는 금지되며, 위반 시 이용이 제한될 수 있습니다.</p>
+<p><b>제7조(책임의 제한)</b> 회사는 AI 분석·진단 결과의 정확성이나 합격을 보장하지 않으며, 결과는 참고 자료입니다. 회사는 관계 법령이 허용하는 범위에서 책임을 부담합니다.</p>
+<p style="font-size:11px;color:var(--ink-mute)">※ 본 약관은 개정될 수 있으며, 개정 시 앱 내 고지합니다. 본 약관에 관한 분쟁은 대한민국 법령을 준거법으로 합니다.</p>
+<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 통신판매업신고번호: 제0000-지역-0000호 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
 `; }
 window.showPolicyDoc=function(kind){
   var ov=document.createElement('div');
@@ -2430,8 +2431,8 @@ function showConsentGate(user, role){
     w.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(4,8,3,.94);display:flex;align-items:center;justify-content:center;padding:18px;overflow:auto';
     var row=function(id,req,label,linkid,linktxt){return '<label style="display:flex;align-items:flex-start;gap:9px;padding:11px 12px;border:1px solid var(--line,#333d4b);border-radius:10px;margin-bottom:8px;cursor:pointer"><input type="checkbox" id="'+id+'" style="margin-top:2px;accent-color:var(--lime,#00b8a9)"><span style="flex:1;font-size:13px;color:var(--ink,#eaf3ee)"><b style="color:'+(req?'var(--risk,#f04452)':'var(--ink-mute,#8b95a1)')+'">['+(req?'필수':'선택')+']</b> '+label+(linkid?' <a href="#" id="'+linkid+'" style="color:var(--gold,#3182f6);text-decoration:underline;font-size:12px">'+linktxt+'</a>':'')+'</span></label>';};
     w.innerHTML='<div style="max-width:520px;width:100%;background:var(--panel,#191f28);border:1px solid var(--gold,#3182f6);border-radius:16px;padding:24px">'
-      +'<div style="font-size:17px;font-weight:800;color:var(--ink,#eaf3ee);margin-bottom:4px">아르케 이용을 위한 동의</div>'
-      +'<div style="font-size:12px;color:var(--ink-mute,#8b95a1);margin-bottom:16px;line-height:1.6">서비스 이용을 위해 아래 내용에 동의해 주세요. 학생 자료 <b>원본 파일은 서버에 저장되지 않으며</b>, 분석에 필요한 정보만 안전하게 처리됩니다.</div>'
+      +'<div style="font-size:17px;font-weight:800;color:var(--ink,#eaf3ee);margin-bottom:4px">펜타 시리즈 이용을 위한 동의</div>'
+      +'<div style="font-size:12px;color:var(--ink-mute,#8b95a1);margin-bottom:16px;line-height:1.6">서비스 이용을 위해 아래 내용에 동의해 주세요. 학생이 직접 작성한 학습 기록만 처리하며, 펜타 아르케에 <b>업로드한 원본 파일은 서버에 저장되지 않습니다</b>.</div>'
       +'<label style="display:flex;align-items:center;gap:9px;padding:10px 12px;background:rgba(0,184,169,.07);border:1px solid var(--lime,#00b8a9);border-radius:10px;margin-bottom:12px;cursor:pointer"><input type="checkbox" id="cg-all" style="accent-color:var(--lime,#00b8a9)"><span style="font-size:13px;font-weight:700;color:var(--ink,#eaf3ee)">전체 동의</span></label>'
       +row('cg-terms',true,'서비스 이용약관에 동의합니다.','cg-view-terms','전문 보기')
       +row('cg-priv',true,'개인정보 수집·이용 및 처리위탁에 동의합니다.','cg-view-priv','전문 보기')
