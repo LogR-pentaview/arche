@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="아르케">
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="/parent/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIwIiBmaWxsPSIjMTIxNjBmIi8+PHRleHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjMwMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2M4YTI0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=">
 <title>아르케 · 학부모</title>
@@ -2061,7 +2061,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=27"></script>
-<script src="/shared/arche_soke_chat.js?v=2"></script>
+<script src="/shared/arche_soke_chat.js?v=3"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=3"></script>
 <script src="/shared/arche_penta_period.js?v=4"></script>
@@ -4450,13 +4450,13 @@ function perfConReview(a,sub,track){
   h+='<div style="font-size:11px;color:var(--gold,#3182f6);margin-bottom:4px">학생 결과물</div><div style="font-size:13px;line-height:1.85;color:var(--ink);word-break:keep-all;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--panel-2)">'+(content||'<span style="color:var(--ink-mute)">(비어 있음)</span>')+'</div>';
   if(tm&&tm.charCount!=null)h+='<div style="margin-top:8px;padding:8px 11px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b><div style="font-size:11px;color:var(--ink-dim);margin-top:3px">키입력 '+(tm.keyCount||0)+' · 삭제 '+(tm.backCount||0)+' · 붙여넣기 '+(tm.pasteCount||0)+'회('+(tm.pasteChars||0)+'자) · 글자수 '+(tm.charCount||0)+' · 작성 '+Math.round((tm.totalMs||0)/60000)+'분</div>'+(s.verdict_reason?'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6">'+esc(s.verdict_reason)+'</div>':'')+'</div>';
   if(s.status!=='doing')h+='<div style="margin-top:8px"><button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="perfDNAReport('+a.id+',\''+track+'\')">🧬 타이핑DNA 상세 리포트</button><div id="pf-dna-'+a.id+'" style="margin-top:8px"></div></div>';
-  if(!done){
+  if(!done && s.status!=='doing'){
     h+='<div style="display:flex;align-items:center;gap:8px;margin:11px 0 4px"><span style="font-size:11px;color:var(--reach,#3182f6);font-weight:700">🤖 AI 코칭</span><button class="btn ghost" style="padding:3px 9px;font-size:11px" onclick="perfRunCoach('+sub.id+','+a.id+',\''+track+'\')">'+(s.ai_coaching?'AI 재검토':'AI 검토 실행')+'</button></div>'
       +'<div id="pf-ai-'+a.id+'" style="'+(s.ai_coaching?'':'display:none;')+'padding:10px 12px;border:1px solid var(--reach,#3182f6);border-radius:9px;background:rgba(49,130,246,.06);font-size:12px;color:var(--ink-dim);line-height:1.7">'+(s.ai_coaching||'')+'</div>'
       +'<div style="font-size:11px;color:var(--gold,#3182f6);margin:11px 0 4px">컨설턴트 피드백 (AI 코칭과 함께 학생에게 전달)</div>'
       +'<textarea id="pf-fb-'+a.id+'" rows="3" placeholder="방향·수정 포인트를 적어주세요." style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.7;resize:vertical;box-sizing:border-box">'+esc(s.feedback||'')+'</textarea>'
       +'<div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;align-items:center"><button class="btn" style="padding:4px 12px;font-size:11.5px;background:var(--reach,#3182f6);border:none;color:#fff" onclick="perfReturn('+sub.id+','+a.id+',\''+track+'\')">↩ 학생에게 돌려보내기</button><button class="btn ghost" style="padding:4px 12px;font-size:11.5px;border-color:var(--safe);color:var(--safe)" onclick="perfComplete('+sub.id+','+a.id+',\''+track+'\')">✅ 완성 · AI 예상등급 채점</button><span id="pf-fbm-'+a.id+'" style="font-size:11px"></span></div>';
-  } else {
+  } else if(done){
     h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성 처리됨 · 학생이 결과물과 예상등급 평가지를 받을 수 있습니다.</div>'
       +perfEvalSheetFromSub(s,false)
       +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn ghost" style="padding:4px 12px;font-size:11.5px" onclick="perfRunEval('+sub.id+','+a.id+',\''+track+'\')">AI 재채점</button><span id="pf-fbm-'+a.id+'" style="font-size:11px"></span></div>';
@@ -4518,6 +4518,7 @@ async function perfComplete(sid,aid,track){
   var t=document.getElementById('pf-fb-'+aid),m=document.getElementById('pf-fbm-'+aid); var v=t?t.value.trim():'';
   if(!confirm('완성 처리하고 AI 예상등급 채점을 실행할까요?\n완성하면 학생이 결과물과 예상등급 평가지를 받을 수 있습니다.'))return;
   await sb.from('perf_submissions').update({feedback:v,status:'completed',completed_at:new Date().toISOString()}).eq('id',sid);
+  try{ var _sr=await sb.from('perf_submissions').select('student_id').eq('id',sid).limit(1); var _sid=_sr&&_sr.data&&_sr.data[0]&&_sr.data[0].student_id; if(_sid) sb.from('app_notifications').insert({academy_id:(window._acadId||(window._academy&&window._academy.id)||null), student_id:_sid, recipient:'stu', kind:'perf', title:'수행평가 완성', body:'결과물과 예상등급 평가지가 도착했어요.', view:(track==='goip'?'gperf':'perf')}); }catch(_e){}
   if(m){m.style.color='var(--ink-mute)';m.textContent='AI 예상등급 채점 중… (10~25초)';}
   await perfRunEval(sid,aid,track,true);
   if(window.toast)toast('완성 처리 및 예상등급 채점 완료',true); perfMount(track);
