@@ -108,7 +108,7 @@
       h+='<div class="lb">✍️ 문장력 <span style="font-weight:900;color:'+lc+'">'+sc+'<span style="font-size:10px;color:#8b95a1">/10</span></span>'+(ex.level?' <span style="font-size:10px;font-weight:800;color:'+lc+'">· '+esc(ex.level)+'</span>':'')+'</div>';
       if(ex.note)h+='<p>'+esc(ex.note)+'</p>';
       if(ex.tips&&ex.tips.length)h+='<ul>'+ex.tips.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
-      h+='<div style="font-size:10px;color:#adb5bd;margin-top:2px">※ 합격 자소서 문장 퀄리티 기준 · 학년 수준 감안 · 표현 성장 안내</div>';
+      h+='<div style="font-size:10px;color:#adb5bd;margin-top:2px">※ 우수한 사고·표현 사례 기준 · 학년 수준 감안 · 표현 성장 안내</div>';
     }
     return h+'</div>'; }
   function wsQaHtml(rep){ var qs=rep.questions||[]; var ans=(rep.answers&&(rep.answers.text!=null||rep.answers.html!=null))?null:(rep.answers||{}); var text=(rep.answers&&rep.answers.text)||''; var h='';

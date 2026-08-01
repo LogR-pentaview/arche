@@ -133,7 +133,7 @@
       +'</div>';
     if(ex.note) h+='<div class="sd" style="margin-bottom:'+((ex.tips&&ex.tips.length)?'9px':'0')+'">'+esc(ex.note)+'</div>';
     if(ex.tips&&ex.tips.length) h+='<ul style="margin:0;padding-left:18px;font-size:12.5px;color:#495057;line-height:1.75">'+ex.tips.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul>';
-    h+='<div style="margin-top:10px;font-size:10.5px;color:#adb5bd">※ 합격 자소서 문장 퀄리티를 기준으로 학년 수준을 감안해 진단합니다. 대필이 아닌 표현 성장 안내입니다.</div>';
+    h+='<div style="margin-top:10px;font-size:10.5px;color:#adb5bd">※ 우수한 사고·표현 사례를 기준으로 학년 수준을 감안해 진단합니다. 대필이 아닌 표현 성장 안내입니다.</div>';
     return h+'</div>';
   }
 
