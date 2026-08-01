@@ -2058,9 +2058,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_writing_diff.js"></script>
 <script src="/shared/arche_integrity.js"></script>
 <script src="/shared/arche_reflection.js"></script>
-<script src="/shared/arche_report_typingdna.js"></script>
-<script src="/shared/arche_report_selfcompare.js"></script>
-<script src="/shared/arche_penta_workbook.js?v=27"></script>
+<script src="/shared/arche_report_typingdna.js"></script><script src="/shared/arche_penta_workbook.js?v=27"></script>
 <script src="/shared/arche_soke_chat.js?v=3"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=3"></script>
@@ -2070,7 +2068,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_season_picker.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=22"></script>
-<script src="/shared/arche_career_bridge.js?v=8"></script>
+<script src="/shared/arche_career_bridge.js?v=10"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2134,7 +2132,7 @@ window.toggleMobileNav=toggleMobileNav;
 function careerMount(which){
   var id=(which==='goip')?'career-mount-goip':'career-mount';
   var m=document.getElementById(id);
-  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
+  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m, null, (which==='goip'?'goip':'dae')); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
 }
 window.careerMount=careerMount;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
@@ -2909,6 +2907,10 @@ function applyB2CSidebar(band, mode){
   var host=document.getElementById('b2c-side');
   if(!host){ host=document.createElement('div'); host.id='b2c-side'; var brand=side.querySelector('.brand'); if(brand){ side.insertBefore(host, brand.nextSibling); } else { side.insertBefore(host, side.firstChild); } }
   Array.prototype.forEach.call(side.children, function(ch){ if(ch===host||ch.classList.contains('brand')||ch.classList.contains('foot')) return; ch.style.display='none'; });
+  // [B2C 브랜딩] 학원/컨설팅 잔재 문구 정리 — 브랜드 태그·상단 크럼·컨설턴트/학생 토글
+  try{ var _bt=side.querySelector('.brand .tag'); if(_bt)_bt.textContent='PentaView · 펜타 시리즈'; }catch(e){}
+  try{ var _cr=document.getElementById('topbar-crumbs'); if(_cr&&_cr.firstChild&&_cr.firstChild.nodeType===3)_cr.firstChild.nodeValue='펜타 · '; }catch(e){}
+  try{ var _rt=document.getElementById('topbar-roletoggle'); if(_rt)_rt.style.display='none'; }catch(e){}
   var _visItem = (band==='초') ? ['vision_basic','📘','펜타 비전 기초'] : ['vision_adv','📗','펜타 비전 심화'];
   var penta = [ _visItem, ['track','📙','펜타 트랙'] ];  // 비전(레벨자동)+트랙 · 전 학년(비대상은 체험/미리보기)
   var arche = (band==='고') ? [['sr','🪜','펜타 아르케 · 진로'],['perf','📝','펜타 아르케 · 수행평가']]
@@ -2991,10 +2993,11 @@ async function renderB2CParentHome(){
   if(!window._isB2C || !window.ArcheParentDash) return;
   try{ if(window.ArcheKGBilling&&ArcheKGBilling.primeTier)ArcheKGBilling.primeTier(); }catch(e){}
   var v=document.getElementById('v-home'); if(!v) return;
+  // [다자녀] 자녀 전체 로드 후 활성 자녀 결정
+  var kids=[]; try{ var kr=await sb.from('students').select('*').order('created_at',{ascending:true}); if(kr&&kr.data)kids=kr.data; }catch(e){}
+  window._children=kids;
   var child=window._activeStudent;
-  if(!child){
-    try{ var r=await sb.from('students').select('*').order('created_at',{ascending:true}).limit(1); if(r&&r.data&&r.data[0]){ child=r.data[0]; window._activeStudent=child; } }catch(e){}
-  }
+  if(!child || !kids.some(function(k){return k.id===child.id;})){ child=kids[0]||child; if(child)window._activeStudent=child; }
   if(!child) return; // 등록된 자녀 없으면 기존 홈(등록 안내) 유지
   try{ applyB2CSidebar(b2cBand(child.grade)); }catch(e){}
   ArcheParentDash.mount(v, {
@@ -3017,6 +3020,15 @@ async function renderB2CParentHome(){
   });
   /* [사용 안내] 학부모 홈 상단에 사용안내 배너 삽입 */
   try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cOpenGuide()'); _bn.innerHTML='<span style="font-size:22px">📖</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 사용 안내 보기</div><div style="font-size:12px;color:#6b7688">아르케·펜타 각 기능 사용법을 한눈에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
+  /* [다자녀] 자녀가 2명 이상이면 상단에 자녀 전환 칩 표시 */
+  try{ var _sec2=v.querySelector('.b2cd-view'); var _old=document.getElementById('b2c-child-switch'); if(_old)_old.remove();
+    if(_sec2 && (window._children||[]).length>1){
+      var sw=document.createElement('div'); sw.id='b2c-child-switch'; sw.style.cssText='display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px';
+      sw.appendChild((function(){var l=document.createElement('span');l.textContent='자녀 전환';l.style.cssText='font-size:11.5px;color:#8b95a1;font-weight:700;margin-right:2px';return l;})());
+      window._children.forEach(function(k){ var on=(child&&k.id===child.id); var b=document.createElement('button'); b.textContent=(k.name||'자녀')+(k.grade?(' · '+k.grade):''); b.style.cssText='font:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:20px;cursor:pointer;border:1px solid '+(on?'#1b64da':'#dbe4fb')+';background:'+(on?'#1b64da':'#fff')+';color:'+(on?'#fff':'#4e5968'); b.onclick=function(){ if(child&&k.id===child.id)return; window._activeStudent=k; try{ if(window.syncTopbarPicker)syncTopbarPicker('home'); }catch(_e){} renderB2CParentHome(); }; sw.appendChild(b); });
+      _sec2.insertBefore(sw, _sec2.firstChild);
+    }
+  }catch(e){}
 }
 window.renderB2CParentHome=renderB2CParentHome;
 
@@ -6688,8 +6700,9 @@ async function callAI(task,payload){
   if(!sb) throw new Error('DB 미로드');
   var sess=(await sb.auth.getSession()).data.session;
   var res=await fetch(SB_URL+'/functions/v1/arche-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({task:task,payload:payload})});
-  var d=await res.json();
+  var d=await res.json().catch(function(){return {};});
   if(!res.ok){
+    if(res.status===401){ try{ await sb.auth.refreshSession(); }catch(_e){} throw new Error('로그인 세션이 만료되었어요. 다시 로그인해 주세요.'); }
     if(d.demo_exhausted||d.demo_expired){ throw new Error(d.error||'체험 횟수 소진'); }
     throw new Error(d.error||'AI 오류');
   }
@@ -6853,11 +6866,16 @@ async function billingCall(action,extra){
 async function renderBilling(){
   var body=document.getElementById('billing-body'); if(!body||!sb)return;
   if(window._role==='stu'){ return; }
-  /* [B2C] 신규 KG 티어 정기결제(비전/트랙/올인원)로 대체 — 구모델(toss 인원기반)은 B2B에만 */
-  if(window._isB2C && window.ArcheKGBilling){
-    try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월간/연간)'; }catch(_e){}
-    try{ ArcheKGBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
-    catch(e){ body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요.</div>'; }
+  /* [B2C] 신규 KG 티어 정기결제(비전/트랙/올인원)로 대체 — 구모델(toss 인원기반)은 B2B에만.
+     ★ B2C는 절대 구 Toss 요금 화면으로 폴백하지 않는다(잘못된 요금·PG 노출 방지). */
+  if(window._isB2C){
+    if(window.ArcheKGBilling){
+      try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월간/연간)'; }catch(_e){}
+      try{ ArcheKGBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
+      catch(e){ body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요.</div>'; }
+    } else {
+      body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.</div>';
+    }
     return;
   }
   body.innerHTML='불러오는 중…';
