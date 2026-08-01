@@ -206,6 +206,9 @@ section.alt{background:var(--bg)}
 /* ═══ 펜타 시리즈 (다크) ═══ */
 .penta{background:var(--navy);color:#eaf0f7;position:relative;overflow:hidden}
 .penta::before{content:"";position:absolute;top:-160px;right:-120px;width:520px;height:520px;background:radial-gradient(closest-side,rgba(182,227,74,.1),transparent);pointer-events:none}
+.penta .wrap{position:relative;z-index:1}
+.penta.ptop::after{content:"";position:absolute;top:0;left:0;right:0;height:150px;background:linear-gradient(180deg,var(--bg),transparent);pointer-events:none;z-index:0}
+.penta+.penta{border-top:1px solid rgba(255,255,255,.06)}
 .penta .sec-h{color:#fff}
 .penta .sec-h em{color:var(--lime)}
 .penta .sec-p{color:#aab6c8}
@@ -218,6 +221,9 @@ section.alt{background:var(--bg)}
 .fq h5{font-size:13px;font-weight:800;color:#fff}
 .fq p{font-size:11px;color:#8b97ab;font-weight:500;margin-top:4px}
 .ptrack{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:36px}
+.ptrack.tri{grid-template-columns:repeat(3,1fr)}
+.ptrack.solo{grid-template-columns:1fr;max-width:600px;margin-left:auto;margin-right:auto}
+.psgrid.solo,.annual.solo{grid-template-columns:1fr;max-width:600px;margin-left:auto;margin-right:auto}
 .pt-card{background:#1b2334;border:1px solid #283349;border-radius:20px;padding:28px 26px}
 .pt-card.vision{border-color:rgba(200,162,74,.35)}
 .pt-card.track{border-color:rgba(182,227,74,.3)}
@@ -402,7 +408,7 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
 
 @media(max-width:900px){
   .layer3,.why,.trust,.steps{grid-template-columns:1fr}
-  .svc,.ptrack{grid-template-columns:1fr}
+  .svc,.ptrack,.ptrack.tri{grid-template-columns:1fr}
   .freq{grid-template-columns:repeat(2,1fr)}
   .step:not(:last-child)::after{display:none}
   .vgrid{grid-template-columns:1fr}
@@ -421,7 +427,9 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
   <div class="wrap nav">
     <a class="logo" href="#"><span class="mark">P</span>펜타<b>.</b></a>
     <nav class="menu">
-      <a href="#penta">펜타 시리즈</a>
+      <a href="#vision">펜타 비전</a>
+      <a href="#track">펜타 트랙</a>
+      <a href="#arche">펜타 아르케</a>
       <a href="#why">왜 펜타</a>
       <a href="#services">서비스</a>
       <a href="#how">작동 방식</a>
@@ -444,7 +452,7 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
     <p class="sub reveal d2">초등부터 중등까지 — <b>펜타 비전</b>(5대 지성 융합사고)과 <b>펜타 트랙</b>(교과융합·진로 설계)이 아이의 <b>생각하는 힘</b>을 키웁니다. 회차별 워크북으로 사고를 확장하고, <b>성장 리포트</b>로 변화를 눈으로 확인해요.</p>
     <div class="cta reveal d2">
       <a class="btn pri big" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">무료 체험 시작</a>
-      <a class="btn ghost big" href="#penta">펜타 시리즈 보기</a>
+      <a class="btn ghost big" href="#vision">펜타 시리즈 보기</a>
     </div>
     <div class="reveal d2" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px">
       <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:158px;text-align:left"><div style="font-size:12.5px;font-weight:800;color:#3182f6">📘 펜타 비전</div><div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">5대 지성 융합사고 · 초·중</div></div>
@@ -484,12 +492,12 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
   </div>
 </section>
 
-<!-- ═══ 펜타 시리즈 (독립 소개) ═══ -->
-<section class="penta" id="penta">
+<!-- ═══ 2. 펜타 비전 ═══ -->
+<section class="penta ptop" id="vision">
   <div class="wrap center">
-    <div class="sec-eyebrow reveal">PENTA SERIES</div>
-    <h2 class="sec-h reveal">초·중등을 위한 사고력 성장,<br><em>펜타 비전 · 펜타 트랙</em></h2>
-    <p class="sec-p reveal d1">펜타 시리즈의 핵심은 초·중등의 <b>사고력 성장</b>입니다. 5대 지성 주파수로 아이의 지성을 진단하고, 회차별 워크북으로 사고를 확장하며, 그 성장 궤적을 시간축으로 쌓아갑니다.</p>
+    <div class="sec-eyebrow reveal">PENTA VISION · STAGE 1 · 초등~중2</div>
+    <h2 class="sec-h reveal">학부모가 컨설턴트가 되는<br><em>펜타 비전</em></h2>
+    <p class="sec-p reveal d1">사고력이 자라는 결정적 시기. <b>5대 지성 주파수</b>로 아이의 지성을 진단하고, 회차별 워크북으로 사고를 확장하며, 학부모가 리포트를 읽고 아이를 직접 이끄는 <b>학부모–학생 루프</b>입니다. 온라인 구독으로 대치동 컨설팅의 깊이를 집에서.</p>
 
     <!-- 5대 지성 주파수 -->
     <div class="freq" style="text-align:left">
@@ -500,8 +508,8 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
       <div class="fq reveal d2"><div class="fn">F5</div><div class="fbar"><i data-w="70%"></i></div><h5>예술·디자인</h5><p>표현·창의</p></div>
     </div>
 
-    <!-- 비전 / 트랙 -->
-    <div class="ptrack" style="text-align:left">
+    <!-- 비전 카드 -->
+    <div class="ptrack solo" style="text-align:left">
       <div class="pt-card vision reveal" role="button" tabindex="0" onclick="openLoop()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLoop()}" aria-label="펜타 비전 학부모–학생 루프 자세히 보기">
         <span class="pe">STAGE 1 · 초등~중2</span>
         <h3>펜타 비전</h3>
@@ -519,26 +527,13 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
           <a class="btn ghostd" href="mailto:gwkim06@naver.com?subject=펜타 비전 구독 문의" onclick="event.stopPropagation()">비전 구독 문의</a>
         </div>
       </div>
-      <div class="pt-card track reveal d1">
-        <span class="pe">STAGE 2 · 중3</span>
-        <h3>펜타 트랙</h3>
-        <div class="who">학부모가 직접 관리하는 온라인 구독</div>
-        <ul>
-          <li>교과 융합 인과율 해부 — 사고 가속도 훈련</li>
-          <li>진로 주파수로 관심의 방향을 구체화</li>
-          <li>고교 진학 브릿지 — 선택과목·활동 방향 설계</li>
-          <li>리포트는 학부모가 직접 확인·관리 — 그래서 합리적인 구독가</li>
-        </ul>
-        <div class="pnote" style="margin-top:12px;font-size:11.5px;color:var(--ink-dim);font-weight:600;background:rgba(255,255,255,.5);border:1px solid var(--line);border-radius:10px;padding:9px 12px;line-height:1.6">💬 필요하시면 <b>로그.알 전문 컨설턴트 상담 연결</b>이 가능합니다. 이 경우 <b>별도 컨설팅 비용</b>이 발생할 수 있습니다.</div>
-        <div class="pcta" style="margin-top:12px"><a class="btn navy" href="mailto:gwkim06@naver.com?subject=펜타 트랙 · 전문 컨설턴트 상담 문의">전문 컨설턴트 상담 문의</a></div>
-      </div>
     </div>
 
-    <!-- 시즌별 구성 안내 -->
+    <!-- 비전 시즌 라인업 -->
     <div class="pseason reveal">
-      <div class="psh">SEASON LINEUP · 시즌별 구성</div>
-      <p class="psl">각 코스는 <b>시즌으로 구성</b>되어, 원하는 시즌부터 골라 담아 시작합니다. 각 시즌은 <b>독립적으로 수강·완주</b>할 수 있고, <b>첫 강은 무료 체험</b>입니다.</p>
-      <div class="psgrid">
+      <div class="psh">SEASON LINEUP · 비전 시즌 구성</div>
+      <p class="psl">각 시즌은 <b>독립적으로 수강·완주</b>할 수 있고, 원하는 시즌부터 골라 담아 시작합니다. <b>첫 강은 무료 체험</b>입니다.</p>
+      <div class="psgrid solo">
         <div class="pscol vision">
           <div class="pch">📘 펜타 비전 <span style="font-size:11px;font-weight:700;color:#8b97ab">· 기초(초5~6) · 심화(중1~2)</span></div>
           <div class="pcsub">5대 지성으로 세상을 읽는 사고력 — 시즌마다 분야를 고르게</div>
@@ -547,21 +542,11 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
           <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>원인을 묻고 미래를 설계하다</b><span>철학 · 과학 · 디지털 · 15강</span></div></div>
           <div class="psfoot">🎟️ 각 시즌 1강 무료 체험</div>
         </div>
-        <div class="pscol track">
-          <div class="pch">📙 펜타 트랙 <span style="font-size:11px;font-weight:700;color:#8b97ab">· 중3 · 학문융합</span></div>
-          <div class="pcsub">과목의 경계를 넘는 융합 탐구 — 시즌마다 12주제</div>
-          <div class="psrow"><span class="psn">시즌 1</span><div class="pst"><b>기후·감염·경제 등 융합 탐구</b><span>과학×사회 · 수학×보건 등 · 12강</span></div></div>
-          <div class="psrow"><span class="psn">시즌 2</span><div class="pst"><b>AI·백신·화폐 등 융합 탐구</b><span>기술×경제 · 생명×윤리 등 · 12강</span></div></div>
-          <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>재난·뇌과학·에너지 등 융합 탐구</b><span>통계×사회 · 과학×철학 등 · 12강</span></div></div>
-          <div class="psfoot">🎟️ 각 시즌 1강 무료 체험</div>
-        </div>
       </div>
     </div>
 
-    <!-- 샘플 미리보기 -->
-    <div class="psub reveal">샘플 미리보기 · 워크북과 리포트</div>
-
     <!-- 비전 샘플 -->
+    <div class="psub reveal">샘플 미리보기 · 워크북과 리포트</div>
     <div class="psample" style="text-align:left">
       <div class="smock reveal">
         <div class="sh">📘 펜타 비전 · 워크북<span class="tagm g">STAGE 1</span></div>
@@ -589,7 +574,72 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
       </div>
     </div>
 
+    <!-- 비전 연간 리포트 -->
+    <div class="psub reveal" style="margin-top:34px">연말 분석 리포트 · 프리미엄 샘플</div>
+    <p class="sec-p reveal d1" style="margin-bottom:20px">월·분기 리포트가 쌓이면, 한 해를 통째로 진단하는 <b>연간 성장 리포트</b>가 나옵니다. 성장 궤적·사고 성향·다음 학년 로드맵까지 — <b>학부모가 직접 발행</b>하는, 대치동 컨설팅보다 깊은 한 편의 분석서입니다.</p>
+    <div class="annual solo" style="text-align:left">
+      <a class="acard vision reveal" href="samples/vision-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 비전 연간 성장 리포트 샘플 전체 보기">
+        <div class="ahero">
+          <span class="aeyebrow">ANNUAL REPORT</span>
+          <div class="atitle">📘 펜타 비전 · 연간 성장 리포트</div>
+          <div class="ameta">STAGE 1 · 초등~중2 · 학부모 발행</div>
+          <div class="astat"><div class="as"><b>+28</b><span>융합사고 5역량</span></div><div class="as"><b>상위 20%</b><span>또래 성장폭</span></div><div class="as"><b>4분기</b><span>궤적 추적</span></div></div>
+        </div>
+        <ul class="alist">
+          <li>분기→연간 <b>성장 궤적</b> · 5역량 확장 레이더</li>
+          <li><b>올해 빛난 순간</b> · 사고 성향 페르소나 분석</li>
+          <li>다음 학년 <b>성장 포인트</b> 제안</li>
+        </ul>
+        <span class="alink">연간 리포트 전체 보기 →</span>
+      </a>
+    </div>
+    <p class="reveal" style="font-size:12px;color:var(--ink-mute);margin-top:12px;text-align:center">※ 샘플은 예시 데이터로 구성된 목업입니다. 실제 리포트는 학생 본인의 활동·워크북 기록에서 생성됩니다.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 3. 펜타 트랙 ═══ -->
+<section class="penta" id="track">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PENTA TRACK · STAGE 2 · 중3</div>
+    <h2 class="sec-h reveal">고교 진학의 방향을 여는<br><em>펜타 트랙</em></h2>
+    <p class="sec-p reveal d1">중3, 관심을 진로로 좁혀야 하는 시기. 교과를 넘나드는 <b>융합 인과율 해부</b>로 사고 가속도를 훈련하고, <b>진로 주파수</b>로 관심의 방향을 구체화해 고교 선택과목·활동까지 설계합니다. 리포트는 학부모가 직접 관리 — 그래서 합리적인 구독가.</p>
+
+    <!-- 트랙 카드 -->
+    <div class="ptrack solo" style="text-align:left">
+      <div class="pt-card track reveal">
+        <span class="pe">STAGE 2 · 중3</span>
+        <h3>펜타 트랙</h3>
+        <div class="who">학부모가 직접 관리하는 온라인 구독</div>
+        <ul>
+          <li>교과 융합 인과율 해부 — 사고 가속도 훈련</li>
+          <li>진로 주파수로 관심의 방향을 구체화</li>
+          <li>고교 진학 브릿지 — 선택과목·활동 방향 설계</li>
+          <li>리포트는 학부모가 직접 확인·관리 — 그래서 합리적인 구독가</li>
+        </ul>
+        <div class="pnote" style="margin-top:12px;font-size:11.5px;color:#8b97ab;font-weight:600;background:rgba(255,255,255,.05);border:1px solid #283349;border-radius:10px;padding:9px 12px;line-height:1.6">💬 필요하시면 <b>로그.알 전문 컨설턴트 상담 연결</b>이 가능합니다. 이 경우 <b>별도 컨설팅 비용</b>이 발생할 수 있습니다.</div>
+        <div class="pcta" style="margin-top:12px"><a class="btn navy" href="mailto:gwkim06@naver.com?subject=펜타 트랙 · 전문 컨설턴트 상담 문의">전문 컨설턴트 상담 문의</a></div>
+      </div>
+    </div>
+
+    <!-- 트랙 시즌 라인업 -->
+    <div class="pseason reveal">
+      <div class="psh">SEASON LINEUP · 트랙 시즌 구성</div>
+      <p class="psl">각 시즌은 <b>12주제 융합 탐구</b>로 구성됩니다. 원하는 시즌부터 골라 담아 시작하고, <b>첫 강은 무료 체험</b>입니다.</p>
+      <div class="psgrid solo">
+        <div class="pscol track">
+          <div class="pch">📙 펜타 트랙 <span style="font-size:11px;font-weight:700;color:#8b97ab">· 중3 · 학문융합</span></div>
+          <div class="pcsub">과목의 경계를 넘는 융합 탐구 — 시즌마다 12주제</div>
+          <div class="psrow"><span class="psn">시즌 1</span><div class="pst"><b>기후·감염·경제 등 융합 탐구</b><span>과학×사회 · 수학×보건 등 · 12강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 2</span><div class="pst"><b>AI·백신·화폐 등 융합 탐구</b><span>기술×경제 · 생명×윤리 등 · 12강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>재난·뇌과학·에너지 등 융합 탐구</b><span>통계×사회 · 과학×철학 등 · 12강</span></div></div>
+          <div class="psfoot">🎟️ 각 시즌 1강 무료 체험</div>
+        </div>
+      </div>
+    </div>
+
     <!-- 트랙 샘플 -->
+    <div class="psub reveal">샘플 미리보기 · 워크북과 리포트</div>
     <div class="psample" style="text-align:left">
       <div class="smock reveal">
         <div class="sh">📗 펜타 트랙 · 워크북<span class="tagm">STAGE 2</span></div>
@@ -611,27 +661,11 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
       </div>
     </div>
 
-    <!-- 연말 분석 리포트 샘플 -->
+    <!-- 트랙 연간 리포트 -->
     <div class="psub reveal" style="margin-top:34px">연말 분석 리포트 · 프리미엄 샘플</div>
-    <p class="sec-p reveal d1" style="margin-bottom:20px">월·분기 리포트가 쌓이면, 한 해를 통째로 진단하는 <b>연간 성장 리포트</b>가 나옵니다. 성장 궤적·사고 성향·다음 학년 로드맵까지 — <b>학부모가 직접 발행</b>하는, 대치동 컨설팅보다 깊은 한 편의 분석서입니다.</p>
-
-    <div class="annual" style="text-align:left">
-      <a class="acard vision reveal" href="samples/vision-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 비전 연간 성장 리포트 샘플 전체 보기">
-        <div class="ahero">
-          <span class="aeyebrow">ANNUAL REPORT</span>
-          <div class="atitle">📘 펜타 비전 · 연간 성장 리포트</div>
-          <div class="ameta">STAGE 1 · 초등~중2 · 학부모 발행</div>
-          <div class="astat"><div class="as"><b>+28</b><span>융합사고 5역량</span></div><div class="as"><b>상위 20%</b><span>또래 성장폭</span></div><div class="as"><b>4분기</b><span>궤적 추적</span></div></div>
-        </div>
-        <ul class="alist">
-          <li>분기→연간 <b>성장 궤적</b> · 5역량 확장 레이더</li>
-          <li><b>올해 빛난 순간</b> · 사고 성향 페르소나 분석</li>
-          <li>다음 학년 <b>성장 포인트</b> 제안</li>
-        </ul>
-        <span class="alink">연간 리포트 전체 보기 →</span>
-      </a>
-
-      <a class="acard track reveal d1" href="samples/track-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 트랙 연간 성장 리포트 샘플 전체 보기">
+    <p class="sec-p reveal d1" style="margin-bottom:20px">한 해의 융합 탐구가 쌓이면, 사고 가속도의 변화와 진로 주파수를 종합한 <b>연간 성장 리포트</b>가 나옵니다. 진로 매칭과 고교 로드맵까지 담긴 한 편의 분석서입니다.</p>
+    <div class="annual solo" style="text-align:left">
+      <a class="acard track reveal" href="samples/track-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 트랙 연간 성장 리포트 샘플 전체 보기">
         <div class="ahero">
           <span class="aeyebrow">ANNUAL REPORT</span>
           <div class="atitle">📗 펜타 트랙 · 연간 성장 리포트</div>
@@ -647,13 +681,56 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
       </a>
     </div>
     <p class="reveal" style="font-size:12px;color:var(--ink-mute);margin-top:12px;text-align:center">※ 샘플은 예시 데이터로 구성된 목업입니다. 실제 리포트는 학생 본인의 활동·워크북 기록에서 생성됩니다.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 4. 펜타 아르케 ═══ -->
+<section class="penta" id="arche">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PENTA ARCHE · STAGE 3 · 고교</div>
+    <h2 class="sec-h reveal">직접 쓰고, 스스로 증명하는<br><em>펜타 아르케</em></h2>
+    <p class="sec-p reveal d1">고교 진학 이후, 생활기록부의 <b>실행 단계</b>. 진로를 좁히는 징검다리, 수행평가를 스스로 완성하는 도우미, 그리고 '이 글은 내가 썼다'를 증명하는 <b>본인 작성 증명</b>까지 — 비전·트랙의 사고 진단이 실행과 증명으로 이어집니다.</p>
+
+    <div class="ptrack tri" style="text-align:left">
+      <div class="pt-card vision reveal">
+        <span class="pe">진로 설계</span>
+        <h3>진로 징검다리</h3>
+        <div class="who">관심 → 진로 → 활동으로 좁히는 단계별 워크시트</div>
+        <ul>
+          <li>흩어진 관심을 진로 가설로 구조화</li>
+          <li>사후 인터뷰로 스스로의 진로를 언어화</li>
+          <li>컨설턴트 코칭 루프로 방향을 다듬기</li>
+        </ul>
+      </div>
+      <div class="pt-card track reveal d1">
+        <span class="pe">수행평가</span>
+        <h3>수행평가 도우미</h3>
+        <div class="who">주제 선정부터 초안·퇴고까지 스스로 완성</div>
+        <ul>
+          <li>고품질 에디터 — 이미지·수식까지 직접 작성</li>
+          <li>AI는 대신 써주지 않고 사고를 자극</li>
+          <li>DOCX · PDF · HWPX로 내보내기</li>
+        </ul>
+      </div>
+      <div class="pt-card reveal d2">
+        <span class="pe">본인 작성 증명</span>
+        <h3>PROOF OF AUTHORSHIP</h3>
+        <div class="who">타이핑 DNA로 '내가 쓴 글'임을 증명</div>
+        <ul>
+          <li>작성 과정의 리듬을 기록하는 무결성 시스템</li>
+          <li>붙여넣기·대필이 아닌 본인 사고의 궤적</li>
+          <li>생기부 신뢰도를 높이는 증명 레이어</li>
+        </ul>
+      </div>
+    </div>
 
     <!-- 공통 축 연결 -->
     <div class="pbridge reveal" style="text-align:left">
       <div class="pbi">🔒</div>
       <div class="pbt">
-        <h4>펜타도 '본인 작성 증명'이 함께합니다</h4>
-        <p>비전·트랙의 워크북도 아이가 직접 쓴 과정을 기록합니다. 초·중등의 사고 진단 → 펜타 아르케의 실행·증명으로, 하나의 지성 성장 궤적이 이어집니다.</p>
+        <h4>비전·트랙·아르케 — 하나의 지성 성장 궤적</h4>
+        <p>초·중등의 사고 진단(비전·트랙)에서 고교의 실행·증명(아르케)까지. 세 단계 모두 '아이가 직접 쓴 과정'을 기록해, 흩어진 기록이 아닌 하나로 이어진 성장 서사를 완성합니다.</p>
       </div>
     </div>
   </div>
