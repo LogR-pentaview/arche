@@ -2120,10 +2120,10 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_integrity.js"></script>
 <script src="/shared/arche_reflection.js"></script>
 <script src="/shared/arche_report_typingdna.js"></script><script src="/shared/arche_penta_workbook.js?v=25"></script>
-<script src="/shared/arche_penta_report.js?v=2"></script>
+<script src="/shared/arche_penta_report.js?v=3"></script>
 <script src="/shared/arche_penta_app.js?v=3"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_career_bridge.js?v=10"></script>
+<script src="/shared/arche_career_bridge.js?v=11"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
@@ -5356,7 +5356,7 @@ window.analyzeSubmission=async function(id){
     var s=(window._designTrack==='goip')?(window._gactive||window._activeStudent):window._activeStudent;
     var d=await callAI('analyze_activity',{title:it.title||'',subject:it.subject||'',field:(s?majorToField(s.target_major):''),target:(s?s.target_univ:''),text:it.submission});
     var o=JSON.parse(d.text);
-    var analysis='[AI 분석] '+(o.summary||'')+'\n· 강점: '+(o.strengths||'')+'\n· 탐구깊이: '+(o.depth||'')+'\n· 전공연결: '+(o.link||'')+'\n· 다음: '+(o.next||'');
+    var analysis='[AI 분석] '+(o.summary||'')+'\n· 강점: '+(o.strengths||'')+'\n· 탐구깊이: '+(o.depth||'')+'\n· 전공연결: '+(o.link||'')+'\n· 다음: '+(o.next||'')+(o.expression?('\n· 문장력('+(o.expression.score!=null?o.expression.score:'-')+'/10): '+(o.expression.note||'')):'');
     // 분석결과만 저장 (원본 텍스트 폐기)
     await sb.from('design_items').update({submission:analysis,analyzed:true,status:'완료',updated_at:new Date().toISOString()}).eq('id',id);
     renderDesign();
