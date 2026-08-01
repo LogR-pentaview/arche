@@ -122,6 +122,19 @@
 .apw textarea::placeholder{color:var(--faint)}
 .apw input[type=text]{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:13px;font-family:inherit;font-size:16px;background:#fbfcfe;color:var(--ink)}
 .apw input[type=text]:focus{outline:none;border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px var(--acc-soft)}
+/* ── S펜(필기) 입력 ── */
+.apw .inpmode{display:inline-flex;margin-bottom:9px;border:1.5px solid var(--line);border-radius:10px;overflow:hidden;background:#fff}
+.apw .inpmode button{border:0;background:#fff;color:var(--muted);font-family:inherit;font-size:12.5px;font-weight:800;padding:7px 15px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.12s}
+.apw .inpmode button.on{background:var(--acc);color:#fff}
+.apw.track .inpmode button.on{color:#0e2418}
+.apw .inkwrap{margin-top:2px}
+.apw .inktools{display:flex;gap:6px;margin-bottom:7px;flex-wrap:wrap}
+.apw .inktools button{border:1.5px solid var(--line);background:#fff;color:var(--dim);font-family:inherit;font-size:12px;font-weight:700;padding:6px 11px;border-radius:9px;cursor:pointer}
+.apw .inktools button.on{border-color:var(--acc);color:var(--acc-d);background:var(--acc-soft)}
+.apw .inkpad{width:100%;height:230px;border:1.5px solid var(--line);border-radius:12px;background-color:#fff;background-image:repeating-linear-gradient(transparent,transparent 37px,#eef1f5 37px,#eef1f5 38px);touch-action:none;display:block;cursor:crosshair}
+.apw .inknote{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+.apw .inkview{width:100%;border:1.5px solid var(--line);border-radius:12px;margin-top:6px;background:#fff;display:block}
+.apw.ro .inpmode,.apw.ro .inktools{display:none}
 /* ── 블록: 읽기/정보 ── */
 .apw .rc{background:var(--cream);border:1px solid var(--acc-l);border-radius:15px;padding:16px 17px;position:relative;margin-top:12px}
 .apw .rc::before{content:'';position:absolute;top:0;left:0;width:100%;height:5px;background:var(--acc);border-radius:15px 15px 0 0}
@@ -239,8 +252,13 @@
     var isKid = (L.level==='starter');
 
     // 상태
+    var _preAns=Object.assign({}, pre.answers||{});
+    var _preInk=(_preAns._ink&&typeof _preAns._ink==='object')?_preAns._ink:(pre.ink||{});
+    try{ delete _preAns._ink; }catch(_e){}
     var state = {
-      answers: Object.assign({}, pre.answers||{}),
+      answers: _preAns,
+      ink: Object.assign({}, _preInk),   // 문항id → 손글씨 dataURL(원본 보관)
+      inkmode: {},                        // 문항id → 'pen'|'type'
       radar_before: (pre.radar_before||axes.map(function(){return 5;})).slice(),
       radar_after:  (pre.radar_after ||axes.map(function(){return 5;})).slice(),
       compass: (pre.compass!=null?pre.compass:50)
@@ -335,7 +353,8 @@
     });
 
     var cur=0;
-    function reqDone(){ return required.filter(function(id){ var a=state.answers[id]; return (a!=null && a.toString().trim().length>0); }).length; }
+    function hasAns(id){ var a=state.answers[id]; if(a!=null && a.toString().trim().length>0) return true; if(state.ink && state.ink[id]) return true; return false; }
+    function reqDone(){ return required.filter(hasAns).length; }
     function refreshChips(){
       [].slice.call(stepsWrap.children).forEach(function(b,k){ b.classList.toggle('on',k===cur); b.classList.toggle('done',k<cur); });
     }
@@ -367,9 +386,19 @@
     });
     root.addEventListener('input', updateNav);
 
+    // ── 손글씨 OCR (penta-ai penta_ocr) ──────────────────────────
+    function pentaOcr(dataURL){
+      var b64=String(dataURL).replace(/^data:image\/\w+;base64,/,'');
+      return Promise.resolve((window.sb&&window.sb.auth)?window.sb.auth.getSession():null).then(function(s){
+        var tok=(s&&s.data&&s.data.session)?s.data.session.access_token:'';
+        var url=(window.SB_URL||'https://dvxepjctjazobrkjrkdw.supabase.co')+'/functions/v1/penta-ai';
+        return fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:'penta_ocr',payload:{images:[b64]}})});
+      }).then(function(r){ return r.json().then(function(d){ if(!r.ok)throw new Error(d.error||'OCR 실패'); return (d.text||'').trim(); }); });
+    }
+
     // ── 제출 ──────────────────────────────────────────────────────
     function doSubmit(){
-      var miss=required.filter(function(id){ var a=state.answers[id]; return !(a!=null && a.toString().trim().length>0); });
+      var miss=required.filter(function(id){ return !hasAns(id); });
       if(miss.length){ msg.className='msg err'; msg.textContent='아직 '+miss.length+'개 문항이 비어 있어요. 모두 채운 뒤 제출해 주세요.';
         try{ var node=root.querySelector('[data-id="'+miss[0]+'"]'); if(node){ // 해당 스텝으로 이동
           for(var vi=0;vi<views.length;vi++){ if(views[vi].node.contains(node)){ go(vi); break; } }
@@ -377,6 +406,20 @@
         }}catch(_){}
         return;
       }
+      // 손글씨(pen) 답안 → OCR 전사 후 실제 저장 진행
+      var inkIds=Object.keys(state.ink||{}).filter(function(id){ return state.ink[id] && !(state.answers[id]&&String(state.answers[id]).trim().length); });
+      if(inkIds.length && mode!=='preview' && window.sb){
+        busy(true,'✍️ 필기 인식 중…');
+        var chain=Promise.resolve();
+        inkIds.forEach(function(id){ chain=chain.then(function(){ return pentaOcr(state.ink[id]).then(function(txt){ if(txt) state.answers[id]=txt; }, function(){}); }); });
+        chain.then(function(){ busy(false); _save(); });
+        return;
+      }
+      _save();
+    }
+    function _save(){
+      // 손글씨 원본 보관(리포트 생성 시 penta-ai가 _ink를 스트립함)
+      if(state.ink && Object.keys(state.ink).length){ state.answers._ink=state.ink; } else { try{ delete state.answers._ink; }catch(_e){} }
       var data={answers:state.answers, radar_before:state.radar_before, radar_after:state.radar_after, compass:+state.compass};
       if(typeof opts.submitFn==='function'){
         if(mode==='preview'){ ok('미리보기 모드 — 저장하지 않았어요. 내용은 잘 작성됐습니다! 👍'); if(opts.onSubmit)opts.onSubmit({preview:true,data:data}); return; }
@@ -407,10 +450,43 @@
         else { ok('제출 완료! 🎉 선생님이 확인한 뒤 나만의 리포트를 만들어 주실 거예요.'); done(); if(opts.onSubmit)opts.onSubmit({id:res&&res.data,payload:payload}); }
       }, function(e){ busy(false); msg.className='msg err'; msg.textContent='제출 실패: '+e; });
 
-      function busy(on){ btnNext.disabled=on; btnNext.textContent=on?'제출 중…':((L.submit&&L.submit.label)||'제출하기'); }
       function done(){ btnNext.style.display='none'; }
     }
+    function busy(on,label){ btnNext.disabled=on; btnNext.textContent=on?(label||'제출 중…'):((L.submit&&L.submit.label)||'제출하기'); }
     function ok(t){ msg.className='msg ok'; msg.textContent=t; try{msg.scrollIntoView({behavior:'smooth',block:'center'});}catch(_){}}
+
+    // ── S펜(필기) 입력: 자판/S펜 토글 + 캔버스 드로잉 ──────────────
+    function setupInkBlock(w, id, ta){
+      var inp=w.querySelector('.inpmode'), inkwrap=w.querySelector('.inkwrap'); if(!inp||!inkwrap) return;
+      var cv=inkwrap.querySelector('canvas'), ctx=cv.getContext('2d');
+      var pen='pen', drawing=false, sized=false, last=null;
+      function size(){
+        if(sized) return; var wpx=cv.clientWidth||0, hpx=cv.clientHeight||230; if(!wpx) return; sized=true;
+        var dpr=Math.min(window.devicePixelRatio||1,2);
+        cv.width=Math.round(wpx*dpr); cv.height=Math.round(hpx*dpr);
+        ctx.scale(dpr,dpr); ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#141a29';
+        if(state.ink[id]){ var im=new Image(); im.onload=function(){ try{ctx.drawImage(im,0,0,wpx,hpx);}catch(_){} }; im.src=state.ink[id]; }
+      }
+      function pos(e){ var r=cv.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; }
+      function down(e){ if(e.pointerType==='mouse'&&e.button!==0)return; e.preventDefault(); size(); if(!sized)return; drawing=true; last=pos(e); try{cv.setPointerCapture(e.pointerId);}catch(_){} }
+      function move(e){ if(!drawing)return; e.preventDefault(); var p=pos(e);
+        var pr=(e.pressure>0&&e.pressure<1)?e.pressure:0.5;
+        ctx.globalCompositeOperation=(pen==='era')?'destination-out':'source-over';
+        ctx.lineWidth=(pen==='era')?20:(1.4+pr*2.8);
+        ctx.beginPath(); ctx.moveTo(last[0],last[1]); ctx.lineTo(p[0],p[1]); ctx.stroke(); last=p; }
+      function upfn(){ if(!drawing)return; drawing=false; try{ state.ink[id]=cv.toDataURL('image/png'); }catch(_){} updateNav(); }
+      cv.addEventListener('pointerdown',down); cv.addEventListener('pointermove',move);
+      cv.addEventListener('pointerup',upfn); cv.addEventListener('pointercancel',upfn);
+      var bp=inkwrap.querySelector('.ink-pen'), be=inkwrap.querySelector('.ink-era'), bc=inkwrap.querySelector('.ink-clr');
+      bp.addEventListener('click',function(){pen='pen';bp.classList.add('on');be.classList.remove('on');});
+      be.addEventListener('click',function(){pen='era';be.classList.add('on');bp.classList.remove('on');});
+      bc.addEventListener('click',function(){ if(sized)ctx.clearRect(0,0,cv.width,cv.height); delete state.ink[id]; updateNav(); });
+      inp.addEventListener('click',function(e){ var btn=e.target&&e.target.closest?e.target.closest('button'):null; if(!btn)return;
+        var m=btn.getAttribute('data-m'); [].forEach.call(inp.children,function(x){x.classList.toggle('on',x===btn);});
+        if(m==='pen'){ ta.style.display='none'; inkwrap.style.display='block'; state.inkmode[id]='pen'; setTimeout(size,20); }
+        else { ta.style.display=''; inkwrap.style.display='none'; state.inkmode[id]='type'; }
+      });
+    }
 
     // ── 블록 렌더러 ───────────────────────────────────────────────
     function renderBlock(b, noRef){
@@ -464,14 +540,28 @@
         var qn=b.n?'<span style="display:inline-block;min-width:22px;height:22px;line-height:22px;text-align:center;font-size:11px;background:var(--gold);color:var(--navy2);border-radius:6px;margin-right:7px;font-weight:900">'+esc(b.n)+'</span>':'';
         var tn=toneStyle(b.tone);
         var head=b.head || ('🤔 '+(isKid?'만약에?':'생각해 보기'));
+        var _sokeBtn=((b.soke!==false && !ro && window.ArcheSoke)?'<button type="button" class="soke-ask" style="margin-top:8px;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:'+(L.stage==='track'?'#eef7db':'#eef3ff')+';color:'+(L.stage==='track'?'#4c7a12':'#1b64da')+';border:1px solid '+(L.stage==='track'?'#cfe89a':'#cfe0ff')+';border-radius:20px;padding:7px 13px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer">🤔 소크에게 물어보기</button>':'');
+        var _abox;
+        if(ro){
+          _abox='<div class="abox"><label><span class="pen">✎</span> '+esc(b.ansLabel||'내 생각')+'</label>'
+            +'<textarea readonly rows="'+(b.rows||4)+'">'+esc(state.answers[b.id]||'')+'</textarea>'
+            +(state.ink[b.id]?'<div class="inknote">✍️ 손글씨 원본</div><img class="inkview" src="'+esc(state.ink[b.id])+'" alt="손글씨 답안">':'')
+            +'</div>';
+        } else {
+          _abox='<div class="abox"><label><span class="pen">✎</span> '+esc(b.ansLabel||'내 생각')+'</label>'
+            +'<div class="inpmode"><button type="button" data-m="type" class="on">⌨ 자판</button><button type="button" data-m="pen">✍️ S펜</button></div>'
+            +'<textarea rows="'+(b.rows||4)+'" placeholder="'+esc(b.placeholder||'여기에 생각을 적어 보세요')+'">'+esc(state.answers[b.id]||'')+'</textarea>'
+            +'<div class="inkwrap" style="display:none"><div class="inktools"><button type="button" class="ink-pen on">✏️ 펜</button><button type="button" class="ink-era">🩹 지우개</button><button type="button" class="ink-clr">🗑 전체 지우기</button></div>'
+              +'<canvas class="inkpad"></canvas><div class="inknote">✍️ S펜이나 손가락으로 답을 써보세요 · 제출할 때 자동으로 글자로 바뀌고, 손글씨 원본도 함께 저장돼요.</div></div>'
+            +_sokeBtn
+            +'</div>';
+        }
         w.innerHTML='<div class="sym">'
           +'<div class="qbox" style="'+tn.box+'"><h4 style="'+tn.h+'">'+esc(head)+'</h4><p style="'+tn.p+'">'+qn+esc(b.q||'')+'</p>'
             +(b.hint?'<div class="mission" style="'+tn.m+'">✏️ '+esc(b.hint)+'</div>':(isKid&&b.tone==null?'<div class="mission">✏️ 정답은 없어요. 네 생각을 자유롭게 써봐요!</div>':''))+'</div>'
-          +'<div class="abox"><label><span class="pen">✎</span> '+esc(b.ansLabel||'내 생각')+'</label>'
-            +'<textarea rows="'+(b.rows||4)+'" placeholder="'+esc(b.placeholder||'여기에 생각을 적어 보세요')+'">'+esc(state.answers[b.id]||'')+'</textarea>'
-            +((b.soke!==false && !ro && window.ArcheSoke)?'<button type="button" class="soke-ask" style="margin-top:8px;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;background:'+(L.stage==='track'?'#eef7db':'#eef3ff')+';color:'+(L.stage==='track'?'#4c7a12':'#1b64da')+';border:1px solid '+(L.stage==='track'?'#cfe89a':'#cfe0ff')+';border-radius:20px;padding:7px 13px;font-size:12.5px;font-weight:800;font-family:inherit;cursor:pointer">🤔 소크에게 물어보기</button>':'')
-            +'</div></div>';
+          +_abox+'</div>';
         var ta=w.querySelector('textarea'); ta.addEventListener('input',function(){state.answers[b.id]=ta.value;});
+        if(!ro) setupInkBlock(w, b.id, ta);
         var sokeBtn=w.querySelector('.soke-ask');
         if(sokeBtn){ sokeBtn.addEventListener('click',function(){
           window.ArcheSoke.open({
