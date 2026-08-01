@@ -36,12 +36,13 @@ a{text-decoration:none;color:inherit}
 
 /* 헤더 */
 header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft)}
-.nav{display:flex;align-items:center;gap:26px;height:62px}
+.nav{display:flex;align-items:center;gap:16px;height:62px}
 .logo{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:800;letter-spacing:-.02em}
 .logo .mark{width:32px;height:32px;border-radius:10px;background:var(--blue);color:#fff;display:grid;place-items:center;font-size:16px;font-weight:800;box-shadow:0 4px 10px rgba(49,130,246,.3)}
 .logo b{color:var(--blue)}
-.nav .menu{display:flex;gap:4px;margin-left:8px}
-.nav .menu a{font-size:13.5px;font-weight:600;color:var(--ink-dim);padding:8px 12px;border-radius:10px;transition:.14s}
+.nav .menu{display:flex;gap:1px;margin-left:4px;flex-wrap:nowrap}
+.nav .menu a{font-size:13px;font-weight:600;color:var(--ink-dim);padding:7px 9px;border-radius:9px;transition:.14s;white-space:nowrap}
+.nav .menu .sep{width:1px;height:15px;background:var(--line);margin:0 4px;align-self:center;flex:none}
 .nav .menu a:hover{background:var(--bg);color:var(--ink)}
 .nav .menu a.hot{color:var(--blue);font-weight:800}
 .nav .right{margin-left:auto;display:flex;gap:8px;align-items:center}
@@ -427,14 +428,14 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
   <div class="wrap nav">
     <a class="logo" href="#"><span class="mark">P</span>펜타<b>.</b></a>
     <nav class="menu">
-      <a href="#vision">펜타 비전</a>
-      <a href="#track">펜타 트랙</a>
-      <a href="#arche">펜타 아르케</a>
+      <a href="#vision">비전</a>
+      <a href="#track">트랙</a>
+      <a href="#arche">아르케</a>
+      <span class="sep"></span>
       <a href="#why">왜 펜타</a>
       <a href="#services">서비스</a>
-      <a href="#how">작동 방식</a>
-      <a href="#verify" class="hot">본인 작성 증명</a>
-      <a href="#roadmap">성장 로드맵</a>
+      <a href="#verify" class="hot">작성 증명</a>
+      <a href="#roadmap">로드맵</a>
       <a href="#about">회사 소개</a>
     </nav>
     <div class="right">
@@ -845,14 +846,14 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
   <div class="wrap center">
     <div class="sec-eyebrow reveal">SERVICES</div>
     <h2 class="sec-h reveal">학생이 스스로 채우는,<br><em>두 개의 핵심 도구</em></h2>
-    <p class="sec-p reveal d1">모든 도구는 학생 본인의 인터뷰·입력에서 출발합니다. 펜타는 <b>학부모–학생 루프</b>와 <b>컨설턴트–학생 루프</b> 중 골라서 운영할 수 있습니다 — 학부모 또는 전문 컨설턴트가 곁에서 코치 역할을 맡고, 펜타는 진단·구조·검증을 돕습니다. 쓰는 사람은 언제나 학생 본인입니다.</p>
+    <p class="sec-p reveal d1">모든 도구는 학생 본인의 인터뷰·입력에서 출발합니다. 현재는 <b>학부모–학생 루프</b>로 운영됩니다 — 학부모가 곁에서 코치 역할을 맡고, 펜타는 진단·구조·검증을 돕습니다. 쓰는 사람은 언제나 학생 본인입니다.</p>
     <div class="reveal d1" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;align-items:center">
       <span class="badge b-blue">👨‍👩‍👧 학부모–학생 루프</span>
-      <span class="badge b-mint">🧑‍🏫 컨설턴트–학생 루프</span>
-      <span style="font-size:12px;color:var(--ink-mute);font-weight:700">두 모드 선택 가능</span>
+      <span class="badge b-mint" style="opacity:.5;filter:grayscale(.4)">🧑‍🏫 컨설턴트–학생 루프</span>
+      <span style="font-size:11px;color:#c0313d;font-weight:800;background:#fdecec;border:1px solid #f5c2c2;border-radius:20px;padding:3px 10px">컨설턴트 루프 · 추후 서비스 예정</span>
     </div>
     <div class="reveal d1" style="margin-top:18px;max-width:680px;margin-left:auto;margin-right:auto">
-      <p style="font-size:12.5px;color:var(--ink-mute);font-weight:600;margin-bottom:10px">학부모–학생 루프에서는 <b>두 개의 분리된 대시보드</b>로 돌아갑니다 — 학부모가 회차를 보내면 학생이 수행하고, 리포트가 학부모에게 회신됩니다. (컨설턴트–학생 루프는 학부모 자리에 전문 컨설턴트가 들어갑니다.)</p>
+      <p style="font-size:12.5px;color:var(--ink-mute);font-weight:600;margin-bottom:10px">학부모–학생 루프에서는 <b>두 개의 분리된 대시보드</b>로 돌아갑니다 — 학부모가 회차를 보내면 학생이 수행하고, 리포트가 학부모에게 회신됩니다. (전문 컨설턴트가 학부모 자리에 들어가는 <b>컨설턴트–학생 루프</b>는 <b style="color:#c0313d">추후 서비스 예정</b>입니다.)</p>
       <div class="dashduo" style="margin-top:0">
         <div class="ddb parent"><div class="ddt">👨‍👩‍👧 학부모 대시보드</div><div class="ddd">회차 전송 · 리포트 확인 · 코칭</div></div>
         <div class="ddmid">⇄<span>회차▶ / ◀리포트</span></div>
@@ -1011,7 +1012,7 @@ footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-so
       <a class="lc reveal d1" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block">
         <div class="ci" style="background:var(--mint-soft)">🎓</div>
         <h3>펜타 아르케 (Arche)<small>진로·수행·작성 증명</small></h3>
-        <p>학부모–학생 · 컨설턴트–학생 루프 중 선택해 운영되며, 학생 본인의 자료를 바탕으로 진로 설계·수행평가·탐구·면접을 돕고 그 과정을 타이핑 기반으로 증명하는 학습 엔진입니다.</p>
+        <p>학부모–학생 루프로 운영되며(컨설턴트–학생 루프는 추후 서비스 예정), 학생 본인의 자료를 바탕으로 진로 설계·수행평가·탐구·면접을 돕고 그 과정을 타이핑 기반으로 증명하는 학습 엔진입니다.</p>
         <span style="display:inline-block;margin-top:14px;font-size:11.5px;font-weight:800;color:var(--blue)">홈페이지 보기 →</span>
       </a>
       <a class="lc reveal d2" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block">
