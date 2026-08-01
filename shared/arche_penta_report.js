@@ -121,6 +121,22 @@
 
   function chip(t,cls){return '<span class="apr-chip '+(cls||'')+'">'+esc(t)+'</span>';}
 
+  // 문장력(표현력) 진단 — 골든 합격 자소서 문장 퀄리티를 기준으로 산출
+  function exprHtml(d){
+    var ex=d&&d.expression; if(!ex||(!ex.note&&ex.score==null))return '';
+    var lc={'우수':'#2f9e44','양호':'#1971c2','성장중':'#e8590c','첫걸음':'#868e96','기초':'#868e96'}[ex.level]||'#1971c2';
+    var sc=(ex.score!=null&&!isNaN(+ex.score))?(+ex.score).toFixed(0):'-';
+    var h='<div class="sec"><div class="sh">✍️ 문장력 진단</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">'
+      +'<div style="font-size:23px;font-weight:900;color:'+lc+';line-height:1">'+sc+'<span style="font-size:12px;color:#8b95a1;font-weight:700">/10</span></div>'
+      +(ex.level?'<span style="font-size:11px;font-weight:800;color:'+lc+';background:'+lc+'14;border:1px solid '+lc+'44;border-radius:20px;padding:3px 11px">'+esc(ex.level)+'</span>':'')
+      +'</div>';
+    if(ex.note) h+='<div class="sd" style="margin-bottom:'+((ex.tips&&ex.tips.length)?'9px':'0')+'">'+esc(ex.note)+'</div>';
+    if(ex.tips&&ex.tips.length) h+='<ul style="margin:0;padding-left:18px;font-size:12.5px;color:#495057;line-height:1.75">'+ex.tips.map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul>';
+    h+='<div style="margin-top:10px;font-size:10.5px;color:#adb5bd">※ 합격 자소서 문장 퀄리티를 기준으로 학년 수준을 감안해 진단합니다. 대필이 아닌 표현 성장 안내입니다.</div>';
+    return h+'</div>';
+  }
+
   // ── 펜타 트랙 리포트 (중3 · 교과융합 + 고교학점제/세특 연계) ──────────────
   function renderTrack(mount,d){
     inject(); d=d||{};
@@ -171,6 +187,8 @@
         +'<div class="gq">'+esc(gd.sentence)+'</div>'
         +(gd.critique?'<div class="gc"><b>융합 사고 비평</b> — '+esc(gd.critique)+'</div>':'')+'</div></div>';
     }
+    // 문장력 진단
+    h+=exprHtml(d);
     // book
     if(d.book && d.book.title){
       h+='<div class="sec"><div class="sh">📚 이 주제와 어울리는 책 한 권</div>'
@@ -251,6 +269,8 @@
         +'<div class="gq">'+esc(gd.sentence)+'</div>'
         +(gd.critique?'<div class="gc"><b>'+esc(L.goldenBy)+'</b> — '+esc(gd.critique)+'</div>':'')+'</div></div>';
     }
+    // 문장력 진단
+    h+=exprHtml(d);
     // 추천 도서 (주제 맞춤 1권)
     if(d.book && d.book.title){
       h+='<div class="sec"><div class="sh">📚 이 주제와 어울리는 책 한 권</div>'

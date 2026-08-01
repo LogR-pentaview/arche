@@ -102,6 +102,14 @@
     if(r.depth){ h+='<div class="lb">탐구의 깊이</div><p>'+esc(r.depth)+'</p>'; }
     if(r.questions&&r.questions.length){ h+='<div class="lb">더 생각해볼 질문</div><ul>'+r.questions.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'; }
     if(r.next&&r.next.length){ h+='<div class="lb">다음 탐구 방향</div><ul>'+r.next.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>'; }
+    if(r.expression&&(r.expression.note||r.expression.score!=null)){ var ex=r.expression;
+      var lc={'우수':'#2f9e44','양호':'#1971c2','성장중':'#e8590c','첫걸음':'#868e96'}[ex.level]||'#1971c2';
+      var sc=(ex.score!=null&&!isNaN(+ex.score))?(+ex.score).toFixed(0):'-';
+      h+='<div class="lb">✍️ 문장력 <span style="font-weight:900;color:'+lc+'">'+sc+'<span style="font-size:10px;color:#8b95a1">/10</span></span>'+(ex.level?' <span style="font-size:10px;font-weight:800;color:'+lc+'">· '+esc(ex.level)+'</span>':'')+'</div>';
+      if(ex.note)h+='<p>'+esc(ex.note)+'</p>';
+      if(ex.tips&&ex.tips.length)h+='<ul>'+ex.tips.map(function(x){return '<li>'+esc(x)+'</li>';}).join('')+'</ul>';
+      h+='<div style="font-size:10px;color:#adb5bd;margin-top:2px">※ 합격 자소서 문장 퀄리티 기준 · 학년 수준 감안 · 표현 성장 안내</div>';
+    }
     return h+'</div>'; }
   function wsQaHtml(rep){ var qs=rep.questions||[]; var ans=(rep.answers&&(rep.answers.text!=null||rep.answers.html!=null))?null:(rep.answers||{}); var text=(rep.answers&&rep.answers.text)||''; var h='';
     if(text){ h+='<div class="qa"><div class="q">✍️ 학생 탐구보고서</div><div class="a">'+esc(text)+'</div></div>'; }
@@ -314,7 +322,7 @@
       var btn=this, m=card.querySelector('#cbaimsg'); btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>AI 평가 중…'; m.textContent='';
       try{ var qs=r.questions||[]; var ansText=(r.answers&&r.answers.text)||JSON.stringify(r.answers||{});
         var d=await callCoach({ questions:qs, answers:ansText, field:(r.field||''), topic:(r.topic||r.title||''), name:(name||''), grade:(grade||''), level:lvl });
-        repData={note:d.note,strengths:d.strengths,depth:d.depth,questions:d.questions,next:d.next};
+        repData={note:d.note,strengths:d.strengths,depth:d.depth,questions:d.questions,next:d.next,expression:d.expression};
         card.querySelector('#cbrep').innerHTML=reportHtml(repData);
         m.style.color='#137a44'; m.textContent='AI 평가 리포트를 생성했어요. 확인 후 자녀에게 회신하세요.';
       }catch(e){ m.style.color='#c0313d'; m.textContent='AI 평가 실패: '+(e.message||e); }
