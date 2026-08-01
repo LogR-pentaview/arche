@@ -3479,6 +3479,7 @@ async function addStudent(){
   if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
   const _reg=document.getElementById('st-region').value, _gen=document.getElementById('st-gender').value;
   if(!_reg||!_gen){m.style.color='var(--risk)';m.textContent='지역과 성별은 필수입니다 — 대학·전형 매칭에 사용됩니다.';return;}
+  if(!document.getElementById('st-consent').checked){m.style.color='var(--risk)';m.textContent='학생·보호자의 개인정보 수집·이용 동의 확인이 필요합니다.';return;}
   if(window._demo && !window._editId && (window._students||[]).length>=2){m.style.color='var(--risk)';m.textContent='체험 모드에서는 학생을 최대 2명까지 등록할 수 있습니다. 구독 시 무제한 등록 가능합니다.';return;}
   if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드 — 새로고침.';return;}
   const {data:acs}=await sb.from('academies').select('id').limit(1);
@@ -4639,7 +4640,7 @@ window.analyzeSubmission=async function(id){
     var s=(window._designTrack==='goip')?(window._gactive||window._activeStudent):window._activeStudent;
     var d=await callAI('analyze_activity',{title:it.title||'',subject:it.subject||'',field:(s?majorToField(s.target_major):''),target:(s?s.target_univ:''),text:it.submission});
     var o=JSON.parse(d.text);
-    var analysis='[AI 분석] '+(o.summary||'')+'\n· 강점: '+(o.strengths||'')+'\n· 탐구깊이: '+(o.depth||'')+'\n· 전공연결: '+(o.link||'')+'\n· 다음: '+(o.next||'');
+    var analysis='[AI 분석] '+(o.summary||'')+'\n· 강점: '+(o.strengths||'')+'\n· 탐구깊이: '+(o.depth||'')+'\n· 전공연결: '+(o.link||'')+'\n· 다음: '+(o.next||'')+(o.expression?('\n· 문장력('+(o.expression.score!=null?o.expression.score:'-')+'/10): '+(o.expression.note||'')):'');
     // 분석결과만 저장 (원본 텍스트 폐기)
     await sb.from('design_items').update({submission:analysis,analyzed:true,status:'완료',updated_at:new Date().toISOString()}).eq('id',id);
     renderDesign();
@@ -6883,6 +6884,7 @@ async function addGStudent(){
   if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
   var _greg=document.getElementById('gst-region').value,_ggen=document.getElementById('gst-gender').value;
   if(!_greg||!_ggen){m.style.color='var(--risk)';m.textContent='지역과 성별은 필수입니다 — 특목·자사고 매칭에 사용됩니다 (남고·여고, 광역 모집 구분).';return;}
+  if(!document.getElementById('gst-consent').checked){m.style.color='var(--risk)';m.textContent='학생·보호자의 개인정보 수집·이용 동의 확인이 필요합니다.';return;}
   var acs=await sb.from('academies').select('id').limit(1);
   var acadId=acs.data&&acs.data[0]&&acs.data[0].id;
   if(!acadId){m.style.color='var(--risk)';m.textContent='학원 정보 없음.';return;}
