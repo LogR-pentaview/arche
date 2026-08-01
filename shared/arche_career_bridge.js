@@ -43,6 +43,14 @@
   async function submitAnswers(sid, reportId, topic, field, answers){ return window.sb.rpc('save_career_report',{p_academy:acadId(),p_student:sid,p_report_id:reportId,p_topic:topic||null,p_field:field||null,p_answers:answers}); }
   async function saveCoaching(id, feedback, status){ return window.sb.rpc('save_career_coaching',{p_id:id,p_feedback:feedback,p_status:status||null}); }
   async function getIntegrity(sid, rid){ try{ var r=await window.sb.from('writing_integrity').select('*').eq('student_id',String(sid)).eq('source_type','design').eq('source_id',String(rid)).order('created_at',{ascending:false}).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
+  async function getReflection(sid, rid){ try{ var r=await window.sb.from('reflection_snapshots').select('s_before,s_after,self_eval,sri,resilience,c2,ai_predicted,meta_gap').eq('student_id',String(sid)).eq('source_type','design').eq('source_id',String(rid)).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
+  function reflectionHtml(rf){ if(!rf)return ''; var sbf=rf.s_before||{}, saf=rf.s_after||{}; if(typeof sbf==='string'){try{sbf=JSON.parse(sbf);}catch(_){sbf={};}} if(typeof saf==='string'){try{saf=JSON.parse(saf);}catch(_){saf={};}}
+    var pre=(sbf.why||sbf.expect||sbf.curious), post=(saf.changed||saf.learned||saf.reresponse); if(!pre&&!post)return '';
+    var h='<div class="rep" style="background:#fff8ee;border-color:#f0dca6"><h4>🪞 자녀의 사전·사후 회고</h4>';
+    if(pre){ h+='<div class="lb">시작 전 생각</div><ul>'+(sbf.why?'<li>왜 하려는지: '+esc(sbf.why)+'</li>':'')+(sbf.expect?'<li>예상: '+esc(sbf.expect)+'</li>':'')+(sbf.curious?'<li>궁금한 점: '+esc(sbf.curious)+'</li>':'')+'</ul>'; }
+    if(post){ h+='<div class="lb">마친 뒤 회고</div><ul>'+(saf.changed?'<li>달라진 점: '+esc(saf.changed)+'</li>':'')+(saf.learned?'<li>새로 알게 됨: '+esc(saf.learned)+'</li>':'')+(saf.reresponse?'<li>다시 생각하니: '+esc(saf.reresponse)+'</li>':'')+'</ul>'; }
+    if(rf.sri!=null||rf.resilience!=null||rf.c2!=null){ h+='<div class="lb">성장 지표(참고)</div><p style="font-size:12px">사전→사후 관점확장 '+(rf.sri!=null?rf.sri:'-')+' · 회복탄력 '+(rf.resilience!=null?rf.resilience:'-')+' · 연결지성 '+(rf.c2!=null?rf.c2:'-')+'</p>'; }
+    return h+'</div>'; }
 
   var CSS=""
     +".acb{max-width:920px;margin:0 auto;font-family:'Noto Sans KR',sans-serif;color:#243244}"
@@ -72,12 +80,14 @@
     +".acb .spin{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:acbsp .7s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes acbsp{to{transform:rotate(360deg)}}";
   function injectCss(){ if(!document.getElementById('acb-css')){var s=document.createElement('style');s.id='acb-css';s.textContent=CSS;document.head.appendChild(s);} }
 
-  function mount(container, role){
+  var _track=null;   // 'dae'(대입/고등) | 'goip'(고입/중등) | null(전체)
+  function mount(container, role, track){
     injectCss();
     container = container || document.getElementById('career-mount');
     if(!container) return;
     if(!window.sb){ container.innerHTML='<div class="acb"><div class="empty">로그인 후 이용할 수 있어요.</div></div>'; return; }
     role = role || ((window._role==='stu')?'student':'staff');
+    if(track!==undefined) _track = track||null;
     if(role==='student') return renderStudent(container);
     return renderStaff(container);
   }
@@ -215,6 +225,7 @@
     if(rep.coach_feedback) card.insertAdjacentHTML('beforeend', reportHtml(rep.coach_feedback));
     card.insertAdjacentHTML('beforeend', wsQaHtml(rep));
     var _xb=exportBar(rep, (window._activeStudent&&window._activeStudent.name)||''); if(_xb)card.appendChild(_xb);
+    (async function(){ try{ var rf=await getReflection(sid, rep.id); var h=rf?reflectionHtml(rf):''; if(h){ var tmp=el('<div>'+h+'</div>'); if(_xb&&_xb.parentNode===card)card.insertBefore(tmp,_xb); else card.appendChild(tmp); } }catch(_e){} })();
   }
 
   // ── 학부모(컨설턴트) ──────────────────────────────────────────────────
@@ -225,6 +236,8 @@
     try{ profiles=await listProfiles(); reports=await listAllReports(); }catch(e){ host.innerHTML='<div class="empty">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
     var names={}, grades={}; (window._students||[]).forEach(function(s){var k=s.id||s.student_id; names[k]=s.name||s.student_name; grades[k]=s.grade||s.student_grade||'';});
     if(window._activeStudent){ names[window._activeStudent.id]=window._activeStudent.name; grades[window._activeStudent.id]=window._activeStudent.grade||''; }
+    // [정합성] 대입(dae)/고입(goip) 메뉴별로 해당 track 학생만 표시 (학생 학년 기준)
+    if(_track){ profiles=profiles.filter(function(p){ return gradeLevel(grades[p.student_id])===_track; }); reports=reports.filter(function(r){ return gradeLevel(grades[r.student_id])===_track; }); }
     host.innerHTML='';
     host.appendChild(el('<div class="sect">① 인터뷰 완료 — 맞춤 설계도 보내기</div>'));
     if(!profiles.length){ host.appendChild(el('<div class="empty">아직 인터뷰를 완료한 자녀/학생이 없습니다.</div>')); }
@@ -292,6 +305,7 @@
     var fb=r.coach_feedback||{};
     card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · '+esc(r.title||'탐구보고서')+'</h2><div class="note" style="margin-bottom:8px">완성 문장을 대신 써주지 마세요. <b>강점·깊이·다음 방향</b> 중심으로 평가합니다. · 수준: '+(lvl==='dae'?'고등(대입)':'중등(고입)')+'</div>';
     card.insertAdjacentHTML('beforeend', wsQaHtml(r));
+    try{ var _rf=await getReflection(r.student_id, r.id); var _rh=_rf?reflectionHtml(_rf):''; if(_rh)card.insertAdjacentHTML('beforeend', _rh); }catch(_e){}
     card.insertAdjacentHTML('beforeend', '<div class="row"><button class="act gd" id="cbai">🤖 AI 평가 리포트 생성</button><button class="act gh" id="cbdna">🧬 타이핑DNA 진정성</button></div><div class="note" id="cbaimsg" style="margin-top:4px"></div><div id="cbrep" style="margin-top:8px"></div><div id="cbdnabox" style="margin-top:8px"></div>');
     // 기존 평가 있으면 표시
     if(fb&&(fb.report||fb.note)) card.querySelector('#cbrep').innerHTML=reportHtml(fb);
