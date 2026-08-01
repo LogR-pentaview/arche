@@ -3294,13 +3294,13 @@ function renderHomeKPI(){
 }
 async function loadIVStatus(ids){
   window._stuIV=window._stuIV||{};
-  try{ if(ids&&ids.length){ var iv=await sb.from('student_setech').select('student_id').eq('source','interview').in('student_id',ids); window._stuIV={}; (iv.data||[]).forEach(function(r){window._stuIV[r.student_id]=(window._stuIV[r.student_id]||0)+1;}); } }catch(e){}
+  try{ if(ids&&ids.length){ var iv=await sb.from('career_profile').select('student_id').in('student_id',ids); window._stuIV={}; (iv.data||[]).forEach(function(r){window._stuIV[r.student_id]=(window._stuIV[r.student_id]||0)+1;}); } }catch(e){}
 }
 window.loadIVStatus=loadIVStatus;
 function ivBadgeHtml(id){
   var n=(window._stuIV||{})[id]||0;
-  return n? '<span title="상담 전 인터뷰 제출됨" style="font-size:10px;color:var(--safe,#12b76a);border:1px solid var(--safe,#12b76a);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 '+n+'</span>'
-          : '<span title="아직 인터뷰 미작성" style="font-size:10px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 미작성</span>';
+  return n? '<span title="진로 징검다리 인터뷰 작성 완료" style="font-size:10px;color:var(--safe,#12b76a);border:1px solid var(--safe,#12b76a);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 완료</span>'
+          : '<span title="아직 진로 징검다리 인터뷰 미작성" style="font-size:10px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 미작성</span>';
 }
 window.ivBadgeHtml=ivBadgeHtml;
 async function loadStudents(){
