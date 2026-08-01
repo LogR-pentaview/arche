@@ -2119,13 +2119,11 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_writing_diff.js"></script>
 <script src="/shared/arche_integrity.js"></script>
 <script src="/shared/arche_reflection.js"></script>
-<script src="/shared/arche_report_typingdna.js"></script>
-<script src="/shared/arche_report_selfcompare.js"></script>
-<script src="/shared/arche_penta_workbook.js?v=25"></script>
+<script src="/shared/arche_report_typingdna.js"></script><script src="/shared/arche_penta_workbook.js?v=25"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=3"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_career_bridge.js?v=8"></script>
+<script src="/shared/arche_career_bridge.js?v=10"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
@@ -2191,7 +2189,7 @@ window.toggleMobileNav=toggleMobileNav;
 function careerMount(which){
   var id=(which==='goip')?'career-mount-goip':'career-mount';
   var m=document.getElementById(id);
-  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
+  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m, null, (which==='goip'?'goip':'dae')); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
 }
 window.careerMount=careerMount;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
