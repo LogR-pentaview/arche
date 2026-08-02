@@ -70,7 +70,7 @@
   async function assignWorksheet(sid, title, questions, topic, field){ return window.sb.rpc('assign_career_worksheet',{p_academy:acadId(),p_student:sid,p_title:title||null,p_questions:questions,p_topic:topic||null,p_field:field||null}); }
   async function submitAnswers(sid, reportId, topic, field, answers){ return window.sb.rpc('save_career_report',{p_academy:acadId(),p_student:sid,p_report_id:reportId,p_topic:topic||null,p_field:field||null,p_answers:answers}); }
   async function saveCoaching(id, feedback, status){ return window.sb.rpc('save_career_coaching',{p_id:id,p_feedback:feedback,p_status:status||null}); }
-  async function getIntegrity(sid, rid){ try{ var r=await window.sb.from('writing_integrity').select('*').eq('student_id',String(sid)).eq('source_type','design').eq('source_id',String(rid)).order('created_at',{ascending:false}).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
+  async function getIntegrity(sid, rid, stype){ try{ var r=await window.sb.from('writing_integrity').select('*').eq('student_id',String(sid)).eq('source_type',stype||'design').eq('source_id',String(rid)).order('created_at',{ascending:false}).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
   async function getReflection(sid, rid){ try{ var r=await window.sb.from('reflection_snapshots').select('s_before,s_after,self_eval,sri,resilience,c2,ai_predicted,meta_gap').eq('student_id',String(sid)).eq('source_type','design').eq('source_id',String(rid)).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
   function reflectionHtml(rf){ if(!rf)return ''; var sbf=rf.s_before||{}, saf=rf.s_after||{}; if(typeof sbf==='string'){try{sbf=JSON.parse(sbf);}catch(_){sbf={};}} if(typeof saf==='string'){try{saf=JSON.parse(saf);}catch(_){saf={};}}
     var pre=(sbf.why||sbf.expect||sbf.curious), post=(saf.changed||saf.learned||saf.reresponse); if(!pre&&!post)return '';
@@ -309,8 +309,10 @@
       try{ var r=await window.sb.from('design_items').update({submission:t, submitted_at:new Date().toISOString(), status:'제출', updated_at:new Date().toISOString()}).eq('id',d.id).select('id');
         if(r.error||!(r.data&&r.data.length))throw (r.error||new Error('저장 실패 — 권한/새로고침'));
         try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'con', kind:'design', title:'코스웨어 제출', body:'학생이 코스웨어 탐구를 제출했어요. 평가·코칭을 진행해 주세요.', view:(gradeLevel(d.grade)==='goip'?'gdesign':'sr')}); }catch(_e){}
-        msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉';
-        setTimeout(function(){ ov.remove(); remount(container,'student'); },700);
+        msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉 잠시 후 사후 회고가 열려요.';
+        setTimeout(function(){ ov.remove(); remount(container,'student');
+          try{ if(window.archeReflectOverlay){ archeReflectOverlay({ academyId:acadId(), studentId:sid, sourceType:'course', sourceId:d.id, kind:'design', title:d.title||'', reportText:t, banner:{title:'코스웨어 제출 완료', sub:t.length+'자 · 직접 작성 확인됨'} }); } }catch(_e){}
+        },700);
       }catch(e){ this.disabled=false; msg.style.color='#c0313d'; msg.textContent='제출 실패: '+(e.message||e); }
     });
   }
@@ -321,7 +323,19 @@
     else if(d.feedback) card.insertAdjacentHTML('beforeend', '<div class="rep"><p>'+esc(d.feedback)+'</p></div>');
     else card.insertAdjacentHTML('beforeend', '<div class="note">아직 평가가 도착하지 않았어요.</div>');
     if(d.submission) card.insertAdjacentHTML('beforeend', '<div class="qa"><div class="q">✍️ 내 제출</div><div class="a">'+esc(d.submission)+'</div></div>');
+    if(window.ArcheExport){ var xb=cwExportBar(d, fb, (window._activeStudent&&window._activeStudent.name)||''); if(xb)card.appendChild(xb); }
   }
+  // 코스웨어 내보내기 바 (PDF/DOCX/HWPX)
+  function cwExportBar(d, repData, who){ if(!window.ArcheExport)return null;
+    var bar=el('<div class="row" style="margin-top:10px;border-top:1px dashed #e6e9f0;padding-top:10px"></div>');
+    bar.appendChild(el('<div style="width:100%;font-size:11.5px;color:#8b95a1;margin-bottom:4px">📤 내보내기</div>'));
+    var tt=(d.title||'코스웨어 탐구'), ss=((who?who+' · ':'')+[d.subject,d.area,d.sem].filter(Boolean).join(' '));
+    function cbody(){ var rd=(typeof repData==='function')?repData():repData; var h=''; if(rd)h+=reportHtml(rd); if(d.goal)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">탐구 목적</h3><div>'+esc(d.goal)+'</div>'; if(d.outline)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">탐구 목차</h3><div style="white-space:pre-line">'+esc(d.outline)+'</div>'; if(d.detail)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">수행 가이드</h3><div style="white-space:pre-wrap">'+esc(d.detail)+'</div>'; if(d.submission)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">학생 제출</h3><div style="white-space:pre-wrap">'+esc(d.submission)+'</div>'; return h; }
+    function mkx(l,c,fn){ var b=el('<button class="act '+c+'">'+l+'</button>'); b.addEventListener('click',fn); return b; }
+    bar.appendChild(mkx('📄 PDF','gh',function(){ ArcheExport.pdf({title:tt,subtitle:ss,html:cbody()}); }));
+    bar.appendChild(mkx('📝 DOCX','mut',function(){ ArcheExport.docx({title:tt,subtitle:ss,html:cbody()}); }));
+    bar.appendChild(mkx('📗 HWPX','mut',function(){ ArcheExport.hwpx({title:tt,subtitle:ss,html:cbody()}); }));
+    return bar; }
   // 코스웨어 제출물 평가(컨설턴트/학부모)
   async function openCourseReview(container, d, name, grade){
     var ov=ovOpen(); var lvl=gradeLevel(grade); var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
@@ -329,9 +343,20 @@
     if(d.goal)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>');
     if(d.outline)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">목차</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>');
     card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">✍️ 학생 제출</div><div class="a">'+esc(d.submission||'(없음)')+'</div></div>');
-    card.insertAdjacentHTML('beforeend','<div class="row"><button class="act gd" id="crai">🤖 AI 평가 리포트 생성</button></div><div class="note" id="craimsg" style="margin-top:4px"></div><div id="crrep" style="margin-top:8px"></div>');
+    card.insertAdjacentHTML('beforeend','<div class="row"><button class="act gd" id="crai">🤖 AI 평가 리포트 생성</button><button class="act gh" id="crdna">🧬 타이핑DNA 진정성</button></div><div class="note" id="craimsg" style="margin-top:4px"></div><div id="crrep" style="margin-top:8px"></div><div id="crdnabox" style="margin-top:8px"></div>');
     var repData=null; try{ repData=d.feedback?JSON.parse(d.feedback):null; }catch(e){}
     if(repData) card.querySelector('#crrep').innerHTML=reportHtml(repData);
+    card.querySelector('#crdna').addEventListener('click', async function(){
+      var mount=card.querySelector('#crdnabox'); if(mount.getAttribute('data-open')==='1'){ mount.innerHTML=''; mount.removeAttribute('data-open'); return; }
+      mount.setAttribute('data-open','1'); mount.innerHTML='<div class="note">불러오는 중…</div>';
+      if(!window.ArcheReportTyping){ mount.innerHTML='<div class="note" style="color:#c0313d">리포트 모듈 미로드</div>'; return; }
+      var wi=await getIntegrity(d.student_id, d.id, 'course');
+      if(!wi){ mount.innerHTML='<div class="note" style="padding:10px 12px;border:1px dashed #dfe3ec;border-radius:8px">이 회차의 진정성 데이터가 없습니다. (작성창에서 제출한 경우 표시)</div>'; return; }
+      var lay=wi.layers||{}, rea=wi.reasons||{}; if(typeof lay==='string'){try{lay=JSON.parse(lay);}catch(_){lay={};}} if(typeof rea==='string'){try{rea=JSON.parse(rea);}catch(_){rea={};}}
+      mount.innerHTML='';
+      try{ ArcheReportTyping.render(mount, { student:{name:name||'학생', grade:grade||''}, source:{title:d.title||'코스웨어', chars:0, minutes:0}, composite:wi.composite, tier:wi.tier||'yellow', layers:lay, reasons:rea, tm:{} }); }
+      catch(e){ mount.innerHTML='<div class="note" style="color:#c0313d">렌더 실패: '+esc(e.message||e)+'</div>'; }
+    });
     card.querySelector('#crai').addEventListener('click', async function(){ var btn=this,m=card.querySelector('#craimsg'); btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>AI 평가 중…';
       try{ var qs=(d.outline?String(d.outline).split('\n').filter(Boolean).map(function(x){return {q:x};}):[]);
         var cr=await callCoach({ questions:qs, answers:(d.submission||''), field:(d.subject||''), topic:(d.title||''), name:(name||''), grade:(grade||''), level:lvl });
@@ -346,6 +371,7 @@
         m.style.color='#137a44'; m.textContent='학생에게 회신했어요 ✅'; setTimeout(function(){ ov.remove(); remount(container,'staff'); },800);
       }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='회신 실패: '+(e.message||e); }
     });
+    if(window.ArcheExport){ var _xb=cwExportBar(d, function(){return repData;}, name); if(_xb)card.appendChild(_xb); }
   }
   // ── 학부모(컨설턴트) ──────────────────────────────────────────────────
   async function renderStaff(container){
@@ -506,19 +532,18 @@
     (async function(){ try{ var dv=await getDirection(sid); var ta=card.querySelector('#cw-design'); if(dv&&ta&&!ta.value)ta.value=dv; }catch(_e){} })();
     card.querySelector('#cw-savedir').addEventListener('click', async function(){ var m=card.querySelector('#cw-msg'); var b=this; b.disabled=true; try{ var r=await saveDirection(sid, card.querySelector('#cw-design').value.trim()); if(r&&r.error)throw r.error; m.style.color='#137a44'; m.textContent='설계 방향을 저장했어요 (다음에 자동 불러옴).'; }catch(e){ m.style.color='#c0313d'; m.textContent='저장 실패: '+(e.message||e); } b.disabled=false; });
     function cwPreview(d){ var outline=Array.isArray(d.outline)?d.outline.join('\n'):(d.outline||'');
-      var h='<div class="rep"><h4>🧭 코스웨어 설계도</h4>';
-      h+='<div class="lb">탐구 주제</div><p>'+esc(d.title||'')+'</p>';
-      h+='<div class="lb">탐구 목적</div><p>'+esc(d.goal||'')+'</p>';
-      if(d.detail)h+='<div class="lb">수행 가이드</div><p style="white-space:pre-wrap">'+esc(d.detail)+'</p>';
-      if(outline)h+='<div class="lb">탐구 목차 (서론·본론·결론)</div><p style="white-space:pre-line">'+esc(outline)+'</p>';
-      if(d.method)h+='<div class="lb">탐구 방법</div><p>'+esc(d.method)+'</p>';
-      if(d.standard)h+='<div class="lb">연계 성취기준·학습요소</div><p>'+esc(d.standard)+'</p>';
-      if(d.output)h+='<div class="lb">산출물</div><p>'+esc(d.output)+'</p>';
-      return h+'</div><div class="row"><button class="act dn" id="cw-send">학생에게 전송</button></div>'; }
-    async function cwSend(){ if(!_last)return; var m=card.querySelector('#cw-msg'); var d=_last.d;
-      var outline=Array.isArray(d.outline)?d.outline.join('\n'):(d.outline||'');
       var detail=(d.detail||'')+(d.method?'\n[탐구방법] '+d.method:'')+(d.standard?'\n[연계 학습요소] '+d.standard:'')+(d.output?'\n[산출물] '+d.output:'')+(d.link?'\n[연결] '+d.link:'');
-      var row={ student_id:sid, grade:String(grade||''), sem:curSemester()+'학기', subject:(_last.kind==='subject'?_last.name:''), area:_last.area, title:(d.title||_last.name), goal:(d.goal||''), detail:detail, outline:outline, seq:_last.seq, status:'예정', sent:true };
+      var h='<div class="rep"><h4>🧭 코스웨어 설계도 <span style="font-size:10px;font-weight:600;color:#8b95a1">· 검토·수정 후 전송</span></h4>';
+      h+='<div class="lb">탐구 주제</div><input id="cw-e-title" value="'+esc(d.title||'')+'">';
+      h+='<div class="lb">탐구 목적</div><textarea id="cw-e-goal" rows="2">'+esc(d.goal||'')+'</textarea>';
+      h+='<div class="lb">탐구 목차 (서론·본론·결론)</div><textarea id="cw-e-outline" rows="7">'+esc(outline)+'</textarea>';
+      h+='<div class="lb">수행 가이드·방법·산출물</div><textarea id="cw-e-detail" rows="5">'+esc(detail)+'</textarea>';
+      return h+'</div><div class="row"><button class="act dn" id="cw-send">학생에게 전송</button></div>'; }
+    async function cwSend(){ if(!_last)return; var m=card.querySelector('#cw-msg');
+      var gv=function(id){ var e=card.querySelector(id); return e?String(e.value||'').trim():''; };
+      var title=gv('#cw-e-title')||_last.name;
+      if(!title){ m.style.color='#c0313d'; m.textContent='제목을 입력하세요.'; return; }
+      var row={ student_id:sid, grade:String(grade||''), sem:curSemester()+'학기', subject:(_last.kind==='subject'?_last.name:''), area:_last.area, title:title, goal:gv('#cw-e-goal'), detail:gv('#cw-e-detail'), outline:gv('#cw-e-outline'), seq:_last.seq, status:'예정', sent:true };
       m.style.color='#6b7688'; m.textContent='전송 중…';
       try{ var r=await window.sb.from('design_items').insert(row); if(r&&r.error)throw r.error;
         try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'stu', kind:'design', title:'코스웨어 설계 도착', body:'새 탐구 코스웨어가 도착했어요.', view:(lvl==='goip'?'gdesign':'sr')}); }catch(_e){}
