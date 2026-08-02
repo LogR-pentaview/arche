@@ -3366,7 +3366,7 @@ async function loadStudents(){
       window._stuAcct={};(acc.data||[]).forEach(function(a){window._stuAcct[a.student_id]=a;});}
   }catch(e){window._stuAcct={};}
   await loadIVStatus(window._students.map(function(s){return s.id;}));
-  document.getElementById('st-count').textContent=window._students.length;
+  var _sc=document.getElementById('st-count'); if(_sc)_sc.textContent=window._students.length;
   renderHomeKPI(); populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">'+(window._isB2C?'등록된 자녀가 없습니다. 좌측에서 등록하세요.':'등록된 학생이 없습니다. 좌측에서 등록하세요.')+'</div>';return;}
   var order=['고3','고2','고1','N수','미지정'];
