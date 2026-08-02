@@ -201,15 +201,15 @@
     }
     if(!reports.length && !ditems.length){ body.appendChild(el('<div class="empty">아직 도착한 항목이 없어요. 인터뷰를 제출했다면 곧 설계도가 도착합니다 😊</div>')); }
     if(ditems.length){ body.appendChild(el('<div class="sect">받은 코스웨어 (교과·창체 탐구)</div>'));
-      ditems.forEach(function(d){ var c=el('<div class="card"></div>'); var done=!!d.submission; var evaled=!!d.feedback;
-        c.innerHTML='<div class="nm">'+esc(d.title||d.subject||'탐구 코스웨어')+'<span class="badge '+(evaled?'b-sent':(done?'b-submitted':'b-assigned'))+'">'+(evaled?'평가 도착':(done?'제출됨':'작성 대기'))+'</span></div><div class="tp">'+esc([d.subject,d.area,d.sem].filter(Boolean).join(' · '))+'</div>';
+      ditems.forEach(function(d){ var c=el('<div class="card"></div>'); var submitted=(d.status==='제출'||d.status==='평가완료'||!!d.submitted_at); var draft=(!!d.submission&&!submitted); var evaled=!!d.feedback;
+        c.innerHTML='<div class="nm">'+esc(d.title||d.subject||'탐구 코스웨어')+'<span class="badge '+(evaled?'b-sent':(submitted?'b-submitted':'b-assigned'))+'">'+(evaled?'평가 도착':(submitted?'제출됨':(draft?'작성 중':'작성 대기')))+'</span></div><div class="tp">'+esc([d.subject,d.area,d.sem].filter(Boolean).join(' · '))+'</div>';
         var det=el('<div style="margin-top:8px"></div>');
         if(d.goal)det.appendChild(el('<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>'));
         if(d.outline)det.appendChild(el('<div class="qa"><div class="q">탐구 목차 (서론·본론·결론)</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>'));
         if(d.detail)det.appendChild(el('<div class="qa"><div class="q">수행 가이드</div><div class="a" style="white-space:pre-wrap">'+esc(d.detail)+'</div></div>'));
         c.appendChild(det);
-        var arow=el('<div class="row"></div>'); var ab=el('<button class="act '+((!done)?'pri':'gh')+'">'+(evaled?'📊 평가 보기':(done?'📝 내 제출 보기':'✍️ 작성하기'))+'</button>');
-        ab.addEventListener('click',function(){ if(!done)openCourseWrite(container, sid, d); else openCourseFeedback(sid, d); });
+        var arow=el('<div class="row"></div>'); var ab=el('<button class="act '+((submitted||evaled)?'gh':'pri')+'">'+(evaled?'📊 평가 보기':(submitted?'📝 내 제출 보기':(draft?'✍️ 이어쓰기':'✍️ 작성하기')))+'</button>');
+        ab.addEventListener('click',function(){ if(submitted||evaled)openCourseFeedback(sid, d); else openCourseWrite(container, sid, d); });
         arow.appendChild(ab); c.appendChild(arow); body.appendChild(c);
       });
     }
@@ -304,17 +304,27 @@
         +'<button type="button" onclick="if(window.pfOpenMath)pfOpenMath()" style="font-size:12px;color:var(--reach,#3182f6);border:1px solid var(--reach,#3182f6);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;white-space:nowrap">∑ 수식</button>'
         +'<span id="pf-cc" style="font-size:11px;color:var(--ink-mute,#8b95a1)">0자</span></div>');
     var ed=el('<div class="ed" id="pf-ed" contenteditable="true" data-ph="목차에 따라 서론·본론·결론으로 내가 조사·생각한 내용을 직접 써보세요" style="width:100%;min-height:240px;background:var(--panel-2,#fbfcfe);border:1px solid var(--line,#dfe3ec);border-radius:11px;padding:13px 14px;color:var(--ink,#191f28);font-size:13.5px;line-height:1.9;outline:none;box-sizing:border-box;word-break:keep-all"></div>'); card.appendChild(ed);
+    if(d.submission){ try{ ed.innerHTML=d.submission; }catch(_e){} }
     function cbEdCount(){ var c=card.querySelector('#pf-cc'); if(!c)return; if(window.pfEdLen){try{c.textContent=pfEdLen()+'자';return;}catch(_e){}} c.textContent=((ed.innerText||ed.textContent||'').length)+'자'; }
     ed.addEventListener('input', cbEdCount);
     ed.addEventListener('paste', function(e){ if(window.pfEdPaste){ try{ window.pfEdPaste(e); }catch(_e){} } setTimeout(cbEdCount,30); });
     cbEdCount();
     var msg=el('<div class="note"></div>'); card.appendChild(msg);
-    var row=el('<div class="row"><button class="act pri">📤 저장 후 제출</button></div>'); card.appendChild(row);
+    var row=el('<div class="row"><button class="act gh" id="cw-draft">💾 임시저장</button><button class="act pri" id="cw-submit">📤 저장 후 제출</button></div>'); card.appendChild(row);
+    row.querySelector('#cw-draft').addEventListener('click', async function(){
+      var b=this; b.disabled=true; msg.style.color='#6b7688'; msg.textContent='임시저장 중…';
+      try{ var r=await window.sb.from('design_items').update({submission:ed.innerHTML, status:'작성중', updated_at:new Date().toISOString()}).eq('id',d.id).select('id');
+        if(r.error||!(r.data&&r.data.length))throw (r.error||new Error('저장 실패 — 권한/새로고침'));
+        d.submission=ed.innerHTML; d.status='작성중';
+        msg.style.color='#137a44'; msg.textContent='임시저장됨 ✅ (제출 전까지 선생님에게 보이지 않아요)';
+      }catch(e){ msg.style.color='#c0313d'; msg.textContent='임시저장 실패: '+(e.message||e); }
+      b.disabled=false;
+    });
     try{ window._pfCurSub='course'+(d.id||''); }catch(e){}
     try{ if(window.ArcheIntegrity) ArcheIntegrity.attach(ed); }catch(e){}
     try{ if(window.ArcheReflection && window.ArcheReflection.renderPre){ window.ArcheReflection.renderPre(card.querySelector('#cw-pre'), {academyId:acadId(), studentId:sid, sourceType:'course', sourceId:d.id, prefill:null}); } }catch(e){}
     setTimeout(function(){ try{ed.focus();}catch(_){} },80);
-    row.querySelector('button').addEventListener('click', async function(){
+    row.querySelector('#cw-submit').addEventListener('click', async function(){
       var html=ed.innerHTML; var t=(ed.innerText||ed.textContent||'').trim();
       if(t.length<10 && !/<img/i.test(html)){ msg.style.color='#c0313d'; msg.textContent='조금 더 작성한 뒤 제출해 주세요.'; return; }
       if(!confirm('제출할까요? 제출하면 선생님이 평가·코칭을 드려요.'))return;
@@ -400,7 +410,7 @@
     // [정합성] 대입(dae)/고입(goip) 메뉴별로 해당 track 학생만 표시 (학생 학년 기준)
     if(_track){ profiles=profiles.filter(function(p){ return gradeLevel(grades[p.student_id])===_track; }); reports=reports.filter(function(r){ return gradeLevel(grades[r.student_id])===_track; }); }
     var subCourse=[]; try{ var _sids=(window._students||[]).map(function(s){return s.id||s.student_id;}).filter(Boolean); if(window._activeStudent&&_sids.indexOf(window._activeStudent.id)<0)_sids.push(window._activeStudent.id);
-      if(_sids.length){ var _dq=await window.sb.from('design_items').select('*').in('student_id',_sids).not('submission','is',null); subCourse=(_dq.data||[]).filter(function(d){ return !_track || gradeLevel(grades[d.student_id])===_track; }); } }catch(e){}
+      if(_sids.length){ var _dq=await window.sb.from('design_items').select('*').in('student_id',_sids).not('submission','is',null); subCourse=(_dq.data||[]).filter(function(d){ var sub=(d.status==='제출'||d.status==='평가완료'||!!d.submitted_at); return sub && (!_track || gradeLevel(grades[d.student_id])===_track); }); } }catch(e){}
     host.innerHTML='';
     host.appendChild(el('<div class="sect">① 인터뷰 완료 — 맞춤 설계도 보내기</div>'));
     if(!profiles.length){ host.appendChild(el('<div class="empty">아직 인터뷰를 완료한 자녀/학생이 없습니다.</div>')); }
@@ -543,8 +553,8 @@
     async function loadCwList(){ var box2=card.querySelector('#cw-list'); if(!box2)return; var items=[]; try{ items=await myDesignItems(sid); }catch(e){}
       if(!items.length){ box2.innerHTML='<div class="note" style="margin-top:6px">아직 보낸 코스웨어가 없어요.</div>'; return; }
       box2.innerHTML='<div class="sect" style="margin:6px 0 6px">📚 이 학생의 코스웨어 · 성장 순서 ('+items.length+'개)</div>';
-      items.forEach(function(it){ var st=(it.feedback?'평가완료':(it.submission?'제출됨':(it.sent?'전송됨':'예정')));
-        var c=el('<div class="card" style="padding:10px 12px"><div class="nm" style="font-size:13px">'+esc((it.seq!=null?it.seq+'. ':'')+(it.title||it.subject||'-'))+' <span class="badge '+(it.feedback?'b-sent':(it.submission?'b-submitted':'b-assigned'))+'">'+st+'</span></div><div class="tp">'+esc([it.subject,it.area,it.sem].filter(Boolean).join(' · '))+'</div></div>');
+      items.forEach(function(it){ var _sub=(it.status==='제출'||it.status==='평가완료'||!!it.submitted_at); var st=(it.feedback?'평가완료':(_sub?'제출됨':(it.submission?'작성중':(it.sent?'전송됨':'예정'))));
+        var c=el('<div class="card" style="padding:10px 12px"><div class="nm" style="font-size:13px">'+esc((it.seq!=null?it.seq+'. ':'')+(it.title||it.subject||'-'))+' <span class="badge '+(it.feedback?'b-sent':(_sub?'b-submitted':'b-assigned'))+'">'+st+'</span></div><div class="tp">'+esc([it.subject,it.area,it.sem].filter(Boolean).join(' · '))+'</div></div>');
         var row=el('<div class="row"></div>'); var db=el('<button class="act mut" style="font-size:11px;padding:5px 10px">🗑 삭제</button>');
         db.addEventListener('click', async function(){ if(!confirm('이 코스웨어를 삭제할까요? 학생 화면에서도 사라지며 복구할 수 없습니다.'))return; db.disabled=true; var r=await delCourseItem(it.id); if(r&&r.error){ db.disabled=false; alert('삭제 실패: '+(r.error.message||r.error)); return; } loadCwList(); try{ remount(container,'staff'); }catch(_e){} });
         row.appendChild(db); c.appendChild(row); box2.appendChild(c);
