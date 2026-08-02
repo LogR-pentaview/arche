@@ -53,6 +53,11 @@
     + ".pnta-ovc{background:#eef1f8;border-radius:18px;max-width:900px;width:100%;margin:0 auto;padding:16px;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.35)}"
     + ".pnta-ovx{position:sticky;top:0;display:flex;justify-content:flex-end;z-index:2}"
     + ".pnta-ovx button{font:inherit;font-weight:800;font-size:13px;padding:8px 14px;border-radius:10px;border:0;background:#1A237E;color:#fff;cursor:pointer}"
+    /* 워크북 전용 전체화면 오버레이(워크북 자체의 sticky 상단바+fixed 하단 내비와 충돌 방지) */
+    + ".pnta-ov.wb{padding:0;background:#e9edf5}"
+    + ".pnta-ovc.wb{max-width:none;width:100%;margin:0;padding:0;background:transparent;border-radius:0;box-shadow:none}"
+    + ".pnta-wbx{position:fixed;top:calc(8px + env(safe-area-inset-top));right:10px;z-index:2147483600;font:inherit;font-weight:800;font-size:13px;padding:8px 13px;border-radius:10px;border:0;background:#1A237E;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}"
+    + ".pnta-wbtag{position:fixed;top:calc(10px + env(safe-area-inset-top));left:10px;z-index:2147483600;font-size:11px;font-weight:800;color:#6b7688;background:rgba(255,255,255,.96);border:1px solid #e6e9f0;border-radius:20px;padding:6px 12px}"
     + ".pnta .edit{background:#fff;border:1px solid #e6e9f0;border-radius:14px;padding:16px;margin-bottom:12px}"
     + ".pnta .edit h4{margin:0 0 4px;font-size:14px;color:#1A237E}"
     + ".pnta .edit .fl{font-size:11.5px;font-weight:800;color:#8b95a1;margin:10px 0 4px}"
@@ -82,7 +87,7 @@
   var COURSES={
     vision_basic:{ stage:'vision', level:'starter',      title:'펜타 비전 기초', short:'비전 기초', bands:['초등'],        desc:'초등 · 5대 지성 주파수 발견(쉬운 언어)' },
     vision_adv:  { stage:'vision', level:'architecture', title:'펜타 비전 심화', short:'비전 심화', bands:['초등','중등'], desc:'초등 고학년~중등 · 논리적 사고 확장' },
-    track:       { stage:'track',  level:'',             title:'펜타 트랙',     short:'트랙',     bands:['중등'],        desc:'중3 · 교과 융합 + 고교학점제·세특 연계' }
+    track:       { stage:'track',  level:'',             title:'펜타 트랙',     short:'트랙',     bands:['중등'],        desc:'중3 · 교과 융합 + 진로·고교 선택과목 설계' }
   };
   function courseSpec(c){ return COURSES[c]||{ title:'펜타 시리즈', short:'전체', desc:'비전·트랙 통합', stage:null, level:null }; }
   function courseLabel(c){ return COURSES[c]?COURSES[c].short:'미수강'; }
@@ -92,7 +97,7 @@
   function eligibleCourses(grade){ var b=gradeBand(grade); return Object.keys(COURSES).filter(function(k){return COURSES[k].bands.indexOf(b)>=0;}); }
   function byStage(rows, stage){ return stage ? (rows||[]).filter(function(r){return r.stage===stage;}) : (rows||[]); }
   // 코스 스펙에 맞는 카탈로그/배정 행 필터 (stage + level)
-  function bySpec(rows, spec){ var out=(!spec||!spec.stage)?(rows||[]):(rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); try{ if(window._pentaSeason!=null){ out=out.filter(function(r){ return String(r.season)===String(window._pentaSeason); }); } }catch(e){} return out; }
+  function bySpec(rows, spec){ if(!spec||!spec.stage)return rows||[]; return (rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); }
   async function loadStudents(){
     var students=(window._students||[]).slice();
     if(!students.length){ try{ var r=await window.sb.from('students').select('id,name').eq('academy_id',acadId()).order('name'); if(r&&r.data)students=r.data; }catch(e){} }
@@ -191,23 +196,20 @@
     list.innerHTML=''; list.appendChild(g);
   }
 
-  // 워크북 오버레이
+  // 워크북 오버레이 (전체화면 — 워크북 자체 상단바/하단 내비가 온전히 동작)
   async function openWorkbook(a, studentId, readOnly){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
     var pre=null;
     if(readOnly || a.status!=='assigned'){
       try{ var sub=await getSubmissionBy(studentId,a.stage,a.season,a.week); if(sub)pre={answers:sub.answers,radar_before:sub.radar_before,radar_after:sub.radar_after,compass:sub.compass}; }catch(e){}
     }
-    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
+    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="wbmount"></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
-    /* [정합성] 배정 row의 stage/season/week/level을 lesson에 병합 — 저장(save_penta)이 (vision,1,1)로 어긋나 리포트가 "제출물 없음"에 고착되던 것 방지 */
-    var _lc=a.content; if(typeof _lc==='string'){ try{ _lc=JSON.parse(_lc); }catch(_e){ _lc={}; } } if(!_lc||typeof _lc!=='object')_lc={};
-    var _lesson=Object.assign({}, _lc, { stage:a.stage, level:(a.level!=null?a.level:(_lc.level||'')), season:a.season, week:a.week, theme:(_lc.theme||a.theme||''), title:(_lc.title||a.title||''), gradeBand:(_lc.gradeBand||a.grade_band||'') });
+    ov.querySelector('.pnta-wbx').addEventListener('click',function(){ ov.remove(); });
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), {
-      lesson: _lesson, academyId: acadId(), studentId: studentId,
+      lesson: a.content, academyId: acadId(), studentId: studentId,
       mode:'live', readOnly: !!readOnly, prefill: pre,
-      onSubmit: function(){ toast('제출 완료! 🎉'); setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },900); }
+      onSubmit: function(){ toast('제출 완료! 🎉'); setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode); },900); }
     });
   }
 
@@ -215,9 +217,9 @@
   function openWorkbookPreview(c){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
     if(!c || !c.content){ toast('이 회차의 워크북 내용이 없습니다'); return; }
-    var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><span style="flex:1;color:#8b95a1;font-size:12px;font-weight:700;align-self:center">📖 미리보기 · 저장되지 않습니다</span><button>✕ 닫기</button></div><div class="wbmount"></div></div></div>');
+    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">📖 미리보기 · 저장되지 않습니다</div><div class="wbmount"></div></div></div>');
     document.body.appendChild(ov);
-    ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
+    ov.querySelector('.pnta-wbx').addEventListener('click',function(){ ov.remove(); });
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), { lesson: c.content, mode:'preview', readOnly:false });
   }
 
@@ -422,7 +424,7 @@
       var pub=ctl.querySelector('#rv-pub');
       if(pub) pub.addEventListener('click', async function(){
         pub.disabled=true; pub.innerHTML='<span class="spin"></span>발행 중…';
-        try{ await saveReport(sub.id, report, null, 'sent', true); toast('학부모에게 발행했어요 ✅'); pub.textContent='발행 완료'; setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },800);
+        try{ await saveReport(sub.id, report, null, 'sent', true); toast('학부모에게 발행했어요 ✅'); pub.textContent='발행 완료'; setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode); },800);
         }catch(e){ toast('발행 실패: '+(e.message||e)); pub.disabled=false; pub.textContent='학부모에게 발행'; }
       });
 
@@ -466,7 +468,7 @@
     var subs;
     try{ var r=await window.sb.from('penta_submissions').select('id,stage,level,season,week,theme,title,report,status,sent_at').eq('student_id',studentId).eq('status','sent'); if(r.error)throw r.error; subs=r.data||[]; }
     catch(e){ list.innerHTML='<div class="warn">목록을 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
-    var sent=subs.filter(function(s){ if(!s.report)return false; if(window._pentaSeason!=null && String(s.season)!==String(window._pentaSeason))return false; if(spec&&spec.stage){ return s.stage===spec.stage && ((s.level||'')===(spec.level||'')); } return true; });
+    var sent=subs.filter(function(s){ if(!s.report)return false; if(spec&&spec.stage){ return s.stage===spec.stage && ((s.level||'')===(spec.level||'')); } return true; });
     if(!sent.length){ list.innerHTML='<div class="empty">아직 발행된 '+esc(spec.title)+' 리포트가 없어요.<br>수업 후 선생님이 리포트를 발행하면 여기에서 볼 수 있어요.</div>'; return; }
     var g=document.createElement('div'); g.className='grid';
     sent.sort(function(a,b){return (b.sent_at||'').localeCompare(a.sent_at||'');});
@@ -504,14 +506,11 @@
   }
   function mountRole(root, role, opts){
     inject(); opts=opts||{};
-    /* 시즌 선택 반영: 시즌 피커에서 넘어온 season이 있으면 그 시즌만, 없으면 전체 */
-    try{ window._pentaSeason = (opts.season!=null && opts.season!=='') ? opts.season : null; }catch(e){}
-    try{ if(opts.course) window._pentaCourse=opts.course; }catch(e){}   // [정합성] 재마운트 시 코스 컨텍스트 유지
     if(root && !root.classList.contains('pnta')){ var inner=root.querySelector('.pnta'); if(!inner){ inner=el('<div class="pnta"></div>'); root.innerHTML=''; root.appendChild(inner);} root=inner; }
     if(role==='student') return renderStudent(root, opts);
     if(role==='parent') return renderParent(root, opts);
     return renderStaff(root, opts);
   }
 
-  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.1', _callPenta: callPenta };
+  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.2', _callPenta: callPenta };
 })();
