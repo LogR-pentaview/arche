@@ -57,6 +57,8 @@
     + ".pnta-ovc.wb{max-width:none;width:100%;margin:0;padding:0;background:transparent;border-radius:0;box-shadow:none}"
     + ".pnta-wbx{position:fixed;top:calc(8px + env(safe-area-inset-top));right:10px;z-index:2147483600;font:inherit;font-weight:800;font-size:13px;padding:8px 13px;border-radius:10px;border:0;background:#1A237E;color:#fff;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3)}"
     + ".pnta-wbtag{position:fixed;top:calc(10px + env(safe-area-inset-top));left:10px;z-index:2147483600;font-size:11px;font-weight:800;color:#6b7688;background:rgba(255,255,255,.96);border:1px solid #e6e9f0;border-radius:20px;padding:6px 12px}"
+    /* [충돌수정] 앱 전역 .track{height:46px;overflow:hidden}(슬라이더용)이 워크북 루트(.apw.track)를 잘라버리던 것 해제 */
+    + ".apw.track,.apw.vision{height:auto!important;overflow:visible!important;background:transparent!important;border-radius:0!important;position:static!important}"
     + ".pnta .edit{background:#fff;border:1px solid #e6e9f0;border-radius:14px;padding:16px;margin-bottom:12px}"
     + ".pnta .edit h4{margin:0 0 4px;font-size:14px;color:#1A237E}"
     + ".pnta .edit .fl{font-size:11.5px;font-weight:800;color:#8b95a1;margin:10px 0 4px}"
