@@ -432,22 +432,20 @@
   #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
 </style>
 <script>
-/* [임시 진단] 화면에 JS 오류를 직접 표시 — 모바일에서 콘솔 대신 오류 확인용 */
+/* [임시 진단] JS 오류(빨강) + 탭 진단(파랑) — 모바일 콘솔 대용 */
 (function(){
-  function show(msg){
-    try{
-      var d=document.getElementById('__errbar');
-      if(!d){ d=document.createElement('div'); d.id='__errbar';
-        d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#c0313d;color:#fff;font:12px/1.5 ui-monospace,monospace;padding:9px 12px;max-height:45vh;overflow:auto;white-space:pre-wrap;box-shadow:0 -4px 14px rgba(0,0,0,.3)';
-        d.onclick=function(){ d.style.display='none'; };
-        (document.body||document.documentElement).appendChild(d);
-      }
-      d.style.display='block';
-      d.textContent='⚠ 오류: '+msg+'\n\n(이 빨간 부분을 캡처해 주세요 · 탭하면 닫힘)';
-    }catch(_){}
-  }
-  window.addEventListener('error',function(e){ show((e.message||'error')+'  @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')+':'+(e.colno||'')); });
-  window.addEventListener('unhandledrejection',function(e){ var r=e.reason; show('Promise 거부 — '+((r&&(r.stack||r.message||r))||'알수없음')); });
+  function bar(id,css){ var d=document.getElementById(id); if(!d){ d=document.createElement('div'); d.id=id; d.style.cssText='position:fixed;left:0;right:0;z-index:2147483647;color:#fff;font:11px/1.45 ui-monospace,monospace;padding:8px 11px;white-space:pre-wrap;'+css; d.addEventListener('click',function(ev){ev.stopPropagation();d.style.display='none';},true); (document.body||document.documentElement).appendChild(d);} return d; }
+  function err(msg){ var d=bar('__errbar','bottom:0;background:#c0313d;max-height:42vh;overflow:auto;box-shadow:0 -4px 14px rgba(0,0,0,.3)'); d.style.display='block'; d.textContent='⚠ 오류: '+msg+'\n(빨간 부분 캡처 · 탭하면 닫힘)'; }
+  window.addEventListener('error',function(e){ err((e.message||'error')+' @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')); });
+  window.addEventListener('unhandledrejection',function(e){ var r=e.reason; err('Promise 거부 — '+((r&&(r.stack||r.message||r))||'알수없음')); });
+  document.addEventListener('click',function(e){ try{
+    var el=document.elementFromPoint(e.clientX,e.clientY);
+    var desc=el?(el.tagName+(el.id?('#'+el.id):'')+(el.className?('.'+String(el.className).toString().trim().replace(/\s+/g,'.').slice(0,45)):'')):'null';
+    var side=(el&&el.closest&&el.closest('.side'))?'사이드바안':'바깥';
+    var navEl=el&&el.closest&&el.closest('.nav'); var nav=navEl?(' [메뉴='+(navEl.dataset.v||'?')+']'):'';
+    var d=bar('__tapbar','top:0;background:#1b64da'); d.style.display='block';
+    d.textContent='탭받은요소: '+desc+' · '+side+nav+'  (캡처해주세요)';
+  }catch(_){}} , true);
 })();
 </script>
 </head>
