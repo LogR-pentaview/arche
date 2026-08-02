@@ -75,7 +75,7 @@
       ? '<button class="btn cart" data-act="cart" data-id="'+p.id+'">🛒 장바구니에 담기</button>'
       : '';
     return '<div class="sc">'+corner
-      +'<div class="cap"><span class="sn">시즌 '+esc(p.season)+'</span><div class="ct">'+nl2br(p.caption_title)+'</div><div class="cm">'+esc(p.caption_meta||'')+'</div></div>'
+      +'<div class="cap"><span class="sn">시즌 '+esc(p.season)+(p.lesson_count?(' · '+p.lesson_count+'강'):'')+'</span><div class="ct">'+nl2br(p.caption_title)+'</div><div class="cm">'+esc(p.caption_meta||'')+'</div></div>'
       +'<div class="body"><div class="hl">이런 걸 배워요</div>'+bullets+more
       +'<div class="fu">'+fu+'</div>'
       +'<div class="cta">'+cta+'</div>'+cartBtn+'</div></div>';
