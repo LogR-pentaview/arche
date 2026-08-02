@@ -62,6 +62,7 @@
       if(!titles.length)return '';
       return '\n\n★★[중복 회피·필수] 같은 학원에서 같은 학년·유사 진로/학교인 다른 학생들이 이미 아래 주제로 설계를 받았다. 주제·소재·접근·탐구방법·목차가 겹치지 않는 완전히 다른 설계를 제시하라:\n'+titles.map(function(t){return '- '+t;}).join('\n'); }catch(e){ return ''; } }
   async function myDesignItems(sid){ try{ var r=await window.sb.from('design_items').select('*').eq('student_id',sid).order('seq',{ascending:true}); return (r&&r.data)||[]; }catch(e){ return []; } }
+  async function delCourseItem(id){ try{ return await window.sb.from('design_items').delete().eq('id',id); }catch(e){ return {error:e}; } }
   // 컨설턴트/학부모 설계 방향 저장·불러오기 (student_metrics · course_direction)
   async function saveDirection(sid, text){ try{ return await window.sb.from('student_metrics').insert({student_id:sid, metric_type:'course_direction', payload:{text:text||''}}); }catch(e){ return {error:e}; } }
   async function getDirection(sid){ try{ var r=await window.sb.from('student_metrics').select('payload').eq('student_id',sid).eq('metric_type','course_direction').order('measured_at',{ascending:false}).limit(1); return (r.data&&r.data[0]&&r.data[0].payload&&r.data[0].payload.text)||''; }catch(e){ return ''; } }
@@ -74,7 +75,7 @@
   async function submitAnswers(sid, reportId, topic, field, answers){ return window.sb.rpc('save_career_report',{p_academy:acadId(),p_student:sid,p_report_id:reportId,p_topic:topic||null,p_field:field||null,p_answers:answers}); }
   async function saveCoaching(id, feedback, status){ return window.sb.rpc('save_career_coaching',{p_id:id,p_feedback:feedback,p_status:status||null}); }
   async function getIntegrity(sid, rid, stype){ try{ var r=await window.sb.from('writing_integrity').select('*').eq('student_id',String(sid)).eq('source_type',stype||'design').eq('source_id',String(rid)).order('created_at',{ascending:false}).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
-  async function getReflection(sid, rid){ try{ var r=await window.sb.from('reflection_snapshots').select('s_before,s_after,self_eval,sri,resilience,c2,ai_predicted,meta_gap').eq('student_id',String(sid)).eq('source_type','design').eq('source_id',String(rid)).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
+  async function getReflection(sid, rid, stype){ try{ var r=await window.sb.from('reflection_snapshots').select('s_before,s_after,self_eval,sri,resilience,c2,ai_predicted,meta_gap').eq('student_id',String(sid)).eq('source_type',stype||'design').eq('source_id',String(rid)).limit(1); return (r.data&&r.data[0])||null; }catch(e){ return null; } }
   function reflectionHtml(rf){ if(!rf)return ''; var sbf=rf.s_before||{}, saf=rf.s_after||{}; if(typeof sbf==='string'){try{sbf=JSON.parse(sbf);}catch(_){sbf={};}} if(typeof saf==='string'){try{saf=JSON.parse(saf);}catch(_){saf={};}}
     var pre=(sbf.why||sbf.expect||sbf.curious), post=(saf.changed||saf.learned||saf.reresponse); if(!pre&&!post)return '';
     var h='<div class="rep" style="background:#fff8ee;border-color:#f0dca6"><h4>🪞 자녀의 사전·사후 회고</h4>';
@@ -336,6 +337,7 @@
     else if(d.feedback) card.insertAdjacentHTML('beforeend', '<div class="rep"><p>'+esc(d.feedback)+'</p></div>');
     else card.insertAdjacentHTML('beforeend', '<div class="note">아직 평가가 도착하지 않았어요.</div>');
     if(d.submission) card.insertAdjacentHTML('beforeend', '<div class="qa"><div class="q">✍️ 내 제출</div><div class="a">'+subHtml(d.submission)+'</div></div>');
+    (async function(){ try{ var rf=await getReflection(sid, d.id, 'course'); var h=rf?reflectionHtml(rf):''; if(h)card.insertAdjacentHTML('beforeend', h); }catch(_e){} })();
     if(window.ArcheExport){ var xb=cwExportBar(d, fb, (window._activeStudent&&window._activeStudent.name)||''); if(xb)card.appendChild(xb); }
   }
   // 코스웨어 내보내기 바 (PDF/DOCX/HWPX)
@@ -356,6 +358,7 @@
     if(d.goal)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>');
     if(d.outline)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">목차</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>');
     card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">✍️ 학생 제출</div><div class="a">'+(d.submission?subHtml(d.submission):'(없음)')+'</div></div>');
+    try{ var _rf=await getReflection(d.student_id, d.id, 'course'); var _rh=_rf?reflectionHtml(_rf):''; if(_rh)card.insertAdjacentHTML('beforeend', _rh); }catch(_e){}
     card.insertAdjacentHTML('beforeend','<div class="row"><button class="act gd" id="crai">🤖 AI 평가 리포트 생성</button><button class="act gh" id="crdna">🧬 타이핑DNA 진정성</button></div><div class="note" id="craimsg" style="margin-top:4px"></div><div id="crrep" style="margin-top:8px"></div><div id="crdnabox" style="margin-top:8px"></div>');
     var repData=null; try{ repData=d.feedback?JSON.parse(d.feedback):null; }catch(e){}
     if(repData) card.querySelector('#crrep').innerHTML=reportHtml(repData);
@@ -535,7 +538,19 @@
       +'<div style="margin-top:10px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">희망 진로·계열</div><input id="cw-field" value="'+esc(stu.career||stu.target_major||(profile&&profile.field)||'')+'" placeholder="예: 데이터·통계 / 생명공학"></div>'
       +'<div style="margin-top:8px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">컨설턴트/학부모 설계 방향 <span style="font-weight:600;color:#8b95a1">(선택 — 비우면 인터뷰·자료 기반 자동 · 저장하면 다음에 자동 불러옴)</span></div><textarea id="cw-design" rows="4" placeholder="예) 회귀·상관 개념으로 지역 미세먼지 공공데이터를 분석 → 정책 제언까지. (비워도 됨)"></textarea><div class="row" style="margin-top:6px"><button class="act gh" id="cw-savedir">💾 설계 방향 저장</button></div></div>'
       +'<div class="row" style="margin-top:10px"><button class="act gd" id="cw-gen">🤖 코스웨어 설계 생성</button></div><div class="note" id="cw-msg" style="margin-top:4px"></div>'
-      +'<div id="cw-out" style="margin-top:10px"></div>';
+      +'<div id="cw-out" style="margin-top:10px"></div>'
+      +'<div id="cw-list" style="margin-top:14px"></div>';
+    async function loadCwList(){ var box2=card.querySelector('#cw-list'); if(!box2)return; var items=[]; try{ items=await myDesignItems(sid); }catch(e){}
+      if(!items.length){ box2.innerHTML='<div class="note" style="margin-top:6px">아직 보낸 코스웨어가 없어요.</div>'; return; }
+      box2.innerHTML='<div class="sect" style="margin:6px 0 6px">📚 이 학생의 코스웨어 · 성장 순서 ('+items.length+'개)</div>';
+      items.forEach(function(it){ var st=(it.feedback?'평가완료':(it.submission?'제출됨':(it.sent?'전송됨':'예정')));
+        var c=el('<div class="card" style="padding:10px 12px"><div class="nm" style="font-size:13px">'+esc((it.seq!=null?it.seq+'. ':'')+(it.title||it.subject||'-'))+' <span class="badge '+(it.feedback?'b-sent':(it.submission?'b-submitted':'b-assigned'))+'">'+st+'</span></div><div class="tp">'+esc([it.subject,it.area,it.sem].filter(Boolean).join(' · '))+'</div></div>');
+        var row=el('<div class="row"></div>'); var db=el('<button class="act mut" style="font-size:11px;padding:5px 10px">🗑 삭제</button>');
+        db.addEventListener('click', async function(){ if(!confirm('이 코스웨어를 삭제할까요? 학생 화면에서도 사라지며 복구할 수 없습니다.'))return; db.disabled=true; var r=await delCourseItem(it.id); if(r&&r.error){ db.disabled=false; alert('삭제 실패: '+(r.error.message||r.error)); return; } loadCwList(); try{ remount(container,'staff'); }catch(_e){} });
+        row.appendChild(db); c.appendChild(row); box2.appendChild(c);
+      });
+    }
+    loadCwList();
     function setTab(k){ card._kind=k; card.querySelector('#pick-subj').style.display=(k==='subject')?'':'none'; card.querySelector('#pick-ch').style.display=(k==='changche')?'':'none'; card.querySelector('#tab-subj').className='act '+(k==='subject'?'pri':'gh'); card.querySelector('#tab-ch').className='act '+(k==='changche'?'pri':'gh'); }
     card.querySelector('#tab-subj').addEventListener('click',function(){setTab('subject');});
     card.querySelector('#tab-ch').addEventListener('click',function(){setTab('changche');});
@@ -560,8 +575,8 @@
       m.style.color='#6b7688'; m.textContent='전송 중…';
       try{ var r=await window.sb.from('design_items').insert(row); if(r&&r.error)throw r.error;
         try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'stu', kind:'design', title:'코스웨어 설계 도착', body:'새 탐구 코스웨어가 도착했어요.', view:(lvl==='goip'?'gdesign':'sr')}); }catch(_e){}
-        m.style.color='#137a44'; m.textContent='학생에게 전송했어요 ✅';
-        setTimeout(function(){ ov.remove(); remount(container,'staff'); },900);
+        m.style.color='#137a44'; m.textContent='전송 완료 ✅ 계속 추가할 수 있어요. (닫으려면 ✕)';
+        card.querySelector('#cw-out').innerHTML=''; _last=null; try{ loadCwList(); remount(container,'staff'); }catch(_e){}
       }catch(e){ m.style.color='#c0313d'; m.textContent='전송 실패: '+(e.message||e); } }
     card.querySelector('#cw-gen').addEventListener('click', async function(){
       var kind=card._kind||'subject'; var m=card.querySelector('#cw-msg'); var name2, area;
