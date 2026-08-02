@@ -2065,8 +2065,8 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_period.js?v=4"></script>
 <script src="/shared/arche_kg_billing.js?v=2"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_season_picker.js?v=4"></script>
-<script src="/shared/arche_b2c.js?v=3"></script>
+<script src="/shared/arche_season_picker.js?v=5"></script>
+<script src="/shared/arche_b2c.js?v=4"></script>
 <script src="/shared/arche_b2c_dash.js?v=22"></script>
 <script src="/shared/arche_career_bridge.js?v=19"></script>
 <script>
@@ -2798,10 +2798,12 @@ function b2cOpenSeasonPicker(child, key){ b2cActivateHome();
     +'<div id="b2c-season-host"></div></div>';
   var host=document.getElementById('b2c-season-host');
   if(window.ArcheSeasonPicker && host){
+    // 선택한 레벨(기초/심화)대로 미리보기·열기 — 등록 코스와 무관 (형 위한 심화 미리보기, 1강 무료)
+    function keyFor(lv){ if(key==='track')return 'track'; return lv==='architecture'?'vision_adv':(lv==='starter'?'vision_basic':key); }
     ArcheSeasonPicker.mount(host,{ course:m[0], level:m[1], studentId:(child&&child.id),
-      onOpen:function(p){ b2cOpenChildPenta(child,key,p); },
-      onTrial:function(p){ b2cOpenChildPenta(child,key,p); },
-      onStart:function(p){ b2cOpenChildPenta(child,key,p); } });
+      onOpen:function(p,lv){ b2cOpenChildPenta(child,keyFor(lv),p); },
+      onTrial:function(p,lv){ b2cOpenChildPenta(child,keyFor(lv),p); },
+      onStart:function(p,lv){ b2cOpenChildPenta(child,keyFor(lv),p); } });
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
 }
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
