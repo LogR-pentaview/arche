@@ -431,6 +431,25 @@
   #v-essaybatch .eb-reason{font-size:12px;line-height:1.7;color:var(--ink-dim,#8ba99a);margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))}
   #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
 </style>
+<script>
+/* [임시 진단] 화면에 JS 오류를 직접 표시 — 모바일에서 콘솔 대신 오류 확인용 */
+(function(){
+  function show(msg){
+    try{
+      var d=document.getElementById('__errbar');
+      if(!d){ d=document.createElement('div'); d.id='__errbar';
+        d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#c0313d;color:#fff;font:12px/1.5 ui-monospace,monospace;padding:9px 12px;max-height:45vh;overflow:auto;white-space:pre-wrap;box-shadow:0 -4px 14px rgba(0,0,0,.3)';
+        d.onclick=function(){ d.style.display='none'; };
+        (document.body||document.documentElement).appendChild(d);
+      }
+      d.style.display='block';
+      d.textContent='⚠ 오류: '+msg+'\n\n(이 빨간 부분을 캡처해 주세요 · 탭하면 닫힘)';
+    }catch(_){}
+  }
+  window.addEventListener('error',function(e){ show((e.message||'error')+'  @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')+':'+(e.colno||'')); });
+  window.addEventListener('unhandledrejection',function(e){ var r=e.reason; show('Promise 거부 — '+((r&&(r.stack||r.message||r))||'알수없음')); });
+})();
+</script>
 </head>
 <body>
 <!-- 수식 입력 모달 (코스웨어 학생 입력창) -->
