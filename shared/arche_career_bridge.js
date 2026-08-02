@@ -34,6 +34,31 @@
   async function token(){ try{var s=await window.sb.auth.getSession(); return (s&&s.data&&s.data.session)?s.data.session.access_token:'';}catch(e){return '';} }
   async function callPenta(task,payload){ var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/penta-ai'; var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await token())},body:JSON.stringify({task:task,payload:payload})}); var d=await r.json(); if(!r.ok)throw new Error(d.error||'AI 오류'); return d; }
   async function callCoach(payload){ var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/career-coach'; var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await token())},body:JSON.stringify(payload||{})}); var d=await r.json(); if(!r.ok)throw new Error(d.error||'AI 평가 오류'); return d; }
+  // ── 코스웨어(옛 엔진) : arche-ai course_lesson + design_items 저장 ────────
+  async function callArche(task,payload){ var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/arche-ai'; var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(await token())},body:JSON.stringify({task:task,payload:payload})}); var d=await r.json(); if(!r.ok)throw new Error(d.error||'AI 오류'); return d; }
+  // 학기 자동판별 (대표님 정의: 1~7월=1학기, 8~12월=2학기)
+  function curSemester(){ try{ var m=(new Date()).getMonth()+1; return (m>=1&&m<=7)?1:2; }catch(e){ return 1; } }
+  function termLabel(grade){ var g=String(grade||''); return (g?g+' ':'')+curSemester()+'학기'; }
+  // 학년별 과목(교과형) — 선택 + 직접입력. 2015/2022 개정 공통 위주.
+  function subjectsFor(grade){ var g=String(grade||'');
+    if(g.indexOf('고')>=0) return ['국어','수학','영어','통합사회','통합과학','한국사','과학탐구실험','물리학','화학','생명과학','지구과학','세계사','사회·문화','생활과 윤리','경제','정치와 법','확률과 통계','미적분','기하','정보','제2외국어','예술(음악·미술)','체육'];
+    if(g.indexOf('중')>=0) return ['국어','수학','영어','과학','사회','역사','도덕','기술·가정','정보','음악','미술','체육','한문','제2외국어','자유학기 주제선택'];
+    return ['국어','수학','영어','과학','사회','통합교과']; }
+  var CHANGCHE=['자율활동','동아리활동','진로활동','봉사활동','독서활동'];
+  // 같은 학원·학교·학년·비슷한 진로 학생과 주제 중복 회피
+  async function otherDesignTitles(stu){ try{
+      var acad=acadId(); if(!acad||!window.sb)return '';
+      var myCareer=(stu.target_major||stu.career||''); var myGrade=String(stu.grade||''); var mySchool=(stu.school||stu.target_school||stu.target_univ||'');
+      if(!myCareer&&!mySchool)return '';
+      var rr=await window.sb.from('students').select('id,grade,career,target_major,school,target_school,target_univ').eq('academy_id',acad).neq('id',stu.id).limit(400);
+      var peers=(rr.data||[]).filter(function(x){ var xc=(x.target_major||x.career||''); var xs=(x.school||x.target_school||x.target_univ||''); return String(x.grade||'')===myGrade && ((myCareer&&xc===myCareer)||(mySchool&&xs===mySchool)); });
+      if(!peers.length)return '';
+      var ids=peers.map(function(x){return x.id;});
+      var di=await window.sb.from('design_items').select('title').in('student_id',ids).limit(80);
+      var titles=Array.from(new Set((di.data||[]).map(function(d){return (d.title||'').trim();}).filter(Boolean))).slice(0,30);
+      if(!titles.length)return '';
+      return '\n\n★★[중복 회피·필수] 같은 학원에서 같은 학년·유사 진로/학교인 다른 학생들이 이미 아래 주제로 설계를 받았다. 주제·소재·접근·탐구방법·목차가 겹치지 않는 완전히 다른 설계를 제시하라:\n'+titles.map(function(t){return '- '+t;}).join('\n'); }catch(e){ return ''; } }
+  async function myDesignItems(sid){ try{ var r=await window.sb.from('design_items').select('*').eq('student_id',sid).order('seq',{ascending:true}); return (r&&r.data)||[]; }catch(e){ return []; } }
   async function getProfile(sid){ var r=await window.sb.from('career_profile').select('*').eq('student_id',sid).limit(1); return (r.data&&r.data[0])||null; }
   async function listProfiles(){ var r=await window.sb.from('career_profile').select('*').eq('academy_id',acadId()).order('updated_at',{ascending:false}); return (r&&r.data)||[]; }
   async function listReports(sid){ var r=await window.sb.from('career_report').select('*').eq('student_id',sid).order('created_at',{ascending:false}); return (r&&r.data)||[]; }
@@ -143,13 +168,13 @@
     if(!sid){ container.innerHTML='<div class="acb"><div class="empty">학생 정보를 불러오지 못했어요.</div></div>'; return; }
     var root=el('<div class="acb"><h2>진로 징검다리</h2><div class="sub">인터뷰를 하면 맞춤 탐구 설계도가 도착해요. 사전 생각 → 직접 작성 → 사후 회고 순으로 진행합니다.</div><div id="cb-body"><div class="empty">불러오는 중…</div></div></div>');
     container.innerHTML=''; container.appendChild(root);
-    var body=root.querySelector('#cb-body'); var profile, reports;
-    try{ profile=await getProfile(sid); reports=await listReports(sid); }catch(e){ body.innerHTML='<div class="empty">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
+    var body=root.querySelector('#cb-body'); var profile, reports, ditems=[];
+    try{ profile=await getProfile(sid); reports=await listReports(sid); ditems=(await myDesignItems(sid)).filter(function(d){return d.sent;}); }catch(e){ body.innerHTML='<div class="empty">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
     body.innerHTML='';
     if(profile){
       var pc=el('<div class="card pf"><div class="t">MY 진로 프로필</div><div class="f">관심 분야 · '+esc(profile.field||'—')+'</div><div class="row"><button class="act gh" style="background:rgba(255,255,255,.15);color:#fff">프로필(인터뷰) 수정</button></div></div>');
       pc.querySelector('button').addEventListener('click',function(){ openProfile(container, sid, profile); }); body.appendChild(pc);
-    } else if(!reports.length){
+    } else if(!reports.length && !ditems.length){
       var pc0=el('<div class="card"><div class="nm">먼저 진로 인터뷰를 해요 (1회)</div><div class="tp">인터뷰를 제출하면 학부모(선생님)가 맞춤 탐구 설계도를 보내줍니다.</div><div class="row"><button class="act pri">진로 인터뷰 시작</button></div></div>');
       pc0.querySelector('button').addEventListener('click',function(){ openProfile(container, sid, null); }); body.appendChild(pc0);
       body.appendChild(el('<div class="empty">인터뷰를 먼저 완료해 주세요.</div>')); return;
@@ -166,6 +191,16 @@
       var btn=el('<button class="act '+(st==='assigned'?'pri':'gh')+'">'+(st==='assigned'?'✍️ 작성하기':(st==='sent'||st==='coached'?'📊 평가·코칭 보기':'열람'))+'</button>');
       btn.addEventListener('click',function(){ if(st==='assigned')openWorksheet(container, sid, r); else openStudentReport(sid, r); }); row.appendChild(btn); c.appendChild(row); body.appendChild(c);
     });
+    if(ditems.length){ body.appendChild(el('<div class="sect">받은 코스웨어 (교과·창체 탐구)</div>'));
+      ditems.forEach(function(d){ var c=el('<div class="card"></div>');
+        c.innerHTML='<div class="nm">'+esc(d.title||d.subject||'탐구 코스웨어')+'</div><div class="tp">'+esc([d.subject,d.area,d.sem].filter(Boolean).join(' · '))+'</div>';
+        var det=el('<div style="margin-top:8px"></div>');
+        if(d.goal)det.appendChild(el('<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>'));
+        if(d.outline)det.appendChild(el('<div class="qa"><div class="q">탐구 목차 (서론·본론·결론)</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>'));
+        if(d.detail)det.appendChild(el('<div class="qa"><div class="q">수행 가이드</div><div class="a" style="white-space:pre-wrap">'+esc(d.detail)+'</div></div>'));
+        c.appendChild(det); body.appendChild(c);
+      });
+    }
   }
   function openProfile(container, sid, prev){
     var ov=ovOpen(); var a=(prev&&prev.answers)||{};
@@ -267,19 +302,17 @@
       var row=el('<div class="row"></div>'); var cb=el('<button class="act pri">보고서 · AI 평가 · 회신</button>'); cb.addEventListener('click',function(){ openReview(container, r, names[r.student_id], grades[r.student_id]); });
       row.appendChild(cb); c.appendChild(row); host.appendChild(c);
     });
-    // ③ 인터뷰 없이 컨설턴트 설계로 시작 (학원용/컨설턴트 전용 · 페어런츠앱 제외)
-    if(!window._isB2C){
-      var _profIds={}; profiles.forEach(function(p){ _profIds[p.student_id]=1; });
-      var noIv=(window._students||[]).filter(function(s){ var id=s.id||s.student_id; if(!id||_profIds[id])return false; if(_track && gradeLevel(grades[id])!==_track) return false; return true; });
-      host.appendChild(el('<div class="sect">③ 인터뷰 없이 컨설턴트 설계로 시작</div>'));
-      if(!noIv.length){ host.appendChild(el('<div class="empty">인터뷰 미완료 학생이 없습니다.</div>')); }
-      else noIv.forEach(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name; var gr=s.grade||s.student_grade||'';
-        var c=el('<div class="card"><div class="nm">'+esc(nm||'학생')+(gr?' <span class="tp" style="display:inline">· '+esc(gr)+'</span>':'')+'</div><div class="tp">인터뷰 생략 · 컨설턴트가 설계한 방향으로 AI 탐구주제를 생성해 전달합니다.</div></div>');
-        var row=el('<div class="row"></div>'); var bb=el('<button class="act gd">🧭 컨설턴트 설계 → AI 주제·전달</button>');
-        bb.addEventListener('click',function(){ openBuilderManual(container, {student_id:id, field:(s.interest||s.field||'')}, nm, gr); });
-        row.appendChild(bb); c.appendChild(row); host.appendChild(c);
-      });
-    }
+    // ③ 코스웨어 설계 (교과·창체 · 목적·주제·목차 서론·본론·결론) — 학원·페어런츠 공용
+    var _profMap={}; profiles.forEach(function(p){ _profMap[p.student_id]=p; });
+    host.appendChild(el('<div class="sect">③ 코스웨어 설계 (교과·창체 탐구)</div>'));
+    var _cwList=(window._students||[]).filter(function(s){ var id=s.id||s.student_id; if(!id)return false; if(_track && gradeLevel(grades[id])!==_track) return false; return true; });
+    if(!_cwList.length){ host.appendChild(el('<div class="empty">등록된 학생이 없습니다.</div>')); }
+    else _cwList.forEach(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name; var gr=s.grade||s.student_grade||'';
+      var c=el('<div class="card"><div class="nm">'+esc(nm||'학생')+(gr?' <span class="tp" style="display:inline">· '+esc(gr)+'</span>':'')+(_profMap[id]?' <span class="badge b-sent">인터뷰</span>':'')+'</div><div class="tp">교과/창체 탐구 코스웨어를 설계해 전달합니다. (탐구목적·주제·목차 서론·본론·결론 + 성장 서사 + 학생 간 중복 회피)</div></div>');
+      var row=el('<div class="row"></div>'); var bb=el('<button class="act gd">🧭 코스웨어 설계·전송</button>');
+      bb.addEventListener('click',function(){ openCourseware(container, s, nm, gr, _profMap[id]||null); });
+      row.appendChild(bb); c.appendChild(row); host.appendChild(c);
+    });
   }
   function openInterview(p, name){
     var ov=ovOpen(); var a=p.answers||{}; var h='<div class="acb"><div class="card"><h2 style="margin:0 0 8px">'+esc(name||'학생')+' · 진로 인터뷰</h2>';
@@ -364,6 +397,69 @@
         m.style.color='#137a44'; m.textContent='학생에게 전달했어요 ✅ 학생 화면에 "작성 대기"로 나타납니다.';
         setTimeout(function(){ ov.remove(); remount(container,'staff'); },900);
       }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='전달 실패: '+(e.message||e); }
+    });
+  }
+  // 코스웨어 설계 (옛 엔진) : 교과/창체 · 인터뷰/직접설계 → arche-ai course_lesson → design_items
+  function openCourseware(container, stu, name, grade, profile){
+    var ov=ovOpen(); var lvl=gradeLevel(grade); var sid=stu.id||stu.student_id; var _last=null;
+    var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
+    var subOpts=subjectsFor(grade).map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+    var chOpts=CHANGCHE.map(function(x){return '<option>'+esc(x)+'</option>';}).join('');
+    card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · 코스웨어 설계</h2>'
+      +'<div class="note" style="margin-bottom:8px">출력: <b>탐구목적 · 탐구주제 · 목차(서론·본론·결론)</b> + 성장 서사. '+esc(termLabel(grade))+' 기준 · 같은 학원·학년·진로 학생과 <b>주제 중복 자동 회피</b>'+(profile?' · 학생 인터뷰 자동 반영':'')+'</div>'
+      +'<div class="row" style="gap:6px"><button class="act pri" id="tab-subj">📚 교과형</button><button class="act gh" id="tab-ch">🎨 창체활동</button></div>'
+      +'<div id="pick-subj" style="margin-top:10px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">과목 (선택 또는 직접입력)</div><select id="cw-subj">'+subOpts+'<option value="__custom">+ 직접입력</option></select><input id="cw-subjc" placeholder="과목 직접입력" style="margin-top:6px;display:none"></div>'
+      +'<div id="pick-ch" style="margin-top:10px;display:none"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">창체 영역 (선택 또는 직접입력)</div><select id="cw-ch">'+chOpts+'<option value="__custom">+ 직접입력</option></select><input id="cw-chc" placeholder="동아리/활동명 직접입력" style="margin-top:6px;display:none"></div>'
+      +'<div style="margin-top:10px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">희망 진로·계열</div><input id="cw-field" value="'+esc(stu.career||stu.target_major||(profile&&profile.field)||'')+'" placeholder="예: 데이터·통계 / 생명공학"></div>'
+      +'<div style="margin-top:8px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">컨설턴트/학부모 설계 방향 <span style="font-weight:600;color:#8b95a1">(선택 — 비우면 인터뷰·자료 기반 자동)</span></div><textarea id="cw-design" rows="4" placeholder="예) 회귀·상관 개념으로 지역 미세먼지 공공데이터를 분석 → 정책 제언까지. (비워도 됨)"></textarea></div>'
+      +'<div class="row" style="margin-top:10px"><button class="act gd" id="cw-gen">🤖 코스웨어 설계 생성</button></div><div class="note" id="cw-msg" style="margin-top:4px"></div>'
+      +'<div id="cw-out" style="margin-top:10px"></div>';
+    function setTab(k){ card._kind=k; card.querySelector('#pick-subj').style.display=(k==='subject')?'':'none'; card.querySelector('#pick-ch').style.display=(k==='changche')?'':'none'; card.querySelector('#tab-subj').className='act '+(k==='subject'?'pri':'gh'); card.querySelector('#tab-ch').className='act '+(k==='changche'?'pri':'gh'); }
+    card.querySelector('#tab-subj').addEventListener('click',function(){setTab('subject');});
+    card.querySelector('#tab-ch').addEventListener('click',function(){setTab('changche');});
+    setTab('subject');
+    card.querySelector('#cw-subj').addEventListener('change',function(){ card.querySelector('#cw-subjc').style.display=(this.value==='__custom')?'':'none'; });
+    card.querySelector('#cw-ch').addEventListener('change',function(){ card.querySelector('#cw-chc').style.display=(this.value==='__custom')?'':'none'; });
+    function cwPreview(d){ var outline=Array.isArray(d.outline)?d.outline.join('\n'):(d.outline||'');
+      var h='<div class="rep"><h4>🧭 코스웨어 설계도</h4>';
+      h+='<div class="lb">탐구 주제</div><p>'+esc(d.title||'')+'</p>';
+      h+='<div class="lb">탐구 목적</div><p>'+esc(d.goal||'')+'</p>';
+      if(d.detail)h+='<div class="lb">수행 가이드</div><p style="white-space:pre-wrap">'+esc(d.detail)+'</p>';
+      if(outline)h+='<div class="lb">탐구 목차 (서론·본론·결론)</div><p style="white-space:pre-line">'+esc(outline)+'</p>';
+      if(d.method)h+='<div class="lb">탐구 방법</div><p>'+esc(d.method)+'</p>';
+      if(d.standard)h+='<div class="lb">연계 성취기준·학습요소</div><p>'+esc(d.standard)+'</p>';
+      if(d.output)h+='<div class="lb">산출물</div><p>'+esc(d.output)+'</p>';
+      return h+'</div><div class="row"><button class="act dn" id="cw-send">학생에게 전송</button></div>'; }
+    async function cwSend(){ if(!_last)return; var m=card.querySelector('#cw-msg'); var d=_last.d;
+      var outline=Array.isArray(d.outline)?d.outline.join('\n'):(d.outline||'');
+      var detail=(d.detail||'')+(d.method?'\n[탐구방법] '+d.method:'')+(d.standard?'\n[연계 학습요소] '+d.standard:'')+(d.output?'\n[산출물] '+d.output:'')+(d.link?'\n[연결] '+d.link:'');
+      var row={ student_id:sid, grade:String(grade||''), sem:curSemester()+'학기', subject:(_last.kind==='subject'?_last.name:''), area:_last.area, title:(d.title||_last.name), goal:(d.goal||''), detail:detail, outline:outline, seq:_last.seq, status:'예정', sent:true };
+      m.style.color='#6b7688'; m.textContent='전송 중…';
+      try{ var r=await window.sb.from('design_items').insert(row); if(r&&r.error)throw r.error;
+        try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'stu', kind:'design', title:'코스웨어 설계 도착', body:'새 탐구 코스웨어가 도착했어요.', view:(lvl==='goip'?'gdesign':'sr')}); }catch(_e){}
+        m.style.color='#137a44'; m.textContent='학생에게 전송했어요 ✅';
+        setTimeout(function(){ ov.remove(); remount(container,'staff'); },900);
+      }catch(e){ m.style.color='#c0313d'; m.textContent='전송 실패: '+(e.message||e); } }
+    card.querySelector('#cw-gen').addEventListener('click', async function(){
+      var kind=card._kind||'subject'; var m=card.querySelector('#cw-msg'); var name2, area;
+      if(kind==='subject'){ var sv=card.querySelector('#cw-subj').value; name2=(sv==='__custom')?card.querySelector('#cw-subjc').value.trim():sv; area='과세특'; }
+      else { var cv=card.querySelector('#cw-ch').value; name2=(cv==='__custom')?card.querySelector('#cw-chc').value.trim():cv; area=(name2.indexOf('동아리')>=0?'동아리':(name2.indexOf('진로')>=0?'진로':(name2.indexOf('봉사')>=0?'봉사':(name2.indexOf('독서')>=0?'독서':'자율')))); }
+      if(!name2){ m.style.color='#c0313d'; m.textContent=(kind==='subject'?'과목을':'창체 영역을')+' 선택/입력하세요.'; return; }
+      var fld=card.querySelector('#cw-field').value.trim(); var design=card.querySelector('#cw-design').value.trim();
+      var btn=this; btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>생성 중…'; m.textContent='';
+      try{ var ctxParts=[];
+        if(profile&&profile.answers){ ctxParts.push('[학생 인터뷰]\n'+Object.keys(profile.answers).map(function(k){return k+': '+profile.answers[k];}).join('\n')); }
+        if(design){ ctxParts.push('[컨설턴트/학부모 설계 방향]\n'+design); }
+        var prev=await myDesignItems(sid); var prevTxt=prev.map(function(x){return '· '+(x.subject||x.area||'')+' | '+(x.title||'');}).join('\n');
+        var avoid=await otherDesignTitles(stu);
+        var payload={ kind:(kind==='subject'?'subject':'changche'), name:name2, course:(kind==='subject'?'교과 탐구':'창의적 체험활동'), career:(stu.career||stu.target_major||fld||''), field:fld, target:(lvl==='goip'?(stu.target_school||''):(stu.target_univ||'')), term:termLabel(grade), level:lvl, prev:(prevTxt||'(없음)'), existing:'', context:(ctxParts.join('\n\n')||'(자료 없음 — 진로·과목 기반 설계)'), avoid:avoid };
+        var res=await callArche('course_lesson',payload); var d=JSON.parse(res.text);
+        _last={ d:d, kind:kind, name:name2, area:area, seq:(prev.reduce(function(mx,x){return Math.max(mx,(typeof x.seq==='number'?x.seq:0));},0)+1) };
+        card.querySelector('#cw-out').innerHTML=cwPreview(d);
+        var sb2=card.querySelector('#cw-send'); if(sb2)sb2.addEventListener('click',function(){ cwSend(); });
+        m.style.color='#137a44'; m.textContent='설계 초안이 생성됐어요. 검토 후 전송하세요.';
+      }catch(e){ m.style.color='#c0313d'; m.textContent='생성 실패: '+(e.message||e); }
+      btn.disabled=false; btn.textContent=_t;
     });
   }
   async function openReview(container, r, name, grade){
