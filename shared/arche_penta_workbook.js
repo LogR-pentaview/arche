@@ -506,7 +506,7 @@
       }
       if(t==='video'){
         var links='<div class="vlinks">';
-        if(b.url){ links+='<a class="primary" href="'+esc(b.url)+'" target="_blank" rel="noopener">▶ 영상 보기</a>'; }
+        if(b.url){ links+='<a class="primary" href="'+esc(b.url)+'" target="_blank" rel="noopener">▶ 영상 보기</a>'; if(b.search){ links+='<a class="search" href="'+esc(ytSearch(b.search))+'" target="_blank" rel="noopener">▶ 다른 영상 더 찾기</a>'; } }
         else if(b.search){
           // 영상 찾기 우선순위: ①지식채널e ②유튜브 10분 내외 ③추천순
           links+='<a class="primary" href="'+esc(ytSearch('지식채널e '+b.search))+'" target="_blank" rel="noopener">▶ 지식채널e에서 찾기</a>'
