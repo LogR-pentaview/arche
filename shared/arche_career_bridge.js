@@ -197,13 +197,16 @@
     }
     if(!reports.length && !ditems.length){ body.appendChild(el('<div class="empty">아직 도착한 항목이 없어요. 인터뷰를 제출했다면 곧 설계도가 도착합니다 😊</div>')); }
     if(ditems.length){ body.appendChild(el('<div class="sect">받은 코스웨어 (교과·창체 탐구)</div>'));
-      ditems.forEach(function(d){ var c=el('<div class="card"></div>');
-        c.innerHTML='<div class="nm">'+esc(d.title||d.subject||'탐구 코스웨어')+'</div><div class="tp">'+esc([d.subject,d.area,d.sem].filter(Boolean).join(' · '))+'</div>';
+      ditems.forEach(function(d){ var c=el('<div class="card"></div>'); var done=!!d.submission; var evaled=!!d.feedback;
+        c.innerHTML='<div class="nm">'+esc(d.title||d.subject||'탐구 코스웨어')+'<span class="badge '+(evaled?'b-sent':(done?'b-submitted':'b-assigned'))+'">'+(evaled?'평가 도착':(done?'제출됨':'작성 대기'))+'</span></div><div class="tp">'+esc([d.subject,d.area,d.sem].filter(Boolean).join(' · '))+'</div>';
         var det=el('<div style="margin-top:8px"></div>');
         if(d.goal)det.appendChild(el('<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>'));
         if(d.outline)det.appendChild(el('<div class="qa"><div class="q">탐구 목차 (서론·본론·결론)</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>'));
         if(d.detail)det.appendChild(el('<div class="qa"><div class="q">수행 가이드</div><div class="a" style="white-space:pre-wrap">'+esc(d.detail)+'</div></div>'));
-        c.appendChild(det); body.appendChild(c);
+        c.appendChild(det);
+        var arow=el('<div class="row"></div>'); var ab=el('<button class="act '+((!done)?'pri':'gh')+'">'+(evaled?'📊 평가 보기':(done?'📝 내 제출 보기':'✍️ 작성하기'))+'</button>');
+        ab.addEventListener('click',function(){ if(!done)openCourseWrite(container, sid, d); else openCourseFeedback(sid, d); });
+        arow.appendChild(ab); c.appendChild(arow); body.appendChild(c);
       });
     }
   }
@@ -279,6 +282,71 @@
     (async function(){ try{ var rf=await getReflection(sid, rep.id); var h=rf?reflectionHtml(rf):''; if(h){ var tmp=el('<div>'+h+'</div>'); if(_xb&&_xb.parentNode===card)card.insertBefore(tmp,_xb); else card.appendChild(tmp); } }catch(_e){} })();
   }
 
+  // 코스웨어 학생 작성창 (타이핑DNA 검증 + 사전 회고 → design_items.submission)
+  function openCourseWrite(container, sid, d){
+    var ov=ovOpen();
+    var box=el('<div class="acb"><div class="card"><h2 style="margin:0 0 3px">'+esc(d.title||'탐구 코스웨어')+'</h2><div class="note" style="margin-bottom:6px">설계도(목적·목차)를 참고해 <b>내 생각을 직접</b> 서론·본론·결론으로 작성하세요. 작성 과정(입력 패턴)이 함께 기록돼 <b>본인 작성 검증</b>에 쓰여요.</div></div></div>');
+    var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
+    var g='<div class="guide"><div style="font-size:12px;font-weight:800;color:#1A237E;margin-bottom:4px">🧭 '+esc(d.title||'')+'</div>';
+    if(d.goal)g+='<div class="gq"><b>탐구 목적</b><div class="gh">'+esc(d.goal)+'</div></div>';
+    if(d.outline)g+='<div class="gq"><b>목차(서론·본론·결론)</b><div class="gh" style="white-space:pre-line">'+esc(d.outline)+'</div></div>';
+    if(d.detail)g+='<div class="gq"><b>수행 가이드</b><div class="gh" style="white-space:pre-line">'+esc(d.detail)+'</div></div>';
+    g+='</div>'; card.insertAdjacentHTML('beforeend', g);
+    card.insertAdjacentHTML('beforeend', '<div id="cw-pre" style="margin:10px 0"></div>');
+    var ed=el('<div class="ed" id="cwrite-ed" contenteditable="true" data-ph="목차에 따라 서론·본론·결론으로 내가 조사·생각한 내용을 직접 써보세요"></div>'); card.appendChild(ed);
+    var msg=el('<div class="note" id="cwrite-msg"></div>'); card.appendChild(msg);
+    var row=el('<div class="row"><button class="act pri">📤 저장 후 제출</button></div>'); card.appendChild(row);
+    try{ window._pfCurSub='course'+(d.id||''); }catch(e){}
+    try{ if(window.ArcheIntegrity) ArcheIntegrity.attach(ed); }catch(e){}
+    try{ if(window.ArcheReflection && window.ArcheReflection.renderPre){ window.ArcheReflection.renderPre(card.querySelector('#cw-pre'), {academyId:acadId(), studentId:sid, sourceType:'course', sourceId:d.id, prefill:null}); } }catch(e){}
+    setTimeout(function(){ try{ed.focus();}catch(_){} },80);
+    row.querySelector('button').addEventListener('click', async function(){
+      var t=(ed.innerText||ed.textContent||'').trim();
+      if(t.length<10){ msg.style.color='#c0313d'; msg.textContent='조금 더 작성한 뒤 제출해 주세요.'; return; }
+      if(!confirm('제출할까요? 제출하면 선생님이 평가·코칭을 드려요.'))return;
+      this.disabled=true; msg.style.color='#6b7688'; msg.textContent='제출 중…';
+      try{ if(window.ArcheIntegrity){ await ArcheIntegrity.assessAndSave({ el:ed, studentId:sid, academyId:acadId(), sourceType:'course', sourceId:d.id, finalText:t, save:true }); } }catch(e){}
+      try{ var r=await window.sb.from('design_items').update({submission:t, submitted_at:new Date().toISOString(), status:'제출', updated_at:new Date().toISOString()}).eq('id',d.id).select('id');
+        if(r.error||!(r.data&&r.data.length))throw (r.error||new Error('저장 실패 — 권한/새로고침'));
+        try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'con', kind:'design', title:'코스웨어 제출', body:'학생이 코스웨어 탐구를 제출했어요. 평가·코칭을 진행해 주세요.', view:(gradeLevel(d.grade)==='goip'?'gdesign':'sr')}); }catch(_e){}
+        msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉';
+        setTimeout(function(){ ov.remove(); remount(container,'student'); },700);
+      }catch(e){ this.disabled=false; msg.style.color='#c0313d'; msg.textContent='제출 실패: '+(e.message||e); }
+    });
+  }
+  function openCourseFeedback(sid, d){
+    var ov=ovOpen(); var box=el('<div class="acb"><div class="card"><h2 style="margin:0 0 6px">'+esc(d.title||'탐구 코스웨어')+'</h2></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
+    var fb=null; try{ fb=d.feedback?JSON.parse(d.feedback):null; }catch(e){ fb=null; }
+    if(fb) card.insertAdjacentHTML('beforeend', reportHtml(fb));
+    else if(d.feedback) card.insertAdjacentHTML('beforeend', '<div class="rep"><p>'+esc(d.feedback)+'</p></div>');
+    else card.insertAdjacentHTML('beforeend', '<div class="note">아직 평가가 도착하지 않았어요.</div>');
+    if(d.submission) card.insertAdjacentHTML('beforeend', '<div class="qa"><div class="q">✍️ 내 제출</div><div class="a">'+esc(d.submission)+'</div></div>');
+  }
+  // 코스웨어 제출물 평가(컨설턴트/학부모)
+  async function openCourseReview(container, d, name, grade){
+    var ov=ovOpen(); var lvl=gradeLevel(grade); var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
+    card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · '+esc(d.title||'코스웨어')+'</h2><div class="note" style="margin-bottom:8px">완성 문장을 대신 써주지 마세요. 강점·깊이·다음 방향 중심으로 평가합니다. · 수준: '+(lvl==='dae'?'고등(대입)':'중등(고입)')+'</div>';
+    if(d.goal)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>');
+    if(d.outline)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">목차</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>');
+    card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">✍️ 학생 제출</div><div class="a">'+esc(d.submission||'(없음)')+'</div></div>');
+    card.insertAdjacentHTML('beforeend','<div class="row"><button class="act gd" id="crai">🤖 AI 평가 리포트 생성</button></div><div class="note" id="craimsg" style="margin-top:4px"></div><div id="crrep" style="margin-top:8px"></div>');
+    var repData=null; try{ repData=d.feedback?JSON.parse(d.feedback):null; }catch(e){}
+    if(repData) card.querySelector('#crrep').innerHTML=reportHtml(repData);
+    card.querySelector('#crai').addEventListener('click', async function(){ var btn=this,m=card.querySelector('#craimsg'); btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>AI 평가 중…';
+      try{ var qs=(d.outline?String(d.outline).split('\n').filter(Boolean).map(function(x){return {q:x};}):[]);
+        var cr=await callCoach({ questions:qs, answers:(d.submission||''), field:(d.subject||''), topic:(d.title||''), name:(name||''), grade:(grade||''), level:lvl });
+        repData={note:cr.note,strengths:cr.strengths,depth:cr.depth,questions:cr.questions,next:cr.next,expression:cr.expression};
+        card.querySelector('#crrep').innerHTML=reportHtml(repData); m.style.color='#137a44'; m.textContent='평가를 생성했어요. 확인 후 회신하세요.';
+      }catch(e){ m.style.color='#c0313d'; m.textContent='AI 평가 실패: '+(e.message||e); } btn.disabled=false; btn.textContent=_t;
+    });
+    card.insertAdjacentHTML('beforeend','<div class="row" style="margin-top:12px"><button class="act dn" id="crsend">학생에게 회신(평가 전달)</button></div><div class="note" id="crmsg" style="margin-top:6px"></div>');
+    card.querySelector('#crsend').addEventListener('click', async function(){ var m=card.querySelector('#crmsg'); if(!repData){ m.style.color='#c0313d'; m.textContent='먼저 AI 평가를 생성하세요.'; return; } this.disabled=true; m.style.color='#6b7688'; m.textContent='회신 중…';
+      try{ var r=await window.sb.from('design_items').update({feedback:JSON.stringify(repData), status:'평가완료', updated_at:new Date().toISOString()}).eq('id',d.id).select('id'); if(r.error||!(r.data&&r.data.length))throw (r.error||new Error('저장 실패'));
+        try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:d.student_id, recipient:'stu', kind:'design', title:'코스웨어 평가 도착', body:'선생님이 코스웨어 평가를 보냈어요.', view:(lvl==='goip'?'gdesign':'sr')}); }catch(_e){}
+        m.style.color='#137a44'; m.textContent='학생에게 회신했어요 ✅'; setTimeout(function(){ ov.remove(); remount(container,'staff'); },800);
+      }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='회신 실패: '+(e.message||e); }
+    });
+  }
   // ── 학부모(컨설턴트) ──────────────────────────────────────────────────
   async function renderStaff(container){
     var root=el('<div class="acb"><h2>진로 징검다리 · 자녀 관리</h2><div class="sub">자녀 인터뷰를 보고 <b>AI 설계도 → 검토·수정 → 전달</b>. 제출물엔 <b>AI 평가 리포트 + 타이핑DNA 진정성</b>으로 확인해요. (대필 아님)</div><div id="cb-staff"><div class="empty">불러오는 중…</div></div></div>');
@@ -289,6 +357,8 @@
     if(window._activeStudent){ names[window._activeStudent.id]=window._activeStudent.name; grades[window._activeStudent.id]=window._activeStudent.grade||''; }
     // [정합성] 대입(dae)/고입(goip) 메뉴별로 해당 track 학생만 표시 (학생 학년 기준)
     if(_track){ profiles=profiles.filter(function(p){ return gradeLevel(grades[p.student_id])===_track; }); reports=reports.filter(function(r){ return gradeLevel(grades[r.student_id])===_track; }); }
+    var subCourse=[]; try{ var _sids=(window._students||[]).map(function(s){return s.id||s.student_id;}).filter(Boolean); if(window._activeStudent&&_sids.indexOf(window._activeStudent.id)<0)_sids.push(window._activeStudent.id);
+      if(_sids.length){ var _dq=await window.sb.from('design_items').select('*').in('student_id',_sids).not('submission','is',null); subCourse=(_dq.data||[]).filter(function(d){ return !_track || gradeLevel(grades[d.student_id])===_track; }); } }catch(e){}
     host.innerHTML='';
     host.appendChild(el('<div class="sect">① 인터뷰 완료 — 맞춤 설계도 보내기</div>'));
     if(!profiles.length){ host.appendChild(el('<div class="empty">아직 인터뷰를 완료한 자녀/학생이 없습니다.</div>')); }
@@ -317,6 +387,14 @@
       var row=el('<div class="row"></div>'); var bb=el('<button class="act gd">🧭 코스웨어 설계·전송</button>');
       bb.addEventListener('click',function(){ openCourseware(container, s, nm, gr, _profMap[id]||null); });
       row.appendChild(bb); c.appendChild(row); host.appendChild(c);
+    });
+    // ④ 제출된 코스웨어 — 평가·회신
+    host.appendChild(el('<div class="sect">④ 제출된 코스웨어 — 평가·회신</div>'));
+    if(!subCourse.length){ host.appendChild(el('<div class="empty">아직 제출된 코스웨어가 없습니다.</div>')); }
+    else subCourse.forEach(function(d){ var nm=names[d.student_id]||'학생';
+      var c=el('<div class="card"><div class="nm">'+esc(nm)+'<span class="badge '+(d.feedback?'b-sent':'b-submitted')+'">'+(d.feedback?'평가완료':'제출됨')+'</span></div><div class="tp">'+esc([d.subject,d.area,d.title].filter(Boolean).join(' · '))+'</div></div>');
+      var row=el('<div class="row"></div>'); var b=el('<button class="act pri">제출물 · AI 평가 · 회신</button>'); b.addEventListener('click',function(){ openCourseReview(container, d, nm, grades[d.student_id]); });
+      row.appendChild(b); c.appendChild(row); host.appendChild(c);
     });
   }
   function openInterview(p, name){
