@@ -431,15 +431,6 @@
   #v-essaybatch .eb-reason{font-size:12px;line-height:1.7;color:var(--ink-dim,#8ba99a);margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft,rgba(234,243,238,.06))}
   #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
 </style>
-<script>
-/* [임시 진단] JS 오류(빨강) + 탭 진단(파랑) — 모바일 콘솔 대용 */
-(function(){
-  function bar(id,css){ var d=document.getElementById(id); if(!d){ d=document.createElement('div'); d.id=id; d.style.cssText='position:fixed;left:0;right:0;z-index:2147483647;color:#fff;font:11px/1.45 ui-monospace,monospace;padding:8px 11px;white-space:pre-wrap;'+css; d.addEventListener('click',function(ev){ev.stopPropagation();d.style.display='none';},true); (document.body||document.documentElement).appendChild(d);} return d; }
-  function err(msg){ var d=bar('__errbar','bottom:0;background:#c0313d;max-height:42vh;overflow:auto;box-shadow:0 -4px 14px rgba(0,0,0,.3)'); d.style.display='block'; d.textContent='⚠ 오류: '+msg+'\n(빨간 부분 캡처 · 탭하면 닫힘)'; }
-  window.addEventListener('error',function(e){ err((e.message||'error')+' @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')); });
-  window.addEventListener('unhandledrejection',function(e){ var r=e.reason; err('Promise 거부 — '+((r&&(r.stack||r.message||r))||'알수없음')); });
-})();
-</script>
 </head>
 <body>
 <!-- 수식 입력 모달 (코스웨어 학생 입력창) -->
@@ -2965,7 +2956,7 @@ function applyB2CSidebar(band, mode){
   }
   var host=document.getElementById('b2c-side');
   if(!host){ host=document.createElement('div'); host.id='b2c-side'; var brand=side.querySelector('.brand'); if(brand){ side.insertBefore(host, brand.nextSibling); } else { side.insertBefore(host, side.firstChild); } }
-  Array.prototype.forEach.call(side.children, function(ch){ if(ch===host||ch.classList.contains('brand')||ch.classList.contains('foot')) return; ch.style.display='none'; });
+  Array.prototype.forEach.call(side.children, function(ch){ if(ch===host||ch.classList.contains('brand')||ch.classList.contains('foot')||ch.id==='ver-box') return; ch.style.display='none'; });
   var _visItem = (band==='초') ? ['vision_basic','📘','펜타 비전 기초'] : ['vision_adv','📗','펜타 비전 심화'];
   var penta = [ _visItem, ['track','📙','펜타 트랙'] ];  // 비전(레벨자동)+트랙 · 전 학년(비대상은 체험/미리보기)
   var arche = (band==='고') ? [['sr','🪜','펜타 아르케 · 진로'],['perf','📝','펜타 아르케 · 수행평가']]
