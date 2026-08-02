@@ -1,12 +1,13 @@
-/* ARCHE · 시즌 골라 담기 (Penta Vision Season Picker)
+/* ARCHE · 시즌 골라 담기 (Penta Vision / Track Season Picker)
  * season_picker_mockup.html 마크업/스타일 그대로 + Supabase 실데이터 연동.
  * 의존: window.sb (supabase-js client). 없으면 안내만 렌더.
  * 사용:
  *   ArcheSeasonPicker.mount(el, {
- *     course:'vision', level:'starter'|'architecture', studentId:'<student_id>',
- *     onTrial:function(p){}, onStart:function(p){}, onOpen:function(p){}
+ *     course:'vision'|'track', level:'starter'|'architecture'|'', studentId:'<student_id>',
+ *     onTrial:function(p){}, onStart:function(p){}, onOpen:function(p){},
+ *     onCart:function(p, ref){}   // 🛒 담기. ref='vision:<level>:<season>' | 'track::<season>'
  *   });
- * level 토글(기초/심화)은 내부에서 전환하며 재조회.
+ * level 토글(기초/심화)은 vision에서만 노출·재조회.
  */
 (function(){
   var CSSID='asp-style';
@@ -46,6 +47,9 @@
     ".asp .btn.pri{background:var(--navy);color:#fff}",
     ".asp .btn.ghost{background:#fff;color:var(--blue-deep);border:1.5px solid #cfd9f0}",
     ".asp .btn.owned{background:var(--safe);color:#fff}",
+    ".asp .btn.cart{width:100%;flex:none;margin-top:8px;background:var(--gold-soft);color:var(--warn);border:1.5px solid #e3d9b6}",
+    ".asp .btn.cart:hover{background:#f1e7c6}",
+    ".asp .btn.cart.added{background:var(--safe-soft);color:#137a44;border-color:#a6e6c3}",
     ".asp .sc .trial{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:var(--warn);background:#fff;border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.12)}",
     ".asp .sc .ownedbadge{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:#fff;background:var(--safe);border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.12)}",
     ".asp .foot{text-align:center;font-size:12.5px;color:var(--mute);margin-top:24px;line-height:1.7}",
@@ -66,11 +70,15 @@
     var cta=p.owned
       ? '<button class="btn owned" data-act="open" data-id="'+p.id+'">이어서 학습 →</button>'
       : '<button class="btn ghost" data-act="trial" data-id="'+p.id+'">체험 1강</button><button class="btn pri" data-act="start" data-id="'+p.id+'">이 시즌 시작 →</button>';
+    // 🛒 담기: 미구독 카드에 노출 (vision·track 모두 store_products 등록됨)
+    var cartBtn=(!p.owned)
+      ? '<button class="btn cart" data-act="cart" data-id="'+p.id+'">🛒 장바구니에 담기</button>'
+      : '';
     return '<div class="sc">'+corner
       +'<div class="cap"><span class="sn">시즌 '+esc(p.season)+'</span><div class="ct">'+nl2br(p.caption_title)+'</div><div class="cm">'+esc(p.caption_meta||'')+'</div></div>'
       +'<div class="body"><div class="hl">이런 걸 배워요</div>'+bullets+more
       +'<div class="fu">'+fu+'</div>'
-      +'<div class="cta">'+cta+'</div></div></div>';
+      +'<div class="cta">'+cta+'</div>'+cartBtn+'</div></div>';
   }
 
   function mount(el, opts){
@@ -114,14 +122,22 @@
       });
     });
 
-    // 카드 액션(체험/시작/열기)
+    // 카드 액션(체험/시작/열기/담기)
     grid.addEventListener('click',function(ev){
       var btn=ev.target.closest('button[data-act]'); if(!btn)return;
       var id=+btn.dataset.id, act=btn.dataset.act;
       var p=(el._aspRows||[]).filter(function(r){return r.id===id;})[0]; if(!p)return;
-      if(act==='trial' && opts.onTrial) opts.onTrial(p, state.level);
-      else if(act==='start' && opts.onStart) opts.onStart(p, state.level);
-      else if(act==='open' && opts.onOpen) opts.onOpen(p, state.level);
+      if(act==='trial' && opts.onTrial) opts.onTrial(p);
+      else if(act==='start' && opts.onStart) opts.onStart(p);
+      else if(act==='open' && opts.onOpen) opts.onOpen(p);
+      else if(act==='cart'){
+        var ref=course+':'+(state.level||'')+':'+p.season;
+        if(opts.onCart){
+          try{ opts.onCart(p, ref); }catch(e){}
+          btn.textContent='✓ 담았어요'; btn.classList.add('added');
+          setTimeout(function(){ btn.textContent='🛒 장바구니에 담기'; btn.classList.remove('added'); }, 1600);
+        }
+      }
     });
 
     load();
