@@ -8,7 +8,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="아르케">
-<link rel="manifest" href="/parent/manifest.json">
+<link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIwIiBmaWxsPSIjMTIxNjBmIi8+PHRleHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjMwMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2M4YTI0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=">
 <title>아르케 · 학부모</title>
@@ -458,10 +458,10 @@
 <div id="authgate" style="position:fixed;inset:0;z-index:1000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px">
   <div style="width:100%;max-width:380px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:30px 26px">
     <div style="font-family:'Pretendard Variable',Pretendard;font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
-    <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">펜타 시리즈 · 로그인</div>
+    <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
-      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
-      <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
+      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
+      <button data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
@@ -470,7 +470,7 @@
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-name" type="text" placeholder="이름/학부모명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
@@ -481,13 +481,12 @@
       <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#3182f6);border:1px dashed var(--gold,#3182f6);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
 <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
-        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">본인 이메일로 가입하면 <b>인증 메일</b>이 발송됩니다. 메일의 링크로 인증을 마치면 <b>7일 무료 체험</b>이 시작됩니다.</div>
+        <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생 자료 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
         <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-        <input id="gu-pw" type="password" placeholder="비밀번호 (필수·6자 이상)" autocomplete="new-password" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-        <input id="gu-org" type="text" placeholder="이름/학부모명 (선택)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
+        <input id="gu-org" type="text" placeholder="학원명 (선택)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
         <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:4px;cursor:pointer"><input id="gu-privacy" type="checkbox" style="margin-top:2px">체험 서비스 제공을 위한 개인정보(이메일·입력 데이터) 수집·이용에 동의합니다. 체험 중 업로드한 학생 자료 등 데이터는 체험 만료 시 삭제 요청할 수 있습니다. (필수)</label>
         <label style="display:flex;gap:6px;align-items:flex-start;font-size:11px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input id="gu-mkt" type="checkbox" style="margin-top:2px">도입 안내 등 마케팅 정보 수신에 동의합니다. (선택)</label>
-        <button onclick="guestSignup()" id="gu-btn" style="width:100%;padding:11px;background:var(--gold,#3182f6);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">체험 시작 (이메일 인증)</button>
+        <button onclick="guestSignup()" id="gu-btn" style="width:100%;padding:11px;background:var(--gold,#3182f6);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">체험 계정 발급 & 시작</button>
         <div id="gu-msg" style="min-height:14px;font-size:12px;color:var(--risk);margin-top:6px"></div>
       </div>
     </div>
@@ -1135,7 +1134,7 @@
       <section class="view" id="v-gdesign">
         <div class="eyebrow">GOIP · Career Stepping-Stones · 학생 주도</div>
         <div class="h1">고입 진로 징검다리</div>
-        <div class="sub">자녀가 인터뷰로 스스로 관심·주제를 정하고, 학부모가 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 자녀가 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
+        <div class="sub">학생이 인터뷰로 스스로 관심·주제를 정하고, 컨설턴트는 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 학생이 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
         <div id="career-mount-goip" style="margin-top:16px"></div>
       </section>
 
@@ -1238,7 +1237,7 @@
       <section class="view" id="v-sr">
         <div class="eyebrow">Career Stepping-Stones · 학생 주도</div>
         <div class="h1">진로 징검다리</div>
-        <div class="sub">자녀가 인터뷰로 스스로 관심·주제를 정하고, 학부모가 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 자녀가 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
+        <div class="sub">학생이 인터뷰로 스스로 관심·주제를 정하고, 컨설턴트는 AI 초안을 검토·수정해 맞춤 탐구 워크북을 전달합니다. 학생이 직접 작성·제출하면 질문·코칭으로 다음 탐구를 돕습니다. <b>생활기록부 미연동 · 대필 아님</b>(질문·구조만).</div>
         <div id="career-mount" style="margin-top:16px"></div>
       </section>
 
@@ -1246,13 +1245,13 @@
       <section class="view" id="v-perf">
         <div class="eyebrow">Performance Assessment</div>
         <div class="h1">수행평가 도우미</div>
-        <div class="sub">학교 평가지 → 관점 설계 → 학습가이드 → 작성 · AI 코칭 → 학부모 검토 → 예상등급. 자녀가 스스로 작성하고 학부모가 검토·코칭합니다.</div>
+        <div class="sub">학교 평가지 → 관점 설계 → 학습가이드 → 작성 · AI 코칭 → 컨설턴트 검토 → 예상등급. 컨설턴트·학생 협업으로 진행합니다.</div>
         <div id="perf-root-dae"></div>
       </section>
       <section class="view" id="v-gperf">
         <div class="eyebrow">Performance Assessment · 고입</div>
         <div class="h1">수행평가 도우미</div>
-        <div class="sub">중학교 수행평가를 관점 설계부터 예상등급까지 단계별로. 자녀가 스스로 작성하고 학부모가 검토·코칭합니다.</div>
+        <div class="sub">중학교 수행평가를 관점 설계부터 예상등급까지 단계별로. 컨설턴트·학생 협업으로 진행합니다.</div>
         <div id="perf-root-goip"></div>
       </section>
 
@@ -2058,17 +2057,20 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_writing_diff.js"></script>
 <script src="/shared/arche_integrity.js"></script>
 <script src="/shared/arche_reflection.js"></script>
-<script src="/shared/arche_report_typingdna.js"></script><script src="/shared/arche_penta_workbook.js?v=29"></script>
-<script src="/shared/arche_soke_chat.js?v=3"></script>
-<script src="/shared/arche_penta_report.js?v=3"></script>
-<script src="/shared/arche_penta_app.js?v=3"></script>
-<script src="/shared/arche_penta_period.js?v=4"></script>
-<script src="/shared/arche_kg_billing.js?v=2"></script>
+<script src="/shared/arche_report_typingdna.js"></script>
+<script src="/shared/arche_report_selfcompare.js"></script>
+<script src="/shared/arche_penta_workbook.js?v=27"></script>
+<script src="/shared/arche_soke_chat.js?v=1"></script>
+<script src="/shared/arche_penta_report.js"></script>
+<script src="/shared/arche_penta_app.js"></script>
+<script src="/shared/arche_penta_period.js?v=2"></script>
+<script src="/shared/arche_kg_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=5"></script>
-<script src="/shared/arche_b2c.js?v=4"></script>
-<script src="/shared/arche_b2c_dash.js?v=22"></script>
-<script src="/shared/arche_career_bridge.js?v=19"></script>
+<script src="/shared/arche_cart.js?v=1"></script>
+<script src="/shared/arche_b2c.js?v=3"></script>
+<script src="/shared/arche_b2c_dash.js?v=5"></script>
+<script src="/shared/arche_career_bridge.js?v=2"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2132,7 +2134,7 @@ window.toggleMobileNav=toggleMobileNav;
 function careerMount(which){
   var id=(which==='goip')?'career-mount-goip':'career-mount';
   var m=document.getElementById(id);
-  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m, null, (which==='goip'?'goip':'dae')); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
+  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
 }
 window.careerMount=careerMount;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
@@ -2278,11 +2280,7 @@ async function ensureAcademy(user){
     || (user.user_metadata&&user.user_metadata.academy_name)
     || (user.email.split('@')[0]+' 학원');
   var acctype=(user.user_metadata&&user.user_metadata.account_type)||'b2b';
-  var _isTrial=!!(user.user_metadata&&user.user_metadata.is_trial);
-  if(_isTrial) acctype='b2c';   // [보안] 체험 계정은 무조건 b2c(학부모)
-  var _acRow={name:nm,owner_uid:user.id,account_type:acctype};
-  if(_isTrial){ _acRow.is_demo=true; _acRow.approved=true; _acRow.demo_expires_at=new Date(Date.now()+7*24*3600*1000).toISOString(); _acRow.demo_credits={parse_record:3,estimate_cog:1,recommend_univ:1,research_topics:1,curri_check:1,course_roadmap:1,design_record:2,analyze_activity:1,report_comment:1,interview_prep:1,interview_feedback:3,golden_sentences:1,career_match:1,monthly_brief:1,eval_essay:0}; }
-  const {data:ins,error}=await sb.from('academies').insert(_acRow).select('id,name,account_type').single();
+  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id,account_type:acctype}).select('id,name,account_type').single();
   if(error){console.error('[academy]',error);return null;}
   window._isOwner=true; window._myRole='owner';
   try{ await sb.from('academy_users').insert({academy_id:ins.id,uid:user.id,email:user.email,role:'owner'}); }catch(e){}
@@ -2356,14 +2354,14 @@ function setLoginRole(r){
   var desc=document.getElementById('login-role-desc');
   if(desc){
     desc.textContent = con?'학원·교습소 · 팀 운영 가능':
-      parent?'개인 학부모 · 자녀 직접 관리 (월 12,900원~)':
+      parent?'개인 학부모 · 자녀 직접 관리 (월 15만~)':
       stu?'학원/학부모가 발급한 학생 계정':
       '플랫폼 관리자 전용';
   }
   var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
 }
-// 초기 진입 시 기본(학부모) 안내 표시
-try{ if(document.getElementById('login-role-desc')) setLoginRole('parent'); }catch(e){}
+// 초기 진입 시 기본(학원) 안내 표시
+try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(e){}
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 /* ===== 개인정보/이용 동의 게이트 ===== */
@@ -2479,7 +2477,7 @@ async function enterApp(session){
   if(window._demo && window._demo.expires && new Date(window._demo.expires)<new Date()){
     await sb.auth.signOut();
     gate.style.display='flex';
-    return msg('체험 기간(7일)이 만료되었습니다. 구독하시면 계속 이용할 수 있어요.');
+    return msg('체험 기간(7일)이 만료되었습니다. 도입 문의: penta-view.com');
   }
   if(!isAdmin && approved===false){
     await sb.auth.signOut();
@@ -2514,21 +2512,20 @@ function toggleGuestForm(){var f=document.getElementById('guest-form');if(f)f.st
 async function guestSignup(){
   var m=document.getElementById('gu-msg'), btn=document.getElementById('gu-btn');
   var email=(document.getElementById('gu-email').value||'').trim();
-  var pw=(document.getElementById('gu-pw')&&document.getElementById('gu-pw').value||'').trim();
-  if(!email||email.indexOf('@')<1){m.style.color='var(--risk)';m.textContent='이메일을 입력하세요.';return;}
-  if(pw.length<6){m.style.color='var(--risk)';m.textContent='비밀번호를 6자 이상 입력하세요.';return;}
-  if(!document.getElementById('gu-privacy').checked){m.style.color='var(--risk)';m.textContent='개인정보 수집·이용 동의(필수)가 필요합니다.';return;}
-  btn.disabled=true;btn.textContent='가입 중…';m.style.color='var(--ink-mute)';m.textContent='';
+  if(!email||email.indexOf('@')<1){m.textContent='이메일을 입력하세요.';return;}
+  if(!document.getElementById('gu-privacy').checked){m.textContent='개인정보 수집·이용 동의(필수)가 필요합니다.';return;}
+  btn.disabled=true;btn.textContent='발급 중…';m.style.color='var(--ink-mute)';m.textContent='';
   try{
-    /* [보안] 본인 이메일 인증 가입만 허용 — b2c 체험 계정. 인증 메일 확인 후 로그인해야 활성. */
-    var org=(document.getElementById('gu-org').value||'').trim();
-    var {data,error}=await sb.auth.signUp({email:email,password:pw,options:{data:{account_type:'b2c',academy_name:org||null,is_trial:true,consent_marketing:!!(document.getElementById('gu-mkt')&&document.getElementById('gu-mkt').checked)},emailRedirectTo:location.origin+'/parent'}});
-    if(error){m.style.color='var(--risk)';m.textContent=(/registered|already/i.test(error.message)?'이미 가입된 이메일입니다. 로그인해 주세요.':error.message);btn.disabled=false;btn.textContent='체험 시작 (이메일 인증)';return;}
-    if(data&&data.session){ /* 이메일 확인 비활성 환경 — 바로 진입 */ location.replace('/parent'); return; }
-    m.style.color='var(--safe)';
-    m.innerHTML='✅ <b>'+esc(email)+'</b>로 인증 메일을 보냈습니다.<br>메일의 링크를 클릭해 이메일을 인증한 뒤 로그인하면 7일 무료 체험이 시작됩니다.<br><span style="color:var(--gold,#3182f6);font-size:11px">⚠️ 메일이 안 보이면 <b>스팸함·프로모션함</b>을 확인하세요. (해외 서버 발송)</span>';
-    btn.disabled=false;btn.textContent='체험 시작 (이메일 인증)';
-  }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 시작 (이메일 인증)';}
+    var r=await fetch(SB_URL+'/functions/v1/guest-api',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'self_signup',email:email,org_name:(document.getElementById('gu-org').value||'').trim(),consent_privacy:true,consent_marketing:document.getElementById('gu-mkt').checked})});
+    var d=await r.json();
+    if(!r.ok||d.error){m.style.color='var(--risk)';m.textContent=d.error||'발급 실패';btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
+    alert('체험 계정이 발급되었습니다.\n\n아이디: '+d.login_id+'\n비밀번호: '+d.password+'\n유효기간: '+(d.expires_at||'').slice(0,10)+'까지\n\n※ 이 정보를 꼭 메모해 두세요. 지금 바로 로그인합니다.');
+    var {data:sd,error:se}=await sb.auth.signInWithPassword({email:d.auth_email,password:d.password});
+    if(se){m.style.color='var(--risk)';m.textContent='자동 로그인 실패: '+se.message;btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
+    /* [b2c 전용 운영] 체험 계정을 b2c로 전환하고 무조건 학부모(parent) 앱으로 진입 */
+    try{ await sb.from('academies').update({account_type:'b2c'}).eq('owner_uid', sd.session.user.id); }catch(_e){}
+    location.replace('/parent');
+  }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';}
 }
 function setupDemoMode(){
   document.body.classList.add('demo-mode');
@@ -2553,13 +2550,11 @@ function updateDemoBanner(){
   var left=Object.keys(DEMO_TASK_LABEL).filter(function(k){return (c[k]||0)>0;}).map(function(k){return DEMO_TASK_LABEL[k]+' '+c[k]+'회';});
   b.innerHTML='<b>🎫 체험 모드</b><b style="color:#1b64da">크레딧 '+remain+'/'+total+' 남음'+(used?' ('+used+' 사용)':'')+'</b><span title="'+left.join(' · ')+'">'+(left.length?('세부: '+left.join(' · ')):'체험 크레딧을 모두 사용했습니다')+'</span>'+
     '<span style="color:#a08429">'+(window._demo.expires?('~'+window._demo.expires.slice(0,10)):'')+'</span>'+
-    '<a onclick="try{goView(\'billing\')}catch(e){}" style="margin-left:auto;background:var(--gold,#3182f6);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700;cursor:pointer">구독하고 계속 →</a>';
+    '<a href="mailto:gwkim06@gmail.com?subject=아르케 도입 문의" style="margin-left:auto;background:var(--gold,#3182f6);color:#fff;padding:5px 14px;border-radius:7px;text-decoration:none;font-weight:700">도입 문의 →</a>';
 }
 /* ═══ 학부모 뷰어 대시보드 (자녀 상황 열람 · 수강 게이팅 · 샘플 유도) ═══ */
 async function enterParentViewer(session){
   try{ gate.style.display='none'; }catch(e){}
-  // [법정대리인 동의] 미성년 자녀 데이터 열람 전 약관·개인정보 동의 필수
-  if(!(await ensureConsent(session.user,'parent'))) return;
   document.body.classList.add('parent-viewer');
   window._role='parent'; window.__PENTA_ROLE='parent';
   var uid=session.user.id; window._myUid=uid;
@@ -2615,7 +2610,7 @@ function pvMountMenuEngine(root, stu){
     onSeasonTrial: openPenta
   });
 }
-function sbSignOutReload(){ try{ var p=sb.auth.signOut(); if(p&&p.then)p.then(function(){ location.replace('/login'); }); }catch(e){} setTimeout(function(){ location.replace('/login'); }, 200); }
+function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/login'); }); }catch(e){ location.replace('/login'); } }
 window.sbSignOutReload=sbSignOutReload;
 
 function pvInjectCss(){
@@ -2752,16 +2747,12 @@ window.enterParentViewer=enterParentViewer;
 
 // ── B2C 학부모(메인 앱) 홈 = 학부모 대시보드 ──
 function b2cBand(g){ g=String(g||''); if(g.indexOf('중')>=0)return '중'; if(g.indexOf('초')>=0)return '초'; return '고'; }
-function b2cOpenChildPenta(child, key, p){
+function b2cOpenChildPenta(child, key){
   try{ window._activeStudent=child; }catch(e){}
-  var season = (p && p.season!=null) ? p.season : null;   // 시즌 피커에서 고른 시즌(없으면 전체)
-  var course = ({vision_basic:'vision_basic',vision_adv:'vision_adv',track:'track'})[key] || 'vision_basic';
   var band=b2cBand(child&&child.grade);
   var idx = (key==='vision_basic')?0 : (key==='track')?2 : (key==='vision_adv')?1 : (band==='초'?0:1);
   var navs=document.querySelectorAll('#grp-penta .nav');
-  var navEl=navs[idx]||navs[0];
-  if(navEl && window.go){ try{ go(navEl); }catch(e){} }   // 펜타 뷰로 전환(인라인 mount는 실행 안 됨)
-  if(window.ArchePentaApp){ try{ ArchePentaApp.mount(document.getElementById('penta-mount'), {course:course, season:season}); }catch(e){} }
+  if(navs[idx]) navs[idx].click(); else if(navs[0]) navs[0].click();
 }
 /* [샘플 리포트] "샘플 리포트/미리보기" 클릭 시 실제 도구로 이동하던 버그 → 진짜 샘플 오버레이 표시 */
 /* [상품 대상 학년 라벨] 비대상 학년 안내·체험용 */
@@ -2782,13 +2773,10 @@ function b2cShowSample(sec, key){
 }
 window.b2cShowSample=b2cShowSample;
 /* [홈 복귀] b2c 파생 뷰(시즌폴더·가이드)에서 대시보드로 돌아가기 — 학부모/자녀 공용 */
-/* v-home 뷰를 화면에 활성화(다른 메뉴 사용 후에도 홈 컨테이너가 보이도록) */
-function b2cActivateHome(){ try{ document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on');}); var vh=document.getElementById('v-home'); if(vh)vh.classList.add('on'); document.querySelectorAll('.nav').forEach(function(n){n.classList.remove('on');}); var hn=document.querySelector('.nav[data-v="home"]'); if(hn)hn.classList.add('on'); var cb=document.getElementById('crumb'); if(cb&&window.crumbMap)cb.textContent=(crumbMap.home||'홈'); window.scrollTo(0,0); }catch(e){} }
-window.b2cActivateHome=b2cActivateHome;
-function b2cGoHome(){ if(window._isB2C && window.renderB2CParentHome){ b2cActivateHome(); renderB2CParentHome(); } else if(window.renderStudentHome){ renderStudentHome(); } }
+function b2cGoHome(){ if(window._isB2C && window.renderB2CParentHome){ renderB2CParentHome(); } else if(window.renderStudentHome){ renderStudentHome(); } }
 window.b2cGoHome=b2cGoHome;
 /* [시즌 폴더 뷰] 펜타 코스 클릭 → 시즌(폴더) 명함 목록(ArcheSeasonPicker). 폴더에서 시작하면 워크북으로 진입 */
-function b2cOpenSeasonPicker(child, key){ b2cActivateHome();
+function b2cOpenSeasonPicker(child, key){
   try{ window._activeStudent=child; }catch(e){}
   var map={ vision_basic:['vision','starter','펜타 비전 기초'], vision_adv:['vision','architecture','펜타 비전 심화'], track:['track','','펜타 트랙'] };
   var m=map[key]; if(!m){ b2cOpenChildPenta(child,key); return; }
@@ -2798,12 +2786,11 @@ function b2cOpenSeasonPicker(child, key){ b2cActivateHome();
     +'<div id="b2c-season-host"></div></div>';
   var host=document.getElementById('b2c-season-host');
   if(window.ArcheSeasonPicker && host){
-    // 선택한 레벨(기초/심화)대로 미리보기·열기 — 등록 코스와 무관 (형 위한 심화 미리보기, 1강 무료)
-    function keyFor(lv){ if(key==='track')return 'track'; return lv==='architecture'?'vision_adv':(lv==='starter'?'vision_basic':key); }
     ArcheSeasonPicker.mount(host,{ course:m[0], level:m[1], studentId:(child&&child.id),
-      onOpen:function(p,lv){ b2cOpenChildPenta(child,keyFor(lv),p); },
-      onTrial:function(p,lv){ b2cOpenChildPenta(child,keyFor(lv),p); },
-      onStart:function(p,lv){ b2cOpenChildPenta(child,keyFor(lv),p); } });
+      onOpen:function(){ b2cOpenChildPenta(child,key); },
+      onTrial:function(){ b2cOpenChildPenta(child,key); },
+      onStart:function(){ b2cOpenChildPenta(child,key); },
+      onCart:function(p, ref){ if(window.b2cAddToCart) b2cAddToCart(ref); } });
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
 }
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
@@ -2813,7 +2800,7 @@ function b2cPeriodCourses(grade){
   if(/중/.test(g)) return [['vision','architecture','펜타 비전 심화'],['track','','펜타 트랙']];
   return [];
 }
-function b2cOpenPeriodReport(child, presetStage){ b2cActivateHome();
+function b2cOpenPeriodReport(child, presetStage){
   try{ if(child) window._activeStudent=child; }catch(e){}
   child = child || window._activeStudent;
   var v=document.getElementById('v-home'); if(!v) return;
@@ -2849,7 +2836,7 @@ function b2cOpenPeriodReport(child, presetStage){ b2cActivateHome();
 }
 window.b2cOpenPeriodReport=b2cOpenPeriodReport;
 /* [정기 리포트 열람] 자녀(학생) 계정 — 발행된 정기 리포트만 목록·열람 */
-function b2cOpenPeriodViewer(){ b2cActivateHome();
+function b2cOpenPeriodViewer(){
   var v=document.getElementById('v-home'); if(!v) return;
   if(!window.ArchePentaPeriod){ alert('정기 리포트 모듈이 로드되지 않았습니다.'); return; }
   var stu=window._activeStudent||{};
@@ -2861,7 +2848,7 @@ function b2cOpenPeriodViewer(){ b2cActivateHome();
 }
 window.b2cOpenPeriodViewer=b2cOpenPeriodViewer;
 /* [사용 안내] 아르케 사용법 / 융합사고(펜타) 사용법 — 기능별 단계 안내 */
-function b2cOpenGuide(){ b2cActivateHome();
+function b2cOpenGuide(){
   var v=document.getElementById('v-home'); if(!v) return;
   function feat(ic,title,desc,steps){
     return '<div style="background:#fff;border:1px solid #eef1f4;border-radius:14px;padding:16px 18px;margin-bottom:12px">'
@@ -2889,6 +2876,55 @@ function b2cOpenGuide(){ b2cActivateHome();
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenGuide=b2cOpenGuide;
+/* ===================== [B2C 장바구니] 상품 담기 · 카트 (arche_cart.js 연동) ===================== */
+function b2cCartBadge(){ if(!window.ArcheCart)return; try{ ArcheCart.count().then(function(n){ var el=document.getElementById('b2c-cart-badge'); if(el) el.textContent=(n>0)?('('+n+')'):''; }); }catch(e){} }
+window.b2cCartBadge=b2cCartBadge;
+var _b2cBackBtn='<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:14px">← 대시보드로</button>';
+function b2cAddToCart(ref, qty){
+  var s=window._activeStudent;
+  if(!s||!s.id){ alert('먼저 홈에서 자녀를 선택/등록해 주세요.'); return; }
+  if(!window.ArcheCart){ alert('장바구니 모듈(/shared/arche_cart.js)이 로드되지 않았습니다. shared 폴더·스크립트 경로를 확인하세요.'); return; }
+  ArcheCart.addByRef(s.id, ref, qty||1).then(function(){ b2cCartBadge(); var t=document.getElementById('b2c-store-msg'); if(t){ t.textContent='✅ 장바구니에 담았어요.'; setTimeout(function(){ if(t)t.textContent=''; },1800); } })
+    .catch(function(e){ alert('담기 실패: '+((e&&e.message)||e)); });
+}
+window.b2cAddToCart=b2cAddToCart;
+function b2cOpenStore(){
+  var v=document.getElementById('v-home'); if(!v) return;
+  var s=window._activeStudent||{};
+  v.innerHTML='<div style="max-width:820px;margin:0 auto;padding:16px 14px 60px">'+_b2cBackBtn
+    +'<div style="font-size:21px;font-weight:800;margin:2px 2px 2px">상품 담기</div>'
+    +'<div style="font-size:13px;color:#8b95a1;margin:4px 2px 12px">'+(s.name?('<b>'+esc(s.name)+'</b> 자녀'):'현재 자녀')+' 기준으로 담깁니다. 담은 뒤 <b>🛒 장바구니</b>에서 결제하세요.</div>'
+    +'<div id="b2c-store-msg" style="font-size:12.5px;color:#12b76a;height:16px;margin-bottom:6px"></div>'
+    +'<div id="b2c-store-list" style="color:#8b95a1">불러오는 중…</div></div>';
+  var list=document.getElementById('b2c-store-list');
+  if(!window.ArcheCart){ list.innerHTML='<div style="color:#8b95a1">장바구니 모듈 미로드 — /shared/arche_cart.js 업로드·경로를 확인하세요.</div>'; return; }
+  ArcheCart.products().then(function(ps){
+    function won(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; }
+    function card(p){ var price=(p.price>0)?won(p.price):'가격 준비중';
+      return '<div style="display:flex;align-items:center;gap:10px;border:1px solid #eef1f4;border-radius:12px;padding:11px 13px;margin-bottom:8px;background:#fff">'
+       +'<div><div style="font-weight:700;font-size:14px">'+esc(p.title)+'</div>'+(p.subtitle?'<div style="font-size:11.5px;color:#8b95a1;margin-top:2px">'+esc(p.subtitle)+'</div>':'')+'</div>'
+       +'<div style="margin-left:auto;font-weight:800;font-size:13px;white-space:nowrap;color:#141a29">'+price+'</div>'
+       +'<button onclick="b2cAddToCart(\''+esc(p.ref)+'\')" style="border:0;background:#141a29;color:#fff;border-radius:9px;padding:8px 12px;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap">담기</button></div>'; }
+    function grp(t, arr){ return arr.length?('<div style="font-size:12px;font-weight:800;color:#6b7688;margin:16px 2px 8px">'+t+'</div>'+arr.map(card).join('')):''; }
+    var tiers=ps.filter(function(p){return p.kind==='tier';});
+    var passes=ps.filter(function(p){return p.kind==='pass';});
+    var seasons=ps.filter(function(p){return p.kind==='season';});
+    list.innerHTML=(grp('구독 (올인원)',tiers)+grp('이용권',passes)+grp('시즌 개별',seasons))||'<div style="color:#8b95a1">판매 중인 상품이 없습니다.</div>';
+  }).catch(function(e){ list.innerHTML='<div style="color:#f04452">상품을 불러오지 못했어요: '+esc((e&&e.message)||e)+'</div>'; });
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.b2cOpenStore=b2cOpenStore;
+function b2cOpenCart(){
+  var v=document.getElementById('v-home'); if(!v) return;
+  v.innerHTML='<div style="max-width:560px;margin:0 auto;padding:16px 14px 60px">'+_b2cBackBtn
+    +'<div id="b2c-cart-host"></div>'
+    +'<div style="text-align:center;margin-top:12px"><button onclick="b2cOpenStore()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer">+ 상품 더 담기</button></div></div>';
+  var host=document.getElementById('b2c-cart-host');
+  if(!window.ArcheCart){ host.innerHTML='<div style="color:#8b95a1;text-align:center;padding:34px">장바구니 모듈 미로드 — /shared/arche_cart.js 업로드·경로를 확인하세요.</div>'; return; }
+  ArcheCart.mount('b2c-cart-host', { onChange:function(){ b2cCartBadge(); }, onNeedCard:function(){ alert('결제 카드를 먼저 등록해 주세요.'); goView('billing'); } });
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.b2cOpenCart=b2cOpenCart;
 // 아코디언 토글(인라인 max-height로 확실히 펼침/접힘)
 function b2cToggleGrp(id){ var g=document.getElementById(id); if(!g)return; var sub=g.querySelector('.navsub'); var open=g.classList.toggle('open'); if(sub){ sub.style.setProperty('max-height', open?'820px':'0px','important'); } }
 window.b2cToggleGrp=b2cToggleGrp;
@@ -2909,10 +2945,6 @@ function applyB2CSidebar(band, mode){
   var host=document.getElementById('b2c-side');
   if(!host){ host=document.createElement('div'); host.id='b2c-side'; var brand=side.querySelector('.brand'); if(brand){ side.insertBefore(host, brand.nextSibling); } else { side.insertBefore(host, side.firstChild); } }
   Array.prototype.forEach.call(side.children, function(ch){ if(ch===host||ch.classList.contains('brand')||ch.classList.contains('foot')) return; ch.style.display='none'; });
-  // [B2C 브랜딩] 학원/컨설팅 잔재 문구 정리 — 브랜드 태그·상단 크럼·컨설턴트/학생 토글
-  try{ var _bt=side.querySelector('.brand .tag'); if(_bt)_bt.textContent='PentaView · 펜타 시리즈'; }catch(e){}
-  try{ var _cr=document.getElementById('topbar-crumbs'); if(_cr&&_cr.firstChild&&_cr.firstChild.nodeType===3)_cr.firstChild.nodeValue='펜타 · '; }catch(e){}
-  try{ var _rt=document.getElementById('topbar-roletoggle'); if(_rt)_rt.style.display='none'; }catch(e){}
   var _visItem = (band==='초') ? ['vision_basic','📘','펜타 비전 기초'] : ['vision_adv','📗','펜타 비전 심화'];
   var penta = [ _visItem, ['track','📙','펜타 트랙'] ];  // 비전(레벨자동)+트랙 · 전 학년(비대상은 체험/미리보기)
   var arche = (band==='고') ? [['sr','🪜','펜타 아르케 · 진로'],['perf','📝','펜타 아르케 · 수행평가']]
@@ -2940,6 +2972,8 @@ function applyB2CSidebar(band, mode){
     +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>';
   if(mode==='parent'){
     h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
+    h+='<div class="nav" onclick="b2cOpenStore()">'+emo('🛍️')+' 상품 담기</div>';
+    h+='<div class="nav" onclick="b2cOpenCart()">'+emo('🛒')+' 장바구니 <span id="b2c-cart-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
     h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
     h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
   } else {
@@ -2980,11 +3014,6 @@ function b2cRenderSettings(){
       +'<div class="sectionhead"><span class="idx">👧</span><h3>자녀 비밀번호 변경</h3></div>'
       +'<div style="font-size:12.5px;color:var(--ink-dim);margin:6px 0 12px">자녀 로그인 비밀번호를 초기 비밀번호(0000)로 재설정합니다. 자녀는 다음 로그인 후 새 비밀번호로 바꾸게 됩니다.</div>'
       +'<button onclick="b2cResetChildPw()" style="background:var(--gold);color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit">자녀 비밀번호 초기화</button>'
-    +'</div>'
-    +'<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
-      +'<div class="sectionhead"><span class="idx">🚪</span><h3>로그아웃</h3></div>'
-      +'<div style="font-size:12.5px;color:var(--ink-dim);margin:6px 0 12px">현재 학부모 계정에서 로그아웃합니다.</div>'
-      +'<button onclick="sbSignOutReload()" style="background:#4e5968;color:#fff;border:none;border-radius:9px;padding:11px 18px;font-weight:700;cursor:pointer;font-family:inherit">로그아웃</button>'
     +'</div>';
   v.appendChild(panel);
 }
@@ -2993,13 +3022,11 @@ function b2cResetChildPw(){ var c=window._activeStudent; if(!c||!c.id)return ale
 window.b2cChangeParentPw=b2cChangeParentPw; window.b2cResetChildPw=b2cResetChildPw; window.b2cRelabelText=b2cRelabelText; window.b2cRenderSettings=b2cRenderSettings;
 async function renderB2CParentHome(){
   if(!window._isB2C || !window.ArcheParentDash) return;
-  try{ if(window.ArcheKGBilling&&ArcheKGBilling.primeTier)ArcheKGBilling.primeTier(); }catch(e){}
   var v=document.getElementById('v-home'); if(!v) return;
-  // [다자녀] 자녀 전체 로드 후 활성 자녀 결정
-  var kids=[]; try{ var kr=await sb.from('students').select('*').order('created_at',{ascending:true}); if(kr&&kr.data)kids=kr.data; }catch(e){}
-  window._children=kids;
   var child=window._activeStudent;
-  if(!child || !kids.some(function(k){return k.id===child.id;})){ child=kids[0]||child; if(child)window._activeStudent=child; }
+  if(!child){
+    try{ var r=await sb.from('students').select('*').order('created_at',{ascending:true}).limit(1); if(r&&r.data&&r.data[0]){ child=r.data[0]; window._activeStudent=child; } }catch(e){}
+  }
   if(!child) return; // 등록된 자녀 없으면 기존 홈(등록 안내) 유지
   try{ applyB2CSidebar(b2cBand(child.grade)); }catch(e){}
   ArcheParentDash.mount(v, {
@@ -3022,15 +3049,6 @@ async function renderB2CParentHome(){
   });
   /* [사용 안내] 학부모 홈 상단에 사용안내 배너 삽입 */
   try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cOpenGuide()'); _bn.innerHTML='<span style="font-size:22px">📖</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 사용 안내 보기</div><div style="font-size:12px;color:#6b7688">아르케·펜타 각 기능 사용법을 한눈에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
-  /* [다자녀] 자녀가 2명 이상이면 상단에 자녀 전환 칩 표시 */
-  try{ var _sec2=v.querySelector('.b2cd-view'); var _old=document.getElementById('b2c-child-switch'); if(_old)_old.remove();
-    if(_sec2 && (window._children||[]).length>1){
-      var sw=document.createElement('div'); sw.id='b2c-child-switch'; sw.style.cssText='display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:10px';
-      sw.appendChild((function(){var l=document.createElement('span');l.textContent='자녀 전환';l.style.cssText='font-size:11.5px;color:#8b95a1;font-weight:700;margin-right:2px';return l;})());
-      window._children.forEach(function(k){ var on=(child&&k.id===child.id); var b=document.createElement('button'); b.textContent=(k.name||'자녀')+(k.grade?(' · '+k.grade):''); b.style.cssText='font:inherit;font-size:12.5px;font-weight:700;padding:6px 13px;border-radius:20px;cursor:pointer;border:1px solid '+(on?'#1b64da':'#dbe4fb')+';background:'+(on?'#1b64da':'#fff')+';color:'+(on?'#fff':'#4e5968'); b.onclick=function(){ if(child&&k.id===child.id)return; window._activeStudent=k; try{ if(window.syncTopbarPicker)syncTopbarPicker('home'); }catch(_e){} renderB2CParentHome(); }; sw.appendChild(b); });
-      _sec2.insertBefore(sw, _sec2.firstChild);
-    }
-  }catch(e){}
 }
 window.renderB2CParentHome=renderB2CParentHome;
 
@@ -3246,7 +3264,7 @@ if(sb) sb.auth.onAuthStateChange(function(event,session){
     alert('다른 탭에서 다른 계정으로 로그인되어 이 창의 세션이 변경되었습니다.\n\n같은 브라우저에서는 한 계정만 유지됩니다. 여러 역할(관리자·컨설턴트·학생)을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.\n\n확인을 누르면 새 계정으로 새로고침합니다.');
     location.reload(); return;
   }
-  if(event==='SIGNED_OUT'){ var _was=window._sessionUid; window._sessionUid=null; if(_was){ try{ location.replace('/login'); }catch(e){} } return; }  // 세션 만료·로그아웃 시 로그인 화면으로
+  if(event==='SIGNED_OUT'){ window._sessionUid=null; }
   if(newUid)window._sessionUid=newUid;
 });
 
@@ -3296,13 +3314,13 @@ function renderHomeKPI(){
 }
 async function loadIVStatus(ids){
   window._stuIV=window._stuIV||{};
-  try{ if(ids&&ids.length){ var iv=await sb.from('career_profile').select('student_id').in('student_id',ids); window._stuIV={}; (iv.data||[]).forEach(function(r){window._stuIV[r.student_id]=(window._stuIV[r.student_id]||0)+1;}); } }catch(e){}
+  try{ if(ids&&ids.length){ var iv=await sb.from('student_setech').select('student_id').eq('source','interview').in('student_id',ids); window._stuIV={}; (iv.data||[]).forEach(function(r){window._stuIV[r.student_id]=(window._stuIV[r.student_id]||0)+1;}); } }catch(e){}
 }
 window.loadIVStatus=loadIVStatus;
 function ivBadgeHtml(id){
   var n=(window._stuIV||{})[id]||0;
-  return n? '<span title="진로 징검다리 인터뷰 작성 완료" style="font-size:10px;color:var(--safe,#12b76a);border:1px solid var(--safe,#12b76a);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 완료</span>'
-          : '<span title="아직 진로 징검다리 인터뷰 미작성" style="font-size:10px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 미작성</span>';
+  return n? '<span title="상담 전 인터뷰 제출됨" style="font-size:10px;color:var(--safe,#12b76a);border:1px solid var(--safe,#12b76a);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 '+n+'</span>'
+          : '<span title="아직 인터뷰 미작성" style="font-size:10px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:9px;padding:1px 7px;margin-left:6px">인터뷰 미작성</span>';
 }
 window.ivBadgeHtml=ivBadgeHtml;
 async function loadStudents(){
@@ -3804,7 +3822,7 @@ async function cbDownloadReportPDF(lid){
     +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},450);};</scr'+'ipt></body></html>';
   w.document.open(); w.document.write(doc); w.document.close();
 }
-function cbLoadDocx(){ return new Promise(function(res){ if(window.htmlDocx)return res(window.htmlDocx); var U=['https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js','https://unpkg.com/html-docx-js/dist/html-docx.js']; var i=0; (function go(){ if(window.htmlDocx)return res(window.htmlDocx); if(i>=U.length)return res(null); var sc=document.createElement('script'); sc.src=U[i++]; sc.onload=function(){ window.htmlDocx?res(window.htmlDocx):go(); }; sc.onerror=function(){ go(); }; document.head.appendChild(sc); })(); }); }
+function cbLoadDocx(){ return new Promise(function(res){ if(window.htmlDocx)return res(window.htmlDocx); var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/html-docx-js/dist/html-docx.js'; sc.onload=function(){res(window.htmlDocx||null);}; sc.onerror=function(){res(null);}; document.head.appendChild(sc); }); }
 async function cbDownloadReportDOCX(lid){
   var r=await cbReportDoc(lid); if(!r)return;
   var inner='<h1 style="font-size:18pt">'+esc(r.title)+'</h1>'+(r.content||'');
@@ -4111,7 +4129,6 @@ async function addStudent(){
   if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
   const _reg=document.getElementById('st-region').value, _gen=document.getElementById('st-gender').value;
   if(!_reg||!_gen){m.style.color='var(--risk)';m.textContent='지역과 성별은 필수입니다 — 대학·전형 매칭에 사용됩니다.';return;}
-  if(!document.getElementById('st-consent').checked){m.style.color='var(--risk)';m.textContent='학생·보호자의 개인정보 수집·이용 동의 확인이 필요합니다.';return;}
   if(window._demo && !window._editId && (window._students||[]).length>=2){m.style.color='var(--risk)';m.textContent='체험 모드에서는 학생을 최대 2명까지 등록할 수 있습니다. 구독 시 무제한 등록 가능합니다.';return;}
   if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드 — 새로고침.';return;}
   const {data:acs}=await sb.from('academies').select('id').limit(1);
@@ -4465,13 +4482,13 @@ function perfConReview(a,sub,track){
   h+='<div style="font-size:11px;color:var(--gold,#3182f6);margin-bottom:4px">학생 결과물</div><div style="font-size:13px;line-height:1.85;color:var(--ink);word-break:keep-all;border:1px solid var(--line);border-radius:8px;padding:11px 13px;background:var(--panel-2)">'+(content||'<span style="color:var(--ink-mute)">(비어 있음)</span>')+'</div>';
   if(tm&&tm.charCount!=null)h+='<div style="margin-top:8px;padding:8px 11px;border:1px solid '+v[0]+';border-radius:8px"><b style="color:'+v[0]+';font-size:12px">'+v[1]+'</b><div style="font-size:11px;color:var(--ink-dim);margin-top:3px">키입력 '+(tm.keyCount||0)+' · 삭제 '+(tm.backCount||0)+' · 붙여넣기 '+(tm.pasteCount||0)+'회('+(tm.pasteChars||0)+'자) · 글자수 '+(tm.charCount||0)+' · 작성 '+Math.round((tm.totalMs||0)/60000)+'분</div>'+(s.verdict_reason?'<div style="font-size:11px;color:var(--ink-dim);margin-top:3px;line-height:1.6">'+esc(s.verdict_reason)+'</div>':'')+'</div>';
   if(s.status!=='doing')h+='<div style="margin-top:8px"><button class="btn ghost" style="padding:4px 11px;font-size:11.5px" onclick="perfDNAReport('+a.id+',\''+track+'\')">🧬 타이핑DNA 상세 리포트</button><div id="pf-dna-'+a.id+'" style="margin-top:8px"></div></div>';
-  if(!done && s.status!=='doing'){
+  if(!done){
     h+='<div style="display:flex;align-items:center;gap:8px;margin:11px 0 4px"><span style="font-size:11px;color:var(--reach,#3182f6);font-weight:700">🤖 AI 코칭</span><button class="btn ghost" style="padding:3px 9px;font-size:11px" onclick="perfRunCoach('+sub.id+','+a.id+',\''+track+'\')">'+(s.ai_coaching?'AI 재검토':'AI 검토 실행')+'</button></div>'
       +'<div id="pf-ai-'+a.id+'" style="'+(s.ai_coaching?'':'display:none;')+'padding:10px 12px;border:1px solid var(--reach,#3182f6);border-radius:9px;background:rgba(49,130,246,.06);font-size:12px;color:var(--ink-dim);line-height:1.7">'+(s.ai_coaching||'')+'</div>'
       +'<div style="font-size:11px;color:var(--gold,#3182f6);margin:11px 0 4px">컨설턴트 피드백 (AI 코칭과 함께 학생에게 전달)</div>'
       +'<textarea id="pf-fb-'+a.id+'" rows="3" placeholder="방향·수정 포인트를 적어주세요." style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.7;resize:vertical;box-sizing:border-box">'+esc(s.feedback||'')+'</textarea>'
       +'<div style="display:flex;gap:7px;margin-top:7px;flex-wrap:wrap;align-items:center"><button class="btn" style="padding:4px 12px;font-size:11.5px;background:var(--reach,#3182f6);border:none;color:#fff" onclick="perfReturn('+sub.id+','+a.id+',\''+track+'\')">↩ 학생에게 돌려보내기</button><button class="btn ghost" style="padding:4px 12px;font-size:11.5px;border-color:var(--safe);color:var(--safe)" onclick="perfComplete('+sub.id+','+a.id+',\''+track+'\')">✅ 완성 · AI 예상등급 채점</button><span id="pf-fbm-'+a.id+'" style="font-size:11px"></span></div>';
-  } else if(done){
+  } else {
     h+='<div style="margin-top:10px;padding:9px 12px;border:1px solid var(--safe);border-radius:8px;font-size:12px;color:var(--safe)">✅ 완성 처리됨 · 학생이 결과물과 예상등급 평가지를 받을 수 있습니다.</div>'
       +perfEvalSheetFromSub(s,false)
       +'<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap"><button class="btn ghost" style="padding:4px 12px;font-size:11.5px" onclick="perfRunEval('+sub.id+','+a.id+',\''+track+'\')">AI 재채점</button><span id="pf-fbm-'+a.id+'" style="font-size:11px"></span></div>';
@@ -4533,7 +4550,6 @@ async function perfComplete(sid,aid,track){
   var t=document.getElementById('pf-fb-'+aid),m=document.getElementById('pf-fbm-'+aid); var v=t?t.value.trim():'';
   if(!confirm('완성 처리하고 AI 예상등급 채점을 실행할까요?\n완성하면 학생이 결과물과 예상등급 평가지를 받을 수 있습니다.'))return;
   await sb.from('perf_submissions').update({feedback:v,status:'completed',completed_at:new Date().toISOString()}).eq('id',sid);
-  try{ var _sr=await sb.from('perf_submissions').select('student_id').eq('id',sid).limit(1); var _sid=_sr&&_sr.data&&_sr.data[0]&&_sr.data[0].student_id; if(_sid) sb.from('app_notifications').insert({academy_id:(window._acadId||(window._academy&&window._academy.id)||null), student_id:_sid, recipient:'stu', kind:'perf', title:'수행평가 완성', body:'결과물과 예상등급 평가지가 도착했어요.', view:(track==='goip'?'gperf':'perf')}); }catch(_e){}
   if(m){m.style.color='var(--ink-mute)';m.textContent='AI 예상등급 채점 중… (10~25초)';}
   await perfRunEval(sid,aid,track,true);
   if(window.toast)toast('완성 처리 및 예상등급 채점 완료',true); perfMount(track);
@@ -4796,43 +4812,6 @@ async function perfDownloadHWPX(aid,track){
   }catch(e){ alert('HWPX 생성 실패: '+(e.message||e)); }
 }
 async function perfEvalPDF(aid,track){ var r=await perfDocData(aid,track); var ev=r.eval; if(ev&&typeof ev==='string'){try{ev=JSON.parse(ev);}catch(_){ev=null;}} if(!ev){alert('아직 채점 결과가 없습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다.');return;} var sheet=perfEvalSheet(ev,true); var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>수행평가 예상등급 평가지</title><style>@page{size:A4;margin:16mm}body{font-family:-apple-system,BlinkMacSystemFont,"Malgun Gothic","Noto Sans KR",sans-serif;color:#191f28;padding:8px 4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:20px;margin:0 0 2px}.meta{font-size:12px;color:#667;margin-bottom:4px}.rule{height:2px;background:#12211a;margin:8px 0 4px}.foot{margin-top:18px;font-size:10px;color:#889;border-top:1px solid #ddd;padding-top:8px}b{color:#191f28}</style></head><body><h1>수행평가 예상등급 평가지</h1><div class="meta">학생: <b>'+esc(r.who)+'</b> · 과제: <b>'+esc(r.title)+'</b>'+(r.subject?(' ('+esc(r.subject)+')'):'')+'</div><div class="rule"></div>'+sheet+'<div class="foot">ARCHE 수행평가 도우미 · 본 평가지는 학교 채점기준 기반 AI 예상 진단으로 컨설팅 참고용이며, 실제 학교 성적·평가와 다를 수 있습니다.</div><scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},350);}</scr'+'ipt></body></html>'; w.document.open(); w.document.write(doc); w.document.close(); }
-/* ===== 범용 문서 내보내기 (PDF/DOCX/HWPX) — 리포트·진로·수행 공용 ===== */
-window.ArcheExport=(function(){
-  function fn(t){ return String(t||'문서').replace(/[\\/:*?"<>|]+/g,'_').slice(0,60); }
-  function _save(blob,name){ var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click(); setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},1200); }
-  function _empty(h){ var d=document.createElement('div'); d.innerHTML=h||''; var t=(d.innerText||d.textContent||'').replace(/\s+/g,''); return !t && !/<img|<svg|<table/i.test(h||''); }
-  async function _inlineImgs(html){ var d=document.createElement('div'); d.innerHTML=html||'';
-    Array.prototype.slice.call(d.querySelectorAll('svg,canvas')).forEach(function(n){ var ph=document.createElement('p'); ph.style.color='#888'; ph.textContent='［그래프·도형은 PDF 또는 화면에서 확인해 주세요］'; if(n.parentNode)n.parentNode.replaceChild(ph,n); });
-    var ims=Array.prototype.slice.call(d.querySelectorAll('img')); for(var i=0;i<ims.length;i++){ var im=ims[i], src=im.getAttribute('src')||''; if(!src||/^data:/i.test(src))continue; try{ var r=await fetch(src,{mode:'cors'}); var b=await r.blob(); var du=await new Promise(function(res,rej){ var fr=new FileReader(); fr.onload=function(){res(fr.result);}; fr.onerror=rej; fr.readAsDataURL(b); }); im.setAttribute('src',du); }catch(e){} } return d.innerHTML; }
-  function pdf(o){ o=o||{}; var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.');return;}
-    var doc='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(o.title||'문서')+'</title>'
-      +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'
-      +'<style>@page{margin:15mm}body{font-family:"Noto Sans KR",-apple-system,sans-serif;max-width:780px;margin:28px auto;padding:0 24px;line-height:1.85;color:#111;word-break:keep-all;-webkit-print-color-adjust:exact;print-color-adjust:exact}h1{font-size:21px;border-bottom:2px solid #333;padding-bottom:9px;margin:0 0 6px}.m{color:#667;font-size:12px;margin-bottom:15px}img{max-width:100%}table{border-collapse:collapse;width:100%;margin:8px 0}td,th{border:1px solid #ccc;padding:6px 8px;font-size:12.5px}ul,ol{margin:4px 0 4px 18px}</style></head><body>'
-      +'<h1>'+esc(o.title||'문서')+'</h1>'+(o.subtitle?('<div class="m">'+esc(o.subtitle)+'</div>'):'')
-      +'<div>'+(o.html||'')+'</div>'
-      +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},450);};</scr'+'ipt></body></html>';
-    w.document.open(); w.document.write(doc); w.document.close(); }
-  async function docx(o){ o=o||{};
-    if(_empty(o.html)){ alert('내보낼 내용이 없습니다.'); return; }
-    var inner='<h1 style="font-size:18pt">'+esc(o.title||'문서')+'</h1>'+(o.subtitle?('<p style="color:#667;font-size:11pt">'+esc(o.subtitle)+'</p>'):'')+(await _inlineImgs(o.html||''));
-    var full='<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{font-family:"Malgun Gothic",sans-serif;line-height:1.8}img{max-width:480px}h1{border-bottom:1px solid #333;padding-bottom:8px}table{border-collapse:collapse}td,th{border:1px solid #999;padding:5px 7px}</style></head><body>'+inner+'</body></html>';
-    var lib=await cbLoadDocx(); var blob,ext; if(lib&&lib.asBlob){blob=lib.asBlob(full);ext='docx';}else{blob=new Blob(['﻿'+full],{type:'application/msword'});ext='doc';}
-    _save(blob, fn(o.title)+'.'+ext); }
-  async function hwpx(o){ o=o||{};
-    if(_empty(o.html)){ alert('내보낼 내용이 없습니다.'); return; }
-    try{ var zip=await hwpxBuildFromHtml(o.title||'문서', (o.subtitle?('<p>'+esc(o.subtitle)+'</p>'):'')+(o.html||'')); _save(new Blob([zip],{type:'application/hwp+zip'}), fn(o.title)+'.hwpx'); }
-    catch(e){ var em=(e&&e.message)?e.message:'라이브러리를 불러오지 못했습니다'; alert('HWPX 저장 실패: '+em+'\n네트워크 확인 후 다시 시도하거나 PDF·DOCX로 저장해 주세요.'); } }
-  function printNode(node,o){ o=o||{}; if(!node){alert('내보낼 리포트를 찾지 못했습니다.');return;} var w=window.open('','_blank'); if(!w){alert('팝업이 차단되었습니다. 팝업을 허용한 뒤 다시 시도하세요.');return;}
-    var styles=''; (o.styleIds||[]).forEach(function(id){ var s=document.getElementById(id); if(s)styles+='<style>'+s.textContent+'</style>'; });
-    var html='<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>'+esc(o.title||'리포트')+'</title>'
-      +'<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">'+styles
-      +'<style>@page{margin:11mm}body{margin:0;padding:14px;background:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>'
-      +node.outerHTML
-      +'<scr'+'ipt>window.onload=function(){setTimeout(function(){window.print();},500);};</scr'+'ipt></body></html>';
-    w.document.open(); w.document.write(html); w.document.close(); }
-  try{ if(typeof ensureFflate==='function')ensureFflate().catch(function(){}); if(typeof cbLoadDocx==='function'){ var _pp=cbLoadDocx(); if(_pp&&_pp.catch)_pp.catch(function(){}); } }catch(e){}
-  return {pdf:pdf, docx:docx, hwpx:hwpx, printNode:printNode};
-})();
 /* ---------- 수행평가 전용 리치 에디터 (pf-ed) ---------- */
 var pfCap=null;
 function pfCapInit(){ pfCap={kc:0,bc:0,pc:0,paste:0,pasteChars:0,start:Date.now(),last:Date.now(),saves:0}; }
@@ -5388,7 +5367,7 @@ async function distributeActivity(){
     renderDesign();
   }catch(e){ m.style.color='var(--risk)';m.textContent='실패: '+(e.message||e); }
 }
-function ensureFflate(){ if(window.fflate)return Promise.resolve(window.fflate); var U=['https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js','https://unpkg.com/fflate@0.8.2/umd/index.js','https://cdnjs.cloudflare.com/ajax/libs/fflate/0.8.2/umd/index.js']; return new Promise(function(res,rej){ var i=0; (function go(){ if(window.fflate)return res(window.fflate); if(i>=U.length)return rej(new Error('압축 라이브러리(fflate) 로드 실패')); var sc=document.createElement('script'); sc.src=U[i++]; sc.onload=function(){ window.fflate?res(window.fflate):go(); }; sc.onerror=function(){ go(); }; document.head.appendChild(sc); })(); }); }
+function ensureFflate(){ return window.fflate?Promise.resolve(window.fflate):new Promise(function(res,rej){var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/fflate/0.8.2/umd/index.min.js';sc.onload=function(){res(window.fflate);};sc.onerror=rej;document.head.appendChild(sc);}); }
 window.attachDesignFile=async function(id){
   var inp=document.getElementById('file-'+id); var msg=document.getElementById('fmsg-'+id);
   var f=inp&&inp.files&&inp.files[0]; if(!f)return;
@@ -6703,9 +6682,8 @@ async function callAI(task,payload){
   if(!sb) throw new Error('DB 미로드');
   var sess=(await sb.auth.getSession()).data.session;
   var res=await fetch(SB_URL+'/functions/v1/arche-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({task:task,payload:payload})});
-  var d=await res.json().catch(function(){return {};});
+  var d=await res.json();
   if(!res.ok){
-    if(res.status===401){ try{ await sb.auth.refreshSession(); }catch(_e){} throw new Error('로그인 세션이 만료되었어요. 다시 로그인해 주세요.'); }
     if(d.demo_exhausted||d.demo_expired){ throw new Error(d.error||'체험 횟수 소진'); }
     throw new Error(d.error||'AI 오류');
   }
@@ -6869,16 +6847,11 @@ async function billingCall(action,extra){
 async function renderBilling(){
   var body=document.getElementById('billing-body'); if(!body||!sb)return;
   if(window._role==='stu'){ return; }
-  /* [B2C] 신규 KG 티어 정기결제(비전/트랙/올인원)로 대체 — 구모델(toss 인원기반)은 B2B에만.
-     ★ B2C는 절대 구 Toss 요금 화면으로 폴백하지 않는다(잘못된 요금·PG 노출 방지). */
-  if(window._isB2C){
-    if(window.ArcheKGBilling){
-      try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월간/연간)'; }catch(_e){}
-      try{ ArcheKGBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
-      catch(e){ body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요.</div>'; }
-    } else {
-      body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.</div>';
-    }
+  /* [B2C] 신규 KG 티어 정기결제(비전/트랙/올인원)로 대체 — 구모델(toss 인원기반)은 B2B에만 */
+  if(window._isB2C && window.ArcheKGBilling){
+    try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월간/연간)'; }catch(_e){}
+    try{ ArcheKGBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
+    catch(e){ body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요.</div>'; }
     return;
   }
   body.innerHTML='불러오는 중…';
@@ -7719,7 +7692,6 @@ async function addGStudent(){
   if(!name){m.style.color='var(--risk)';m.textContent='이름은 필수입니다.';return;}
   var _greg=document.getElementById('gst-region').value,_ggen=document.getElementById('gst-gender').value;
   if(!_greg||!_ggen){m.style.color='var(--risk)';m.textContent='지역과 성별은 필수입니다 — 특목·자사고 매칭에 사용됩니다 (남고·여고, 광역 모집 구분).';return;}
-  if(!document.getElementById('gst-consent').checked){m.style.color='var(--risk)';m.textContent='학생·보호자의 개인정보 수집·이용 동의 확인이 필요합니다.';return;}
   var acs=await sb.from('academies').select('id').limit(1);
   var acadId=acs.data&&acs.data[0]&&acs.data[0].id;
   if(!acadId){m.style.color='var(--risk)';m.textContent='학원 정보 없음.';return;}
@@ -9292,7 +9264,7 @@ async function notifPoll(){
     notifEnsureBell();
     var role=_notifRole();
     var q=sb.from('app_notifications').select('id',{count:'exact',head:true}).eq('recipient',role).eq('read',false);
-    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.or('student_id.eq.'+window._activeStudent.id+',student_id.is.null');
+    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.eq('student_id',window._activeStudent.id);
     var r=await q;
     var n=(r&&r.count)||0;
     var c=document.getElementById('notif-cnt');
@@ -9307,7 +9279,7 @@ async function notifTogglePanel(){
   try{
     var role=_notifRole();
     var q=sb.from('app_notifications').select('*').eq('recipient',role).order('created_at',{ascending:false}).limit(15);
-    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.or('student_id.eq.'+window._activeStudent.id+',student_id.is.null');
+    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.eq('student_id',window._activeStudent.id);
     var r=await q;
     var rows=r.data||[];
     var ICO={iv:'🎤',design:'✏️',perf:'📝',course:'📚',essay:'📄'};
@@ -9335,7 +9307,7 @@ window.notifMarkAll=async function(ev){
   try{
     var role=_notifRole();
     var q=sb.from('app_notifications').update({read:true}).eq('recipient',role).eq('read',false);
-    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.or('student_id.eq.'+window._activeStudent.id+',student_id.is.null');
+    if(role==='stu'&&window._activeStudent&&window._activeStudent.id)q=q.eq('student_id',window._activeStudent.id);
     await q;
   }catch(e){}
   notifPoll(); notifTogglePanel(); notifTogglePanel();
