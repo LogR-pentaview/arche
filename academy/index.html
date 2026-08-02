@@ -434,22 +434,12 @@
   #v-essaybatch .eb-save-st{font-size:10px;font-family:'JetBrains Mono',monospace;margin-left:8px}
 </style>
 <script>
-/* [임시 진단] 화면에 JS 오류를 직접 표시 — 모바일에서 콘솔 대신 오류 확인용 */
+/* [임시 진단] JS 오류(빨강) + 탭 진단(파랑) — 모바일 콘솔 대용 */
 (function(){
-  function show(msg){
-    try{
-      var d=document.getElementById('__errbar');
-      if(!d){ d=document.createElement('div'); d.id='__errbar';
-        d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:2147483647;background:#c0313d;color:#fff;font:12px/1.5 ui-monospace,monospace;padding:9px 12px;max-height:45vh;overflow:auto;white-space:pre-wrap;box-shadow:0 -4px 14px rgba(0,0,0,.3)';
-        d.onclick=function(){ d.style.display='none'; };
-        (document.body||document.documentElement).appendChild(d);
-      }
-      d.style.display='block';
-      d.textContent='⚠ 오류: '+msg+'\n\n(이 빨간 부분을 캡처해 주세요 · 탭하면 닫힘)';
-    }catch(_){}
-  }
-  window.addEventListener('error',function(e){ show((e.message||'error')+'  @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')+':'+(e.colno||'')); });
-  window.addEventListener('unhandledrejection',function(e){ var r=e.reason; show('Promise 거부 — '+((r&&(r.stack||r.message||r))||'알수없음')); });
+  function bar(id,css){ var d=document.getElementById(id); if(!d){ d=document.createElement('div'); d.id=id; d.style.cssText='position:fixed;left:0;right:0;z-index:2147483647;color:#fff;font:11px/1.45 ui-monospace,monospace;padding:8px 11px;white-space:pre-wrap;'+css; d.addEventListener('click',function(ev){ev.stopPropagation();d.style.display='none';},true); (document.body||document.documentElement).appendChild(d);} return d; }
+  function err(msg){ var d=bar('__errbar','bottom:0;background:#c0313d;max-height:42vh;overflow:auto;box-shadow:0 -4px 14px rgba(0,0,0,.3)'); d.style.display='block'; d.textContent='⚠ 오류: '+msg+'\n(빨간 부분 캡처 · 탭하면 닫힘)'; }
+  window.addEventListener('error',function(e){ err((e.message||'error')+' @'+((e.filename||'').split('/').pop())+':'+(e.lineno||'')); });
+  window.addEventListener('unhandledrejection',function(e){ var r=e.reason; err('Promise 거부 — '+((r&&(r.stack||r.message||r))||'알수없음')); });
 })();
 </script>
 </head>
@@ -3208,7 +3198,7 @@ async function loadStudents(){
       window._stuAcct={};(acc.data||[]).forEach(function(a){window._stuAcct[a.student_id]=a;});}
   }catch(e){window._stuAcct={};}
   await loadIVStatus(window._students.map(function(s){return s.id;}));
-  document.getElementById('st-count').textContent=window._students.length;
+  var _sc=document.getElementById('st-count'); if(_sc)_sc.textContent=window._students.length;
   renderHomeKPI(); populateIntakePicker(); if(window.fillStudentPickers)fillStudentPickers();
   if(!window._students.length){list.innerHTML='<div style="color:var(--ink-mute);padding:14px">'+(window._isB2C?'등록된 자녀가 없습니다. 좌측에서 등록하세요.':'등록된 학생이 없습니다. 좌측에서 등록하세요.')+'</div>';return;}
   var order=['고3','고2','고1','N수','미지정'];
