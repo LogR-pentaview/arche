@@ -16,6 +16,9 @@
   var PROJECT_URL='https://dvxepjctjazobrkjrkdw.supabase.co';
   function acadId(){ return window._acadId || (window._academy&&window._academy.id) || null; }
   function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function isHtml(s){ return typeof s==='string' && /<(img|div|p|br|span|table|b|i|u|ul|ol|li|h[1-6])\b|class="math/i.test(s); }
+  function stripHtml(s){ try{ var t=document.createElement('div'); t.innerHTML=String(s||''); return (t.innerText||t.textContent||'').trim(); }catch(e){ return String(s||'').replace(/<[^>]+>/g,' ').trim(); } }
+  function subHtml(s){ return isHtml(s)? String(s) : '<div style="white-space:pre-wrap">'+esc(s||'')+'</div>'; }
   function el(h){var t=document.createElement('template');t.innerHTML=h.trim();return t.content.firstChild;}
   function gradeLevel(g){ g=String(g||''); if(g.indexOf('고')>=0)return 'dae'; if(g.indexOf('중')>=0)return 'goip'; return 'goip'; }
 
@@ -293,20 +296,30 @@
     if(d.detail)g+='<div class="gq"><b>수행 가이드</b><div class="gh" style="white-space:pre-line">'+esc(d.detail)+'</div></div>';
     g+='</div>'; card.insertAdjacentHTML('beforeend', g);
     card.insertAdjacentHTML('beforeend', '<div id="cw-pre" style="margin:10px 0"></div>');
-    var ed=el('<div class="ed" id="cwrite-ed" contenteditable="true" data-ph="목차에 따라 서론·본론·결론으로 내가 조사·생각한 내용을 직접 써보세요"></div>'); card.appendChild(ed);
-    var msg=el('<div class="note" id="cwrite-msg"></div>'); card.appendChild(msg);
+    card.insertAdjacentHTML('beforeend', '<div style="font-size:12px;font-weight:800;color:var(--gold,#1A237E);margin:6px 0 4px">✍️ 탐구보고서 작성</div>'
+      +'<div style="border-top:1px dashed var(--line,#dfe3ec);padding-top:8px;font-size:11px;color:var(--ink-mute,#8b95a1);margin-bottom:7px">작성 과정(입력 패턴)이 함께 기록돼 <b>본인 작성 검증</b>에 활용돼요. 이미지·수식도 넣을 수 있어요.</div>'
+      +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px">'
+        +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:4px 10px;border-radius:6px;white-space:nowrap">🖼️ 이미지<input type="file" accept="image/*" multiple style="display:none" onchange="if(window.pfInsertImg)pfInsertImg(this)"></label>'
+        +'<button type="button" onclick="if(window.pfOpenMath)pfOpenMath()" style="font-size:12px;color:var(--reach,#3182f6);border:1px solid var(--reach,#3182f6);padding:4px 10px;border-radius:6px;background:transparent;cursor:pointer;white-space:nowrap">∑ 수식</button>'
+        +'<span id="pf-cc" style="font-size:11px;color:var(--ink-mute,#8b95a1)">0자</span></div>');
+    var ed=el('<div class="ed" id="pf-ed" contenteditable="true" data-ph="목차에 따라 서론·본론·결론으로 내가 조사·생각한 내용을 직접 써보세요" style="width:100%;min-height:240px;background:var(--panel-2,#fbfcfe);border:1px solid var(--line,#dfe3ec);border-radius:11px;padding:13px 14px;color:var(--ink,#191f28);font-size:13.5px;line-height:1.9;outline:none;box-sizing:border-box;word-break:keep-all"></div>'); card.appendChild(ed);
+    function cbEdCount(){ var c=card.querySelector('#pf-cc'); if(!c)return; if(window.pfEdLen){try{c.textContent=pfEdLen()+'자';return;}catch(_e){}} c.textContent=((ed.innerText||ed.textContent||'').length)+'자'; }
+    ed.addEventListener('input', cbEdCount);
+    ed.addEventListener('paste', function(e){ if(window.pfEdPaste){ try{ window.pfEdPaste(e); }catch(_e){} } setTimeout(cbEdCount,30); });
+    cbEdCount();
+    var msg=el('<div class="note"></div>'); card.appendChild(msg);
     var row=el('<div class="row"><button class="act pri">📤 저장 후 제출</button></div>'); card.appendChild(row);
     try{ window._pfCurSub='course'+(d.id||''); }catch(e){}
     try{ if(window.ArcheIntegrity) ArcheIntegrity.attach(ed); }catch(e){}
     try{ if(window.ArcheReflection && window.ArcheReflection.renderPre){ window.ArcheReflection.renderPre(card.querySelector('#cw-pre'), {academyId:acadId(), studentId:sid, sourceType:'course', sourceId:d.id, prefill:null}); } }catch(e){}
     setTimeout(function(){ try{ed.focus();}catch(_){} },80);
     row.querySelector('button').addEventListener('click', async function(){
-      var t=(ed.innerText||ed.textContent||'').trim();
-      if(t.length<10){ msg.style.color='#c0313d'; msg.textContent='조금 더 작성한 뒤 제출해 주세요.'; return; }
+      var html=ed.innerHTML; var t=(ed.innerText||ed.textContent||'').trim();
+      if(t.length<10 && !/<img/i.test(html)){ msg.style.color='#c0313d'; msg.textContent='조금 더 작성한 뒤 제출해 주세요.'; return; }
       if(!confirm('제출할까요? 제출하면 선생님이 평가·코칭을 드려요.'))return;
       this.disabled=true; msg.style.color='#6b7688'; msg.textContent='제출 중…';
       try{ if(window.ArcheIntegrity){ await ArcheIntegrity.assessAndSave({ el:ed, studentId:sid, academyId:acadId(), sourceType:'course', sourceId:d.id, finalText:t, save:true }); } }catch(e){}
-      try{ var r=await window.sb.from('design_items').update({submission:t, submitted_at:new Date().toISOString(), status:'제출', updated_at:new Date().toISOString()}).eq('id',d.id).select('id');
+      try{ var r=await window.sb.from('design_items').update({submission:(html||t), submitted_at:new Date().toISOString(), status:'제출', updated_at:new Date().toISOString()}).eq('id',d.id).select('id');
         if(r.error||!(r.data&&r.data.length))throw (r.error||new Error('저장 실패 — 권한/새로고침'));
         try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'con', kind:'design', title:'코스웨어 제출', body:'학생이 코스웨어 탐구를 제출했어요. 평가·코칭을 진행해 주세요.', view:(gradeLevel(d.grade)==='goip'?'gdesign':'sr')}); }catch(_e){}
         msg.style.color='#137a44'; msg.textContent='제출 완료! 🎉 잠시 후 사후 회고가 열려요.';
@@ -322,7 +335,7 @@
     if(fb) card.insertAdjacentHTML('beforeend', reportHtml(fb));
     else if(d.feedback) card.insertAdjacentHTML('beforeend', '<div class="rep"><p>'+esc(d.feedback)+'</p></div>');
     else card.insertAdjacentHTML('beforeend', '<div class="note">아직 평가가 도착하지 않았어요.</div>');
-    if(d.submission) card.insertAdjacentHTML('beforeend', '<div class="qa"><div class="q">✍️ 내 제출</div><div class="a">'+esc(d.submission)+'</div></div>');
+    if(d.submission) card.insertAdjacentHTML('beforeend', '<div class="qa"><div class="q">✍️ 내 제출</div><div class="a">'+subHtml(d.submission)+'</div></div>');
     if(window.ArcheExport){ var xb=cwExportBar(d, fb, (window._activeStudent&&window._activeStudent.name)||''); if(xb)card.appendChild(xb); }
   }
   // 코스웨어 내보내기 바 (PDF/DOCX/HWPX)
@@ -330,7 +343,7 @@
     var bar=el('<div class="row" style="margin-top:10px;border-top:1px dashed #e6e9f0;padding-top:10px"></div>');
     bar.appendChild(el('<div style="width:100%;font-size:11.5px;color:#8b95a1;margin-bottom:4px">📤 내보내기</div>'));
     var tt=(d.title||'코스웨어 탐구'), ss=((who?who+' · ':'')+[d.subject,d.area,d.sem].filter(Boolean).join(' '));
-    function cbody(){ var rd=(typeof repData==='function')?repData():repData; var h=''; if(rd)h+=reportHtml(rd); if(d.goal)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">탐구 목적</h3><div>'+esc(d.goal)+'</div>'; if(d.outline)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">탐구 목차</h3><div style="white-space:pre-line">'+esc(d.outline)+'</div>'; if(d.detail)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">수행 가이드</h3><div style="white-space:pre-wrap">'+esc(d.detail)+'</div>'; if(d.submission)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">학생 제출</h3><div style="white-space:pre-wrap">'+esc(d.submission)+'</div>'; return h; }
+    function cbody(){ var rd=(typeof repData==='function')?repData():repData; var h=''; if(rd)h+=reportHtml(rd); if(d.goal)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">탐구 목적</h3><div>'+esc(d.goal)+'</div>'; if(d.outline)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">탐구 목차</h3><div style="white-space:pre-line">'+esc(d.outline)+'</div>'; if(d.detail)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">수행 가이드</h3><div style="white-space:pre-wrap">'+esc(d.detail)+'</div>'; if(d.submission)h+='<h3 style="font-size:14px;color:#1A237E;margin:10px 0 3px">학생 제출</h3>'+subHtml(d.submission); return h; }
     function mkx(l,c,fn){ var b=el('<button class="act '+c+'">'+l+'</button>'); b.addEventListener('click',fn); return b; }
     bar.appendChild(mkx('📄 PDF','gh',function(){ ArcheExport.pdf({title:tt,subtitle:ss,html:cbody()}); }));
     bar.appendChild(mkx('📝 DOCX','mut',function(){ ArcheExport.docx({title:tt,subtitle:ss,html:cbody()}); }));
@@ -342,7 +355,7 @@
     card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · '+esc(d.title||'코스웨어')+'</h2><div class="note" style="margin-bottom:8px">완성 문장을 대신 써주지 마세요. 강점·깊이·다음 방향 중심으로 평가합니다. · 수준: '+(lvl==='dae'?'고등(대입)':'중등(고입)')+'</div>';
     if(d.goal)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">탐구 목적</div><div class="a">'+esc(d.goal)+'</div></div>');
     if(d.outline)card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">목차</div><div class="a" style="white-space:pre-line">'+esc(d.outline)+'</div></div>');
-    card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">✍️ 학생 제출</div><div class="a">'+esc(d.submission||'(없음)')+'</div></div>');
+    card.insertAdjacentHTML('beforeend','<div class="qa"><div class="q">✍️ 학생 제출</div><div class="a">'+(d.submission?subHtml(d.submission):'(없음)')+'</div></div>');
     card.insertAdjacentHTML('beforeend','<div class="row"><button class="act gd" id="crai">🤖 AI 평가 리포트 생성</button><button class="act gh" id="crdna">🧬 타이핑DNA 진정성</button></div><div class="note" id="craimsg" style="margin-top:4px"></div><div id="crrep" style="margin-top:8px"></div><div id="crdnabox" style="margin-top:8px"></div>');
     var repData=null; try{ repData=d.feedback?JSON.parse(d.feedback):null; }catch(e){}
     if(repData) card.querySelector('#crrep').innerHTML=reportHtml(repData);
@@ -359,7 +372,7 @@
     });
     card.querySelector('#crai').addEventListener('click', async function(){ var btn=this,m=card.querySelector('#craimsg'); btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>AI 평가 중…';
       try{ var qs=(d.outline?String(d.outline).split('\n').filter(Boolean).map(function(x){return {q:x};}):[]);
-        var cr=await callCoach({ questions:qs, answers:(d.submission||''), field:(d.subject||''), topic:(d.title||''), name:(name||''), grade:(grade||''), level:lvl });
+        var cr=await callCoach({ questions:qs, answers:stripHtml(d.submission||''), field:(d.subject||''), topic:(d.title||''), name:(name||''), grade:(grade||''), level:lvl });
         repData={note:cr.note,strengths:cr.strengths,depth:cr.depth,questions:cr.questions,next:cr.next,expression:cr.expression};
         card.querySelector('#crrep').innerHTML=reportHtml(repData); m.style.color='#137a44'; m.textContent='평가를 생성했어요. 확인 후 회신하세요.';
       }catch(e){ m.style.color='#c0313d'; m.textContent='AI 평가 실패: '+(e.message||e); } btn.disabled=false; btn.textContent=_t;
