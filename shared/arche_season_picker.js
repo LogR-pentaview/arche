@@ -119,9 +119,9 @@
       var btn=ev.target.closest('button[data-act]'); if(!btn)return;
       var id=+btn.dataset.id, act=btn.dataset.act;
       var p=(el._aspRows||[]).filter(function(r){return r.id===id;})[0]; if(!p)return;
-      if(act==='trial' && opts.onTrial) opts.onTrial(p);
-      else if(act==='start' && opts.onStart) opts.onStart(p);
-      else if(act==='open' && opts.onOpen) opts.onOpen(p);
+      if(act==='trial' && opts.onTrial) opts.onTrial(p, state.level);
+      else if(act==='start' && opts.onStart) opts.onStart(p, state.level);
+      else if(act==='open' && opts.onOpen) opts.onOpen(p, state.level);
     });
 
     load();

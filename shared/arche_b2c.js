@@ -254,9 +254,9 @@
         var sm=contentEl.querySelector('#ab2c-season');
         if(window.ArcheSeasonPicker && sm){
           ArcheSeasonPicker.mount(sm,{course:v.course,level:v.level||'starter',studentId:stu.id,
-            onStart:function(p){ if(opts.onSeasonStart)opts.onSeasonStart(p,v); },
-            onTrial:function(p){ if(opts.onSeasonTrial)opts.onSeasonTrial(p,v); },
-            onOpen:function(p){ if(opts.onSeasonOpen)opts.onSeasonOpen(p,v); }});
+            onStart:function(p,lv){ if(opts.onSeasonStart)opts.onSeasonStart(p, lv?Object.assign({},v,{level:lv}):v); },
+            onTrial:function(p,lv){ if(opts.onSeasonTrial)opts.onSeasonTrial(p, lv?Object.assign({},v,{level:lv}):v); },
+            onOpen:function(p,lv){ if(opts.onSeasonOpen)opts.onSeasonOpen(p, lv?Object.assign({},v,{level:lv}):v); }});
         } else if(sm){ sm.innerHTML=''; }
       }
       setActive(key);
