@@ -149,10 +149,13 @@
     if(profile){
       var pc=el('<div class="card pf"><div class="t">MY 진로 프로필</div><div class="f">관심 분야 · '+esc(profile.field||'—')+'</div><div class="row"><button class="act gh" style="background:rgba(255,255,255,.15);color:#fff">프로필(인터뷰) 수정</button></div></div>');
       pc.querySelector('button').addEventListener('click',function(){ openProfile(container, sid, profile); }); body.appendChild(pc);
-    } else {
+    } else if(!reports.length){
       var pc0=el('<div class="card"><div class="nm">먼저 진로 인터뷰를 해요 (1회)</div><div class="tp">인터뷰를 제출하면 학부모(선생님)가 맞춤 탐구 설계도를 보내줍니다.</div><div class="row"><button class="act pri">진로 인터뷰 시작</button></div></div>');
       pc0.querySelector('button').addEventListener('click',function(){ openProfile(container, sid, null); }); body.appendChild(pc0);
       body.appendChild(el('<div class="empty">인터뷰를 먼저 완료해 주세요.</div>')); return;
+    } else {
+      // 인터뷰 생략(컨설턴트가 설계 전달) — 인터뷰 안내 대신 바로 워크북 표시
+      body.appendChild(el('<div class="card"><div class="nm">컨설턴트가 설계한 탐구 워크북이 도착했어요</div><div class="tp">인터뷰 없이 선생님이 설계한 탐구입니다. 아래 워크북을 열어 직접 작성해 주세요.</div></div>'));
     }
     body.appendChild(el('<div class="sect">받은 탐구 워크북</div>'));
     if(!reports.length){ body.appendChild(el('<div class="empty">아직 도착한 워크북이 없어요.<br>인터뷰를 제출했다면 곧 설계도가 도착합니다 😊</div>')); return; }
@@ -264,6 +267,19 @@
       var row=el('<div class="row"></div>'); var cb=el('<button class="act pri">보고서 · AI 평가 · 회신</button>'); cb.addEventListener('click',function(){ openReview(container, r, names[r.student_id], grades[r.student_id]); });
       row.appendChild(cb); c.appendChild(row); host.appendChild(c);
     });
+    // ③ 인터뷰 없이 컨설턴트 설계로 시작 (학원용/컨설턴트 전용 · 페어런츠앱 제외)
+    if(!window._isB2C){
+      var _profIds={}; profiles.forEach(function(p){ _profIds[p.student_id]=1; });
+      var noIv=(window._students||[]).filter(function(s){ var id=s.id||s.student_id; if(!id||_profIds[id])return false; if(_track && gradeLevel(grades[id])!==_track) return false; return true; });
+      host.appendChild(el('<div class="sect">③ 인터뷰 없이 컨설턴트 설계로 시작</div>'));
+      if(!noIv.length){ host.appendChild(el('<div class="empty">인터뷰 미완료 학생이 없습니다.</div>')); }
+      else noIv.forEach(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name; var gr=s.grade||s.student_grade||'';
+        var c=el('<div class="card"><div class="nm">'+esc(nm||'학생')+(gr?' <span class="tp" style="display:inline">· '+esc(gr)+'</span>':'')+'</div><div class="tp">인터뷰 생략 · 컨설턴트가 설계한 방향으로 AI 탐구주제를 생성해 전달합니다.</div></div>');
+        var row=el('<div class="row"></div>'); var bb=el('<button class="act gd">🧭 컨설턴트 설계 → AI 주제·전달</button>');
+        bb.addEventListener('click',function(){ openBuilderManual(container, {student_id:id, field:(s.interest||s.field||'')}, nm, gr); });
+        row.appendChild(bb); c.appendChild(row); host.appendChild(c);
+      });
+    }
   }
   function openInterview(p, name){
     var ov=ovOpen(); var a=p.answers||{}; var h='<div class="acb"><div class="card"><h2 style="margin:0 0 8px">'+esc(name||'학생')+' · 진로 인터뷰</h2>';
@@ -303,6 +319,49 @@
       this.disabled=true;
       try{ var res=await assignWorksheet(p.student_id, title, qs, topic, p.field); if(res&&res.error)throw res.error;
         m.style.color='#137a44'; m.textContent='자녀에게 전달했어요 ✅ 자녀 화면에 "작성 대기"로 나타납니다.';
+        setTimeout(function(){ ov.remove(); remount(container,'staff'); },900);
+      }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='전달 실패: '+(e.message||e); }
+    });
+  }
+  // 인터뷰 생략 · 컨설턴트 설계 입력 → AI 탐구주제 생성 → 전달 (학원용 전용)
+  function openBuilderManual(container, p, name, grade){
+    var ov=ovOpen(); var lvl=gradeLevel(grade);
+    var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
+    card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · 컨설턴트 설계 → AI 탐구주제</h2>'
+      +'<div class="note" style="margin-bottom:8px">인터뷰 없이, 컨설턴트가 설계한 <b>탐구 방향·소재·핵심 개념</b>을 입력하면 AI가 <b>탐구주제·질문 설계도</b> 초안을 만듭니다. 검토·수정 후 학생에게 전달하세요. (AI는 질문만 · 대필 아님) · 수준: '+(lvl==='dae'?'고등(대입)':'중등(고입)')+'</div>'
+      +'<div><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">희망 진로·관심 분야</div><input id="mfield" placeholder="예: 데이터·통계 / 생명공학" value="'+esc(p.field||'')+'"></div>'
+      +'<div style="margin-top:8px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">컨설턴트 탐구 설계 (방향·소재·핵심 개념·참고자료)</div><textarea id="mdesign" rows="6" placeholder="예) 통계적 방법으로 지역 미세먼지 데이터를 분석. 회귀·상관 개념 활용, 공공데이터포털 자료 사용, 정책 제언까지 연결."></textarea></div>'
+      +'<div class="row" style="margin-top:10px"><button class="act gd" id="mai">🤖 AI 탐구주제·설계도 생성</button></div>'
+      +'<div style="margin-top:12px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">설계도 제목</div><input id="wtitle" placeholder="예: 지역 미세먼지 데이터 분석 탐구"></div>'
+      +'<div style="margin-top:6px"><div style="font-size:12.5px;font-weight:800;color:#1A237E;margin-bottom:4px">탐구 주제(한 줄)</div><input id="wtopic" placeholder="컨설턴트 설계 기반 주제"></div>'
+      +'<div class="sect" style="margin:12px 0 6px">탐구 질문 (학생이 직접 답할 열린 질문)</div><div id="qlist"></div>'
+      +'<div class="row"><button class="act mut" id="addq">＋ 질문 추가</button></div>'
+      +'<div class="row" style="margin-top:12px"><button class="act dn" id="send">학생에게 전달</button></div><div class="note" id="msg" style="margin-top:6px"></div>';
+    var qlist=card.querySelector('#qlist');
+    function addQ(q,hint){ var r=el('<div class="qedit"><textarea rows="2" placeholder="탐구 질문">'+esc(q||'')+'</textarea><input style="margin-top:6px" placeholder="접근 힌트(선택)" value="'+esc(hint||'')+'"><div class="row"><button class="act mut del">삭제</button></div></div>'); r.querySelector('.del').addEventListener('click',function(){r.remove();}); qlist.appendChild(r); }
+    function collect(){ var qs=[]; qlist.querySelectorAll('.qedit').forEach(function(r){ var q=r.querySelector('textarea').value.trim(); var h=r.querySelector('input').value.trim(); if(q)qs.push({q:q,hint:h}); }); return qs; }
+    addQ('','');
+    card.querySelector('#addq').addEventListener('click',function(){ addQ('',''); });
+    card.querySelector('#mai').addEventListener('click', async function(){
+      var btn=this, m=card.querySelector('#msg'); var design=card.querySelector('#mdesign').value.trim(); var fld=card.querySelector('#mfield').value.trim();
+      if(!design){ m.style.color='#c0313d'; m.textContent='컨설턴트 탐구 설계 내용을 입력하세요.'; return; }
+      btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>생성 중…';
+      try{ var fieldWithLv=(fld||'')+(grade?(' · [학생: '+grade+' — 이 수준에 맞춰 질문 난이도 조절]'):'');
+        var interview={ '컨설턴트가 설계한 탐구 방향':design, _source:'consultant' };
+        var res=await callPenta('career_worksheet',{interview:interview, field:fieldWithLv, topic:'', grade:(grade||''), level:lvl}); var d=JSON.parse(res.text);
+        if(d.title)card.querySelector('#wtitle').value=d.title; if(d.topic)card.querySelector('#wtopic').value=d.topic;
+        qlist.innerHTML=''; (d.questions||[]).forEach(function(q){ addQ(q.q, q.hint); }); if(!(d.questions&&d.questions.length))addQ('','');
+        m.style.color='#137a44'; m.textContent='AI 초안을 불러왔어요. 검토·수정 후 전달하세요.';
+      }catch(e){ m.style.color='#c0313d'; m.textContent='AI 초안 실패: '+(e.message||e); }
+      btn.disabled=false; btn.textContent=_t;
+    });
+    card.querySelector('#send').addEventListener('click', async function(){
+      var m=card.querySelector('#msg'); var qs=collect(); var title=card.querySelector('#wtitle').value.trim(); var topic=card.querySelector('#wtopic').value.trim(); var fld=card.querySelector('#mfield').value.trim();
+      if(!title){ m.style.color='#c0313d'; m.textContent='제목을 입력하세요.'; return; }
+      if(!qs.length){ m.style.color='#c0313d'; m.textContent='질문을 1개 이상 추가하세요.'; return; }
+      this.disabled=true;
+      try{ var res=await assignWorksheet(p.student_id, title, qs, topic, fld||p.field); if(res&&res.error)throw res.error;
+        m.style.color='#137a44'; m.textContent='학생에게 전달했어요 ✅ 학생 화면에 "작성 대기"로 나타납니다.';
         setTimeout(function(){ ov.remove(); remount(container,'staff'); },900);
       }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='전달 실패: '+(e.message||e); }
     });
