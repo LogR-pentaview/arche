@@ -2049,10 +2049,10 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_reflection.js"></script>
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
-<script src="/shared/arche_penta_workbook.js?v=27"></script>
+<script src="/shared/arche_penta_workbook.js?v=28"></script>
 <script src="/shared/arche_soke_chat.js?v=1"></script>
-<script src="/shared/arche_penta_report.js"></script>
-<script src="/shared/arche_penta_app.js?v=5"></script>
+<script src="/shared/arche_penta_report.js?v=2"></script>
+<script src="/shared/arche_penta_app.js?v=6"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_kg_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
@@ -2267,7 +2267,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.03.3";
+window.APP_VERSION="2026.08.03.4";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
