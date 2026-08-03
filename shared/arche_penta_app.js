@@ -521,5 +521,14 @@
     return renderStaff(root, opts);
   }
 
-  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.3', _callPenta: callPenta };
+  // 통합 제출함(학부모)에서 재사용: 제출물 검토→리포트 생성→발행 오버레이
+  async function listSubmissionsFor(studentIds){
+    if(!window.sb || !studentIds || !studentIds.length) return [];
+    var r = await window.sb.from('penta_submissions')
+      .select('id,student_id,stage,level,season,week,theme,title,status,report,sent_at,updated_at')
+      .in('student_id', studentIds).order('updated_at',{ascending:false});
+    if(r.error) throw r.error; return r.data||[];
+  }
+  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.4', _callPenta: callPenta,
+    openReview: openReview, listSubmissions: listSubmissionsFor };
 })();
