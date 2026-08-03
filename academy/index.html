@@ -744,16 +744,6 @@
             <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input type="checkbox" id="as-rookie" onchange="asRookieToggle()" style="accent-color:var(--lime)"> <b style="color:var(--ink)">신입생</b> — 아직 학생 자료 기록이 거의 없어요</label>
-            <div id="as-onboard" style="display:none;background:var(--panel-2);border:1px dashed var(--line);border-radius:10px;padding:13px;margin-bottom:12px">
-              <div style="font-size:11px;color:var(--ink-mute);margin-bottom:9px;line-height:1.6">학생 자료 대신 <b>상담 정보</b>로 진단·설계를 시작합니다. (가능한 만큼만 입력)</div>
-              <input id="as-ob-target" placeholder="희망 특목고/대학" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-strong" placeholder="강점 과목·단원 (예: 수학-이차함수, 과학-화학반응)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-weak" placeholder="약점 과목·단원" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-disp" placeholder="성향 (예: 탐구형 / 발표·활동형 / 꼼꼼한 기록형)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-reading" placeholder="독서 이력 (중학생)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <textarea id="as-ob-recall" rows="2" placeholder="중학 활동 회고 (고1 · 중학 학생 자료는 등록 후 [열기]→자료입력에서 업로드 가능)" style="width:100%;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
-            </div>
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -2120,9 +2110,9 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_reflection.js"></script>
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
-<script src="/shared/arche_penta_workbook.js?v=25"></script>
-<script src="/shared/arche_penta_report.js"></script>
-<script src="/shared/arche_penta_app.js?v=5"></script>
+<script src="/shared/arche_penta_workbook.js?v=28"></script>
+<script src="/shared/arche_penta_report.js?v=2"></script>
+<script src="/shared/arche_penta_app.js?v=6"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_career_bridge.js"></script>
 <script src="/shared/arche_season_picker.js?v=3"></script>
