@@ -160,6 +160,7 @@
     rep.student = { name: studentName || sub.student_id, grade: cat.grade_band||'' };
     rep.lesson = { season:cat.season, week:cat.week, theme:cat.theme, title:cat.title, date: (new Date()).toISOString().slice(0,10).replace(/-/g,'.') };
     rep.date = rep.lesson.date;
+    var _glo=(cat.content && (cat.content.glossary || cat.content.terms)); if(Array.isArray(_glo)&&_glo.length) rep.glossary=_glo;
     rep.consultantConfirmed = true;
     if(cat.stage==='vision'){
       rep.radar = Object.assign({ axes:(cat.content&&cat.content.radarAxes)||['','','','',''], before:sub.radar_before, after:sub.radar_after, growthPct:growthPct(sub.radar_before,sub.radar_after) }, ai.radar||{});
@@ -395,6 +396,7 @@
     if(!sub){ wrap.innerHTML='<div class="warn">아직 학생 제출물이 없습니다.</div>'; return; }
 
     var report = sub.report || null;   // 이미 생성된 게 있으면 재사용
+    if(report && !report.glossary){ var _ac=a.content; if(typeof _ac==='string'){try{_ac=JSON.parse(_ac);}catch(_e){_ac=null;}} var _g=_ac&&(_ac.glossary||_ac.terms); if(Array.isArray(_g)&&_g.length)report.glossary=_g; }
     function paint(){
       wrap.innerHTML='';
       // 컨트롤

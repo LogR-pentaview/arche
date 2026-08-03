@@ -76,6 +76,10 @@
 .apw h2.title{font-size:21px;color:var(--navy);font-weight:800;letter-spacing:-.02em;margin:0;line-height:1.3}
 .apw .lead{color:var(--dim);margin:8px 0 14px;font-size:14px;line-height:1.75}
 .apw .stgdesc{color:var(--dim);font-size:13px;margin:6px 0 14px;line-height:1.7}
+.apw .apw-glo{display:flex;flex-direction:column;gap:9px;margin-top:8px}
+.apw .apw-glo-i{background:var(--acc-soft);border:1px solid var(--acc-l);border-radius:11px;padding:11px 14px}
+.apw .apw-glo-i b{display:block;color:var(--acc-d);font-size:13.5px;margin-bottom:3px;font-weight:800}
+.apw .apw-glo-i span{display:block;color:var(--dim);font-size:12.5px;line-height:1.65}
 /* ── 커버(친근한 히어로) ── */
 .apw .cover{background:linear-gradient(155deg,var(--navy) 0%,#0d1220 90%);color:#fff;border-radius:22px;padding:34px 22px 30px;text-align:center;position:relative;overflow:hidden;margin-bottom:14px}
 .apw.track .cover{background:linear-gradient(155deg,#10151f,#1c2740 70%,#22303f)}
@@ -336,6 +340,25 @@
         v.appendChild(decl);
       }
     });
+
+    // ── 용어집 (자동노출) : L.glossary 있으면 마지막에 카드 자동 추가 ──
+    (function(){
+      var g = L.glossary || L.terms || null;
+      if(!Array.isArray(g) || !g.length) return;
+      var items = g.map(function(t){
+        if(typeof t==='string'){ var p=t.split(/[:：\-–—]/); return {term:(p.shift()||'').trim(), def:(p.join(':')||'').trim()}; }
+        return {term:(t.term||t.t||t.word||t.name||''), def:(t.def||t.d||t.desc||t.meaning||t.gloss||'')};
+      }).filter(function(x){ return x.term||x.def; });
+      if(!items.length) return;
+      var gv=addView('용어집');
+      var body=items.map(function(x){ return '<div class="apw-glo-i"><b>'+esc(x.term)+'</b>'+(x.def?'<span>'+esc(x.def)+'</span>':'')+'</div>'; }).join('');
+      var gp=document.createElement('div'); gp.className='page';
+      gp.innerHTML='<span class="eyebrow">📚 용어집</span>'
+        +'<div class="ph"><h2 class="title serif">'+(isKid?'오늘의 낱말 사전':'이번 회차 핵심 용어')+'</h2></div>'
+        +'<div class="stgdesc">'+(isKid?'모르는 말이 나오면 여기서 뜻을 확인해요. 뜻을 알면 탐구가 훨씬 쉬워져요!':'낯선 용어는 여기서 확인하세요. 개념을 정확히 알면 탐구의 깊이가 달라집니다.')+'</div>'
+        +'<div class="apw-glo">'+body+'</div>';
+      gv.appendChild(gp);
+    })();
 
     // ── 하단 내비게이션 ───────────────────────────────────────────
     var nav=el('<div class="navbtns"><button class="sec" type="button">← 이전</button>'

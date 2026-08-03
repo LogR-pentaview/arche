@@ -83,6 +83,10 @@
     + ".apr .htip{font-size:12px;color:#4e6b57;line-height:1.6;margin-top:5px}"
     + ".apr .ctag{font-size:11.5px;color:#8b95a1;margin-top:12px;display:flex;gap:6px;align-items:center}"
     + ".apr .foot{display:flex;justify-content:space-between;font-size:11px;color:#8b95a1;margin-top:16px;padding-top:12px;border-top:1px solid #e6e9f0}"
+    + ".apr .glo{display:flex;flex-direction:column;gap:8px}"
+    + ".apr .gloi{background:#f7f8fb;border:1px solid #e6e9f0;border-radius:9px;padding:9px 12px}"
+    + ".apr .gloi b{display:block;color:#1A237E;font-size:13px;margin-bottom:2px}"
+    + ".apr .gloi span{display:block;color:#4e5968;font-size:12px;line-height:1.6}"
     + ".apr .disc{font-size:11px;color:#8b95a1;line-height:1.6;margin-top:14px;padding:12px 14px;background:#f4f6f8;border-radius:10px}"
     + ".apr .adm{background:linear-gradient(180deg,#f7f9fd,#fff)}"
     + ".apr .admrow{margin-top:12px}.apr .admlab{font-size:11px;font-weight:800;letter-spacing:.03em;color:#8b95a1;text-transform:uppercase;margin-bottom:7px}"
@@ -120,6 +124,15 @@
   }
 
   function chip(t,cls){return '<span class="apr-chip '+(cls||'')+'">'+esc(t)+'</span>';}
+
+  // 📚 용어집 섹션 (자동노출) — d.glossary/d.terms 있으면 렌더
+  function gloSectionHtml(d){
+    var g=d&&(d.glossary||d.terms); if(!Array.isArray(g)||!g.length)return '';
+    var items=g.map(function(t){ if(typeof t==='string'){var p=t.split(/[:：\-–—]/);return {term:(p.shift()||'').trim(),def:(p.join(':')||'').trim()};} return {term:(t.term||t.t||t.word||t.name||''),def:(t.def||t.d||t.desc||t.meaning||t.gloss||'')}; }).filter(function(x){return x.term||x.def;});
+    if(!items.length)return '';
+    var rows=items.map(function(x){return '<div class="gloi"><b>'+esc(x.term)+'</b>'+(x.def?'<span>'+esc(x.def)+'</span>':'')+'</div>';}).join('');
+    return '<div class="sec"><div class="sh">📚 이번 회차 용어집</div><div class="glo">'+rows+'</div></div>';
+  }
 
   // 문장력(표현력) 진단 — 골든 합격 자소서 문장 퀄리티를 기준으로 산출
   function exprHtml(d){
@@ -215,6 +228,7 @@
       });
       h+='</div></div>';
     }
+    h+=gloSectionHtml(d);
     if(d.consultantConfirmed) h+='<div class="ctag">🖊️ 이 리포트는 담당 컨설턴트가 검토·확정 후 발행했습니다.</div>';
     h+='<div class="disc">본 리포트는 특허 출원 기술(10-2026-0053173) 기반 인지 진단 <b>참고 자료</b>로, 타 학생과의 서열·순위 비교를 포함하지 않으며 합격을 보장하지 않습니다. 진학 정보는 탐색 제안입니다.</div>'
       +'<div class="foot"><span>PentaView · 펜타 트랙</span><span>'+esc(d.date||'')+' · penta-view.com</span></div>';
@@ -297,6 +311,7 @@
       });
       h+='</div></div>';
     }
+    h+=gloSectionHtml(d);
     if(d.consultantConfirmed) h+='<div class="ctag">🖊️ 이 리포트는 담당 컨설턴트가 검토·확정 후 발행했습니다.</div>';
     h+='<div class="disc">본 리포트는 특허 출원 기술(10-2026-0053173) 기반 인지 진단 <b>참고 자료</b>로, 타 학생과의 서열·순위 비교를 포함하지 않으며 학교 성적·평가를 대체하지 않습니다. 성장에는 개인차가 있습니다.</div>'
       +'<div class="foot"><span>PentaView · 펜타 비전</span><span>'+esc(d.date||'')+' · penta-view.com</span></div>';
