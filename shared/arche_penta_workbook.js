@@ -80,8 +80,11 @@
 .apw .apw-glo-i{background:var(--acc-soft);border:1px solid var(--acc-l);border-radius:11px;padding:11px 14px}
 .apw .apw-glo-i b{display:block;color:var(--acc-d);font-size:13.5px;margin-bottom:3px;font-weight:800}
 .apw .apw-glo-i span{display:block;color:var(--dim);font-size:12.5px;line-height:1.65}
-.apw .apw-globtn{position:fixed;right:14px;bottom:78px;z-index:30;background:var(--acc);color:#fff;border:none;border-radius:22px;padding:10px 15px;font-size:13px;font-weight:800;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer}
+.apw .apw-glotop{flex:none;margin-left:auto;background:var(--acc);color:#fff;border:none;border-radius:16px;padding:7px 13px;font-size:12px;font-weight:800;font-family:inherit;cursor:pointer;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,.3)}
+.apw.track .apw-glotop{color:#0e2418;background:var(--acc-l)}
+.apw .apw-globtn{position:fixed;right:14px;bottom:84px;z-index:31;background:var(--acc);color:#fff;border:none;border-radius:24px;padding:12px 18px;font-size:14px;font-weight:800;font-family:inherit;box-shadow:0 8px 22px rgba(0,0,0,.34);cursor:pointer;animation:apwglopulse 2.4s ease-in-out infinite}
 .apw.track .apw-globtn{color:#0e2418;background:var(--acc-l)}
+@keyframes apwglopulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 .apw .apw-glopop{position:fixed;inset:0;z-index:40;background:rgba(10,14,20,.55);display:flex;align-items:flex-end;justify-content:center}
 .apw .apw-glopop-c{background:var(--cream);width:100%;max-width:560px;max-height:74vh;border-radius:18px 18px 0 0;padding:15px 18px 26px;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.34)}
 .apw .apw-glopop-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
@@ -362,11 +365,17 @@
       var pop=el('<div class="apw-glopop"><div class="apw-glopop-c"><div class="apw-glopop-h"><b>📚 '+(isKid?'낱말 사전':'용어집')+'</b><button type="button" class="apw-glox" aria-label="닫기">✕</button></div><div class="apw-glo">'+body+'</div></div></div>');
       pop.style.display='none';
       root.appendChild(pop);
-      var fab=el('<button type="button" class="apw-globtn">📚 용어</button>');
+      var openGlo=function(){ pop.style.display='flex'; };
+      var closeGlo=function(){ pop.style.display='none'; };
+      // ① 상단 바 버튼 (항상 화면 상단에 보임 — 학습 중 언제든)
+      var topin=root.querySelector('.apw-topin');
+      if(topin){ var tbtn=el('<button type="button" class="apw-glotop">📚 '+(isKid?'낱말':'용어집')+'</button>'); topin.appendChild(tbtn); tbtn.addEventListener('click',openGlo); }
+      // ② 하단 플로팅 버튼 (엄지로 바로)
+      var fab=el('<button type="button" class="apw-globtn">📚 '+(isKid?'낱말사전':'용어집')+'</button>');
       root.appendChild(fab);
-      fab.addEventListener('click',function(){ pop.style.display='flex'; });
-      pop.querySelector('.apw-glox').addEventListener('click',function(){ pop.style.display='none'; });
-      pop.addEventListener('click',function(e){ if(e.target===pop) pop.style.display='none'; });
+      fab.addEventListener('click',openGlo);
+      pop.querySelector('.apw-glox').addEventListener('click',closeGlo);
+      pop.addEventListener('click',function(e){ if(e.target===pop) closeGlo(); });
     })();
 
     // ── 하단 내비게이션 ───────────────────────────────────────────
