@@ -62,14 +62,15 @@
 
   var LEVELS=[['starter','초5~6 · 기초'],['architecture','중1~2 · 심화']];
 
-  function cardHTML(p){
+  function cardHTML(p, isFirst){
+    // [무료 정책] 무료 체험 1강은 각 코스(비전 기초·심화·트랙)의 '첫 시즌'에서만 제공
     var bullets=(p.bullets||[]).map(function(b){return '<div class="tp"><span class="d">◆</span>'+esc(b)+'</div>';}).join('');
     var fu=(p.fusion_tags||[]).map(function(f){return '<span>'+esc(f)+'</span>';}).join('');
     var more=p.more_note?('<div class="more">'+esc(p.more_note)+'</div>'):'';
-    var corner=p.owned?('<span class="ownedbadge">✓ 구독중</span>'):('<span class="trial">'+esc(p.trial_label||'🎟️ 1강 무료')+'</span>');
+    var corner=p.owned?('<span class="ownedbadge">✓ 구독중</span>'):(isFirst?('<span class="trial">'+esc(p.trial_label||'🎟️ 1강 무료')+'</span>'):'');
     var cta=p.owned
       ? '<button class="btn owned" data-act="open" data-id="'+p.id+'">이어서 학습 →</button>'
-      : '<button class="btn ghost" data-act="trial" data-id="'+p.id+'">체험 1강</button><button class="btn pri" data-act="start" data-id="'+p.id+'">이 시즌 시작 →</button>';
+      : ((isFirst?'<button class="btn ghost" data-act="trial" data-id="'+p.id+'">체험 1강</button>':'')+'<button class="btn pri" data-act="start" data-id="'+p.id+'">이 시즌 시작 →</button>');
     // 🛒 담기: 미구독 카드에 노출 (vision·track 모두 store_products 등록됨)
     var cartBtn=(!p.owned)
       ? '<button class="btn cart" data-act="cart" data-id="'+p.id+'">🛒 장바구니에 담기</button>'
@@ -107,7 +108,7 @@
           if(res.error){ grid.innerHTML='<div class="aspmsg">불러오기 실패: '+esc(res.error.message)+'</div>'; return; }
           var rows=res.data||[];
           if(!rows.length){ grid.innerHTML='<div class="aspmsg">준비된 시즌이 없습니다.</div>'; return; }
-          grid.innerHTML=rows.map(cardHTML).join('');
+          grid.innerHTML=rows.map(function(p,i){return cardHTML(p, i===0);}).join('');
           el._aspRows=rows;
         })
         .catch(function(e){ grid.innerHTML='<div class="aspmsg">오류: '+esc(e&&e.message||e)+'</div>'; });
