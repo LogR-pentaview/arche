@@ -2099,6 +2099,7 @@ window.ADMIN=ADMIN;
 const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",hqnews:"본사 소식",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"융합사고 역량 코스"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
+const ARCHE_VIEWS=['sr','perf','gdesign','gperf'];  // 펜타 아르케(진로·수행평가) — 중·고 통합 선택 + 3모드
 function toggleGroup(g){ if(window.trackSeg)trackSeg(g); }
 function go(el){
   if(el.classList.contains('disabled')){ alert('준비 중인 기능입니다.'); return; }
@@ -2112,6 +2113,8 @@ function go(el){
   document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
   if(v==='home' && window._isB2C && window.renderB2CParentHome){ try{ renderB2CParentHome(); }catch(e){} }
   if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if((v==='sr'||v==='perf')&&window.archeModeInject){ archeModeInject(v,'dae'); }
+  if((v==='gdesign'||v==='gperf')&&window.archeModeInject){ archeModeInject(v,'goip'); }
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2128,6 +2131,49 @@ function careerMount(which){
   if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
 }
 window.careerMount=careerMount;
+/* ===== 펜타 아르케 3모드 상단 바 (학부모 관리 / 학생 자기주도 / 컨설턴트 준비중) ===== */
+function _archeStudentFor(band){ return (band==='goip')? (window._gactive||null) : (window._activeStudent||null); }
+function _archeTabsHTML(active){
+  var tabs=[['parent','👪 학부모 관리모드'],['student','🎓 학생 자기주도모드'],['consultant','🧑‍🏫 컨설턴트 관리모드']];
+  return '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 16px">'+tabs.map(function(t){
+    var on=(t[0]===active);
+    var badge=(t[0]==='consultant')?' <span style="font-size:9px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:5px;padding:1px 5px;margin-left:3px">준비중</span>':'';
+    return '<button data-mode="'+t[0]+'" style="padding:9px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:700;border:1px solid '+(on?'var(--gold,#3182f6)':'var(--line,#232a35)')+';background:'+(on?'var(--gold,#3182f6)':'transparent')+';color:'+(on?'#fff':'var(--ink-dim,#aeb7c2)')+'">'+t[1]+badge+'</button>';
+  }).join('')+'</div>';
+}
+function archeModeInject(viewId, band){
+  var view=document.getElementById('v-'+viewId); if(!view) return;
+  var s=_archeStudentFor(band);
+  var bar=document.getElementById('armb-'+viewId);
+  var panel=document.getElementById('armp-'+viewId);
+  if(!bar){
+    bar=document.createElement('div'); bar.id='armb-'+viewId;
+    var anchor=null, kids=view.children;
+    for(var i=0;i<kids.length;i++){ var c=kids[i]; if(c.classList&&(c.classList.contains('eyebrow')||c.classList.contains('h1')||c.classList.contains('sub')||c.classList.contains('pg-title'))){ anchor=c; } else break; }
+    if(anchor&&anchor.nextSibling) view.insertBefore(bar,anchor.nextSibling); else view.insertBefore(bar,view.firstChild);
+  }
+  if(!panel){ panel=document.createElement('div'); panel.id='armp-'+viewId; bar.parentNode.insertBefore(panel,bar.nextSibling); }
+  function contentChildren(){ return Array.prototype.filter.call(view.children,function(ch){ if(ch===bar||ch===panel)return false; if(ch.classList&&(ch.classList.contains('eyebrow')||ch.classList.contains('h1')||ch.classList.contains('sub')||ch.classList.contains('pg-title')))return false; return true; }); }
+  function showContent(on){ contentChildren().forEach(function(ch){ if(on){ if(ch.getAttribute('data-arhid')==='1'){ ch.style.display=''; ch.removeAttribute('data-arhid'); } } else { if(ch.style.display!=='none'){ ch.setAttribute('data-arhid','1'); ch.style.display='none'; } } }); }
+  if(!s){ bar.style.display='none'; panel.style.display='none'; panel.innerHTML=''; showContent(true); return; }
+  // 학생 로그인 → 탭 숨기고 자기주도 에디터 + 기존 도구 함께 노출
+  if(window._role==='stu'){
+    bar.style.display='none'; panel.style.display=''; showContent(true);
+    if(window.ArcheSelfDrive) ArcheSelfDrive.renderEditor(panel,{student:s}); else panel.innerHTML='';
+    return;
+  }
+  var apply=function(mode){
+    bar.style.display=''; bar.innerHTML=_archeTabsHTML(mode);
+    bar.querySelectorAll('button[data-mode]').forEach(function(b){ b.onclick=function(){ var m=b.getAttribute('data-mode'); if(!window.ArcheSelfDrive){alert('자기주도 모듈 미로드 — /shared/arche_selfdrive.js 업로드·경로를 확인하세요.');return;} ArcheSelfDrive.setMode(s.id,m).then(function(){ apply(m); }).catch(function(e){alert('모드 변경 실패: '+(e.message||e));}); }; });
+    if(mode==='consultant'){ showContent(false); panel.style.display=''; panel.innerHTML='<div class="asd-card"><div class="asd-empty">🚧 컨설턴트 관리모드는 <b>준비중</b>입니다. 곧 담당 컨설턴트가 직접 설계·관리할 수 있게 됩니다.<br>지금은 <b>학부모 관리모드</b> 또는 <b>학생 자기주도모드</b>를 이용해 주세요.</div></div>'; return; }
+    showContent(true);
+    if(mode==='student'){ panel.style.display=''; if(window.ArcheSelfDrive) ArcheSelfDrive.renderParentView(panel,{student:s}); else panel.innerHTML=''; return; }
+    panel.style.display='none'; panel.innerHTML=''; // parent
+  };
+  if(window.ArcheSelfDrive){ ArcheSelfDrive.load(s.id).then(function(row){ apply((row&&row.mode)||'parent'); }); }
+  else apply('parent');
+}
+window.archeModeInject=archeModeInject;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
 function goView(v){
   var el=document.querySelector('.nav[data-v="'+v+'"]');
@@ -2159,6 +2205,8 @@ window.addEventListener('popstate', function(e){
       else if(v==='gdiag'&&window.renderGDiag)renderGDiag(); else if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap();
       else if(v==='gdesign'){window._designTrack='goip';if(window.careerMount)careerMount('goip');} else if(v==='gperf'){window._designTrack='goip';if(window.perfMount)perfMount('goip');} else if(v==='gessay'&&window.renderGEssay)renderGEssay();
       else if(v==='ginterview'&&window.renderGInterview)renderGInterview();
+      if((v==='sr'||v==='perf')&&window.archeModeInject){ archeModeInject(v,'dae'); }
+      if((v==='gdesign'||v==='gperf')&&window.archeModeInject){ archeModeInject(v,'goip'); }
       else if(v==='admin'&&window.ADMIN)window.ADMIN.init(); else if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init();
       else if(v==='billing'&&window.renderBilling){renderBilling();} else if(v==='settings'&&window.loadApiKey){loadApiKey();if(window.loadTeam)loadTeam();}
     }catch(_e){}
@@ -2219,7 +2267,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.03.2";
+window.APP_VERSION="2026.08.03.3";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4200,6 +4248,17 @@ window.fillStudentPickers=fillStudentPickers;
 window._topbarMode='all';
 function topbarSelect(id){
   if(!id)return;
+  if(window._topbarMode==='arche'){
+    var all=[].concat(window._students||[], window._gstudents||[]);
+    var st=all.find(function(x){return x.id===id;}); if(!st){ selectStudent(id); return; }
+    var band=window.b2cBand?b2cBand(st.grade):(st.admission_track==='고입'?'중':'고');
+    if(band==='초'){ alert('아르케(진로·수행평가)는 중·고등학생 대상입니다.'); var td0=document.getElementById('topbar-student'); if(td0)td0.value=(window._activeStudent?window._activeStudent.id:(window._gactive?window._gactive.id:'')); return; }
+    var isJr=(window._curView==='sr'||window._curView==='gdesign');
+    var targetView=isJr?(band==='고'?'sr':'gdesign'):(band==='고'?'perf':'gperf');
+    if(band==='고'){ window._activeStudent=st; } else { window._gactive=st; }
+    try{ if(window._isB2C&&window.applyB2CSidebar) applyB2CSidebar(band); }catch(e){}
+    goView(targetView); return;
+  }
   var isG=(window._gstudents||[]).some(function(x){return x.id===id;});
   if(window._topbarMode==='goip' || (window._topbarMode==='all'&&isG)){
     selectGStudent(id);
@@ -4215,6 +4274,16 @@ async function syncTopbarPicker(v){
   var td=document.getElementById('topbar-student'); if(!td)return;
   var isGoip=(typeof GOIP_VIEWS!=='undefined'&&GOIP_VIEWS.indexOf(v)>=0);
   var isDae=(typeof DAE_VIEWS!=='undefined'&&DAE_VIEWS.indexOf(v)>=0);
+  var isArche=(typeof ARCHE_VIEWS!=='undefined'&&ARCHE_VIEWS.indexOf(v)>=0);
+  if(isArche){
+    window._topbarMode='arche';
+    if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
+    var isHi=(v==='sr'||v==='perf');
+    var comb=[].concat(window._students||[], window._gstudents||[]).filter(function(x){ var b=window.b2cBand?b2cBand(x.grade):''; return b!=='초'; });
+    var curA=isHi?(window._activeStudent?window._activeStudent.id:''):(window._gactive?window._gactive.id:'');
+    td.innerHTML='<option value="">— 미선택 —</option>'+comb.map(function(x){ var b=window.b2cBand?b2cBand(x.grade):''; return '<option value="'+x.id+'">'+esc(x.name||'-')+(x.grade?' · '+esc(x.grade):'')+(b==='중'?' · 중등':' · 고등')+'</option>'; }).join('');
+    td.value=curA; return;
+  }
   if(isGoip){
     window._topbarMode='goip';
     if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
