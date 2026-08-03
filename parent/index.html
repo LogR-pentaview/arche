@@ -2057,7 +2057,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_kg_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=7"></script>
-<script src="/shared/arche_cart.js?v=1"></script>
+<script src="/shared/arche_cart.js?v=2"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
 <script src="/shared/arche_career_bridge.js?v=2"></script>
@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.03.6";
+window.APP_VERSION="2026.08.03.7";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2446,7 +2446,7 @@ function policyTermsHTML(){ return `
 <p><b>제6조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않으며, AI 발문('소크')은 <b>정답·대필을 제공하지 않고</b> 학생이 스스로 사고하도록 질문으로만 돕습니다. 계정의 부정 공유·콘텐츠 무단 복제·배포는 금지되며, 위반 시 이용이 제한될 수 있습니다.</p>
 <p><b>제7조(책임의 제한)</b> 회사는 AI 분석·진단 결과의 정확성이나 합격을 보장하지 않으며, 결과는 참고 자료입니다. 회사는 관계 법령이 허용하는 범위에서 책임을 부담합니다.</p>
 <p style="font-size:11px;color:var(--ink-mute)">※ 본 약관은 개정될 수 있으며, 개정 시 앱 내 고지합니다. 본 약관에 관한 분쟁은 대한민국 법령을 준거법으로 합니다.</p>
-<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 통신판매업신고번호: 제0000-지역-0000호 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
+<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 통신판매업신고번호: 준비중 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
 `; }
 window.showPolicyDoc=function(kind){
   var ov=document.createElement('div');
@@ -2985,7 +2985,14 @@ function b2cOpenStore(){
     +'<div style="font-size:21px;font-weight:800;margin:2px 2px 2px">상품 담기</div>'
     +'<div style="font-size:13px;color:#8b95a1;margin:4px 2px 12px">'+(s.name?('<b>'+esc(s.name)+'</b> 자녀'):'현재 자녀')+' 기준으로 담깁니다. 담은 뒤 <b>🛒 장바구니</b>에서 결제하세요.</div>'
     +'<div id="b2c-store-msg" style="font-size:12.5px;color:#12b76a;height:16px;margin-bottom:6px"></div>'
-    +'<div id="b2c-store-list" style="color:#8b95a1">불러오는 중…</div></div>';
+    +'<div id="b2c-store-list" style="color:#8b95a1">불러오는 중…</div>'
+    +'<div style="margin-top:18px;background:#f7f8fb;border:1px solid #eef1f4;border-radius:12px;padding:13px 15px;font-size:11.5px;color:#6b7688;line-height:1.75">'
+      +'📄 <b style="color:#4e5968">구매 전 안내</b> · 펜타 시리즈는 온라인 디지털 학습 <b>구독/이용권 서비스</b>로 <b>실물 배송이 없으며</b>, 결제 즉시 회원 계정에서 <b>서비스 제공(이용)이 개시</b>됩니다. 구독은 매 결제주기 자동 청구되며 다음 결제일 전 해지할 수 있습니다.<br>'
+      +'교환·환불·청약철회·취소는 관련 정책을 따릅니다 — '
+      +'<a href="/policy/refund.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline;font-weight:700">청약철회·환불정책</a> · '
+      +'<a href="/policy/terms.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">이용약관</a> · '
+      +'<a href="/policy/privacy.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">개인정보처리방침</a>'
+    +'</div></div>';
   var list=document.getElementById('b2c-store-list');
   if(!window.ArcheCart){ list.innerHTML='<div style="color:#8b95a1">장바구니 모듈 미로드 — /shared/arche_cart.js 업로드·경로를 확인하세요.</div>'; return; }
   ArcheCart.products().then(function(ps){
