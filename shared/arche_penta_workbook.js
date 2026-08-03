@@ -80,6 +80,14 @@
 .apw .apw-glo-i{background:var(--acc-soft);border:1px solid var(--acc-l);border-radius:11px;padding:11px 14px}
 .apw .apw-glo-i b{display:block;color:var(--acc-d);font-size:13.5px;margin-bottom:3px;font-weight:800}
 .apw .apw-glo-i span{display:block;color:var(--dim);font-size:12.5px;line-height:1.65}
+.apw .apw-globtn{position:fixed;right:14px;bottom:78px;z-index:30;background:var(--acc);color:#fff;border:none;border-radius:22px;padding:10px 15px;font-size:13px;font-weight:800;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.28);cursor:pointer}
+.apw.track .apw-globtn{color:#0e2418;background:var(--acc-l)}
+.apw .apw-glopop{position:fixed;inset:0;z-index:40;background:rgba(10,14,20,.55);display:flex;align-items:flex-end;justify-content:center}
+.apw .apw-glopop-c{background:var(--cream);width:100%;max-width:560px;max-height:74vh;border-radius:18px 18px 0 0;padding:15px 18px 26px;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.34)}
+.apw .apw-glopop-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.apw .apw-glopop-h b{font-size:16px;color:#1a2230}
+.apw .apw-glox{background:none;border:none;font-size:18px;cursor:pointer;color:#8b95a1;line-height:1}
+@media(min-width:600px){.apw .apw-glopop{align-items:center}.apw .apw-glopop-c{border-radius:18px}}
 /* ── 커버(친근한 히어로) ── */
 .apw .cover{background:linear-gradient(155deg,var(--navy) 0%,#0d1220 90%);color:#fff;border-radius:22px;padding:34px 22px 30px;text-align:center;position:relative;overflow:hidden;margin-bottom:14px}
 .apw.track .cover{background:linear-gradient(155deg,#10151f,#1c2740 70%,#22303f)}
@@ -341,7 +349,7 @@
       }
     });
 
-    // ── 용어집 (자동노출) : L.glossary 있으면 마지막에 카드 자동 추가 ──
+    // ── 용어집 (실시간 접근) : L.glossary 있으면 항상 떠있는 📚 용어 버튼 + 팝업 ──
     (function(){
       var g = L.glossary || L.terms || null;
       if(!Array.isArray(g) || !g.length) return;
@@ -350,14 +358,15 @@
         return {term:(t.term||t.t||t.word||t.name||''), def:(t.def||t.d||t.desc||t.meaning||t.gloss||'')};
       }).filter(function(x){ return x.term||x.def; });
       if(!items.length) return;
-      var gv=addView('용어집');
       var body=items.map(function(x){ return '<div class="apw-glo-i"><b>'+esc(x.term)+'</b>'+(x.def?'<span>'+esc(x.def)+'</span>':'')+'</div>'; }).join('');
-      var gp=document.createElement('div'); gp.className='page';
-      gp.innerHTML='<span class="eyebrow">📚 용어집</span>'
-        +'<div class="ph"><h2 class="title serif">'+(isKid?'오늘의 낱말 사전':'이번 회차 핵심 용어')+'</h2></div>'
-        +'<div class="stgdesc">'+(isKid?'모르는 말이 나오면 여기서 뜻을 확인해요. 뜻을 알면 탐구가 훨씬 쉬워져요!':'낯선 용어는 여기서 확인하세요. 개념을 정확히 알면 탐구의 깊이가 달라집니다.')+'</div>'
-        +'<div class="apw-glo">'+body+'</div>';
-      gv.appendChild(gp);
+      var pop=el('<div class="apw-glopop"><div class="apw-glopop-c"><div class="apw-glopop-h"><b>📚 '+(isKid?'낱말 사전':'용어집')+'</b><button type="button" class="apw-glox" aria-label="닫기">✕</button></div><div class="apw-glo">'+body+'</div></div></div>');
+      pop.style.display='none';
+      root.appendChild(pop);
+      var fab=el('<button type="button" class="apw-globtn">📚 용어</button>');
+      root.appendChild(fab);
+      fab.addEventListener('click',function(){ pop.style.display='flex'; });
+      pop.querySelector('.apw-glox').addEventListener('click',function(){ pop.style.display='none'; });
+      pop.addEventListener('click',function(e){ if(e.target===pop) pop.style.display='none'; });
     })();
 
     // ── 하단 내비게이션 ───────────────────────────────────────────
