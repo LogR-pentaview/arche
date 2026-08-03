@@ -728,16 +728,6 @@
             <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--ink-dim);margin-bottom:10px;cursor:pointer"><input type="checkbox" id="as-rookie" onchange="asRookieToggle()" style="accent-color:var(--lime)"> <b style="color:var(--ink)">신입생</b> — 아직 학생 자료 기록이 거의 없어요</label>
-            <div id="as-onboard" style="display:none;background:var(--panel-2);border:1px dashed var(--line);border-radius:10px;padding:13px;margin-bottom:12px">
-              <div style="font-size:11px;color:var(--ink-mute);margin-bottom:9px;line-height:1.6">학생 자료 대신 <b>상담 정보</b>로 진단·설계를 시작합니다. (가능한 만큼만 입력)</div>
-              <input id="as-ob-target" placeholder="희망 특목고/대학" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-strong" placeholder="강점 과목·단원 (예: 수학-이차함수, 과학-화학반응)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-weak" placeholder="약점 과목·단원" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-disp" placeholder="성향 (예: 탐구형 / 발표·활동형 / 꼼꼼한 기록형)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <input id="as-ob-reading" placeholder="독서 이력 (중학생)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px">
-              <textarea id="as-ob-recall" rows="2" placeholder="중학 활동 회고 (고1 · 중학 학생 자료는 등록 후 [열기]→자료입력에서 업로드 가능)" style="width:100%;padding:9px 11px;background:var(--panel);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical"></textarea>
-            </div>
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -2071,6 +2061,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
 <script src="/shared/arche_career_bridge.js?v=2"></script>
+<script src="/shared/arche_selfdrive.js?v=1"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2228,7 +2219,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.03.1";
+window.APP_VERSION="2026.08.03.2";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -6228,10 +6219,56 @@ function archeMatchCut(rows, univ, major){
   return { best: pool[0], all: pool };
 }
 
+/* ===== 아르케 3모드 (학부모앱) : 학부모 관리 / 학생 자기주도 / 컨설턴트(준비중) ===== */
+function _archeModebar(){
+  var body=document.getElementById('arche-body'); if(!body) return null;
+  var bar=document.getElementById('arche-modebar');
+  if(!bar){ bar=document.createElement('div'); bar.id='arche-modebar'; body.parentNode.insertBefore(bar, body); }
+  return bar;
+}
+function _archeHideModebar(){ var bar=document.getElementById('arche-modebar'); if(bar) bar.style.display='none'; }
+function _archeRenderModebar(active){
+  var bar=_archeModebar(); if(!bar) return;
+  bar.style.display='';
+  var tabs=[['parent','👪 학부모 관리모드'],['student','🎓 학생 자기주도모드'],['consultant','🧑‍🏫 컨설턴트 관리모드']];
+  bar.innerHTML='<div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px">'+tabs.map(function(t){
+    var on=(t[0]===active);
+    var badge=(t[0]==='consultant')?' <span style="font-size:9px;color:var(--reach,#f79009);border:1px solid var(--reach,#f79009);border-radius:5px;padding:1px 5px;margin-left:3px">준비중</span>':'';
+    return '<button data-mode="'+t[0]+'" style="padding:9px 14px;border-radius:9px;cursor:pointer;font-size:12.5px;font-weight:700;border:1px solid '+(on?'var(--gold,#3182f6)':'var(--line,#232a35)')+';background:'+(on?'var(--gold,#3182f6)':'transparent')+';color:'+(on?'#fff':'var(--ink-dim,#aeb7c2)')+'">'+t[1]+badge+'</button>';
+  }).join('')+'</div>';
+  bar.querySelectorAll('button[data-mode]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var m=b.getAttribute('data-mode'); var s=window._activeStudent; if(!s) return;
+      if(!window.ArcheSelfDrive){ alert('자기주도 모듈 미로드 — /shared/arche_selfdrive.js 업로드·경로를 확인하세요.'); return; }
+      ArcheSelfDrive.setMode(s.id,m).then(function(){ renderArche(); }).catch(function(e){ alert('모드 변경 실패: '+(e.message||e)); });
+    });
+  });
+}
 async function renderArche(){
   const body=document.getElementById('arche-body'); if(!body)return;
-  if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
+  if(!window._activeStudent||!sb){ _archeHideModebar(); body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
   const s=window._activeStudent;
+  // 학생 로그인 → 자기주도 에디터 (학생 대시보드)
+  if(window._role==='stu'){
+    _archeHideModebar();
+    if(window.ArcheSelfDrive){ ArcheSelfDrive.renderEditor(body,{student:s}); }
+    else body.innerHTML='<div style="color:var(--risk);padding:20px">자기주도 모듈 미로드 — /shared/arche_selfdrive.js 업로드·경로를 확인하세요.</div>';
+    return;
+  }
+  // 학부모/컨설턴트 → 모드 선택
+  var _asdRow = window.ArcheSelfDrive ? await ArcheSelfDrive.load(s.id) : null;
+  var _mode = (_asdRow && _asdRow.mode) || 'parent';
+  _archeRenderModebar(_mode);
+  if(_mode==='student'){
+    if(window.ArcheSelfDrive){ ArcheSelfDrive.renderParentView(body,{student:s}); }
+    else body.innerHTML='<div style="color:var(--risk);padding:20px">자기주도 모듈 미로드 — /shared/arche_selfdrive.js 업로드·경로를 확인하세요.</div>';
+    return;
+  }
+  if(_mode==='consultant'){
+    body.innerHTML='<div class="asd-card"><div class="asd-empty">🚧 컨설턴트 관리모드는 <b>준비중</b>입니다.<br>담당 컨설턴트가 목표·전략을 직접 설계·관리하는 모드로, 곧 제공될 예정입니다.<br>지금은 <b>학부모 관리모드</b> 또는 <b>학생 자기주도모드</b>를 이용해 주세요.</div></div>';
+    return;
+  }
+  // ===== 이하: 학부모 관리모드(기존 분석 뷰) =====
   const {data,error}=await sb.from('student_metrics').select('*').eq('student_id',s.id).eq('metric_type','univ_reco').order('measured_at',{ascending:false}).limit(1);
   if(error){body.innerHTML='<div style="color:var(--risk)">'+esc(error.message)+'</div>';return;}
   const list=(data&&data[0]&&data[0].payload&&data[0].payload.list)||[];
