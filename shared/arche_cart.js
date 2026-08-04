@@ -22,7 +22,7 @@
 
   async function token(){ try{var s=await sb().auth.getSession(); return (s&&s.data&&s.data.session)?s.data.session.access_token:'';}catch(e){return '';} }
   async function callEdge(action, payload){
-    var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/kg-billing';
+    var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/toss-b2c';
     var tok=await token();
     var r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(Object.assign({action:action}, payload||{}))});
     var d=await r.json().catch(function(){return {};});
@@ -149,7 +149,7 @@
           if(r.data && r.data.ok){
             msg.innerHTML='<div class="warn" style="background:#ecfdf3;border-color:#a6e6c3;color:#137a44">✅ 결제가 완료됐어요.</div>';
             fire(); setTimeout(draw,900);
-          } else if(r.data && r.data.error==='KG_NOT_CONFIGURED'){
+          } else if(r.data && (r.data.error==='TOSS_NOT_CONFIGURED'||r.data.error==='KG_NOT_CONFIGURED')){
             var s=r.data.summary||{};
             msg.innerHTML='<div class="warn">🔧 결제 준비 중입니다. (KG이니시스 계약·설정 후 활성화)<br>결제 예정: 구독 '+won(s.sub_total)+' + 단건 '+won(s.one_total)+'</div>';
             payBtn.disabled=false; payBtn.textContent=won(subTotal+oneTotal)+' 결제하기';
