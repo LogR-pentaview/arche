@@ -188,6 +188,7 @@
     btn.disabled = true; setMsg(msg,'로그인 중…');
     try{
       var session = await signIn(email, pw);
+      try{ await sb.rpc('record_login'); }catch(_e){}
       var r = await routeByRole(session);
       if(r && r.ok){ setMsg(msg,'로그인 성공 — 이동 중…', true); }
       else if(r && r.reason==='manager_pending'){ btn.disabled=false; setMsg(msg,'매니저 승인 대기 중입니다. 본사 승인 후 이용 가능합니다.'); }
