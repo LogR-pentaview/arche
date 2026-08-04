@@ -7031,7 +7031,7 @@ async function renderBilling(){
   if(window._role==='stu'){ return; }
   /* [B2C] 신규 KG 티어 정기결제(비전/트랙/올인원)로 대체 — 구모델(toss 인원기반)은 B2B에만 */
   if(window._isB2C && window.ArcheKGBilling){
-    try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월간/연간)'; }catch(_e){}
+    try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월 단위)'; }catch(_e){}
     try{ ArcheKGBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
     catch(e){ body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요.</div>'; }
     return;
