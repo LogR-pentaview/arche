@@ -128,7 +128,7 @@
         +'<div class="row tot"><span>결제 예정 금액</span><span>'+won(subTotal+oneTotal)+'</span></div>'
         +(subTotal&&oneTotal?'<div class="note">구독과 단건은 결제 시 자동으로 나뉘어 처리됩니다.</div>':'')
         +'</div>';
-      html+='<div style="margin:12px 2px 6px;font-size:11px;color:#8b95a1;line-height:1.75">📄 디지털 학습 구독/이용권 서비스 · <b>실물 배송 없음</b> · <b>결제 즉시 이용 개시</b>. 결제 시 '
+      html+='<div style="margin:12px 2px 6px;font-size:11px;color:#8b95a1;line-height:1.75">📄 디지털 학습 구독/이용권 서비스 · <b>실물 배송 없음</b> · <b>결제 즉시 이용 개시</b> · <b>이용(사용)기간: 개별구매·이용권은 결제일로부터 3개월</b>, 구독은 결제 주기 동안 이용. 결제 시 '
         +'<a href="/policy/refund.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">청약철회·환불정책</a> · '
         +'<a href="/policy/terms.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">이용약관</a> · '
         +'<a href="/policy/privacy.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">개인정보처리방침</a>에 동의하게 됩니다.</div>';

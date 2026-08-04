@@ -95,7 +95,7 @@
       +'<p>순서에 얽매이지 않아요. 관심 가는 주제의 시즌부터 담아 시작하고, 각 시즌은 독립적으로 수강·완주할 수 있습니다.</p>'
       +((course==='vision')?('<div class="lvltoggle">'+LEVELS.map(function(l){return '<button data-lv="'+l[0]+'"'+(l[0]===state.level?' class="on"':'')+'>'+esc(l[1])+'</button>';}).join('')+'</div>'):'')+'</div>'
       +'<div class="seasons" id="asp-seasons"><div class="aspmsg">불러오는 중…</div></div>'
-      +'<div class="foot">시즌은 원하는 순서로 선택할 수 있어요. 한 시즌을 완주하면 다음 시즌 추천과 성장 리포트가 이어집니다.</div>';
+      +'<div class="foot">시즌은 원하는 순서로 선택할 수 있어요. 한 시즌을 완주하면 다음 시즌 추천과 성장 리포트가 이어집니다.<br>⏱️ <b>이용(사용)기간</b>: 시즌 개별구매 상품은 <b>결제일로부터 3개월</b> 동안 이용할 수 있습니다. (디지털 학습 콘텐츠 · 실물 배송 없음)</div>';
 
     var grid=el.querySelector('#asp-seasons');
 
