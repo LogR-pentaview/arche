@@ -2054,10 +2054,10 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=7"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
-<script src="/shared/arche_kg_billing.js?v=1"></script>
+<script src="/shared/arche_kg_billing.js?v=2"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=7"></script>
-<script src="/shared/arche_cart.js?v=2"></script>
+<script src="/shared/arche_cart.js?v=3"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
 <script src="/shared/arche_career_bridge.js?v=2"></script>
@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.03.7";
+window.APP_VERSION="2026.08.04.2";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2441,7 +2441,7 @@ function policyTermsHTML(){ return `
 <p><b>제1조(목적)</b> 본 약관은 로그.알(브랜드 '펜타뷰', 이하 '회사')이 제공하는 온라인 학습 서비스 '펜타 시리즈'(펜타 비전·펜타 트랙·펜타 아르케, 이하 '서비스')의 이용 조건·절차 및 회원과 회사의 권리·의무를 규정합니다.</p>
 <p><b>제2조(서비스 내용)</b> 회사는 초·중등 학생의 사고력·진로 역량 성장을 돕는 디지털 워크북, 성장 리포트, AI 소크라테스식 발문('소크') 등을 제공합니다. 본 서비스는 학습을 <b>보조</b>하며, 결과·성적·합격을 보장하지 않습니다.</p>
 <p><b>제3조(회원가입·계정)</b> 회원은 자신의 계정(ID/PW)을 선량하게 관리할 책임이 있습니다. 만 14세 미만 아동은 법정대리인(보호자)의 동의가 있는 경우에 한하여 이용할 수 있습니다.</p>
-<p><b>제4조(요금·결제)</b> 이용요금은 서비스 화면에 게시된 금액(부가세 포함)을 따릅니다. 주요 요금: 펜타 비전 월 12,900원, 펜타 트랙 월 19,900원, 올인원 월 29,900원, 펜타 아르케 5회권 9,900원. 구독은 결제수단을 통해 매 주기 자동 청구되며, 회원은 언제든지 다음 결제일 전에 해지할 수 있습니다. 연간 결제 시 2개월분이 무료로 제공되며, 형제 할인(둘째부터 30%) 등 프로모션이 적용될 수 있습니다.</p>
+<p><b>제4조(요금·결제)</b> 이용요금은 서비스 화면에 게시된 금액(부가세 포함)을 따릅니다. 주요 요금: 펜타 비전 월 12,900원, 펜타 트랙 월 19,900원, 올인원 월 29,900원, 펜타 아르케 5회권 9,900원. 정기결제(구독)는 월 단위(1개월)로만 제공되며, 결제수단을 통해 매월 자동 청구됩니다. 회원은 언제든지 다음 결제일 전에 해지할 수 있습니다. 형제 할인(둘째부터 30%) 등 프로모션이 적용될 수 있습니다.</p>
 <p><b>제5조(청약철회·환불)</b> 결제 후 7일 이내이며 콘텐츠를 이용·다운로드하지 않은 경우 전액 환불됩니다. 디지털 콘텐츠 특성상 이용이 개시된 부분은 청약철회가 제한될 수 있습니다. 구독 해지 시 다음 주기부터 청구가 중단되며, 자세한 내용은 청약철회·환불정책에 따릅니다.</p>
 <p><b>제6조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않으며, AI 발문('소크')은 <b>정답·대필을 제공하지 않고</b> 학생이 스스로 사고하도록 질문으로만 돕습니다. 계정의 부정 공유·콘텐츠 무단 복제·배포는 금지되며, 위반 시 이용이 제한될 수 있습니다.</p>
 <p><b>제7조(책임의 제한)</b> 회사는 AI 분석·진단 결과의 정확성이나 합격을 보장하지 않으며, 결과는 참고 자료입니다. 회사는 관계 법령이 허용하는 범위에서 책임을 부담합니다.</p>
@@ -3333,6 +3333,7 @@ document.getElementById('au-login').onclick=async()=>{
   } else { email=auE(); }
   const {data,error}=await sb.auth.signInWithPassword({email:email,password:pw});
   if(error)return msg(error.message);
+  try{ await sb.rpc('record_login'); }catch(_e){}
   enterApp(data.session);
 };
 document.getElementById('au-signup').onclick=async()=>{
