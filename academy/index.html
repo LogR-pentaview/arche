@@ -2868,6 +2868,7 @@ document.getElementById('au-login').onclick=async()=>{
   } else { email=auE(); }
   const {data,error}=await sb.auth.signInWithPassword({email:email,password:pw});
   if(error)return msg(error.message);
+  try{ await sb.rpc('record_login'); }catch(_e){}
   enterApp(data.session);
 };
 document.getElementById('au-signup').onclick=async()=>{
