@@ -2054,10 +2054,10 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=7"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
-<script src="/shared/arche_kg_billing.js?v=2"></script>
+<script src="/shared/arche_toss_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_season_picker.js?v=8"></script>
-<script src="/shared/arche_cart.js?v=4"></script>
+<script src="/shared/arche_cart.js?v=5"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
 <script src="/shared/arche_career_bridge.js?v=2"></script>
@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.04.4";
+window.APP_VERSION="2026.08.04.5";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -7032,9 +7032,9 @@ async function renderBilling(){
   var body=document.getElementById('billing-body'); if(!body||!sb)return;
   if(window._role==='stu'){ return; }
   /* [B2C] 신규 KG 티어 정기결제(비전/트랙/올인원)로 대체 — 구모델(toss 인원기반)은 B2B에만 */
-  if(window._isB2C && window.ArcheKGBilling){
+  if(window._isB2C && window.ArcheTossBilling){
     try{ var lbl=document.getElementById('billing-plan-label'); if(lbl)lbl.textContent='플랜을 선택해 구독하세요 (월 단위)'; }catch(_e){}
-    try{ ArcheKGBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
+    try{ ArcheTossBilling.mount(body, { parentName:(window._parentName||''), studentId:(window._activeStudent&&window._activeStudent.id)||null }); }
     catch(e){ body.innerHTML='<div style="padding:16px;color:#8b95a1">결제 모듈을 불러오지 못했어요.</div>'; }
     return;
   }
@@ -7155,10 +7155,12 @@ async function handleBillingRedirect(){
   if(bill==='success'){
     var authKey=q.get('authKey'), customerKey=q.get('customerKey');
     try{
-      await billingCall('issue',{authKey:authKey,customerKey:customerKey});
+      if(window._isB2C && window.ArcheTossBilling){ await ArcheTossBilling.issueFromRedirect(authKey,customerKey); }
+      else { await billingCall('issue',{authKey:authKey,customerKey:customerKey}); }
       history.replaceState(null,'',base);
       alert('카드가 등록되었습니다. 이제 매월 자동청구가 진행됩니다.');
-      var sn=document.querySelector('.nav[data-v="settings"]'); if(sn)go(sn);
+      if(window._isB2C){ var bn=document.querySelector('.nav[data-v="billing"]'); if(bn)go(bn); }
+      else { var sn=document.querySelector('.nav[data-v="settings"]'); if(sn)go(sn); }
     }catch(e){ history.replaceState(null,'',base); alert('빌링키 발급 실패: '+(e.message||e)); }
   } else {
     history.replaceState(null,'',base);
