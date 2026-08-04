@@ -93,7 +93,7 @@
   function itemRow(it){
     var isPass = it.kind==='pass';
     var tag = it.billing==='subscription'
-      ? '<span class="tag sub">'+(it.cycle==='annual'?'연간구독':'월구독')+'</span>'
+      ? '<span class="tag sub">월구독</span>'
       : '<span class="tag one">단건</span>';
     var qty = isPass
       ? '<div class="qty"><button data-dec="'+it.id+'">−</button><span>'+it.qty+'</span><button data-inc="'+it.id+'">+</button></div>'

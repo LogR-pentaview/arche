@@ -34,7 +34,8 @@
     return d; }
   // 앱 로드 시 1회 티어 프라임(구독 화면 미진입에도 소크 상한 반영)
   function primeTier(){ try{ if(window._tierPrimed)return; window._tierPrimed=1; status().catch(function(){}); }catch(e){} }
-  function subscribe(plan, cycle, studentId, billingKeyId){ return call('subscribe',{plan:plan,cycle:cycle||'monthly',student_id:studentId||null,billing_key_id:billingKeyId}); }
+  // 정기결제(구독)는 월 단위(1개월)만 지원 — KG이니시스 심사 요건. 연간 정기결제는 제공하지 않음.
+  function subscribe(plan, studentId, billingKeyId){ return call('subscribe',{plan:plan,cycle:'monthly',student_id:studentId||null,billing_key_id:billingKeyId}); }
   function cancel(subId){ return call('cancel',{subscription_id:subId}); }
 
   // 카드 등록: 서버 서명 파라미터 → INIStdPay 빌링 인증창 → (리턴페이지가 issue_billkey 호출)
@@ -82,27 +83,26 @@
     var st; try{ st=await status(); }catch(e){ body.innerHTML='<div class="warn">결제 모듈 상태를 불러오지 못했어요: '+esc(e.message)+'</div>'; return; }
     if(!st.configured){ body.innerHTML='<div class="warn">🔧 결제 준비 중입니다. (KG이니시스 계약·설정 완료 후 활성화)</div>'; }
     var pl; try{ pl=(await plans()).plans; }catch(e){ pl={}; }
-    var chosen='vision', cyc='monthly', bkId=(st.billing_keys&&st.billing_keys[0]&&st.billing_keys[0].id)||null;
-    function priceOf(){ var p=pl[chosen]; return p?(cyc==='annual'?p.annual:p.monthly):0; }
+    var chosen='vision', bkId=(st.billing_keys&&st.billing_keys[0]&&st.billing_keys[0].id)||null;
+    function priceOf(){ var p=pl[chosen]; return p?p.monthly:0; }
     function draw(){
-      var cards=Object.keys(pl).map(function(k){ var p=pl[k]; return '<div class="plan'+(k===chosen?' on':'')+'" data-k="'+k+'"><div><div class="nm">'+esc(p.name)+'</div></div><div class="pr">'+ (cyc==='annual'?p.annual:p.monthly).toLocaleString('ko-KR')+'원</div></div>'; }).join('');
-      var subs=(st.subscriptions||[]).filter(function(s){return s.status==='active';}).map(function(s){ return '<div class="sub"><div><b>'+esc((pl[s.plan]&&pl[s.plan].name)||s.plan)+'</b> <span style="font-size:12px;color:#8b95a1">'+(s.cycle==='annual'?'연간':'월간')+' '+Number(s.price).toLocaleString('ko-KR')+'원</span></div><span class="st">이용중</span><button data-cancel="'+s.id+'" style="border:0;background:#f0f2f6;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px">해지</button></div>'; }).join('');
+      var cards=Object.keys(pl).map(function(k){ var p=pl[k]; return '<div class="plan'+(k===chosen?' on':'')+'" data-k="'+k+'"><div><div class="nm">'+esc(p.name)+'</div></div><div class="pr">'+ p.monthly.toLocaleString('ko-KR')+'원<span style="font-size:11px;color:#8b95a1;font-weight:600">/월</span></div></div>'; }).join('');
+      var subs=(st.subscriptions||[]).filter(function(s){return s.status==='active';}).map(function(s){ return '<div class="sub"><div><b>'+esc((pl[s.plan]&&pl[s.plan].name)||s.plan)+'</b> <span style="font-size:12px;color:#8b95a1">월간 '+Number(s.price).toLocaleString('ko-KR')+'원</span></div><span class="st">이용중</span><button data-cancel="'+s.id+'" style="border:0;background:#f0f2f6;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px">해지</button></div>'; }).join('');
       body.innerHTML=(subs?('<div style="font-size:12px;font-weight:800;color:#6b7688;margin-bottom:6px">내 구독</div>'+subs+'<hr style="border:none;border-top:1px solid #eef1f4;margin:14px 0">'):'')
-        +'<div class="cyc"><button data-cyc="monthly" class="'+(cyc==='monthly'?'on':'')+'">월간</button><button data-cyc="annual" class="'+(cyc==='annual'?'on':'')+'">연간(2개월 무료)</button></div>'
+        +'<div style="font-size:12px;color:#8b95a1;margin:2px 0 12px;font-weight:600">월 단위 정기결제 · 언제든 해지 가능</div>'
         +cards
-        +(bkId?'<button class="btn" id="kgb-sub">'+priceOf().toLocaleString('ko-KR')+'원 구독하기</button>'
+        +(bkId?'<button class="btn" id="kgb-sub">월 '+priceOf().toLocaleString('ko-KR')+'원 구독하기</button>'
               :'<button class="btn" id="kgb-card">💳 결제 카드 등록</button>')
         +(!st.configured?'':'');
       body.querySelectorAll('.plan').forEach(function(el){ el.onclick=function(){ chosen=el.getAttribute('data-k'); draw(); }; });
-      body.querySelectorAll('[data-cyc]').forEach(function(b){ b.onclick=function(){ cyc=b.getAttribute('data-cyc'); draw(); }; });
       body.querySelectorAll('[data-cancel]').forEach(function(b){ b.onclick=async function(){ if(!confirm('구독을 해지할까요?'))return; try{ await cancel(b.getAttribute('data-cancel')); st=await status(); draw(); }catch(e){ alert('해지 실패: '+e.message); } }; });
       var cardBtn=body.querySelector('#kgb-card');
       if(cardBtn) cardBtn.onclick=function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } registerCard({ buyerName:ctx.parentName||'', onDone:async function(err,d){ if(err){ alert('카드 등록 실패: '+err.message); return; } st=await status(); bkId=(st.billing_keys&&st.billing_keys[0]&&st.billing_keys[0].id)||null; draw(); } }); };
       var subBtn=body.querySelector('#kgb-sub');
-      if(subBtn) subBtn.onclick=async function(){ subBtn.disabled=true; subBtn.textContent='처리 중…'; try{ var r=await subscribe(chosen, cyc, ctx.studentId, bkId); if(r.ok){ alert('구독이 시작됐어요!'); st=await status(); draw(); } else { alert('결제 실패: '+JSON.stringify(r.charge&&r.charge.detail||r)); subBtn.disabled=false; } }catch(e){ alert('오류: '+e.message); subBtn.disabled=false; } };
+      if(subBtn) subBtn.onclick=async function(){ subBtn.disabled=true; subBtn.textContent='처리 중…'; try{ var r=await subscribe(chosen, ctx.studentId, bkId); if(r.ok){ alert('구독이 시작됐어요!'); st=await status(); draw(); } else { alert('결제 실패: '+JSON.stringify(r.charge&&r.charge.detail||r)); subBtn.disabled=false; } }catch(e){ alert('오류: '+e.message); subBtn.disabled=false; } };
     }
     draw();
   }
 
-  window.ArcheKGBilling={ plans:plans, status:status, subscribe:subscribe, cancel:cancel, registerCard:registerCard, mount:mount, primeTier:primeTier, version:'0.1-scaffold' };
+  window.ArcheKGBilling={ plans:plans, status:status, subscribe:subscribe, cancel:cancel, registerCard:registerCard, mount:mount, primeTier:primeTier, version:'0.2-monthly' };
 })();
