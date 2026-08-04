@@ -2056,8 +2056,8 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_kg_billing.js?v=2"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_season_picker.js?v=7"></script>
-<script src="/shared/arche_cart.js?v=3"></script>
+<script src="/shared/arche_season_picker.js?v=8"></script>
+<script src="/shared/arche_cart.js?v=4"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
 <script src="/shared/arche_career_bridge.js?v=2"></script>
@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.04.2";
+window.APP_VERSION="2026.08.04.4";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2988,6 +2988,7 @@ function b2cOpenStore(){
     +'<div id="b2c-store-list" style="color:#8b95a1">불러오는 중…</div>'
     +'<div style="margin-top:18px;background:#f7f8fb;border:1px solid #eef1f4;border-radius:12px;padding:13px 15px;font-size:11.5px;color:#6b7688;line-height:1.75">'
       +'📄 <b style="color:#4e5968">구매 전 안내</b> · 펜타 시리즈는 온라인 디지털 학습 <b>구독/이용권 서비스</b>로 <b>실물 배송이 없으며</b>, 결제 즉시 회원 계정에서 <b>서비스 제공(이용)이 개시</b>됩니다. 구독은 매 결제주기 자동 청구되며 다음 결제일 전 해지할 수 있습니다.<br>'
+      +'⏱️ <b style="color:#4e5968">이용(사용)기간</b> · 시즌 개별구매·아르케 이용권 등 <b>개별상품은 결제일로부터 3개월</b> 이용할 수 있으며, 구독 상품은 <b>결제 주기 동안</b> 이용합니다.<br>'
       +'교환·환불·청약철회·취소는 관련 정책을 따릅니다 — '
       +'<a href="/policy/refund.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline;font-weight:700">청약철회·환불정책</a> · '
       +'<a href="/policy/terms.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">이용약관</a> · '
@@ -3000,8 +3001,9 @@ function b2cOpenStore(){
     function card(p, badge){ var price=(p.price>0)?won(p.price):'가격 준비중';
       var bd=badge?('<div style="font-size:11px;font-weight:800;color:#1b64da;margin-bottom:3px">'+badge+'</div>'):'';
       var giftBtn=(p.kind==='season')?('<button onclick="b2cGiftSeason(\''+esc(p.stage)+'\',\''+esc(p.level||'')+'\','+(Number(p.season)||0)+','+(Number(p.price)||0)+')" style="border:1px solid #e2c4ec;background:#fbf2fe;color:#8e24aa;border-radius:9px;padding:8px 10px;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap">🎁 선물</button>'):'';
+      var useNote=(p.kind==='season'||p.kind==='pass')?'<div style="font-size:10.5px;color:#12b76a;margin-top:3px;font-weight:600">⏱️ 이용기간 결제일로부터 3개월</div>':'';
       return '<div style="display:flex;align-items:center;gap:8px;border:1px solid #eef1f4;border-radius:12px;padding:11px 13px;margin-bottom:8px;background:#fff;flex-wrap:wrap">'
-       +'<div style="min-width:130px;flex:1">'+bd+'<div style="font-weight:700;font-size:14px">'+esc(p.title)+'</div>'+(p.subtitle?'<div style="font-size:11.5px;color:#8b95a1;margin-top:2px">'+esc(p.subtitle)+'</div>':'')+'</div>'
+       +'<div style="min-width:130px;flex:1">'+bd+'<div style="font-weight:700;font-size:14px">'+esc(p.title)+'</div>'+(p.subtitle?'<div style="font-size:11.5px;color:#8b95a1;margin-top:2px">'+esc(p.subtitle)+'</div>':'')+useNote+'</div>'
        +'<div style="font-weight:800;font-size:13px;white-space:nowrap;color:#141a29">'+price+'</div>'
        +giftBtn
        +'<button onclick="b2cAddToCart(\''+esc(p.ref)+'\')" style="border:0;background:#141a29;color:#fff;border-radius:9px;padding:8px 12px;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap">담기</button></div>'; }
