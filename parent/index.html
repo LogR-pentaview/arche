@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.04.6";
+window.APP_VERSION="2026.08.04.7";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -3128,7 +3128,18 @@ function b2cRenderSettings(){
     +'</div>';
   v.appendChild(panel);
 }
-function b2cChangeParentPw(){ var np=prompt('새 비밀번호 입력 (4자 이상)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.'); sb.auth.updateUser({password:np}).then(function(r){ if(r.error)return alert('변경 실패: '+r.error.message); alert('학부모 비밀번호가 변경되었습니다.'); }); }
+async function b2cChangeParentPw(){
+  var np=prompt('새 비밀번호 입력 (6자 이상 권장)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.');
+  try{
+    // 세션 보장: 비어 있으면 새로고침 시도 (인앱 브라우저 등에서 세션 유실 대응)
+    var g=await sb.auth.getSession(); var session=g&&g.data&&g.data.session;
+    if(!session){ try{ var rf=await sb.auth.refreshSession(); session=rf&&rf.data&&rf.data.session; }catch(_e){} }
+    if(!session){ alert('로그인 세션이 만료됐어요.\n로그아웃 후 다시 로그인한 뒤 변경해 주세요.\n(인앱 창이면 크롬 등 일반 브라우저에서 접속하면 더 안정적이에요.)'); return; }
+    var r=await sb.auth.updateUser({password:np});
+    if(r.error) return alert('변경 실패: '+r.error.message);
+    alert('학부모 비밀번호가 변경되었습니다.');
+  }catch(e){ alert('변경 실패: '+((e&&e.message)||e)); }
+}
 function b2cResetChildPw(){ var c=window._activeStudent; if(!c||!c.id)return alert('자녀 정보를 찾을 수 없습니다. 홈에서 자녀를 먼저 등록/선택하세요.'); if(window.resetStudentPw)resetStudentPw(c.id); }
 window.b2cChangeParentPw=b2cChangeParentPw; window.b2cResetChildPw=b2cResetChildPw; window.b2cRelabelText=b2cRelabelText; window.b2cRenderSettings=b2cRenderSettings;
 async function renderB2CParentHome(){
@@ -3301,6 +3312,10 @@ async function stuChangePw(){
   if(np.length<4){ if(m){m.style.color='var(--risk)';m.textContent='새 비밀번호는 4자 이상 입력하세요.';} return; }
   if(np!==cf){ if(m){m.style.color='var(--risk)';m.textContent='두 비밀번호가 일치하지 않습니다.';} return; }
   if(m){m.style.color='var(--ink-mute)';m.textContent='변경 중…';}
+  // 세션 보장 (인앱 브라우저 등에서 세션 유실 대응)
+  var _g=await sb.auth.getSession(); var _session=_g&&_g.data&&_g.data.session;
+  if(!_session){ try{ var _rf=await sb.auth.refreshSession(); _session=_rf&&_rf.data&&_rf.data.session; }catch(_e){} }
+  if(!_session){ if(m){m.style.color='var(--risk)';m.textContent='세션이 만료됐어요. 다시 로그인 후 시도해주세요.';} return; }
   var {error}=await sb.auth.updateUser({password:np});
   if(error){ if(m){m.style.color='var(--risk)';m.textContent='변경 실패: '+error.message;} return; }
   try{ var u=(await sb.auth.getUser()).data.user; if(u)await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); if(u)localStorage.setItem('arche_pw_ok_'+u.id,'1'); }catch(e){}
