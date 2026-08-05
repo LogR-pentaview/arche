@@ -12,7 +12,7 @@ const SB_KEY = "sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // publishable 
 
 /* Toss Payments
    현재 테스트 키. 자동결제(빌링) 계약 체결 후 live_ck_... 로 이 한 줄만 교체하면 됩니다. */
-const TOSS_CLIENT_KEY = "test_ck_ALnQvDd2VJYmLewOane3Mj7X41mN";
+const TOSS_CLIENT_KEY = "test_ck_Z61JOxRQVEaxkB6AzWb0VW0X9bAq";
 
 /* 엣지 함수 베이스 URL (편의용) */
 const FN_BASE = SB_URL + "/functions/v1";
