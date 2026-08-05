@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.04.5";
+window.APP_VERSION="2026.08.04.6";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4314,6 +4314,21 @@ window.fillStudentPickers=fillStudentPickers;
 window._topbarMode='all';
 function topbarSelect(id){
   if(!id)return;
+  /* [B2C 학부모 홈] 자녀 전환 시 대시보드(프로필·코스·제출함) 재렌더 — goView('home')만으론 재렌더 안 됨 */
+  if(window._isB2C){
+    var _hv=document.getElementById('v-home');
+    if(_hv && _hv.classList.contains('on')){
+      var _all=[].concat(window._students||[], window._gstudents||[]);
+      var _st=_all.find(function(x){return x.id===id;});
+      if(_st){
+        window._activeStudent=_st;
+        var _td=document.getElementById('topbar-student'); if(_td)_td.value=id;
+        try{ if(window.applyB2CSidebar) applyB2CSidebar(window.b2cBand?b2cBand(_st.grade):'중'); }catch(e){}
+        if(window.renderB2CParentHome){ window.renderB2CParentHome(); }
+        return;
+      }
+    }
+  }
   if(window._topbarMode==='arche'){
     var all=[].concat(window._students||[], window._gstudents||[]);
     var st=all.find(function(x){return x.id===id;}); if(!st){ selectStudent(id); return; }
