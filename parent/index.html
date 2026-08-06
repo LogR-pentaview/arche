@@ -2268,7 +2268,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.04.7";
+window.APP_VERSION="2026.08.04.8";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2531,6 +2531,8 @@ async function enterApp(session){
   try{ applyB2CLabels(); }catch(e){}
   try{ if(window._isB2C && window.renderB2CParentHome) setTimeout(renderB2CParentHome,0); }catch(e){}
   if(isAdmin){
+    // 관리자는 무조건 본사 대시보드(/admin/) 하나만 사용 — 부모앱 내 관리자 콘솔로 새지 않게 자동 이동
+    if((location.pathname||'').indexOf('/admin')<0){ location.replace('/admin/'); return; }
     document.body.classList.add('admin-mode');
     var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
     var stg=document.getElementById('topbar-studenttag'); if(stg)stg.style.display='none';
