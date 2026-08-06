@@ -71,10 +71,9 @@
       <button id="loginBtn" class="btn">로그인</button>
       <div class="hint">
         로그인하면 계정에 맞는 화면으로 자동 이동합니다.<br>
-        (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사 · 매니저 → 영업)
+        (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사)
       </div>
       <span class="link" onclick="showView('signup')">회원가입 (학원 · 학부모) →</span>
-      <span class="link" onclick="showView('mgr')">영업매니저로 가입 신청 →</span>
     </div>
 
     <!-- ===== 회원가입 (학원/학부모) ===== -->
@@ -87,8 +86,8 @@
       <input id="s-name" type="text" placeholder="학원명">
       <input id="s-email" type="email" placeholder="이메일" autocomplete="email">
       <input id="s-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
-      <input id="s-refcode" type="text" placeholder="영업매니저 코드 (선택)" autocomplete="off" style="margin-bottom:4px">
-      <div id="s-refstatus" style="font-size:11px;min-height:14px;margin-bottom:8px;color:var(--ink-mute)">코드 미입력 시 본사로 귀속됩니다.</div>
+      <input id="s-refcode" type="text" placeholder="영업매니저 코드 (선택)" autocomplete="off" style="margin-bottom:4px;display:none">
+      <div id="s-refstatus" style="font-size:11px;min-height:14px;margin-bottom:8px;color:var(--ink-mute);display:none">코드 미입력 시 본사로 귀속됩니다.</div>
       <div id="s-msg" class="msg"></div>
       <button id="signupBtn" class="btn">가입하기</button>
       <div class="notice">
