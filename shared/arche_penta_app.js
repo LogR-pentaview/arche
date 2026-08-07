@@ -82,7 +82,7 @@
   function esc(s){return (s==null?"":String(s)).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
   function el(html){var t=document.createElement('template');t.innerHTML=html.trim();return t.content.firstChild;}
   function acadId(){ return window._acadId || (window._academy&&window._academy.id) || null; }
-  function toast(msg){ var t=document.querySelector('.pnta .toast'); if(!t){t=el('<div class="toast"></div>'); (document.querySelector('.pnta')||document.body).appendChild(t);} t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2200); }
+  function toast(msg, ok){ if(window.toast && window.toast!==toast){ try{ return window.toast(msg, ok); }catch(e){} } var t=document.querySelector('.pnta .toast'); if(!t){t=el('<div class="toast"></div>'); (document.querySelector('.pnta')||document.body).appendChild(t);} t.textContent=msg; t.classList.add('on'); setTimeout(function(){t.classList.remove('on');},2200); }
 
   // 코스 정의: vision_basic(비전 기초) · vision_adv(비전 심화) · track(펜타 트랙)
   var COURSES={
