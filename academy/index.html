@@ -2120,7 +2120,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=30"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
-<script src="/shared/arche_penta_app.js?v=10"></script>
+<script src="/shared/arche_penta_app.js?v=11"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_career_bridge.js"></script>
 <script src="/shared/arche_season_picker.js?v=9"></script>
@@ -2282,7 +2282,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.2b";
+window.APP_VERSION="2026.08.07.3b";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4118,12 +4118,22 @@ async function syncTopbarPicker(v){
 }
 /* 저장 등 결과 토스트 알림 */
 function toast(msg,ok){
+  var isErr=(ok===false);
   var t=document.getElementById('arche-toast');
-  if(!t){t=document.createElement('div');t.id='arche-toast';t.style.cssText='position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:opacity .3s;pointer-events:none';document.body.appendChild(t);}
-  t.style.background=ok===false?'#b3261e':'var(--gold)';
-  t.style.color=ok===false?'#fff':'#ffffff';
-  t.textContent=msg; t.style.opacity='1';
-  clearTimeout(window._toastT); window._toastT=setTimeout(function(){t.style.opacity='0';},2800);
+  if(!t){
+    t=document.createElement('div');t.id='arche-toast';
+    t.style.cssText='position:fixed;top:calc(18px + env(safe-area-inset-top,0px));left:50%;z-index:2147483647;display:flex;align-items:center;gap:11px;max-width:min(460px,calc(100vw - 28px));padding:15px 22px;border-radius:14px;font-size:15px;font-weight:800;line-height:1.45;box-shadow:0 14px 38px rgba(0,0,0,.22);opacity:0;transform:translateX(-50%) translateY(-14px) scale(.96);transition:opacity .26s cubic-bezier(.2,.9,.3,1),transform .26s cubic-bezier(.2,.9,.3,1);pointer-events:none;text-align:left';
+    document.body.appendChild(t);
+  }
+  t.style.background=isErr?'#fdecea':'#e9faf1';
+  t.style.color=isErr?'#b3261e':'#0e7a43';
+  t.style.border='1.5px solid '+(isErr?'#f3bdb7':'#9fe3bf');
+  var ic=isErr?'⚠️':'✅';
+  t.innerHTML='<span style="font-size:20px;flex:none;line-height:1">'+ic+'</span><span>'+String(msg==null?'':msg).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';
+  clearTimeout(window._toastT2);
+  window._toastT2=setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0) scale(1)'; },10);
+  clearTimeout(window._toastT);
+  window._toastT=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-14px) scale(.96)'; }, isErr?4600:3600);
 }
 window.toast=toast;
 window.syncTopbarPicker=syncTopbarPicker;
