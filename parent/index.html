@@ -2060,7 +2060,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js?v=30"></script>
 <script src="/shared/arche_soke_chat.js?v=1"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
-<script src="/shared/arche_penta_app.js?v=8"></script>
+<script src="/shared/arche_penta_app.js?v=10"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_toss_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
@@ -2276,7 +2276,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.4";
+window.APP_VERSION="2026.08.07.6";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2937,9 +2937,10 @@ function b2cOpenGuide(){
 window.b2cOpenGuide=b2cOpenGuide;
 /* [튜터리얼 모드] 처음 가입자용 3분 단계별 온보딩 오버레이 — 첫 로그인 시 1회 자동, 사이드바에서 재실행 */
 function b2cTutorial(force){
-  try{ var k='pv_tut_'+(window._myUid||''); if(!force && localStorage.getItem(k)) return; }catch(e){}
+  var isStu=(window._role==='stu')||(window._appRole==='student');
+  try{ var k='pv_tut_'+(isStu?'stu_':'')+(window._myUid||''); if(!force && localStorage.getItem(k)) return; }catch(e){}
   if(document.getElementById('pv-tut-ov')) return;
-  var STEPS=[
+  var PARENT_STEPS=[
     {ic:'🦉',ttl:'펜타뷰에 오신 걸 환영해요',body:'3분이면 시작 준비 끝! 자녀의 <b>사고력·진로 역량</b>을 키우는 여정을 함께합니다.'},
     {ic:'👨‍👧',ttl:'1단계 · 자녀 등록',body:'왼쪽 <b>자녀 관리</b>에서 자녀를 등록하세요. 첫 등록 때 <b>가정 코드</b>(예: KIM)를 한 번 정하면 자녀 로그인 아이디가 자동 발급돼요.'},
     {ic:'🎟️',ttl:'2단계 · 무료로 체험',body:'각 코스의 <b>첫 시즌 1강은 무료</b>예요. <b>학습 콘텐츠</b>에서 코스를 열고 <b>체험 1강</b>으로 자녀에게 보내보세요.'},
@@ -2947,10 +2948,21 @@ function b2cTutorial(force){
     {ic:'🗂',ttl:'4단계 · 자녀 제출함',body:'자녀가 워크북을 제출하면 <b>자녀 제출함</b>에서 확인하고 <b>성장 리포트</b>를 발행해요.'},
     {ic:'✅',ttl:'준비 완료!',body:'자세한 설명은 언제든 <b>사용 안내</b>에서 볼 수 있어요. 지금 자녀부터 등록해볼까요?',final:true}
   ];
+  var STUDENT_STEPS=[
+    {ic:'🦉',ttl:'펜타뷰에 온 걸 환영해!',body:'스스로 생각하는 힘을 키우는 학습 여정을 시작해요. 정답을 외우는 게 아니라 <b>내 생각을 만드는</b> 곳이에요.'},
+    {ic:'🏠',ttl:'1. 내 대시보드',body:'부모님·선생님이 보내준 <b>과제와 코스</b>가 홈에 모여요. 오늘 할 학습을 여기서 확인해요.'},
+    {ic:'📘',ttl:'2. 워크북 풀기',body:'회차(워크북)를 <b>단계(스텝)</b>대로 풀어요. 읽기·영상·딜레마를 보고 <b>내 생각을 직접</b> 써 보면 돼요.'},
+    {ic:'📊',ttl:'3. 성장 확인',body:'탐구 <b>전/후 레이더</b>로 내 생각이 얼마나 넓어졌는지 눈으로 확인할 수 있어요.'},
+    {ic:'🚀',ttl:'4. 제출하기',body:'다 풀면 <b>[제출]</b>! 부모님·선생님이 리포트를 만들어 피드백해줘요. 그 피드백으로 한 번 더 성장해요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'궁금하면 언제든 <b>사용 안내</b>를 다시 볼 수 있어요. 지금 홈에서 오늘의 학습을 시작해요!',final:true}
+  ];
+  var STEPS=isStu?STUDENT_STEPS:PARENT_STEPS;
+  var FINAL_LABEL=isStu?'홈으로 시작하기':'자녀 등록하러 가기';
   var i=0;
   var ov=document.createElement('div'); ov.id='pv-tut-ov';
   ov.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(15,20,40,.55);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
-  function done(goKids){ try{ localStorage.setItem('pv_tut_'+(window._myUid||''),'1'); }catch(e){} try{ov.remove();}catch(e){} if(goKids){ try{ goView('allstudents'); }catch(e){} } }
+  function done(goFinal){ try{ localStorage.setItem('pv_tut_'+(isStu?'stu_':'')+(window._myUid||''),'1'); }catch(e){} try{ov.remove();}catch(e){}
+    if(goFinal){ try{ if(isStu){ if(window.renderStudentHome){ goView('home'); } else { goView('home'); } } else { goView('allstudents'); } }catch(e){} } }
   function render(){
     var s=STEPS[i];
     var dots=STEPS.map(function(_x,j){return '<span style="width:7px;height:7px;border-radius:50%;background:'+(j===i?'#1b64da':'#d3dae6')+';display:inline-block"></span>';}).join('');
@@ -2962,7 +2974,7 @@ function b2cTutorial(force){
       +'<div style="display:flex;align-items:center;gap:6px;margin:16px 0 14px">'+dots+'</div>'
       +'<div style="display:flex;gap:8px">'
         +(i>0?'<button id="pv-tut-prev" style="flex:0 0 auto;padding:12px 16px;background:#f2f4f7;color:#4e5968;border:none;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer">이전</button>':'')
-        +'<button id="pv-tut-next" style="flex:1;padding:12px;background:#1b64da;color:#fff;border:none;border-radius:11px;font-weight:800;font-size:14px;cursor:pointer">'+(s.final?'자녀 등록하러 가기':'다음')+'</button>'
+        +'<button id="pv-tut-next" style="flex:1;padding:12px;background:#1b64da;color:#fff;border:none;border-radius:11px;font-weight:800;font-size:14px;cursor:pointer">'+(s.final?FINAL_LABEL:'다음')+'</button>'
       +'</div></div>';
     var sk=ov.querySelector('#pv-tut-skip'); if(sk)sk.onclick=function(){ done(false); };
     var pv=ov.querySelector('#pv-tut-prev'); if(pv)pv.onclick=function(){ if(i>0){i--;render();} };
@@ -3298,6 +3310,9 @@ async function enterStudentApp(session){
   if(mustChange && !prompted){
     try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
     setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400);
+  } else if(window._isB2C){
+    // b2c 자녀 첫 로그인: 학생용 튜터리얼 1회 자동 (비번 변경 중이면 건너뜀)
+    setTimeout(function(){ try{ b2cTutorial(false); }catch(e){} }, 700);
   }
   var h=document.querySelector('.nav[data-v="home"]'); if(h)go(h);
 }
