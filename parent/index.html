@@ -460,9 +460,9 @@
     <div style="font-family:'Pretendard Variable',Pretendard;font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
     <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
-      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
-      <button data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
+      <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
+      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
@@ -470,7 +470,7 @@
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-name" type="text" placeholder="보호자 성함 또는 학생 이름 (회원가입 시)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
@@ -478,8 +478,7 @@
     </div>
     <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#3182f6)">스팸함·프로모션함</b>을 확인하세요.</div>
     <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
-      <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#3182f6);border:1px dashed var(--gold,#3182f6);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
-<div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
+<div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:2px;line-height:1.5">회원가입 후 <b style="color:var(--gold,#3182f6)">각 서비스 첫 시즌 1강을 무료</b>로 바로 시작할 수 있습니다.<br>한 브라우저에서는 한 계정만 로그인됩니다.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
         <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생 자료 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
         <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -2268,7 +2267,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.04.9";
+window.APP_VERSION="2026.08.07.1";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2320,7 +2319,10 @@ async function ensureAcademy(user){
     || (user.user_metadata&&user.user_metadata.academy_name)
     || (user.email.split('@')[0]+' 학원');
   var acctype=(user.user_metadata&&user.user_metadata.account_type)||'b2b';
-  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id,account_type:acctype}).select('id,name,account_type').single();
+  // 학부모(b2c)는 관리자 승인 없이 즉시 시작 → 가입 시 approved=true. 학원(b2b)은 기존대로 승인 대기.
+  var _newAcad={name:nm,owner_uid:user.id,account_type:acctype};
+  if(acctype==='b2c'){ _newAcad.approved=true; }
+  const {data:ins,error}=await sb.from('academies').insert(_newAcad).select('id,name,account_type').single();
   if(error){console.error('[academy]',error);return null;}
   window._isOwner=true; window._myRole='owner';
   try{ await sb.from('academy_users').insert({academy_id:ins.id,uid:user.id,email:user.email,role:'owner'}); }catch(e){}
@@ -2385,23 +2387,24 @@ function setLoginRole(r){
   document.getElementById('au-adm').style.display=adm?'block':'none';
   document.getElementById('au-email').style.display=emailLogin?'block':'none';
   document.getElementById('au-pw').style.display=stu?'block':'block';
-  document.getElementById('au-name').style.display=emailLogin?'block':'none';
-  document.getElementById('au-signup').style.display=emailLogin?'block':'none';
+  // 학원(con)은 신규 가입 없이 로그인만 — 기존 회원 로그인 유지. 회원가입은 학부모(parent)만.
+  document.getElementById('au-name').style.display=parent?'block':'none';
+  document.getElementById('au-signup').style.display=parent?'block':'none';
   // 이름 입력란 라벨
   var nm=document.getElementById('au-name');
-  if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명 (가입 시 필수)';
+  if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명';
   // 역할별 안내문
   var desc=document.getElementById('login-role-desc');
   if(desc){
-    desc.textContent = con?'학원·교습소 · 팀 운영 가능':
-      parent?'개인 학부모 · 자녀 직접 관리 (월 15만~)':
+    desc.textContent = con?'기존 학원 회원 로그인 전용':
+      parent?'학부모 회원가입 · 자녀 직접 관리 · 각 서비스 첫 시즌 1강 무료':
       stu?'학원/학부모가 발급한 학생 계정':
       '플랫폼 관리자 전용';
   }
   var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
 }
-// 초기 진입 시 기본(학원) 안내 표시
-try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(e){}
+// 초기 진입 시 기본(학부모) 안내 표시 — 학부모용 앱이므로 회원가입 기본값을 학부모로
+try{ if(document.getElementById('login-role-desc')) setLoginRole('parent'); }catch(e){}
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 /* ===== 개인정보/이용 동의 게이트 ===== */
@@ -2519,7 +2522,8 @@ async function enterApp(session){
     gate.style.display='flex';
     return msg('체험 기간(7일)이 만료되었습니다. 도입 문의: penta-view.com');
   }
-  if(!isAdmin && approved===false){
+  if(!isAdmin && approved===false && !window._isB2C){
+    // 학부모(b2c)는 승인 게이트 우회 — 가입 즉시 이용. 학원(b2b)만 승인 대기.
     await sb.auth.signOut();
     gate.style.display='flex';
     return msg('가입 신청이 접수되었습니다. 관리자 승인 후 이용 가능합니다.');
@@ -8969,16 +8973,14 @@ window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자
 // 초기: 모든 그룹 접힘 — 메뉴 이동/홈 카드 클릭 시에만 해당 그룹 펼침
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
-// 홍보홈 '무료 체험 시작'(?trial=1) → 로그인 게이트가 뜨면 게스트 체험 폼 자동 열기
+// 홍보홈 '무료 시작'(?trial=1) → 게스트 폐지. 로그인 게이트가 뜨면 학부모 회원가입으로 유도.
 try{ if(/[?&](trial|guest)=1/.test(location.search)){
   var _tn=0, _tiv=setInterval(function(){
     var ag=document.getElementById('authgate');
-    var gf=document.getElementById('guest-form');
     var visible=ag && getComputedStyle(ag).display!=='none';
-    if(visible && gf){ if(gf.style.display==='none' || !gf.style.display){ try{toggleGuestForm();}catch(e){} }
-      try{ ag.scrollIntoView(); var em=document.getElementById('gu-email'); if(em)em.focus(); }catch(e){}
+    if(visible){ try{ setLoginRole('parent'); ag.scrollIntoView(); var em=document.getElementById('au-email'); if(em)em.focus(); }catch(e){}
       clearInterval(_tiv); }
-    else if(++_tn>40){ clearInterval(_tiv); }  // 로그인돼 게이트가 없으면(이미 로그인) 조용히 종료
+    else if(++_tn>40){ clearInterval(_tiv); }  // 이미 로그인돼 게이트가 없으면 조용히 종료
   }, 250);
 }}catch(e){}
 
