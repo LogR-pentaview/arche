@@ -2286,7 +2286,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.4b";
+window.APP_VERSION="2026.08.07.10";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4085,16 +4085,25 @@ window.fillStudentPickers=fillStudentPickers;
 window._topbarMode='all';
 function topbarSelect(id){
   if(!id)return;
-  var isG=(window._gstudents||[]).some(function(x){return x.id===id;});
-  if(window._topbarMode==='goip' || (window._topbarMode==='all'&&isG)){
-    selectGStudent(id);
-    // 지원가능·성향매칭 화면이면 성적·활동 자동 재연동
-    var gv=document.getElementById('v-goip');
-    if(gv&&gv.classList.contains('on')&&window.goipAutoFill)goipAutoFill();
-    if(window._curView && window.goView)goView(window._curView);  // 현재 화면 1회 재렌더
-  } else {
-    selectStudent(id);  // selectStudent 내부에서 현재 화면 1회 재렌더
-  }
+  // [깜빡임·멈춤 방지] 네이티브 드롭다운을 먼저 닫고(blur), 전환 작업은 한 박자 뒤에 1회만 실행
+  var td=document.getElementById('topbar-student'); if(td){ try{ td.blur(); }catch(e){} }
+  if(window._switchingStu){ return; }
+  window._switchingStu=true;
+  setTimeout(function(){
+    try{
+      var isG=(window._gstudents||[]).some(function(x){return x.id===id;});
+      if(window._topbarMode==='goip' || (window._topbarMode==='all'&&isG)){
+        selectGStudent(id);
+        // 지원가능·성향매칭 화면이면 성적·활동 자동 재연동
+        var gv=document.getElementById('v-goip');
+        if(gv&&gv.classList.contains('on')&&window.goipAutoFill)goipAutoFill();
+        if(window._curView && window.goView)goView(window._curView);  // 현재 화면 1회 재렌더
+      } else {
+        selectStudent(id);  // selectStudent 내부에서 현재 화면 1회 재렌더
+      }
+    }catch(e){}
+    window._switchingStu=false;
+  }, 70);
 }
 async function syncTopbarPicker(v){
   var td=document.getElementById('topbar-student'); if(!td)return;
