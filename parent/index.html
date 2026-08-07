@@ -2270,7 +2270,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.7";
+window.APP_VERSION="2026.08.07.8";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2796,12 +2796,20 @@ window.enterParentViewer=enterParentViewer;
 
 // ── B2C 학부모(메인 앱) 홈 = 학부모 대시보드 ──
 function b2cBand(g){ g=String(g||''); if(g.indexOf('중')>=0)return '중'; if(g.indexOf('초')>=0)return '초'; return '고'; }
-function b2cOpenChildPenta(child, key){
+function b2cOpenChildPenta(child, key, season){
   try{ window._activeStudent=child; }catch(e){}
   var band=b2cBand(child&&child.grade);
-  var idx = (key==='vision_basic')?0 : (key==='track')?2 : (key==='vision_adv')?1 : (band==='초'?0:1);
+  var courseKey=(key==='vision_basic')?'vision_basic':(key==='track')?'track':(key==='vision_adv')?'vision_adv':(band==='초'?'vision_basic':'vision_adv');
+  var idx=(courseKey==='vision_basic')?0:(courseKey==='track')?2:1;
   var navs=document.querySelectorAll('#grp-penta .nav');
-  if(navs[idx]) navs[idx].click(); else if(navs[0]) navs[0].click();
+  var nav=navs[idx]||navs[0];
+  // [시즌 전달] 고른 시즌만 로딩 — season 없으면 전체(null)
+  if(nav && window.ArchePentaApp){
+    try{ go(nav); }catch(e){}
+    var host=document.getElementById('penta-mount');
+    if(host){ try{ ArchePentaApp.mount(host, {course:courseKey, season:(season!=null&&season!=='')?season:null}); return; }catch(e){} }
+  }
+  if(nav) nav.click();
 }
 /* [샘플 리포트] "샘플 리포트/미리보기" 클릭 시 실제 도구로 이동하던 버그 → 진짜 샘플 오버레이 표시 */
 /* [상품 대상 학년 라벨] 비대상 학년 안내·체험용 */
@@ -2839,9 +2847,9 @@ function b2cOpenSeasonPicker(child, key){
   var host=document.getElementById('b2c-season-host');
   if(window.ArcheSeasonPicker && host){
     ArcheSeasonPicker.mount(host,{ course:m[0], level:m[1], studentId:(child&&child.id),
-      onOpen:function(){ b2cOpenChildPenta(child,key); },
-      onTrial:function(){ b2cOpenChildPenta(child,key); },
-      onStart:function(){ b2cOpenChildPenta(child,key); },
+      onOpen:function(p){ b2cOpenChildPenta(child,key,(p&&p.season)); },
+      onTrial:function(p){ b2cOpenChildPenta(child,key,(p&&p.season)); },
+      onStart:function(p){ b2cOpenChildPenta(child,key,(p&&p.season)); },
       onSub:function(){ try{ if(window.toast)toast('구독하면 이 시즌을 자녀에게 보낼 수 있어요',true); }catch(e){} try{ goView('billing'); }catch(e){ try{ b2cOpenChildPenta(child,key); }catch(_){} } },
       onCart:function(p, ref){ if(window.b2cAddToCart) b2cAddToCart(ref); } });
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
