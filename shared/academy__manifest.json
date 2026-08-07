@@ -1,0 +1,18 @@
+{
+  "id": "/academy",
+  "name": "펜타 시리즈 · 학원",
+  "short_name": "펜타 학원",
+  "description": "펜타 비전·트랙·아르케 — 학원 컨설팅·수강생 관리 엔진",
+  "start_url": "/academy",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f7f4",
+  "theme_color": "#f4f7f4",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
