@@ -254,18 +254,20 @@
   // [b2c 자격 필터] 배정 가능한 회차만 남김: 무료 1강(각 코스 첫 시즌 첫 주차) + 소유(구독/개별구매) 시즌
   async function filterAssignableForB2C(cat, spec){
     if(!window._isB2C || !cat || !cat.length) return cat;
-    var minSeason=Math.min.apply(null, cat.map(function(c){return c.season;}));
-    var firstRows=cat.filter(function(c){return c.season===minSeason;});
-    var minWeek=Math.min.apply(null, firstRows.map(function(c){return c.week;}));
-    var owned={};
+    // 시즌별 첫 강(최소 주차)
+    var firstWeek={};
+    cat.forEach(function(c){ if(firstWeek[c.season]==null || c.week<firstWeek[c.season]) firstWeek[c.season]=c.week; });
+    var owned={}, trialOpen={}, gotFlags=false;
     var sid=window._activeStudent && window._activeStudent.id;
     if(sid && window.sb && window.sb.rpc){
       try{ var r=await window.sb.rpc('list_season_catalog',{p_stage:spec.stage,p_level:spec.level||'',p_student:sid});
-        (r.data||[]).forEach(function(p){ if(p.owned) owned[p.season]=true; }); }catch(e){}
+        (r.data||[]).forEach(function(p){ gotFlags=true; if(p.owned) owned[p.season]=true; if(p.trial_open) trialOpen[p.season]=true; }); }catch(e){}
     }
+    // 구버전 서버 호환: trial_open 미제공이면 첫 시즌만 무료로 처리
+    if(!gotFlags){ var ms=Math.min.apply(null, cat.map(function(c){return c.season;})); trialOpen[ms]=true; }
     return cat.filter(function(c){
-      if(owned[c.season]) return true;                       // 구독/구매한 시즌
-      if(c.season===minSeason && c.week===minWeek) return true; // 무료 체험 1강
+      if(owned[c.season]) return true;                                    // 구독/구매한 시즌(전 회차)
+      if(trialOpen[c.season] && c.week===firstWeek[c.season]) return true; // 무료 체험 가능 시즌의 1강
       return false;
     });
   }
