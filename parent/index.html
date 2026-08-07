@@ -2267,7 +2267,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.2";
+window.APP_VERSION="2026.08.07.3";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2926,6 +2926,42 @@ function b2cOpenGuide(){
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenGuide=b2cOpenGuide;
+/* [튜터리얼 모드] 처음 가입자용 3분 단계별 온보딩 오버레이 — 첫 로그인 시 1회 자동, 사이드바에서 재실행 */
+function b2cTutorial(force){
+  try{ var k='pv_tut_'+(window._myUid||''); if(!force && localStorage.getItem(k)) return; }catch(e){}
+  if(document.getElementById('pv-tut-ov')) return;
+  var STEPS=[
+    {ic:'🦉',ttl:'펜타뷰에 오신 걸 환영해요',body:'3분이면 시작 준비 끝! 자녀의 <b>사고력·진로 역량</b>을 키우는 여정을 함께합니다.'},
+    {ic:'👨‍👧',ttl:'1단계 · 자녀 등록',body:'왼쪽 <b>자녀 관리</b>에서 자녀를 등록하세요. 첫 등록 때 <b>가정 코드</b>(예: KIM)를 한 번 정하면 자녀 로그인 아이디가 자동 발급돼요.'},
+    {ic:'🎟️',ttl:'2단계 · 무료로 체험',body:'각 코스의 <b>첫 시즌 1강은 무료</b>예요. <b>학습 콘텐츠</b>에서 코스를 열고 <b>체험 1강</b>으로 자녀에게 보내보세요.'},
+    {ic:'💳',ttl:'3단계 · 계속 이용하기',body:'마음에 들면 <b>구독·결제</b>로 전체 시즌을 열거나, 원하는 <b>시즌만 장바구니</b>에 담아 구매할 수 있어요.'},
+    {ic:'🗂',ttl:'4단계 · 자녀 제출함',body:'자녀가 워크북을 제출하면 <b>자녀 제출함</b>에서 확인하고 <b>성장 리포트</b>를 발행해요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'자세한 설명은 언제든 <b>사용 안내</b>에서 볼 수 있어요. 지금 자녀부터 등록해볼까요?',final:true}
+  ];
+  var i=0;
+  var ov=document.createElement('div'); ov.id='pv-tut-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(15,20,40,.55);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
+  function done(goKids){ try{ localStorage.setItem('pv_tut_'+(window._myUid||''),'1'); }catch(e){} try{ov.remove();}catch(e){} if(goKids){ try{ goView('allstudents'); }catch(e){} } }
+  function render(){
+    var s=STEPS[i];
+    var dots=STEPS.map(function(_x,j){return '<span style="width:7px;height:7px;border-radius:50%;background:'+(j===i?'#1b64da':'#d3dae6')+';display:inline-block"></span>';}).join('');
+    ov.innerHTML='<div style="width:100%;max-width:420px;background:#fff;border-radius:20px;padding:26px 24px 20px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative">'
+      +'<button id="pv-tut-skip" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#8b95a1;font-size:12.5px;font-weight:700;cursor:pointer">건너뛰기</button>'
+      +'<div style="font-size:46px;line-height:1;margin:6px 0 14px">'+s.ic+'</div>'
+      +'<div style="font-size:19px;font-weight:800;color:#191f28;margin-bottom:8px">'+s.ttl+'</div>'
+      +'<div style="font-size:13.5px;color:#4e5968;line-height:1.7;min-height:66px">'+s.body+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin:16px 0 14px">'+dots+'</div>'
+      +'<div style="display:flex;gap:8px">'
+        +(i>0?'<button id="pv-tut-prev" style="flex:0 0 auto;padding:12px 16px;background:#f2f4f7;color:#4e5968;border:none;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer">이전</button>':'')
+        +'<button id="pv-tut-next" style="flex:1;padding:12px;background:#1b64da;color:#fff;border:none;border-radius:11px;font-weight:800;font-size:14px;cursor:pointer">'+(s.final?'자녀 등록하러 가기':'다음')+'</button>'
+      +'</div></div>';
+    var sk=ov.querySelector('#pv-tut-skip'); if(sk)sk.onclick=function(){ done(false); };
+    var pv=ov.querySelector('#pv-tut-prev'); if(pv)pv.onclick=function(){ if(i>0){i--;render();} };
+    var nx=ov.querySelector('#pv-tut-next'); if(nx)nx.onclick=function(){ if(s.final){ done(true); } else { i++; render(); } };
+  }
+  document.body.appendChild(ov); render();
+}
+window.b2cTutorial=b2cTutorial;
 /* ===================== [B2C 장바구니] 상품 담기 · 카트 (arche_cart.js 연동) ===================== */
 function b2cCartBadge(){ if(!window.ArcheCart)return; try{ ArcheCart.count().then(function(n){ var el=document.getElementById('b2c-cart-badge'); if(el) el.textContent=(n>0)?('('+n+')'):''; }); }catch(e){} }
 window.b2cCartBadge=b2cCartBadge;
@@ -3077,23 +3113,36 @@ function applyB2CSidebar(band, mode){
   }
   /* [사이드바 평면화] 아코디언 접힘으로 본사소식이 안 보이던 문제 → 라벨+항목을 항상 펼친 평면 목록으로 렌더 */
   function lbl(t){ return '<div style="font-size:10.5px;font-weight:800;color:var(--ink-mute,#8b95a1);padding:12px 12px 4px;letter-spacing:.03em">'+t+'</div>'; }
+  // [사용 순서 재배치] 처음 가입자 관점: 홈 → 시작 안내 → 자녀 등록·관리 → 자녀 제출함 → 학습 콘텐츠 → 구매·결제 → 소식 → 설정
   var h='<div class="nav" onclick="goView(\'home\')">'+emo('🏠')+' 홈</div>';
+  h+='<div class="nav" onclick="b2cTutorial(true)">'+emo('🚀')+' 시작 튜터리얼</div>';
   h+='<div class="nav" onclick="b2cOpenGuide()">'+emo('📖')+' 사용 안내</div>';
-  if(penta.length){ h+=lbl('펜타')+itemsHTML(penta,true); }
+  if(mode==='parent'){
+    // ① 가장 먼저 쓰는 자녀 등록·제출 확인을 상단에
+    h+=lbl('자녀')
+      +'<div class="nav" onclick="goView(\'allstudents\')">'+emo('👨‍👧')+' 자녀 관리</div>'
+      +'<div class="nav" onclick="b2cOpenInbox()">'+emo('🗂')+' 자녀 제출함 <span id="b2c-inbox-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
+  }
+  // ② 학습 콘텐츠
+  if(penta.length){ h+=lbl('학습 콘텐츠')+itemsHTML(penta,true); }
   if(arche.length){ h+=lbl('펜타 아르케')+itemsHTML(arche,false); }
   if(penta.length){ h+=''
     +'<div class="nav" onclick="'+(mode==='parent'?"b2cOpenPeriodReport(window._activeStudent)":"b2cOpenPeriodViewer()")+'">'+emo('📈')+' 정기 성장 리포트</div>'; }
+  // ③ 구매·결제 (학부모)
+  if(mode==='parent'){
+    h+=lbl('구매·결제')
+      +'<div class="nav" onclick="b2cOpenStore()">'+emo('🛍️')+' 상품 담기</div>'
+      +'<div class="nav" onclick="b2cOpenCart()">'+emo('🛒')+' 장바구니 <span id="b2c-cart-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>'
+      +'<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
+  }
+  // ④ 소식
   h+=lbl('본사 소식')
     +'<div class="nav" onclick="b2cHqOpen(\'notice\')">'+emo('📌')+' 공지</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'news\')">'+emo('📰')+' 교육뉴스</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>';
+  // ⑤ 설정
   if(mode==='parent'){
-    h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
-    h+='<div class="nav" onclick="b2cOpenInbox()">'+emo('🗂')+' 자녀 제출함 <span id="b2c-inbox-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
-    h+='<div class="nav" onclick="b2cOpenStore()">'+emo('🛍️')+' 상품 담기</div>';
-    h+='<div class="nav" onclick="b2cOpenCart()">'+emo('🛒')+' 장바구니 <span id="b2c-cart-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
-    h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
-    h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
+    h+='<div class="nav" onclick="goView(\'settings\')" style="margin-top:8px">'+emo('⚙️')+' 설정</div>';
   } else {
     h+='<div class="nav" onclick="goView(\'stuset\')" style="margin-top:8px">'+emo('⚙️')+' 설정</div>';
   }
@@ -3177,7 +3226,9 @@ async function renderB2CParentHome(){
     }
   });
   /* [사용 안내] 학부모 홈 상단에 사용안내 배너 삽입 */
-  try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cOpenGuide()'); _bn.innerHTML='<span style="font-size:22px">📖</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 사용 안내 보기</div><div style="font-size:12px;color:#6b7688">아르케·펜타 각 기능 사용법을 한눈에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
+  try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cTutorial(true)'); _bn.innerHTML='<span style="font-size:22px">🚀</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 3분 시작 튜터리얼</div><div style="font-size:12px;color:#6b7688">자녀 등록부터 무료 체험·리포트까지 한 번에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
+  /* [첫 로그인] 튜터리얼 1회 자동 실행 (localStorage로 재노출 방지) */
+  try{ setTimeout(function(){ try{ b2cTutorial(false); }catch(e){} }, 500); }catch(e){}
   /* [자녀 제출함] 홈 상단 배너 + 대기 건수 뱃지 */
   try{ var _sec2=v.querySelector('.b2cd-view'); if(_sec2 && !document.getElementById('b2c-inbox-banner')){ var _ib=document.createElement('div'); _ib.id='b2c-inbox-banner'; _ib.style.cssText='cursor:pointer;background:linear-gradient(135deg,#f3f0ff,#fff);border:1px solid #e0d8fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _ib.setAttribute('onclick','b2cOpenInbox()'); _ib.innerHTML='<span style="font-size:22px">🗂</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#4f46a8">자녀 제출함 · 리포트 발행</div><div style="font-size:12px;color:#6b7688" id="b2c-inbox-bnote">자녀가 제출한 워크북을 확인하고 리포트를 발행하세요</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec2.insertBefore(_ib, _sec2.firstChild); }
     var _kids=[].concat(window._students||[],window._gstudents||[]); var _ids=_kids.map(function(k){return k.id;});
