@@ -73,16 +73,17 @@
         로그인하면 계정에 맞는 화면으로 자동 이동합니다.<br>
         (학원 → 컨설팅 · 학부모 → 자녀관리 · 관리자 → 본사)
       </div>
-      <span class="link" onclick="showView('signup')">회원가입 (학원 · 학부모) →</span>
+      <span class="link" onclick="showView('signup')">학부모 회원가입 →</span>
     </div>
 
     <!-- ===== 회원가입 (학원/학부모) ===== -->
     <div id="signupForm">
-      <div class="section-title">회원가입</div>
+      <div class="section-title">학부모 회원가입</div>
       <div class="toggle">
         <button id="t-b2b" class="on" onclick="setType('b2b')">학원</button>
         <button id="t-b2c" onclick="setType('b2c')">학부모</button>
       </div>
+      <div style="font-size:11px;color:var(--ink-mute,#8b95a1);margin:-2px 0 8px;line-height:1.5">가입 즉시 시작 · 관리자 승인 불필요 · 각 서비스 <b>첫 시즌 1강 무료</b></div>
       <input id="s-name" type="text" placeholder="학원명">
       <input id="s-email" type="email" placeholder="이메일" autocomplete="email">
       <input id="s-pw" type="password" placeholder="비밀번호 (6자 이상)" autocomplete="new-password">
