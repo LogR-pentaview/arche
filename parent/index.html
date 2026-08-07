@@ -588,7 +588,7 @@
       <div style="display:flex;align-items:center">
         <button id="mnav-btn" onclick="toggleMobileNav()" aria-label="메뉴" style="display:none;background:transparent;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;cursor:pointer;margin-right:10px;color:var(--ink);font-size:17px;flex:none">☰</button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
+        <div class="studenttag" id="topbar-studenttag" style="position:relative"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="display:none"><option value="">— 미선택 —</option></select><button type="button" id="topbar-student-btn" onclick="toggleStuMenu(event)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">— 미선택 — <span style="font-size:9px;opacity:.6">▾</span></button><div id="topbar-student-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.16);min-width:210px;max-height:60vh;overflow-y:auto;padding:5px"></div></div>
         <div id="dbstat" class="mono" style="display:none;margin-left:14px;font-size:10.5px;color:var(--ink-mute);align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -2270,7 +2270,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.10";
+window.APP_VERSION="2026.08.07.11";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4462,7 +4462,7 @@ async function syncTopbarPicker(v){
     var comb=[].concat(window._students||[], window._gstudents||[]).filter(function(x){ var b=window.b2cBand?b2cBand(x.grade):''; return b!=='초'; });
     var curA=isHi?(window._activeStudent?window._activeStudent.id:''):(window._gactive?window._gactive.id:'');
     td.innerHTML='<option value="">— 미선택 —</option>'+comb.map(function(x){ var b=window.b2cBand?b2cBand(x.grade):''; return '<option value="'+x.id+'">'+esc(x.name||'-')+(x.grade?' · '+esc(x.grade):'')+(b==='중'?' · 중등':' · 고등')+'</option>'; }).join('');
-    td.value=curA; return;
+    td.value=curA; try{renderStuMenuFromSelect();}catch(e){} return;
   }
   if(isGoip){
     window._topbarMode='goip';
@@ -4483,7 +4483,29 @@ async function syncTopbarPicker(v){
     td.innerHTML='<option value="">— 미선택 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
     td.value=cur2;
   }
+  try{ renderStuMenuFromSelect(); }catch(e){}
 }
+/* [커스텀 학생 선택창] 네이티브 <select>(안드로이드 리페인트 깜빡임 원인) 대신 상단바에 직접 그리는 경량 메뉴 — 숨긴 select를 그대로 미러링 */
+function renderStuMenuFromSelect(){
+  var td=document.getElementById('topbar-student'); if(!td)return;
+  var btn=document.getElementById('topbar-student-btn'); var menu=document.getElementById('topbar-student-menu');
+  var cur=td.value||''; var curLabel='— 미선택 —'; var html='';
+  for(var i=0;i<td.options.length;i++){
+    var o=td.options[i]; var id=o.value||''; var lbl=o.textContent||o.text||''; var on=(id===cur); var mute=(!id);
+    if(on && id) curLabel=lbl;
+    html+='<div class="stu-mi" data-id="'+esc(id)+'" style="padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;'+(on?'background:#eef3ff;color:#1b64da;font-weight:700':(mute?'color:#8b95a1':'color:#191f28'))+'">'+esc(lbl)+'</div>';
+  }
+  if(btn) btn.innerHTML=esc(curLabel)+' <span style="font-size:9px;opacity:.6">▾</span>';
+  if(menu) menu.innerHTML=html;
+}
+function toggleStuMenu(ev){ if(ev&&ev.stopPropagation)ev.stopPropagation(); var m=document.getElementById('topbar-student-menu'); if(!m)return; if(m.style.display==='none'||!m.style.display){ try{renderStuMenuFromSelect();}catch(e){} m.style.display='block'; } else { m.style.display='none'; } }
+function closeStuMenu(){ var m=document.getElementById('topbar-student-menu'); if(m)m.style.display='none'; }
+window.toggleStuMenu=toggleStuMenu; window.renderStuMenuFromSelect=renderStuMenuFromSelect;
+document.addEventListener('click', function(e){
+  var t=e.target; var item=(t&&t.closest)?t.closest('.stu-mi'):null;
+  if(item){ var id=item.getAttribute('data-id')||''; closeStuMenu(); var sel=document.getElementById('topbar-student'); if(sel)sel.value=id; if(id)topbarSelect(id); else if(sel){ try{renderStuMenuFromSelect();}catch(_){} } return; }
+  if(!(t&&t.closest&&t.closest('#topbar-studenttag'))) closeStuMenu();
+});
 /* 저장 등 결과 토스트 알림 */
 function toast(msg,ok){
   var isErr=(ok===false);
