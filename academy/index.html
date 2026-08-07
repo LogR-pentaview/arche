@@ -596,7 +596,7 @@
       <div style="display:flex;align-items:center">
         <button id="mnav-btn" onclick="toggleMobileNav()" aria-label="메뉴" style="display:none;background:transparent;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;cursor:pointer;margin-right:10px;color:var(--ink);font-size:17px;flex:none">☰</button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
+        <div class="studenttag" id="topbar-studenttag" style="position:relative"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="display:none"><option value="">— 미선택 —</option></select><button type="button" id="topbar-student-btn" onclick="toggleStuMenu(event)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">— 미선택 — <span style="font-size:9px;opacity:.6">▾</span></button><div id="topbar-student-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.16);min-width:210px;max-height:60vh;overflow-y:auto;padding:5px"></div></div>
         <div id="dbstat" class="mono" style="display:none;margin-left:14px;font-size:10.5px;color:var(--ink-mute);align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -2286,7 +2286,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.12";
+window.APP_VERSION="2026.08.07.13";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4128,7 +4128,29 @@ async function syncTopbarPicker(v){
     td._sig=sig;
   }
   if(td.value!==(cur||'')) td.value=(cur||'');
+  try{ renderStuMenu(list, cur||''); }catch(e){}
 }
+/* [커스텀 학생 선택창] 네이티브 <select> 드롭다운(안드로이드 리페인트 깜빡임 원인)을 쓰지 않고, 상단바에 직접 그리는 경량 메뉴 */
+function _stuBtnLabel(list,cur){ var s=(list||[]).filter(function(x){return x.id===cur;})[0]; return s?(esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')):'— 미선택 —'; }
+function renderStuMenu(list, cur){
+  list=list||[]; cur=cur||'';
+  var btn=document.getElementById('topbar-student-btn');
+  if(btn){ btn.innerHTML=_stuBtnLabel(list,cur)+' <span style="font-size:9px;opacity:.6">▾</span>'; }
+  var menu=document.getElementById('topbar-student-menu'); if(!menu)return;
+  var mi=function(id,label,on,mute){ return '<div class="stu-mi" data-id="'+id+'" style="padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;'+(on?'background:#eef3ff;color:#1b64da;font-weight:700':(mute?'color:#8b95a1':'color:#191f28'))+'">'+label+'</div>'; };
+  var html=mi('', '— 미선택 —', !cur, true);
+  html+=list.map(function(s){ return mi(s.id, esc(s.name||'-')+(s.grade?' <span style="color:#8b95a1;font-weight:400">· '+esc(s.grade)+'</span>':''), s.id===cur, false); }).join('');
+  menu.innerHTML=html;
+}
+function toggleStuMenu(ev){ if(ev&&ev.stopPropagation)ev.stopPropagation(); var m=document.getElementById('topbar-student-menu'); if(!m)return; m.style.display=(m.style.display==='none'||!m.style.display)?'block':'none'; }
+function closeStuMenu(){ var m=document.getElementById('topbar-student-menu'); if(m)m.style.display='none'; }
+window.toggleStuMenu=toggleStuMenu; window.renderStuMenu=renderStuMenu;
+document.addEventListener('click', function(e){
+  var t=e.target;
+  var item=(t&&t.closest)?t.closest('.stu-mi'):null;
+  if(item){ var id=item.getAttribute('data-id')||''; closeStuMenu(); var sel=document.getElementById('topbar-student'); if(sel)sel.value=id; if(id)topbarSelect(id); return; }
+  if(!(t&&t.closest&&t.closest('#topbar-studenttag'))) closeStuMenu();
+});
 /* 저장 등 결과 토스트 알림 */
 function toast(msg,ok){
   var isErr=(ok===false);
