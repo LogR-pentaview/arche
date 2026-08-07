@@ -2270,7 +2270,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.14";
+window.APP_VERSION="2026.08.07.15";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -3077,21 +3077,39 @@ function b2cOpenStore(){
        +'<button onclick="b2cAddToCart(\''+esc(p.ref)+'\')" style="border:0;background:#141a29;color:#fff;border-radius:9px;padding:8px 12px;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap">담기</button></div>'; }
     function grpHead(t){ return '<div style="font-size:12px;font-weight:800;color:#6b7688;margin:16px 2px 8px">'+t+'</div>'; }
     function grp(t, arr){ return arr.length?(grpHead(t)+arr.map(function(p){return card(p,'');}).join('')):''; }
-    function seasonGrp(t, arr){ if(!arr.length)return ''; arr.sort(function(a,b){return (a.season||0)-(b.season||0);});
-      return grpHead(t)+arr.map(function(p){ var lc=p.lesson_count?(' · '+p.lesson_count+'강'):''; return card(p,'시즌 '+p.season+lc); }).join(''); }
+    function seasonCards(arr){ if(!arr.length)return ''; arr.sort(function(a,b){return (a.season||0)-(b.season||0);});
+      return arr.map(function(p){ var lc=p.lesson_count?(' · '+p.lesson_count+'강'):''; return card(p,'시즌 '+p.season+lc); }).join(''); }
     var tiers=ps.filter(function(p){return p.kind==='tier';});
     var passes=ps.filter(function(p){return p.kind==='pass';});
     var vbasic=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='starter';});
     var vadv=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='architecture';});
     var track=ps.filter(function(p){return p.kind==='season'&&p.stage==='track';});
-    list.innerHTML=(grp('정기 구독 (월)',tiers)+grp('이용권',passes)
-      +seasonGrp('펜타 비전 기초 · 시즌 개별',vbasic)
-      +seasonGrp('펜타 비전 심화 · 시즌 개별',vadv)
-      +seasonGrp('펜타 트랙 · 시즌 개별',track))||'<div style="color:#8b95a1">판매 중인 상품이 없습니다.</div>';
+    // [개별 시즌] 카테고리 탭으로 하나씩만 노출 (긴 목록 → 선택 쉽게)
+    window._b2cSeasonHtml={ basic:seasonCards(vbasic), adv:seasonCards(vadv), track:seasonCards(track) };
+    var cats=[]; if(vbasic.length)cats.push(['basic','펜타 비전 기초']); if(vadv.length)cats.push(['adv','펜타 비전 심화']); if(track.length)cats.push(['track','펜타 트랙']);
+    var band=(window.b2cBand?b2cBand(s.grade):'');
+    var defCat=(band==='초')?'basic':(band==='고')?'track':(band==='중'?'adv':'');
+    if(!defCat || !window._b2cSeasonHtml[defCat]) defCat=(cats[0]&&cats[0][0])||'basic';
+    var tabBtn=function(c){ return '<button onclick="b2cStoreTab(\''+c[0]+'\')" data-cat="'+c[0]+'" class="b2c-stab" style="border:1px solid #e5e8eb;background:#fff;color:#4e5968;border-radius:20px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer">'+c[1]+'</button>'; };
+    var seasonBlock = cats.length ? (
+        '<div style="font-size:12px;font-weight:800;color:#6b7688;margin:18px 2px 8px">시즌 개별 구매 <span style="font-weight:600;color:#8b95a1">· 원하는 주제만 골라 담기</span></div>'
+        + (cats.length>1 ? '<div id="b2c-season-tabs" style="display:flex;gap:7px;flex-wrap:wrap;margin:0 2px 12px">'+cats.map(tabBtn).join('')+'</div>' : '')
+        + '<div id="b2c-season-cards"></div>'
+      ) : '';
+    list.innerHTML=(grp('정기 구독 (월)',tiers)+grp('이용권',passes)+seasonBlock)||'<div style="color:#8b95a1">판매 중인 상품이 없습니다.</div>';
+    try{ b2cStoreTab(defCat); }catch(e){}
   }).catch(function(e){ list.innerHTML='<div style="color:#f04452">상품을 불러오지 못했어요: '+esc((e&&e.message)||e)+'</div>'; });
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenStore=b2cOpenStore;
+/* [스토어 개별시즌 탭] 선택 카테고리 시즌만 노출 */
+function b2cStoreTab(cat){
+  window._b2cStoreCat=cat;
+  var host=document.getElementById('b2c-season-cards');
+  if(host){ host.innerHTML=(window._b2cSeasonHtml&&window._b2cSeasonHtml[cat])||'<div style="color:#8b95a1;padding:10px 2px">해당 코스의 시즌 상품이 없습니다.</div>'; }
+  document.querySelectorAll('.b2c-stab').forEach(function(b){ var on=(b.getAttribute('data-cat')===cat); b.style.background=on?'#141a29':'#fff'; b.style.color=on?'#fff':'#4e5968'; b.style.borderColor=on?'#141a29':'#e5e8eb'; });
+}
+window.b2cStoreTab=b2cStoreTab;
 function b2cOpenCart(){
   var v=document.getElementById('v-home'); if(!v) return; if(window._b2cActivateHome)_b2cActivateHome(v);
   v.innerHTML='<div style="max-width:560px;margin:0 auto;padding:16px 14px 60px">'+_b2cBackBtn
