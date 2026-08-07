@@ -251,21 +251,42 @@
     draw();
   }
 
+  // [b2c 자격 필터] 배정 가능한 회차만 남김: 무료 1강(각 코스 첫 시즌 첫 주차) + 소유(구독/개별구매) 시즌
+  async function filterAssignableForB2C(cat, spec){
+    if(!window._isB2C || !cat || !cat.length) return cat;
+    var minSeason=Math.min.apply(null, cat.map(function(c){return c.season;}));
+    var firstRows=cat.filter(function(c){return c.season===minSeason;});
+    var minWeek=Math.min.apply(null, firstRows.map(function(c){return c.week;}));
+    var owned={};
+    var sid=window._activeStudent && window._activeStudent.id;
+    if(sid && window.sb && window.sb.rpc){
+      try{ var r=await window.sb.rpc('list_season_catalog',{p_stage:spec.stage,p_level:spec.level||'',p_student:sid});
+        (r.data||[]).forEach(function(p){ if(p.owned) owned[p.season]=true; }); }catch(e){}
+    }
+    return cat.filter(function(c){
+      if(owned[c.season]) return true;                       // 구독/구매한 시즌
+      if(c.season===minSeason && c.week===minWeek) return true; // 무료 체험 1강
+      return false;
+    });
+  }
   // 회차 배정·전송: 회차 선택 → 코스 수강생(학년폴더) → 일괄/개별 전송
   async function drawAssign(body, course, spec){
     var cat, students;
     try{ cat=bySpec(await listCatalog(), spec); students=await loadPentaStudents(); }catch(e){ body.innerHTML='<div class="warn">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
+    var _catAll=cat;
+    try{ cat=await filterAssignableForB2C(cat, spec); }catch(e){}
     var enrolled = course ? students.filter(function(s){return s.penta_course===course;}) : students;
     body.innerHTML='';
     // 1) 회차 선택
     var top=el('<div class="edit"><h4>① 전송할 회차 선택</h4></div>');
-    if(!cat.length){ top.appendChild(el('<div class="sub" style="margin-top:6px">이 코스의 회차가 아직 없습니다.</div>')); }
+    if(!cat.length){ top.appendChild(el('<div class="sub" style="margin-top:6px">'+(window._isB2C?'배정 가능한 회차가 없습니다. 무료 체험 1강 또는 구독/구매 후 이용해 주세요.':'이 코스의 회차가 아직 없습니다.')+'</div>')); }
     else {
       var selrow=el('<div class="row" style="margin-top:8px;align-items:center"></div>');
       var cs=el('<select id="pn-csel" style="flex:1;min-width:200px"></select>'); cs.innerHTML=cat.map(function(c){return '<option value="'+c.id+'">시즌'+esc(c.season)+' '+esc(c.week)+'주차 · '+esc(c.title)+'</option>';}).join('');
       var pv=el('<button class="act gh" style="flex:none">📖 워크북 미리보기</button>');
       pv.addEventListener('click', function(){ var id=+cs.value; var c=cat.filter(function(x){return x.id===id;})[0]; if(c) openWorkbookPreview(c); });
       selrow.appendChild(cs); selrow.appendChild(pv); top.appendChild(selrow);
+      if(window._isB2C && _catAll && cat.length<_catAll.length){ top.appendChild(el('<div class="sub" style="margin-top:6px;color:#8b95a1">🔒 구독/구매한 시즌과 무료 체험 1강만 배정할 수 있어요. 전체 시즌은 <b>구독·결제</b> 후 이용해 주세요.</div>')); }
     }
     body.appendChild(top);
     // 2) 학생 선택 (학년폴더)
@@ -308,10 +329,11 @@
       if(!cid){ toast('먼저 회차를 선택하세요'); return; }
       var ids=checks.filter(function(c){return c.checked;}).map(function(c){return c.value;});
       if(!ids.length){ toast('학생을 선택하세요'); return; }
-      send.disabled=true; send.textContent='전송 중…'; var okc=0, ec=0;
-      for(var i=0;i<ids.length;i++){ try{ await assign(ids[i], cid, null); okc++; }catch(e){ ec++; } }
+      send.disabled=true; send.textContent='전송 중…'; var okc=0, ec=0, lastErr='';
+      for(var i=0;i<ids.length;i++){ try{ await assign(ids[i], cid, null); okc++; }catch(e){ ec++; lastErr=(e&&e.message)||lastErr; } }
       send.disabled=false; send.textContent='③ 선택한 학생에게 이 회차 전송';
-      toast(okc+'명 전송 완료'+(ec?(' · '+ec+'명 실패'):''));
+      if(ec && lastErr){ toast((okc?okc+'명 전송 · ':'')+ec+'명 실패 — '+lastErr, false); }
+      else { toast(okc+'명 전송 완료', true); }
     });
     body.appendChild(bar);
   }
