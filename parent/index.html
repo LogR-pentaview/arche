@@ -2270,7 +2270,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.13";
+window.APP_VERSION="2026.08.07.14";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -3084,7 +3084,7 @@ function b2cOpenStore(){
     var vbasic=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='starter';});
     var vadv=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='architecture';});
     var track=ps.filter(function(p){return p.kind==='season'&&p.stage==='track';});
-    list.innerHTML=(grp('구독 (올인원)',tiers)+grp('이용권',passes)
+    list.innerHTML=(grp('정기 구독 (월)',tiers)+grp('이용권',passes)
       +seasonGrp('펜타 비전 기초 · 시즌 개별',vbasic)
       +seasonGrp('펜타 비전 심화 · 시즌 개별',vadv)
       +seasonGrp('펜타 트랙 · 시즌 개별',track))||'<div style="color:#8b95a1">판매 중인 상품이 없습니다.</div>';
