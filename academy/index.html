@@ -2171,9 +2171,13 @@ function go(el){
   // 소속 그룹 자동 펼침
   if(DAE_VIEWS.indexOf(v)>=0){if(window.trackSeg)trackSeg('dae');}
   if(GOIP_VIEWS.indexOf(v)>=0){if(window.trackSeg)trackSeg('goip');}
-  document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
-  var vw=document.getElementById('v-'+v); if(vw)vw.classList.add('on');
-  document.getElementById('crumb').textContent=crumbMap[v]||v;window.scrollTo(0,0);
+  var _same=(window._curView===v);
+  var vw=document.getElementById('v-'+v);
+  if(!(_same && vw && vw.classList.contains('on'))){
+    document.querySelectorAll('.view').forEach(s=>s.classList.remove('on'));
+    if(vw)vw.classList.add('on');
+  }
+  document.getElementById('crumb').textContent=crumbMap[v]||v; if(!_same)window.scrollTo(0,0);
   if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
@@ -2282,7 +2286,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.3b";
+window.APP_VERSION="2026.08.07.4b";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -4096,25 +4100,25 @@ async function syncTopbarPicker(v){
   var td=document.getElementById('topbar-student'); if(!td)return;
   var isGoip=(typeof GOIP_VIEWS!=='undefined'&&GOIP_VIEWS.indexOf(v)>=0);
   var isDae=(typeof DAE_VIEWS!=='undefined'&&DAE_VIEWS.indexOf(v)>=0);
-  if(isGoip){
-    window._topbarMode='goip';
-    if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
-    var cur=window._gactive?window._gactive.id:'';
-    td.innerHTML='<option value="">— 미선택 —</option>'+(window._gstudents||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
-    td.value=cur;
-  } else if(isDae){
-    window._topbarMode='dae';
-    var v2=(window._activeStudent&&(window._students||[]).some(function(x){return x.id===window._activeStudent.id;}))?window._activeStudent.id:'';
-    td.innerHTML='<option value="">— 미선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
-    td.value=v2;
-  } else {
-    window._topbarMode='all';
-    if(!(window._gstudents&&window._gstudents.length)&&window.loadGStudents){try{await loadGStudents();}catch(e){}}
-    var list=[].concat(window._students||[], window._gstudents||[]);
-    var cur2=window._gactive?window._gactive.id:(window._activeStudent?window._activeStudent.id:'');
-    td.innerHTML='<option value="">— 미선택 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
-    td.value=cur2;
+  var mode=isGoip?'goip':(isDae?'dae':'all');
+  window._topbarMode=mode;
+  // 고입 학생은 최초 1회만 로드 (매 화면 전환마다 재요청 → 멈춤 방지)
+  if((mode==='goip'||mode==='all') && !(window._gstudents&&window._gstudents.length) && !window._gStuLoaded && window.loadGStudents){
+    try{ await loadGStudents(); }catch(e){} window._gStuLoaded=true;
   }
+  var list = (mode==='goip') ? (window._gstudents||[])
+           : (mode==='dae')  ? (window._students||[])
+           : [].concat(window._students||[], window._gstudents||[]);
+  var cur = (mode==='goip') ? (window._gactive?window._gactive.id:'')
+          : (mode==='dae')  ? ((window._activeStudent&&(window._students||[]).some(function(x){return x.id===window._activeStudent.id;}))?window._activeStudent.id:'')
+          : (window._gactive?window._gactive.id:(window._activeStudent?window._activeStudent.id:''));
+  // [깜빡임 방지] 목록이 그대로면 <select>를 재생성하지 않고 값만 갱신 (Android 웹뷰 드롭다운 플리커 차단)
+  var sig=mode+'|'+list.map(function(s){return s.id+':'+(s.name||'')+':'+(s.grade||'');}).join(',');
+  if(td._sig!==sig){
+    td.innerHTML='<option value="">— 미선택 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
+    td._sig=sig;
+  }
+  if(td.value!==(cur||'')) td.value=(cur||'');
 }
 /* 저장 등 결과 토스트 알림 */
 function toast(msg,ok){
