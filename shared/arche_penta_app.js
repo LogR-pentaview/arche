@@ -410,6 +410,7 @@
 
   // 리포트 생성·검토·발행 오버레이
   async function openReview(a, stu){
+    inject(); // [수정] 자녀 제출함 등 mount()를 거치지 않고 직접 호출될 때 오버레이 CSS가 없어 보이지 않던 문제 해결
     if(!window.ArchePentaReport){ toast('리포트 모듈 미로드'); return; }
     var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div id="pn-rv"><div class="empty">제출물 불러오는 중…</div></div></div></div>');
     document.body.appendChild(ov);
@@ -553,6 +554,6 @@
       .in('student_id', studentIds).order('updated_at',{ascending:false});
     if(r.error) throw r.error; return r.data||[];
   }
-  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.4', _callPenta: callPenta,
+  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.5', _callPenta: callPenta,
     openReview: openReview, listSubmissions: listSubmissionsFor };
 })();
