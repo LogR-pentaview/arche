@@ -411,6 +411,7 @@
   // 리포트 생성·검토·발행 오버레이
   async function openReview(a, stu){
     inject(); // [수정] 자녀 제출함 등 mount()를 거치지 않고 직접 호출될 때 오버레이 CSS가 없어 보이지 않던 문제 해결
+    var b2c = !!window._isB2C; // [문구] b2c 학부모는 본인이 직접 생성·발행 → '학부모에게 발행' 표현 대신 자기 관점 문구
     if(!window.ArchePentaReport){ toast('리포트 모듈 미로드'); return; }
     var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div id="pn-rv"><div class="empty">제출물 불러오는 중…</div></div></div></div>');
     document.body.appendChild(ov);
@@ -425,10 +426,12 @@
     function paint(){
       wrap.innerHTML='';
       // 컨트롤
-      var ctl=el('<div class="edit"><h4>리포트 관리 · '+esc(stu.name)+'</h4>'
-        +'<div class="sub" style="font-size:12px;color:#6b7688">AI가 제출물을 분석해 초안을 만듭니다. 검토·수정 후 학부모에게 발행하세요. (발행 전까지 학부모에게 보이지 않습니다.)</div>'
+      var ctl=el('<div class="edit"><h4>'+(b2c?'성장 리포트':'리포트 관리')+' · '+esc(stu.name)+'</h4>'
+        +'<div class="sub" style="font-size:12px;color:#6b7688">'+(b2c
+            ? 'AI가 자녀의 제출물을 분석해 성장 리포트를 만듭니다. 내용을 확인·수정한 뒤 발행하면 리포트로 저장돼 언제든 다시 볼 수 있어요.'
+            : 'AI가 제출물을 분석해 초안을 만듭니다. 검토·수정 후 학부모에게 발행하세요. (발행 전까지 학부모에게 보이지 않습니다.)')+'</div>'
         +'<div class="row"><button class="act pri" id="rv-gen">'+(report?'AI로 다시 생성':'AI 리포트 생성')+'</button>'
-        +(report?'<button class="act gh" id="rv-edit">간편 수정</button><button class="act dn" id="rv-pub">학부모에게 발행</button>':'')+'</div></div>');
+        +(report?'<button class="act gh" id="rv-edit">간편 수정</button><button class="act dn" id="rv-pub">'+(b2c?'리포트 발행':'학부모에게 발행')+'</button>':'')+'</div></div>');
       wrap.appendChild(ctl);
       var mount=el('<div class="rpmount"></div>'); wrap.appendChild(mount);
       if(report){ try{ ArchePentaReport.render(mount, report); }catch(e){ mount.innerHTML='<div class="warn">렌더 오류: '+esc(e.message||e)+'</div>'; } }
@@ -455,8 +458,8 @@
       var pub=ctl.querySelector('#rv-pub');
       if(pub) pub.addEventListener('click', async function(){
         pub.disabled=true; pub.innerHTML='<span class="spin"></span>발행 중…';
-        try{ await saveReport(sub.id, report, null, 'sent', true); toast('학부모에게 발행했어요 ✅'); pub.textContent='발행 완료'; setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },800);
-        }catch(e){ toast('발행 실패: '+(e.message||e)); pub.disabled=false; pub.textContent='학부모에게 발행'; }
+        try{ await saveReport(sub.id, report, null, 'sent', true); toast((b2c?'리포트를 발행했어요 ✅':'학부모에게 발행했어요 ✅')); pub.textContent='발행 완료'; setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },800);
+        }catch(e){ toast('발행 실패: '+(e.message||e)); pub.disabled=false; pub.textContent=(b2c?'리포트 발행':'학부모에게 발행'); }
       });
 
       var ed=ctl.querySelector('#rv-edit');
@@ -554,6 +557,6 @@
       .in('student_id', studentIds).order('updated_at',{ascending:false});
     if(r.error) throw r.error; return r.data||[];
   }
-  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.5', _callPenta: callPenta,
+  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.6', _callPenta: callPenta,
     openReview: openReview, listSubmissions: listSubmissionsFor };
 })();
