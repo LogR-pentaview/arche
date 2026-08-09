@@ -189,6 +189,26 @@
       // 인터뷰 생략(컨설턴트가 설계 전달) — 인터뷰 안내 대신 바로 워크북 표시
       body.appendChild(el('<div class="card"><div class="nm">컨설턴트가 설계한 탐구 워크북이 도착했어요</div><div class="tp">인터뷰 없이 선생님이 설계한 탐구입니다. 아래 워크북을 열어 직접 작성해 주세요.</div></div>'));
     }
+    // [자기주도] 학부모가 '학생 자기주도모드'를 켠 자녀만 자가 시작 노출 (학부모 관리모드면 받은 것만 수행)
+    var _selfMode=false; try{ if(window.ArcheSelfDrive){ var _md=await ArcheSelfDrive.load(sid); _selfMode=((_md&&_md.mode)==='student'); } }catch(_e){}
+    if(profile && _selfMode){
+      var sc=el('<div class="card" style="border:1.5px solid #1A237E"><div class="nm">🤖 스스로 새 탐구 시작</div><div class="tp">내 인터뷰(관심사)를 바탕으로 AI가 <b>나만의 탐구 설계도</b>를 만들어줘요. 선생님을 기다리지 않고 바로 시작할 수 있어요. (질문·구조만 · 완성 문장 대필 아님)</div><div class="row"><button class="act pri" id="cb-self">AI로 내 탐구 설계 받기</button></div><div class="note" id="cb-selfmsg" style="margin-top:4px"></div></div>');
+      sc.querySelector('#cb-self').addEventListener('click', async function(){
+        var btn=this, m=sc.querySelector('#cb-selfmsg'); btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>내 탐구 설계 생성 중… (10~25초)';
+        try{
+          var lvl=gradeLevel(stu.grade||profile.grade||'');
+          var fieldWithLv=(profile.field||'')+(stu.grade?(' · [학생: '+stu.grade+' — 이 수준에 맞춰 질문 난이도 조절]'):'');
+          var res=await callPenta('career_worksheet',{interview:(profile.answers||{}), field:fieldWithLv, topic:((profile.answers&&profile.answers.topic_want)||''), grade:(stu.grade||''), level:lvl});
+          var d=JSON.parse(res.text);
+          var qs=(d.questions||[]).map(function(q){ return {q:q.q,hint:q.hint}; }).filter(function(q){return q.q;});
+          if(!qs.length) throw new Error('설계를 만들지 못했어요. 다시 시도해 주세요.');
+          var rr=await window.sb.rpc('self_assign_career_worksheet',{p_student:sid,p_title:(d.title||'나의 탐구'),p_questions:qs,p_topic:(d.topic||''),p_field:(profile.field||'')}); if(rr&&rr.error)throw rr.error;
+          m.style.color='#137a44'; m.textContent='내 탐구 설계도가 준비됐어요! 아래 [받은 탐구 워크북]에서 ✍️ 작성하기를 눌러 시작하세요.';
+          setTimeout(function(){ remount(container,'student'); },1000);
+        }catch(e){ m.style.color='#c0313d'; m.textContent='생성 실패: '+(e.message||e); btn.disabled=false; btn.textContent=_t; }
+      });
+      body.appendChild(sc);
+    }
     if(reports.length){
     body.appendChild(el('<div class="sect">받은 탐구 워크북</div>'));
     reports.forEach(function(r){
