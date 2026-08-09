@@ -409,9 +409,16 @@
     if(window._activeStudent){ names[window._activeStudent.id]=window._activeStudent.name; grades[window._activeStudent.id]=window._activeStudent.grade||''; }
     // [정합성] 대입(dae)/고입(goip) 메뉴별로 해당 track 학생만 표시 (학생 학년 기준)
     if(_track){ profiles=profiles.filter(function(p){ return gradeLevel(grades[p.student_id])===_track; }); reports=reports.filter(function(r){ return gradeLevel(grades[r.student_id])===_track; }); }
+    // [아르케 대상] 진로 징검다리는 중·고 전용 — 초등 제외 (gradeLevel이 초등을 goip로 오분류하므로 명시 제외)
+    function _isElem(id){ return /초/.test(String(grades[id]||'')); }
+    // [정합성] 학부모앱(b2c) 컨설턴트 뷰는 활성 자녀 1명만 — 자녀 데이터 혼재 방지 (학원 b2b는 전체 학생 관리 유지)
+    var _b2cActiveId = (window._isB2C && window._activeStudent) ? window._activeStudent.id : null;
+    profiles = profiles.filter(function(p){ return !_isElem(p.student_id) && (!_b2cActiveId || p.student_id===_b2cActiveId); });
+    reports  = reports.filter(function(r){ return !_isElem(r.student_id) && (!_b2cActiveId || r.student_id===_b2cActiveId); });
     var subCourse=[]; try{ var _sids=(window._students||[]).map(function(s){return s.id||s.student_id;}).filter(Boolean); if(window._activeStudent&&_sids.indexOf(window._activeStudent.id)<0)_sids.push(window._activeStudent.id);
-      if(_sids.length){ var _dq=await window.sb.from('design_items').select('*').in('student_id',_sids).not('submission','is',null); subCourse=(_dq.data||[]).filter(function(d){ var sub=(d.status==='제출'||d.status==='평가완료'||!!d.submitted_at); return sub && (!_track || gradeLevel(grades[d.student_id])===_track); }); } }catch(e){}
+      if(_sids.length){ var _dq=await window.sb.from('design_items').select('*').in('student_id',_sids).not('submission','is',null); subCourse=(_dq.data||[]).filter(function(d){ var sub=(d.status==='제출'||d.status==='평가완료'||!!d.submitted_at); return sub && !_isElem(d.student_id) && (!_b2cActiveId || d.student_id===_b2cActiveId) && (!_track || gradeLevel(grades[d.student_id])===_track); }); } }catch(e){}
     host.innerHTML='';
+    if(_b2cActiveId && _isElem(_b2cActiveId)){ host.innerHTML='<div class="empty">진로 징검다리(아르케)는 <b>중·고등 학생 전용</b>이에요. 초등 자녀는 <b>펜타 비전</b> 코스를 이용해 주세요.</div>'; return; }
     host.appendChild(el('<div class="sect">① 인터뷰 완료 — 맞춤 설계도 보내기</div>'));
     if(!profiles.length){ host.appendChild(el('<div class="empty">아직 인터뷰를 완료한 자녀/학생이 없습니다.</div>')); }
     else profiles.forEach(function(p){
@@ -432,7 +439,7 @@
     // ③ 코스웨어 설계 (교과·창체 · 목적·주제·목차 서론·본론·결론) — 학원·페어런츠 공용
     var _profMap={}; profiles.forEach(function(p){ _profMap[p.student_id]=p; });
     host.appendChild(el('<div class="sect">③ 코스웨어 설계 (교과·창체 탐구)</div>'));
-    var _cwList=(window._students||[]).filter(function(s){ var id=s.id||s.student_id; if(!id)return false; if(_track && gradeLevel(grades[id])!==_track) return false; return true; });
+    var _cwList=(window._students||[]).filter(function(s){ var id=s.id||s.student_id; if(!id)return false; if(_isElem(id)) return false; if(_b2cActiveId && id!==_b2cActiveId) return false; if(_track && gradeLevel(grades[id])!==_track) return false; return true; });
     if(!_cwList.length){ host.appendChild(el('<div class="empty">등록된 학생이 없습니다.</div>')); }
     else _cwList.forEach(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name; var gr=s.grade||s.student_grade||'';
       var c=el('<div class="card"><div class="nm">'+esc(nm||'학생')+(gr?' <span class="tp" style="display:inline">· '+esc(gr)+'</span>':'')+(_profMap[id]?' <span class="badge b-sent">인터뷰</span>':'')+'</div><div class="tp">교과/창체 탐구 코스웨어를 설계해 전달합니다. (탐구목적·주제·목차 서론·본론·결론 + 성장 서사 + 학생 간 중복 회피)</div></div>');
