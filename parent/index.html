@@ -2062,7 +2062,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_cart.js?v=5"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
-<script src="/shared/arche_career_bridge.js?v=4"></script>
+<script src="/shared/arche_career_bridge.js?v=6"></script>
 <script src="/shared/arche_selfdrive.js?v=1"></script>
 <script src="/shared/arche_gift.js?v=1"></script>
 <script>
@@ -4757,6 +4757,15 @@ async function perfSaveAsmt(track){
   var due=V('pf-s-due'); var dueIso=null; if(due){ var dd=new Date(due); if(!isNaN(dd.getTime()))dueIso=dd.toISOString(); }
   var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
   if(!acid){ try{ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; }catch(_){}}
+  // [자기주도] 학생 로그인은 RLS상 perf_assessments 직접 insert 불가 → 자가 RPC 사용
+  if(window._role==='stu'){
+    m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
+    var rp=await sb.rpc('self_register_perf_assessment',{p_student:s.id,p_title:title,p_subject:V('pf-s-subject')||null,p_unit:V('pf-s-unit')||null,p_standards:std,p_task:V('pf-s-task')||null,p_rubric:rub,p_method:V('pf-s-method')||null,p_due:dueIso,p_notice:V('pf-s-notice')||null,p_source_file:V('pf-s-fname')||null,p_blueprint:{total_points:(parseFloat(V('pf-s-total'))||null),reflect_ratio:V('pf-s-ratio')||null}});
+    if(rp.error){ m.style.color='var(--risk)'; m.textContent='등록 실패: '+rp.error.message; return; }
+    m.style.color='var(--safe)'; m.textContent='등록 완료 — 이제 관점 설계부터 진행하세요'; if(window.toast)toast('내 수행평가를 등록했어요',true);
+    var raw0=document.getElementById('pf-raw-'+track); if(raw0)raw0.value=''; var fi0=document.getElementById('pf-file-'+track); if(fi0)fi0.value=''; if(window._pfImgs)window._pfImgs[track]=[]; var ni0=document.getElementById('pf-imgnames-'+track); if(ni0)ni0.textContent='';
+    perfMount(track); return;
+  }
   var row={academy_id:acid,student_id:s.id,title:title,subject:V('pf-s-subject')||null,unit:V('pf-s-unit')||null,standards:std,task_body:V('pf-s-task')||null,rubric:rub,submit_method:V('pf-s-method')||null,due_at:dueIso,notice:V('pf-s-notice')||null,source_file:V('pf-s-fname')||null,blueprint:{total_points:(parseFloat(V('pf-s-total'))||null),reflect_ratio:V('pf-s-ratio')||null}};
   m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
   var ins=await sb.from('perf_assessments').insert(row).select('*').single();
@@ -4880,9 +4889,23 @@ async function perfStuView(track,s){
   var box=document.getElementById('perf-root-'+track); box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
   var q=await sb.from('perf_assessments').select('*').eq('student_id',s.id).eq('status','active').order('created_at',{ascending:false});
   if(q.error){ box.innerHTML='<div style="font-size:12px;color:var(--risk)">'+esc(q.error.message)+'</div>'; return; }
-  var asmts=q.data||[]; if(!asmts.length){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">아직 배포된 수행평가가 없습니다. 선생님이 수행평가를 등록하면 여기에 표시됩니다.</div>'; return; }
-  var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); var subs={}; (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;});
-  box.innerHTML=asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('');
+  var asmts=q.data||[]; var subs={};
+  if(asmts.length){ var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;}); }
+  // [자기주도] 학부모가 '학생 자기주도모드'를 켠 자녀만 자가 등록 노출 (학부모 관리모드면 받은 것만 수행)
+  var _selfMode=false; try{ if(window.ArcheSelfDrive){ var _md=await ArcheSelfDrive.load(s.id); _selfMode=((_md&&_md.mode)==='student'); } }catch(_e){}
+  var reg='<div style="border:1.5px solid var(--gold,#3182f6);border-radius:10px;padding:14px 15px;margin-bottom:14px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">➕ 내 수행평가 직접 올리기</div>'
+    +'<div style="font-size:11.5px;color:var(--ink-mute);margin-bottom:10px">학교에서 받은 <b style="color:var(--ink)">수행평가 안내문·평가계획서</b>를 올리면 AI가 과제·성취기준·채점기준을 정리해줘요. 그다음 <b>관점 설계 → 작성 → 예상 채점</b>까지 내가 직접 진행합니다. (선생님을 기다리지 않아도 돼요 · 파일 PDF·DOCX·TXT 또는 사진·붙여넣기)</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
+      +'<input type="file" id="pf-file-'+track+'" accept=".pdf,.docx,.txt,.md" style="font-size:12px;color:var(--ink-dim)">'
+      +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:5px 10px;border-radius:6px">📷 사진 첨부<input type="file" id="pf-img-'+track+'" accept="image/*" multiple style="display:none" onchange="perfImgPick(\''+track+'\')"></label>'
+      +'<button class="btn" onclick="perfParse(\''+track+'\')">AI로 분석</button></div>'
+    +'<div id="pf-imgnames-'+track+'" style="font-size:11px;color:var(--ink-mute);margin-bottom:6px"></div>'
+    +'<textarea id="pf-raw-'+track+'" rows="3" placeholder="또는 안내 내용을 직접 붙여넣기 (HWP 등 자동추출 불가 시)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical;box-sizing:border-box"></textarea>'
+    +'<div id="pf-parsemsg-'+track+'" style="font-size:12px;min-height:14px;margin-bottom:4px"></div>'
+    +'<div id="pf-spec-'+track+'"></div></div>';
+  var listHtml = asmts.length ? ('<div style="font-weight:700;font-size:13px;margin-bottom:8px">내 수행평가</div>'+asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('')) : ('<div style="font-size:12px;color:var(--ink-mute)">'+(_selfMode?'아직 등록된 수행평가가 없어요. 위에서 안내문을 올려 시작하거나, 선생님이 등록하면 여기에 표시됩니다.':'아직 배포된 수행평가가 없습니다. 선생님이 수행평가를 등록하면 여기에 표시됩니다.')+'</div>');
+  box.innerHTML=(_selfMode?reg:'')+listHtml;
 }
 function perfStuCard(a,sub,track){
   var step=perfStepOf(sub);
