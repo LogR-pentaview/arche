@@ -448,6 +448,61 @@
       var row=el('<div class="row"></div>'); var b=el('<button class="act pri">제출물 · AI 평가 · 회신</button>'); b.addEventListener('click',function(){ openCourseReview(container, d, nm, grades[d.student_id]); });
       row.appendChild(b); c.appendChild(row); host.appendChild(c);
     });
+    // ⑤ 메일로 받은 결과물 직접 분석 (앱 미제출 학생용) — 학원(컨설턴트) 전용. 페어런츠앱(_isB2C)에서는 컨설턴트 모드 준비중이므로 숨김.
+    if(!window._isB2C){
+      host.appendChild(el('<div class="sect">⑤ 메일로 받은 결과물 직접 분석 <span style="font-weight:600;color:#8b95a1">· 앱 미제출 학생용</span></div>'));
+      if(!_cwList.length){ host.appendChild(el('<div class="empty">등록된 학생이 없습니다.</div>')); }
+      else _cwList.forEach(function(s){ var id=s.id||s.student_id; var nm=s.name||s.student_name; var gr=s.grade||s.student_grade||'';
+        var c=el('<div class="card"><div class="nm">'+esc(nm||'학생')+(gr?' <span class="tp" style="display:inline">· '+esc(gr)+'</span>':'')+'</div><div class="tp">학생이 앱 제출 대신 <b>메일 등으로 보낸 탐구 결과물</b>을 올려 AI 평가 후 학생에게 전달합니다.</div></div>');
+        var row=el('<div class="row"></div>'); var b=el('<button class="act gd">📩 메일 결과물 분석·전달</button>');
+        b.addEventListener('click',function(){ openMailEval(container, s, nm, gr); });
+        row.appendChild(b); c.appendChild(row); host.appendChild(c);
+      });
+    }
+  }
+  // ⑤ 컨설턴트가 메일로 받은 학생 결과물을 직접 올려 AI 평가 → 학생에게 전달 (앱 제출 경로 없이)
+  async function openMailEval(container, s, name, grade){
+    var ov=ovOpen(); var lvl=gradeLevel(grade); var sid=s.id||s.student_id;
+    var box=el('<div class="acb"><div class="card"></div></div>'); var card=box.querySelector('.card'); ov.querySelector('.bd').appendChild(box);
+    card.innerHTML='<h2 style="margin:0 0 4px">'+esc(name||'학생')+' · 메일로 받은 결과물 분석</h2>'
+      +'<div class="note" style="margin-bottom:8px">학생이 앱 제출 대신 <b>메일 등으로 보낸 탐구 결과물</b>을 올려 AI 평가한 뒤 학생에게 전달합니다. 완성 문장 대필이 아니라 <b>강점·깊이·다음 방향</b> 중심 평가입니다. · 수준: '+(lvl==='dae'?'고등(대입)':'중등(고입)')+'</div>'
+      +'<div class="row" style="gap:6px;flex-wrap:wrap"><input id="me-subj" placeholder="과목/영역 (예: 화학Ⅰ · 창체)" style="flex:1;min-width:140px"><input id="me-title" placeholder="탐구 제목" style="flex:2;min-width:180px"></div>'
+      +'<div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input type="file" id="me-file" accept=".pdf,.docx,.txt,.md" style="font-size:12.5px"><button class="act gh" id="me-extract">파일에서 텍스트 추출</button><span class="note" id="me-fmsg"></span></div>'
+      +'<div style="margin-top:8px"><textarea id="me-body" rows="10" placeholder="학생이 보낸 결과물 내용을 붙여넣거나, 위에서 파일을 추출하세요." style="width:100%"></textarea></div>'
+      +'<div class="row" style="margin-top:8px"><button class="act gd" id="me-ai">🤖 AI 평가 리포트 생성</button></div><div class="note" id="me-msg" style="margin-top:4px"></div><div id="me-rep" style="margin-top:8px"></div>'
+      +'<div class="row" style="margin-top:12px"><button class="act dn" id="me-send">📩 학생에게 전달(평가 저장·회신)</button></div><div class="note" id="me-smsg" style="margin-top:6px"></div>';
+    var repData=null;
+    card.querySelector('#me-extract').addEventListener('click', async function(){
+      var fi=card.querySelector('#me-file'); var f=fi&&fi.files[0]; var fm=card.querySelector('#me-fmsg');
+      if(!f){ fm.style.color='#c0313d'; fm.textContent='파일을 선택하세요.'; return; }
+      if(typeof window.extractExtraText!=='function'){ fm.style.color='#c0313d'; fm.textContent='자동 추출 미지원 — 내용을 붙여넣어 주세요.'; return; }
+      fm.style.color='#6b7688'; fm.textContent='추출 중…';
+      try{ var t=await window.extractExtraText(f); if(t&&t.trim()){ card.querySelector('#me-body').value=t.trim().slice(0,15000); fm.style.color='#137a44'; fm.textContent='추출 완료'; var ti=card.querySelector('#me-title'); if(!ti.value)ti.value=f.name.replace(/\.[^.]+$/,''); } else { fm.style.color='#c0313d'; fm.textContent='텍스트를 추출하지 못했어요 — 붙여넣어 주세요.'; } }
+      catch(e){ fm.style.color='#c0313d'; fm.textContent='추출 실패 — 붙여넣어 주세요.'; }
+    });
+    card.querySelector('#me-ai').addEventListener('click', async function(){
+      var btn=this,m=card.querySelector('#me-msg'); var body=(card.querySelector('#me-body').value||'').trim();
+      if(!body){ m.style.color='#c0313d'; m.textContent='결과물 내용을 입력하세요.'; return; }
+      btn.disabled=true; var _t=btn.textContent; btn.innerHTML='<span class="spin"></span>AI 평가 중…';
+      try{ var cr=await callCoach({ questions:[], answers:body, field:(card.querySelector('#me-subj').value||''), topic:(card.querySelector('#me-title').value||''), name:(name||''), grade:(grade||''), level:lvl });
+        repData={note:cr.note,strengths:cr.strengths,depth:cr.depth,questions:cr.questions,next:cr.next,expression:cr.expression};
+        card.querySelector('#me-rep').innerHTML=reportHtml(repData); m.style.color='#137a44'; m.textContent='평가를 생성했어요. 확인 후 전달하세요.';
+      }catch(e){ m.style.color='#c0313d'; m.textContent='AI 평가 실패: '+(e.message||e); } btn.disabled=false; btn.textContent=_t;
+    });
+    card.querySelector('#me-send').addEventListener('click', async function(){
+      var m=card.querySelector('#me-smsg'); if(!repData){ m.style.color='#c0313d'; m.textContent='먼저 AI 평가를 생성하세요.'; return; }
+      var body=(card.querySelector('#me-body').value||'').trim(); var title=(card.querySelector('#me-title').value||'').trim()||'메일 제출 탐구'; var subj=(card.querySelector('#me-subj').value||'').trim();
+      this.disabled=true; m.style.color='#6b7688'; m.textContent='저장·전달 중…';
+      try{
+        var row={ student_id:sid, grade:(grade||null), subject:(subj||null), title:title, submission:body, submitted_at:new Date().toISOString(), status:'평가완료', feedback:JSON.stringify(repData), source:'consultant', analyzed:true, sent:true };
+        var fi=card.querySelector('#me-file'); if(fi&&fi.files[0])row.file_name=fi.files[0].name;
+        var r=await window.sb.from('design_items').insert(row).select('id'); if(r.error)throw r.error;
+        try{ if(window.sb) window.sb.from('app_notifications').insert({academy_id:acadId(), student_id:sid, recipient:'stu', kind:'design', title:'진로 탐구 평가 도착', body:'선생님이 보내주신 탐구 결과물 평가가 도착했어요.', view:(lvl==='goip'?'gdesign':'sr')}); }catch(_e){}
+        try{ await window.sb.rpc('push_parent_item',{p_academy:acadId(),p_student:sid,p_type:'design',p_title:(name||'학생')+' 진로 탐구 평가',p_body:(repData.note||'')+'\n\n※ 학생이 스스로 진행한 진로 탐색 성장 기록이며 생기부 기재용이 아닙니다.',p_data:null,p_link:null}); }catch(_e){}
+        m.style.color='#137a44'; m.textContent='학생에게 전달했어요 ✅';
+        setTimeout(function(){ ov.remove(); remount(container,'staff'); },900);
+      }catch(e){ this.disabled=false; m.style.color='#c0313d'; m.textContent='전달 실패: '+(e.message||e); }
+    });
   }
   function openInterview(p, name){
     var ov=ovOpen(); var a=p.answers||{}; var h='<div class="acb"><div class="card"><h2 style="margin:0 0 8px">'+esc(name||'학생')+' · 진로 인터뷰</h2>';
