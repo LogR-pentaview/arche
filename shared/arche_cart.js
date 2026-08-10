@@ -2,8 +2,8 @@
  * arche_cart.js · 펜타 B2C 장바구니(카트) 프런트 모듈
  * ----------------------------------------------------------------------------
  * 학부모(B2C)가 자녀별로 시즌·아르케 회권·올인원팩을 담고 한 흐름에서 결제.
- * 체크아웃 시 서버(kg-billing/checkout_cart)가 구독분/단건분을 자동 분리 정산.
- * 의존: window.sb (supabase-js). 결제 흐름은 kg-billing 엣지함수 + 카드(billing_key).
+ * 체크아웃 시 서버(toss-b2c/checkout_cart)가 구독분/단건분을 자동 분리 정산.
+ * 의존: window.sb (supabase-js). 결제 흐름은 toss-b2c 엣지함수 + 카드(billing_key).
  * API :
  *   ArcheCart.addByRef(studentId, 'vision:starter:3'[, qty])  // 상품 ref로 담기
  *   ArcheCart.add(studentId, productId[, qty])                // 상품 id로 담기
@@ -151,7 +151,7 @@
             fire(); setTimeout(draw,900);
           } else if(r.data && (r.data.error==='TOSS_NOT_CONFIGURED'||r.data.error==='KG_NOT_CONFIGURED')){
             var s=r.data.summary||{};
-            msg.innerHTML='<div class="warn">🔧 결제 준비 중입니다. (KG이니시스 계약·설정 후 활성화)<br>결제 예정: 구독 '+won(s.sub_total)+' + 단건 '+won(s.one_total)+'</div>';
+            msg.innerHTML='<div class="warn">🔧 결제 준비 중입니다. (토스 계약·설정 후 활성화)<br>결제 예정: 구독 '+won(s.sub_total)+' + 단건 '+won(s.one_total)+'</div>';
             payBtn.disabled=false; payBtn.textContent=won(subTotal+oneTotal)+' 결제하기';
           } else if(r.data && r.data.error==='NEED_CARD'){
             msg.innerHTML='<div class="warn">💳 결제 카드를 먼저 등록해 주세요.</div>';
@@ -172,6 +172,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, mount:mount, onChange:onChange, version:'1.0'
+    checkout:checkout, mount:mount, onChange:onChange, version:'1.1'
   };
 })();

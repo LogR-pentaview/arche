@@ -5,7 +5,8 @@
  *   ArcheSeasonPicker.mount(el, {
  *     course:'vision'|'track', level:'starter'|'architecture'|'', studentId:'<student_id>',
  *     onTrial:function(p){}, onStart:function(p){}, onOpen:function(p){},
- *     onCart:function(p, ref){}   // 🛒 담기. ref='vision:<level>:<season>' | 'track::<season>'
+ *     onCart:function(p, ref){},  // 🛒 담기. ref='vision:<level>:<season>' | 'track::<season>'
+ *     onGift:function(p, ref){}   // 🎁 선물하기. 미지정 시 window.ArcheGift.openIssue 로 결제 선물
  *   });
  * level 토글(기초/심화)은 vision에서만 노출·재조회.
  */
@@ -47,12 +48,11 @@
     ".asp .btn.pri{background:var(--navy);color:#fff}",
     ".asp .btn.ghost{background:#fff;color:var(--blue-deep);border:1.5px solid #cfd9f0}",
     ".asp .btn.owned{background:var(--safe);color:#fff}",
-    ".asp .btn.lock{background:#f2f4f7;color:#8b95a1;border:1.5px solid #e5e8eb}",
-    ".asp .btn.lock:hover{background:#eef1f5;color:#4e5968}",
-    ".asp .sc .lockbadge{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:#8b95a1;background:#f2f4f7;border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.08)}",
     ".asp .btn.cart{width:100%;flex:none;margin-top:8px;background:var(--gold-soft);color:var(--warn);border:1.5px solid #e3d9b6}",
     ".asp .btn.cart:hover{background:#f1e7c6}",
     ".asp .btn.cart.added{background:var(--safe-soft);color:#137a44;border-color:#a6e6c3}",
+    ".asp .btn.gift{width:100%;flex:none;margin-top:8px;background:var(--blue-soft);color:var(--blue-deep);border:1.5px solid #cfd9f0}",
+    ".asp .btn.gift:hover{background:#dbe9ff}",
     ".asp .sc .trial{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:var(--warn);background:#fff;border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.12)}",
     ".asp .sc .ownedbadge{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:#fff;background:var(--safe);border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.12)}",
     ".asp .foot{text-align:center;font-size:12.5px;color:var(--mute);margin-top:24px;line-height:1.7}",
@@ -66,28 +66,26 @@
   var LEVELS=[['starter','초5~6 · 기초'],['architecture','중1~2 · 심화']];
 
   function cardHTML(p, isFirst){
-    // [무료 정책] 코스별로 '선택한 시즌 1개'의 1강만 무료. 서버의 trial_open 플래그로 판정(미선택 시 전 시즌 open, 선택 후 그 시즌만).
-    var trialOK = (p.trial_open===true) || (p.trial_open==null && isFirst);  // 구버전 서버 호환: trial_open 없으면 첫 시즌
+    // [무료 정책] 무료 체험 1강은 각 코스(비전 기초·심화·트랙)의 '첫 시즌'에서만 제공
     var bullets=(p.bullets||[]).map(function(b){return '<div class="tp"><span class="d">◆</span>'+esc(b)+'</div>';}).join('');
     var fu=(p.fusion_tags||[]).map(function(f){return '<span>'+esc(f)+'</span>';}).join('');
     var more=p.more_note?('<div class="more">'+esc(p.more_note)+'</div>'):'';
-    var corner=p.owned?('<span class="ownedbadge">✓ 이용중</span>')
-      :(trialOK?('<span class="trial">'+esc(p.trial_label||'🎟️ 1강 무료')+'</span>')
-      :'<span class="lockbadge">🔒 구독 전용</span>');
+    var corner=p.owned?('<span class="ownedbadge">✓ 구독중</span>'):(isFirst?('<span class="trial">'+esc(p.trial_label||'🎟️ 1강 무료')+'</span>'):'');
     var cta=p.owned
       ? '<button class="btn owned" data-act="open" data-id="'+p.id+'">이어서 학습 →</button>'
-      : (trialOK
-          ? '<button class="btn ghost" data-act="trial" data-id="'+p.id+'">체험 1강 (무료)</button><button class="btn pri" data-act="sub" data-id="'+p.id+'">구독하고 전체 이용 →</button>'
-          : '<button class="btn lock" data-act="sub" data-id="'+p.id+'">🔒 구독 후 이용</button>');
-    // 🛒 담기: 미구독 카드에 노출 (vision·track 모두 store_products 등록됨)
+      : ((isFirst?'<button class="btn ghost" data-act="trial" data-id="'+p.id+'">체험 1강</button>':'')+'<button class="btn pri" data-act="start" data-id="'+p.id+'">이 시즌 시작 →</button>');
+    // 🛒 담기 / 🎁 선물하기: 미구독 카드에 노출 (vision·track 모두 store_products 등록됨)
     var cartBtn=(!p.owned)
       ? '<button class="btn cart" data-act="cart" data-id="'+p.id+'">🛒 장바구니에 담기</button>'
+      : '';
+    var giftBtn=(!p.owned)
+      ? '<button class="btn gift" data-act="gift" data-id="'+p.id+'">🎁 선물하기</button>'
       : '';
     return '<div class="sc">'+corner
       +'<div class="cap"><span class="sn">시즌 '+esc(p.season)+(p.lesson_count?(' · '+p.lesson_count+'강'):'')+'</span><div class="ct">'+nl2br(p.caption_title)+'</div><div class="cm">'+esc(p.caption_meta||'')+'</div></div>'
       +'<div class="body"><div class="hl">이런 걸 배워요</div>'+bullets+more
       +'<div class="fu">'+fu+'</div>'
-      +'<div class="cta">'+cta+'</div>'+cartBtn+'</div></div>';
+      +'<div class="cta">'+cta+'</div>'+cartBtn+giftBtn+'</div></div>';
   }
 
   function mount(el, opts){
@@ -101,10 +99,9 @@
       '<div class="top"><div class="eb">'+(course==='track'?'PENTA TRACK':'PENTA VISION')+'</div>'
       +'<h1>흥미로운 <em>시즌을 골라</em> 시작하세요</h1>'
       +'<p>순서에 얽매이지 않아요. 관심 가는 주제의 시즌부터 담아 시작하고, 각 시즌은 독립적으로 수강·완주할 수 있습니다.</p>'
-      +'<p style="font-size:12px;color:var(--warn,#b45309);margin-top:6px">🎟️ 무료 체험은 <b>코스당 시즌 1개의 1강</b>이에요. 마음에 드는 시즌을 골라 <b>체험 1강</b>을 눌러보세요. (처음 체험한 시즌이 무료 시즌으로 정해져요)</p>'
       +((course==='vision')?('<div class="lvltoggle">'+LEVELS.map(function(l){return '<button data-lv="'+l[0]+'"'+(l[0]===state.level?' class="on"':'')+'>'+esc(l[1])+'</button>';}).join('')+'</div>'):'')+'</div>'
       +'<div class="seasons" id="asp-seasons"><div class="aspmsg">불러오는 중…</div></div>'
-      +'<div class="foot">시즌은 원하는 순서로 선택할 수 있어요. 한 시즌을 완주하면 다음 시즌 추천과 성장 리포트가 이어집니다.</div>';
+      +'<div class="foot">시즌은 원하는 순서로 선택할 수 있어요. 한 시즌을 완주하면 다음 시즌 추천과 성장 리포트가 이어집니다.<br>⏱️ <b>이용(사용)기간</b>: 시즌 개별구매 상품은 <b>결제일로부터 3개월</b> 동안 이용할 수 있습니다. (디지털 학습 콘텐츠 · 실물 배송 없음)</div>';
 
     var grid=el.querySelector('#asp-seasons');
 
@@ -132,21 +129,26 @@
       });
     });
 
-    // 카드 액션(체험/시작/열기/담기)
+    // 카드 액션(체험/시작/열기/담기/선물)
     grid.addEventListener('click',function(ev){
       var btn=ev.target.closest('button[data-act]'); if(!btn)return;
       var id=+btn.dataset.id, act=btn.dataset.act;
       var p=(el._aspRows||[]).filter(function(r){return r.id===id;})[0]; if(!p)return;
+      var ref=course+':'+(state.level||'')+':'+p.season;
       if(act==='trial' && opts.onTrial) opts.onTrial(p);
       else if(act==='start' && opts.onStart) opts.onStart(p);
-      else if(act==='sub'){ if(opts.onSub) opts.onSub(p); else if(opts.onStart) opts.onStart(p); }
       else if(act==='open' && opts.onOpen) opts.onOpen(p);
       else if(act==='cart'){
-        var ref=course+':'+(state.level||'')+':'+p.season;
         if(opts.onCart){
           try{ opts.onCart(p, ref); }catch(e){}
           btn.textContent='✓ 담았어요'; btn.classList.add('added');
           setTimeout(function(){ btn.textContent='🛒 장바구니에 담기'; btn.classList.remove('added'); }, 1600);
+        }
+      }
+      else if(act==='gift'){
+        if(opts.onGift){ try{ opts.onGift(p, ref); }catch(e){} }
+        else if(window.ArcheGift && window.ArcheGift.openIssue){
+          window.ArcheGift.openIssue({ ref:ref, stage:course, level:(state.level||''), season:p.season, label:p.caption_title, price:p.price });
         }
       }
     });

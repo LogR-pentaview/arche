@@ -1,18 +1,32 @@
 /* ARCHE · 시즌 선물하기 (QR 선물코드)
  * 저장소: public.gift_coupons | RPC: issue_gift / redeem_gift / gift_info (→ grant_season)
+ * 결제 선물: 엣지 toss-b2c(action:'checkout_gift') → 결제 성공 시 issue_gift 자동 발급
  * 전역: window.ArcheGift
  * 의존: 전역 sb(Supabase). QR은 cdnjs qrcodejs 동적 로드.
  */
 (function(){
   "use strict";
   var QR_SRC='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+  var PROJECT_URL='https://dvxepjctjazobrkjrkdw.supabase.co';
   function esc(s){ if(window.esc)return window.esc(s); s=(s==null?'':String(s)); return s.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function _sb(){ return window.sb||null; }
+  function won(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; }
 
   var LABELS={ 'vision|starter':'펜타 비전 기초', 'vision|architecture':'펜타 비전 심화', 'track|':'펜타 트랙' };
   function courseLabel(stage,level){ return LABELS[(stage||'')+'|'+(level||'')]||(stage||''); }
   function giftTitle(g){ return (g.label && String(g.label).trim()) ? g.label : (courseLabel(g.stage,g.level)+' · 시즌'+g.season); }
   function redeemURL(code){ try{ return location.origin+'/parent?gift='+encodeURIComponent(code); }catch(e){ return 'https://arche.penta-view.com/parent?gift='+encodeURIComponent(code); } }
+
+  // 결제 엣지 호출 (선물 결제)
+  function callEdge(action, payload){
+    var sb=_sb(); if(!sb) return Promise.resolve({ httpOk:false, status:0, data:{error:'NO_SB'} });
+    return sb.auth.getSession().then(function(s){
+      var tok=(s&&s.data&&s.data.session)?s.data.session.access_token:'';
+      var url=(window.SB_URL||PROJECT_URL)+'/functions/v1/toss-b2c';
+      return fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify(Object.assign({action:action},payload||{}))})
+        .then(function(r){ return r.json().catch(function(){return {};}).then(function(d){ return { httpOk:r.ok, status:r.status, data:d }; }); });
+    });
+  }
 
   /* ---------- CSS ---------- */
   function injectCSS(){
@@ -140,7 +154,7 @@
     injectCSS();
     var code=g.code||g; var title=giftTitle(g.stage?g:{stage:g.stage,level:g.level,season:g.season,label:g.label});
     var url=redeemURL(code);
-    var ov=ovWrap('<h3>🎁 선물 코드가 준비됐어요</h3><div class="sub">아래 QR을 친구에게 보여주거나 링크를 보내세요. 친구가 열어 자녀에게 등록하면 사용됩니다.</div>'
+    var ov=ovWrap('<h3>🎁 선물 코드가 준비됐어요</h3><div class="sub">아래 QR을 보여주거나 링크를 보내세요. 받는 분이 열어 자녀에게 등록하면 사용됩니다.</div>'
       +'<div class="agft-gift"><div class="t">'+esc(title)+'</div><div class="c">'+esc(code)+'</div></div>'
       +'<div class="agft-qrbox" id="agft-qr"><span style="color:#8b95a1;font-size:12px">QR 생성 중…</span></div>'
       +'<div class="agft-link"><input id="agft-url" readonly value="'+esc(url)+'"><button class="agft-btn g" id="agft-copy" style="width:auto;flex:none">복사</button></div>'
@@ -156,8 +170,48 @@
     return ov;
   }
 
-  /* 스태프/대표: 즉시 발급 후 QR 표시 */
+  /* ================= 선물하기 구매 (보내는 사람) — 결제 → 코드 자동발급 ================= */
   function openIssue(spec){
+    var sb=_sb(); if(!sb){ alert('로그인이 필요해요.'); return; }
+    spec=spec||{};
+    var ref = spec.ref || ((spec.stage||'')+':'+(spec.level||'')+':'+(spec.season||''));
+    var title = spec.label || (courseLabel(spec.stage,spec.level)+(spec.season?(' · 시즌'+spec.season):''));
+    injectCSS();
+    var priceLine = spec.price
+      ? '<div class="agft-gift"><div class="t">선물 결제</div><div class="n">'+esc(title)+'</div><div class="c">'+won(spec.price)+' · 카드 즉시 결제</div></div>'
+      : '<div class="agft-gift"><div class="t">선물하기</div><div class="n">'+esc(title)+'</div><div class="c">결제 후 선물코드 발급</div></div>';
+    var ov=ovWrap('<h3>🎁 선물하기</h3><div class="sub">결제하면 선물코드(QR·링크)가 생성됩니다. 받는 분이 열어 자녀에게 등록하면 사용돼요.</div>'
+      +priceLine
+      +'<button class="agft-btn" id="agft-buy">결제하고 선물코드 받기</button>'
+      +'<button class="agft-btn g" id="agft-cancel" style="margin-top:8px">취소</button>'
+      +'<div class="agft-msg" id="agft-msg"></div>');
+    var c=ov.querySelector('.agft-c');
+    var cancel=c.querySelector('#agft-cancel'); if(cancel)cancel.addEventListener('click',function(){ ov.remove(); });
+    var buy=c.querySelector('#agft-buy'), msg=c.querySelector('#agft-msg');
+    buy.addEventListener('click',function(){
+      buy.disabled=true; msg.style.color='#8b95a1'; msg.textContent='결제 처리 중…';
+      callEdge('checkout_gift',{ ref:ref, label:title }).then(function(r){
+        var d=r.data||{};
+        if(d.ok && d.code){ ov.remove(); showCode({ code:d.code, stage:spec.stage, level:spec.level, season:spec.season, label:title }); return; }
+        if(d.ok && d.warn==='GIFT_ISSUE_FAILED'){ msg.style.color='#f04452'; msg.textContent='결제는 완료됐으나 코드 발급에 실패했어요. 고객센터로 문의해 주세요.'; buy.disabled=false; return; }
+        var map={
+          NEED_CARD:'결제 카드를 먼저 등록해 주세요.',
+          TOSS_NOT_CONFIGURED:'선물하기는 결제 오픈(토스) 후 이용 가능해요.',
+          INVALID_ITEM:'선물할 상품을 찾을 수 없어요.',
+          CHARGE_FAILED:'결제에 실패했어요. 카드를 확인해 주세요.',
+          OWNER_ONLY:'로그인 후 이용해 주세요.',
+          AUTH_REQUIRED:'로그인 후 이용해 주세요.'
+        };
+        var friendly=map[d.error]||('실패: '+(d.error||('오류('+r.status+')')));
+        msg.style.color='#f04452'; msg.textContent=friendly; buy.disabled=false;
+        if(d.error==='NEED_CARD' && typeof spec.onNeedCard==='function') spec.onNeedCard();
+      }).catch(function(e){ msg.style.color='#f04452'; msg.textContent='오류: '+String(e&&e.message||e); buy.disabled=false; });
+    });
+    return ov;
+  }
+
+  /* 스태프/대표: 결제 없이 무료 선물코드 발급 (issue_gift 직접 · 권한 필요) */
+  function issueFree(spec){
     var sb=_sb(); if(!sb){ alert('로그인이 필요해요.'); return; }
     spec=spec||{};
     sb.rpc('issue_gift',{ p_stage:spec.stage, p_level:spec.level||'', p_season:spec.season, p_label:spec.label||null, p_price:spec.price||null, p_order_ref:spec.order_ref||null })
@@ -165,7 +219,7 @@
         if(r.error){
           var m=String(r.error.message||r.error);
           if(m.indexOf('not allowed')>=0){
-            ovWrap('<h3>🎁 선물하기</h3><div class="sub">선물하기는 <b>결제 연동(KG이니시스)</b> 완료 후 제공됩니다. 결제가 열리면 결제 완료 시 선물 코드가 자동 발급됩니다.</div><button class="agft-btn g" id="agft-ok">확인</button>');
+            ovWrap('<h3>🎁 선물 코드 발급</h3><div class="sub">무료 발급은 <b>스태프·대표 계정</b>만 가능해요. 일반 구매는 결제(토스) 선물하기를 이용해 주세요.</div><button class="agft-btn g" id="agft-ok">확인</button>');
             var okb=document.querySelector('.agft-ov #agft-ok'); if(okb)okb.addEventListener('click',function(){ var o=okb.closest('.agft-ov'); if(o)o.remove(); });
           } else { alert('발급 실패: '+m); }
           return;
@@ -187,5 +241,5 @@
     return true;
   }
 
-  window.ArcheGift={ openRedeem:openRedeem, showCode:showCode, openIssue:openIssue, checkUrl:checkUrl, redeemURL:redeemURL };
+  window.ArcheGift={ openRedeem:openRedeem, showCode:showCode, openIssue:openIssue, issueFree:issueFree, checkUrl:checkUrl, redeemURL:redeemURL };
 })();
