@@ -214,6 +214,7 @@
   function issueFree(spec){
     var sb=_sb(); if(!sb){ alert('로그인이 필요해요.'); return; }
     spec=spec||{};
+    if(spec.ref && (spec.stage==null || spec.season==null)){ var _p=String(spec.ref).split(':'); spec.stage=spec.stage||_p[0]; if(spec.level==null)spec.level=_p[1]||''; spec.season=spec.season||Number(_p[2])||0; }
     sb.rpc('issue_gift',{ p_stage:spec.stage, p_level:spec.level||'', p_season:spec.season, p_label:spec.label||null, p_price:spec.price||null, p_order_ref:spec.order_ref||null })
       .then(function(r){
         if(r.error){
