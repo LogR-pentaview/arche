@@ -64,7 +64,11 @@
   .row{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 13px; border:1px solid #eef1f4; border-radius:13px; margin-bottom:8px; }
   .row .nm{ font-weight:700; font-size:13.5px; }
   .row .meta{ font-size:11px; color:var(--text-muted); margin-top:3px; font-weight:500; }
-  .badge{ font-size:10px; font-weight:700; border-radius:20px; padding:2px 8px; margin-left:4px; }
+  .badge{ font-size:10px; font-weight:700; border-radius:20px; padding:2px 8px; margin-left:4px; white-space:nowrap; display:inline-block; }
+  #lg-kind,#lg-days{ overflow-x:auto; max-width:100%; -webkit-overflow-scrolling:touch; }
+  #lg-kind button,#lg-days button{ white-space:nowrap; flex:none; }
+  #lg-body table{ table-layout:auto; }
+  #lg-body td:first-child{ white-space:nowrap; }
   .b-admin{ background:var(--text-primary); color:#fff; } .b-demo{ background:var(--bg-warn); color:var(--text-warn); }
   .b-member{ background:var(--bg-success); color:var(--text-success); } .b-wait{ background:var(--bg-danger); color:var(--text-danger); }
   .b-b2c{ background:var(--bg-purple); color:var(--text-purple); }
@@ -117,6 +121,7 @@
     <div class="nav" data-t="admission" onclick="go('admission')"><i class="ti ti-database"></i>입시 자료</div>
     <div class="nav" data-t="apikey" onclick="go('apikey')"><i class="ti ti-key"></i>API 키</div>
     <div class="nav" data-t="apicost" onclick="go('apicost')"><i class="ti ti-chart-bar"></i>API 사용량·비용</div>
+    <div class="nav" data-t="login" onclick="go('login')"><i class="ti ti-login-2"></i>로그인 기록</div>
     <div class="nav" data-t="slot" onclick="go('slot')"><i class="ti ti-shield-check"></i>슬롯 무결성</div>
     <div class="nav" data-t="billing" onclick="go('billing')"><i class="ti ti-credit-card"></i>결제</div>
     <div class="nav" data-t="gift" onclick="go('gift')"><i class="ti ti-gift"></i>선물 발급</div>
@@ -138,7 +143,7 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.APP_VERSION="2026.08.10.1";
+  window.APP_VERSION="2026.08.11.1";
   (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
   window.checkAppUpdate=async function(){
     var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
@@ -208,6 +213,7 @@
     if(t==='admission') return renderAdmission(p);
     if(t==='apikey') return renderApiKey(p);
     if(t==='apicost') return renderApiCost(p);
+    if(t==='login') return renderLogins(p);
     if(t==='billing') return renderBilling(p);
     p.innerHTML = '<div class="muted">알 수 없는 탭</div>';
   };
@@ -677,6 +683,69 @@
     if(r.error){ alert('삭제 실패: '+r.error.message); return; }
     pLoad();
   };
+
+  // ===== 로그인 기록 =====
+  window._loginDays=14; window._loginKind='';
+  var LOGIN_KIND={admin:'관리자',academy:'학원',parent:'학부모',student:'학생',manager:'매니저',other:'기타'};
+  var LOGIN_KIND_CLS={admin:'b-admin',academy:'b-trial',parent:'b-b2c',student:'b-approved',manager:'b-req',other:'b-trial'};
+  async function renderLogins(p){
+    p.innerHTML = '<div class="h1">로그인 기록</div><div class="sub">회원 유형별 일자별 접속 현황 (한국시간 기준)</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">'
+      + '<div class="filt" id="lg-days">'
+        + '<button data-d="7" onclick="loginSetDays(7)">7일</button>'
+        + '<button class="on" data-d="14" onclick="loginSetDays(14)">14일</button>'
+        + '<button data-d="30" onclick="loginSetDays(30)">30일</button>'
+        + '<button data-d="90" onclick="loginSetDays(90)">90일</button></div>'
+      + '<div class="filt" id="lg-kind">'
+        + '<button class="on" data-k="" onclick="loginSetKind(\'\')">전체</button>'
+        + '<button data-k="admin" onclick="loginSetKind(\'admin\')">관리자</button>'
+        + '<button data-k="academy" onclick="loginSetKind(\'academy\')">학원</button>'
+        + '<button data-k="parent" onclick="loginSetKind(\'parent\')">학부모</button>'
+        + '<button data-k="student" onclick="loginSetKind(\'student\')">학생</button>'
+        + '<button data-k="manager" onclick="loginSetKind(\'manager\')">매니저</button></div>'
+      + '</div><div id="lg-body"><div class="muted">불러오는 중…</div></div>';
+    loginSyncBtns(); loadLogins();
+  }
+  function loginSyncBtns(){
+    document.querySelectorAll('#lg-days button').forEach(function(b){ b.classList.toggle('on', Number(b.dataset.d)===window._loginDays); });
+    document.querySelectorAll('#lg-kind button').forEach(function(b){ b.classList.toggle('on', (b.dataset.k||'')===window._loginKind); });
+  }
+  window.loginSetDays=function(d){ window._loginDays=d; loginSyncBtns(); loadLogins(); };
+  window.loginSetKind=function(k){ window._loginKind=k; loginSyncBtns(); loadLogins(); };
+  async function loadLogins(){
+    var body=document.getElementById('lg-body'); if(!body)return;
+    body.innerHTML='<div class="muted">불러오는 중…</div>';
+    var r=await sb.rpc('admin_login_daily',{p_days:window._loginDays, p_kind:window._loginKind||null});
+    if(r.error){ body.innerHTML='<div class="muted">오류: '+esc(r.error.message||'')+'</div>'; return; }
+    var rows=r.data||[];
+    if(!rows.length){ body.innerHTML='<div class="soon">해당 기간·유형의 로그인 기록이 없습니다.</div>'; return; }
+    var totalLogins=rows.reduce(function(s,x){return s+Number(x.logins||0);},0);
+    var uniqUsers={}; rows.forEach(function(x){ uniqUsers[(x.email||x.who||'')]=1; });
+    var byKind={}; rows.forEach(function(x){ byKind[x.kind]=(byKind[x.kind]||0)+Number(x.logins||0); });
+    var kindChips=Object.keys(byKind).map(function(k){ return '<span class="badge '+(LOGIN_KIND_CLS[k]||'b-trial')+'">'+(LOGIN_KIND[k]||k)+' '+byKind[k]+'</span>'; }).join(' ');
+    var head='<div class="kpis" style="grid-template-columns:repeat(3,1fr);max-width:560px">'
+      +'<div class="kpi"><div class="lab">총 로그인</div><div class="num">'+totalLogins+'<small> 회</small></div></div>'
+      +'<div class="kpi"><div class="lab">접속 사용자</div><div class="num">'+Object.keys(uniqUsers).length+'<small> 명</small></div></div>'
+      +'<div class="kpi"><div class="lab">최근 '+window._loginDays+'일</div><div class="num" style="font-size:15px;padding-top:6px">'+kindChips+'</div></div></div>';
+    // 날짜별 그룹
+    var byDay={}, order=[];
+    rows.forEach(function(x){ var d=x.day; if(!byDay[d]){byDay[d]=[]; order.push(d);} byDay[d].push(x); });
+    var html=head;
+    order.forEach(function(d){
+      var list=byDay[d]; var dayTotal=list.reduce(function(s,x){return s+Number(x.logins||0);},0);
+      html+='<div class="card"><h3>'+esc(d)+' <span class="meta" style="font-weight:400">· '+dayTotal+'회 · '+list.length+'명</span></h3>'
+        +'<table style="width:100%;font-size:12.5px"><thead><tr><th style="text-align:left">유형</th><th style="text-align:left">회원</th><th style="text-align:right">횟수</th><th style="text-align:right">처음</th><th style="text-align:right">마지막</th></tr></thead><tbody>'
+        +list.map(function(x){
+          var kd='<span class="badge '+(LOGIN_KIND_CLS[x.kind]||'b-trial')+'">'+(LOGIN_KIND[x.kind]||x.kind)+'</span>';
+          var who=esc(x.who||x.email||'-');
+          return '<tr><td>'+kd+'</td><td style="font-weight:600">'+who+(x.email&&x.email!==x.who?'<span class="meta" style="display:block;font-weight:400">'+esc(x.email)+'</span>':'')+'</td>'
+            +'<td style="text-align:right;font-weight:700">'+Number(x.logins||0)+'</td>'
+            +'<td style="text-align:right;color:var(--text-muted)">'+esc(x.first_time||'')+'</td>'
+            +'<td style="text-align:right;color:var(--text-muted)">'+esc(x.last_time||'')+'</td></tr>';
+        }).join('')+'</tbody></table></div>';
+    });
+    body.innerHTML=html;
+  }
 
   // ===== 슬롯 무결성 =====
   async function renderSlot(p){
