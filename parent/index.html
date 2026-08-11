@@ -7,9 +7,18 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="아르케">
-<link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icon-192.png">
+<meta name="apple-mobile-web-app-title" content="펜타 시리즈">
+<link rel="manifest" href="/parent/manifest.json">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<style id="pwa-safe-area">
+  /* iOS 홈화면 앱(standalone) 노치·홈바 안전영역 — viewport-fit=cover 대응 */
+  @supports (padding: max(0px)){
+    .topbar{ padding-top: max(15px, env(safe-area-inset-top)) !important; }
+    .side{ padding-top: max(22px, env(safe-area-inset-top)) !important; }
+    body{ padding-bottom: env(safe-area-inset-bottom); }
+    #pv-tut-ov{ padding-bottom: max(18px, env(safe-area-inset-bottom)) !important; padding-top: max(18px, env(safe-area-inset-top)) !important; }
+  }
+</style>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiB2aWV3Qm94PSIwIDAgNTEyIDUxMiI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIHJ4PSIwIiBmaWxsPSIjMTIxNjBmIi8+PHRleHQgeD0iMjU2IiB5PSIzNDAiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLHNlcmlmIiBmb250LXNpemU9IjMwMCIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2M4YTI0YSIgdGV4dC1hbmNob3I9Im1pZGRsZSI+QTwvdGV4dD48L3N2Zz4=">
 <title>아르케 · 학부모</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,7 +84,7 @@
   .avatar{width:32px;height:32px;border-radius:8px;background:var(--panel-3);display:grid;place-items:center;font-family:'Pretendard Variable',Pretendard;color:var(--lime);font-size:16px}
   .side .foot .who{font-size:12px}.side .foot .who small{display:block;color:var(--ink-mute);font-size:10px}
 
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 30px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);z-index:5}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:15px 30px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:#ffffff;z-index:5}
   .crumbs{font-size:12px;color:var(--ink-mute)}.crumbs b{color:var(--ink);font-weight:500}
   .studenttag{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-dim);background:var(--panel-2);border:1px solid var(--line-soft);padding:6px 12px;border-radius:8px;margin-left:14px}
   .studenttag b{color:var(--ink);font-weight:500}
@@ -460,9 +469,9 @@
     <div style="font-family:'Pretendard Variable',Pretendard;font-size:34px;color:var(--ink);line-height:.9">ARCHE<span style="color:var(--gold)">.</span></div>
     <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
-      <button class="on" data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
-      <button data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
+      <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
+      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
@@ -470,7 +479,7 @@
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-name" type="text" placeholder="보호자 성함 또는 학생 이름 (회원가입 시)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
@@ -478,8 +487,7 @@
     </div>
     <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#3182f6)">스팸함·프로모션함</b>을 확인하세요.</div>
     <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
-      <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#3182f6);border:1px dashed var(--gold,#3182f6);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
-<div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
+<div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:2px;line-height:1.5">회원가입 후 <b style="color:var(--gold,#3182f6)">각 서비스 첫 시즌 1강을 무료</b>로 바로 시작할 수 있습니다.<br>한 브라우저에서는 한 계정만 로그인됩니다.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
         <div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">이메일 인증 없이 즉시 체험 계정이 발급됩니다.<br>학생 자료 분석·디자인·면접 등 핵심 기능을 각 1회 직접 체험할 수 있습니다. (7일간 유효)</div>
         <input id="gu-email" type="email" placeholder="이메일 (필수)" style="width:100%;margin-bottom:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
@@ -580,7 +588,7 @@
       <div style="display:flex;align-items:center">
         <button id="mnav-btn" onclick="toggleMobileNav()" aria-label="메뉴" style="display:none;background:transparent;border:1px solid var(--line);border-radius:8px;width:34px;height:34px;align-items:center;justify-content:center;cursor:pointer;margin-right:10px;color:var(--ink);font-size:17px;flex:none">☰</button>
         <div class="crumbs" id="topbar-crumbs">아르케 · <b id="crumb">컨설팅 홈</b></div>
-        <div class="studenttag" id="topbar-studenttag"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px"><option value="">— 미선택 —</option></select></div>
+        <div class="studenttag" id="topbar-studenttag" style="position:relative"><span style="color:var(--ink-mute)">활성 학생</span><select id="topbar-student" onchange="topbarSelect(this.value)" style="display:none"><option value="">— 미선택 —</option></select><button type="button" id="topbar-student-btn" onclick="toggleStuMenu(event)" style="background:transparent;border:none;color:var(--ink);font-size:12px;font-weight:500;cursor:pointer;max-width:180px;display:inline-flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">— 미선택 — <span style="font-size:9px;opacity:.6">▾</span></button><div id="topbar-student-menu" style="display:none;position:absolute;top:calc(100% + 6px);left:0;z-index:60;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 30px rgba(0,0,0,.16);min-width:210px;max-height:60vh;overflow-y:auto;padding:5px"></div></div>
         <div id="dbstat" class="mono" style="display:none;margin-left:14px;font-size:10.5px;color:var(--ink-mute);align-items:center;gap:6px"><span style="width:7px;height:7px;border-radius:50%;background:var(--ink-mute);display:inline-block"></span> DB 확인 중…</div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -726,8 +734,6 @@
             <select id="as-grade" style="width:100%;margin-bottom:10px;padding:10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="">학년 * · 코스 자동 구분</option><optgroup label="초등 → 융합사고 역량"><option>초5</option><option>초6</option></optgroup><optgroup label="중학생 → 고입+융합사고"><option>중1</option><option>중2</option><option>중3</option></optgroup><optgroup label="고등학생 → 대입"><option>고1</option><option>고2</option><option>고3</option><option>N수</option></optgroup></select>
             <input id="as-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="as-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="as-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="as-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:10px"><input type="checkbox" id="as-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="as-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addAllStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -779,8 +785,6 @@
             <div id="major-results" style="margin-bottom:10px"></div>
             <input id="st-career" placeholder="희망 진로 (예: 데이터 사이언티스트)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="st-interest" placeholder="관심 분야 (예: AI, 환경, 심리)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="st-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="st-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:7px"><input type="checkbox" id="st-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <label id="st-bench-row" style="display:none;align-items:center;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="st-bench"> 익명 벤치마크 참여 <small style="color:var(--ink-mute)">· 개인 식별정보를 완전히 제거한 통계에만 활용</small></label>
             <div id="st-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
@@ -975,8 +979,6 @@
             <input id="gst-target" placeholder="목표 학교 (예: 대원외고)" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-career" placeholder="희망 진로" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <input id="gst-interest" placeholder="관심 분야 (예: 국제관계, AI)" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="gst-club" placeholder="동아리명" style="width:100%;margin-bottom:10px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
-            <input id="gst-clubgoal" placeholder="동아리 주요 활동목표" style="width:100%;margin-bottom:12px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">
             <label style="display:flex;align-items:flex-start;gap:7px;font-size:12px;color:var(--ink-dim);margin-bottom:12px"><input type="checkbox" id="gst-consent" style="margin-top:2px"> <span>학생 자료 활용 동의 <small style="color:var(--ink-mute)">· <b>입시 컨설팅 분석·리포트·학생 자료 설계</b>에만 활용 · 학생 자료 <b>원본 파일은 저장하지 않음</b>(파싱 결과만 저장) · <b>담당자와 학생 본인만 열람</b>(외부 격리) · 학생 <b>삭제·탈퇴 시 분석 결과도 자동 삭제</b> · 학생·보호자 동의 확인</small></span></label>
             <div id="gst-msg" style="min-height:15px;font-size:12px;margin-bottom:8px"></div>
             <button onclick="addGStudent()" style="width:100%;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">등록</button>
@@ -2052,19 +2054,20 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_workbook.js?v=30"></script>
 <script src="/shared/arche_soke_chat.js?v=1"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
-<script src="/shared/arche_penta_app.js?v=7"></script>
+<script src="/shared/arche_penta_app.js?v=14"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_toss_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js"></script>
-<script src="/shared/arche_season_picker.js?v=8"></script>
+<script src="/shared/arche_season_picker.js?v=10"></script>
 <script src="/shared/arche_cart.js?v=5"></script>
 <script src="/shared/arche_buy.js?v=1"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
 <script src="/shared/arche_b2c_dash.js?v=5"></script>
-<script src="/shared/arche_career_bridge.js?v=2"></script>
+<script src="/shared/arche_career_bridge.js?v=6"></script>
 <script src="/shared/arche_selfdrive.js?v=1"></script>
-<script src="/shared/arche_gift.js?v=2"></script>
+<script src="/shared/arche_gift.js?v=3"></script>
 <script src="/shared/arche_referral.js?v=1"></script>
+<script src="/shared/arche_giftbox.js?v=1"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2270,7 +2273,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.11.2";
+window.APP_VERSION="2026.08.11.4";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2322,7 +2325,10 @@ async function ensureAcademy(user){
     || (user.user_metadata&&user.user_metadata.academy_name)
     || (user.email.split('@')[0]+' 학원');
   var acctype=(user.user_metadata&&user.user_metadata.account_type)||'b2b';
-  const {data:ins,error}=await sb.from('academies').insert({name:nm,owner_uid:user.id,account_type:acctype}).select('id,name,account_type').single();
+  // 학부모(b2c)는 관리자 승인 없이 즉시 시작 → 가입 시 approved=true. 학원(b2b)은 기존대로 승인 대기.
+  var _newAcad={name:nm,owner_uid:user.id,account_type:acctype};
+  if(acctype==='b2c'){ _newAcad.approved=true; }
+  const {data:ins,error}=await sb.from('academies').insert(_newAcad).select('id,name,account_type').single();
   if(error){console.error('[academy]',error);return null;}
   window._isOwner=true; window._myRole='owner';
   try{ await sb.from('academy_users').insert({academy_id:ins.id,uid:user.id,email:user.email,role:'owner'}); }catch(e){}
@@ -2387,23 +2393,24 @@ function setLoginRole(r){
   document.getElementById('au-adm').style.display=adm?'block':'none';
   document.getElementById('au-email').style.display=emailLogin?'block':'none';
   document.getElementById('au-pw').style.display=stu?'block':'block';
-  document.getElementById('au-name').style.display=emailLogin?'block':'none';
-  document.getElementById('au-signup').style.display=emailLogin?'block':'none';
+  // 학원(con)은 신규 가입 없이 로그인만 — 기존 회원 로그인 유지. 회원가입은 학부모(parent)만.
+  document.getElementById('au-name').style.display=parent?'block':'none';
+  document.getElementById('au-signup').style.display=parent?'block':'none';
   // 이름 입력란 라벨
   var nm=document.getElementById('au-name');
-  if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명 (가입 시 필수)';
+  if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명';
   // 역할별 안내문
   var desc=document.getElementById('login-role-desc');
   if(desc){
-    desc.textContent = con?'학원·교습소 · 팀 운영 가능':
-      parent?'개인 학부모 · 자녀 직접 관리 (월 15만~)':
+    desc.textContent = con?'기존 학원 회원 로그인 전용':
+      parent?'학부모 회원가입 · 자녀 직접 관리 · 각 서비스 첫 시즌 1강 무료':
       stu?'학원/학부모가 발급한 학생 계정':
       '플랫폼 관리자 전용';
   }
   var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
 }
-// 초기 진입 시 기본(학원) 안내 표시
-try{ if(document.getElementById('login-role-desc')) setLoginRole('con'); }catch(e){}
+// 초기 진입 시 기본(학부모) 안내 표시 — 학부모용 앱이므로 회원가입 기본값을 학부모로
+try{ if(document.getElementById('login-role-desc')) setLoginRole('parent'); }catch(e){}
 var ADMIN_EMAIL='admin@arche.penta-view.com';
 var STU_EMAIL_DOMAIN='stu.penta-view.com';
 /* ===== 개인정보/이용 동의 게이트 ===== */
@@ -2428,7 +2435,7 @@ function policyPrivacyHTML(){ return `
 <li>Google LLC (Gemini API): 워크북 텍스트의 AI 분석·발문 생성. 처리 목적 외 저장·이용되지 않습니다. (국외 처리 포함)</li>
 <li>Supabase Inc.: 데이터베이스·서버 인프라 (리전: 서울)</li>
 <li>Vercel Inc.: 웹 호스팅</li>
-<li>KG이니시스(주): 신용카드 등 결제 처리 (유료 이용 시)</li>
+<li>토스페이먼츠(주): 신용카드 등 결제 처리 (유료 이용 시)</li>
 </ul>
 <p><b>5. 제3자 제공</b> — 원칙적으로 제공하지 않으며, 법령에 근거하거나 정보주체의 동의가 있는 경우에 한합니다.</p>
 <p><b>6. 정보주체의 권리</b> — 언제든지 개인정보의 열람·정정·삭제·처리정지를 요구할 수 있습니다. (요청: 개인정보 보호책임자 연락처)</p>
@@ -2448,7 +2455,7 @@ function policyTermsHTML(){ return `
 <p><b>제6조(금지행위)</b> 회사는 학교생활기록부 대필·위조, 자기소개서 완성문 대리작성을 지원하지 않으며, AI 발문('소크')은 <b>정답·대필을 제공하지 않고</b> 학생이 스스로 사고하도록 질문으로만 돕습니다. 계정의 부정 공유·콘텐츠 무단 복제·배포는 금지되며, 위반 시 이용이 제한될 수 있습니다.</p>
 <p><b>제7조(책임의 제한)</b> 회사는 AI 분석·진단 결과의 정확성이나 합격을 보장하지 않으며, 결과는 참고 자료입니다. 회사는 관계 법령이 허용하는 범위에서 책임을 부담합니다.</p>
 <p style="font-size:11px;color:var(--ink-mute)">※ 본 약관은 개정될 수 있으며, 개정 시 앱 내 고지합니다. 본 약관에 관한 분쟁은 대한민국 법령을 준거법으로 합니다.</p>
-<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 통신판매업신고번호: 준비중 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
+<p style="font-size:11px;color:var(--ink-mute)">상호: 로그.알 · 대표자: 김기욱 · 사업자등록번호: 538-10-03175 · 통신판매업신고번호: 2026-인천서해-0396 · 주소: 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) · 문의: gwkim06@gmail.com</p>
 `; }
 window.showPolicyDoc=function(kind){
   var ov=document.createElement('div');
@@ -2521,7 +2528,8 @@ async function enterApp(session){
     gate.style.display='flex';
     return msg('체험 기간(7일)이 만료되었습니다. 도입 문의: penta-view.com');
   }
-  if(!isAdmin && approved===false){
+  if(!isAdmin && approved===false && !window._isB2C){
+    // 학부모(b2c)는 승인 게이트 우회 — 가입 즉시 이용. 학원(b2b)만 승인 대기.
     await sb.auth.signOut();
     gate.style.display='flex';
     return msg('가입 신청이 접수되었습니다. 관리자 승인 후 이용 가능합니다.');
@@ -2533,6 +2541,8 @@ async function enterApp(session){
   try{ applyB2CLabels(); }catch(e){}
   try{ if(window._isB2C && window.renderB2CParentHome) setTimeout(renderB2CParentHome,0); }catch(e){}
   if(isAdmin){
+    // 관리자는 무조건 본사 대시보드(/admin/) 하나만 사용 — 부모앱 내 관리자 콘솔로 새지 않게 자동 이동
+    if((location.pathname||'').indexOf('/admin')<0){ location.replace('/admin/'); return; }
     document.body.classList.add('admin-mode');
     var rt=document.getElementById('topbar-roletoggle'); if(rt)rt.style.display='none';
     var stg=document.getElementById('topbar-studenttag'); if(stg)stg.style.display='none';
@@ -2789,12 +2799,20 @@ window.enterParentViewer=enterParentViewer;
 
 // ── B2C 학부모(메인 앱) 홈 = 학부모 대시보드 ──
 function b2cBand(g){ g=String(g||''); if(g.indexOf('중')>=0)return '중'; if(g.indexOf('초')>=0)return '초'; return '고'; }
-function b2cOpenChildPenta(child, key){
+function b2cOpenChildPenta(child, key, season){
   try{ window._activeStudent=child; }catch(e){}
   var band=b2cBand(child&&child.grade);
-  var idx = (key==='vision_basic')?0 : (key==='track')?2 : (key==='vision_adv')?1 : (band==='초'?0:1);
+  var courseKey=(key==='vision_basic')?'vision_basic':(key==='track')?'track':(key==='vision_adv')?'vision_adv':(band==='초'?'vision_basic':'vision_adv');
+  var idx=(courseKey==='vision_basic')?0:(courseKey==='track')?2:1;
   var navs=document.querySelectorAll('#grp-penta .nav');
-  if(navs[idx]) navs[idx].click(); else if(navs[0]) navs[0].click();
+  var nav=navs[idx]||navs[0];
+  // [시즌 전달] 고른 시즌만 로딩 — season 없으면 전체(null)
+  if(nav && window.ArchePentaApp){
+    try{ go(nav); }catch(e){}
+    var host=document.getElementById('penta-mount');
+    if(host){ try{ ArchePentaApp.mount(host, {course:courseKey, season:(season!=null&&season!=='')?season:null}); return; }catch(e){} }
+  }
+  if(nav) nav.click();
 }
 /* [샘플 리포트] "샘플 리포트/미리보기" 클릭 시 실제 도구로 이동하던 버그 → 진짜 샘플 오버레이 표시 */
 /* [상품 대상 학년 라벨] 비대상 학년 안내·체험용 */
@@ -2832,9 +2850,10 @@ function b2cOpenSeasonPicker(child, key){
   var host=document.getElementById('b2c-season-host');
   if(window.ArcheSeasonPicker && host){
     ArcheSeasonPicker.mount(host,{ course:m[0], level:m[1], studentId:(child&&child.id),
-      onOpen:function(){ b2cOpenChildPenta(child,key); },
-      onTrial:function(){ b2cOpenChildPenta(child,key); },
-      onStart:function(){ b2cOpenChildPenta(child,key); },
+      onOpen:function(p){ b2cOpenChildPenta(child,key,(p&&p.season)); },
+      onTrial:function(p){ b2cOpenChildPenta(child,key,(p&&p.season)); },
+      onStart:function(p){ b2cOpenChildPenta(child,key,(p&&p.season)); },
+      onSub:function(){ try{ if(window.toast)toast('구독하면 이 시즌을 자녀에게 보낼 수 있어요',true); }catch(e){} try{ goView('billing'); }catch(e){ try{ b2cOpenChildPenta(child,key); }catch(_){} } },
       onCart:function(p, ref){ if(window.b2cAddToCart) b2cAddToCart(ref); } });
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
 }
@@ -2921,6 +2940,56 @@ function b2cOpenGuide(){
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenGuide=b2cOpenGuide;
+/* [튜터리얼 모드] 처음 가입자용 3분 단계별 온보딩 오버레이 — 첫 로그인 시 1회 자동, 사이드바에서 재실행 */
+function b2cTutorial(force){
+  var isStu=(window._role==='stu')||(window._appRole==='student');
+  try{ var k='pv_tut_'+(isStu?'stu_':'')+(window._myUid||''); if(!force && localStorage.getItem(k)) return; }catch(e){}
+  if(document.getElementById('pv-tut-ov')) return;
+  var PARENT_STEPS=[
+    {ic:'🦉',ttl:'펜타뷰에 오신 걸 환영해요',body:'자녀의 <b>사고력·진로 역량</b>을 키우는 여정을 함께합니다. 3분이면 시작 준비 끝!'},
+    {ic:'👨‍👧',ttl:'1. 자녀 등록',body:'왼쪽 <b>자녀 관리</b>에서 자녀를 등록하세요. 첫 등록 때 <b>가정 코드</b>(예: KIM)를 한 번 정하면 자녀 로그인 아이디가 자동 발급돼요.'},
+    {ic:'🧠',ttl:'2. 융합사고 코스 (펜타 비전·트랙)',body:'시즌별 워크북으로 <b>5대 지성(수리·과학·역사·심리·예술)</b> 사고력을 키워요. 코스마다 <b>마음에 드는 시즌 1개의 1강</b>을 무료로 체험할 수 있어요.'},
+    {ic:'🧭',ttl:'3. 진로·수행 (펜타 아르케)',body:'중·고 자녀는 <b>진로 징검다리</b>(관심사 → 진로 탐구 주제·보고서 설계)와 <b>수행평가 도우미</b>(학교 수행평가 준비)를 이용해요. AI는 <b>정답·대필을 주지 않고</b> 질문으로만 도와, 자녀가 스스로 해냅니다.'},
+    {ic:'💳',ttl:'4. 구독·결제',body:'마음에 들면 <b>구독</b>으로 전체 시즌을 열거나, 원하는 <b>시즌만 장바구니</b>에 담아 구매할 수 있어요.'},
+    {ic:'🗂',ttl:'5. 자녀 제출함',body:'자녀가 워크북·활동을 제출하면 <b>자녀 제출함</b>에서 확인하고 <b>성장 리포트</b>를 발행해 아이와 대화로 이어가요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'자세한 설명은 언제든 <b>사용 안내</b>에서 볼 수 있어요. 지금 자녀부터 등록해볼까요?',final:true}
+  ];
+  var STUDENT_STEPS=[
+    {ic:'🦉',ttl:'펜타뷰에 온 걸 환영해!',body:'스스로 생각하는 힘을 키우는 학습 여정을 시작해요. 정답을 외우는 게 아니라 <b>내 생각을 만드는</b> 곳이에요.'},
+    {ic:'🏠',ttl:'1. 내 대시보드',body:'부모님·선생님이 보내준 <b>과제와 코스</b>가 홈에 모여요. 오늘 할 학습을 여기서 확인해요.'},
+    {ic:'📘',ttl:'2. 워크북 풀기 (융합사고)',body:'시즌 워크북을 <b>단계(스텝)</b>대로 풀어요. 읽기·영상·딜레마를 보고 <b>내 생각을 직접</b> 써 보면 돼요.'},
+    {ic:'🧭',ttl:'3. 진로·수행 (아르케)',body:'<b>진로 징검다리</b>로 내 관심사에서 <b>진짜 하고 싶은 탐구 주제</b>를 찾고, <b>수행평가 도우미</b>로 학교 수행평가를 준비해요. AI는 답을 대신 써주지 않고 <b>질문으로</b> 도와줘 — 내가 직접 생각하고 써요.'},
+    {ic:'📊',ttl:'4. 성장 확인',body:'탐구 <b>전/후 레이더</b>로 내 생각이 얼마나 넓어졌는지 눈으로 확인할 수 있어요.'},
+    {ic:'🚀',ttl:'5. 제출하기',body:'다 풀면 <b>[제출]</b>! 부모님·선생님이 리포트를 만들어 피드백해줘요. 그 피드백으로 한 번 더 성장해요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'궁금하면 언제든 <b>사용 안내</b>를 다시 볼 수 있어요. 지금 홈에서 오늘의 학습을 시작해요!',final:true}
+  ];
+  var STEPS=isStu?STUDENT_STEPS:PARENT_STEPS;
+  var FINAL_LABEL=isStu?'홈으로 시작하기':'자녀 등록하러 가기';
+  var i=0;
+  var ov=document.createElement('div'); ov.id='pv-tut-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(15,20,40,.55);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
+  function done(goFinal){ try{ localStorage.setItem('pv_tut_'+(isStu?'stu_':'')+(window._myUid||''),'1'); }catch(e){} try{ov.remove();}catch(e){}
+    if(goFinal){ try{ if(isStu){ if(window.renderStudentHome){ goView('home'); } else { goView('home'); } } else { goView('allstudents'); } }catch(e){} } }
+  function render(){
+    var s=STEPS[i];
+    var dots=STEPS.map(function(_x,j){return '<span style="width:7px;height:7px;border-radius:50%;background:'+(j===i?'#1b64da':'#d3dae6')+';display:inline-block"></span>';}).join('');
+    ov.innerHTML='<div style="width:100%;max-width:420px;background:#fff;border-radius:20px;padding:26px 24px 20px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative">'
+      +'<button id="pv-tut-skip" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#8b95a1;font-size:12.5px;font-weight:700;cursor:pointer">건너뛰기</button>'
+      +'<div style="font-size:46px;line-height:1;margin:6px 0 14px">'+s.ic+'</div>'
+      +'<div style="font-size:19px;font-weight:800;color:#191f28;margin-bottom:8px">'+s.ttl+'</div>'
+      +'<div style="font-size:13.5px;color:#4e5968;line-height:1.7;min-height:66px">'+s.body+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin:16px 0 14px">'+dots+'</div>'
+      +'<div style="display:flex;gap:8px">'
+        +(i>0?'<button id="pv-tut-prev" style="flex:0 0 auto;padding:12px 16px;background:#f2f4f7;color:#4e5968;border:none;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer">이전</button>':'')
+        +'<button id="pv-tut-next" style="flex:1;padding:12px;background:#1b64da;color:#fff;border:none;border-radius:11px;font-weight:800;font-size:14px;cursor:pointer">'+(s.final?FINAL_LABEL:'다음')+'</button>'
+      +'</div></div>';
+    var sk=ov.querySelector('#pv-tut-skip'); if(sk)sk.onclick=function(){ done(false); };
+    var pv=ov.querySelector('#pv-tut-prev'); if(pv)pv.onclick=function(){ if(i>0){i--;render();} };
+    var nx=ov.querySelector('#pv-tut-next'); if(nx)nx.onclick=function(){ if(s.final){ done(true); } else { i++; render(); } };
+  }
+  document.body.appendChild(ov); render();
+}
+window.b2cTutorial=b2cTutorial;
 /* ===================== [B2C 장바구니] 상품 담기 · 카트 (arche_cart.js 연동) ===================== */
 function b2cCartBadge(){ if(!window.ArcheCart)return; try{ ArcheCart.count().then(function(n){ var el=document.getElementById('b2c-cart-badge'); if(el) el.textContent=(n>0)?('('+n+')'):''; }); }catch(e){} }
 window.b2cCartBadge=b2cCartBadge;
@@ -3011,21 +3080,39 @@ function b2cOpenStore(){
        +'<button onclick="b2cAddToCart(\''+esc(p.ref)+'\')" style="border:0;background:#141a29;color:#fff;border-radius:9px;padding:8px 12px;font-weight:800;font-size:12.5px;cursor:pointer;white-space:nowrap">담기</button></div>'; }
     function grpHead(t){ return '<div style="font-size:12px;font-weight:800;color:#6b7688;margin:16px 2px 8px">'+t+'</div>'; }
     function grp(t, arr){ return arr.length?(grpHead(t)+arr.map(function(p){return card(p,'');}).join('')):''; }
-    function seasonGrp(t, arr){ if(!arr.length)return ''; arr.sort(function(a,b){return (a.season||0)-(b.season||0);});
-      return grpHead(t)+arr.map(function(p){ var lc=p.lesson_count?(' · '+p.lesson_count+'강'):''; return card(p,'시즌 '+p.season+lc); }).join(''); }
+    function seasonCards(arr){ if(!arr.length)return ''; arr.sort(function(a,b){return (a.season||0)-(b.season||0);});
+      return arr.map(function(p){ var lc=p.lesson_count?(' · '+p.lesson_count+'강'):''; return card(p,'시즌 '+p.season+lc); }).join(''); }
     var tiers=ps.filter(function(p){return p.kind==='tier';});
     var passes=ps.filter(function(p){return p.kind==='pass';});
     var vbasic=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='starter';});
     var vadv=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='architecture';});
     var track=ps.filter(function(p){return p.kind==='season'&&p.stage==='track';});
-    list.innerHTML=(grp('구독 (올인원)',tiers)+grp('이용권',passes)
-      +seasonGrp('펜타 비전 기초 · 시즌 개별',vbasic)
-      +seasonGrp('펜타 비전 심화 · 시즌 개별',vadv)
-      +seasonGrp('펜타 트랙 · 시즌 개별',track))||'<div style="color:#8b95a1">판매 중인 상품이 없습니다.</div>';
+    // [개별 시즌] 카테고리 탭으로 하나씩만 노출 (긴 목록 → 선택 쉽게)
+    window._b2cSeasonHtml={ basic:seasonCards(vbasic), adv:seasonCards(vadv), track:seasonCards(track) };
+    var cats=[]; if(vbasic.length)cats.push(['basic','펜타 비전 기초']); if(vadv.length)cats.push(['adv','펜타 비전 심화']); if(track.length)cats.push(['track','펜타 트랙']);
+    var band=(window.b2cBand?b2cBand(s.grade):'');
+    var defCat=(band==='초')?'basic':(band==='고')?'track':(band==='중'?'adv':'');
+    if(!defCat || !window._b2cSeasonHtml[defCat]) defCat=(cats[0]&&cats[0][0])||'basic';
+    var tabBtn=function(c){ return '<button onclick="b2cStoreTab(\''+c[0]+'\')" data-cat="'+c[0]+'" class="b2c-stab" style="border:1px solid #e5e8eb;background:#fff;color:#4e5968;border-radius:20px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer">'+c[1]+'</button>'; };
+    var seasonBlock = cats.length ? (
+        '<div style="font-size:12px;font-weight:800;color:#6b7688;margin:18px 2px 8px">시즌 개별 구매 <span style="font-weight:600;color:#8b95a1">· 원하는 주제만 골라 담기</span></div>'
+        + (cats.length>1 ? '<div id="b2c-season-tabs" style="display:flex;gap:7px;flex-wrap:wrap;margin:0 2px 12px">'+cats.map(tabBtn).join('')+'</div>' : '')
+        + '<div id="b2c-season-cards"></div>'
+      ) : '';
+    list.innerHTML=(grp('정기 구독 (월)',tiers)+grp('이용권',passes)+seasonBlock)||'<div style="color:#8b95a1">판매 중인 상품이 없습니다.</div>';
+    try{ b2cStoreTab(defCat); }catch(e){}
   }).catch(function(e){ list.innerHTML='<div style="color:#f04452">상품을 불러오지 못했어요: '+esc((e&&e.message)||e)+'</div>'; });
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenStore=b2cOpenStore;
+/* [스토어 개별시즌 탭] 선택 카테고리 시즌만 노출 */
+function b2cStoreTab(cat){
+  window._b2cStoreCat=cat;
+  var host=document.getElementById('b2c-season-cards');
+  if(host){ host.innerHTML=(window._b2cSeasonHtml&&window._b2cSeasonHtml[cat])||'<div style="color:#8b95a1;padding:10px 2px">해당 코스의 시즌 상품이 없습니다.</div>'; }
+  document.querySelectorAll('.b2c-stab').forEach(function(b){ var on=(b.getAttribute('data-cat')===cat); b.style.background=on?'#141a29':'#fff'; b.style.color=on?'#fff':'#4e5968'; b.style.borderColor=on?'#141a29':'#e5e8eb'; });
+}
+window.b2cStoreTab=b2cStoreTab;
 function b2cOpenCart(){
   var v=document.getElementById('v-home'); if(!v) return; if(window._b2cActivateHome)_b2cActivateHome(v);
   v.innerHTML='<div style="max-width:560px;margin:0 auto;padding:16px 14px 60px">'+_b2cBackBtn
@@ -3072,23 +3159,36 @@ function applyB2CSidebar(band, mode){
   }
   /* [사이드바 평면화] 아코디언 접힘으로 본사소식이 안 보이던 문제 → 라벨+항목을 항상 펼친 평면 목록으로 렌더 */
   function lbl(t){ return '<div style="font-size:10.5px;font-weight:800;color:var(--ink-mute,#8b95a1);padding:12px 12px 4px;letter-spacing:.03em">'+t+'</div>'; }
+  // [사용 순서 재배치] 처음 가입자 관점: 홈 → 시작 안내 → 자녀 등록·관리 → 자녀 제출함 → 학습 콘텐츠 → 구매·결제 → 소식 → 설정
   var h='<div class="nav" onclick="goView(\'home\')">'+emo('🏠')+' 홈</div>';
+  h+='<div class="nav" onclick="b2cTutorial(true)">'+emo('🚀')+' 시작 튜터리얼</div>';
   h+='<div class="nav" onclick="b2cOpenGuide()">'+emo('📖')+' 사용 안내</div>';
-  if(penta.length){ h+=lbl('펜타')+itemsHTML(penta,true); }
+  if(mode==='parent'){
+    // ① 가장 먼저 쓰는 자녀 등록·제출 확인을 상단에
+    h+=lbl('자녀')
+      +'<div class="nav" onclick="goView(\'allstudents\')">'+emo('👨‍👧')+' 자녀 관리</div>'
+      +'<div class="nav" onclick="b2cOpenInbox()">'+emo('🗂')+' 자녀 제출함 <span id="b2c-inbox-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
+  }
+  // ② 학습 콘텐츠
+  if(penta.length){ h+=lbl('학습 콘텐츠')+itemsHTML(penta,true); }
   if(arche.length){ h+=lbl('펜타 아르케')+itemsHTML(arche,false); }
   if(penta.length){ h+=''
     +'<div class="nav" onclick="'+(mode==='parent'?"b2cOpenPeriodReport(window._activeStudent)":"b2cOpenPeriodViewer()")+'">'+emo('📈')+' 정기 성장 리포트</div>'; }
+  // ③ 구매·결제 (학부모)
+  if(mode==='parent'){
+    h+=lbl('구매·결제')
+      +'<div class="nav" onclick="b2cOpenStore()">'+emo('🛍️')+' 상품 담기</div>'
+      +'<div class="nav" onclick="b2cOpenCart()">'+emo('🛒')+' 장바구니 <span id="b2c-cart-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>'
+      +'<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
+  }
+  // ④ 소식
   h+=lbl('본사 소식')
     +'<div class="nav" onclick="b2cHqOpen(\'notice\')">'+emo('📌')+' 공지</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'news\')">'+emo('📰')+' 교육뉴스</div>'
     +'<div class="nav" onclick="b2cHqOpen(\'all\')">'+emo('🎓')+' 입시소식</div>';
+  // ⑤ 설정
   if(mode==='parent'){
-    h+='<div class="nav" onclick="goView(\'allstudents\')" style="margin-top:8px">'+emo('👨‍👧')+' 자녀 관리</div>';
-    h+='<div class="nav" onclick="b2cOpenInbox()">'+emo('🗂')+' 자녀 제출함 <span id="b2c-inbox-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
-    h+='<div class="nav" onclick="b2cOpenStore()">'+emo('🛍️')+' 상품 담기</div>';
-    h+='<div class="nav" onclick="b2cOpenCart()">'+emo('🛒')+' 장바구니 <span id="b2c-cart-badge" style="color:#f04452;font-weight:800;font-size:11px"></span></div>';
-    h+='<div class="nav" onclick="goView(\'billing\')">'+emo('💳')+' 구독·결제</div>';
-    h+='<div class="nav" onclick="goView(\'settings\')">'+emo('⚙️')+' 설정</div>';
+    h+='<div class="nav" onclick="goView(\'settings\')" style="margin-top:8px">'+emo('⚙️')+' 설정</div>';
   } else {
     h+='<div class="nav" onclick="goView(\'stuset\')" style="margin-top:8px">'+emo('⚙️')+' 설정</div>';
   }
@@ -3130,7 +3230,18 @@ function b2cRenderSettings(){
     +'</div>';
   v.appendChild(panel);
 }
-function b2cChangeParentPw(){ var np=prompt('새 비밀번호 입력 (4자 이상)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.'); sb.auth.updateUser({password:np}).then(function(r){ if(r.error)return alert('변경 실패: '+r.error.message); alert('학부모 비밀번호가 변경되었습니다.'); }); }
+async function b2cChangeParentPw(){
+  var np=prompt('새 비밀번호 입력 (6자 이상 권장)'); if(!np||np.length<4)return alert('4자 이상 입력하세요.');
+  try{
+    // 세션 보장: 비어 있으면 새로고침 시도 (인앱 브라우저 등에서 세션 유실 대응)
+    var g=await sb.auth.getSession(); var session=g&&g.data&&g.data.session;
+    if(!session){ try{ var rf=await sb.auth.refreshSession(); session=rf&&rf.data&&rf.data.session; }catch(_e){} }
+    if(!session){ alert('로그인 세션이 만료됐어요.\n로그아웃 후 다시 로그인한 뒤 변경해 주세요.\n(인앱 창이면 크롬 등 일반 브라우저에서 접속하면 더 안정적이에요.)'); return; }
+    var r=await sb.auth.updateUser({password:np});
+    if(r.error) return alert('변경 실패: '+r.error.message);
+    alert('학부모 비밀번호가 변경되었습니다.');
+  }catch(e){ alert('변경 실패: '+((e&&e.message)||e)); }
+}
 function b2cResetChildPw(){ var c=window._activeStudent; if(!c||!c.id)return alert('자녀 정보를 찾을 수 없습니다. 홈에서 자녀를 먼저 등록/선택하세요.'); if(window.resetStudentPw)resetStudentPw(c.id); }
 window.b2cChangeParentPw=b2cChangeParentPw; window.b2cResetChildPw=b2cResetChildPw; window.b2cRelabelText=b2cRelabelText; window.b2cRenderSettings=b2cRenderSettings;
 async function renderB2CParentHome(){
@@ -3161,7 +3272,9 @@ async function renderB2CParentHome(){
     }
   });
   /* [사용 안내] 학부모 홈 상단에 사용안내 배너 삽입 */
-  try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cOpenGuide()'); _bn.innerHTML='<span style="font-size:22px">📖</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 사용 안내 보기</div><div style="font-size:12px;color:#6b7688">아르케·펜타 각 기능 사용법을 한눈에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
+  try{ var _sec=v.querySelector('.b2cd-view'); if(_sec && !document.getElementById('b2c-guide-banner')){ var _bn=document.createElement('div'); _bn.id='b2c-guide-banner'; _bn.style.cssText='cursor:pointer;background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _bn.setAttribute('onclick','b2cTutorial(true)'); _bn.innerHTML='<span style="font-size:22px">🚀</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#1b64da">처음이신가요? 3분 시작 튜터리얼</div><div style="font-size:12px;color:#6b7688">자녀 등록부터 무료 체험·리포트까지 한 번에</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec.insertBefore(_bn, _sec.firstChild); } }catch(e){}
+  /* [첫 로그인] 튜터리얼 1회 자동 실행 (localStorage로 재노출 방지) */
+  try{ setTimeout(function(){ try{ b2cTutorial(false); }catch(e){} }, 500); }catch(e){}
   /* [자녀 제출함] 홈 상단 배너 + 대기 건수 뱃지 */
   try{ var _sec2=v.querySelector('.b2cd-view'); if(_sec2 && !document.getElementById('b2c-inbox-banner')){ var _ib=document.createElement('div'); _ib.id='b2c-inbox-banner'; _ib.style.cssText='cursor:pointer;background:linear-gradient(135deg,#f3f0ff,#fff);border:1px solid #e0d8fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px;margin-bottom:6px'; _ib.setAttribute('onclick','b2cOpenInbox()'); _ib.innerHTML='<span style="font-size:22px">🗂</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#4f46a8">자녀 제출함 · 리포트 발행</div><div style="font-size:12px;color:#6b7688" id="b2c-inbox-bnote">자녀가 제출한 워크북을 확인하고 리포트를 발행하세요</div></div><span style="color:#8b95a1;font-size:18px">›</span>'; _sec2.insertBefore(_ib, _sec2.firstChild); }
     var _kids=[].concat(window._students||[],window._gstudents||[]); var _ids=_kids.map(function(k){return k.id;});
@@ -3222,6 +3335,9 @@ async function enterStudentApp(session){
   if(mustChange && !prompted){
     try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
     setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400);
+  } else if(window._isB2C){
+    // b2c 자녀 첫 로그인: 학생용 튜터리얼 1회 자동 (비번 변경 중이면 건너뜀)
+    setTimeout(function(){ try{ b2cTutorial(false); }catch(e){} }, 700);
   }
   var h=document.querySelector('.nav[data-v="home"]'); if(h)go(h);
 }
@@ -3303,6 +3419,10 @@ async function stuChangePw(){
   if(np.length<4){ if(m){m.style.color='var(--risk)';m.textContent='새 비밀번호는 4자 이상 입력하세요.';} return; }
   if(np!==cf){ if(m){m.style.color='var(--risk)';m.textContent='두 비밀번호가 일치하지 않습니다.';} return; }
   if(m){m.style.color='var(--ink-mute)';m.textContent='변경 중…';}
+  // 세션 보장 (인앱 브라우저 등에서 세션 유실 대응)
+  var _g=await sb.auth.getSession(); var _session=_g&&_g.data&&_g.data.session;
+  if(!_session){ try{ var _rf=await sb.auth.refreshSession(); _session=_rf&&_rf.data&&_rf.data.session; }catch(_e){} }
+  if(!_session){ if(m){m.style.color='var(--risk)';m.textContent='세션이 만료됐어요. 다시 로그인 후 시도해주세요.';} return; }
   var {error}=await sb.auth.updateUser({password:np});
   if(error){ if(m){m.style.color='var(--risk)';m.textContent='변경 실패: '+error.message;} return; }
   try{ var u=(await sb.auth.getUser()).data.user; if(u)await sb.from('student_accounts').update({must_change:false}).eq('auth_uid',u.id); if(u)localStorage.setItem('arche_pw_ok_'+u.id,'1'); }catch(e){}
@@ -4365,7 +4485,7 @@ async function syncTopbarPicker(v){
     var comb=[].concat(window._students||[], window._gstudents||[]).filter(function(x){ var b=window.b2cBand?b2cBand(x.grade):''; return b!=='초'; });
     var curA=isHi?(window._activeStudent?window._activeStudent.id:''):(window._gactive?window._gactive.id:'');
     td.innerHTML='<option value="">— 미선택 —</option>'+comb.map(function(x){ var b=window.b2cBand?b2cBand(x.grade):''; return '<option value="'+x.id+'">'+esc(x.name||'-')+(x.grade?' · '+esc(x.grade):'')+(b==='중'?' · 중등':' · 고등')+'</option>'; }).join('');
-    td.value=curA; return;
+    td.value=curA; try{renderStuMenuFromSelect();}catch(e){} return;
   }
   if(isGoip){
     window._topbarMode='goip';
@@ -4386,15 +4506,48 @@ async function syncTopbarPicker(v){
     td.innerHTML='<option value="">— 미선택 —</option>'+list.map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')+'</option>';}).join('');
     td.value=cur2;
   }
+  try{ renderStuMenuFromSelect(); }catch(e){}
 }
+/* [커스텀 학생 선택창] 네이티브 <select>(안드로이드 리페인트 깜빡임 원인) 대신 상단바에 직접 그리는 경량 메뉴 — 숨긴 select를 그대로 미러링 */
+function renderStuMenuFromSelect(){
+  var td=document.getElementById('topbar-student'); if(!td)return;
+  var btn=document.getElementById('topbar-student-btn'); var menu=document.getElementById('topbar-student-menu');
+  var cur=td.value||''; var curLabel='— 미선택 —'; var html='';
+  for(var i=0;i<td.options.length;i++){
+    var o=td.options[i]; var id=o.value||''; var lbl=o.textContent||o.text||''; var on=(id===cur); var mute=(!id);
+    if(on && id) curLabel=lbl;
+    html+='<div class="stu-mi" data-id="'+esc(id)+'" style="padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;'+(on?'background:#eef3ff;color:#1b64da;font-weight:700':(mute?'color:#8b95a1':'color:#191f28'))+'">'+esc(lbl)+'</div>';
+  }
+  if(btn) btn.innerHTML=esc(curLabel)+' <span style="font-size:9px;opacity:.6">▾</span>';
+  if(menu) menu.innerHTML=html;
+}
+function toggleStuMenu(ev){ if(ev&&ev.stopPropagation)ev.stopPropagation(); var m=document.getElementById('topbar-student-menu'); if(!m)return; if(m.style.display==='none'||!m.style.display){ try{renderStuMenuFromSelect();}catch(e){} m.style.display='block'; } else { m.style.display='none'; } }
+function closeStuMenu(){ var m=document.getElementById('topbar-student-menu'); if(m)m.style.display='none'; }
+window.toggleStuMenu=toggleStuMenu; window.renderStuMenuFromSelect=renderStuMenuFromSelect;
+document.addEventListener('click', function(e){
+  var t=e.target; var item=(t&&t.closest)?t.closest('.stu-mi'):null;
+  if(item){ var id=item.getAttribute('data-id')||''; closeStuMenu(); var sel=document.getElementById('topbar-student'); if(sel)sel.value=id; if(id)topbarSelect(id); else if(sel){ try{renderStuMenuFromSelect();}catch(_){} } return; }
+  if(!(t&&t.closest&&t.closest('#topbar-studenttag'))) closeStuMenu();
+});
 /* 저장 등 결과 토스트 알림 */
 function toast(msg,ok){
+  var isErr=(ok===false);
   var t=document.getElementById('arche-toast');
-  if(!t){t=document.createElement('div');t.id='arche-toast';t.style.cssText='position:fixed;bottom:26px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 22px;border-radius:10px;font-size:13px;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.18);transition:opacity .3s;pointer-events:none';document.body.appendChild(t);}
-  t.style.background=ok===false?'#b3261e':'var(--gold)';
-  t.style.color=ok===false?'#fff':'#ffffff';
-  t.textContent=msg; t.style.opacity='1';
-  clearTimeout(window._toastT); window._toastT=setTimeout(function(){t.style.opacity='0';},2800);
+  if(!t){
+    t=document.createElement('div');t.id='arche-toast';
+    t.style.cssText='position:fixed;top:calc(18px + env(safe-area-inset-top,0px));left:50%;z-index:2147483647;display:flex;align-items:center;gap:11px;max-width:min(460px,calc(100vw - 28px));padding:15px 22px;border-radius:14px;font-size:15px;font-weight:800;line-height:1.45;box-shadow:0 14px 38px rgba(0,0,0,.22);opacity:0;transform:translateX(-50%) translateY(-14px) scale(.96);transition:opacity .26s cubic-bezier(.2,.9,.3,1),transform .26s cubic-bezier(.2,.9,.3,1);pointer-events:none;text-align:left';
+    document.body.appendChild(t);
+  }
+  t.style.background=isErr?'#fdecea':'#e9faf1';
+  t.style.color=isErr?'#b3261e':'#0e7a43';
+  t.style.border='1.5px solid '+(isErr?'#f3bdb7':'#9fe3bf');
+  var ic=isErr?'⚠️':'✅';
+  t.innerHTML='<span style="font-size:20px;flex:none;line-height:1">'+ic+'</span><span>'+String(msg==null?'':msg).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')+'</span>';
+  // 등장 애니메이션
+  clearTimeout(window._toastT2);
+  window._toastT2=setTimeout(function(){ t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0) scale(1)'; },10);
+  clearTimeout(window._toastT);
+  window._toastT=setTimeout(function(){ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(-14px) scale(.96)'; }, isErr?4600:3600);
 }
 window.toast=toast;
 window.syncTopbarPicker=syncTopbarPicker;
@@ -4607,6 +4760,15 @@ async function perfSaveAsmt(track){
   var due=V('pf-s-due'); var dueIso=null; if(due){ var dd=new Date(due); if(!isNaN(dd.getTime()))dueIso=dd.toISOString(); }
   var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
   if(!acid){ try{ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; }catch(_){}}
+  // [자기주도] 학생 로그인은 RLS상 perf_assessments 직접 insert 불가 → 자가 RPC 사용
+  if(window._role==='stu'){
+    m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
+    var rp=await sb.rpc('self_register_perf_assessment',{p_student:s.id,p_title:title,p_subject:V('pf-s-subject')||null,p_unit:V('pf-s-unit')||null,p_standards:std,p_task:V('pf-s-task')||null,p_rubric:rub,p_method:V('pf-s-method')||null,p_due:dueIso,p_notice:V('pf-s-notice')||null,p_source_file:V('pf-s-fname')||null,p_blueprint:{total_points:(parseFloat(V('pf-s-total'))||null),reflect_ratio:V('pf-s-ratio')||null}});
+    if(rp.error){ m.style.color='var(--risk)'; m.textContent='등록 실패: '+rp.error.message; return; }
+    m.style.color='var(--safe)'; m.textContent='등록 완료 — 이제 관점 설계부터 진행하세요'; if(window.toast)toast('내 수행평가를 등록했어요',true);
+    var raw0=document.getElementById('pf-raw-'+track); if(raw0)raw0.value=''; var fi0=document.getElementById('pf-file-'+track); if(fi0)fi0.value=''; if(window._pfImgs)window._pfImgs[track]=[]; var ni0=document.getElementById('pf-imgnames-'+track); if(ni0)ni0.textContent='';
+    perfMount(track); return;
+  }
   var row={academy_id:acid,student_id:s.id,title:title,subject:V('pf-s-subject')||null,unit:V('pf-s-unit')||null,standards:std,task_body:V('pf-s-task')||null,rubric:rub,submit_method:V('pf-s-method')||null,due_at:dueIso,notice:V('pf-s-notice')||null,source_file:V('pf-s-fname')||null,blueprint:{total_points:(parseFloat(V('pf-s-total'))||null),reflect_ratio:V('pf-s-ratio')||null}};
   m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
   var ins=await sb.from('perf_assessments').insert(row).select('*').single();
@@ -4730,9 +4892,23 @@ async function perfStuView(track,s){
   var box=document.getElementById('perf-root-'+track); box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
   var q=await sb.from('perf_assessments').select('*').eq('student_id',s.id).eq('status','active').order('created_at',{ascending:false});
   if(q.error){ box.innerHTML='<div style="font-size:12px;color:var(--risk)">'+esc(q.error.message)+'</div>'; return; }
-  var asmts=q.data||[]; if(!asmts.length){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">아직 배포된 수행평가가 없습니다. 선생님이 수행평가를 등록하면 여기에 표시됩니다.</div>'; return; }
-  var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); var subs={}; (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;});
-  box.innerHTML=asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('');
+  var asmts=q.data||[]; var subs={};
+  if(asmts.length){ var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;}); }
+  // [자기주도] 학부모가 '학생 자기주도모드'를 켠 자녀만 자가 등록 노출 (학부모 관리모드면 받은 것만 수행)
+  var _selfMode=false; try{ if(window.ArcheSelfDrive){ var _md=await ArcheSelfDrive.load(s.id); _selfMode=((_md&&_md.mode)==='student'); } }catch(_e){}
+  var reg='<div style="border:1.5px solid var(--gold,#3182f6);border-radius:10px;padding:14px 15px;margin-bottom:14px">'
+    +'<div style="font-weight:700;font-size:13px;margin-bottom:4px">➕ 내 수행평가 직접 올리기</div>'
+    +'<div style="font-size:11.5px;color:var(--ink-mute);margin-bottom:10px">학교에서 받은 <b style="color:var(--ink)">수행평가 안내문·평가계획서</b>를 올리면 AI가 과제·성취기준·채점기준을 정리해줘요. 그다음 <b>관점 설계 → 작성 → 예상 채점</b>까지 내가 직접 진행합니다. (선생님을 기다리지 않아도 돼요 · 파일 PDF·DOCX·TXT 또는 사진·붙여넣기)</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
+      +'<input type="file" id="pf-file-'+track+'" accept=".pdf,.docx,.txt,.md" style="font-size:12px;color:var(--ink-dim)">'
+      +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:5px 10px;border-radius:6px">📷 사진 첨부<input type="file" id="pf-img-'+track+'" accept="image/*" multiple style="display:none" onchange="perfImgPick(\''+track+'\')"></label>'
+      +'<button class="btn" onclick="perfParse(\''+track+'\')">AI로 분석</button></div>'
+    +'<div id="pf-imgnames-'+track+'" style="font-size:11px;color:var(--ink-mute);margin-bottom:6px"></div>'
+    +'<textarea id="pf-raw-'+track+'" rows="3" placeholder="또는 안내 내용을 직접 붙여넣기 (HWP 등 자동추출 불가 시)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical;box-sizing:border-box"></textarea>'
+    +'<div id="pf-parsemsg-'+track+'" style="font-size:12px;min-height:14px;margin-bottom:4px"></div>'
+    +'<div id="pf-spec-'+track+'"></div></div>';
+  var listHtml = asmts.length ? ('<div style="font-weight:700;font-size:13px;margin-bottom:8px">내 수행평가</div>'+asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('')) : ('<div style="font-size:12px;color:var(--ink-mute)">'+(_selfMode?'아직 등록된 수행평가가 없어요. 위에서 안내문을 올려 시작하거나, 선생님이 등록하면 여기에 표시됩니다.':'아직 배포된 수행평가가 없습니다. 선생님이 수행평가를 등록하면 여기에 표시됩니다.')+'</div>');
+  box.innerHTML=(_selfMode?reg:'')+listHtml;
 }
 function perfStuCard(a,sub,track){
   var step=perfStepOf(sub);
@@ -8954,16 +9130,14 @@ window.archeInternal=function(){console.log('[arche] 내부 탭 없음(입시자
 // 초기: 모든 그룹 접힘 — 메뉴 이동/홈 카드 클릭 시에만 해당 그룹 펼침
 try{if(/[?&]internal=1/.test(location.search))window.archeInternal();}catch(e){}
 
-// 홍보홈 '무료 체험 시작'(?trial=1) → 로그인 게이트가 뜨면 게스트 체험 폼 자동 열기
+// 홍보홈 '무료 시작'(?trial=1) → 게스트 폐지. 로그인 게이트가 뜨면 학부모 회원가입으로 유도.
 try{ if(/[?&](trial|guest)=1/.test(location.search)){
   var _tn=0, _tiv=setInterval(function(){
     var ag=document.getElementById('authgate');
-    var gf=document.getElementById('guest-form');
     var visible=ag && getComputedStyle(ag).display!=='none';
-    if(visible && gf){ if(gf.style.display==='none' || !gf.style.display){ try{toggleGuestForm();}catch(e){} }
-      try{ ag.scrollIntoView(); var em=document.getElementById('gu-email'); if(em)em.focus(); }catch(e){}
+    if(visible){ try{ setLoginRole('parent'); ag.scrollIntoView(); var em=document.getElementById('au-email'); if(em)em.focus(); }catch(e){}
       clearInterval(_tiv); }
-    else if(++_tn>40){ clearInterval(_tiv); }  // 로그인돼 게이트가 없으면(이미 로그인) 조용히 종료
+    else if(++_tn>40){ clearInterval(_tiv); }  // 이미 로그인돼 게이트가 없으면 조용히 종료
   }, 250);
 }}catch(e){}
 
@@ -9106,7 +9280,7 @@ body{font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',-apple-system,B
 .navsub .nav.on::before{background:var(--gold)!important;color:#fff!important;border-color:var(--gold)!important;box-shadow:0 0 0 4px rgba(49,130,246,.15)}
 
 /* ── 탑바 ── */
-.topbar{background:rgba(242,244,246,.86)!important;border-bottom:none!important;padding:14px 28px!important;backdrop-filter:blur(12px)}
+.topbar{background:#f2f4f6!important;border-bottom:none!important;padding:14px 28px!important}
 .crumbs{font-weight:500}.crumbs b{font-weight:800}
 .studenttag{background:#fff!important;border:none!important;border-radius:12px!important;box-shadow:0 1px 3px rgba(25,31,40,.06);font-weight:600}
 .roletoggle{background:#e5e8eb!important;border:none!important;border-radius:12px!important;padding:3px;overflow:visible!important}
