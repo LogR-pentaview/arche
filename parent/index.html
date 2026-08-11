@@ -10083,5 +10083,18 @@ window.simRunAI=async function(){
 })();
 </script>
 
+<style id="mobile-overflow-fix">
+/* 모바일 가로 오버플로 차단 — 관리자 콘솔 등에서 본문이 뷰포트 밖으로 밀려 잘리는 문제 수정 */
+@media(max-width:960px){
+  html,body{max-width:100%;overflow-x:hidden}
+  .app{grid-template-columns:1fr!important;min-width:0}
+  .app>main,.app>.main,main,.main,.content,.view,.topbar{min-width:0}
+  .kpis,.kpi{min-width:0}
+  #adm-tabs{max-width:100%}
+  #adm-body{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #adm-body>table,#adm-body .row{max-width:100%}
+  #v-admin table,.card table{display:block;overflow-x:auto;max-width:100%}
+}
+</style>
 </body>
 </html>
