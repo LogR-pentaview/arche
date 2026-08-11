@@ -107,12 +107,13 @@
       if(info.status==='expired'){ renderErr(ov,'사용 기간이 지난 선물 코드예요.'); return; }
       if(info.status!=='issued'){ renderErr(ov,'지금은 사용할 수 없는 코드예요.'); return; }
       loadChildren().then(function(kids){
-        var title=giftTitle(info);
+        var isRef=info&&info.kind==='referral';
+        var title=isRef?(info.summary||'친구 초대 혜택'):giftTitle(info);
         var kidsHTML = kids.length
           ? kids.map(function(k,i){ return '<div class="agft-kid" data-id="'+esc(k.id)+'"><span class="rd"></span><b>'+esc(k.name||'-')+'</b><small>'+esc(k.grade||'')+'</small></div>'; }).join('')
           : '<div class="sub">연결된 자녀가 없어요. 먼저 자녀를 등록해 주세요.</div>';
-        c.innerHTML='<button class="agft-x">✕</button><h3>🎁 선물이 도착했어요</h3><div class="sub">아래 선물을 받을 자녀를 선택하세요.</div>'
-          +'<div class="agft-gift"><div class="t">GIFT</div><div class="n">'+esc(title)+'</div><div class="c">'+esc(code)+'</div></div>'
+        c.innerHTML='<button class="agft-x">✕</button><h3>🎁 '+(isRef?'친구 초대장이 도착했어요':'선물이 도착했어요')+'</h3><div class="sub">'+(isRef?'혜택을 받을 자녀를 선택하세요.':'아래 선물을 받을 자녀를 선택하세요.')+'</div>'
+          +'<div class="agft-gift"><div class="t">'+(isRef?'친구 초대 혜택':'GIFT')+'</div><div class="n">'+esc(title)+'</div><div class="c">'+esc(code)+'</div></div>'
           +'<div class="agft-kids">'+kidsHTML+'</div>'
           +'<button class="agft-btn" id="agft-redeem"'+(kids.length?'':' disabled')+'>선물 받기</button>'
           +'<div class="agft-msg" id="agft-msg"></div>';
@@ -126,9 +127,12 @@
           sb.rpc('redeem_gift',{p_code:code,p_student:sel}).then(function(r){
             if(r.error){ throw r.error; }
             var d=r.data||{};
-            c.innerHTML='<button class="agft-x">✕</button><h3>🎉 선물 등록 완료!</h3>'
-              +'<div class="agft-gift"><div class="t">지급 완료</div><div class="n">'+esc(giftTitle(d.label?d:info))+'</div></div>'
-              +'<div class="sub">선택한 자녀 계정에 해당 시즌이 열렸어요. 지금 바로 학습을 시작할 수 있습니다.</div>'
+            var okRef=(d.kind==='referral')||isRef;
+            var okTitle=okRef?(d.summary||info.summary||'혜택 지급 완료'):giftTitle(d.label?d:info);
+            var okDesc=okRef?'아르케 이용권이 지급됐어요. 첫 구독 결제에 30% 할인이 자동 적용됩니다.':'선택한 자녀 계정에 해당 시즌이 열렸어요. 지금 바로 학습을 시작할 수 있습니다.';
+            c.innerHTML='<button class="agft-x">✕</button><h3>🎉 '+(okRef?'혜택이 적용됐어요!':'선물 등록 완료!')+'</h3>'
+              +'<div class="agft-gift"><div class="t">지급 완료</div><div class="n">'+esc(okTitle)+'</div></div>'
+              +'<div class="sub">'+okDesc+'</div>'
               +'<button class="agft-btn" id="agft-done">확인</button>';
             bindClose(ov);
             var dn=c.querySelector('#agft-done'); if(dn)dn.addEventListener('click',function(){ ov.remove(); cleanUrl(); location.reload(); });
