@@ -100,7 +100,8 @@
       var info=res[1]&&res[1].data;
       if(!user){
         c.innerHTML='<button class="agft-x">✕</button><h3>🎁 선물 받기</h3><div class="sub">선물을 받으려면 먼저 <b>학부모 로그인</b>이 필요해요. 로그인 후 이 화면이 다시 열립니다.</div><button class="agft-btn" id="agft-login">로그인하러 가기</button>';
-        bindClose(ov); var lg=c.querySelector('#agft-login'); if(lg)lg.addEventListener('click',function(){ location.href='/login?gift='+encodeURIComponent(code); }); return;
+        setPending(code);
+        bindClose(ov); var lg=c.querySelector('#agft-login'); if(lg)lg.addEventListener('click',function(){ setPending(code); location.href='/login?gift='+encodeURIComponent(code); }); return;
       }
       if(!info || !info.ok){ renderErr(ov,'존재하지 않는 선물 코드예요.'); return; }
       if(info.status==='redeemed'){ renderErr(ov,'이미 사용된 선물 코드예요.'); return; }
@@ -127,6 +128,7 @@
           sb.rpc('redeem_gift',{p_code:code,p_student:sel}).then(function(r){
             if(r.error){ throw r.error; }
             var d=r.data||{};
+            clearPending(); try{ if(window.ArcheGiftbox) ArcheGiftbox.refresh(); }catch(e){}
             var okRef=(d.kind==='referral')||isRef;
             var okTitle=okRef?(d.summary||info.summary||'혜택 지급 완료'):giftTitle(d.label?d:info);
             var okDesc=okRef?'아르케 이용권이 지급됐어요. 첫 구독 결제에 30% 할인이 자동 적용됩니다.':'선택한 자녀 계정에 해당 시즌이 열렸어요. 지금 바로 학습을 시작할 수 있습니다.';
@@ -138,7 +140,7 @@
             var dn=c.querySelector('#agft-done'); if(dn)dn.addEventListener('click',function(){ ov.remove(); cleanUrl(); location.reload(); });
           }).catch(function(e){
             var m=String(e&&e.message||e);
-            var map={ALREADY_REDEEMED:'이미 사용된 코드예요.',EXPIRED:'사용 기간이 지났어요.',INVALID_CODE:'존재하지 않는 코드예요.',NOT_YOUR_STUDENT:'선택한 자녀에 대한 권한이 없어요.',NOT_AVAILABLE:'지금은 사용할 수 없어요.'};
+            var map={ALREADY_REDEEMED:'이미 사용된 코드예요.',EXPIRED:'사용 기간이 지났어요.',INVALID_CODE:'존재하지 않는 코드예요.',NOT_YOUR_STUDENT:'선택한 자녀에 대한 권한이 없어요.',NOT_AVAILABLE:'지금은 사용할 수 없어요.',CLAIMED_BY_OTHER:'이미 다른 계정 선물함에 담긴 코드예요.',SELF_REDEEM:'본인이 보낸 초대권은 사용할 수 없어요.'};
             var friendly=Object.keys(map).filter(function(k){return m.indexOf(k)>=0;}).map(function(k){return map[k];})[0];
             msg.style.color='#f04452'; msg.textContent=friendly||('실패: '+m); btn.disabled=false;
           });
@@ -233,14 +235,40 @@
       });
   }
 
-  /* ================= URL 진입 (?gift=CODE) ================= */
+  /* ================= 대기 선물코드 (가입/인증/로그인 여정 보존) ================= */
+  var PENDING_KEY='penta_pending_gift';
+  function setPending(code){ try{ if(code)localStorage.setItem(PENDING_KEY,code); }catch(e){} }
+  function getPending(){ try{ return localStorage.getItem(PENDING_KEY)||null; }catch(e){ return null; } }
+  function clearPending(){ try{ localStorage.removeItem(PENDING_KEY); }catch(e){} }
+
+  /* 로그인 상태면 선물함에 담기(예약). 성공 시 대기코드 제거 + 선물함 갱신. */
+  function claimToInbox(code){
+    var sb=_sb(); if(!sb||!code) return Promise.resolve(null);
+    return sb.rpc('claim_gift',{p_code:code}).then(function(r){
+      var d=(r&&r.data)||{};
+      if(d.ok){ clearPending(); try{ if(window.ArcheGiftbox) ArcheGiftbox.refresh(); }catch(e){} }
+      return d;
+    }).catch(function(){ return null; });
+  }
+
+  /* ================= URL 진입 (?gift=CODE) — 담기 후 선물함 안내 ================= */
   function checkUrl(){
-    var code=null;
-    try{ var m=location.search.match(/[?&]gift=([^&]+)/); if(m)code=decodeURIComponent(m[1]); }catch(e){}
+    var urlCode=null;
+    try{ var m=location.search.match(/[?&]gift=([^&]+)/); if(m)urlCode=decodeURIComponent(m[1]); }catch(e){}
+    if(urlCode) setPending(urlCode);
+    var code=urlCode||getPending();
     if(!code)return false;
     var tries=0;
     (function wait(){
-      if(_sb()){ openRedeem(code); return; }
+      var sb=_sb();
+      if(sb){
+        sb.auth.getUser().then(function(res){
+          var user=res&&res.data&&res.data.user;
+          if(user){ claimToInbox(code).then(function(){ openRedeem(code); }); }
+          else { openRedeem(code); } // 비회원 → 로그인 안내(대기코드는 이미 저장됨)
+        });
+        return;
+      }
       if(tries++>40)return; setTimeout(wait,150);
     })();
     return true;
