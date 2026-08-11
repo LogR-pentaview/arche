@@ -125,6 +125,7 @@
     <div class="nav" data-t="slot" onclick="go('slot')"><i class="ti ti-shield-check"></i>슬롯 무결성</div>
     <div class="nav" data-t="billing" onclick="go('billing')"><i class="ti ti-credit-card"></i>결제</div>
     <div class="nav" data-t="gift" onclick="go('gift')"><i class="ti ti-gift"></i>선물 발급</div>
+    <div class="nav" data-t="referral" onclick="go('referral')"><i class="ti ti-users-group"></i>친구추천 현황</div>
     <div class="foot"><b id="who">관리자</b><small>로그·알 입시연구소</small>
       <button class="lo" onclick="doLogout()">로그아웃</button>
       <div style="margin-top:9px;display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font-size:10px;color:var(--text-muted);font-family:var(--font-mono)">v<span id="ver-cur">-</span></span><button onclick="checkAppUpdate()" style="font-size:10px;padding:3px 8px;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-secondary);cursor:pointer;font-family:inherit">최신확인</button><button id="ver-apply" onclick="applyAppUpdate()" style="display:none;font-size:10px;padding:3px 8px;border:none;border-radius:8px;background:var(--text-accent);color:#fff;cursor:pointer;font-family:inherit">업데이트</button></div>
@@ -143,7 +144,7 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.APP_VERSION="2026.08.11.1";
+  window.APP_VERSION="2026.08.11.2";
   (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
   window.checkAppUpdate=async function(){
     var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
@@ -214,6 +215,7 @@
     if(t==='apikey') return renderApiKey(p);
     if(t==='apicost') return renderApiCost(p);
     if(t==='login') return renderLogins(p);
+    if(t==='referral') return renderReferrals(p);
     if(t==='billing') return renderBilling(p);
     p.innerHTML = '<div class="muted">알 수 없는 탭</div>';
   };
@@ -683,6 +685,39 @@
     if(r.error){ alert('삭제 실패: '+r.error.message); return; }
     pLoad();
   };
+
+  // ===== 친구추천 현황 =====
+  async function renderReferrals(p){
+    p.innerHTML='<div class="h1">친구추천 현황</div><div class="sub">파운더별 초대권 발급·사용·유료전환 현황</div><div id="ref-body"><div class="muted">불러오는 중…</div></div>';
+    var r=await sb.rpc('admin_referral_overview');
+    var body=document.getElementById('ref-body');
+    if(r.error){ body.innerHTML='<div class="muted">오류: '+esc(r.error.message||'')+'</div>'; return; }
+    var rows=r.data||[];
+    var tIssued=rows.reduce(function(s,x){return s+Number(x.issued||0);},0);
+    var tRedeemed=rows.reduce(function(s,x){return s+Number(x.redeemed||0);},0);
+    var tConverted=rows.reduce(function(s,x){return s+Number(x.converted||0);},0);
+    var convRate=tRedeemed>0?Math.round(tConverted/tRedeemed*100):0;
+    var head='<div class="kpis" style="grid-template-columns:repeat(4,1fr);max-width:680px">'
+      +'<div class="kpi"><div class="lab">초대권 발급</div><div class="num">'+tIssued+'<small> 건</small></div></div>'
+      +'<div class="kpi"><div class="lab">사용(친구 등록)</div><div class="num">'+tRedeemed+'<small> 명</small></div></div>'
+      +'<div class="kpi"><div class="lab">유료 전환</div><div class="num">'+tConverted+'<small> 명</small></div></div>'
+      +'<div class="kpi"><div class="lab">전환율</div><div class="num">'+convRate+'<small> %</small></div></div></div>';
+    if(!rows.length){ body.innerHTML=head+'<div class="soon">아직 친구추천 발급 내역이 없습니다. 런칭 프로모(파운더) 시작 후 집계됩니다.</div>'; return; }
+    var tbl='<div class="card"><h3>파운더별 현황 <span class="meta" style="font-weight:400">· 전환 많은 순</span></h3>'
+      +'<table style="width:100%;font-size:12.5px"><thead><tr><th style="text-align:left">파운더</th><th style="text-align:right">발급</th><th style="text-align:right">사용</th><th style="text-align:right">전환</th><th style="text-align:right">전환율</th><th style="text-align:right">최근활동</th></tr></thead><tbody>'
+      +rows.map(function(x){
+        var cr=Number(x.redeemed)>0?Math.round(Number(x.converted)/Number(x.redeemed)*100):0;
+        var nm=esc(x.founder_name||'-'); var em=(x.founder_email&&x.founder_email!==x.founder_name)?'<span class="meta" style="display:block;font-weight:400">'+esc(x.founder_email)+'</span>':'';
+        var la=x.last_activity&&String(x.last_activity).slice(0,4)!=='1970'?String(x.last_activity).slice(0,10):'-';
+        return '<tr><td style="font-weight:600">'+nm+em+'</td>'
+          +'<td style="text-align:right">'+Number(x.issued||0)+'</td>'
+          +'<td style="text-align:right">'+Number(x.redeemed||0)+'</td>'
+          +'<td style="text-align:right;font-weight:700;color:var(--text-success)">'+Number(x.converted||0)+'</td>'
+          +'<td style="text-align:right"><span style="color:var(--text-accent)">'+cr+'%</span></td>'
+          +'<td style="text-align:right;color:var(--text-muted)">'+esc(la)+'</td></tr>';
+      }).join('')+'</tbody></table></div>';
+    body.innerHTML=head+tbl;
+  }
 
   // ===== 로그인 기록 =====
   window._loginDays=14; window._loginKind='';
