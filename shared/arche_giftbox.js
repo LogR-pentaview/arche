@@ -38,6 +38,11 @@
   }
 
   function render(card, rows){
+    if(!rows.length){
+      card.innerHTML='<div class="hd">🎁 받은 선물함</div>'
+        +'<div class="sub" style="margin-bottom:2px">아직 받은 선물이 없어요. 선물 링크를 열면 자동으로 여기에 담겨요.</div>';
+      return;
+    }
     var usable=rows.filter(function(x){return x.status==='issued';}).length;
     card.innerHTML='<div class="hd">🎁 받은 선물함 <span class="cnt">사용 가능 '+usable+'</span></div>'
       +'<div class="sub">선물 링크로 받은 선물이 여기 담깁니다. 자녀를 선택해 바로 사용하세요.</div>'
@@ -70,11 +75,11 @@
     var home=document.getElementById('v-home'); if(!home) return;
     load(function(rows){
       var exist=document.getElementById('agbx-card');
-      if(!rows.length){ if(exist)exist.remove(); _has=false; return; }
       injectCSS();
       _has=true;
       var card=exist;
       if(!card){ card=document.createElement('div'); card.id='agbx-card'; card.className='card';
+        // 친구초대 카드(있으면) 다음, 없으면 홈 최상단
         var ref=document.getElementById('aref-home-card');
         if(ref && ref.parentNode===home){ home.insertBefore(card, ref.nextSibling); }
         else { home.insertBefore(card, home.firstChild); }
@@ -96,6 +101,7 @@
   function boot(){
     var s=sb();
     if(!s){ var t=0; var w=setInterval(function(){ if(sb()){clearInterval(w);boot();} if(++t>40)clearInterval(w); },200); return; }
+    // 로그인 상태에서만 의미
     s.auth.getUser().then(function(res){
       if(res&&res.data&&res.data.user){ inject(); startObserver(); }
     }).catch(function(){});
