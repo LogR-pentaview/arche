@@ -2068,6 +2068,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_gift.js?v=3"></script>
 <script src="/shared/arche_referral.js?v=1"></script>
 <script src="/shared/arche_giftbox.js?v=1"></script>
+<script src="/shared/arche_guides.js?v=1"></script>
 <script>
 /* 아르케 회고 오버레이 헬퍼 (사전 스냅샷 + 사후 회고, 실패해도 앱 동작 불변) */
 (function(){
@@ -2273,7 +2274,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.11.4";
+window.APP_VERSION="2026.08.12.1";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
