@@ -236,6 +236,70 @@
 .apw.ro .navbtns{position:sticky}
 @media(min-width:900px){.apw{max-width:560px}.apw .navbtns{position:sticky;bottom:8px;border-radius:16px;border:1px solid var(--line)}.apw{padding-bottom:8px}}
 @media print{.apw{padding-bottom:0}.apw .apw-top,.apw .navbtns{display:none!important}.apw .apw-view{display:block!important;page-break-after:always}.apw .page{box-shadow:none;border:1px solid #ddd}}
+
+/* ══ 라면 시리즈 전용 · 불꽃(fire) 스킨 — 가산 전용(.apw.ramyeon). 펜타(vision/track) 무영향 ══
+   팔레트: 페르시아 세밀화(lapis 남색·금박·청록) + 불꽃(진홍·주홍). 다크 테마. */
+.apw.ramyeon{--navy:#0f1524;--navy2:#171f34;--ink:#eef2fb;--dim:#c7d0e6;--muted:#9aa6c4;--faint:#586585;
+  --line:#33405f;--line-soft:#26314e;--sky:#151d31;--bg:#0f1524;
+  --acc:#d4a94a;--acc-d:#a2842f;--acc-l:#f0a830;--acc-soft:#241f14;--cream:#f6f1e6;--gold:#d4a94a;--golds:#f0a830;
+  --vermilion:#e0453a;--ember:#ff6b3d;--turq:#3fb9a8;
+  background:radial-gradient(1000px 420px at 50% -6%,#1c2743 0%,transparent 60%),#0f1524;padding-top:10px}
+.apw.ramyeon .page{background:linear-gradient(135deg,#171f34,#121a2c);border-color:#2c3a5c;color:var(--ink)}
+.apw.ramyeon .page::before{background:linear-gradient(90deg,var(--vermilion),var(--acc-l),var(--turq))}
+.apw.ramyeon h2.title{color:#fff}
+.apw.ramyeon .ph .no{color:#fff;opacity:.18}
+.apw.ramyeon .eyebrow{color:var(--acc-l)}
+.apw.ramyeon .lead,.apw.ramyeon .stgdesc{color:var(--dim)}
+.apw.ramyeon .infobox{background:linear-gradient(135deg,#1a2237,#141b2c);border-color:#2c3a5c;border-left-color:var(--acc-l)}
+.apw.ramyeon .infobox .it{color:var(--acc-l)}
+.apw.ramyeon .infobox .ib{color:var(--dim)}
+.apw.ramyeon .infobox .ib b{color:#fff}
+.apw.ramyeon .rc{box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.apw.ramyeon .rc::before{background:linear-gradient(90deg,var(--vermilion),var(--acc-l),var(--turq))}
+.apw.ramyeon .rc .who{color:var(--vermilion)}
+.apw.ramyeon .rc .core{font-family:"Noto Serif KR","Nanum Myeongjo",serif;color:#2b2418}
+.apw.ramyeon .rc .core b{color:#8a2a1e}
+.apw.ramyeon .abox{background:#151d31;border-color:#2b3757}
+.apw.ramyeon .abox label{color:var(--turq)}
+.apw.ramyeon textarea{background:#0f1626;border-color:#33405f;color:#eef2fb}
+.apw.ramyeon textarea:focus{border-color:var(--acc-l);box-shadow:0 0 0 3px rgba(240,168,48,.15);background:#0f1626}
+.apw.ramyeon textarea::placeholder{color:#586585}
+.apw.ramyeon input[type=text]{background:#0f1626;border-color:#33405f;color:#eef2fb}
+.apw.ramyeon input[type=text]:focus{border-color:var(--acc-l);box-shadow:0 0 0 3px rgba(240,168,48,.15);background:#0f1626}
+.apw.ramyeon .inpmode{background:#151d31;border-color:#2b3757}
+.apw.ramyeon .inpmode button{background:#151d31;color:var(--muted)}
+.apw.ramyeon .inpmode button.on{background:var(--acc);color:#0f1524}
+.apw.ramyeon .q{color:#fff}
+.apw.ramyeon .hint{color:var(--muted)}
+.apw.ramyeon .opt{background:#1a2338;border-color:#2d3a5c}
+.apw.ramyeon .opt .ol{color:#eef2fb}
+.apw.ramyeon .opt .od{color:var(--muted)}
+.apw.ramyeon .opt.on{border-color:var(--acc-l);background:linear-gradient(135deg,#2a2a1c,#241f14);box-shadow:0 4px 16px rgba(240,168,48,.2)}
+.apw.ramyeon .opt.on .ol{color:var(--acc-l)}
+.apw.ramyeon .radar-wrap{background:#151d31;border:1px solid #2b3757;border-radius:16px;padding:16px}
+.apw.ramyeon .frq .top b{color:#eef2fb}
+.apw.ramyeon .frq .top .v{color:var(--acc-l)}
+.apw.ramyeon .frq input[type=range]{accent-color:var(--vermilion)}
+.apw.ramyeon .growth{background:linear-gradient(135deg,#16302c,#122824);border:1px solid #2c5a54}
+.apw.ramyeon .help{background:#151d31;color:var(--dim)}
+.apw.ramyeon .pill{background:var(--acc-soft);color:var(--acc-l);border-color:#5a4a1f}
+.apw.ramyeon .rm{background:#1a2338;border-color:#2b3757}
+.apw.ramyeon .rm h4{color:#eef2fb}
+.apw.ramyeon .rm p{color:var(--muted)}
+.apw.ramyeon .rm .em{background:#26314e}
+.apw.ramyeon .navbtns{background:linear-gradient(180deg,rgba(15,21,36,0),#0f1524 32%);border-top:none;box-shadow:none}
+.apw.ramyeon .navbtns .mid{color:var(--muted)}
+.apw.ramyeon .navbtns .mid b{color:#fff}
+.apw.ramyeon .navbtns button{background:linear-gradient(135deg,var(--acc-l),var(--acc));color:#0f1524}
+.apw.ramyeon .navbtns button.sec{background:#26314e;color:var(--dim);border-color:#33405f}
+.apw.ramyeon .subbtn{background:linear-gradient(135deg,var(--vermilion),var(--ember))!important;color:#fff!important;box-shadow:0 6px 20px rgba(224,69,58,.4)}
+.apw.ramyeon .apw-brand small{color:var(--acc-l)}
+.apw.ramyeon .heat-badge{margin-left:auto;font-size:11px;font-weight:800;color:#ffd9c2;background:linear-gradient(135deg,var(--vermilion),var(--ember));padding:5px 11px;border-radius:20px}
+/* 통섭별(consilience star) 시그니처 — 라면 전용 */
+.apw.ramyeon .cstar{margin:14px 0 2px;text-align:center}
+.apw.ramyeon .cstar svg{max-width:210px;width:100%;height:auto;display:block;margin:0 auto}
+.apw.ramyeon .cstar .cap{font-size:11px;color:var(--muted);margin-top:6px}
+.apw.ramyeon .cstar .cap b{color:var(--acc-l)}
 `;
 
   function inject(){
@@ -280,7 +344,10 @@
     };
     var required = [];   // 필수 입력 id 목록(진행률)
 
-    var root=document.createElement('div'); root.className='apw '+((L.stage==='track')?'track':'vision')+(ro?' ro':'');
+    // 스킨 결정: 라면 시리즈(series/skin)만 ramyeon(불꽃). 그 외는 기존 그대로 vision/track.
+    var isRamyeon = (L.skin==='ramyeon' || L.series==='ramyeon' || L.series==='bibim');
+    var _skin = isRamyeon ? 'ramyeon' : ((L.stage==='track')?'track':'vision');
+    var root=document.createElement('div'); root.className='apw '+_skin+(ro?' ro':'');
 
     // ── 상단 스텝바 (뷰 구성 이후 채움) ──────────────────────────
     var top=el('<div class="apw-top"><div class="apw-topin">'
@@ -337,6 +404,12 @@
       page.innerHTML='<span class="eyebrow">'+esc(stg.icon||'✦')+' '+esc(rawName)+'</span>'
         +'<div class="ph"><span class="no">'+('0'+(si+1)).slice(-2)+'</span><h2 class="title serif">'+esc(shortName)+'</h2></div>'
         +(stg.desc?'<div class="stgdesc">'+esc(stg.desc)+'</div>':'');
+      // 라면 전용: 스테이지마다 통섭별에 눈이 하나씩 켜짐 (펜타는 미주입)
+      if(isRamyeon){
+        var _st=document.createElement('div'); _st.className='cstar';
+        _st.innerHTML=consilienceStar(Math.min(si+1,5), axes)+'<div class="cap"><b>'+(si+1)+'번째 갈래</b>에 불이 켜졌어요 · 하나의 이야기가 다섯 눈으로 번져 갑니다</div>';
+        page.appendChild(_st);
+      }
       (stg.blocks||[]).forEach(function(b){ page.appendChild(renderBlock(b, stepNoRef)); });
       v.appendChild(page);
 
@@ -535,6 +608,10 @@
       if(b.id) w.setAttribute('data-id', b.id);
       var t=b.t||b.type;
 
+      if(t==='star'){
+        w.innerHTML='<div class="cstar">'+consilienceStar(b.active||0, b.axes||axes)+(b.caption?'<div class="cap">'+esc(b.caption)+'</div>':'')+'</div>';
+        return w;
+      }
       if(t==='info'){
         w.innerHTML='<div class="infobox">'+(b.title?'<div class="it">'+esc(b.title)+'</div>':'')+'<div class="ib">'+richEsc(b.body||'')+'</div></div>';
         return w;
@@ -703,6 +780,20 @@
     }
 
     // 레이더 SVG (before=금색 점선, after=남색 채움)
+    // 통섭별(consilience star) — 라면 전용 시그니처. active개의 눈이 균형 순서로 켜짐.
+    function consilienceStar(active,ax){
+      var cx=110,cy=100,r=68,order=[0,2,3,1,4],lit={};
+      for(var k=0;k<Math.min(active,5);k++){ lit[order[k]]=true; }
+      var g='<circle cx="'+cx+'" cy="'+cy+'" r="6" fill="#f0a830"/>';
+      for(var i=0;i<5;i++){
+        var a=-Math.PI/2+i*2*Math.PI/5, x=cx+r*Math.cos(a), y=cy+r*Math.sin(a), on=!!lit[i];
+        var lab=String((ax&&ax[i])||'').replace(/\s*의?\s*눈\s*$/,'')||('눈'+(i+1));
+        g+='<line x1="'+cx+'" y1="'+cy+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="'+(on?'#e0453a':'#2b3757')+'" stroke-width="'+(on?2.5:1.5)+'"/>';
+        g+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(on?16:13)+'" fill="'+(on?'#e0453a':'#1a2338')+'" stroke="'+(on?'#ff6b3d':'#33405f')+'" stroke-width="1.5"/>';
+        g+='<text x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" fill="'+(on?'#fff':'#586585')+'" font-size="8.5" font-weight="800" text-anchor="middle" dominant-baseline="middle">'+esc(lab)+'</text>';
+      }
+      return '<svg viewBox="0 0 220 200">'+g+'</svg>';
+    }
     function radarSVG(ax,before,after){
       var C=160,cy=145,R=105,N=ax.length||5;
       function pt(i,r){var a=-Math.PI/2+i*2*Math.PI/N;return [C+r*Math.cos(a),cy+r*Math.sin(a)];}
@@ -733,5 +824,5 @@
       collect:function(){ return { answers:state.answers, radar_before:state.radar_before, radar_after:state.radar_after, compass:+state.compass }; } };
   }
 
-  window.ArchePentaWorkbook = { render: render, version: '2.1' };
+  window.ArchePentaWorkbook = { render: render, version: '2.2-ramyeon' };
 })();
