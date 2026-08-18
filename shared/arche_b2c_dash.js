@@ -160,7 +160,7 @@
     var got=inbox.length;
 
     var html='<section class="b2cd-view">'
-      +'<div class="hero navy"><button class="lo" data-lo>로그아웃</button>'
+      +'<div class="hero navy">'
         +'<div class="av">'+esc(name.slice(0,1))+'</div>'
         +'<div class="who"><div class="eb">PENTA · 학생</div><h1>'+esc(name)+' 학생</h1>'
         +'<div class="meta">'+(grade?'<span class="chip">'+esc(grade)+'</span>':'')+'<span class="chip">받은 과제 '+esc(got)+'</span></div></div></div>';
@@ -174,6 +174,7 @@
     if(got) fillGrid(root.querySelector('#b2cd-c-inbox'),'a',inbox,function(act,key){ if(opts.onAction)opts.onAction('inbox',act,key); });
     fillGrid(root.querySelector('#b2cd-c-penta'),'p',penta,function(act,key){ if(opts.onAction)opts.onAction('penta',act,key); });
     fillGrid(root.querySelector('#b2cd-c-arche'),'a',arche,function(act,key){ if(opts.onAction)opts.onAction('arche',act,key); });
+    // 히어로 내 로그아웃 버튼 제거(상단 우측 로그아웃과 중복·미배선이었음). onLogout 콜백은 필요시 재사용 가능.
     var lo=root.querySelector('[data-lo]'); if(lo)lo.addEventListener('click',function(){ if(opts.onLogout)opts.onLogout(); });
   }
 
