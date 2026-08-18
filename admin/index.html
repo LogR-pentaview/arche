@@ -122,6 +122,7 @@
     <div class="nav" data-t="apikey" onclick="go('apikey')"><i class="ti ti-key"></i>API 키</div>
     <div class="nav" data-t="apicost" onclick="go('apicost')"><i class="ti ti-chart-bar"></i>API 사용량·비용</div>
     <div class="nav" data-t="login" onclick="go('login')"><i class="ti ti-login-2"></i>로그인 기록</div>
+    <div class="nav" data-t="visits" onclick="go('visits')"><i class="ti ti-chart-line"></i>방문자수</div>
     <div class="nav" data-t="slot" onclick="go('slot')"><i class="ti ti-shield-check"></i>슬롯 무결성</div>
     <div class="nav" data-t="billing" onclick="go('billing')"><i class="ti ti-credit-card"></i>결제</div>
     <div class="nav" data-t="gift" onclick="go('gift')"><i class="ti ti-gift"></i>선물 발급</div>
@@ -144,7 +145,7 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.APP_VERSION="2026.08.11.2";
+  window.APP_VERSION="2026.08.16.1";
   (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
   window.checkAppUpdate=async function(){
     var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
@@ -215,6 +216,7 @@
     if(t==='apikey') return renderApiKey(p);
     if(t==='apicost') return renderApiCost(p);
     if(t==='login') return renderLogins(p);
+    if(t==='visits') return renderVisits(p);
     if(t==='referral') return renderReferrals(p);
     if(t==='billing') return renderBilling(p);
     p.innerHTML = '<div class="muted">알 수 없는 탭</div>';
@@ -780,6 +782,55 @@
         }).join('')+'</tbody></table></div>';
     });
     body.innerHTML=html;
+  }
+
+  // ===== 방문자수 (메인 홈페이지) =====
+  window._visitDays=14;
+  async function renderVisits(p){
+    p.innerHTML = '<div class="h1">방문자수</div><div class="sub">메인 홈페이지 방문 집계 (한국시간 기준 · 개인정보 미수집)</div>'
+      + '<div id="vs-sum" class="kpis" style="grid-template-columns:repeat(4,1fr);max-width:660px;margin-bottom:12px"><div class="muted">불러오는 중…</div></div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">'
+      + '<div class="filt" id="vs-days">'
+        + '<button data-d="7" onclick="visitSetDays(7)">7일</button>'
+        + '<button class="on" data-d="14" onclick="visitSetDays(14)">14일</button>'
+        + '<button data-d="30" onclick="visitSetDays(30)">30일</button>'
+        + '<button data-d="90" onclick="visitSetDays(90)">90일</button></div></div>'
+      + '<div id="vs-body"><div class="muted">불러오는 중…</div></div>';
+    visitSyncBtns(); loadVisitSummary(); loadVisits();
+  }
+  function visitSyncBtns(){ document.querySelectorAll('#vs-days button').forEach(function(b){ b.classList.toggle('on', Number(b.dataset.d)===window._visitDays); }); }
+  window.visitSetDays=function(d){ window._visitDays=d; visitSyncBtns(); loadVisits(); };
+  async function loadVisitSummary(){
+    var el=document.getElementById('vs-sum'); if(!el)return;
+    var r=await sb.rpc('admin_site_visits_summary');
+    if(r.error){ el.innerHTML='<div class="muted">오류: '+esc(r.error.message||'')+'</div>'; return; }
+    var s=(r.data&&r.data[0])||{total_visits:0,total_uniques:0,today_visits:0,today_uniques:0};
+    el.innerHTML='<div class="kpi"><div class="lab">전체 방문</div><div class="num">'+Number(s.total_visits||0).toLocaleString()+'<small> 회</small></div></div>'
+      +'<div class="kpi"><div class="lab">전체 순방문자</div><div class="num">'+Number(s.total_uniques||0).toLocaleString()+'<small> 명</small></div></div>'
+      +'<div class="kpi"><div class="lab">오늘 방문</div><div class="num">'+Number(s.today_visits||0).toLocaleString()+'<small> 회</small></div></div>'
+      +'<div class="kpi"><div class="lab">오늘 순방문자</div><div class="num">'+Number(s.today_uniques||0).toLocaleString()+'<small> 명</small></div></div>';
+  }
+  async function loadVisits(){
+    var body=document.getElementById('vs-body'); if(!body)return;
+    body.innerHTML='<div class="muted">불러오는 중…</div>';
+    var r=await sb.rpc('admin_site_visits',{p_days:window._visitDays});
+    if(r.error){ body.innerHTML='<div class="muted">오류: '+esc(r.error.message||'')+'</div>'; return; }
+    var rows=r.data||[];
+    if(!rows.length){ body.innerHTML='<div class="soon">해당 기간의 방문 기록이 없습니다. (집계는 홈페이지 배포 이후부터 쌓입니다)</div>'; return; }
+    var totV=rows.reduce(function(s,x){return s+Number(x.visits||0);},0);
+    var maxV=Math.max.apply(null,rows.map(function(x){return Number(x.visits||0);}))||1;
+    var head='<div class="kpis" style="grid-template-columns:repeat(2,1fr);max-width:420px;margin-bottom:8px">'
+      +'<div class="kpi"><div class="lab">최근 '+window._visitDays+'일 방문</div><div class="num">'+totV.toLocaleString()+'<small> 회</small></div></div>'
+      +'<div class="kpi"><div class="lab">일평균</div><div class="num">'+Math.round(totV/rows.length).toLocaleString()+'<small> 회</small></div></div></div>';
+    var tbl='<div class="card"><table style="width:100%;font-size:12.5px"><thead><tr><th style="text-align:left">날짜</th><th style="text-align:right">방문(회)</th><th style="text-align:right">순방문자(명)</th><th style="text-align:left;width:38%">추이</th></tr></thead><tbody>'
+      +rows.map(function(x){
+        var v=Number(x.visits||0), u=Number(x.uniques||0), w=Math.round(v/maxV*100);
+        return '<tr><td style="font-weight:600">'+esc(x.day)+'</td>'
+          +'<td style="text-align:right;font-weight:700">'+v.toLocaleString()+'</td>'
+          +'<td style="text-align:right;color:var(--text-muted)">'+u.toLocaleString()+'</td>'
+          +'<td><div style="height:8px;border-radius:4px;background:var(--sky,#eef3ff);overflow:hidden"><div style="height:100%;width:'+w+'%;border-radius:4px;background:var(--accent,#3182f6)"></div></div></td></tr>';
+      }).join('')+'</tbody></table></div>';
+    body.innerHTML=head+tbl;
   }
 
   // ===== 슬롯 무결성 =====
