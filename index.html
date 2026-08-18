@@ -1264,5 +1264,19 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();
 })();
 </script>
 
+<!-- 방문자 집계 (개인정보 미수집: 랜덤 방문자 토큰만 · IP·이름 저장 안 함) -->
+<script>
+(function(){
+  try{
+    var K='arche_vid', vid=localStorage.getItem(K);
+    if(!vid){ vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem(K,vid); }
+    var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit";
+    var K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개(RLS-safe) publishable 키
+    fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},
+      body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
