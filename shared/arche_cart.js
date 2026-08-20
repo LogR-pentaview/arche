@@ -96,7 +96,7 @@
     var base=location.origin+location.pathname;
     // 취소/실패 → 앱으로 클린 복귀(?acart_cancelled=1). 오버레이면 복귀 핸들러가 최상위로 탈출시킴.
     snapBody();
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:base+'?acart_cancelled=1' });
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:base+'?acart_cancelled=1&v=cart' });
   }
   function toast(m){ try{ var d=document.createElement('div'); d.textContent=m; d.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#141a29;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-family:Pretendard,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90%'; document.body.appendChild(d); setTimeout(function(){ d.style.transition='opacity .4s'; d.style.opacity='0'; setTimeout(function(){try{d.remove();}catch(_e){}},420); },3600); }catch(e){ try{alert(m);}catch(_e){} } }
   // ── 상품 한 건 즉시 결제(바로구매) — 장바구니를 거치지 않고 단건 결제창 오픈 ──
@@ -109,7 +109,7 @@
     var base=location.origin+location.pathname;
     // 취소/실패 → 앱으로 클린 복귀(?acart_cancelled=1). 오버레이면 복귀 핸들러가 최상위로 탈출시킴.
     snapBody();
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:base+'?acart_cancelled=1' });
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:base+'?acart_cancelled=1&v=store' });
   }
 
   // ── UI ──
@@ -346,28 +346,40 @@
   //   취소/실패:      failUrl    ?acart_cancelled=1
   (function handleOneTimeReturn(){
     var qs; try{ qs=new URLSearchParams(location.search); }catch(e){ return; }
-    var payFlag=qs.get('acart_pay'), buyFlag=qs.get('acart_buy'), cancelFlag=qs.get('acart_cancelled');
-    if(!payFlag && !buyFlag && !cancelFlag) return;
-
-    // ★ 오버레이(iframe) 안에 실려 돌아온 경우 → 최상위 창을 통째로 이동시켜 오버레이 '탈출'(클린 로드).
-    //    (모바일 정상 리다이렉트면 이미 최상위라 이 블록은 지나감)
-    try{
-      if(window.top && window.top!==window.self){ window.top.location.replace(location.href); return; }
-    }catch(e){ /* 크로스오리진 top 접근 불가 시 그냥 진행 */ }
-
+    var payFlag=qs.get('acart_pay'), buyFlag=qs.get('acart_buy'), cancelFlag=qs.get('acart_cancelled'), reopenFlag=qs.get('acart_reopen');
+    if(!payFlag && !buyFlag && !cancelFlag && !reopenFlag) return;
     var base=location.origin+location.pathname;
     function cleanUrl(){ try{ history.replaceState(null,'',base+location.hash); }catch(e){} }
 
-    // 취소로 앱에 클린 복귀 → 카트 다시 열고 안내. (앱이 새로 로드됐으므로 멈춤/클릭막힘 없음)
+    // ── 취소: 상태 누적(토스 잔여 오버레이) 방지를 위해 '캐시 무시 하드 로드'로 재오픈 URL로 이동.
+    //    시작한 화면(상품담기=store / 장바구니=cart)을 v로 넘겨 그 화면으로 되돌린다.
+    //    (오버레이 iframe이면 최상위 창을, 정상 리다이렉트면 현재 창을 통째로 새로 로드)
     if(cancelFlag){
+      var view = (qs.get('v')==='store') ? 'store' : 'cart';
+      var t = base + '?acart_reopen=' + view + '&_=' + (new Date().getTime());
+      try{
+        var W = (window.top && window.top!==window.self) ? window.top : window;
+        W.location.replace(t);
+      }catch(e){ try{ location.replace(t); }catch(_e){} }
+      return;
+    }
+    // ── 재오픈: 완전히 새로 로드된 앱에서 시작 화면(상품담기/장바구니)을 다시 열고 URL 정리 ──
+    if(reopenFlag){
       cleanUrl();
+      var wantStore = (reopenFlag==='store');
       var ct=0, civ=setInterval(function(){
         ct++;
-        if(window.b2cOpenCart && window.sb){ clearInterval(civ); setTimeout(function(){ try{ b2cOpenCart(); }catch(e){} toast('결제를 취소했어요.'); }, 300); }
+        var opener = wantStore ? window.b2cOpenStore : window.b2cOpenCart;
+        if(opener && window.sb){ clearInterval(civ); setTimeout(function(){ try{ opener(); }catch(e){} toast('결제를 취소했어요.'); }, 300); }
         else if(ct>75){ clearInterval(civ); toast('결제를 취소했어요.'); }
       }, 200);
       return;
     }
+
+    // ── 성공: 오버레이면 최상위로 탈출 후 서버 승인 ──
+    try{
+      if(window.top && window.top!==window.self){ window.top.location.replace(location.href); return; }
+    }catch(e){}
 
     var paymentKey=qs.get('paymentKey'), oid=qs.get('orderId'), amount=Number(qs.get('amount'));
     if(!paymentKey||!oid){ cleanUrl(); return; }
@@ -394,6 +406,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.3'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.5'
   };
 })();
