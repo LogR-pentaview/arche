@@ -19,7 +19,8 @@
   var _subs = [];
   var _bodySnap = null;   // 결제창 열기 직전의 body 자식 스냅샷 (취소 시 토스가 삽입한 노드만 정확히 제거)
   var _cartReload = null; // 현재 마운트된 카트의 redraw 함수 (취소 시 '처리 중…' 버튼 복구)
-  function snapBody(){ try{ _bodySnap = [].slice.call(document.body.children); }catch(e){ _bodySnap = null; } }
+  var _payPending = false;// 결제창이 열려 있는 중(취소 감지용)
+  function snapBody(){ try{ _bodySnap = [].slice.call(document.body.children); }catch(e){ _bodySnap = null; } _payPending = true; }
   function onChange(fn){ if(typeof fn==='function') _subs.push(fn); }
   function fire(){ _subs.forEach(function(f){ try{ f(); }catch(e){} }); }
 
@@ -246,12 +247,26 @@
       else { var pb=document.getElementById('acart-pay'); if(pb){ pb.disabled=false; if(/처리/.test(pb.textContent)) pb.textContent='결제하기'; } }
     }catch(e){}
   }
+  // 결제 미완료(취소·닫기)로 앱에 복귀했을 때 상태를 원복. 결제창 표현방식(오버레이/웹뷰)과 무관하게 동작.
+  var _wentHidden = false;
+  function cancelRecover(showToast){
+    if(!_payPending) return;
+    _payPending=false; _wentHidden=false;
+    clearTossOverlay();
+    if(showToast) toast('결제를 취소했어요.');
+  }
   try{
+    // (경로 B) 오버레이 iframe: /pay/cancel 페이지가 보내는 취소 신호 → 즉시 원복
     window.addEventListener('message', function(ev){
-      try{ if(ev && ev.origin===location.origin && ev.data && ev.data.type==='arche-pay-cancel'){ clearTossOverlay(); toast('결제를 취소했어요.'); } }catch(e){}
+      try{ if(ev && ev.origin===location.origin && ev.data && ev.data.type==='arche-pay-cancel'){ cancelRecover(true); } }catch(e){}
     });
-    // 결제창(웹뷰) 뒤로가기/닫기로 앱에 다시 포커스가 와도 잔여 오버레이가 있으면 정리
-    window.addEventListener('pageshow', function(){ if(_bodySnap) clearTossOverlay(); });
+    // (경로 A) 별도 창/웹뷰: 결제창이 앱을 가려 'hidden'이 된 뒤 다시 'visible'로 돌아오면 → 취소로 보고 원복.
+    //   (열 때 잠깐 blur되는 것과 구분하기 위해, 반드시 hidden을 거친 경우에만 원복 → 결제창을 실수로 닫지 않음)
+    document.addEventListener('visibilitychange', function(){
+      if(document.visibilityState==='hidden'){ if(_payPending) _wentHidden=true; return; }
+      if(document.visibilityState==='visible' && _payPending && _wentHidden){ setTimeout(function(){ cancelRecover(false); }, 250); }
+    });
+    window.addEventListener('pageshow', function(){ if(_payPending && _wentHidden) setTimeout(function(){ cancelRecover(false); }, 100); });
   }catch(e){}
 
   // ── 단건 결제창 복귀 처리 ──
@@ -296,6 +311,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.6'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.7'
   };
 })();
