@@ -94,9 +94,9 @@
     var ck=window.TOSS_CLIENT_KEY; if(!ck) throw new Error('결제 설정(config.js) 로드 실패');
     var oid='ptc_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
     var base=location.origin+location.pathname;
-    // 취소/실패는 앱 전체가 아니라 초경량 취소 페이지로 → 결제창 안에서 앱이 다시 로딩되는 문제 방지
+    // 취소/실패 → 앱으로 클린 복귀(?acart_cancelled=1). 오버레이면 복귀 핸들러가 최상위로 탈출시킴.
     snapBody();
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:location.origin+'/pay/cancel' });
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:base+'?acart_cancelled=1' });
   }
   function toast(m){ try{ var d=document.createElement('div'); d.textContent=m; d.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#141a29;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-family:Pretendard,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90%'; document.body.appendChild(d); setTimeout(function(){ d.style.transition='opacity .4s'; d.style.opacity='0'; setTimeout(function(){try{d.remove();}catch(_e){}},420); },3600); }catch(e){ try{alert(m);}catch(_e){} } }
   // ── 상품 한 건 즉시 결제(바로구매) — 장바구니를 거치지 않고 단건 결제창 오픈 ──
@@ -107,9 +107,9 @@
     var oid='ptb_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
     try{ sessionStorage.setItem('acart_buy_'+oid, JSON.stringify({ ref:ref, student_id:studentId||null })); }catch(_e){}
     var base=location.origin+location.pathname;
-    // 취소/실패는 앱 전체가 아니라 초경량 취소 페이지로 → 결제창 안에서 앱이 다시 로딩되는 문제 방지
+    // 취소/실패 → 앱으로 클린 복귀(?acart_cancelled=1). 오버레이면 복귀 핸들러가 최상위로 탈출시킴.
     snapBody();
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:location.origin+'/pay/cancel' });
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:base+'?acart_cancelled=1' });
   }
 
   // ── UI ──
@@ -343,20 +343,32 @@
   // ── 단건 결제창 복귀 처리 ──
   //   장바구니 결제:  successUrl ?acart_pay=1  → confirm_cart_onetime
   //   바로구매:       successUrl ?acart_buy=1  → confirm_buy_now
-  //   취소/실패 공통: failUrl    ?acart_pay=fail (Toss가 code/message 부가)
+  //   취소/실패:      failUrl    ?acart_cancelled=1
   (function handleOneTimeReturn(){
     var qs; try{ qs=new URLSearchParams(location.search); }catch(e){ return; }
-    var payFlag=qs.get('acart_pay'), buyFlag=qs.get('acart_buy');
-    if(!payFlag && !buyFlag) return;
+    var payFlag=qs.get('acart_pay'), buyFlag=qs.get('acart_buy'), cancelFlag=qs.get('acart_cancelled');
+    if(!payFlag && !buyFlag && !cancelFlag) return;
+
+    // ★ 오버레이(iframe) 안에 실려 돌아온 경우 → 최상위 창을 통째로 이동시켜 오버레이 '탈출'(클린 로드).
+    //    (모바일 정상 리다이렉트면 이미 최상위라 이 블록은 지나감)
+    try{
+      if(window.top && window.top!==window.self){ window.top.location.replace(location.href); return; }
+    }catch(e){ /* 크로스오리진 top 접근 불가 시 그냥 진행 */ }
+
     var base=location.origin+location.pathname;
     function cleanUrl(){ try{ history.replaceState(null,'',base+location.hash); }catch(e){} }
-    // 사용자가 결제창을 닫음/취소 → 실패가 아니라 '취소'로 안내(무해)
-    if(payFlag==='fail'){
-      var code=qs.get('code')||'', cancels=['USER_CANCEL','PAY_PROCESS_CANCELED','USER_CANCELED'];
-      if(cancels.indexOf(code)>=0){ toast('결제를 취소했어요.'); }
-      else { toast('결제가 완료되지 않았어요.'+(qs.get('message')?(' ('+decodeURIComponent(qs.get('message'))+')'):'')); }
-      cleanUrl(); return;
+
+    // 취소로 앱에 클린 복귀 → 카트 다시 열고 안내. (앱이 새로 로드됐으므로 멈춤/클릭막힘 없음)
+    if(cancelFlag){
+      cleanUrl();
+      var ct=0, civ=setInterval(function(){
+        ct++;
+        if(window.b2cOpenCart && window.sb){ clearInterval(civ); setTimeout(function(){ try{ b2cOpenCart(); }catch(e){} toast('결제를 취소했어요.'); }, 300); }
+        else if(ct>75){ clearInterval(civ); toast('결제를 취소했어요.'); }
+      }, 200);
+      return;
     }
+
     var paymentKey=qs.get('paymentKey'), oid=qs.get('orderId'), amount=Number(qs.get('amount'));
     if(!paymentKey||!oid){ cleanUrl(); return; }
     // 바로구매면 sessionStorage에서 ref/student 복원
@@ -382,6 +394,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.2'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.3'
   };
 })();
