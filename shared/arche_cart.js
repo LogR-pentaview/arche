@@ -201,30 +201,22 @@
 
       var payBtn=container.querySelector('#acart-pay'); var msg=container.querySelector('#acart-msg');
       payBtn.onclick=async function(){
-        payBtn.disabled=true; payBtn.textContent='처리 중…';
-        // 단품(시즌·이용권)이 있으면 → 통합단건 결제창(Toss requestPayment)으로 이동.
-        // 성공하면 successUrl(?acart_pay=1)로 리다이렉트 → 하단 복귀 핸들러가 서버 승인.
-        // (구독은 결제 후 남은 카트에서 별도 빌링 흐름으로 처리)
+        // 단품(시즌·이용권)이 있으면 → 통합단건 결제창(Toss requestPayment).
+        //   ★ 모바일 토스는 '페이지 전체 리다이렉트'다(iframe/오버레이 아님).
+        //     따라서 버튼을 '처리 중…'으로 잠그면, 뒤로가기로 돌아왔을 때 브라우저가 그 잠긴 화면을
+        //     BFCache로 그대로 되살려 버튼이 영영 안 풀린다. → 단품 경로는 버튼을 절대 잠그지 않는다.
         if(oneTotal>0){
-          var _label=won(subTotal+oneTotal)+' 결제하기';
-          var _restore=function(){ try{ payBtn.disabled=false; payBtn.textContent=_label; }catch(_e){} };
+          try{ sessionStorage.setItem('acart_one_amount', String(oneTotal)); }catch(_e){}
           try{
-            try{ sessionStorage.setItem('acart_one_amount', String(oneTotal)); }catch(_e){}
-            var _pp=tossOneTime(oneTotal); // 결제창 오픈(오버레이/리다이렉트)
-            // ★ 결제창이 뜬 뒤에는 버튼을 영구 잠그지 않는다 → 취소로 돌아와도 '처리 중…' 멈춤 없음.
-            //    (성공이면 어차피 successUrl로 리다이렉트되어 이 화면을 벗어남)
-            setTimeout(_restore, 1800);
-            if(_pp && _pp.then){
-              _pp.then(function(){ /* 성공: 리다이렉트 */ })
-                 .catch(function(e){ _restore(); if(!(e&&(e.code==='USER_CANCEL'||e.code==='PAY_PROCESS_CANCELED'))) msg.innerHTML='<div class="warn">결제창 오류: '+esc((e&&e.message)||e)+'</div>'; });
-            }
-            return;
+            var _pp=tossOneTime(oneTotal); // 성공/취소 모두 페이지 리다이렉트로 이 화면을 벗어남
+            if(_pp && _pp.catch){ _pp.catch(function(e){ if(!(e&&(e.code==='USER_CANCEL'||e.code==='PAY_PROCESS_CANCELED'))) msg.innerHTML='<div class="warn">결제창 오류: '+esc((e&&e.message)||e)+'</div>'; }); }
           }catch(e){
-            msg.innerHTML='<div class="warn">'+((e&&e.code==='USER_CANCEL')?'결제가 취소되었습니다.':('결제창 오류: '+esc((e&&e.message)||e)))+'</div>';
-            _restore();
-            return;
+            msg.innerHTML='<div class="warn">결제창 오류: '+esc((e&&e.message)||e)+'</div>';
           }
+          return; // 버튼은 정상 상태 그대로 둔다
         }
+        // 구독(빌링) 경로만 '처리 중…' 표시 — 이건 페이지 이동이 없으므로 안전
+        payBtn.disabled=true; payBtn.textContent='처리 중…';
         try{
           var r=await checkout(ctx.billingKeyId);
           if(r.data && r.data.ok){
@@ -321,8 +313,12 @@
         setTimeout(resetPayBtnOnly, 300); // 버튼은 무조건 원복
       }
     });
-    // pageshow(BFCache 복원 포함) · focus: 버튼 무조건 원복
-    window.addEventListener('pageshow', function(){ setTimeout(resetPayBtnOnly, 80); if(_payPending && _wentHidden) setTimeout(function(){ cancelRecover(false); }, 120); });
+    // pageshow: BFCache로 되살아난(뒤로가기) 경우 카트를 통째로 다시 그려 어떤 잔여 상태든 초기화
+    window.addEventListener('pageshow', function(e){
+      if(e && e.persisted && typeof _cartReload==='function'){ try{ _cartReload(); }catch(_e){} }
+      setTimeout(resetPayBtnOnly, 80);
+      if(_payPending && _wentHidden) setTimeout(function(){ cancelRecover(false); }, 120);
+    });
     window.addEventListener('focus', function(){ setTimeout(resetPayBtnOnly, 200); });
     // (경로 C · 핵심) 같은 문서 오버레이가 닫힌 뒤 '투명 잔여물'이 클릭을 먹는 경우:
     //   결제 시작 이후 생긴 최상위 노드(토스 백드롭/오버레이) 위를 탭하면 → 그 잔여물을 즉시 제거해 클릭막힘 해소.
@@ -386,6 +382,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.1'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.2'
   };
 })();
