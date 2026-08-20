@@ -161,6 +161,7 @@
         +'<a href="/policy/privacy.html" target="_blank" rel="noopener" style="color:#1b64da;text-decoration:underline">개인정보처리방침</a>에 동의하게 됩니다.</div>';
       html+='<button class="btn" id="acart-pay">'+won(subTotal+oneTotal)+' 결제하기</button>';
       html+='<div id="acart-msg"></div>';
+      html+='<div style="text-align:center;font-size:10.5px;color:#c0c6cf;margin-top:8px">결제모듈 v'+(window.ArcheCart&&ArcheCart.version||'?')+'</div>';
       container.innerHTML=html;
       if(ctx.onChange)ctx.onChange(rows.length);
 
@@ -311,6 +312,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.7'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.7d'
   };
 })();
