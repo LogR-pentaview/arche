@@ -145,7 +145,7 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.APP_VERSION="2026.08.16.1";
+  window.APP_VERSION="2026.08.19.1";
   (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
   window.checkAppUpdate=async function(){
     var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
@@ -246,18 +246,40 @@
   // ===== 학원/학부모 회원 =====
   async function renderMembers(p, type){
     var title = type==='b2c' ? '학부모 회원' : '학원 회원';
-    p.innerHTML = '<div class="h1">'+title+'</div><div class="sub">회원 승인·상태 관리</div><div id="mlist"><div class="muted">불러오는 중…</div></div>';
+    p.innerHTML = '<div class="h1">'+title+'</div><div class="sub">회원 승인·상태 관리</div><div id="mfilt"></div><div id="mlist"><div class="muted">불러오는 중…</div></div>';
     var d = await adminApi({action:'academies'});
     var list = document.getElementById('mlist');
     if(d.error){ list.innerHTML='<div class="muted">오류: '+esc(d.error)+'</div>'; return; }
-    var rows = (d.rows||[]).filter(function(a){
+    var all = (d.rows||[]).filter(function(a){
       if(a.is_admin) return false;
       return type==='b2c' ? a.account_type==='b2c' : a.account_type!=='b2c';
     });
-    if(!rows.length){ list.innerHTML='<div class="muted">회원이 없습니다.</div>'; return; }
-    list.innerHTML = rows.map(function(a){
+    // 최신 가입 우선 정렬
+    all.sort(function(x,y){ return String(y.created_at||'').localeCompare(String(x.created_at||'')); });
+    var now = Date.now();
+    function daysAgo(a){ var t=Date.parse(a.created_at||''); return isNaN(t)?99999:((now-t)/86400000); }
+    var c7=0,c30=0,cw=0;
+    all.forEach(function(a){ var g=daysAgo(a); if(g<=7)c7++; if(g<=30)c30++; if(a.approved===false&&!a.is_demo)cw++; });
+    window._memFilter = window._memFilter || {};
+    var f = window._memFilter[type] || 'all';
+    var view = all.filter(function(a){
+      if(f==='new7') return daysAgo(a)<=7;
+      if(f==='new30') return daysAgo(a)<=30;
+      if(f==='wait') return a.approved===false && !a.is_demo;
+      return true;
+    });
+    var chip=function(key,label){ return '<button class="'+(f===key?'on':'')+'" onclick="memSetFilter(\''+type+'\',\''+key+'\')">'+label+'</button>'; };
+    document.getElementById('mfilt').innerHTML='<div class="filt" style="margin-bottom:12px;flex-wrap:wrap">'
+      + chip('all','전체 '+all.length)
+      + chip('new7','🆕 신규 7일 '+c7)
+      + chip('new30','신규 30일 '+c30)
+      + chip('wait','승인대기 '+cw)
+      + '</div>';
+    if(!view.length){ list.innerHTML='<div class="soon">해당 조건의 회원이 없습니다.</div>'; return; }
+    list.innerHTML = view.map(function(a){
       var ap = a.approved!==false;
-      var kind = a.is_demo ? '<span class="badge b-demo">체험</span>' : (ap?'<span class="badge b-member">정회원</span>':'<span class="badge b-wait">승인대기</span>');
+      var isNew = daysAgo(a)<=7;
+      var kind = (isNew?'<span class="badge" style="background:var(--text-accent,#3182f6);color:#fff">NEW</span> ':'') + (a.is_demo ? '<span class="badge b-demo">체험</span>' : (ap?'<span class="badge b-member">정회원</span>':'<span class="badge b-wait">승인대기</span>'));
       var btns='';
       if(!ap && !a.is_demo) btns += '<button class="btn g" onclick="mApprove(\''+a.id+'\')">승인</button> ';
       if(a.is_demo) btns += '<button class="btn g" onclick="mDemo(\''+a.id+'\',false)">정회원 전환</button>';
@@ -303,6 +325,7 @@
       +'<div class="card" style="margin-top:10px"><h3>등록 학생 명단 <span class="meta" style="font-weight:400">· '+sts.length+'명</span></h3>'+stTbl+subLine+'</div>'
       +'<div style="font-size:10.5px;color:var(--text-muted);margin-top:8px">※ API 사용·비용은 최근 30일, 본사키/자체키 합산. 비용은 현재 단가('+window._apiRate.inUsd+'/'+window._apiRate.outUsd+' USD·₩'+window._apiRate.fx+') 기준 추정.</div>';
   };
+  window.memSetFilter = function(type,f){ window._memFilter = window._memFilter || {}; window._memFilter[type]=f; go(type==='b2c'?'parent':'acad'); };
   window.mApprove = async function(id){ var r=await adminApi({action:'approve',academy_id:id,approved:true}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
   window.mDemo = async function(id,toDemo){ var r=await adminApi({action:'set_demo',academy_id:id,is_demo:toDemo}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
 
