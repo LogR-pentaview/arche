@@ -54,6 +54,15 @@
     var r=await callEdge('checkout_cart', billingKeyId?{billing_key_id:billingKeyId}:{});
     return r; // {httpOk,status,data:{ok,results,summary}|{error,summary}}
   }
+  // ── 단품 통합단건 결제창(Toss requestPayment) — 구독은 빌링(별도 흐름) ──
+  function tossOneTime(amount){
+    if(!window.TossPayments) throw new Error('토스 SDK 미로드 — 새로고침 해주세요.');
+    var ck=window.TOSS_CLIENT_KEY; if(!ck) throw new Error('결제 설정(config.js) 로드 실패');
+    var oid='ptc_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+    var base=location.origin+location.pathname;
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:base+'?acart_pay=fail' });
+  }
+  function toast(m){ try{ var d=document.createElement('div'); d.textContent=m; d.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#141a29;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-family:Pretendard,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90%'; document.body.appendChild(d); setTimeout(function(){ d.style.transition='opacity .4s'; d.style.opacity='0'; setTimeout(function(){try{d.remove();}catch(_e){}},420); },3600); }catch(e){ try{alert(m);}catch(_e){} } }
 
   // ── UI ──
   function won(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; }
@@ -144,6 +153,20 @@
       var payBtn=container.querySelector('#acart-pay'); var msg=container.querySelector('#acart-msg');
       payBtn.onclick=async function(){
         payBtn.disabled=true; payBtn.textContent='처리 중…';
+        // 단품(시즌·이용권)이 있으면 → 통합단건 결제창(Toss requestPayment)으로 이동.
+        // 성공하면 successUrl(?acart_pay=1)로 리다이렉트 → 하단 복귀 핸들러가 서버 승인.
+        // (구독은 결제 후 남은 카트에서 별도 빌링 흐름으로 처리)
+        if(oneTotal>0){
+          try{
+            try{ sessionStorage.setItem('acart_one_amount', String(oneTotal)); }catch(_e){}
+            await tossOneTime(oneTotal);
+            return; // 결제창으로 리다이렉트되므로 여기서 종료
+          }catch(e){
+            msg.innerHTML='<div class="warn">'+((e&&e.code==='USER_CANCEL')?'결제가 취소되었습니다.':('결제창 오류: '+esc((e&&e.message)||e)))+'</div>';
+            payBtn.disabled=false; payBtn.textContent=won(subTotal+oneTotal)+' 결제하기';
+            return;
+          }
+        }
         try{
           var r=await checkout(ctx.billingKeyId);
           if(r.data && r.data.ok){
@@ -169,9 +192,36 @@
     return { reload: draw };
   }
 
+  // ── 단건 결제창 복귀 처리 (successUrl ?acart_pay=1 · failUrl ?acart_pay=fail) ──
+  // Toss 결제창 → successUrl 리다이렉트로 돌아오면 paymentKey/orderId/amount 가 붙어 있음.
+  // 서버(confirm_cart_onetime)가 금액을 DB와 재대조 후 승인 → 시즌 지급 + 카트 정리.
+  (function handleOneTimeReturn(){
+    var qs; try{ qs=new URLSearchParams(location.search); }catch(e){ return; }
+    var flag=qs.get('acart_pay'); if(!flag) return;
+    var base=location.origin+location.pathname;
+    function cleanUrl(){ try{ history.replaceState(null,'',base+location.hash); }catch(e){} }
+    if(flag==='fail'){
+      toast('결제에 실패했습니다.'+(qs.get('message')?(' ('+decodeURIComponent(qs.get('message'))+')'):''));
+      cleanUrl(); return;
+    }
+    var paymentKey=qs.get('paymentKey'), oid=qs.get('orderId'), amount=Number(qs.get('amount'));
+    if(!paymentKey||!oid){ cleanUrl(); return; }
+    // window.sb 준비될 때까지 대기(최대 ~10초) 후 서버 승인 호출.
+    var waited=0;
+    (function waitSb(){
+      if(!window.sb){ if((waited+=200)>10000){ toast('세션 준비 실패 — 새로고침 후 다시 시도해주세요.'); return; } return void setTimeout(waitSb,200); }
+      toast('결제 승인 중입니다…');
+      callEdge('confirm_cart_onetime',{paymentKey:paymentKey,orderId:oid,amount:amount}).then(function(r){
+        if(r.data && r.data.ok){ toast('✅ 결제가 완료됐어요. 이용이 개시됩니다.'); fire(); }
+        else { toast('결제 승인 실패: '+((r.data&&(r.data.error||r.data.message))||('오류('+r.status+')'))); }
+        cleanUrl();
+      }).catch(function(e){ toast('승인 요청 오류: '+((e&&e.message)||e)); cleanUrl(); });
+    })();
+  })();
+
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, mount:mount, onChange:onChange, version:'1.1'
+    checkout:checkout, mount:mount, onChange:onChange, version:'1.2'
   };
 })();
