@@ -204,6 +204,34 @@
     return { reload: draw };
   }
 
+  // ── 결제 취소 신호 수신 → 앱 DOM에서 토스 결제 오버레이(iframe) 직접 제거 ──
+  //   /pay/cancel 페이지가 postMessage로 알려주면, 앱이 자기 문서에서 토스 iframe을
+  //   src로 정확히 찾아 컨테이너째 제거한다. (앱 재로딩 없이 이전 화면으로 즉시 복귀)
+  function clearTossOverlay(){
+    try{
+      var frames=document.getElementsByTagName('iframe');
+      for(var i=frames.length-1;i>=0;i--){
+        var f=frames[i], src=(f.getAttribute('src')||f.src||'');
+        if(!/tosspayments|\/pay\/cancel/i.test(src)) continue;
+        var container=f, p=f.parentElement, hops=0;
+        while(p && p.tagName && p.tagName.toLowerCase()!=='body' && hops<8){
+          var cs=null; try{ cs=window.getComputedStyle(p); }catch(e){}
+          if(cs && (cs.position==='fixed' || (parseInt(cs.zIndex,10)||0)>=1000)) container=p;
+          p=p.parentElement; hops++;
+        }
+        if(container && container.parentNode) container.parentNode.removeChild(container);
+        else if(f.parentNode) f.parentNode.removeChild(f);
+      }
+      // 토스가 남긴 body 스크롤 잠금 해제
+      try{ document.body.style.overflow=''; document.documentElement.style.overflow=''; }catch(e){}
+    }catch(e){}
+  }
+  try{
+    window.addEventListener('message', function(ev){
+      try{ if(ev && ev.origin===location.origin && ev.data && ev.data.type==='arche-pay-cancel'){ clearTossOverlay(); toast('결제를 취소했어요.'); } }catch(e){}
+    });
+  }catch(e){}
+
   // ── 단건 결제창 복귀 처리 ──
   //   장바구니 결제:  successUrl ?acart_pay=1  → confirm_cart_onetime
   //   바로구매:       successUrl ?acart_buy=1  → confirm_buy_now
@@ -246,6 +274,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.4'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.5'
   };
 })();
