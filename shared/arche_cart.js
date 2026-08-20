@@ -60,7 +60,8 @@
     var ck=window.TOSS_CLIENT_KEY; if(!ck) throw new Error('결제 설정(config.js) 로드 실패');
     var oid='ptc_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
     var base=location.origin+location.pathname;
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:base+'?acart_pay=fail' });
+    // 취소/실패는 앱 전체가 아니라 초경량 취소 페이지로 → 결제창 안에서 앱이 다시 로딩되는 문제 방지
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:location.origin+'/pay/cancel' });
   }
   function toast(m){ try{ var d=document.createElement('div'); d.textContent=m; d.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#141a29;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-family:Pretendard,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90%'; document.body.appendChild(d); setTimeout(function(){ d.style.transition='opacity .4s'; d.style.opacity='0'; setTimeout(function(){try{d.remove();}catch(_e){}},420); },3600); }catch(e){ try{alert(m);}catch(_e){} } }
   // ── 상품 한 건 즉시 결제(바로구매) — 장바구니를 거치지 않고 단건 결제창 오픈 ──
@@ -71,7 +72,8 @@
     var oid='ptb_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
     try{ sessionStorage.setItem('acart_buy_'+oid, JSON.stringify({ ref:ref, student_id:studentId||null })); }catch(_e){}
     var base=location.origin+location.pathname;
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:base+'?acart_pay=fail' });
+    // 취소/실패는 앱 전체가 아니라 초경량 취소 페이지로 → 결제창 안에서 앱이 다시 로딩되는 문제 방지
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:location.origin+'/pay/cancel' });
   }
 
   // ── UI ──
@@ -244,6 +246,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.3'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.4'
   };
 })();
