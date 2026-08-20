@@ -11,24 +11,34 @@
   .ic{font-size:42px;line-height:1}
   .t{font-size:17px;font-weight:800;color:#191f28;margin:14px 0 6px}
   .s{font-size:13.5px;line-height:1.65}
-  .b{display:inline-block;margin-top:20px;background:#141a29;color:#fff;text-decoration:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:14px}
+  .b{display:inline-block;margin-top:20px;background:#141a29;color:#fff;text-decoration:none;border:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit}
+  .hint{display:none;font-size:12px;color:#8b95a1;margin-top:14px;line-height:1.6}
 </style>
 </head>
 <body>
   <div class="c">
     <div class="ic">🛒</div>
     <div class="t">결제를 취소했어요</div>
-    <div class="s">결제가 진행되지 않았습니다.<br>결제창을 닫으면 이전 화면으로 돌아갑니다.</div>
-    <a class="b" id="back" href="/parent/">돌아가기</a>
+    <div class="s">결제가 진행되지 않았습니다.</div>
+    <button class="b" id="closeBtn" type="button">창 닫기</button>
+    <div class="hint" id="hint">창이 닫히지 않으면 오른쪽 위 <b>✕</b> 를 눌러 닫아주세요.</div>
   </div>
 <script>
 /* 초경량 취소 페이지 — 앱(대시보드)을 로딩하지 않는다.
    토스 결제창(웹뷰/새 창)이 취소 시 이 정적 페이지로 이동하므로,
-   결제창 안에서 앱 전체가 다시 뜨는 문제를 없앤다. */
+   결제창 안에서 앱 전체가 다시 뜨는 문제를 없앤다.
+   '창 닫기'는 결제창(웹뷰)을 닫아 원래 앱으로 복귀시킨다. (앱을 재로딩하지 않음) */
 (function(){
-  // 결제창이 별도 창/웹뷰(opener 有)로 열렸다면 → 이 창만 닫아 원래 앱으로 복귀
-  try{ if(window.opener && !window.opener.closed){ setTimeout(function(){ try{ window.close(); }catch(e){} }, 150); } }catch(e){}
-  // 결제창이 새 창이 아닌 경우엔 '돌아가기' 버튼으로 앱 복귀 (자동 앱 로딩은 하지 않음)
+  function closeSelf(){
+    try{ window.close(); }catch(e){}
+    try{ window.open('', '_self', ''); window.close(); }catch(e){}   // 구형 인앱 브라우저 대응
+    try{ if(window.opener){ window.opener=null; } window.close(); }catch(e){}
+    // 그래도 닫히지 않으면 사용자에게 X 안내
+    setTimeout(function(){ var h=document.getElementById('hint'); if(h) h.style.display='block'; }, 500);
+  }
+  document.getElementById('closeBtn').addEventListener('click', closeSelf);
+  // 페이지 진입 시 자동으로 닫기 시도 (대부분의 결제 웹뷰에서 즉시 닫힘)
+  setTimeout(closeSelf, 200);
 })();
 </script>
 </body>
