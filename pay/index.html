@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>펜타 · 단건 결제</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<!-- 토스페이먼츠 SDK(v1) : 통합 결제창(단건) 사용 -->
+<script src="https://js.tosspayments.com/v1/payment"></script>
+<!-- 공통 설정: TOSS_CLIENT_KEY · SB_URL · SB_KEY -->
+<script src="/shared/config.js"></script>
+<style>
+  :root{--navy:#141a29;--ink:#191f28;--dim:#4e5968;--line:#e9ecf1;--blue:#3182f6;--safe:#12b76a;--risk:#e0453a}
+  *{box-sizing:border-box}
+  body{margin:0;background:#f5f6f8;font-family:Pretendard,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;padding:24px 16px 60px}
+  .brand{display:flex;align-items:center;gap:9px;margin-bottom:18px}
+  .brand .mk{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#3182f6,#1b64da);color:#fff;display:grid;place-items:center;font-weight:900;font-family:serif}
+  .brand b{font-size:16px}.brand small{display:block;color:var(--dim);font-size:11px;font-weight:600}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px 18px;box-shadow:0 10px 30px -18px rgba(20,26,41,.25)}
+  h1{font-size:19px;margin:0 0 4px}
+  .sub{color:var(--dim);font-size:13px;margin:0 0 16px;line-height:1.6}
+  .prod{display:flex;flex-direction:column;gap:9px;margin:14px 0}
+  .opt{display:flex;justify-content:space-between;align-items:center;border:1.5px solid var(--line);border-radius:12px;padding:14px 15px;cursor:pointer;transition:.15s}
+  .opt.on{border-color:var(--blue);background:#eef3ff}
+  .opt .nm{font-weight:800;font-size:14.5px}.opt .ds{font-size:12px;color:var(--dim);margin-top:2px}
+  .opt .pr{font-weight:900;font-size:16px}
+  .total{display:flex;justify-content:space-between;align-items:center;margin:16px 0 6px;padding-top:14px;border-top:1px solid var(--line)}
+  .total .l{color:var(--dim);font-size:13px}.total .v{font-weight:900;font-size:22px}
+  .pay{width:100%;margin-top:14px;border:none;border-radius:13px;padding:16px;background:linear-gradient(135deg,#3182f6,#1b64da);color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}
+  .pay:active{transform:scale(.99)}.pay:disabled{opacity:.5;cursor:not-allowed}
+  .note{font-size:11.5px;color:var(--dim);line-height:1.6;margin-top:12px}
+  .msg{margin-top:14px;border-radius:12px;padding:14px 15px;font-size:13.5px;line-height:1.7;display:none}
+  .msg.ok{display:block;background:#f0fbf4;border:1px solid #bfe6cd;color:#137a44}
+  .msg.err{display:block;background:#fdf0f1;border:1px solid #f3c0c5;color:#c0313d}
+  .msg.busy{display:block;background:#eef3ff;border:1px solid #cfe0ff;color:#1b64da}
+  a.rc{color:var(--blue);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="mk">P</span><div><b>펜타 (로그·알)</b><small>단건 결제 · arche.penta-view.com</small></div></div>
+  <div class="card">
+    <h1>단건 결제</h1>
+    <p class="sub">1회성 상품 결제입니다. (구독·자동결제 아님) · 아래 상품을 고르고 <b>결제하기</b>를 누르면 통합 결제창이 열립니다.</p>
+    <div class="prod" id="prod"></div>
+    <div class="total"><span class="l">결제 금액</span><span class="v" id="total">0원</span></div>
+    <button class="pay" id="payBtn">결제하기</button>
+    <div class="note">· 결제수단: 신용/체크카드, 간편결제 등 (통합 결제창)<br>· 본 결제는 1회성 단건 결제로, 정기결제(구독)와 무관합니다.</div>
+    <div class="msg" id="msg"></div>
+  </div>
+</div>
+<script>
+(function(){
+  var SB_URL = window.SB_URL, SB_KEY = window.SB_KEY, CK = window.TOSS_CLIENT_KEY;
+  var won = function(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; };
+  // 단건 판매 상품 (ref = store_products.ref · 서버가 가격 재검증)
+  var PRODUCTS = [
+    { ref:'arche5', name:'펜타 아르케 5회권', desc:'컨설팅 코스웨어 5회 이용권', price:9900 },
+    { ref:'vision:starter:3', name:'펜타 비전 · 스타터 시즌3', desc:'단품 시즌 1개 (3개월 이용)', price:9900 }
+  ];
+  var sel = 0;
+  var prodEl = document.getElementById('prod'), totalEl = document.getElementById('total'), msg = document.getElementById('msg');
+  function render(){
+    prodEl.innerHTML = PRODUCTS.map(function(p,i){
+      return '<div class="opt'+(i===sel?' on':'')+'" data-i="'+i+'"><div><div class="nm">'+p.name+'</div><div class="ds">'+p.desc+'</div></div><div class="pr">'+won(p.price)+'</div></div>';
+    }).join('');
+    totalEl.textContent = won(PRODUCTS[sel].price);
+    prodEl.querySelectorAll('.opt').forEach(function(el){ el.onclick=function(){ sel=+el.getAttribute('data-i'); render(); }; });
+  }
+  render();
+
+  function show(cls, html){ msg.className='msg '+cls; msg.innerHTML=html; }
+  function orderId(){ return 'pt1_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8); }
+
+  // ── 결제 요청: 통합 결제창(단건) ──
+  document.getElementById('payBtn').onclick = function(){
+    if(!window.TossPayments){ show('err','토스 SDK 로드 실패 — 새로고침 해주세요.'); return; }
+    if(!CK){ show('err','설정(config.js) 로드 실패 — 클라이언트 키 없음.'); return; }
+    var p = PRODUCTS[sel];
+    var oid = orderId();
+    try{ sessionStorage.setItem('pt1_'+oid, JSON.stringify({ref:p.ref, amount:p.price})); }catch(e){}
+    var base = location.origin + location.pathname;
+    var tp = TossPayments(CK);
+    tp.requestPayment('카드', {
+      amount: p.price,
+      orderId: oid,
+      orderName: p.name,
+      customerName: '고객',
+      successUrl: base + '?step=confirm',
+      failUrl: base + '?step=fail'
+    }).catch(function(e){
+      if(e && e.code==='USER_CANCEL') show('err','결제가 취소되었습니다.');
+      else show('err','결제창 오류: '+((e&&e.message)||e));
+    });
+  };
+
+  // ── 결제 성공 리다이렉트 → 서버 승인(confirm) ──
+  var qs = new URLSearchParams(location.search);
+  if(qs.get('step')==='confirm' && qs.get('paymentKey')){
+    document.getElementById('payBtn').disabled = true;
+    show('busy','결제 승인 중입니다… 잠시만 기다려 주세요.');
+    var paymentKey = qs.get('paymentKey'), oid = qs.get('orderId'), amount = Number(qs.get('amount'));
+    var ref = ''; try{ var st=JSON.parse(sessionStorage.getItem('pt1_'+oid)||'{}'); ref=st.ref||''; }catch(e){}
+    fetch(SB_URL + '/functions/v1/toss-b2c', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':'Bearer '+SB_KEY },
+      body: JSON.stringify({ action:'confirm_payment', paymentKey:paymentKey, orderId:oid, amount:amount, ref:ref })
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(d && d.ok){
+        show('ok','✅ 결제가 완료되었습니다.<br>주문번호 <b>'+oid+'</b> · 금액 <b>'+won(amount)+'</b>'+(d.receipt_url?'<br><a class="rc" href="'+d.receipt_url+'" target="_blank">영수증 보기 ›</a>':''));
+      } else {
+        show('err','결제 승인 실패: '+((d&&(d.error||d.message))||'알 수 없는 오류')+(d&&d.detail&&d.detail.message?(' · '+d.detail.message):''));
+      }
+      history.replaceState(null,'',base());
+    }).catch(function(e){ show('err','승인 요청 오류: '+((e&&e.message)||e)); });
+    function base(){ return location.origin + location.pathname; }
+  }
+  if(qs.get('step')==='fail'){
+    show('err','결제에 실패했습니다.'+(qs.get('message')?(' ('+decodeURIComponent(qs.get('message'))+')'):''));
+    history.replaceState(null,'',location.origin+location.pathname);
+  }
+})();
+</script>
+</body>
+</html>
