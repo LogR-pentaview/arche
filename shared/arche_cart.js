@@ -63,6 +63,16 @@
     return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:base+'?acart_pay=fail' });
   }
   function toast(m){ try{ var d=document.createElement('div'); d.textContent=m; d.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#141a29;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-family:Pretendard,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90%'; document.body.appendChild(d); setTimeout(function(){ d.style.transition='opacity .4s'; d.style.opacity='0'; setTimeout(function(){try{d.remove();}catch(_e){}},420); },3600); }catch(e){ try{alert(m);}catch(_e){} } }
+  // ── 상품 한 건 즉시 결제(바로구매) — 장바구니를 거치지 않고 단건 결제창 오픈 ──
+  //   서버(confirm_buy_now)가 ref로 store_products 가격을 재검증 후 승인·지급.
+  function buyNow(studentId, ref, amount){
+    if(!window.TossPayments) throw new Error('토스 SDK 미로드 — 새로고침 해주세요.');
+    var ck=window.TOSS_CLIENT_KEY; if(!ck) throw new Error('결제 설정(config.js) 로드 실패');
+    var oid='ptb_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
+    try{ sessionStorage.setItem('acart_buy_'+oid, JSON.stringify({ ref:ref, student_id:studentId||null })); }catch(_e){}
+    var base=location.origin+location.pathname;
+    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:base+'?acart_pay=fail' });
+  }
 
   // ── UI ──
   function won(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; }
@@ -192,27 +202,39 @@
     return { reload: draw };
   }
 
-  // ── 단건 결제창 복귀 처리 (successUrl ?acart_pay=1 · failUrl ?acart_pay=fail) ──
-  // Toss 결제창 → successUrl 리다이렉트로 돌아오면 paymentKey/orderId/amount 가 붙어 있음.
-  // 서버(confirm_cart_onetime)가 금액을 DB와 재대조 후 승인 → 시즌 지급 + 카트 정리.
+  // ── 단건 결제창 복귀 처리 ──
+  //   장바구니 결제:  successUrl ?acart_pay=1  → confirm_cart_onetime
+  //   바로구매:       successUrl ?acart_buy=1  → confirm_buy_now
+  //   취소/실패 공통: failUrl    ?acart_pay=fail (Toss가 code/message 부가)
   (function handleOneTimeReturn(){
     var qs; try{ qs=new URLSearchParams(location.search); }catch(e){ return; }
-    var flag=qs.get('acart_pay'); if(!flag) return;
+    var payFlag=qs.get('acart_pay'), buyFlag=qs.get('acart_buy');
+    if(!payFlag && !buyFlag) return;
     var base=location.origin+location.pathname;
     function cleanUrl(){ try{ history.replaceState(null,'',base+location.hash); }catch(e){} }
-    if(flag==='fail'){
-      toast('결제에 실패했습니다.'+(qs.get('message')?(' ('+decodeURIComponent(qs.get('message'))+')'):''));
+    // 사용자가 결제창을 닫음/취소 → 실패가 아니라 '취소'로 안내(무해)
+    if(payFlag==='fail'){
+      var code=qs.get('code')||'', cancels=['USER_CANCEL','PAY_PROCESS_CANCELED','USER_CANCELED'];
+      if(cancels.indexOf(code)>=0){ toast('결제를 취소했어요.'); }
+      else { toast('결제가 완료되지 않았어요.'+(qs.get('message')?(' ('+decodeURIComponent(qs.get('message'))+')'):'')); }
       cleanUrl(); return;
     }
     var paymentKey=qs.get('paymentKey'), oid=qs.get('orderId'), amount=Number(qs.get('amount'));
     if(!paymentKey||!oid){ cleanUrl(); return; }
+    // 바로구매면 sessionStorage에서 ref/student 복원
+    var buyMeta=null;
+    if(buyFlag){ try{ buyMeta=JSON.parse(sessionStorage.getItem('acart_buy_'+oid)||'null'); }catch(_e){} }
+    var action = buyFlag ? 'confirm_buy_now' : 'confirm_cart_onetime';
+    var payload = buyFlag
+      ? { paymentKey:paymentKey, orderId:oid, amount:amount, ref:(buyMeta&&buyMeta.ref)||'', student_id:(buyMeta&&buyMeta.student_id)||null }
+      : { paymentKey:paymentKey, orderId:oid, amount:amount };
     // window.sb 준비될 때까지 대기(최대 ~10초) 후 서버 승인 호출.
     var waited=0;
     (function waitSb(){
       if(!window.sb){ if((waited+=200)>10000){ toast('세션 준비 실패 — 새로고침 후 다시 시도해주세요.'); return; } return void setTimeout(waitSb,200); }
       toast('결제 승인 중입니다…');
-      callEdge('confirm_cart_onetime',{paymentKey:paymentKey,orderId:oid,amount:amount}).then(function(r){
-        if(r.data && r.data.ok){ toast('✅ 결제가 완료됐어요. 이용이 개시됩니다.'); fire(); }
+      callEdge(action, payload).then(function(r){
+        if(r.data && r.data.ok){ toast('✅ 결제가 완료됐어요. 이용이 개시됩니다.'); try{ sessionStorage.removeItem('acart_buy_'+oid); }catch(_e){} fire(); }
         else { toast('결제 승인 실패: '+((r.data&&(r.data.error||r.data.message))||('오류('+r.status+')'))); }
         cleanUrl();
       }).catch(function(e){ toast('승인 요청 오류: '+((e&&e.message)||e)); cleanUrl(); });
@@ -222,6 +244,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, mount:mount, onChange:onChange, version:'1.2'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.3'
   };
 })();
