@@ -301,13 +301,29 @@
     window.addEventListener('message', function(ev){
       try{ if(ev && ev.origin===location.origin && ev.data && ev.data.type==='arche-pay-cancel'){ cancelRecover(true); } }catch(e){}
     });
+    // 결제창이 페이지를 통째로 이동(리다이렉트)시킨 뒤 돌아오면, 브라우저가 '처리 중…' 멈춘 화면을
+    // BFCache로 되살려 타이머가 얼어붙는다. → 앱이 다시 보이는 순간 '무조건' 버튼을 원복한다(조건 없음).
+    function resetPayBtnOnly(){
+      try{
+        var pb=document.getElementById('acart-pay');
+        if(pb && /처리/.test(pb.textContent||'')){
+          pb.disabled=false;
+          if(typeof _cartReload==='function'){ try{ _cartReload(); }catch(e){ pb.textContent='결제하기'; } }
+          else pb.textContent='결제하기';
+        }
+      }catch(e){}
+    }
     // (경로 A) 별도 창/웹뷰: 결제창이 앱을 가려 'hidden'이 된 뒤 다시 'visible'로 돌아오면 → 취소로 보고 원복.
-    //   (열 때 잠깐 blur되는 것과 구분하기 위해, 반드시 hidden을 거친 경우에만 원복 → 결제창을 실수로 닫지 않음)
     document.addEventListener('visibilitychange', function(){
       if(document.visibilityState==='hidden'){ if(_payPending) _wentHidden=true; return; }
-      if(document.visibilityState==='visible' && _payPending && _wentHidden){ setTimeout(function(){ cancelRecover(false); }, 250); }
+      if(document.visibilityState==='visible'){
+        if(_payPending && _wentHidden){ setTimeout(function(){ cancelRecover(false); }, 250); }
+        setTimeout(resetPayBtnOnly, 300); // 버튼은 무조건 원복
+      }
     });
-    window.addEventListener('pageshow', function(){ if(_payPending && _wentHidden) setTimeout(function(){ cancelRecover(false); }, 100); });
+    // pageshow(BFCache 복원 포함) · focus: 버튼 무조건 원복
+    window.addEventListener('pageshow', function(){ setTimeout(resetPayBtnOnly, 80); if(_payPending && _wentHidden) setTimeout(function(){ cancelRecover(false); }, 120); });
+    window.addEventListener('focus', function(){ setTimeout(resetPayBtnOnly, 200); });
     // (경로 C · 핵심) 같은 문서 오버레이가 닫힌 뒤 '투명 잔여물'이 클릭을 먹는 경우:
     //   결제 시작 이후 생긴 최상위 노드(토스 백드롭/오버레이) 위를 탭하면 → 그 잔여물을 즉시 제거해 클릭막힘 해소.
     //   (결제 iframe 내부 조작은 건드리지 않음. 진짜 결제창의 바깥 여백 탭은 '닫기'로 동작 = 정상)
@@ -370,6 +386,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.0'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.1'
   };
 })();
