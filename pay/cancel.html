@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>결제 취소</title>
+<style>
+  html,body{margin:0;height:100%}
+  body{font-family:Pretendard,-apple-system,system-ui,'Apple SD Gothic Neo',sans-serif;background:#f5f6f8;color:#4e5968;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;-webkit-font-smoothing:antialiased}
+  .c{max-width:320px}
+  .ic{font-size:42px;line-height:1}
+  .t{font-size:17px;font-weight:800;color:#191f28;margin:14px 0 6px}
+  .s{font-size:13.5px;line-height:1.65}
+  .b{display:inline-block;margin-top:20px;background:#141a29;color:#fff;text-decoration:none;border-radius:12px;padding:13px 26px;font-weight:800;font-size:14px}
+</style>
+</head>
+<body>
+  <div class="c">
+    <div class="ic">🛒</div>
+    <div class="t">결제를 취소했어요</div>
+    <div class="s">결제가 진행되지 않았습니다.<br>결제창을 닫으면 이전 화면으로 돌아갑니다.</div>
+    <a class="b" id="back" href="/parent/">돌아가기</a>
+  </div>
+<script>
+/* 초경량 취소 페이지 — 앱(대시보드)을 로딩하지 않는다.
+   토스 결제창(웹뷰/새 창)이 취소 시 이 정적 페이지로 이동하므로,
+   결제창 안에서 앱 전체가 다시 뜨는 문제를 없앤다. */
+(function(){
+  // 결제창이 별도 창/웹뷰(opener 有)로 열렸다면 → 이 창만 닫아 원래 앱으로 복귀
+  try{ if(window.opener && !window.opener.closed){ setTimeout(function(){ try{ window.close(); }catch(e){} }, 150); } }catch(e){}
+  // 결제창이 새 창이 아닌 경우엔 '돌아가기' 버튼으로 앱 복귀 (자동 앱 로딩은 하지 않음)
+})();
+</script>
+</body>
+</html>
