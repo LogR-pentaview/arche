@@ -55,9 +55,12 @@
   var SB_URL = window.SB_URL, SB_KEY = window.SB_KEY, CK = window.TOSS_CLIENT_KEY;
   var won = function(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; };
   // 단건 판매 상품 (ref = store_products.ref · 서버가 가격 재검증)
+  // ※ store_products 실제 값과 일치 (서버 confirm_payment가 DB 가격과 재대조)
   var PRODUCTS = [
-    { ref:'arche5', name:'펜타 아르케 5회권', desc:'컨설팅 코스웨어 5회 이용권', price:9900 },
-    { ref:'vision:starter:3', name:'펜타 비전 · 스타터 시즌3', desc:'단품 시즌 1개 (3개월 이용)', price:9900 }
+    { ref:'arche5',             name:'아르케 5회 이용권',                     desc:'컨설팅 코스웨어 5회 이용권',        price:9900  },
+    { ref:'vision:starter:1',   name:'펜타 비전 · 민주주의는 어떻게 시작됐을까', desc:'스타터 시즌 단품 · 3개월 이용',     price:16900 },
+    { ref:'vision:architecture:1', name:'펜타 비전 · 시민혁명과 민주정치의 탄생', desc:'아키텍처 시즌 단품 · 3개월 이용',   price:18900 },
+    { ref:'track::1',           name:'펜타 트랙 · 세상을 해부하는 12개의 질문',  desc:'트랙 시즌 단품 · 3개월 이용',       price:69900 }
   ];
   var sel = 0;
   var prodEl = document.getElementById('prod'), totalEl = document.getElementById('total'), msg = document.getElementById('msg');
