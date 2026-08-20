@@ -17,6 +17,9 @@
   var PROJECT_URL = 'https://dvxepjctjazobrkjrkdw.supabase.co';
   function sb(){ return window.sb; }
   var _subs = [];
+  var _bodySnap = null;   // 결제창 열기 직전의 body 자식 스냅샷 (취소 시 토스가 삽입한 노드만 정확히 제거)
+  var _cartReload = null; // 현재 마운트된 카트의 redraw 함수 (취소 시 '처리 중…' 버튼 복구)
+  function snapBody(){ try{ _bodySnap = [].slice.call(document.body.children); }catch(e){ _bodySnap = null; } }
   function onChange(fn){ if(typeof fn==='function') _subs.push(fn); }
   function fire(){ _subs.forEach(function(f){ try{ f(); }catch(e){} }); }
 
@@ -61,6 +64,7 @@
     var oid='ptc_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
     var base=location.origin+location.pathname;
     // 취소/실패는 앱 전체가 아니라 초경량 취소 페이지로 → 결제창 안에서 앱이 다시 로딩되는 문제 방지
+    snapBody();
     return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_pay=1', failUrl:location.origin+'/pay/cancel' });
   }
   function toast(m){ try{ var d=document.createElement('div'); d.textContent=m; d.style.cssText='position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:99999;background:#141a29;color:#fff;padding:12px 18px;border-radius:12px;font-size:14px;font-family:Pretendard,system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.35);max-width:90%'; document.body.appendChild(d); setTimeout(function(){ d.style.transition='opacity .4s'; d.style.opacity='0'; setTimeout(function(){try{d.remove();}catch(_e){}},420); },3600); }catch(e){ try{alert(m);}catch(_e){} } }
@@ -73,6 +77,7 @@
     try{ sessionStorage.setItem('acart_buy_'+oid, JSON.stringify({ ref:ref, student_id:studentId||null })); }catch(_e){}
     var base=location.origin+location.pathname;
     // 취소/실패는 앱 전체가 아니라 초경량 취소 페이지로 → 결제창 안에서 앱이 다시 로딩되는 문제 방지
+    snapBody();
     return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:location.origin+'/pay/cancel' });
   }
 
@@ -200,6 +205,7 @@
       };
     }
     onChange(function(){ /* 외부 담기 시 뱃지 갱신용 훅 */ });
+    _cartReload = draw; // 결제 취소 시 '처리 중…' 버튼 원복용
     await draw();
     return { reload: draw };
   }
@@ -209,6 +215,16 @@
   //   src로 정확히 찾아 컨테이너째 제거한다. (앱 재로딩 없이 이전 화면으로 즉시 복귀)
   function clearTossOverlay(){
     try{
+      // (1) 결제 시작 이후 토스가 body에 새로 삽입한 노드(오버레이·백드롭·iframe)만 정확히 제거.
+      //     → 클릭을 가로막는 투명 백드롭까지 남김없이 제거되어, 새로고침 없이 바로 조작 가능.
+      if(_bodySnap){
+        var cur=[].slice.call(document.body.children);
+        for(var k=0;k<cur.length;k++){
+          var el=cur[k];
+          if(_bodySnap.indexOf(el)<0){ try{ el.parentNode&&el.parentNode.removeChild(el); }catch(e){} }
+        }
+      }
+      // (2) 백업: 남아있을 수 있는 토스/취소 iframe을 src로 직접 제거
       var frames=document.getElementsByTagName('iframe');
       for(var i=frames.length-1;i>=0;i--){
         var f=frames[i], src=(f.getAttribute('src')||f.src||'');
@@ -222,14 +238,20 @@
         if(container && container.parentNode) container.parentNode.removeChild(container);
         else if(f.parentNode) f.parentNode.removeChild(f);
       }
-      // 토스가 남긴 body 스크롤 잠금 해제
-      try{ document.body.style.overflow=''; document.documentElement.style.overflow=''; }catch(e){}
+      // (3) 토스가 걸어둔 스크롤/위치 잠금 해제
+      try{ document.body.style.overflow=''; document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; }catch(e){}
+      _bodySnap=null;
+      // (4) 카트의 '처리 중…' 버튼 원복 — 마운트된 카트를 다시 그려 상태를 되돌린다.
+      if(typeof _cartReload==='function'){ try{ _cartReload(); }catch(e){} }
+      else { var pb=document.getElementById('acart-pay'); if(pb){ pb.disabled=false; if(/처리/.test(pb.textContent)) pb.textContent='결제하기'; } }
     }catch(e){}
   }
   try{
     window.addEventListener('message', function(ev){
       try{ if(ev && ev.origin===location.origin && ev.data && ev.data.type==='arche-pay-cancel'){ clearTossOverlay(); toast('결제를 취소했어요.'); } }catch(e){}
     });
+    // 결제창(웹뷰) 뒤로가기/닫기로 앱에 다시 포커스가 와도 잔여 오버레이가 있으면 정리
+    window.addEventListener('pageshow', function(){ if(_bodySnap) clearTossOverlay(); });
   }catch(e){}
 
   // ── 단건 결제창 복귀 처리 ──
@@ -274,6 +296,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.5'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.6'
   };
 })();
