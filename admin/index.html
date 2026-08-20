@@ -145,7 +145,7 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.APP_VERSION="2026.08.19.1";
+  window.APP_VERSION="2026.08.19.2";
   (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
   window.checkAppUpdate=async function(){
     var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
@@ -240,7 +240,25 @@
       + '<div class="kpi"><div class="lab">학부모 회원</div><div class="num">'+(s.parents||0)+'<small> 명</small></div></div>'
       + '<div class="kpi"><div class="lab">영업매니저</div><div class="num">'+(s.managers||0)+'<small> 명</small></div></div>'
       + '<div class="kpi"><div class="lab">전체 학생</div><div class="num">'+(s.students||0)+'<small> 명</small></div></div>'
-      + '</div>';
+      + '</div>'
+      + '<div id="dash-new" style="margin-top:6px"></div>';
+    try{
+      var dd = await adminApi({action:'academies'});
+      var rows = (dd && dd.rows) || [];
+      var now = Date.now();
+      var d7 = function(a){ var t=Date.parse(a.created_at||''); return !isNaN(t) && (now-t)/86400000 <= 7; };
+      var nb=0, np=0;
+      rows.forEach(function(a){ if(a.is_admin || !d7(a)) return; if(a.account_type==='b2c') np++; else nb++; });
+      var el=document.getElementById('dash-new');
+      if(el){
+        el.innerHTML =
+          '<div style="font-size:12px;font-weight:800;color:var(--text-accent);margin:16px 2px 8px">🆕 신규 회원 · 최근 7일</div>'
+          + '<div class="kpis" style="grid-template-columns:repeat(2,1fr);max-width:440px">'
+          + '<div class="kpi" style="cursor:pointer;border:1px solid var(--text-accent)" onclick="memSetFilter(\'b2b\',\'new7\')"><div class="lab">신규 학원</div><div class="num">'+nb+'<small> 곳</small></div><div class="meta" style="color:var(--text-accent)">목록 보기 ›</div></div>'
+          + '<div class="kpi" style="cursor:pointer;border:1px solid var(--text-accent)" onclick="memSetFilter(\'b2c\',\'new7\')"><div class="lab">신규 학부모</div><div class="num">'+np+'<small> 명</small></div><div class="meta" style="color:var(--text-accent)">목록 보기 ›</div></div>'
+          + '</div>';
+      }
+    }catch(e){}
   }
 
   // ===== 학원/학부모 회원 =====
