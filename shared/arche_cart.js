@@ -206,13 +206,22 @@
         // 성공하면 successUrl(?acart_pay=1)로 리다이렉트 → 하단 복귀 핸들러가 서버 승인.
         // (구독은 결제 후 남은 카트에서 별도 빌링 흐름으로 처리)
         if(oneTotal>0){
+          var _label=won(subTotal+oneTotal)+' 결제하기';
+          var _restore=function(){ try{ payBtn.disabled=false; payBtn.textContent=_label; }catch(_e){} };
           try{
             try{ sessionStorage.setItem('acart_one_amount', String(oneTotal)); }catch(_e){}
-            await tossOneTime(oneTotal);
-            return; // 결제창으로 리다이렉트되므로 여기서 종료
+            var _pp=tossOneTime(oneTotal); // 결제창 오픈(오버레이/리다이렉트)
+            // ★ 결제창이 뜬 뒤에는 버튼을 영구 잠그지 않는다 → 취소로 돌아와도 '처리 중…' 멈춤 없음.
+            //    (성공이면 어차피 successUrl로 리다이렉트되어 이 화면을 벗어남)
+            setTimeout(_restore, 1800);
+            if(_pp && _pp.then){
+              _pp.then(function(){ /* 성공: 리다이렉트 */ })
+                 .catch(function(e){ _restore(); if(!(e&&(e.code==='USER_CANCEL'||e.code==='PAY_PROCESS_CANCELED'))) msg.innerHTML='<div class="warn">결제창 오류: '+esc((e&&e.message)||e)+'</div>'; });
+            }
+            return;
           }catch(e){
             msg.innerHTML='<div class="warn">'+((e&&e.code==='USER_CANCEL')?'결제가 취소되었습니다.':('결제창 오류: '+esc((e&&e.message)||e)))+'</div>';
-            payBtn.disabled=false; payBtn.textContent=won(subTotal+oneTotal)+' 결제하기';
+            _restore();
             return;
           }
         }
@@ -343,6 +352,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.8'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.9'
   };
 })();
