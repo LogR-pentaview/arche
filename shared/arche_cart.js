@@ -20,7 +20,37 @@
   var _bodySnap = null;   // 결제창 열기 직전의 body 자식 스냅샷 (취소 시 토스가 삽입한 노드만 정확히 제거)
   var _cartReload = null; // 현재 마운트된 카트의 redraw 함수 (취소 시 '처리 중…' 버튼 복구)
   var _payPending = false;// 결제창이 열려 있는 중(취소 감지용)
-  function snapBody(){ try{ _bodySnap = [].slice.call(document.body.children); }catch(e){ _bodySnap = null; } _payPending = true; }
+  var _watchIv = null;    // 결제창(오버레이) 감시 타이머
+  function snapBody(){ try{ _bodySnap = [].slice.call(document.body.children); }catch(e){ _bodySnap = null; } _payPending = true; startCancelWatch(); }
+  // 결제 시작 이후 새로 생긴 '오버레이(iframe 포함 노드)'가 화면에 있는지 검사
+  function hasPayOverlay(){
+    try{
+      // (a) 토스/취소 iframe이 문서 어딘가에 있으면 결제창 존재로 간주
+      if(document.querySelector('iframe[src*="tosspayments"], iframe[src*="/pay/cancel"]')) return true;
+      // (b) 결제 시작 이후 body에 새로 생긴 노드가 iframe을 품고 있으면 결제창으로 간주
+      var cur=[].slice.call(document.body.children);
+      for(var i=0;i<cur.length;i++){
+        var el=cur[i];
+        if(_bodySnap && _bodySnap.indexOf(el)>=0) continue;       // 결제 전부터 있던 노드는 제외
+        if(el.tagName && el.tagName.toLowerCase()==='iframe') return true;
+        try{ if(el.querySelector && el.querySelector('iframe')) return true; }catch(e){}
+      }
+    }catch(e){}
+    return false;
+  }
+  // 결제창이 떴다가 사라지면(사용자가 닫음/취소) → 이벤트가 없어도 스스로 감지해 원복.
+  function startCancelWatch(){
+    if(_watchIv){ clearInterval(_watchIv); _watchIv=null; }
+    var sawOverlay=false, ticks=0;
+    _watchIv=setInterval(function(){
+      if(!_payPending){ clearInterval(_watchIv); _watchIv=null; return; }
+      ticks++;
+      var has=hasPayOverlay();
+      if(has) sawOverlay=true;
+      if(sawOverlay && !has){ clearInterval(_watchIv); _watchIv=null; cancelRecover(false); return; }
+      if(ticks>450){ clearInterval(_watchIv); _watchIv=null; }   // ~3분 후 감시 종료(안전장치)
+    }, 400);
+  }
   function onChange(fn){ if(typeof fn==='function') _subs.push(fn); }
   function fire(){ _subs.forEach(function(f){ try{ f(); }catch(e){} }); }
 
@@ -253,6 +283,7 @@
   function cancelRecover(showToast){
     if(!_payPending) return;
     _payPending=false; _wentHidden=false;
+    if(_watchIv){ clearInterval(_watchIv); _watchIv=null; }
     clearTossOverlay();
     if(showToast) toast('결제를 취소했어요.');
   }
@@ -312,6 +343,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.7d'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.8'
   };
 })();
