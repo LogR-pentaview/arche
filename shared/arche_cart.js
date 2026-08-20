@@ -308,6 +308,24 @@
       if(document.visibilityState==='visible' && _payPending && _wentHidden){ setTimeout(function(){ cancelRecover(false); }, 250); }
     });
     window.addEventListener('pageshow', function(){ if(_payPending && _wentHidden) setTimeout(function(){ cancelRecover(false); }, 100); });
+    // (경로 C · 핵심) 같은 문서 오버레이가 닫힌 뒤 '투명 잔여물'이 클릭을 먹는 경우:
+    //   결제 시작 이후 생긴 최상위 노드(토스 백드롭/오버레이) 위를 탭하면 → 그 잔여물을 즉시 제거해 클릭막힘 해소.
+    //   (결제 iframe 내부 조작은 건드리지 않음. 진짜 결제창의 바깥 여백 탭은 '닫기'로 동작 = 정상)
+    function overlayTapCleanup(ev){
+      try{
+        if(!_payPending || !_bodySnap) return;
+        var t=ev.target;
+        if(t && t.tagName && t.tagName.toLowerCase()==='iframe') return; // 결제 iframe 내부는 유지
+        var top=t;
+        while(top && top.parentElement && top.parentElement!==document.body) top=top.parentElement;
+        if(top && top.parentElement===document.body && _bodySnap.indexOf(top)<0){
+          cancelRecover(false); // 잔여 오버레이 전체 스윕 + 상태 원복
+        }
+      }catch(e){}
+    }
+    document.addEventListener('pointerdown', overlayTapCleanup, true);
+    document.addEventListener('touchstart', overlayTapCleanup, true);
+    document.addEventListener('click', overlayTapCleanup, true);
   }catch(e){}
 
   // ── 단건 결제창 복귀 처리 ──
@@ -352,6 +370,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'1.9'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.0'
   };
 })();
