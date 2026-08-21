@@ -17,7 +17,7 @@ const TOSS_CLIENT_KEY = "test_ck_Z61JOxRQVEaxkB6AzWb0VW0X9bAq";
 /* Toss Payments · 결제위젯(v2) 연동 키  ★ 반드시 '결제위젯 연동 키'(test_gck_.../live_gck_...) 사용
    토스 개발자센터 → 내 개발정보 → API 키 → '결제위젯 연동 키'의 클라이언트 키를 복사해 붙여넣으세요.
    (일반 결제창 키 test_ck_ 로는 위젯이 뜨지 않습니다.) */
-const TOSS_WIDGET_CLIENT_KEY = "";  // 예: "test_gck_XXXXXXXXXXXXXXXXXXXXXXXX"
+const TOSS_WIDGET_CLIENT_KEY = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";  // ⚠️ 토스 공개 '문서 테스트' 키 — 위젯 UI 확인용. 실결제/승인은 '내 계정 결제위젯 연동 키'(test_gck_.../live_gck_...)로 교체 필요
 
 /* 엣지 함수 베이스 URL (편의용) */
 const FN_BASE = SB_URL + "/functions/v1";
