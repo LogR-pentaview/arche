@@ -10,14 +10,13 @@
 const SB_URL = "https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY = "sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // publishable key · RLS 보호
 
-/* Toss Payments
-   현재 테스트 키. 자동결제(빌링) 계약 체결 후 live_ck_... 로 이 한 줄만 교체하면 됩니다. */
-const TOSS_CLIENT_KEY = "test_ck_Z61JOxRQVEaxkB6AzWb0VW0X9bAq";
+/* Toss Payments · API 개별 연동 키(결제창/빌링)  클라이언트 키(ck)
+   ▸ 짝이 되는 시크릿 키(live_sk_…)는 Supabase 시크릿 TOSS_SECRET_KEY 에 설정 (빌링/자동결제 승인용) */
+const TOSS_CLIENT_KEY = "live_ck_6bJXmgo28e92O94RbWeW8LAnGKWx";
 
-/* Toss Payments · 결제위젯(v2) 연동 키  ★ 반드시 '결제위젯 연동 키'(test_gck_.../live_gck_...) 사용
-   토스 개발자센터 → 내 개발정보 → API 키 → '결제위젯 연동 키'의 클라이언트 키를 복사해 붙여넣으세요.
-   (일반 결제창 키 test_ck_ 로는 위젯이 뜨지 않습니다.) */
-const TOSS_WIDGET_CLIENT_KEY = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";  // ⚠️ 토스 공개 '문서 테스트' 키 — 위젯 UI 확인용. 실결제/승인은 '내 계정 결제위젯 연동 키'(test_gck_.../live_gck_...)로 교체 필요
+/* Toss Payments · 결제위젯(주문서형·결제창형) 연동 키  클라이언트 키(gck)
+   ▸ 짝이 되는 시크릿 키(live_gsk_…)는 Supabase 시크릿 TOSS_WIDGET_SECRET_KEY 에 설정 (단품 결제위젯 승인용) */
+const TOSS_WIDGET_CLIENT_KEY = "live_gck_mBZ1gQ4YVXgBBqJdPJYa3l2KPoqN";
 
 /* 엣지 함수 베이스 URL (편의용) */
 const FN_BASE = SB_URL + "/functions/v1";
