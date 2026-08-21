@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>펜타 · 결제</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<!-- Supabase (세션 복원용) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/config.js"></script>
+<!-- 토스페이먼츠 v2 표준 SDK (결제위젯) -->
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<style>
+  :root{--ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e9ecf1;--blue:#3182f6;--navy:#141a29;--safe:#12b76a;--risk:#e0453a;--bg:#f5f6f8}
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:var(--bg);font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+  .wrap{max-width:480px;margin:0 auto;padding:14px 14px 60px}
+  .top{display:flex;align-items:center;gap:8px;padding:6px 2px 12px}
+  .top a{color:var(--dim);text-decoration:none;font-size:14px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+  .brand{margin-left:auto;display:flex;align-items:center;gap:7px}
+  .brand .mk{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#3182f6,#1b64da);color:#fff;display:grid;place-items:center;font-weight:900;font-family:serif;font-size:15px}
+  .brand b{font-size:14px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 15px;margin-bottom:12px;box-shadow:0 10px 30px -22px rgba(20,26,41,.25)}
+  h1{font-size:18px;margin:2px 0 2px}
+  .sub{color:var(--dim);font-size:12.5px;margin:0 0 4px;line-height:1.6}
+  .amt{display:flex;justify-content:space-between;align-items:center;margin-top:8px;padding-top:12px;border-top:1px solid var(--line)}
+  .amt .l{color:var(--dim);font-size:13px}.amt .v{font-weight:900;font-size:21px}
+  #payment-method,#agreement{min-height:40px}
+  .pay{width:100%;margin-top:6px;border:none;border-radius:13px;padding:16px;background:linear-gradient(135deg,#141a29,#2a3a58);color:#fff;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}
+  .pay:active{transform:scale(.99)}.pay:disabled{opacity:.5;cursor:not-allowed}
+  .note{font-size:11px;color:var(--mute);line-height:1.7;margin-top:12px}
+  .note a{color:#1b64da}
+  .state{min-height:60vh;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center}
+  .state .box{max-width:340px}
+  .state .ic{font-size:46px;line-height:1}
+  .state .t{font-size:18px;font-weight:800;margin:14px 0 6px}
+  .state .s{font-size:13.5px;color:var(--dim);line-height:1.7}
+  .btn{display:inline-block;margin-top:18px;border:none;border-radius:12px;padding:13px 24px;font-weight:800;font-size:14.5px;cursor:pointer;font-family:inherit;text-decoration:none}
+  .btn.p{background:linear-gradient(135deg,#141a29,#2a3a58);color:#fff}
+  .btn.g{background:#fff;color:var(--dim);border:1px solid var(--line);margin-left:8px}
+  .spin{width:34px;height:34px;border:3px solid #e5e8eb;border-top-color:#3182f6;border-radius:50%;display:inline-block;animation:sp .8s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <a id="backLink" href="#">‹ 뒤로</a>
+    <span class="brand"><span class="mk">P</span><b>펜타 결제</b></span>
+  </div>
+
+  <!-- 결제 단계 -->
+  <div id="payView">
+    <div class="card">
+      <h1 id="ordName">결제</h1>
+      <p class="sub">1회성 상품 결제입니다. (구독·자동결제 아님)</p>
+      <div class="amt"><span class="l">결제 금액</span><span class="v" id="amtText">0원</span></div>
+    </div>
+    <div class="card"><div id="payment-method"></div><div id="agreement" style="margin-top:6px"></div></div>
+    <button class="pay" id="payBtn" disabled>결제 준비 중…</button>
+    <div class="note">· 디지털 학습 이용권 · 실물 배송 없음 · 결제 즉시 이용 개시 · 개별상품 이용기간 3개월<br>
+      결제 시 <a href="/policy/refund.html" target="_blank">청약철회·환불정책</a> · <a href="/policy/terms.html" target="_blank">이용약관</a> · <a href="/policy/privacy.html" target="_blank">개인정보처리방침</a>에 동의합니다.</div>
+    <div id="payErr" class="note" style="color:#c0313d"></div>
+  </div>
+
+  <!-- 상태(로딩/성공/실패) -->
+  <div id="stateView" class="state hidden"><div class="box" id="stateBox"></div></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var qs = new URLSearchParams(location.search);
+  var SB_URL = window.SB_URL, SB_KEY = window.SB_KEY;
+  var WIDGET_KEY = window.TOSS_WIDGET_CLIENT_KEY || "";
+  var mode = qs.get('mode') || 'cart';            // 'cart' | 'buy'
+  var amount = Number(qs.get('amount')) || 0;
+  var orderName = qs.get('name') || (mode==='buy' ? '펜타 단품 결제' : '펜타 장바구니 결제');
+  var ref = qs.get('ref') || '';
+  var student = qs.get('student') || '';
+  var step = qs.get('step') || '';                // '', 'confirm', 'fail'
+  var appHome = location.origin + '/parent/';
+  var reopenView = (mode==='buy') ? 'store' : 'cart';
+
+  var payView = document.getElementById('payView');
+  var stateView = document.getElementById('stateView');
+  var stateBox = document.getElementById('stateBox');
+  var backLink = document.getElementById('backLink');
+  backLink.setAttribute('href', appHome + '?acart_reopen=' + reopenView);
+
+  function won(n){ return (Number(n)||0).toLocaleString('ko-KR')+'원'; }
+  function showState(html){ payView.classList.add('hidden'); stateView.classList.remove('hidden'); stateBox.innerHTML = html; }
+  function backBtnHtml(label){ return '<a class="btn g" href="'+appHome+'?acart_reopen='+reopenView+'">'+(label||'앱으로 돌아가기')+'</a>'; }
+
+  // Supabase 세션 복원(같은 도메인 · localStorage 공유)
+  var sb = null;
+  try{ if(window.supabase && window.supabase.createClient) sb = window.supabase.createClient(SB_URL, SB_KEY); }catch(e){}
+  async function jwt(){ try{ var s=await sb.auth.getSession(); return (s&&s.data&&s.data.session)?s.data.session.access_token:''; }catch(e){ return ''; } }
+  async function callEdge(action, payload){
+    var tok = await jwt();
+    var r = await fetch(SB_URL + '/functions/v1/toss-b2c', {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'apikey':SB_KEY, 'Authorization':'Bearer '+(tok||SB_KEY) },
+      body: JSON.stringify(Object.assign({action:action}, payload||{}))
+    });
+    var d = await r.json().catch(function(){ return {}; });
+    return { ok:r.ok, status:r.status, data:d };
+  }
+
+  // ── 결제 실패/취소 복귀 ──
+  if(step==='fail'){
+    showState('<div class="ic">🛒</div><div class="t">결제를 취소했어요</div><div class="s">결제가 진행되지 않았습니다.<br>다시 시도하거나 이전 화면으로 돌아가세요.</div>'
+      + '<div style="margin-top:18px"><a class="btn p" href="'+location.pathname+'?'+baseParams()+'">다시 시도</a>'+backBtnHtml('돌아가기')+'</div>');
+    return;
+  }
+  // ── 결제 성공 복귀 → 서버 승인(confirm) ──
+  if(step==='confirm'){
+    var paymentKey = qs.get('paymentKey'), orderId = qs.get('orderId'), paidAmount = Number(qs.get('amount'))||amount;
+    showState('<div class="spin"></div><div class="t" style="margin-top:16px">결제 승인 중…</div><div class="s">잠시만 기다려 주세요.</div>');
+    (function waitAndConfirm(tries){
+      if(!sb){ if(tries>50){ return failConfirm('세션 준비 실패 — 새로고침 후 다시 시도해주세요.'); } return void setTimeout(function(){ waitAndConfirm(tries+1); }, 200); }
+      var action = (mode==='buy') ? 'confirm_buy_now' : 'confirm_cart_onetime';
+      var payload = (mode==='buy')
+        ? { paymentKey:paymentKey, orderId:orderId, amount:paidAmount, ref:ref, student_id:student||null }
+        : { paymentKey:paymentKey, orderId:orderId, amount:paidAmount };
+      callEdge(action, payload).then(function(r){
+        if(r.data && r.data.ok){
+          showState('<div class="ic">✅</div><div class="t">결제가 완료됐어요</div><div class="s">이용이 바로 개시됩니다.<br>금액 <b>'+won(paidAmount)+'</b></div><div style="margin-top:18px"><a class="btn p" href="'+appHome+'">앱으로 돌아가기</a></div>');
+        } else {
+          failConfirm((r.data && (r.data.error||r.data.message)) || ('승인 실패('+r.status+')'));
+        }
+      }).catch(function(e){ failConfirm((e&&e.message)||e); });
+    })(0);
+    function failConfirm(msg){
+      showState('<div class="ic">⚠️</div><div class="t">결제 승인에 실패했어요</div><div class="s">'+esc(String(msg))+'<br>결제가 실제로 이뤄졌다면 곧 자동 확인됩니다.</div><div style="margin-top:18px"><a class="btn g" href="'+appHome+'">앱으로 돌아가기</a></div>');
+    }
+    return;
+  }
+
+  // ── 결제 단계: 위젯 렌더 ──
+  document.getElementById('ordName').textContent = orderName;
+  document.getElementById('amtText').textContent = won(amount);
+  var payBtn = document.getElementById('payBtn');
+  var payErr = document.getElementById('payErr');
+
+  function baseParams(){
+    var p = new URLSearchParams();
+    p.set('mode', mode); p.set('amount', String(amount)); if(orderName) p.set('name', orderName);
+    if(ref) p.set('ref', ref); if(student) p.set('student', student);
+    return p.toString();
+  }
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];}); }
+
+  if(!WIDGET_KEY){
+    payErr.innerHTML = '⚠️ 결제위젯 연동 키(TOSS_WIDGET_CLIENT_KEY)가 설정되지 않았습니다. config.js를 확인해주세요.';
+    return;
+  }
+  if(!amount || amount<=0){ payErr.textContent = '결제 금액이 올바르지 않습니다.'; return; }
+  if(!window.TossPayments){ payErr.textContent = '토스 SDK 로드 실패 — 새로고침 해주세요.'; return; }
+
+  (async function render(){
+    try{
+      var tp = TossPayments(WIDGET_KEY);
+      // 단건 결제 → 비회원(ANONYMOUS)로 간단히. (간편결제 저장 불필요)
+      var widgets = tp.widgets({ customerKey: TossPayments.ANONYMOUS });
+      await widgets.setAmount({ currency: "KRW", value: amount });
+      await Promise.all([
+        widgets.renderPaymentMethods({ selector: "#payment-method", variantKey: "DEFAULT" }),
+        widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" })
+      ]);
+      payBtn.disabled = false;
+      payBtn.textContent = won(amount) + ' 결제하기';
+      payBtn.onclick = async function(){
+        payBtn.disabled = true; payBtn.textContent = '결제창 여는 중…'; payErr.textContent='';
+        var oid = (mode==='buy'?'ptb_':'ptc_') + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+        var success = location.origin + location.pathname + '?step=confirm&' + baseParams();
+        var fail = location.origin + location.pathname + '?step=fail&' + baseParams();
+        try{
+          await widgets.requestPayment({
+            orderId: oid, orderName: orderName,
+            successUrl: success, failUrl: fail,
+            customerName: '고객'
+          });
+        }catch(e){
+          // 위젯 requestPayment는 보통 리다이렉트. 즉시 오류가 오면(취소 등) 버튼 원복.
+          payBtn.disabled = false; payBtn.textContent = won(amount) + ' 결제하기';
+          if(!(e && (e.code==='USER_CANCEL'||e.code==='PAY_PROCESS_CANCELED'))) payErr.textContent = '결제창 오류: ' + ((e&&e.message)||e);
+        }
+      };
+    }catch(e){
+      payErr.innerHTML = '결제위젯을 불러오지 못했습니다: ' + esc((e&&e.message)||String(e)) + '<br>결제위젯 연동 키가 올바른지 확인해주세요.';
+    }
+  })();
+})();
+</script>
+</body>
+</html>
