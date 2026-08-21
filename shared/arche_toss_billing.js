@@ -70,7 +70,11 @@
     function draw(){
       var cards=Object.keys(pl).map(function(k){ var p=pl[k]; return '<div class="plan'+(k===chosen?' on':'')+'" data-k="'+k+'"><div><div class="nm">'+esc(p.name)+'</div></div><div class="pr">'+ p.monthly.toLocaleString('ko-KR')+'원<span style="font-size:11px;color:#8b95a1;font-weight:600">/월</span></div></div>'; }).join('');
       var subs=(st.subscriptions||[]).filter(function(s){return s.status==='active';}).map(function(s){ return '<div class="sub"><div><b>'+esc((pl[s.plan]&&pl[s.plan].name)||s.plan)+'</b> <span style="font-size:12px;color:#8b95a1">월간 '+Number(s.price).toLocaleString('ko-KR')+'원</span></div><span class="st">이용중</span><button data-cancel="'+s.id+'" style="border:0;background:#f0f2f6;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px">해지</button></div>'; }).join('');
+      // 등록 카드 표시 + 카드 변경(재등록) — 카드가 있으면 노출
+      var bk0=(st.billing_keys&&st.billing_keys[0])||{};
+      var cardLine=bkId?('<div class="sub"><div>💳 <b>'+esc(bk0.card_company||'등록 카드')+'</b> <span style="color:#8b95a1;font-size:12px">'+esc(bk0.card_masked||'')+'</span></div><button id="kgb-cardchg" style="border:0;background:#f0f2f6;border-radius:8px;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px">카드 변경</button></div>'):'';
       body.innerHTML=(subs?('<div style="font-size:12px;font-weight:800;color:#6b7688;margin-bottom:6px">내 구독</div>'+subs+'<hr style="border:none;border-top:1px solid #eef1f4;margin:14px 0">'):'')
+        +cardLine
         +'<div style="font-size:12px;color:#8b95a1;margin:2px 0 12px;font-weight:600">월 단위 정기결제 · 언제든 해지 가능</div>'
         +cards
         +(bkId?'<button class="btn" id="kgb-sub">월 '+priceOf().toLocaleString('ko-KR')+'원 구독하기</button>'
@@ -79,11 +83,13 @@
       body.querySelectorAll('[data-cancel]').forEach(function(b){ b.onclick=async function(){ if(!confirm('구독을 해지할까요?'))return; try{ await cancel(b.getAttribute('data-cancel')); st=await status(); draw(); }catch(e){ alert('해지 실패: '+e.message); } }; });
       var cardBtn=body.querySelector('#kgb-card');
       if(cardBtn) cardBtn.onclick=async function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } try{ await registerCard(ctx); }catch(e){ alert('카드 등록 실패: '+e.message); } };
+      var cardChg=body.querySelector('#kgb-cardchg');
+      if(cardChg) cardChg.onclick=async function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } if(!confirm('새 카드로 변경할까요? 카드 인증창으로 이동합니다.'))return; try{ await registerCard(ctx); }catch(e){ alert('카드 변경 실패: '+e.message); } };
       var subBtn=body.querySelector('#kgb-sub');
       if(subBtn) subBtn.onclick=async function(){ subBtn.disabled=true; subBtn.textContent='처리 중…'; try{ var r=await subscribe(chosen, ctx.studentId, bkId); if(r.ok){ alert('구독이 시작됐어요!'); st=await status(); draw(); } else { alert('결제 실패: '+JSON.stringify(r.charge&&r.charge.detail||r)); subBtn.disabled=false; } }catch(e){ alert('오류: '+e.message); subBtn.disabled=false; } };
     }
     draw();
   }
 
-  window.ArcheTossBilling={ plans:plans, status:status, subscribe:subscribe, cancel:cancel, registerCard:registerCard, issueFromRedirect:issueFromRedirect, mount:mount, primeTier:primeTier, version:'1.0-toss' };
+  window.ArcheTossBilling={ plans:plans, status:status, subscribe:subscribe, cancel:cancel, registerCard:registerCard, issueFromRedirect:issueFromRedirect, mount:mount, primeTier:primeTier, version:'1.1-toss' };
 })();
