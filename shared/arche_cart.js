@@ -201,19 +201,11 @@
 
       var payBtn=container.querySelector('#acart-pay'); var msg=container.querySelector('#acart-msg');
       payBtn.onclick=async function(){
-        // 단품(시즌·이용권)이 있으면 → 통합단건 결제창(Toss requestPayment).
-        //   ★ 모바일 토스는 '페이지 전체 리다이렉트'다(iframe/오버레이 아님).
-        //     따라서 버튼을 '처리 중…'으로 잠그면, 뒤로가기로 돌아왔을 때 브라우저가 그 잠긴 화면을
-        //     BFCache로 그대로 되살려 버튼이 영영 안 풀린다. → 단품 경로는 버튼을 절대 잠그지 않는다.
+        // 단품(시즌·이용권)이 있으면 → 전용 결제위젯 페이지(/pay/checkout)로 이동.
+        //   앱과 분리된 페이지에서 결제 → 취소해도 앱이 새로고침/멈춤 없이 그대로 유지된다.
         if(oneTotal>0){
-          try{ sessionStorage.setItem('acart_one_amount', String(oneTotal)); }catch(_e){}
-          try{
-            var _pp=tossOneTime(oneTotal); // 성공/취소 모두 페이지 리다이렉트로 이 화면을 벗어남
-            if(_pp && _pp.catch){ _pp.catch(function(e){ if(!(e&&(e.code==='USER_CANCEL'||e.code==='PAY_PROCESS_CANCELED'))) msg.innerHTML='<div class="warn">결제창 오류: '+esc((e&&e.message)||e)+'</div>'; }); }
-          }catch(e){
-            msg.innerHTML='<div class="warn">결제창 오류: '+esc((e&&e.message)||e)+'</div>';
-          }
-          return; // 버튼은 정상 상태 그대로 둔다
+          location.href = '/pay/checkout?mode=cart&amount=' + oneTotal + '&name=' + encodeURIComponent('펜타 장바구니 결제');
+          return;
         }
         // 구독(빌링) 경로만 '처리 중…' 표시 — 이건 페이지 이동이 없으므로 안전
         payBtn.disabled=true; payBtn.textContent='처리 중…';
@@ -406,6 +398,6 @@
   window.ArcheCart = {
     add:add, addByRef:addByRef, list:list, count:count,
     setQty:setQty, remove:remove, clear:clear, products:products,
-    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'2.5'
+    checkout:checkout, buyNow:buyNow, mount:mount, onChange:onChange, version:'3.0'
   };
 })();
