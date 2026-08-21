@@ -10,12 +10,13 @@
 const SB_URL = "https://dvxepjctjazobrkjrkdw.supabase.co";
 const SB_KEY = "sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // publishable key · RLS 보호
 
-/* Toss Payments · API 개별 연동 키(결제창/빌링)  클라이언트 키(ck)
-   ▸ 짝이 되는 시크릿 키(live_sk_…)는 Supabase 시크릿 TOSS_SECRET_KEY 에 설정 (빌링/자동결제 승인용) */
-const TOSS_CLIENT_KEY = "live_ck_6bJXmgo28e92O94RbWeW8LAnGKWx";
+/* Toss Payments · 자동결제(빌링) 상점 [bill_parchsyhf] 클라이언트 키(ck)
+   ▸ 카드등록(requestBillingAuth)·구독 자동청구용. 짝 시크릿(live_sk_…)은 Supabase TOSS_SECRET_KEY 에 설정.
+   ▸ 반드시 '정기결제 상점(bill_parchsyhf)'의 키여야 함 — 아니면 "자동결제(빌링) 계약이 안 되어 있습니다" 오류. */
+const TOSS_CLIENT_KEY = "live_ck_DpexMgkW36GgMQX9JxXwVGbR5ozO";
 
-/* Toss Payments · 결제위젯(주문서형·결제창형) 연동 키  클라이언트 키(gck)
-   ▸ 짝이 되는 시크릿 키(live_gsk_…)는 Supabase 시크릿 TOSS_WIDGET_SECRET_KEY 에 설정 (단품 결제위젯 승인용) */
+/* Toss Payments · 단건 상점 [parched26y] 결제위젯 클라이언트 키(gck)
+   ▸ 단품 결제위젯용. 짝 시크릿(live_gsk_…)은 Supabase TOSS_WIDGET_SECRET_KEY 에 설정. */
 const TOSS_WIDGET_CLIENT_KEY = "live_gck_mBZ1gQ4YVXgBBqJdPJYa3l2KPoqN";
 
 /* 엣지 함수 베이스 URL (편의용) */
