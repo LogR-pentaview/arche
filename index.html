@@ -1278,5 +1278,54 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();
 })();
 </script>
 
+<!-- ═══ 런칭 프로모 팝업 (선착순 반값) ═══ -->
+<div id="promoPop" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(10,14,25,.62);backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:20px;font-family:'Noto Sans KR',sans-serif">
+  <div style="position:relative;width:100%;max-width:360px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:promoUp .35s ease">
+    <button id="promoX" aria-label="닫기" style="position:absolute;top:12px;right:12px;z-index:2;width:32px;height:32px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px;cursor:pointer;line-height:1">×</button>
+    <div style="background:linear-gradient(135deg,#1A237E,#3949ab);color:#fff;padding:24px 22px 20px;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);border-radius:20px;padding:6px 13px;margin-bottom:14px"><span style="width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.28)"></span>런칭 기념 프로모션</div>
+      <div style="font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1.3">첫 3개월 <span style="color:#ffd979">반값</span></div>
+      <div id="promoLine" style="font-size:13.5px;color:#cdd6f0;margin-top:9px;line-height:1.6">선착순 100명 중 <b style="color:#fff;font-size:15px" id="promoLeft">96</b>자리 남음 · 비전 6,450원~</div>
+    </div>
+    <div style="padding:18px 22px 22px;text-align:center">
+      <div style="font-size:13px;color:#4e5968;line-height:1.65">초5–고교 · AI가 정답 대신 되묻고,<br>아이의 <b style="color:#191f28">사고력 성장을 리포트</b>로 보여드려요.</div>
+      <div style="margin-top:12px;background:#f4f7fb;border:1px solid #e8ebf0;border-radius:10px;padding:9px 12px;font-size:11.5px;color:#4e5968;line-height:1.55">💳 <b style="color:#1A237E">결제 카드를 등록하면</b> 선착순 자리가 확정돼요 · 첫 3개월 반값</div>
+      <a id="promoCta" href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:16px;background:#3182f6;color:#fff;text-decoration:none;border-radius:13px;padding:15px;font-size:15.5px;font-weight:800;box-shadow:0 8px 20px rgba(49,130,246,.32)">선착순 반값으로 시작하기</a>
+      <a href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:9px;color:#1A237E;text-decoration:none;border-radius:13px;padding:12px;font-size:14px;font-weight:800;border:1.5px solid #d3ddf1">체험 1강 무료로 보기</a>
+      <button id="promoHide" style="margin-top:14px;background:none;border:none;color:#8b95a1;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">오늘 하루 보지 않기</button>
+    </div>
+  </div>
+</div>
+<style>@keyframes promoUp{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}</style>
+<script>
+(function(){
+  try{
+    var HIDE='penta_promo_hide';
+    var today=new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(HIDE)===today) return;              // 오늘 하루 안 보기
+    var pop=document.getElementById('promoPop'); if(!pop) return;
+    function close(){ pop.style.display='none'; }
+    function hideToday(){ try{ localStorage.setItem(HIDE,today); }catch(e){} close(); }
+    // 선착순 카운터 (promo_status · anon)
+    var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/promo_status";
+    var K="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
+    fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K},body:JSON.stringify({p_code:'LAUNCH50'})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||typeof d.remaining==='undefined') return;
+        var rem=d.remaining, el=document.getElementById('promoLeft'); if(el)el.textContent=rem;
+        if(!d.active||rem<=0){
+          var line=document.getElementById('promoLine'); if(line)line.innerHTML='<b style="color:#fff">선착순 마감</b> · 정식 오픈';
+          var cta=document.getElementById('promoCta'); if(cta)cta.textContent='지금 시작하기';
+        }
+      }).catch(function(){});
+    // 노출 (살짝 지연 → 페이지 먼저 보이고 팝업)
+    setTimeout(function(){ pop.style.display='flex'; }, 900);
+    document.getElementById('promoX').onclick=close;
+    document.getElementById('promoHide').onclick=hideToday;
+    pop.addEventListener('click',function(e){ if(e.target===pop) close(); });
+  }catch(e){}
+})();
+</script>
+
 </body>
 </html>
