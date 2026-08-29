@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>펜타 비전 심화 · 천부인권사상과 사회계약설</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+/* 펜타 비전 심화 워크북 스킨 (실제 penta_catalog 콘텐츠 렌더) */
+:root{--indigo:#1A237E;--blue:#3182f6;--blueD:#1b64da;--mint:#0BB8A6;--gold:#c8a24a;--goldD:#a2842f;--amber:#e0453a;
+  --ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e6eaf0;--soft:#f4f7fb;--paper:#fbfcfe;}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif;color:var(--ink);padding:14px 0 120px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:520px;margin:0 auto;padding:0 16px}
+.brandbar{max-width:520px;margin:0 auto 12px;padding:0 16px;display:flex;align-items:center;gap:10px}
+.mk{width:32px;height:32px;flex:0 0 auto;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;display:grid;place-items:center;font-weight:900;font-family:serif;font-size:17px;box-shadow:0 4px 12px rgba(49,130,246,.32)}
+.brandtx b{font-size:15px;color:var(--indigo);font-weight:800}.brandtx span{display:block;font-size:11px;color:var(--mute);margin-top:1px}
+.grade{margin-left:auto;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blueD));padding:5px 11px;border-radius:20px}
+.prog{max-width:520px;margin:0 auto 8px;padding:0 16px}.pbar{height:5px;border-radius:4px;background:#dbe3ef;overflow:hidden}
+.pfill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--mint));transition:width .45s cubic-bezier(.4,0,.2,1)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 2px;max-width:520px;margin:0 auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;font-size:11px;font-weight:700;color:var(--dim);background:#fff;border:1px solid var(--line);padding:6px 11px;border-radius:20px;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:.25s}
+.chip .fn{font-size:12px}
+.chip.on{color:#fff;background:linear-gradient(135deg,var(--blue),var(--indigo));border-color:transparent}
+.chip.done{color:var(--mint);border-color:#bfe9e3;background:#eafaf7}
+.page{display:none;animation:fade .4s ease}.page.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.stagehd{display:flex;align-items:flex-start;gap:13px;margin:6px 2px 14px}
+.stagehd .ico{font-size:26px;line-height:1}
+.stagehd .fbadge{display:inline-block;font-size:10px;font-weight:900;color:#fff;background:var(--mint);padding:3px 9px;border-radius:6px;margin-bottom:6px}
+.stagehd h2{margin:0;font-size:19px;font-weight:900;color:var(--ink)}
+.stagehd .sub{margin:5px 0 0;font-size:13px;color:var(--dim);line-height:1.55}
+.infobox{background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:14px;padding:15px 16px;margin:14px 0;box-shadow:0 6px 18px -12px rgba(20,26,41,.2)}
+.infobox .it{font-size:13px;font-weight:800;color:var(--blueD);margin-bottom:7px}.infobox .ib{font-size:14px;line-height:1.7;color:var(--dim)}.infobox .ib b{color:var(--ink)}
+.rc{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;margin:14px 0;box-shadow:0 10px 30px -16px rgba(20,26,41,.28);position:relative;overflow:hidden}
+.rc::before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--mint),var(--gold))}
+.rc .who{font-size:12px;font-weight:800;color:var(--blue);margin-bottom:10px}
+.rc .core{font-size:14.5px;line-height:1.85;color:#2b3344;font-weight:500}.rc .core b{color:var(--indigo);font-weight:700}
+.rc .src{margin-top:13px;font-size:11.5px;color:var(--mute);font-style:italic;text-align:right}
+.qbox{background:#fff;border:1px solid var(--line);border-left:3px solid var(--blue);border-radius:12px;padding:15px 16px;margin:16px 0 0;box-shadow:0 6px 18px -12px rgba(20,26,41,.18)}
+.qbox.shadow{border-left-color:var(--amber)}.qbox.green{border-left-color:var(--mint)}.qbox.gold{border-left-color:var(--gold)}
+.qbox h4{margin:0 0 8px;font-size:14px;font-weight:800;color:var(--indigo);display:flex;align-items:center;gap:7px}
+.qbox.shadow h4{color:#c0392b}.qbox.green h4{color:#0a8f81}.qbox.gold h4{color:var(--goldD)}
+.qbox p{margin:0;font-size:14.5px;line-height:1.7;color:var(--ink);font-weight:500}
+.qbox .hint{margin-top:9px;font-size:12px;color:var(--blueD);background:#eef4ff;border-radius:8px;padding:7px 10px;line-height:1.55}
+.abox{background:#f7f9fc;border:1px solid var(--line);border-radius:10px;padding:12px 13px;margin-top:8px}
+.abox label{font-size:12px;font-weight:700;color:var(--mint);display:flex;gap:6px;margin-bottom:8px}
+.abox textarea{width:100%;border:1px solid #d7dee8;background:#fff;color:var(--ink);border-radius:10px;padding:12px;font-family:inherit;font-size:15px;line-height:1.7;resize:vertical;min-height:88px}
+.abox textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,246,.14)}
+.q{font-size:15px;font-weight:700;color:var(--ink);line-height:1.6;margin:16px 2px 4px}
+.qhint{font-size:12px;color:var(--mute);margin:2px 2px 10px}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;transition:.2s}
+.opt:hover{border-color:#b9cdf0}.opt .ol{font-size:14px;font-weight:700;color:var(--ink)}.opt .od{font-size:12.5px;color:var(--mute);margin-top:4px;line-height:1.5}
+.opt.on{border-color:var(--blue);background:#eef4ff}.opt.on .ol{color:var(--blueD)}
+/* scale */
+.scalebox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin:14px 0;box-shadow:0 6px 18px -12px rgba(20,26,41,.18)}
+.scalebox .sq{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px}
+.scalebox .ends{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:var(--dim);margin-bottom:5px}
+.scalebox .ends .l{color:var(--blueD)}.scalebox .ends .r{color:var(--mint)}
+.scalebox input[type=range]{width:100%;accent-color:var(--blue)}
+.scalebox .val{text-align:center;font-size:12px;color:var(--mute);margin-top:6px}
+/* stats */
+.stats{display:flex;gap:8px;margin:14px 0}
+.stats .st{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center}
+.stats .st .k{font-size:12px;font-weight:800;color:var(--indigo)}
+.stats .st .v{font-size:12.5px;color:var(--dim);margin-top:4px;font-weight:600}
+/* video */
+.videobox{margin:14px 0}
+.vid{position:relative;width:100%;padding-top:56.25%;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 30px -16px rgba(20,26,41,.4)}
+.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vtitle{font-size:13.5px;font-weight:800;color:var(--ink);margin:10px 2px 4px}
+.vbody{font-size:12.5px;color:var(--dim);line-height:1.6;margin:0 2px}
+.mission{margin-top:10px;background:#eef4ff;border:1px solid #d5e3ff;border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--blueD);line-height:1.55}
+/* radar */
+.radar-wrap{display:flex;flex-direction:column;gap:14px;margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 8px 24px -16px rgba(20,26,41,.25)}
+.radar-wrap svg{width:100%;max-width:300px;margin:0 auto;display:block}
+.legend{display:flex;gap:16px;justify-content:center;font-size:11.5px;margin-top:4px}.legend span{display:flex;align-items:center;gap:5px;color:var(--dim)}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block}
+.sliders{display:flex;flex-direction:column;gap:11px}
+.frq .top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px}.frq .top b{color:var(--ink);font-weight:700}.frq .top .v{color:var(--blue);font-weight:800}
+.frq input[type=range]{width:100%;accent-color:var(--blue)}
+.growth{display:flex;align-items:center;gap:12px;margin-top:14px;background:#eafaf7;border:1px solid #bfe9e3;border-radius:12px;padding:13px 15px}
+.growth .p{font-size:22px;font-weight:900;color:var(--mint)}.growth .t{font-size:13px;font-weight:800;color:var(--ink)}.growth .d{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.5}
+/* 표지 */
+.cover{padding:8px 4px 4px}
+.cover .era{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--mint);margin-bottom:12px;text-align:center}
+.cover h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.35;margin:6px 0 8px;text-align:center;letter-spacing:-.02em}
+.cover .fusion{text-align:center;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--blue),var(--indigo));display:inline-block;padding:6px 16px;border-radius:20px;margin:2px auto 16px}
+.cover .center{text-align:center}
+.cover .lede{font-size:14px;color:var(--dim);line-height:1.85;background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 24px -16px rgba(20,26,41,.22)}
+.roadmap{margin:20px 0 0}.roadmap .rt{font-size:12px;font-weight:800;color:var(--mute);margin:0 2px 12px}
+.rm{display:flex;align-items:flex-start;gap:13px;padding:12px 14px;background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:8px}
+.rm .rn{flex:0 0 auto;width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--soft)}
+.rm .rmtx h4{margin:0;font-size:13px;font-weight:800;color:var(--ink)}.rm .rmtx p{margin:3px 0 0;font-size:11.5px;color:var(--mute);line-height:1.5}
+.gloss{margin:16px 0 0;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 15px}
+.gloss .gt{font-size:12px;font-weight:800;color:var(--indigo);margin-bottom:8px}
+.gloss .gi{font-size:12.5px;color:var(--dim);line-height:1.7;margin:4px 0}.gloss .gi b{color:var(--ink)}
+.disc{font-size:11px;color:var(--mute);background:#fff;border:1px dashed #d7dee8;border-radius:10px;padding:10px 12px;margin:16px 0 0;line-height:1.6}
+.nav{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(244,247,251,0),#f4f7fb 24%);padding:14px 16px calc(14px + env(safe-area-inset-bottom));z-index:40}
+.navin{max-width:520px;margin:0 auto;display:flex;gap:10px}
+.btn{flex:1;border:none;border-radius:13px;padding:15px;font-family:inherit;font-size:15px;font-weight:800;cursor:pointer;transition:.2s}
+.btn.prev{flex:0 0 auto;width:56px;background:#e6ebf3;color:var(--dim)}
+.btn.next{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff}
+.btn.submit{background:linear-gradient(135deg,var(--mint),#0aa596);color:#fff}
+.btn:active{transform:scale(.98)}
+.done-screen{text-align:center;padding:30px 10px}.done-screen .big{font-size:44px;margin-bottom:10px}
+.done-screen h2{color:var(--ink);font-size:22px;margin:0 0 8px}.done-screen p{color:var(--dim);font-size:14px;line-height:1.7}
+.done-screen .card2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:18px;text-align:left;font-size:13px;color:var(--dim);line-height:1.7}.done-screen .card2 b{color:var(--indigo)}
+@media(min-width:560px){body{padding-top:22px}}
+</style>
+</head>
+<body>
+
+<div class="brandbar">
+  <span class="mk">P</span>
+  <div class="brandtx"><b>펜타 비전</b><span>무료 체험 · 우리 아이의 생각 한 편</span></div>
+  <div class="grade" id="gradeChip" style="background:linear-gradient(135deg,#0BB8A6,#0aa596)">무료 체험</div>
+</div>
+<div class="prog"><div class="pbar"><div class="pfill" id="pfill"></div></div></div>
+<div class="chips" id="chips"></div>
+<div class="wrap" id="host"></div>
+<div class="nav"><div class="navin" id="nav"></div></div>
+
+<script>
+/* ★ 실제 서비스 콘텐츠 — penta_catalog id=128 (비전 심화 시즌8-3 · AI) content 원문 그대로 · 무료 체험판 */
+const LESSON = {
+  "unit":8,"week":3,"lesson":3,"season":8,"stage":"vision","level":"architecture",
+  "title":"AI, 과연 인류를 통제할 것인가",
+  "subtitle":"AI의 이로움과 위험을 견주며 ‘누가 방향을 정하는가’를 해부합니다",
+  "intro":"AI의 이로움과 위험을 견주며 ‘누가 방향을 정하는가’를 해부합니다",
+  "theme":"AI — 도구인가 위협인가","fusion":"기술 × 미래 × 윤리","gradeBand":"중1~2","est_min":55,
+  "radarAxes":["수학·논리","과학·기술","역사·사회","심리·인지","예술·디자인"],
+  "glossary":[
+    {"term":"생성형 AI","def":"글·그림·코드를 새로 만들어내는 AI"},
+    {"term":"알고리즘 편향","def":"데이터의 치우침이 결정에 확대되는 문제"},
+    {"term":"딥페이크","def":"AI로 만든 가짜 영상·이미지"},
+    {"term":"AI 정렬","def":"AI를 인간의 가치에 맞게 만드는 일"},
+    {"term":"자율무기","def":"사람 없이 스스로 판단하는 무기"}
+  ],
+  "stages":[
+    {"key":"prep","icon":"🎯","name":"STAGE 1 · 초기 진단","desc":"탐구 전, 지금의 사고 주파수를 스스로 진단합니다.",
+     "blocks":[{"t":"radar","mode":"before","q":"이 주제에 대한 지금 나의 사고 주파수는? (탐구 전)"}]},
+    {"key":"compass","icon":"🧭","name":"STAGE 2 · 가치 좌표","desc":"충돌하는 두 가치 사이에서 내 입장의 좌표를 찍습니다.",
+     "blocks":[
+       {"t":"info","title":"⚖ 오늘의 딜레마","body":"AI는 눈부시게 발전한다. 의료·번역·창작을 돕는 <b>강력한 도구</b>이지만, 일자리·편향·오용·자율무기 같은 <b>위험</b>도 크다. AI는 끝내 <b>인간의 도구</b>로 남을까, 아니면 <b>인간의 통제를 벗어날까?</b> 우리는 발전을 밀어붙일까, 신중히 규제할까?"},
+       {"t":"scale","id":"compass","role":"compass","q":"나의 가치 좌표 — AI를 어떻게 대할 것인가?","min":0,"max":100,"minLabel":"밀어붙여 발전","maxLabel":"신중히 규제"},
+       {"t":"text","id":"hypothesis","head":"🎯 나의 가설 한 줄","q":"위 딜레마에 대한 지금 나의 잠정 입장을 한 문장으로.","hint":"틀려도 좋습니다 — 검증 대상일 뿐.","rows":3}
+     ]},
+    {"key":"read","icon":"📖","name":"STAGE 3 · 개념 읽기","desc":"핵심 개념을 깊이 읽고, 밝은 면과 그늘을 함께 짚습니다.",
+     "blocks":[
+       {"t":"read","title":"🤖 점점 똑똑해지는 AI","source":"알파고~생성형 AI","body":"‘기계가 생각할 수 있는가’를 물은 <b>튜링</b> 이후, AI는 바둑 챔피언을 이긴 <b>알파고</b>를 거쳐, 이제 글·그림·코드를 만드는 <b>생성형 AI</b>에 이르렀다. 번역·의료 진단·연구를 돕는 등 <b>인간 능력을 확장</b>하는 강력한 도구가 되었다. 발전 속도는 상상 이상으로 빠르다."},
+       {"t":"read","title":"⚖ 이로움과 두려움 사이","source":"편익 vs 위험","body":"AI는 편리하지만 그늘도 짙다. <b>일자리 대체</b>, 데이터에 담긴 <b>편향의 확대</b>, <b>가짜정보·딥페이크</b>, 나아가 <b>자율무기</b>까지 — 잘못 쓰이면 큰 해를 끼친다. 특히 AI가 <b>왜 그런 결정을 했는지 사람도 모르는</b> 경우가 늘며, ‘통제할 수 있는가’라는 근본 물음이 커졌다."},
+       {"t":"read","title":"🧭 누가 방향을 정하는가","source":"정렬(alignment)·로봇 3원칙","body":"작가 아시모프는 일찍이 ‘<b>로봇은 인간을 해쳐선 안 된다</b>’는 <b>로봇 3원칙</b>을 상상했다. 오늘날 과학자들은 AI가 <b>인간의 가치에 맞게 작동하도록(정렬)</b> 만드는 일에 매달린다. AI가 인류를 지배할지 아닐지는 정해진 운명이 아니라, <b>인간이 지금 어떤 규칙과 방향을 정하느냐</b>에 달려 있다."},
+       {"t":"choice","id":"view","q":"AI를 대하는 가장 지혜로운 태도는?","hint":"정답은 없다. 근거가 중요하다.","options":[
+         {"v":"tool","label":"강력한 도구로 활용","desc":"이로움을 최대화"},
+         {"v":"caution","label":"위험에 대비·규제","desc":"통제 장치 마련"},
+         {"v":"steer","label":"인간이 방향을 정함","desc":"정렬·규칙이 관건"}
+       ]},
+       {"t":"text","id":"light","head":"🔎 강점·의의","q":"AI가 인류에게 주는 이로움과 그 조건을 논하라.","hint":"AI의 편익.","rows":4},
+       {"t":"text","id":"shadow","head":"🤔 한계·그늘","tone":"shadow","q":"AI의 위험(편향·오용·통제 불능)과 대비책은 무엇인지 분석하라.","hint":"통제·편향.","rows":4}
+     ]},
+    {"key":"video","icon":"🎬","name":"STAGE 4 · 영상으로 확장","desc":"영상으로 시야를 넓히고, 내 논리와 대조합니다.",
+     "blocks":[{"t":"video","id":"video_a","title":"AI, 도구인가 위협인가","body":"AI의 발전과 통제 문제를 영상으로 확인해 보세요.","mission":"‘AI를 인간의 도구로 지키려면’ 필요한 규칙을 하나 제안해 보세요.","ansLabel":"관찰·반응","placeholder":"영상에서 얻은 통찰 / 내 입장과의 차이…","search":"인공지능 AI 위험 통제 정렬 일자리 편향"}]},
+    {"key":"mid","icon":"💭","name":"STAGE 5 · 중간 성찰","desc":"여기까지의 자료로, 처음 가설은 어떻게 흔들렸나요?",
+     "blocks":[{"t":"text","id":"mid_reflect","head":"💭 입장의 이동","q":"“처음엔 ___라 보았으나, ___ 때문에 ___로 이동했다.” 형태로.","hint":"가설이 바뀌었다면 그 근거를 명시.","rows":4}]},
+    {"key":"eyes","icon":"💡","name":"STAGE 6 · 5대 지성으로 해부","desc":"다섯 지성의 렌즈로 주제를 다각도 해부합니다.",
+     "blocks":[
+       {"t":"text","id":"eye1","head":"🔢 수학·논리 렌즈","q":"AI의 이로움과 해로움을 견주어, ‘순이득’이 되는 조건을 논하라.","hint":"득실 저울","rows":4},
+       {"t":"text","id":"eye2","head":"🔬 과학·기술 렌즈","q":"이 문제를 완화할 기술적·제도적 장치를 하나 설계하라.","hint":"장치 설계","rows":4},
+       {"t":"text","id":"eye3","head":"🏛 역사·사회 렌즈","q":"과거의 기술 변화(산업혁명 등)와 지금을 비교하면 무엇이 보이나?","hint":"과거와 비교","rows":4},
+       {"t":"text","id":"eye4","head":"🧠 심리·인지 렌즈","q":"사람들이 AI에 빠지거나 불안해하는 심리는 무엇인가?","hint":"몰입·불안 심리","rows":4},
+       {"t":"text","id":"eye5","head":"🎨 예술·디자인 렌즈","q":"이 주제(AI와 인간)를 한 장의 이미지로 표현한다면?","hint":"이미지로","rows":4}
+     ]},
+    {"key":"make","icon":"🛠","name":"STAGE 7 · 논지 구축","desc":"자료를 종합해 나만의 결론을 세우고, 반론까지 견딥니다.",
+     "blocks":[
+       {"t":"text","id":"project_design","head":"🛠 나의 결론(설계)","q":"AI를 ‘인간을 위해 쓰는’ 원칙 3가지를 세우고 논증하라.","hint":"편익·안전·책임 등 축을 세워도 좋다.","rows":5},
+       {"t":"text","id":"project_lock","head":"🔐 자기 반박(안전장치)","tone":"green","q":"그 원칙이 기술 발전 자체를 지나치게 가로막지 않으려면 무엇이 필요한가?","hint":"스스로 반박해보라.","rows":3},
+       {"t":"text","id":"peer_attack","head":"🙋 예상 반론","q":"“기술은 결국 인간을 대체·지배할 것이다”라는 주장에 어떻게 답할까?","rows":3},
+       {"t":"text","id":"peer_defense","head":"💪 재반론","tone":"gold","q":"기술의 주인이 인간이어야 하는 이유와 그 방법을 논증하라.","rows":3}
+     ]},
+    {"key":"close","icon":"🌟","name":"STAGE 8 · 최종 진단","desc":"탐구 후 사고 주파수를 다시 진단합니다. 확장된 면적이 오늘의 성장입니다.",
+     "blocks":[{"t":"radar","mode":"after","q":"탐구를 마친 지금, 나의 사고 주파수는? (탐구 후)"}]}
+  ],
+  "submit":{"label":"제출하기","note":"제출하면 담당 컨설턴트가 검토·확정한 뒤 PentaView 리포트가 발행됩니다."}
+};
+
+/* ── 렌더러 (실제 arche_penta_workbook.js 블록 타입 호환: radar/info/read/text/choice/scale/stats/video) ── */
+const AXES = LESSON.radarAxes;
+const AXES_SHORT = AXES.map(a=>a.split('·')[0]);
+const state = { answers:{}, scales:{}, radar_before:[5,5,5,5,5], radar_after:[5,5,5,5,5], step:0 };
+const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const rich = s => (s==null?'':String(s));
+const STEPS = [{cover:true}].concat(LESSON.stages.map((s,i)=>({stage:s,i})));
+const TOTAL = STEPS.length;
+const host=document.getElementById('host'),chipsEl=document.getElementById('chips'),navEl=document.getElementById('nav'),pfill=document.getElementById('pfill');
+document.getElementById('gradeChip').textContent=LESSON.gradeBand||'';
+
+function radarPts(vals,cx,cy,r){return vals.map((v,i)=>{const a=-Math.PI/2+i*2*Math.PI/5;const rr=r*(v/10);return [cx+rr*Math.cos(a),cy+rr*Math.sin(a)];});}
+function radarSVG(before,after){
+  const cx=150,cy=140,r=95;let g='';
+  [0.33,0.66,1].forEach(k=>{const p=radarPts([10,10,10,10,10].map(x=>x*k),cx,cy,r).map(pt=>pt.join(',')).join(' ');g+=`<polygon points="${p}" fill="none" stroke="#dbe3ef" stroke-width="1"/>`;});
+  for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;g+=`<line x1="${cx}" y1="${cy}" x2="${cx+r*Math.cos(a)}" y2="${cy+r*Math.sin(a)}" stroke="#dbe3ef" stroke-width="1"/>`;}
+  const bp=radarPts(before,cx,cy,r).map(pt=>pt.join(',')).join(' ');
+  g+=`<polygon points="${bp}" fill="rgba(148,171,204,.25)" stroke="#94abcc" stroke-width="2"/>`;
+  if(after){const ap=radarPts(after,cx,cy,r).map(pt=>pt.join(',')).join(' ');g+=`<polygon points="${ap}" fill="rgba(49,130,246,.26)" stroke="#3182f6" stroke-width="2.5"/>`;}
+  for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;const lx=cx+(r+22)*Math.cos(a),ly=cy+(r+22)*Math.sin(a);g+=`<text x="${lx}" y="${ly}" fill="#4e5968" font-size="11.5" font-weight="700" text-anchor="middle" dominant-baseline="middle">${esc(AXES_SHORT[i])}</text>`;}
+  return `<svg viewBox="0 0 300 285">${g}</svg>`;
+}
+function areaOf(v){let a=0;for(let i=0;i<5;i++){a+=v[i]*v[(i+1)%5];}return a;}
+
+function renderBlock(b){
+  const t=b.t||b.type;const d=document.createElement('div');
+  if(t==='info'){d.innerHTML=`<div class="infobox">${b.title?`<div class="it">${esc(b.title)}</div>`:''}<div class="ib">${rich(b.body)}</div></div>`;}
+  else if(t==='read'){d.innerHTML=`<div class="rc"><div class="who">${esc(b.title||'읽기 자료')}</div><div class="core">${rich(b.body)}</div>${b.source?`<div class="src">— ${esc(b.source)}</div>`:''}</div>`;}
+  else if(t==='stats'){d.innerHTML=`<div class="stats">${(b.items||[]).map(it=>`<div class="st"><div class="k">${esc(it.k)}</div><div class="v">${esc(it.v)}</div></div>`).join('')}</div>`;}
+  else if(t==='text'){
+    const tone=b.tone?(' '+b.tone):'';
+    d.innerHTML=`<div class="qbox${tone}"><h4>${esc(b.head||'생각해 보기')}</h4><p>${rich(b.q)}</p>${b.hint?`<div class="hint">✏️ ${esc(b.hint)}</div>`:''}</div>
+      <div class="abox"><label>✎ ${esc(b.ansLabel||'내 생각')}</label><textarea rows="${b.rows||4}" placeholder="${esc(b.placeholder||'여기에 생각을 적어 보세요')}">${esc(state.answers[b.id]||'')}</textarea></div>`;
+    const ta=d.querySelector('textarea');ta.addEventListener('input',()=>{state.answers[b.id]=ta.value;});
+  }
+  else if(t==='choice'){
+    const multi=!!b.multi;
+    let h=`<div class="q">${esc(b.q)}</div>${b.hint?`<div class="qhint">${esc(b.hint)}</div>`:''}<div class="opts">`;
+    (b.options||[]).forEach(o=>{const cur=state.answers[b.id];const on=multi?(Array.isArray(cur)&&cur.indexOf(o.v)>=0):(cur===o.v);
+      h+=`<div class="opt${on?' on':''}" data-v="${esc(o.v)}"><div class="ol">${esc(o.label)}</div>${o.desc?`<div class="od">${esc(o.desc)}</div>`:''}</div>`;});
+    d.innerHTML=h+'</div>';
+    d.querySelectorAll('.opt').forEach(op=>op.addEventListener('click',()=>{const v=op.getAttribute('data-v');
+      state.answers[b.id]=v;d.querySelectorAll('.opt').forEach(x=>x.classList.remove('on'));op.classList.add('on');}));
+  }
+  else if(t==='scale'){
+    const cur=(state.scales[b.id]!=null)?state.scales[b.id]:Math.round(((b.min||0)+(b.max||100))/2);
+    state.scales[b.id]=cur;
+    d.innerHTML=`<div class="scalebox"><div class="sq">${esc(b.q)}</div>
+      <div class="ends"><span class="l">◀ ${esc(b.minLabel||'')}</span><span class="r">${esc(b.maxLabel||'')} ▶</span></div>
+      <input type="range" min="${b.min||0}" max="${b.max||100}" value="${cur}">
+      <div class="val">현재 위치: <b id="sv_${esc(b.id)}">${cur}</b> / ${b.max||100}</div></div>`;
+    const rg=d.querySelector('input'),sv=d.querySelector('#sv_'+b.id);
+    rg.addEventListener('input',()=>{state.scales[b.id]=+rg.value;if(sv)sv.textContent=rg.value;});
+  }
+  else if(t==='video'){
+    let vid='';try{const u=new URL(b.url);vid=u.searchParams.get('v')||'';}catch(e){}
+    const emb=vid?`<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${esc(vid)}" title="${esc(b.title||'')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`:'';
+    d.innerHTML=`<div class="videobox">${emb}<div class="vtitle">🎬 ${esc(b.title||'영상')}</div>${b.body?`<div class="vbody">${esc(b.body)}</div>`:''}${b.mission?`<div class="mission">🎯 미션 · ${esc(b.mission)}</div>`:''}
+      <div class="abox" style="margin-top:10px"><label>✎ ${esc(b.ansLabel||'관찰·반응')}</label><textarea rows="4" placeholder="${esc(b.placeholder||'')}">${esc(state.answers[b.id]||'')}</textarea></div></div>`;
+    const ta=d.querySelector('textarea');ta.addEventListener('input',()=>{state.answers[b.id]=ta.value;});
+  }
+  else if(t==='radar'){
+    const isBefore=b.mode==='before';const arr=isBefore?state.radar_before:state.radar_after;
+    let sl='';AXES.forEach((ax,i)=>{sl+=`<div class="frq" data-i="${i}"><div class="top"><b>${esc(ax)}</b><span class="v">${arr[i]}</span></div><input type="range" min="0" max="10" value="${arr[i]}"></div>`;});
+    const legend=isBefore?'':`<div class="legend"><span><span class="sw" style="background:#94abcc"></span>탐구 전</span><span><span class="sw" style="background:#3182f6"></span>탐구 후</span></div>`;
+    const growth=isBefore?'':`<div class="growth"><div class="p" id="gp">+0%</div><div><div class="t">지성 확장</div><div class="d">파란 면적(지금)이 회색 면적(처음)보다 넓어진 만큼, 사고가 확장된 거예요.</div></div></div>`;
+    d.innerHTML=`<div class="q" style="margin-top:8px">${esc(b.q)}</div><div class="radar-wrap"><div id="rsvg">${radarSVG(isBefore?arr:state.radar_before,isBefore?null:arr)}</div>${legend}<div class="sliders">${sl}</div></div>${growth}`;
+    d.querySelectorAll('.frq').forEach(row=>{const i=+row.getAttribute('data-i'),rg=row.querySelector('input'),vv=row.querySelector('.v');
+      rg.addEventListener('input',()=>{vv.textContent=rg.value;arr[i]=+rg.value;
+        d.querySelector('#rsvg').innerHTML=radarSVG(isBefore?arr:state.radar_before,isBefore?null:arr);
+        if(!isBefore){const bA=areaOf(state.radar_before)||1;const aA=areaOf(state.radar_after);const pct=Math.round((aA-bA)/bA*100);const gp=d.querySelector('#gp');if(gp)gp.textContent=(pct>=0?'+':'')+pct+'%';}});});
+  }
+  return d;
+}
+
+function renderCover(){
+  const s=LESSON;const el=document.createElement('div');el.className='cover';
+  el.innerHTML=`<div class="era">시즌 ${s.season} · ${s.week}주차 · 비전 심화</div>
+    <h1>${esc(s.title)}</h1>
+    <div class="center"><span class="fusion">${esc(s.fusion||'')}</span></div>
+    <div class="lede">${esc(s.subtitle||s.intro||'')}<br><br>오늘은 <b>${esc(s.theme)}</b>를 <b>${esc(s.fusion||'')}</b>의 눈으로 파고들어, 마지막에 나만의 논지를 세웁니다. 예상 소요 <b>${s.est_min||'—'}분</b>.</div>
+    <div class="roadmap"><div class="rt">오늘의 탐구 여정 · ${s.stages.length}단계</div>
+      ${s.stages.map(st=>`<div class="rm"><div class="rn">${st.icon}</div><div class="rmtx"><h4>${esc(st.name)}</h4><p>${esc(st.desc||'')}</p></div></div>`).join('')}</div>
+    ${(s.glossary&&s.glossary.length)?`<div class="gloss"><div class="gt">📌 핵심 용어</div>${s.glossary.map(g=>`<div class="gi"><b>${esc(g.term)}</b> — ${esc(g.def)}</div>`).join('')}</div>`:''}
+    <div class="disc">ⓘ 이 워크북은 <b>학생이 직접 사고하고 쓰도록</b> 설계되었습니다. AI는 정답을 주지 않고 <b>되묻습니다.</b> 제출하면 담당 컨설턴트 검토 후 <b>PentaView 리포트</b>가 발행됩니다.</div>`;
+  return el;
+}
+function renderStage(st){
+  const el=document.createElement('div');
+  el.innerHTML=`<div class="stagehd"><div class="ico">${st.icon}</div><div><span class="fbadge">${esc(st.name.split('·')[0].trim())}</span><h2>${esc((st.name.split('·')[1]||st.name).trim())}</h2><p class="sub">${esc(st.desc||'')}</p></div></div>`;
+  (st.blocks||[]).forEach(b=>el.appendChild(renderBlock(b)));return el;
+}
+function renderDone(){
+  const el=document.createElement('div');el.className='done-screen';
+  el.innerHTML=`<div class="big">🌟</div><h2>방금, 아이의 생각 한 편이 만들어졌어요</h2>
+    <p>답을 받아 적은 게 아니라 — <b>스스로 묻고, 근거를 찾고, 반론을 견디고, 생각을 고쳤습니다.</b><br>이게 펜타의 한 회차예요. 1년이면 <b>이런 탐구 52편</b>이 쌓입니다.</p>
+    <div class="card2"><b>부모님은 이걸 받아보십니다</b><br>· 아이의 <b>처음 생각 → 탐구 후 생각</b>이 나란히 남아요 ("A라고 했다가 B로 깊어졌네")<br>· 5대 지성 성장 레이더 <b>Before/After</b>로 변화가 눈에 보여요<br>· 점수가 아니라 <b>생각의 궤적</b>이 기록으로 누적됩니다</div>
+    <a href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:18px;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)">우리 아이도 시작하기 →</a>
+    <div style="font-size:12px;color:#8b95a1;margin-top:10px">런칭 기념 · 첫 3개월 반값 · 선착순</div>`;
+  return el;
+}
+function render(){
+  const st=STEPS[state.step];host.innerHTML='';
+  const page=document.createElement('div');page.className='page on';
+  if(state.step===TOTAL)page.appendChild(renderDone());
+  else if(st.cover)page.appendChild(renderCover());
+  else page.appendChild(renderStage(st.stage));
+  host.appendChild(page);window.scrollTo({top:0,behavior:'smooth'});
+  pfill.style.width=Math.round(state.step/TOTAL*100)+'%';
+  chipsEl.innerHTML='';
+  LESSON.stages.forEach((s,i)=>{const stepIdx=i+1;const c=document.createElement('div');c.className='chip'+(state.step===stepIdx?' on':(state.step>stepIdx?' done':''));
+    c.innerHTML=`<span class="fn">${s.icon}</span>${esc((s.name.split('·')[1]||s.name).trim())}`;
+    c.addEventListener('click',()=>{state.step=stepIdx;render();});chipsEl.appendChild(c);});
+  navEl.innerHTML='';
+  if(state.step>0&&state.step<=TOTAL){const p=document.createElement('button');p.className='btn prev';p.textContent='←';p.onclick=()=>{if(state.step>0){state.step--;render();}};navEl.appendChild(p);}
+  if(state.step<TOTAL-1){const n=document.createElement('button');n.className='btn next';n.textContent=state.step===0?'탐구 시작 →':'다음 단계 →';n.onclick=()=>{state.step++;render();};navEl.appendChild(n);}
+  else if(state.step===TOTAL-1){const sb=document.createElement('button');sb.className='btn submit';sb.textContent='🌟 '+LESSON.submit.label;sb.onclick=()=>{state.step=TOTAL;render();};navEl.appendChild(sb);}
+  else{const r=document.createElement('button');r.className='btn next';r.textContent='처음부터 다시 보기';r.onclick=()=>{state.step=0;render();};navEl.appendChild(r);}
+}
+render();
+</script>
+</body>
+</html>

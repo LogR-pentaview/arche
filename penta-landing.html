@@ -1,0 +1,189 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PENTA · AI가 답을 주는 시대, 아이의 생각을 키웁니다</title>
+<meta name="description" content="AI가 답을 대신 써주는 시대. PENTA는 답을 주지 않고 아이에게 되묻습니다. 매주 하나의 질문으로 스스로 생각하는 힘을 키우고, 그 변화를 리포트로 봅니다.">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--indigo:#1A237E;--blue:#3182f6;--blueD:#1b64da;--mint:#0BB8A6;--gold:#c8a24a;--ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e6eaf0;--soft:#f4f7fb}
+html,body{background:#fff}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
+.wrap{max-width:480px;margin:0 auto}
+.sec{padding:52px 22px}
+.eyebrow{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blueD);background:#e8f1ff;border-radius:20px;padding:6px 13px;margin-bottom:16px}
+.eyebrow.mint{color:#0a8f81;background:#e6faf6}
+h1{font-size:30px;line-height:1.32;font-weight:900;letter-spacing:-.03em}
+h2{font-size:23px;line-height:1.35;font-weight:900;letter-spacing:-.02em}
+.g{color:var(--blue)}.gi{color:var(--indigo)}
+.lead{font-size:15px;color:var(--dim);line-height:1.75;margin-top:14px}
+.lead b{color:var(--ink);font-weight:700}
+.btn{display:block;text-align:center;border-radius:14px;font-size:16px;font-weight:800;padding:16px;text-decoration:none;transition:.15s}
+.btn:active{transform:scale(.99)}
+.btn.p{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 10px 24px -8px rgba(49,130,246,.55)}
+.btn.mint{background:linear-gradient(135deg,var(--mint),#0aa596);color:#fff;box-shadow:0 10px 24px -8px rgba(11,184,166,.5)}
+.btn.ghost{background:#fff;color:var(--indigo);border:1.5px solid #d3ddf1}
+.cta{display:flex;flex-direction:column;gap:10px;margin-top:24px}
+/* nav */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 22px}
+.logo{font-size:20px;font-weight:900;letter-spacing:-.02em;color:var(--indigo)}.logo b{color:var(--blue)}
+.navcta{font-size:12.5px;font-weight:800;color:#fff;background:var(--indigo);border-radius:20px;padding:8px 14px;text-decoration:none}
+/* hero */
+.hero{background:linear-gradient(180deg,#eef3fb,#fff 70%);padding-top:16px}
+.trust{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.trust span{font-size:11.5px;font-weight:700;color:var(--dim);background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:6px 11px}
+/* problem chips */
+.think{background:#0e1524;color:#e7ecf5;border-radius:18px;padding:20px;margin-top:24px}
+.think .t{font-size:12px;font-weight:800;color:#7f8db0;margin-bottom:12px}
+.think .b{font-size:14.5px;line-height:1.7;color:#dbe3f2;background:#161f34;border-radius:12px;padding:12px 14px;margin-bottom:9px;border-left:3px solid #37507f}
+.think .b:last-child{margin-bottom:0}
+.think .b b{color:#fff}
+/* solve */
+.solve{background:var(--indigo);color:#fff}
+.solve .eyebrow{color:#c7d3ff;background:rgba(255,255,255,.12)}
+.solve h2{color:#fff}
+.solve .lead{color:#c7d1e8}.solve .lead b{color:#fff}
+.solve .big{font-size:21px;font-weight:900;line-height:1.5;margin-top:20px}
+.solve .big .u{color:#ffd979}
+/* flow */
+.flow{display:flex;flex-direction:column;gap:0;margin-top:24px}
+.fstep{display:flex;gap:13px;align-items:flex-start;position:relative;padding-bottom:16px}
+.fstep:not(:last-child)::before{content:"";position:absolute;left:17px;top:34px;bottom:0;width:2px;background:var(--line)}
+.fstep .fn{flex:0 0 auto;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:17px;background:#fff;border:1.5px solid var(--line);z-index:1}
+.fstep.on .fn{background:linear-gradient(135deg,var(--blue),var(--indigo));border-color:transparent}
+.fstep .ft{font-size:11px;font-weight:800;color:var(--mute)}
+.fstep .fb{font-size:14.5px;font-weight:700;color:var(--ink);margin-top:2px;line-height:1.5}
+.fstep .fb .ai{color:var(--blue)}
+.samplecard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:6px;margin-top:26px;box-shadow:0 18px 44px -22px rgba(20,26,41,.4)}
+.samplecard .inner{background:var(--soft);border-radius:14px;padding:18px 16px}
+.samplecard .q{font-size:15px;font-weight:800;color:var(--indigo);line-height:1.5}
+.samplecard .tag{font-size:11px;font-weight:800;color:var(--mint);margin-bottom:6px}
+/* change */
+.change .compare{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+.cbox{border-radius:14px;padding:15px 16px;border:1px solid var(--line)}
+.cbox .cl{font-size:11.5px;font-weight:800;margin-bottom:6px}
+.cbox.before{background:#fbfcfe}.cbox.before .cl{color:var(--mute)}
+.cbox.after{background:#eef4ff;border-color:#cfe0ff}.cbox.after .cl{color:var(--blueD)}
+.cbox .cq{font-size:14.5px;line-height:1.6;color:var(--ink)}
+.arrow{text-align:center;color:var(--blue);font-size:20px;font-weight:900}
+.insight{margin-top:16px;background:#0e1524;color:#fff;border-radius:14px;padding:16px 18px;font-size:14.5px;line-height:1.7}
+.insight b{color:#ffd979}
+/* price */
+.price{background:linear-gradient(180deg,#f4f7fb,#fff);text-align:center}
+.pcard{background:var(--indigo);color:#fff;border-radius:22px;padding:30px 24px;box-shadow:0 20px 50px -22px rgba(26,35,126,.6)}
+.pcard .pk{font-size:12px;font-weight:800;color:#9fb0e0;letter-spacing:.04em}
+.pcard .pbig{font-size:30px;font-weight:900;margin:10px 0 4px;letter-spacing:-.02em}
+.pcard .psub{font-size:13.5px;color:#c7d1e8;line-height:1.7;margin-bottom:6px}
+.pcard .pprice{font-size:15px;color:#fff;margin-top:14px}.pcard .pprice b{font-size:26px;font-weight:900}
+.pcard .promo{font-size:12.5px;color:#ffd979;font-weight:700;margin-top:8px}
+.pcard .btn{margin-top:18px}
+.finehelp{font-size:11.5px;color:var(--mute);line-height:1.7;margin-top:16px}
+/* foot */
+.foot{padding:34px 22px 46px;text-align:center;color:var(--mute);font-size:11.5px;line-height:1.9;border-top:1px solid var(--line)}
+.foot b{color:var(--dim)}
+</style></head>
+<body><div class="wrap">
+
+<div class="nav">
+  <div class="logo">PEN<b>TA</b></div>
+  <a class="navcta" href="#trial">무료 체험</a>
+</div>
+
+<!-- ① 문제 -->
+<section class="sec hero">
+  <span class="eyebrow">초5–고교 · 학부모–학생 루프</span>
+  <h1>AI가 답을 <span class="g">대신 써주는</span> 시대.<br>우리 아이는 지금<br><span class="gi">'공부'</span>하고 있는 걸까요?</h1>
+  <p class="lead">숙제도, 독후감도, 발표 자료도 이제 AI가 몇 초 만에 만들어 줍니다. 아이는 <b>답을 받아 제출</b>하는 건 쉬워졌지만, <b>스스로 생각하는 일</b>은 오히려 더 드물어졌습니다.</p>
+  <div class="think">
+    <div class="t">요즘 부모님들이 하시는 걱정</div>
+    <div class="b">"AI가 숙제 해주는 거랑 <b>뭐가 다른</b> 거지?"</div>
+    <div class="b">"학원은 성적을 올려주는데, <b>생각하는 힘</b>은 누가 키워주지?"</div>
+    <div class="b">"우리 아이가 <b>실제로 달라졌다</b>는 걸 내가 어떻게 알지?"</div>
+  </div>
+  <div class="cta">
+    <a class="btn mint" href="#trial">🎬 우리 아이가 뭘 하는지 5분만 직접 보기</a>
+    <a class="btn ghost" href="#solve">PENTA가 뭔가요?</a>
+  </div>
+  <div class="trust"><span>🏅 특허 출원 기술</span><span>📚 20년 교육 현장</span><span>🟢 실서비스 중</span></div>
+</section>
+
+<!-- ② 해결 -->
+<section class="sec solve" id="solve">
+  <span class="eyebrow">PENTA는 이렇게 다릅니다</span>
+  <h2>답을 주지 않습니다.<br>아이에게 <span style="color:#8fd3ff">되묻습니다.</span></h2>
+  <p class="lead">PENTA는 정답을 떠먹여 주는 학습이 아닙니다. 아이가 스스로 생각하도록 <b>질문하고, 자료를 보여주고, 반대 의견을 던지고, 다시 생각하게</b> 합니다. 학원이 채워주지 못하는 딱 한 가지 — <b>스스로 생각하는 힘</b>을 키웁니다.</p>
+  <div class="big">AI에게 <span class="u">답을 받는</span> 학습이 아니라,<br>AI와 <span class="u">함께 생각하는</span> 학습.</div>
+  <p class="lead" style="margin-top:18px;font-size:13.5px">여기서 주인공은 AI가 아닙니다. <b style="color:#fff">아이의 생각</b>이 주인공이고, AI는 그 생각을 끌어내는 조력자일 뿐입니다.</p>
+</section>
+
+<!-- ③ 실제 경험 -->
+<section class="sec" id="trial">
+  <span class="eyebrow mint">EXPERIENCE · 5분이면 충분합니다</span>
+  <h2>PENTA에서는<br><span class="gi">이렇게</span> 공부합니다.</h2>
+  <p class="lead">하나의 질문에서 출발해, 아이의 생각이 어떻게 깊어지는지 — 설명 대신 직접 보여드릴게요.</p>
+  <div class="flow">
+    <div class="fstep on"><div class="fn">❓</div><div><div class="ft">하나의 질문</div><div class="fb">"AI는 끝내 인간의 도구로 남을까, 통제를 벗어날까?"</div></div></div>
+    <div class="fstep"><div class="fn">💬</div><div><div class="ft">내 생각</div><div class="fb">"편리하니까 계속 발전시켜야 한다."</div></div></div>
+    <div class="fstep"><div class="fn">🦉</div><div><div class="ft">AI의 되물음</div><div class="fb"><span class="ai">"그렇다면 AI가 잘못을 저질러도, 그 책임은 누가 지지?"</span></div></div></div>
+    <div class="fstep"><div class="fn">📚</div><div><div class="ft">자료 탐구</div><div class="fb">튜링 · 알파고 · 생성형 AI · 로봇 3원칙</div></div></div>
+    <div class="fstep"><div class="fn">🔗</div><div><div class="ft">다섯 관점으로 연결</div><div class="fb">역사 · 과학 · 심리 · 논리 · 예술</div></div></div>
+    <div class="fstep"><div class="fn">⚖️</div><div><div class="ft">반론 견디기</div><div class="fb">"네 주장에 반대하는 사람이 있다면?"</div></div></div>
+    <div class="fstep"><div class="fn">✍️</div><div><div class="ft">생각의 수정</div><div class="fb">"처음엔 무조건 발전이라 봤지만 — <b>안전장치와 책임 규칙이 먼저</b>라고 생각을 고쳤다."</div></div></div>
+  </div>
+  <div class="samplecard"><div class="inner">
+    <div class="tag">실제 체험 회차 · 비전 심화</div>
+    <div class="q">"AI, 과연 인류를 통제할 것인가?"</div>
+    <p class="lead" style="margin-top:8px;font-size:13px">로그인 없이, 지금 바로 우리 아이가 푸는 방식 그대로 체험해보세요.</p>
+  </div></div>
+  <div class="cta">
+    <a class="btn p" href="trial-ai-workbook.html">🎬 무료 체험 1강 시작하기</a>
+  </div>
+</section>
+
+<!-- ④ 변화 -->
+<section class="sec change" style="background:var(--soft)">
+  <span class="eyebrow">PROOF · 점수가 아니라 '변화'를 봅니다</span>
+  <h2>우리 아이의<br>생각이 자란 순간.</h2>
+  <p class="lead">PENTA는 아이의 <b>처음 생각</b>과 <b>탐구 후 생각</b>을 나란히 남깁니다. 부모님은 점수표가 아니라, 아이의 생각이 자라는 장면을 직접 보십니다.</p>
+  <div class="compare">
+    <div class="cbox before"><div class="cl">처음 생각</div><div class="cq">"스마트폰은 공부에 방해되니까 무조건 금지해야 한다."</div></div>
+    <div class="arrow">↓</div>
+    <div class="cbox after"><div class="cl">탐구 후 생각</div><div class="cq">"무조건 금지보다는, 사용 시간과 목적에 따라 조건을 정하는 게 낫다고 생각한다."</div></div>
+  </div>
+  <div class="insight">주장 → 근거 → 반론 → 수정.<br><b>생각이 한 단계 깊어졌다는 것</b> — 이게 72점이라는 숫자보다 부모에게 훨씬 또렷한 성장입니다.</div>
+</section>
+
+<!-- ⑤ 상품 -->
+<section class="sec price" id="start">
+  <div class="pcard">
+    <div class="pk">🌈 PENTA · 1년 생각 커리큘럼</div>
+    <div class="pbig">1년, 52편의 생각</div>
+    <div class="psub">매주 하나의 질문으로<br>읽고 → 생각하고 → 질문하고 → 탐구하고 →<br>반박하고 → 다시 생각합니다.</div>
+    <div class="pprice">월 <b>12,900원</b><span style="color:#9fb0e0;font-size:13px">부터</span></div>
+    <div class="promo">🎉 런칭 기념 · 첫 3개월 반값 · 선착순 <span id="promoLeft">96</span>자리</div>
+    <a class="btn mint" href="https://arche.penta-view.com/parent?trial=1">우리 아이 생각, 지금 시작하기 →</a>
+  </div>
+  <div class="finehelp">체험은 무료 · 언제든 해지 · 카드 등록 시 선착순 확정<br>초5–중2 펜타 비전 · 중3 펜타 트랙 · 고교 펜타 아르케</div>
+</section>
+
+<div class="foot">
+  PENTA · Log.R 입시연구소<br>
+  <b>arche.penta-view.com</b><br>
+  AI가 답을 주는 시대, 우리는 생각하는 아이를 키웁니다.
+</div>
+
+</div>
+<script>
+/* 선착순 카운터 (promo_status · anon) */
+(function(){try{
+  var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/promo_status",K="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
+  fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K},body:JSON.stringify({p_code:'LAUNCH50'})})
+    .then(function(r){return r.json();}).then(function(d){ if(d&&typeof d.remaining!=='undefined'){var e=document.getElementById('promoLeft');if(e)e.textContent=d.remaining;}}).catch(function(){});
+}catch(e){}})();
+/* 방문 집계 */
+(function(){try{
+  var Kk='arche_vid',vid=localStorage.getItem(Kk);if(!vid){vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(Kk,vid);}
+  var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit",K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
+  fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
+}catch(e){}})();
+</script>
+</body></html>
