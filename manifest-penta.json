@@ -1,0 +1,19 @@
+{
+  "id": "/?app=penta",
+  "name": "펜타 시리즈 · 스스로 생각하는 힘",
+  "short_name": "펜타 시리즈",
+  "description": "AI가 답을 주는 시대, 아이의 생각을 키우는 융합사고·진로 학습 — 펜타 시리즈",
+  "start_url": "/parent?src=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#0f1533",
+  "theme_color": "#3182f6",
+  "lang": "ko",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
