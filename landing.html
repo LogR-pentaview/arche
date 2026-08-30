@@ -1,0 +1,184 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#3182f6">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="manifest" href="/manifest-penta.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="펜타 시리즈">
+<title>PENTA · 스스로 생각하는 아이로</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{--navy:#141a29;--indigo:#1A237E;--blue:#3182f6;--blueD:#1b64da;--mint:#0BB8A6;--gold:#c8a24a;--ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e8ebf0;--soft:#f4f7fb}
+  html,body{font-family:'Noto Sans CJK KR','Noto Sans KR',sans-serif;color:var(--ink);background:#fff;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:460px;margin:0 auto;background:#fff}
+  /* nav */
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+  .logo{font-size:20px;font-weight:900;letter-spacing:-.02em;color:var(--indigo)}
+  .logo b{color:var(--blue)}
+  .navcta{font-size:12.5px;font-weight:800;color:#fff;background:var(--navy);border-radius:20px;padding:8px 14px}
+  /* hero */
+  .hero{padding:14px 20px 26px;background:linear-gradient(180deg,#f7f9fd 0%,#fff 100%)}
+  .eyebrow{display:inline-block;font-size:12px;font-weight:800;color:var(--blueD);background:#e8f1ff;border-radius:20px;padding:6px 13px;margin-bottom:16px}
+  h1{font-size:32px;line-height:1.25;font-weight:900;letter-spacing:-.03em}
+  h1 .g{color:var(--blue)}
+  .lead{font-size:15px;color:var(--dim);margin-top:14px;line-height:1.65}
+  .lead b{color:var(--ink);font-weight:700}
+  .cta{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+  .btn{display:block;text-align:center;border-radius:14px;font-size:16px;font-weight:800;padding:16px;text-decoration:none}
+  .btn.p{background:var(--blue);color:#fff;box-shadow:0 8px 20px rgba(49,130,246,.32)}
+  .btn.s{background:#fff;color:var(--indigo);border:1.5px solid #d3ddf1}
+  .trust{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px;justify-content:center}
+  .trust span{font-size:11.5px;font-weight:700;color:var(--dim);background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:5px 11px}
+  .promo{display:flex;align-items:center;justify-content:center;gap:8px;margin:6px 20px 2px;background:linear-gradient(135deg,#1A237E,#3949ab);color:#fff;border-radius:14px;padding:11px 14px;font-size:13px;font-weight:800;text-align:center;line-height:1.45}
+  .promo .b{color:#ffd979}
+  .promo .dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.22);flex:none}
+  /* report card (proof) */
+  .proof{margin:8px 20px 0;background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 14px 40px rgba(20,26,41,.10);padding:18px 18px 20px}
+  .proof .ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+  .proof .pt{font-size:13.5px;font-weight:800;color:var(--indigo)}
+  .proof .pchip{font-size:10.5px;font-weight:800;color:#5a6b7b;background:#eef2f7;border-radius:20px;padding:3px 9px}
+  .proof .pm{font-size:11px;color:var(--mute);margin-bottom:12px}
+  .bar{display:flex;align-items:center;gap:9px;margin:9px 0}
+  .bar .bl{font-size:11.5px;width:66px;color:var(--ink);font-weight:600;flex:none}
+  .bar .track{flex:1;height:15px;border-radius:8px;background:#e9eef5;position:relative;overflow:hidden}
+  .bar .fA{position:absolute;left:0;top:0;bottom:0;background:#c9d6e8;border-radius:8px}
+  .bar .fB{position:absolute;top:0;bottom:0;border-radius:6px}
+  .bar .bd{font-size:11px;font-weight:800;width:70px;text-align:right;flex:none}
+  .goldq{margin-top:14px;background:#eef0fb;border-radius:12px;padding:11px 13px}
+  .goldq .qh{font-size:10.5px;font-weight:800;color:var(--indigo)}
+  .goldq .qt{font-size:11.5px;font-style:italic;color:var(--ink);margin-top:4px;line-height:1.5}
+  /* section */
+  .sec{padding:36px 20px 8px}
+  .kick{font-size:12px;font-weight:800;color:var(--blue);letter-spacing:.02em;text-align:center}
+  .st{font-size:23px;font-weight:900;letter-spacing:-.02em;text-align:center;margin-top:6px;line-height:1.3}
+  .ss{font-size:13.5px;color:var(--dim);text-align:center;margin-top:8px;line-height:1.6}
+  /* 3 steps */
+  .steps{margin-top:22px;display:flex;flex-direction:column;gap:12px}
+  .step{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:16px;padding:15px 16px;background:#fff}
+  .step .ic{width:44px;height:44px;border-radius:13px;flex:none;display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff}
+  .step .tt{font-size:15.5px;font-weight:800}
+  .step .dd{font-size:12.5px;color:var(--dim);margin-top:3px;line-height:1.55}
+  /* journey */
+  .jrny{margin-top:20px;display:flex;flex-direction:column;gap:10px}
+  .jr{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:14px;padding:13px 15px}
+  .jr .badge{font-size:10.5px;font-weight:800;color:#fff;border-radius:8px;padding:4px 9px;flex:none}
+  .jr .jt{font-size:14.5px;font-weight:800}
+  .jr .jd{font-size:11.5px;color:var(--mute)}
+  .jr .arrow{margin-left:auto;color:#c3ccd8;font-size:16px}
+  /* price */
+  .price{margin:26px 20px 0;background:var(--navy);border-radius:22px;padding:26px 22px;color:#fff;text-align:center}
+  .price .pk{font-size:12px;font-weight:800;color:#9fb0cc;letter-spacing:.04em}
+  .price .pp{font-size:34px;font-weight:900;margin-top:8px;letter-spacing:-.02em}
+  .price .pp small{font-size:15px;font-weight:700;color:#cad6ea}
+  .price .pnote{font-size:12px;color:#aeb9cc;margin-top:8px}
+  .price .btn{margin-top:18px;background:var(--blue);color:#fff}
+  .price .free{font-size:12px;color:#cad6ea;margin-top:12px}
+  /* footer */
+  .foot{padding:30px 20px 40px;text-align:center;color:var(--mute);font-size:11.5px;line-height:1.8}
+  .foot .fl{color:var(--blueD);font-weight:700}
+</style></head>
+<body><div class="wrap">
+
+  <div class="nav">
+    <div class="logo">PEN<b>TA</b></div>
+    <a class="navcta" href="#start">무료 진단</a>
+  </div>
+
+  <div class="promo"><span class="dot"></span>🎉 런칭 기념 · 선착순 <span class="b" id="promo-left">100</span>/100명 · 첫 3개월 <span class="b">반값</span></div>
+
+  <!-- HERO · 10초 이해 -->
+  <section class="hero">
+    <span class="eyebrow">초5–고교 · AI 사고력 성장</span>
+    <h1>스스로 생각하는 아이로.<br>그 성장을 <span class="g">눈으로</span> 봅니다.</h1>
+    <p class="lead">AI가 정답을 주는 대신 <b>되묻습니다.</b> 우리 아이의 사고력을 5역량으로 진단하고, <b>매달 얼마나 자랐는지</b> 리포트로 보여드려요.</p>
+    <div class="cta" id="start">
+      <a class="btn p" href="https://arche.penta-view.com/parent?trial=1">무료 사고력 진단 받기</a>
+      <a class="btn s" href="https://arche.penta-view.com/parent?trial=1">체험 1강 무료로 보기</a>
+    </div>
+    <div class="trust"><span>🏅 특허 출원 기술</span><span>📚 20년 교육 방법론</span><span>🟢 실서비스 중</span></div>
+  </section>
+
+  <!-- PROOF · 성장 리포트 -->
+  <div class="proof">
+    <div class="ph"><div class="pt">우리 아이 성장 리포트</div><div class="pchip">3개월 변화</div></div>
+    <div class="pm">같은 아이, 자기 대비 성장 — 매달 이렇게 보여드려요</div>
+    <div class="bar"><span class="bl">논리·분석</span><span class="track"><span class="fA" style="width:70%"></span><span class="fB" style="left:70%;width:22%;background:#3182f6"></span></span><span class="bd" style="color:#3182f6">70→92</span></div>
+    <div class="bar"><span class="bl">비판적 사고</span><span class="track"><span class="fA" style="width:62%"></span><span class="fB" style="left:62%;width:24%;background:#0BB8A6"></span></span><span class="bd" style="color:#0BB8A6">62→86</span></div>
+    <div class="bar"><span class="bl">창의·연결</span><span class="track"><span class="fA" style="width:58%"></span><span class="fB" style="left:58%;width:24%;background:#1A237E"></span></span><span class="bd" style="color:#1A237E">58→82</span></div>
+    <div class="bar"><span class="bl">표현·설명</span><span class="track"><span class="fA" style="width:64%"></span><span class="fB" style="left:64%;width:16%;background:#c8a24a"></span></span><span class="bd" style="color:#a8842f">64→80</span></div>
+    <div class="goldq"><div class="qh">✦ 이번 달, 우리 아이의 생각</div><div class="qt">“와류의 회전 역학을 대기 순환에 적용할 수 있을까?” — 배운 원리를 낯선 곳에 연결</div></div>
+  </div>
+
+  <!-- HOW -->
+  <section class="sec">
+    <div class="kick">HOW IT WORKS</div>
+    <div class="st">답을 주지 않고,<br>되묻습니다</div>
+    <div class="ss">일반 AI는 답만 떠먹입니다. PENTA는 스스로 생각하게 만들고, 그 과정을 데이터로 남깁니다.</div>
+    <div class="steps">
+      <div class="step"><div class="ic" style="background:#3182f6">🦉</div><div><div class="tt">AI 소크라테스가 되묻기</div><div class="dd">“왜 그렇게 생각했을까?” 정답 대신 질문으로 사고를 끌어냅니다.</div></div></div>
+      <div class="step"><div class="ic" style="background:#0BB8A6">📊</div><div><div class="tt">5역량으로 사고력 진단</div><div class="dd">논리·비판·창의·표현 등 ‘어떻게 생각하는지’를 측정합니다.</div></div></div>
+      <div class="step"><div class="ic" style="background:#1A237E">📈</div><div><div class="tt">매달 성장 리포트</div><div class="dd">무엇을 잘하고, 무엇이 부족하고, 지난달보다 얼마나 자랐는지.</div></div></div>
+    </div>
+  </section>
+
+  <!-- JOURNEY -->
+  <section class="sec">
+    <div class="kick">ONE JOURNEY</div>
+    <div class="st">초5부터 고교까지<br>하나의 성장 궤도</div>
+    <div class="jrny">
+      <div class="jr"><span class="badge" style="background:#3182f6">초5–중2</span><div><div class="jt">펜타 비전</div><div class="jd">융합사고 5역량</div></div><span class="arrow">→</span></div>
+      <div class="jr"><span class="badge" style="background:#0BB8A6">중3</span><div><div class="jt">펜타 트랙</div><div class="jd">진로·고교 설계</div></div><span class="arrow">→</span></div>
+      <div class="jr"><span class="badge" style="background:#1A237E">고교</span><div><div class="jt">펜타 아르케</div><div class="jd">자기주도 탐구·진로</div></div><span class="arrow">→</span></div>
+    </div>
+  </section>
+
+  <!-- PRICE -->
+  <div class="price">
+    <div class="pk">🎉 런칭 기념 · 선착순 100명</div>
+    <div class="pp">첫 3개월 <span style="color:#ffd979">반값</span></div>
+    <div class="pnote">비전 6,450 · 트랙 9,950 · 올인원 14,950원 <span style="opacity:.65">(정가 12,900~)</span></div>
+    <div class="pnote" style="margin-top:7px">남은 자리 <b id="promo-left2" style="color:#fff">100</b> / 100</div>
+    <a class="btn p" href="https://arche.penta-view.com/parent">선착순 반값으로 시작하기</a>
+    <div class="free">체험 1강 무료 · 언제든 해지 · 3개월 후 정가 전환</div>
+  </div>
+
+  <div class="foot">
+    PENTA · Log.R 입시연구소<br>
+    <span class="fl">arche.penta-view.com</span><br>
+    AI가 답을 주는 시대, 우리는 생각하는 아이를 키웁니다.
+  </div>
+
+</div>
+<script>
+(function(){
+  var URL='https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/promo_status';
+  var KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR2eGVwamN0amF6b2Jya2pya2R3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI5NzQ2MzIsImV4cCI6MjA5ODU1MDYzMn0.8A2RwV7mFv-wWkFT63FpjXIi5TmX2DffJDO3jm_uY9k';
+  fetch(URL,{method:'POST',headers:{'apikey':KEY,'Authorization':'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify({p_code:'LAUNCH50'})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(!d || typeof d.remaining==='undefined') return;
+      var rem=d.remaining;
+      ['promo-left','promo-left2'].forEach(function(id){var el=document.getElementById(id); if(el)el.textContent=rem;});
+      if(!d.active || rem<=0){
+        document.querySelectorAll('.promo').forEach(function(b){ b.innerHTML='🎉 런칭 기념 · <b class="b">선착순 마감</b> — 정식 오픈'; });
+      }
+    }).catch(function(){});
+})();
+</script>
+
+<!-- 방문자 집계 (개인정보 미수집: 랜덤 방문자 토큰만 · IP·이름 저장 안 함) -->
+<script>
+(function(){
+  try{
+    var K='arche_vid', vid=localStorage.getItem(K);
+    if(!vid){ vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem(K,vid); }
+    var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit";
+    var K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개(RLS-safe) publishable 키
+    fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},
+      body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
+  }catch(e){}
+})();
+</script>
+<script src="/shared/pwa-install.js" data-manifest="/manifest-penta.json" defer></script>
+</body></html>
