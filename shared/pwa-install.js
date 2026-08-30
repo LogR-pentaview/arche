@@ -1,29 +1,33 @@
 /* =========================================================
    아르케/펜타 · 범용 PWA 설치 도우미  (shared/pwa-install.js)
-   진입 페이지(홍보홈·랜딩·로그인)에 <script defer>로 넣으면:
+   ---------------------------------------------------------
+   진입 페이지(홍보홈·랜딩·로그인)에 <script defer> 로 넣기만 하면:
      - manifest 링크 없으면 자동 주입 (기본 /manifest-penta.json)
      - /sw.js 미등록 시 자동 등록
-     - Android/Chrome/Edge: beforeinstallprompt 잡아 '앱 설치' 버튼
-     - iOS Safari: '홈 화면에 추가' 수동안내 시트
+     - Android/Chrome/Edge: beforeinstallprompt 잡아 '앱 설치' 버튼 표시
+     - iOS Safari: 자동설치 불가 → '홈 화면에 추가' 수동안내 시트
      - 이미 설치(standalone)면 아무것도 안 함
-   자체 #pwa-install 버튼을 가진 앱(parent/academy)엔 넣지 말 것.
+   자체 #pwa-install 버튼을 이미 가진 앱(parent/academy)엔 넣지 말 것.
+   설정(선택): 스크립트 태그에 data-manifest="/xxx.json" 로 manifest 지정.
    ========================================================= */
 (function(){
-  if (window.__archePWA) return;
+  if (window.__archePWA) return;            // 중복 실행 방지
   window.__archePWA = true;
 
   var BRAND = '#3182f6';
   var DISMISS_KEY = 'arche_pwa_dismiss';
-  var DISMISS_DAYS = 5;
+  var DISMISS_DAYS = 5;                      // 닫으면 N일간 안 뜸
 
+  /* ---------- 유틸 ---------- */
   function isStandalone(){
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches)
         || window.navigator.standalone === true;
   }
   function isiOS(){
     var ua = navigator.userAgent || '';
-    return /iphone|ipad|ipod/i.test(ua)
-        || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var ios = /iphone|ipad|ipod/i.test(ua)
+           || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS
+    return ios;
   }
   function isSafari(){
     var ua = navigator.userAgent || '';
@@ -37,12 +41,14 @@
   }
   function remember(){ try{ localStorage.setItem(DISMISS_KEY, String(Date.now())); }catch(e){} }
 
+  /* ---------- manifest 링크 보장 ---------- */
   (function ensureManifest(){
     if (document.querySelector('link[rel="manifest"]')) return;
     var cur = document.currentScript;
     var href = (cur && cur.getAttribute('data-manifest')) || '/manifest-penta.json';
     var l = document.createElement('link'); l.rel='manifest'; l.href=href;
     document.head.appendChild(l);
+    // iOS 홈추가 아이콘 보장
     if (!document.querySelector('link[rel="apple-touch-icon"]')){
       var a=document.createElement('link'); a.rel='apple-touch-icon'; a.href='/icon-180.png';
       document.head.appendChild(a);
@@ -53,6 +59,7 @@
     }
   })();
 
+  /* ---------- SW 등록 보장 ---------- */
   if ('serviceWorker' in navigator){
     window.addEventListener('load', function(){
       navigator.serviceWorker.getRegistration().then(function(reg){
@@ -61,8 +68,9 @@
     });
   }
 
-  if (isStandalone()) return;
+  if (isStandalone()) return;               // 이미 앱으로 실행 중 → 종료
 
+  /* ---------- 공통 스타일 주입 ---------- */
   var css = document.createElement('style');
   css.textContent =
     '.pwa-btn{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2147483000;'
@@ -86,6 +94,7 @@
     +'padding:13px;font-size:14.5px;font-weight:800;cursor:pointer;font-family:inherit}';
   document.head.appendChild(css);
 
+  /* ---------- Android/데스크톱: beforeinstallprompt ---------- */
   var deferred = null, btn = null;
 
   function makeBtn(label){
@@ -119,6 +128,7 @@
     remember();
   });
 
+  /* ---------- iOS Safari: 수동 안내 시트 ---------- */
   function showIOSGuide(){
     if (document.querySelector('.pwa-mask')) return;
     var mask = document.createElement('div'); mask.className='pwa-mask';
@@ -141,6 +151,7 @@
   }
 
   if (isiOS() && isSafari() && !dismissed()){
+    // iOS는 beforeinstallprompt가 없음 → 버튼 누르면 안내 시트
     window.addEventListener('load', function(){
       var b = makeBtn('홈 화면에 추가');
       b.style.display='inline-flex';
@@ -148,6 +159,7 @@
     });
   }
 
+  /* 외부에서 강제 호출용 (예: 랜딩의 '앱으로 이용' 링크) */
   window.archePWAInstall = function(){
     if (deferred){ deferred.prompt(); deferred.userChoice.then(function(){deferred=null;}); }
     else if (isiOS()){ showIOSGuide(); }
