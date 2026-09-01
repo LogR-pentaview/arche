@@ -122,6 +122,34 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .done-screen h2{color:var(--ink);font-size:22px;margin:0 0 8px}.done-screen p{color:var(--dim);font-size:14px;line-height:1.7}
 .done-screen .card2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:18px;text-align:left;font-size:13px;color:var(--dim);line-height:1.7}.done-screen .card2 b{color:var(--indigo)}
 @media(min-width:560px){body{padding-top:22px}}
+/* 체험 리포트 발행 박스 (done 화면) */
+.rp-gen-box{background:#fff;border:1.5px dashed var(--blue);border-radius:16px;padding:18px;margin-top:18px;text-align:center;box-shadow:0 8px 24px -18px rgba(49,130,246,.4)}
+.rp-gen-t{font-size:15.5px;font-weight:800;color:var(--ink)}.rp-gen-d{font-size:12.5px;color:var(--dim);margin:6px 0 13px;line-height:1.6}
+.rp-gen-box input{width:100%;border:1px solid #d7dee8;border-radius:11px;padding:13px;font-family:inherit;font-size:15px;margin-bottom:10px;text-align:center;box-sizing:border-box}
+.rp-gen-box input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,246,.14)}
+.rp-gen-btn{width:100%;border:0;border-radius:12px;padding:15px;font-family:inherit;font-size:15.5px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--mint),#0aa596);color:#fff;box-shadow:0 8px 22px -10px rgba(11,184,166,.6)}
+.rp-gen-btn:active{transform:scale(.99)}
+/* 리포트 뷰 */
+.report{padding:6px 2px 10px;animation:fade .4s ease}
+.rp-badge{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.06em;color:#fff;background:linear-gradient(135deg,var(--mint),#0aa596);padding:5px 12px;border-radius:20px}
+.rp-title{font-size:26px;font-weight:900;color:var(--ink);margin:12px 0 2px}.rp-title span{font-size:16px;color:var(--mute);font-weight:700}
+.rp-meta{font-size:12.5px;color:var(--mute);margin-bottom:14px}
+.rp-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 17px;margin-bottom:12px;box-shadow:0 8px 24px -18px rgba(20,26,41,.25)}
+.rp-h{font-size:14px;font-weight:800;color:var(--indigo);margin-bottom:12px}
+.rp-radar{max-width:300px;margin:0 auto}
+.rp-growth{display:flex;align-items:center;gap:12px;margin-top:10px;background:#eafaf7;border:1px solid #bfe9e3;border-radius:12px;padding:12px 14px}
+.rp-growth .p{font-size:24px;font-weight:900;color:var(--mint)}.rp-growth .t{font-size:13px;font-weight:800;color:var(--ink)}.rp-growth .d{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.5}
+.rp-step,.rp-lens{margin-bottom:10px}
+.rp-k{font-size:12px;font-weight:800;color:var(--blueD);margin-bottom:4px}
+.rp-v{font-size:13.5px;line-height:1.7;color:var(--ink);background:var(--soft);border-radius:10px;padding:11px 13px;white-space:pre-wrap}
+.rp-empty{color:var(--mute);font-style:italic}
+.rp-arrow{text-align:center;color:var(--mute);font-size:15px;margin:2px 0}
+.rp-comment{background:linear-gradient(135deg,#eef4ff,#eafaf7);border:1px solid #d5e3ff;border-radius:16px;padding:16px 17px;font-size:13.5px;line-height:1.75;color:var(--ink);margin-bottom:14px}
+.rp-comment b{color:var(--indigo)}
+.rp-note{margin-top:10px;font-size:11.5px;color:var(--dim);border-top:1px dashed #cdd7ea;padding-top:9px;line-height:1.6}
+.rp-cta{display:block;text-align:center;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)}
+.rp-cta-sub{text-align:center;font-size:12px;color:var(--mute);margin-top:10px}
+@media print{.brandbar,.prog,.chips,.nav{display:none!important}body{padding:0}.report{padding:0}.rp-card,.rp-comment{box-shadow:none;break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -297,12 +325,75 @@ function renderDone(){
   const el=document.createElement('div');el.className='done-screen';
   el.innerHTML=`<div class="big">🌟</div><h2>방금, 아이의 생각 한 편이 만들어졌어요</h2>
     <p>답을 받아 적은 게 아니라 — <b>스스로 묻고, 근거를 찾고, 반론을 견디고, 생각을 고쳤습니다.</b><br>이게 펜타의 한 회차예요. 1년이면 <b>이런 탐구 52편</b>이 쌓입니다.</p>
+    <div class="rp-gen-box">
+      <div class="rp-gen-t">📄 지금 바로 <b>체험 리포트</b>를 받아보세요</div>
+      <div class="rp-gen-d">방금 아이가 쓴 답으로, 실제 발행되는 리포트를 그 자리에서 만들어 드려요.</div>
+      <input id="rp-name" placeholder="아이 이름 (선택)" maxlength="20">
+      <button id="rp-gen" class="rp-gen-btn">📄 체험 리포트 발행하기 →</button>
+    </div>
     <div class="card2"><b>부모님은 이걸 받아보십니다</b><br>· 아이의 <b>처음 생각 → 탐구 후 생각</b>이 나란히 남아요 ("A라고 했다가 B로 깊어졌네")<br>· 5대 지성 성장 레이더 <b>Before/After</b>로 변화가 눈에 보여요<br>· 점수가 아니라 <b>생각의 궤적</b>이 기록으로 누적됩니다</div>
     <a href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:18px;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)">우리 아이도 시작하기 →</a>
     <div style="font-size:12px;color:#8b95a1;margin-top:10px">런칭 기념 · 첫 3개월 반값 · 선착순</div>`;
+  const gb=el.querySelector('#rp-gen');
+  if(gb) gb.onclick=()=>{ const nm=(el.querySelector('#rp-name').value||'').trim(); state.childName=nm||'우리 아이'; state.step='report'; render(); };
+  return el;
+}
+function renderReport(){
+  const el=document.createElement('div');el.className='report';
+  const before=state.radar_before,after=state.radar_after;
+  const bA=areaOf(before)||1,aA=areaOf(after);
+  const pct=Math.round((aA-bA)/bA*100);
+  let gi=0,gd=-99;for(let i=0;i<5;i++){const d=after[i]-before[i];if(d>gd){gd=d;gi=i;}}
+  const ans=state.answers;
+  const has=id=>ans[id]&&String(ans[id]).trim();
+  const A=id=>has(id)?esc(ans[id]):'<span class="rp-empty">— 이 항목은 작성하지 않았어요</span>';
+  const nm=esc(state.childName||'우리 아이');
+  const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
+  el.innerHTML=`
+    <div class="rp-badge">체험 리포트 · 미리보기</div>
+    <div class="rp-title">${nm} <span>학생</span></div>
+    <div class="rp-meta">${esc(LESSON.title)} · ${today}</div>
+    <div class="rp-card">
+      <div class="rp-h">🧭 사고 주파수 — 탐구 전 · 후</div>
+      <div class="rp-radar">${radarSVG(before,after)}</div>
+      <div class="legend"><span><span class="sw" style="background:#94abcc"></span>탐구 전</span><span><span class="sw" style="background:#3182f6"></span>탐구 후</span></div>
+      <div class="rp-growth"><div class="p">${pct>0?'+'+pct+'%':'✓'}</div><div><div class="t">${pct>0?'지성 확장':'탐구 완료'}</div><div class="d">${gd>0?('특히 <b>'+esc(AXES[gi])+'</b> 영역에서 가장 크게 자랐어요.'):'다섯 관점으로 주제를 고르게 살펴봤어요.'}</div></div></div>
+    </div>
+    <div class="rp-card">
+      <div class="rp-h">💭 생각의 궤적</div>
+      <div class="rp-step"><div class="rp-k">처음 생각 (가설)</div><div class="rp-v">${A('hypothesis')}</div></div>
+      <div class="rp-arrow">↓</div>
+      <div class="rp-step"><div class="rp-k">탐구 중 · 입장의 이동</div><div class="rp-v">${A('mid_reflect')}</div></div>
+      <div class="rp-arrow">↓</div>
+      <div class="rp-step"><div class="rp-k">최종 결론 (나의 논지)</div><div class="rp-v">${A('project_design')}</div></div>
+    </div>
+    <div class="rp-card">
+      <div class="rp-h">🔍 5대 지성 렌즈로 본 생각</div>
+      ${[['eye1','🔢 수학·논리'],['eye2','🔬 과학·기술'],['eye3','🏛 역사·사회'],['eye4','🧠 심리·인지'],['eye5','🎨 예술·디자인']].map(e=>`<div class="rp-lens"><div class="rp-k">${e[1]}</div><div class="rp-v">${A(e[0])}</div></div>`).join('')}
+    </div>
+    <div class="rp-card">
+      <div class="rp-h">💪 반론을 견디다</div>
+      <div class="rp-step"><div class="rp-k">예상 반론</div><div class="rp-v">${A('peer_attack')}</div></div>
+      <div class="rp-step" style="margin-top:10px"><div class="rp-k">나의 재반론</div><div class="rp-v">${A('peer_defense')}</div></div>
+    </div>
+    <div class="rp-comment">
+      <b>종합 코멘트</b><br>
+      ${nm} 학생은 이번 탐구에서 ${pct>0?('사고의 폭이 <b>+'+pct+'%</b> 넓어졌습니다.'):'하나의 주제를 여러 관점으로 넓히고 다듬었습니다.'} 처음 생각을 그대로 두지 않고, 자료를 읽고 다섯 관점으로 따져보며 <b>스스로 논지를 세우고 반론까지 견뎌</b>냈습니다.${has('mid_reflect')?' 특히 탐구 도중 자기 입장을 스스로 조정한 점이 인상적입니다.':''}
+      <div class="rp-note">※ 이 리포트는 <b>체험용 미리보기</b>입니다. 정식 구독 시에는 담당 컨설턴트가 검토·확정하고, 회차가 쌓일수록 <b>생각의 궤적과 성장 곡선</b>이 누적됩니다.</div>
+    </div>
+    <a class="rp-cta" href="https://arche.penta-view.com/parent?trial=1">우리 아이도 이렇게 시작하기 →</a>
+    <div class="rp-cta-sub">런칭 기념 · 첫 3개월 반값 · 선착순 100명</div>`;
   return el;
 }
 function render(){
+  // 리포트 뷰 (특수 스텝)
+  if(state.step==='report'){
+    host.innerHTML='';const rpage=document.createElement('div');rpage.className='page on';rpage.appendChild(renderReport());host.appendChild(rpage);
+    window.scrollTo({top:0,behavior:'smooth'});pfill.style.width='100%';chipsEl.innerHTML='';navEl.innerHTML='';
+    const back=document.createElement('button');back.className='btn prev';back.textContent='←';back.onclick=()=>{state.step=TOTAL;render();};navEl.appendChild(back);
+    const pr=document.createElement('button');pr.className='btn next';pr.textContent='🖨 저장 · 인쇄';pr.onclick=()=>window.print();navEl.appendChild(pr);
+    return;
+  }
   const st=STEPS[state.step];host.innerHTML='';
   const page=document.createElement('div');page.className='page on';
   if(state.step===TOTAL)page.appendChild(renderDone());
