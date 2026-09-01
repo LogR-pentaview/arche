@@ -149,7 +149,10 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .rp-note{margin-top:10px;font-size:11.5px;color:var(--dim);border-top:1px dashed #cdd7ea;padding-top:9px;line-height:1.6}
 .rp-cta{display:block;text-align:center;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)}
 .rp-cta-sub{text-align:center;font-size:12px;color:var(--mute);margin-top:10px}
-@media print{.brandbar,.prog,.chips,.nav{display:none!important}body{padding:0}.report{padding:0}.rp-card,.rp-comment{box-shadow:none;break-inside:avoid}}
+.rp-prebanner{max-width:760px;margin:0 auto 14px;background:#fffdf4;border:1px solid #E8D9A0;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#8a6d1f;line-height:1.6;text-align:center}
+.rp-prov-cta{display:block;max-width:760px;margin:18px auto 0;text-align:center;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)}
+.rp-prov-sub{max-width:760px;margin:10px auto 0;text-align:center;font-size:12px;color:var(--mute)}
+@media print{.brandbar,.prog,.chips,.nav,.rp-prebanner,.rp-prov-cta,.rp-prov-sub{display:none!important}body{padding:0}.report{padding:0}.rp-card,.rp-comment{box-shadow:none;break-inside:avoid}}
 </style>
 </head>
 <body>
@@ -164,6 +167,8 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 <div class="wrap" id="host"></div>
 <div class="nav"><div class="navin" id="nav"></div></div>
 
+<!-- 실제 서비스 리포트 렌더러 (완료 시 정식 리포트와 동일 디자인으로 발행) -->
+<script src="/shared/arche_penta_report.js"></script>
 <script>
 /* ★ 실제 서비스 콘텐츠 — penta_catalog id=128 (비전 심화 시즌8-3 · AI) content 원문 그대로 · 무료 체험판 */
 const LESSON = {
@@ -338,57 +343,58 @@ function renderDone(){
   if(gb) gb.onclick=()=>{ const nm=(el.querySelector('#rp-name').value||'').trim(); state.childName=nm||'우리 아이'; state.step='report'; render(); };
   return el;
 }
-function renderReport(){
-  const el=document.createElement('div');el.className='report';
-  const before=state.radar_before,after=state.radar_after;
-  const bA=areaOf(before)||1,aA=areaOf(after);
-  const pct=Math.round((aA-bA)/bA*100);
-  let gi=0,gd=-99;for(let i=0;i<5;i++){const d=after[i]-before[i];if(d>gd){gd=d;gi=i;}}
+/* 체험 답변 → 실제 리포트 렌더러(ArchePentaReport)용 데이터 구성 */
+function buildReportData(){
+  const before=state.radar_before, after=state.radar_after;
+  const bA=areaOf(before)||1, aA=areaOf(after);
+  const growthPct=Math.round((aA-bA)/bA*100);
   const ans=state.answers;
-  const has=id=>ans[id]&&String(ans[id]).trim();
-  const A=id=>has(id)?esc(ans[id]):'<span class="rp-empty">— 이 항목은 작성하지 않았어요</span>';
-  const nm=esc(state.childName||'우리 아이');
-  const today=new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'});
-  el.innerHTML=`
-    <div class="rp-badge">체험 리포트 · 미리보기</div>
-    <div class="rp-title">${nm} <span>학생</span></div>
-    <div class="rp-meta">${esc(LESSON.title)} · ${today}</div>
-    <div class="rp-card">
-      <div class="rp-h">🧭 사고 주파수 — 탐구 전 · 후</div>
-      <div class="rp-radar">${radarSVG(before,after)}</div>
-      <div class="legend"><span><span class="sw" style="background:#94abcc"></span>탐구 전</span><span><span class="sw" style="background:#3182f6"></span>탐구 후</span></div>
-      <div class="rp-growth"><div class="p">${pct>0?'+'+pct+'%':'✓'}</div><div><div class="t">${pct>0?'지성 확장':'탐구 완료'}</div><div class="d">${gd>0?('특히 <b>'+esc(AXES[gi])+'</b> 영역에서 가장 크게 자랐어요.'):'다섯 관점으로 주제를 고르게 살펴봤어요.'}</div></div></div>
-    </div>
-    <div class="rp-card">
-      <div class="rp-h">💭 생각의 궤적</div>
-      <div class="rp-step"><div class="rp-k">처음 생각 (가설)</div><div class="rp-v">${A('hypothesis')}</div></div>
-      <div class="rp-arrow">↓</div>
-      <div class="rp-step"><div class="rp-k">탐구 중 · 입장의 이동</div><div class="rp-v">${A('mid_reflect')}</div></div>
-      <div class="rp-arrow">↓</div>
-      <div class="rp-step"><div class="rp-k">최종 결론 (나의 논지)</div><div class="rp-v">${A('project_design')}</div></div>
-    </div>
-    <div class="rp-card">
-      <div class="rp-h">🔍 5대 지성 렌즈로 본 생각</div>
-      ${[['eye1','🔢 수학·논리'],['eye2','🔬 과학·기술'],['eye3','🏛 역사·사회'],['eye4','🧠 심리·인지'],['eye5','🎨 예술·디자인']].map(e=>`<div class="rp-lens"><div class="rp-k">${e[1]}</div><div class="rp-v">${A(e[0])}</div></div>`).join('')}
-    </div>
-    <div class="rp-card">
-      <div class="rp-h">💪 반론을 견디다</div>
-      <div class="rp-step"><div class="rp-k">예상 반론</div><div class="rp-v">${A('peer_attack')}</div></div>
-      <div class="rp-step" style="margin-top:10px"><div class="rp-k">나의 재반론</div><div class="rp-v">${A('peer_defense')}</div></div>
-    </div>
-    <div class="rp-comment">
-      <b>종합 코멘트</b><br>
-      ${nm} 학생은 이번 탐구에서 ${pct>0?('사고의 폭이 <b>+'+pct+'%</b> 넓어졌습니다.'):'하나의 주제를 여러 관점으로 넓히고 다듬었습니다.'} 처음 생각을 그대로 두지 않고, 자료를 읽고 다섯 관점으로 따져보며 <b>스스로 논지를 세우고 반론까지 견뎌</b>냈습니다.${has('mid_reflect')?' 특히 탐구 도중 자기 입장을 스스로 조정한 점이 인상적입니다.':''}
-      <div class="rp-note">※ 이 리포트는 <b>체험용 미리보기</b>입니다. 정식 구독 시에는 담당 컨설턴트가 검토·확정하고, 회차가 쌓일수록 <b>생각의 궤적과 성장 곡선</b>이 누적됩니다.</div>
-    </div>
-    <a class="rp-cta" href="https://arche.penta-view.com/parent?trial=1">우리 아이도 이렇게 시작하기 →</a>
-    <div class="rp-cta-sub">런칭 기념 · 첫 3개월 반값 · 선착순 100명</div>`;
-  return el;
+  const pick=(...ids)=>{ for(const id of ids){ if(ans[id]&&String(ans[id]).trim()) return String(ans[id]).trim(); } return ''; };
+  // 가장 크게 자란 축
+  let gi=0,gd=-99; for(let i=0;i<5;i++){const d=after[i]-before[i]; if(d>gd){gd=d;gi=i;}}
+  const golden=pick('project_design','hypothesis','mid_reflect','shadow','light');
+  return {
+    level:'architecture',
+    student:{ name:(state.childName||'우리 아이'), grade:LESSON.gradeBand||'' },
+    lesson:{ season:LESSON.season, week:LESSON.week, theme:LESSON.theme, title:LESSON.title },
+    persona:{ name:'스스로 기준을 세우는 탐구가',
+      tagline:'답을 받아 적지 않고, AI의 빛과 그늘을 저울에 달아 "누가 방향을 정하는가"까지 스스로 물은 사고입니다.' },
+    radar:{ axes:AXES_SHORT, before:before, after:after, growthPct:growthPct,
+      note:(gd>0?('특히 '+AXES[gi]+' 영역이 가장 크게 확장됐습니다.'):'다섯 지성을 고르게 확장했습니다.') },
+    frequencies: AXES.map((ax,i)=>({ name:ax, score:after[i] })),
+    benchmark:{ topic:'AI, 도구인가 위협인가 — 3단계 사고 대조', levels:[
+      {label:'Lv.1 · 현상 나열', text:'AI가 편리하다/위험하다를 사례로 늘어놓는 단계.'},
+      {label:'Lv.2 · 구조 분석', text:'편익과 위험을 나누고, 왜 그런지 근거를 들어 따지는 단계.'},
+      {label:'Lv.3 · 가치 통합', text:'"누가 방향을 정하는가"로 문제를 다시 세우고, 인간의 책임까지 논증하는 단계.'}
+    ]},
+    golden: golden ? { sentence:golden, critique:'학생이 스스로 세운 기준이 담긴 문장입니다. 다음엔 반대 입장이 가장 세게 반박할 지점까지 미리 답해 두면 논지가 더 단단해집니다.' } : null,
+    roadmap:{ items:[
+      {icon:'🔎', title:'근거의 출처 따지기', desc:'주장마다 "무슨 근거로?"를 한 번 더 묻기'},
+      {icon:'⚖', title:'양면 저울 세우기', desc:'좋은 점과 위험을 같은 무게로 나란히 두기'},
+      {icon:'🧭', title:'나만의 기준 문장화', desc:'"AI를 어떻게 써야 하는가"의 원칙을 한 문장으로'}
+    ], nextQuestion:'AI가 내린 결정을 사람이 이해하지 못할 때, 그 책임은 누구에게 있을까?' },
+    homeTalk:{ intro:'오늘 아이가 세운 생각을 집에서 한 번 더 꺼내 보세요. 정답보다 근거를 되물어 주시면 됩니다.', items:[
+      {q:'우리 집은 AI를 어디에 쓰고 있을까? 그 방향은 누가 정한 걸까?', tip:'아이의 답에 "왜 그렇게 생각해?"를 한 번 더 물어봐 주세요.'},
+      {q:'AI에게 절대 맡기면 안 되는 결정은 뭐라고 생각해?', tip:'아이의 기준을 함께 한 문장으로 정리해 보세요.'}
+    ]},
+    glossary: LESSON.glossary,
+    consultantConfirmed:false,
+    date: new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})
+  };
 }
 function render(){
   // 리포트 뷰 (특수 스텝)
   if(state.step==='report'){
-    host.innerHTML='';const rpage=document.createElement('div');rpage.className='page on';rpage.appendChild(renderReport());host.appendChild(rpage);
+    host.innerHTML='';const rpage=document.createElement('div');rpage.className='page on';
+    const banner=document.createElement('div');banner.className='rp-prebanner';banner.innerHTML='📄 <b>체험 미리보기 리포트</b> · 정식 구독 시 담당 컨설턴트·AI 분석이 더해져 발행됩니다';
+    rpage.appendChild(banner);
+    const mnt=document.createElement('div');rpage.appendChild(mnt);
+    const cta=document.createElement('a');cta.className='rp-prov-cta';cta.href='https://arche.penta-view.com/parent?trial=1';cta.textContent='우리 아이도 이렇게 시작하기 →';
+    const sub=document.createElement('div');sub.className='rp-prov-sub';sub.textContent='런칭 기념 · 첫 3개월 반값 · 선착순 100명';
+    rpage.appendChild(cta);rpage.appendChild(sub);
+    host.appendChild(rpage);
+    if(window.ArchePentaReport){ try{ window.ArchePentaReport.render(mnt, buildReportData()); }catch(e){ mnt.innerHTML='<div style="padding:30px;text-align:center;color:#8b95a1">리포트를 그리지 못했어요: '+esc(e.message)+'</div>'; } }
+    else { mnt.innerHTML='<div style="padding:30px;text-align:center;color:#8b95a1">리포트 모듈을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.</div>'; }
     window.scrollTo({top:0,behavior:'smooth'});pfill.style.width='100%';chipsEl.innerHTML='';navEl.innerHTML='';
     const back=document.createElement('button');back.className='btn prev';back.textContent='←';back.onclick=()=>{state.step=TOTAL;render();};navEl.appendChild(back);
     const pr=document.createElement('button');pr.className='btn next';pr.textContent='🖨 저장 · 인쇄';pr.onclick=()=>window.print();navEl.appendChild(pr);
