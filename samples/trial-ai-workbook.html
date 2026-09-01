@@ -81,6 +81,8 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .videobox{margin:14px 0}
 .vid{position:relative;width:100%;padding-top:56.25%;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 30px -16px rgba(20,26,41,.4)}
 .vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.vsearch{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;text-decoration:none;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;font-weight:800;font-size:15px;padding:16px;border-radius:14px;box-shadow:0 10px 26px -12px rgba(49,130,246,.5)}
+.vsearch:active{transform:scale(.99)}
 .vtitle{font-size:13.5px;font-weight:800;color:var(--ink);margin:10px 2px 4px}
 .vbody{font-size:12.5px;color:var(--dim);line-height:1.6;margin:0 2px}
 .mission{margin-top:10px;background:#eef4ff;border:1px solid #d5e3ff;border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--blueD);line-height:1.55}
@@ -252,8 +254,10 @@ function renderBlock(b){
     rg.addEventListener('input',()=>{state.scales[b.id]=+rg.value;if(sv)sv.textContent=rg.value;});
   }
   else if(t==='video'){
-    let vid='';try{const u=new URL(b.url);vid=u.searchParams.get('v')||'';}catch(e){}
-    const emb=vid?`<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${esc(vid)}" title="${esc(b.title||'')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`:'';
+    let vid='';try{const u=new URL(b.url);vid=u.searchParams.get('v')||(u.hostname.indexOf('youtu.be')>=0?u.pathname.slice(1):'')||(u.pathname.indexOf('/embed/')>=0?u.pathname.split('/embed/')[1]:'')||'';}catch(e){}
+    let emb;
+    if(vid){ emb=`<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${esc(vid)}" title="${esc(b.title||'')}" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`; }
+    else { const q=encodeURIComponent(b.search||b.title||''); emb=`<a class="vsearch" href="https://www.youtube.com/results?search_query=${q}" target="_blank" rel="noopener"><span style="font-size:20px">▶</span> 관련 영상 보러가기 <span style="opacity:.7;font-size:12px">(YouTube)</span></a>`; }
     d.innerHTML=`<div class="videobox">${emb}<div class="vtitle">🎬 ${esc(b.title||'영상')}</div>${b.body?`<div class="vbody">${esc(b.body)}</div>`:''}${b.mission?`<div class="mission">🎯 미션 · ${esc(b.mission)}</div>`:''}
       <div class="abox" style="margin-top:10px"><label>✎ ${esc(b.ansLabel||'관찰·반응')}</label><textarea rows="4" placeholder="${esc(b.placeholder||'')}">${esc(state.answers[b.id]||'')}</textarea></div></div>`;
     const ta=d.querySelector('textarea');ta.addEventListener('input',()=>{state.answers[b.id]=ta.value;});
