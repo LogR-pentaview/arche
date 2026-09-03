@@ -471,7 +471,7 @@
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
       <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
-      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
+      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1;display:none">학원</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
@@ -2536,6 +2536,10 @@ async function enterApp(session){
     return msg('가입 신청이 접수되었습니다. 관리자 승인 후 이용 가능합니다.');
   }
   window._isAdmin=isAdmin;
+  // [A · 학원 분리] 학원(b2b·비관리자)은 새 학원용 앱(/academy/)으로 분리. b2c(학부모)·관리자는 기존 흐름 유지.
+  if(!isAdmin && !window._isB2C){
+    if((location.pathname||'').indexOf('/academy')<0){ location.replace('/academy/'); return; }
+  }
   if(!isAdmin){ if(!(await ensureConsent(u,(window._isB2C?'parent':'consultant')))) return; }
   document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+u.email+(isAdmin?' · 관리자':'');
   gate.style.display='none';
