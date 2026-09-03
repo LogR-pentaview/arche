@@ -62,7 +62,7 @@
   var ARCHE_PASS = { ref:'arche5', price:9900, name:'아르케 5회 이용권' };
 
   // 학년 → 추천 상품 매칭
-  //   초등: 펜타 비전(융합사고 입문)  ·  중등(중1~3): 펜타 올인원(전영역)  ·  고등~N수: 아르케 이용권(대입 학생부, 단품)
+  //   초등: 펜타 비전(융합사고 입문)  ·  중등(중1~3): 펜타 올인원(전영역)  ·  고등~N수: 아르케 이용권(진로 징검다리·수행평가 도우미, 단품)
   //   'arche' 는 구독 tier가 아니라 단품 이용권을 뜻하는 특수값.
   function recommendPlan(grade){
     var g=String(grade||'');
@@ -73,7 +73,7 @@
   }
   function recoReason(grade){
     var g=String(grade||'').trim();
-    if(g.indexOf('고')>=0 || /N\s*수|재수|수능/i.test(g)) return '고등·대입 학생부';
+    if(g.indexOf('고')>=0 || /N\s*수|재수|수능/i.test(g)) return '고등 진로·수행평가';
     if(g.indexOf('중')>=0) return '중등 전영역';
     if(g.indexOf('초')>=0) return '초등 융합사고';
     return '';
@@ -156,7 +156,7 @@
             // 고등 → 아르케 이용권(단품 pass) 추천 · 바로구매 (구독 아님)
             return '<div class="sub" style="flex-wrap:wrap">'
               +'<div style="flex:1 1 auto">'+nameHead
-                +'<div style="font-size:12px;color:#137a44;font-weight:800;margin-top:6px">🎯 고등 맞춤 추천 · <b>'+esc(ARCHE_PASS.name)+'</b> <span style="font-weight:600;color:#4b8f6a">(대입 학생부 · 단품)</span></div></div>'
+                +'<div style="font-size:12px;color:#137a44;font-weight:800;margin-top:6px">🎯 고등 맞춤 추천 · <b>'+esc(ARCHE_PASS.name)+'</b> <span style="font-weight:600;color:#4b8f6a">(진로 징검다리·수행평가 · 단품)</span></div></div>'
               +'<button data-arche="'+c.id+'" style="flex:1 1 100%;margin-top:8px;border:0;border-radius:10px;padding:12px;font-weight:800;font-size:14px;cursor:pointer;background:linear-gradient(135deg,#141a29,#2a3a58);color:#fff">아르케 5회 이용권 구매 · '+ARCHE_PASS.price.toLocaleString('ko-KR')+'원</button>'
               +'</div>';
           }
