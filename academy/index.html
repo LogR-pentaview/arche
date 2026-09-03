@@ -114,7 +114,7 @@ button{font-family:inherit;cursor:pointer}
     <div class="bname" id="g-name">펜타 학원</div>
     <div class="btag" id="g-tag">생각하는 힘을 키우는 수업</div>
     <div class="badge">🏫 학원 전용 로그인</div>
-    <input id="g-email" type="email" placeholder="이메일 (원장·강사·학생·학부모)" autocomplete="username">
+    <input id="g-email" type="text" placeholder="이메일(원장·강사) 또는 아이디(학생·학부모)" autocomplete="username">
     <input id="g-pw" type="password" placeholder="비밀번호" autocomplete="current-password">
     <button class="go" id="g-go">로그인</button>
     <div class="msg" id="g-msg"></div>
@@ -441,12 +441,8 @@ function renderView(v){
       + '<div id="members-mount" class="mount"></div>';
     case 'billing': return head('구독·결제','학원 구독료(규모 기반) · 세금계산서')
       + ph('💳','학원 구독 결제','기본료+규모 기반 학원 구독(toss-billing) · 수강생 수강료는 학원 자체(우리 미개입).', 'toss-billing (B2B)');
-    case 'settings': return head('학원 설정','화이트라벨 — 전용 주소·로고·색')
-      + '<div class="grid g2" style="margin-top:16px">'
-      + '<div class="card"><div class="k">전용 주소</div><div class="v" style="font-size:17px">'+ (tenantSlug()? (tenantSlug()+'.penta-view.com') : '슬러그 미설정') +'</div><div class="d">이 학원만의 서브도메인. 학원은 자기 전용 사이트처럼 사용.</div></div>'
-      + '<div class="card"><div class="k">브랜드</div><div class="v" style="font-size:17px">'+(ST.brand?ST.brand.name:'—')+'</div><div class="d">로고·이름·포인트색 · 로그인 화면 자동 적용</div></div>'
-      + '</div>'
-      + ph('🎨','화이트라벨 설정','학원명·로고·포인트색·슬러그(전용주소) 편집 → academies 브랜딩 컬럼.', 'academies.slug/brand_name/brand_color/logo_url');
+    case 'settings': return head('학원 설정','전용 주소(아이디 접두·화이트라벨) · 브랜드')
+      + '<div id="settings-mount" class="mount"></div>';
 
     /* ===== 공통(원장·강사) ===== */
     case 'live': return head(LIVE_LABEL, '반 선택 → 학생 실시간 현황 + 라이브 판서 방송')
@@ -555,6 +551,53 @@ function mountView(v, host){
     if(host.querySelector('#dash-stats')) mountDashboard(host);
     return;
   }
+  // 학원 설정 — 전용주소(슬러그)·브랜드
+  if(v==='settings'){
+    var el6=host.querySelector('#settings-mount');
+    if(el6) mountSettings(el6);
+    return;
+  }
+}
+
+/* ========================= 학원 설정 (전용주소·브랜드) ========================= */
+async function mountSettings(host){
+  if(!window.sb || !ST.academy){ host.innerHTML = phRaw('🔌','미연결','로그인 후 설정이 활성화됩니다.'); return; }
+  if(ST.role!=='owner'){ host.innerHTML = phRaw('🔒','원장 전용','학원 설정은 원장만 변경할 수 있습니다.'); return; }
+  var acid = ST.academy.id, cur={};
+  try{ var r=await sb.from('academies').select('slug,brand_name,brand_color,tagline').eq('id',acid).limit(1); cur=(r.data&&r.data[0])||{}; }catch(e){}
+  host.innerHTML =
+    '<div class="card" style="margin-top:16px">'
+    +'<div style="font-size:15px;font-weight:800;margin-bottom:6px">🌐 전용 주소 (슬러그)</div>'
+    +'<div class="d" style="margin-bottom:12px">이 값이 <b>수강생·보호자 아이디의 접두</b>가 됩니다. 예: <code>samsung</code> → 수강생 <b>samsung0001</b>, 보호자 <b>samsung0001p</b>. (영문 소문자·숫자, 한 번 정하면 바꾸지 마세요)</div>'
+    +'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    +'<input id="set-slug" value="'+esc(cur.slug||'')+'" placeholder="samsung" style="flex:1;min-width:160px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-size:14px">'
+    +'<span style="color:var(--ink-mute);font-size:13px">.penta-view.com</span>'
+    +'<button id="set-slug-save" class="tab on" style="padding:11px 18px">저장</button></div>'
+    +'<div id="set-slug-msg" style="font-size:12px;margin-top:8px;min-height:14px"></div>'
+    +'</div>'
+    +'<div class="card" style="margin-top:14px">'
+    +'<div style="font-size:15px;font-weight:800;margin-bottom:10px">🎨 브랜드</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+    +'<input id="set-bname" value="'+esc(cur.brand_name||'')+'" placeholder="학원 표시명 (예: 삼성 영수학원)" style="flex:2;min-width:180px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-size:14px">'
+    +'<input id="set-bcolor" value="'+esc(cur.brand_color||'#3182f6')+'" type="color" style="width:52px;height:44px;border:1px solid var(--line);border-radius:9px;padding:2px;background:#fff">'
+    +'<button id="set-brand-save" class="tab on" style="padding:11px 18px">저장</button></div>'
+    +'<input id="set-tag" value="'+esc(cur.tagline||'')+'" placeholder="한 줄 문구 (로그인 화면)" style="width:100%;margin-top:8px;padding:11px 13px;border:1px solid var(--line);border-radius:9px;font-size:14px">'
+    +'<div id="set-brand-msg" style="font-size:12px;margin-top:8px;min-height:14px"></div>'
+    +'</div>';
+  host.querySelector('#set-slug-save').onclick=async function(){
+    var m=host.querySelector('#set-slug-msg'); var v=(host.querySelector('#set-slug').value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+    if(!v){ m.style.color='var(--risk)'; m.textContent='영문 소문자·숫자로 입력하세요.'; return; }
+    m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
+    try{ var r=await sb.from('academies').update({slug:v}).eq('id',acid); if(r.error) throw r.error; m.style.color='var(--safe)'; m.textContent='✓ 저장됨 — 이제 계정 발급 시 '+v+'0001 형식으로 생성됩니다.'; host.querySelector('#set-slug').value=v; }
+    catch(e){ m.style.color='var(--risk)'; m.textContent='저장 실패: '+((e&&e.message)||e)+(String(e).indexOf('unique')>=0?' (이미 사용 중인 주소)':''); }
+  };
+  host.querySelector('#set-brand-save').onclick=async function(){
+    var m=host.querySelector('#set-brand-msg');
+    var upd={ brand_name:(host.querySelector('#set-bname').value||'').trim()||null, brand_color:host.querySelector('#set-bcolor').value||null, tagline:(host.querySelector('#set-tag').value||'').trim()||null };
+    m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
+    try{ var r=await sb.from('academies').update(upd).eq('id',acid); if(r.error) throw r.error; m.style.color='var(--safe)'; m.textContent='✓ 저장됨 — 전용주소 접속 시 이 브랜딩이 적용됩니다.'; }
+    catch(e){ m.style.color='var(--risk)'; m.textContent='저장 실패: '+((e&&e.message)||e); }
+  };
 }
 function phRaw(icon,title,desc){
   return '<div class="ph"><div class="pi">'+icon+'</div><div class="pt">'+title+'</div><div class="pd">'+desc+'</div></div>';
@@ -566,7 +609,7 @@ async function mountMembers(host){
   if(!window.sb || !ST.academy){ host.innerHTML = phRaw('🔌','미연결','로그인(DB 연결) 후 반·학생 관리가 활성화됩니다.'); return; }
   var acid = ST.academy.id;
   host.innerHTML = '<div style="padding:20px;color:var(--ink-mute);font-size:13px">불러오는 중…</div>';
-  var classes=[], students=[], teachers=[];
+  var classes=[], students=[], teachers=[], stuAcct={}, parAcct={};
   try{
     var rc = await sb.from('academy_classes').select('*').eq('academy_id',acid).order('created_at');
     classes = rc.data||[];
@@ -574,6 +617,8 @@ async function mountMembers(host){
     students = rs.data||[];
     var rt = await sb.from('academy_users').select('uid,email,role').eq('academy_id',acid);
     teachers = rt.data||[];
+    try{ var rsa = await sb.from('student_accounts').select('student_id,login_id,must_change').eq('academy_id',acid); (rsa.data||[]).forEach(function(a){ stuAcct[a.student_id]=a; }); }catch(_){}
+    try{ var rpa = await sb.from('parent_accounts').select('student_id,login_id').eq('academy_id',acid); (rpa.data||[]).forEach(function(a){ parAcct[a.student_id]=a; }); }catch(_){}
   }catch(e){ host.innerHTML = phRaw('⚠️','불러오기 실패', (e&&e.message)||e); return; }
   render();
 
@@ -621,13 +666,22 @@ async function mountMembers(host){
     if(!students.length){ h+='<div style="font-size:13px;color:var(--ink-mute);padding:6px 0 12px">등록된 학생이 없습니다.</div>'; }
     else {
       h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
-        +'<thead><tr style="text-align:left;color:var(--ink-mute);font-size:11.5px"><th style="padding:6px 8px">이름</th><th style="padding:6px 8px">학년</th><th style="padding:6px 8px">코스</th><th style="padding:6px 8px">배정 반 (이동)</th><th></th></tr></thead><tbody>';
+        +'<thead><tr style="text-align:left;color:var(--ink-mute);font-size:11.5px"><th style="padding:6px 8px">이름</th><th style="padding:6px 8px">학년</th><th style="padding:6px 8px">배정 반 (이동)</th><th style="padding:6px 8px">수강생/보호자 계정</th><th></th></tr></thead><tbody>';
       h+=students.map(function(s){
+        var sa=stuAcct[s.id], pa=parAcct[s.id];
+        var acctCell;
+        if(sa){
+          acctCell = '<div style="font-size:12px"><b>'+esc(sa.login_id)+'</b> <span style="color:var(--ink-mute)">/0000</span></div>'
+            + (pa ? '<div style="font-size:11.5px;color:var(--ink-dim)">보호자 <b>'+esc(pa.login_id)+'</b></div>'
+                  : '<button class="tab" data-parent="'+s.id+'" style="padding:3px 8px;font-size:10.5px;margin-top:3px">+ 보호자 계정</button>');
+        } else {
+          acctCell = '<button class="tab on" data-issue="'+s.id+'" style="padding:5px 11px;font-size:11px">🔑 계정 발급</button>';
+        }
         return '<tr style="border-top:1px solid var(--line-soft)">'
-          +'<td style="padding:8px;font-weight:700">'+esc(s.name||'-')+'</td>'
+          +'<td style="padding:8px;font-weight:700">'+esc(s.name||'-')+'<div style="font-size:10.5px;color:var(--ink-mute);font-weight:400">'+esc(s.penta_course||'')+'</div></td>'
           +'<td style="padding:8px;color:var(--ink-dim)">'+esc(s.grade||'-')+'</td>'
-          +'<td style="padding:8px;color:var(--ink-dim)">'+esc(s.penta_course||'-')+'</td>'
-          +'<td style="padding:8px"><select data-move="'+s.id+'" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;min-width:150px">'+classOpts(s.class_id)+'</select></td>'
+          +'<td style="padding:8px"><select data-move="'+s.id+'" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;min-width:140px">'+classOpts(s.class_id)+'</select></td>'
+          +'<td style="padding:8px">'+acctCell+'</td>'
           +'<td style="padding:8px;text-align:right"><button class="tab" data-delstu="'+s.id+'" style="padding:4px 9px;font-size:11px;color:var(--risk)">삭제</button></td>'
           +'</tr>';
       }).join('');
@@ -653,6 +707,28 @@ async function mountMembers(host){
     host.querySelectorAll('[data-ren]').forEach(function(b){ b.onclick=function(){ renameClass(b.getAttribute('data-ren'), b.getAttribute('data-nm')); }; });
     host.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ deleteClass(b.getAttribute('data-del')); }; });
     host.querySelectorAll('[data-delstu]').forEach(function(b){ b.onclick=function(){ removeStudent(b.getAttribute('data-delstu')); }; });
+    host.querySelectorAll('[data-issue]').forEach(function(b){ b.onclick=function(){ issueAccount('create-student', b.getAttribute('data-issue'), b); }; });
+    host.querySelectorAll('[data-parent]').forEach(function(b){ b.onclick=function(){ issueAccount('create-parent', b.getAttribute('data-parent'), b); }; });
+  }
+
+  async function issueAccount(fn, sid, btn){
+    if(btn){ btn.disabled=true; btn.textContent='발급 중…'; }
+    try{
+      var sess=(await sb.auth.getSession()).data.session;
+      var base=(window.FN_BASE)||((window.SB_URL||'')+'/functions/v1');
+      var r=await fetch(base+'/'+fn, { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')}, body:JSON.stringify({student_id:sid}) });
+      var d=await r.json();
+      if(d.error){
+        if(d.need_code){ alert('학원 전용주소(슬러그)를 먼저 설정하세요.\n[학원 설정] → 전용주소에서 지정하면 그 주소가 아이디 접두가 됩니다 (예: samsung0001).'); }
+        else if(d.need_student){ alert('먼저 학생 계정을 발급한 뒤 보호자 계정을 발급하세요.'); }
+        else alert('발급 실패: '+d.error);
+      } else {
+        var who = fn==='create-parent' ? '보호자' : '수강생';
+        if(d.existed) alert(who+' 계정이 이미 있습니다.\n아이디: '+d.login_id);
+        else alert('✓ '+who+' 계정 발급 완료\n\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n\n(학생·학부모는 이 아이디로 로그인 → 최초 로그인 시 비밀번호 변경)');
+      }
+      reload();
+    }catch(e){ alert('발급 오류: '+((e&&e.message)||e)); if(btn){btn.disabled=false;} }
   }
 
   async function reload(){ await mountMembers(host); }
@@ -985,7 +1061,9 @@ async function doLogin(){
   if(!sb){ msg.className='msg err'; msg.textContent='DB 미연결 — config.js 확인.'; return; }
   msg.textContent='로그인 중…';
   try{
-    var { data, error } = await sb.auth.signInWithPassword({ email:email, password:pw });
+    // 아이디(학생·학부모)면 @stu.penta-view.com 으로 변환, 이메일이면 그대로
+    var loginEmail = (email.indexOf('@')>0) ? email : (email.toLowerCase()+'@stu.penta-view.com');
+    var { data, error } = await sb.auth.signInWithPassword({ email:loginEmail, password:pw });
     if(error) throw error;
     await afterAuth(data.session.user);
   }catch(e){
