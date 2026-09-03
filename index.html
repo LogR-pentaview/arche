@@ -95,6 +95,22 @@ h2{font-size:23px;line-height:1.35;font-weight:900;letter-spacing:-.02em}
 .bizfoot .plinks{margin-top:10px}
 .bizfoot .plinks a{color:var(--dim);font-weight:700;text-decoration:none;margin-right:14px;border-bottom:1px solid var(--line)}
 .bizfoot .copy{margin-top:16px;font-size:10.5px;color:var(--mute)}
+/* ===== 반응형: 모바일/PWA는 단일 컬럼, 웹(데스크톱)은 프레임 카드 ===== */
+@media (min-width:760px){
+  html,body{background:radial-gradient(1200px 600px at 50% -10%,#e9f0fb,#eef3f9 40%,#f4f7fb)}
+  .wrap{max-width:600px;margin:36px auto 48px;background:#fff;border-radius:26px;box-shadow:0 40px 90px -46px rgba(20,26,41,.45);overflow:hidden}
+  .nav{padding:20px 34px}
+  .sec{padding:64px 40px}
+  h1{font-size:36px}
+  h2{font-size:27px}
+  .lead{font-size:16px}
+  .bizfoot{padding:34px 40px 48px}
+}
+/* PWA(설치앱·standalone)에서는 항상 꽉 찬 단일 컬럼으로 */
+@media all and (display-mode:standalone){
+  html,body{background:#fff}
+  .wrap{max-width:480px;margin:0 auto;border-radius:0;box-shadow:none}
+}
 </style></head>
 <body><div class="wrap">
 
