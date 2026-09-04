@@ -33,15 +33,19 @@
   function cancel(subId){ return call('cancel',{subscription_id:subId}); }
   function changePlan(subId, newPlan){ return call('change_plan',{subscription_id:subId, plan:newPlan}); }
 
-  // 카드 등록: TossPayments 빌링 인증창(리다이렉트). 복귀 시 issueFromRedirect 로 발급.
-  async function registerCard(ctx){
-    ctx=ctx||{};
+  // 결제수단 등록: TossPayments 빌링 인증창(리다이렉트). 복귀 시 issueFromRedirect 로 발급.
+  //   method: '카드'(기본) | '계좌'(계좌 자동이체) — 계좌는 토스 자동이체 계약 완료(TOSS_ACCOUNT_BILLING=true) 후 활성화.
+  async function registerCard(ctx, method){
+    ctx=ctx||{}; method=method||'카드';
+    if(method==='계좌' && !window.TOSS_ACCOUNT_BILLING){
+      throw new Error('계좌 자동이체는 토스 자동이체 계약 완료 후 활성화됩니다. 지금은 카드로 등록해 주세요.');
+    }
     if(!window.TossPayments) throw new Error('토스 SDK 미로드 — 새로고침 해주세요.');
     var key = window.TOSS_CLIENT_KEY; if(!key) throw new Error('TOSS_CLIENT_KEY 미설정');
     var e=await call('ensure'); if(!e.customer_key) throw new Error('고객키 발급 실패');
     var base=location.origin+location.pathname;
     var tp=TossPayments(key);
-    await tp.requestBillingAuth('카드',{ customerKey:e.customer_key, successUrl:base+'?billing=success', failUrl:base+'?billing=fail' });
+    await tp.requestBillingAuth(method,{ customerKey:e.customer_key, successUrl:base+'?billing=success', failUrl:base+'?billing=fail' });
   }
   function issueFromRedirect(authKey, customerKey){ return call('issue',{authKey:authKey, customerKey:customerKey}); }
 
@@ -100,6 +104,17 @@
     // 자녀별 선택 상태(미구독 자녀 대상): { childId: {checked, plan} }
     var pick={};
     children.forEach(function(c){ pick[c.id]={checked:false, plan:recommendPlan(c.grade)}; });
+    // 빌링 등록 결제수단(카드/계좌 자동이체). 계좌는 토스 자동이체 계약(TOSS_ACCOUNT_BILLING) 후 활성화.
+    var _regMethod='카드';
+    function methodPicker(){
+      var acc=!!window.TOSS_ACCOUNT_BILLING;
+      function pill(m,label){ var on=_regMethod===m; return '<button type="button" class="kgb-pm" data-pm="'+m+'" style="flex:1;border:1.5px solid '+(on?'#141a29':'#e5e8eb')+';background:'+(on?'#f5f6f8':'#fff')+';border-radius:10px;padding:9px;font:inherit;font-weight:800;font-size:13px;cursor:pointer;color:'+((m==='계좌'&&!acc)?'#8b95a1':'#191f28')+'">'+label+'</button>'; }
+      return '<div style="display:flex;gap:8px;margin:6px 0 10px">'
+        +pill('카드','💳 카드')
+        +pill('계좌','🏦 계좌 자동이체'+(acc?'':' <span style="font-size:10px;font-weight:600">준비중</span>'))
+        +'</div>';
+    }
+    function cardBtnLabel(){ return _regMethod==='계좌' ? '🏦 계좌 자동이체 등록' : '💳 결제 카드 먼저 등록'; }
 
     function activeSubFor(childId){ return (st.subscriptions||[]).filter(function(s){return s.status==='active'&&String(s.student_id)===String(childId);})[0]||null; }
     function activeCount(){ return (st.subscriptions||[]).filter(function(s){return s.status==='active';}).length; }
@@ -125,7 +140,7 @@
         // 자녀 정보를 못 불러온 경우 — 레거시 단일 구독 흐름으로 폴백
         var cards=Object.keys(pl).map(function(k){ var p=pl[k]; return '<div class="plan'+(k==='vision'?' on':'')+'" data-k="'+k+'"><div class="nm">'+esc(p.name)+'</div><div class="pr">'+p.monthly.toLocaleString('ko-KR')+'원<span style="font-size:11px;color:#8b95a1">/월</span></div></div>'; }).join('');
         body.innerHTML=configWarn+cardLine+'<div style="font-size:12px;color:#8b95a1;margin:2px 0 12px">월 단위 정기결제 · 언제든 해지 가능</div>'+cards
-          +(bkId?'<button class="btn" id="kgb-sub">구독하기</button>':'<button class="btn" id="kgb-card">💳 결제 카드 등록</button>');
+          +(bkId?'<button class="btn" id="kgb-sub">구독하기</button>':(methodPicker()+'<button class="btn" id="kgb-card">'+cardBtnLabel()+'</button>'));
         var chosen='vision';
         body.querySelectorAll('.plan').forEach(function(el){ el.onclick=function(){ chosen=el.getAttribute('data-k'); body.querySelectorAll('.plan').forEach(function(x){x.classList.toggle('on',x===el);}); }; });
         wireCard();
@@ -178,7 +193,7 @@
 
       var est=estimate();
       var payBtn = !bkId
-        ? '<button class="btn" id="kgb-card">💳 결제 카드 먼저 등록</button>'
+        ? (methodPicker()+'<button class="btn" id="kgb-card">'+cardBtnLabel()+'</button>')
         : (est.count>0
             ? '<button class="btn" id="kgb-buy">선택한 '+est.count+'명 구독하기 · 예상 월 '+est.total.toLocaleString('ko-KR')+'원</button>'
             : '<button class="btn" id="kgb-buy" disabled>구독할 자녀를 선택하세요</button>');
@@ -235,10 +250,12 @@
     }
 
     function wireCard(){
+      // 결제수단 선택 pill(카드/계좌)
+      body.querySelectorAll('.kgb-pm').forEach(function(b){ b.onclick=function(){ _regMethod=b.getAttribute('data-pm'); draw(); }; });
       var cardBtn=body.querySelector('#kgb-card');
-      if(cardBtn) cardBtn.onclick=async function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } try{ await registerCard(ctx); }catch(e){ alert('카드 등록 실패: '+e.message); } };
+      if(cardBtn) cardBtn.onclick=async function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } try{ await registerCard(ctx, _regMethod); }catch(e){ alert('등록 실패: '+e.message); } };
       var cardChg=body.querySelector('#kgb-cardchg');
-      if(cardChg) cardChg.onclick=async function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } if(!confirm('새 카드로 변경할까요? 카드 인증창으로 이동합니다.'))return; try{ await registerCard(ctx); }catch(e){ alert('카드 변경 실패: '+e.message); } };
+      if(cardChg) cardChg.onclick=async function(){ if(!st.configured){ alert('결제 준비 중입니다.'); return; } if(!confirm('결제수단을 새로 등록할까요? 인증창으로 이동합니다.'))return; try{ await registerCard(ctx, _regMethod); }catch(e){ alert('변경 실패: '+e.message); } };
     }
 
     draw();

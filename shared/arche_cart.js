@@ -102,14 +102,13 @@
   // ── 상품 한 건 즉시 결제(바로구매) — 장바구니를 거치지 않고 단건 결제창 오픈 ──
   //   서버(confirm_buy_now)가 ref로 store_products 가격을 재검증 후 승인·지급.
   function buyNow(studentId, ref, amount){
-    if(!window.TossPayments) throw new Error('토스 SDK 미로드 — 새로고침 해주세요.');
-    var ck=window.TOSS_CLIENT_KEY; if(!ck) throw new Error('결제 설정(config.js) 로드 실패');
-    var oid='ptb_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8);
-    try{ sessionStorage.setItem('acart_buy_'+oid, JSON.stringify({ ref:ref, student_id:studentId||null })); }catch(_e){}
-    var base=location.origin+location.pathname;
-    // 취소/실패 → 앱으로 클린 복귀(?acart_cancelled=1). 오버레이면 복귀 핸들러가 최상위로 탈출시킴.
-    snapBody();
-    return TossPayments(ck).requestPayment('카드',{ amount:amount, orderId:oid, orderName:'펜타 단품 결제', customerName:'고객', successUrl:base+'?acart_buy=1', failUrl:base+'?acart_cancelled=1&v=store' });
+    if(!(Number(amount)>0)) throw new Error('가격 정보가 없어 결제할 수 없어요.');
+    // ★ 단품은 전용 결제위젯 페이지(/pay/checkout)로 통일 → 카드·계좌이체·휴대폰 등
+    //   토스 상점관리자에 노출 설정된 결제수단이 모두 뜬다. (카드 고정 requestPayment 제거)
+    location.href = '/pay/checkout?mode=buy&ref=' + encodeURIComponent(ref)
+      + '&student=' + encodeURIComponent(studentId||'')
+      + '&amount=' + (Number(amount))
+      + '&name=' + encodeURIComponent('펜타 단품 결제');
   }
 
   // ── UI ──
