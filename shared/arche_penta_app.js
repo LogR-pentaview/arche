@@ -11,6 +11,16 @@
 (function () {
   "use strict";
   var PROJECT_URL = 'https://dvxepjctjazobrkjrkdw.supabase.co';
+  var _appRole = '';   // [학원용] 마지막 mountRole 역할(staff/student/parent) — 미리보기·워크북 교사/학생 판별용
+  // 학원용(academy) 워크북을 키로 조회: 교사=원본(teach), 학생=서버 스트립. 실패 시 null → 호출부가 b2c 폴백.
+  async function academyLessonByKey(c){
+    try{
+      if(window._isB2C || !window.sb || !window.sb.rpc || !c) return null;
+      var r = await window.sb.rpc('penta_academy_workbook_by_key', { p_stage:c.stage, p_level:(c.level||''), p_season:c.season, p_week:c.week });
+      if(r && !r.error && r.data) return r.data;
+    }catch(e){}
+    return null;
+  }
 
   var CSS = ""
     + ".pnta{max-width:960px;margin:0 auto;font-family:'Noto Sans KR',sans-serif;color:#243244}"
@@ -227,22 +237,33 @@
     ov.querySelector('.pnta-wbx').addEventListener('click',function(){ ov.remove(); });
     /* [정합성] 배정 row의 stage/season/week/level을 lesson에 병합 — 저장(save_penta)이 (vision,1,1)로 어긋나 리포트가 "제출물 없음"에 고착되던 것 방지 */
     var _lc=a.content; if(typeof _lc==='string'){ try{ _lc=JSON.parse(_lc); }catch(_e){ _lc={}; } } if(!_lc||typeof _lc!=='object')_lc={};
-    var _lesson=Object.assign({}, _lc, { stage:a.stage, level:(a.level!=null?a.level:(_lc.level||'')), season:a.season, week:a.week, theme:(_lc.theme||a.theme||''), title:(_lc.title||a.title||''), gradeBand:(_lc.gradeBand||a.grade_band||'') });
+    var _lev=(a.level!=null?a.level:(_lc.level||''));
+    var _lesson=Object.assign({}, _lc, { stage:a.stage, level:_lev, season:a.season, week:a.week, theme:(_lc.theme||a.theme||''), title:(_lc.title||a.title||''), gradeBand:(_lc.gradeBand||a.grade_band||'') });
+    // [학원용] 학원 컨텍스트면 학원용 워크북(한글·형식 일치, 학생은 서버 스트립)으로 교체
+    var _ac=await academyLessonByKey({ stage:a.stage, level:_lev, season:a.season, week:a.week });
+    if(_ac){ _lesson=Object.assign({}, _ac, { stage:a.stage, level:_lev, season:a.season, week:a.week, theme:(_ac.theme||_lesson.theme||''), title:(_ac.title||_lesson.title||''), gradeBand:(_ac.gradeBand||_lesson.gradeBand||'') }); }
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), {
       lesson: _lesson, academyId: acadId(), studentId: studentId,
-      mode:'live', readOnly: !!readOnly, prefill: pre,
+      mode:'live', readOnly: !!readOnly, prefill: pre, role:(_appRole==='staff'?'staff':undefined),
       onSubmit: function(){ toast('제출 완료! 🎉'); setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },900); }
     });
   }
 
-  // 컨설턴트용 워크북 미리보기(빈 워크북 · 저장 안 함)
-  function openWorkbookPreview(c){
+  // 워크북 미리보기 — 학원 교사/원장: 학원용(교사 가이드 포함) staff 뷰, 그 외: b2c 원본
+  async function openWorkbookPreview(c){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
     if(!c || !c.content){ toast('이 회차의 워크북 내용이 없습니다'); return; }
-    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">📖 미리보기 · 저장되지 않습니다</div><div class="wbmount"></div></div></div>');
+    var acStaff = (_appRole==='staff' && !window._isB2C);
+    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">'+(acStaff?'👩‍🏫 교사용 미리보기 · 수업 가이드·발문 포함':'📖 미리보기 · 저장되지 않습니다')+'</div><div class="wbmount">불러오는 중…</div></div></div>');
     document.body.appendChild(ov);
     ov.querySelector('.pnta-wbx').addEventListener('click',function(){ ov.remove(); });
-    ArchePentaWorkbook.render(ov.querySelector('.wbmount'), { lesson: c.content, mode:'preview', readOnly:false });
+    var lesson=c.content, role, tier;
+    if(acStaff){
+      var ac=await academyLessonByKey(c);
+      if(ac){ lesson=ac; role='staff'; tier=(c.tier||'일반'); }
+    }
+    var mnt=ov.querySelector('.wbmount'); if(!mnt) return; mnt.innerHTML='';
+    ArchePentaWorkbook.render(mnt, { lesson: lesson, mode:'preview', readOnly:false, role:role, tier:tier });
   }
 
   async function viewReport(submissionId){
@@ -594,6 +615,7 @@
   }
   function mountRole(root, role, opts){
     inject(); opts=opts||{};
+    try{ _appRole = role||''; }catch(e){}   // [학원용] 현재 뷰 역할 기억(미리보기 교사/학생 판별)
     /* 시즌 선택 반영: 시즌 피커에서 넘어온 season이 있으면 그 시즌만, 없으면 전체 */
     try{ window._pentaSeason = (opts.season!=null && opts.season!=='') ? opts.season : null; }catch(e){}
     try{ if(opts.course) window._pentaCourse=opts.course; }catch(e){}   // [정합성] 재마운트 시 코스 컨텍스트 유지
