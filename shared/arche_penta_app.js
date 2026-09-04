@@ -12,6 +12,15 @@
   "use strict";
   var PROJECT_URL = 'https://dvxepjctjazobrkjrkdw.supabase.co';
   var _appRole = '';   // [학원용] 마지막 mountRole 역할(staff/student/parent) — 미리보기·워크북 교사/학생 판별용
+  // 학생의 반 등급(일반/특목). 특목반이면 워크북에 특목 tier 블록 노출.
+  async function classTierOfStudent(studentId){
+    try{
+      if(window._isB2C || !window.sb || !window.sb.rpc || !studentId) return '일반';
+      var r=await window.sb.rpc('student_class_tier', { p_student:String(studentId) });
+      if(r && !r.error && r.data==='특목') return '특목';
+    }catch(e){}
+    return '일반';
+  }
   // 학원용(academy) 워크북을 키로 조회: 교사=원본(teach), 학생=서버 스트립. 실패 시 null → 호출부가 b2c 폴백.
   async function academyLessonByKey(c){
     try{
@@ -242,9 +251,10 @@
     // [학원용] 학원 컨텍스트면 학원용 워크북(한글·형식 일치, 학생은 서버 스트립)으로 교체
     var _ac=await academyLessonByKey({ stage:a.stage, level:_lev, season:a.season, week:a.week });
     if(_ac){ _lesson=Object.assign({}, _ac, { stage:a.stage, level:_lev, season:a.season, week:a.week, theme:(_ac.theme||_lesson.theme||''), title:(_ac.title||_lesson.title||''), gradeBand:(_ac.gradeBand||_lesson.gradeBand||'') }); }
+    var _tier=await classTierOfStudent(studentId);   // 반 등급 → 특목반이면 특목 블록 노출
     ArchePentaWorkbook.render(ov.querySelector('.wbmount'), {
       lesson: _lesson, academyId: acadId(), studentId: studentId,
-      mode:'live', readOnly: !!readOnly, prefill: pre, role:(_appRole==='staff'?'staff':undefined),
+      mode:'live', readOnly: !!readOnly, prefill: pre, role:(_appRole==='staff'?'staff':undefined), tier:_tier,
       onSubmit: function(){ toast('제출 완료! 🎉'); setTimeout(function(){ ov.remove(); var r=document.querySelector('.pnta'); if(r)ArchePentaApp.mount(r.parentNode,{course:window._pentaCourse,season:window._pentaSeason}); },900); }
     });
   }
@@ -644,17 +654,29 @@
     if(!ac){ mnt.innerHTML='<div style="padding:22px;color:#8b95a1;font-size:13px">학원용 워크북을 불러오지 못했습니다. (회차 정보 확인)</div>'; return; }
     ArchePentaWorkbook.render(mnt, { lesson: ac, mode:'preview', readOnly:false, role:'staff', tier:(row.tier||'일반') });
   }
-  // [학원용] 관제: 특정 학생이 수행 중/제출한 워크북을 교사용(답안 포함, 읽기전용)으로 열기
-  async function openStudentWorkbook(studentId, opts){
-    opts=opts||{};
+  // [학원용] 관제: 학생이 수행 중/제출한 워크북을 교사용(읽기전용)으로. 배정 없으면 반 커리큘럼 차시로 폴백.
+  async function openStudentWorkbook(studentId, classId){
+    _appRole='staff';
+    // 1) 학생 개별 배정이 있으면 그 회차(학생 답안 프리필 + 교사뷰)
     try{
       var r=await window.sb.rpc('list_penta_assignments',{p_academy:acadId(),p_student:String(studentId)});
-      var rows=(r&&r.data)||[]; if(!rows.length){ toast('이 학생에게 배정된 회차가 없습니다'); return; }
-      // 가장 최근(active) 배정 1건
-      var a=rows.filter(function(x){return x.active!==false;})[0]||rows[0];
-      _appRole='staff';
-      await openWorkbook(a, studentId, true); // readOnly=true → 학생 답안 프리필 + 교사뷰
-    }catch(e){ toast('워크북 열기 실패: '+((e&&e.message)||e)); }
+      var rows=(r&&r.data)||[]; var a=rows.filter(function(x){return x.active!==false;})[0]||rows[0];
+      if(a){ await openWorkbook(a, studentId, true); return; }
+    }catch(e){}
+    // 2) 배정 없으면 이 반에 편성된 차시(개방 우선, 없으면 최신) 교사용 미리보기
+    try{
+      if(classId){
+        var rc=await window.sb.from('academy_curriculum').select('*').eq('class_id',classId).order('order_no',{ascending:false});
+        var list=(rc&&rc.data)||[];
+        var cur=list.filter(function(x){return x.status==='opened';})[0]||list[0];
+        if(cur){
+          var tier=await classTierOfStudent(studentId);
+          await openAcademyPreview({ stage:cur.stage, level:cur.level, season:cur.season, week:cur.week, tier:tier });
+          return;
+        }
+      }
+    }catch(e){}
+    toast('아직 배정·편성된 회차가 없습니다. [코스웨어 → 차시 편성]에서 차시를 담고 [수업 개방]하세요.');
   }
   window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.7', _callPenta: callPenta,
     openReview: openReview, listSubmissions: listSubmissionsFor,
