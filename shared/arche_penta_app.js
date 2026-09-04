@@ -237,6 +237,7 @@
   // 워크북 오버레이
   async function openWorkbook(a, studentId, readOnly){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
+    inject(); // 오버레이 CSS(전체화면 모달) 보장 — mount() 안 거치고 직접 열릴 때 밑에 박히던 문제 해결
     var pre=null;
     if(readOnly || a.status!=='assigned'){
       try{ var sub=await getSubmissionBy(studentId,a.stage,a.season,a.week); if(sub)pre={answers:sub.answers,radar_before:sub.radar_before,radar_after:sub.radar_after,compass:sub.compass}; }catch(e){}
@@ -262,6 +263,7 @@
   // 워크북 미리보기 — 학원 교사/원장: 학원용(교사 가이드 포함) staff 뷰, 그 외: b2c 원본
   async function openWorkbookPreview(c){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
+    inject();
     if(!c || !c.content){ toast('이 회차의 워크북 내용이 없습니다'); return; }
     var acStaff = (_appRole==='staff' && !window._isB2C);
     var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">'+(acStaff?'👩‍🏫 교사용 미리보기 · 수업 가이드·발문 포함':'📖 미리보기 · 저장되지 않습니다')+'</div><div class="wbmount">불러오는 중…</div></div></div>');
@@ -646,7 +648,8 @@
   // [학원용] 교사용 워크북 미리보기(커리큘럼·관제에서 호출). row={stage,level,season,week,tier}
   async function openAcademyPreview(row){
     if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
-    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">👩‍🏫 교사용 미리보기 · 수업 가이드·발문 포함</div><div class="wbmount">불러오는 중…</div></div></div>');
+    inject();
+    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">👩‍🏫 교사용 · 수업 가이드·발문·압박질문 포함</div><div class="wbmount">불러오는 중…</div></div></div>');
     document.body.appendChild(ov);
     ov.querySelector('.pnta-wbx').addEventListener('click',function(){ ov.remove(); });
     var ac=await academyLessonByKey(row);
