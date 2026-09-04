@@ -1,292 +1,1342 @@
-<!doctype html><html lang="ko"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>펜타 시리즈 · 스스로 생각하는 힘을 키우는 학습 플랫폼 — PentaView</title>
+<meta name="description" content="AI가 대신 써주는 시대, 펜타 시리즈는 아이가 스스로 사고하고 직접 쓰게 합니다. 펜타 비전(융합사고) · 펜타 트랙(진로 설계) · 펜타 아르케(본인 작성 증명). 초등부터 고등까지, 생각하는 힘과 그 과정을 데이터로 남기는 학습 플랫폼.">
 <meta name="theme-color" content="#3182f6">
 <link rel="icon" type="image/png" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="manifest" href="/manifest-penta.json">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="펜타 시리즈">
-<title>PENTA · AI가 답을 주는 시대, 아이의 생각을 키웁니다</title>
-<meta name="description" content="AI가 답을 대신 써주는 시대. PENTA는 답을 주지 않고 아이에게 되묻습니다. 매주 하나의 질문으로 스스로 생각하는 힘을 키우고, 그 변화를 리포트로 봅니다.">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
+:root{
+  --bg:#f2f4f6; --panel:#fff; --line:#e5e8eb; --line-soft:#eef1f4;
+  --ink:#191f28; --ink-dim:#4e5968; --ink-mute:#8b95a1; --ink-faint:#b0b8c1;
+  --blue:#3182f6; --blue-deep:#1b64da; --blue-soft:#e8f3ff;
+  --mint:#00b8a9; --mint-soft:#e6faf8;
+  --safe:#12b76a; --safe-soft:#ecfdf3;
+  --warn:#f79009; --warn-soft:#fffaeb;
+  --risk:#f04452; --risk-soft:#fef3f2;
+  --violet:#1f95ff; --violet-soft:var(--sky-soft);
+  --navy:#141a29; --gold:#1f95ff; --lime:#48e0cf;
+  --sky:#1f95ff; --sky-soft:#e8f5ff; --mint:#0bb8a6; --mint-soft:#e0fbf6; --amber:#f5920a; --amber-soft:#fff3d6;
+  --ppanel:#ffffff; --pbg:#f6fbff; --pline:#e6eef2; --pink2:#122a3a; --pdim:#4a6274; --pmute:#8aa0af;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--indigo:#1A237E;--blue:#3182f6;--blueD:#1b64da;--mint:#0BB8A6;--gold:#c8a24a;--ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e6eaf0;--soft:#f4f7fb}
-html,body{background:#fff}
-body{font-family:'Pretendard Variable',Pretendard,-apple-system,system-ui,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased;line-height:1.5}
-.wrap{max-width:480px;margin:0 auto}
-.sec{padding:52px 22px}
-.eyebrow{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.02em;color:var(--blueD);background:#e8f1ff;border-radius:20px;padding:6px 13px;margin-bottom:16px}
-.eyebrow.mint{color:#0a8f81;background:#e6faf6}
-h1{font-size:30px;line-height:1.32;font-weight:900;letter-spacing:-.03em}
-h2{font-size:23px;line-height:1.35;font-weight:900;letter-spacing:-.02em}
-.g{color:var(--blue)}.gi{color:var(--indigo)}
-.lead{font-size:15px;color:var(--dim);line-height:1.75;margin-top:14px}
-.lead b{color:var(--ink);font-weight:700}
-.btn{display:block;text-align:center;border-radius:14px;font-size:16px;font-weight:800;padding:16px;text-decoration:none;transition:.15s}
-.btn:active{transform:scale(.99)}
-.btn.p{background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;box-shadow:0 10px 24px -8px rgba(49,130,246,.55)}
-.btn.mint{background:linear-gradient(135deg,var(--mint),#0aa596);color:#fff;box-shadow:0 10px 24px -8px rgba(11,184,166,.5)}
-.btn.ghost{background:#fff;color:var(--indigo);border:1.5px solid #d3ddf1}
-.cta{display:flex;flex-direction:column;gap:10px;margin-top:24px}
-/* nav */
-.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 22px;gap:10px}
-.logo{font-size:20px;font-weight:900;letter-spacing:-.02em;color:var(--indigo)}.logo b{color:var(--blue)}
-.navlinks{display:flex;align-items:center;gap:14px}
-.navlink{font-size:13px;font-weight:700;color:var(--dim);text-decoration:none}
-.navlink:active{color:var(--indigo)}
-.navcta{font-size:12.5px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--mint),#0aa596);border-radius:20px;padding:8px 14px;text-decoration:none;white-space:nowrap}
-/* hero */
-.hero{background:linear-gradient(180deg,#eef3fb,#fff 70%);padding-top:16px}
-.trust{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
-.trust span{font-size:11.5px;font-weight:700;color:var(--dim);background:var(--soft);border:1px solid var(--line);border-radius:20px;padding:6px 11px}
-/* problem chips */
-.think{background:#0e1524;color:#e7ecf5;border-radius:18px;padding:20px;margin-top:24px}
-.think .t{font-size:12px;font-weight:800;color:#7f8db0;margin-bottom:12px}
-.think .b{font-size:14.5px;line-height:1.7;color:#dbe3f2;background:#161f34;border-radius:12px;padding:12px 14px;margin-bottom:9px;border-left:3px solid #37507f}
-.think .b:last-child{margin-bottom:0}
-.think .b b{color:#fff}
-/* solve */
-.solve{background:var(--indigo);color:#fff}
-.solve .eyebrow{color:#c7d3ff;background:rgba(255,255,255,.12)}
-.solve h2{color:#fff}
-.solve .lead{color:#c7d1e8}.solve .lead b{color:#fff}
-.solve .big{font-size:21px;font-weight:900;line-height:1.5;margin-top:20px}
-.solve .big .u{color:#ffd979}
-/* flow */
-.flow{display:flex;flex-direction:column;gap:0;margin-top:24px}
-.fstep{display:flex;gap:13px;align-items:flex-start;position:relative;padding-bottom:16px}
-.fstep:not(:last-child)::before{content:"";position:absolute;left:17px;top:34px;bottom:0;width:2px;background:var(--line)}
-.fstep .fn{flex:0 0 auto;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;font-size:17px;background:#fff;border:1.5px solid var(--line);z-index:1}
-.fstep.on .fn{background:linear-gradient(135deg,var(--blue),var(--indigo));border-color:transparent}
-.fstep .ft{font-size:11px;font-weight:800;color:var(--mute)}
-.fstep .fb{font-size:14.5px;font-weight:700;color:var(--ink);margin-top:2px;line-height:1.5}
-.fstep .fb .ai{color:var(--blue)}
-.samplecard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:6px;margin-top:26px;box-shadow:0 18px 44px -22px rgba(20,26,41,.4)}
-.samplecard .inner{background:var(--soft);border-radius:14px;padding:18px 16px}
-.samplecard .q{font-size:15px;font-weight:800;color:var(--indigo);line-height:1.5}
-.samplecard .tag{font-size:11px;font-weight:800;color:var(--mint);margin-bottom:6px}
-/* change */
-.change .compare{margin-top:22px;display:flex;flex-direction:column;gap:12px}
-.cbox{border-radius:14px;padding:15px 16px;border:1px solid var(--line)}
-.cbox .cl{font-size:11.5px;font-weight:800;margin-bottom:6px}
-.cbox.before{background:#fbfcfe}.cbox.before .cl{color:var(--mute)}
-.cbox.after{background:#eef4ff;border-color:#cfe0ff}.cbox.after .cl{color:var(--blueD)}
-.cbox .cq{font-size:14.5px;line-height:1.6;color:var(--ink)}
-.arrow{text-align:center;color:var(--blue);font-size:20px;font-weight:900}
-.insight{margin-top:16px;background:#0e1524;color:#fff;border-radius:14px;padding:16px 18px;font-size:14.5px;line-height:1.7}
-.insight b{color:#ffd979}
-/* price */
-.price{background:linear-gradient(180deg,#f4f7fb,#fff);text-align:center}
-.pcard{background:var(--indigo);color:#fff;border-radius:22px;padding:30px 24px;box-shadow:0 20px 50px -22px rgba(26,35,126,.6)}
-.pcard .pk{font-size:12px;font-weight:800;color:#9fb0e0;letter-spacing:.04em}
-.pcard .pbig{font-size:30px;font-weight:900;margin:10px 0 4px;letter-spacing:-.02em}
-.pcard .psub{font-size:13.5px;color:#c7d1e8;line-height:1.7;margin-bottom:6px}
-.pcard .pprice{font-size:15px;color:#fff;margin-top:14px}.pcard .pprice b{font-size:26px;font-weight:900}
-.pcard .promo{font-size:12.5px;color:#ffd979;font-weight:700;margin-top:8px}
-.pcard .btn{margin-top:18px}
-.finehelp{font-size:11.5px;color:var(--mute);line-height:1.7;margin-top:16px}
-.plans{margin-top:22px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 12px 30px -20px rgba(20,26,41,.3)}
-.plans .ptitle{font-size:12px;font-weight:800;color:var(--mute);letter-spacing:.02em;padding:13px 16px 3px}
-.plans .prow{display:flex;align-items:center;gap:12px;padding:13px 16px;border-top:1px solid var(--line)}
-.plans .pic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:0 0 auto}
-.plans .pnm{font-size:14.5px;font-weight:800;color:var(--ink)}
-.plans .pgr{font-size:11.5px;color:var(--mute);margin-top:1px}
-.plans .pwon{margin-left:auto;text-align:right;font-size:15px;font-weight:900;color:var(--indigo);white-space:nowrap}
-.plans .pwon small{display:block;font-size:10.5px;color:var(--mute);font-weight:600}
-.plans .pnote{font-size:11px;color:var(--mute);padding:4px 16px 13px;line-height:1.6}
-/* 결제·이용·환불 안내 (KG 사전심사) */
-.payinfo{margin-top:16px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;box-shadow:0 12px 30px -20px rgba(20,26,41,.3)}
-.payinfo h4{font-size:13.5px;font-weight:800;color:var(--ink);margin-bottom:12px}
-.payinfo dl{margin:0}
-.payinfo .r{display:flex;gap:12px;padding:8px 0;border-top:1px solid var(--soft)}
-.payinfo .r:first-child{border-top:0}
-.payinfo dt{flex:0 0 66px;font-size:11.5px;font-weight:800;color:var(--blueD)}
-.payinfo dd{margin:0;flex:1;font-size:12px;color:var(--dim);line-height:1.6}
-.payinfo .plink{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
-.payinfo .plink a{font-size:11.5px;font-weight:700;color:var(--dim);text-decoration:none;margin-right:14px;border-bottom:1px solid var(--line)}
-/* 사업자정보 푸터 */
-.bizfoot{border-top:1px solid var(--line);padding:30px 22px 46px;color:var(--mute);font-size:11.5px;line-height:1.9}
-.bizfoot .fbrand{font-size:16px;font-weight:900;color:var(--indigo)}.bizfoot .fbrand b{color:var(--blue)}
-.bizfoot .fdisc{margin-top:10px;font-size:11px;color:var(--mute);line-height:1.85}
-.bizfoot .biz{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);color:var(--dim)}
-.bizfoot .biz b{color:var(--ink);font-weight:700}
-.bizfoot .plinks{margin-top:10px}
-.bizfoot .plinks a{color:var(--dim);font-weight:700;text-decoration:none;margin-right:14px;border-bottom:1px solid var(--line)}
-.bizfoot .copy{margin-top:16px;font-size:10.5px;color:var(--mute)}
-/* ===== 반응형: 모바일/PWA는 단일 컬럼, 웹(데스크톱)은 프레임 카드 ===== */
-@media (min-width:760px){
-  html,body{background:radial-gradient(1200px 600px at 50% -10%,#e9f0fb,#eef3f9 40%,#f4f7fb)}
-  .wrap{max-width:600px;margin:36px auto 48px;background:#fff;border-radius:26px;box-shadow:0 40px 90px -46px rgba(20,26,41,.45);overflow:hidden}
-  .nav{padding:20px 34px}
-  .sec{padding:64px 40px}
-  h1{font-size:36px}
-  h2{font-size:27px}
-  .lead{font-size:16px}
-  .bizfoot{padding:34px 40px 48px}
-}
-/* PWA(설치앱·standalone)에서는 항상 꽉 찬 단일 컬럼으로 */
-@media all and (display-mode:standalone){
-  html,body{background:#fff}
-  .wrap{max-width:480px;margin:0 auto;border-radius:0;box-shadow:none}
-}
-</style></head>
-<body><div class="wrap">
+html{scroll-behavior:smooth}
+body{font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:var(--ink);letter-spacing:-.012em;-webkit-font-smoothing:antialiased;line-height:1.6}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;border-radius:20px;padding:6px 14px}
+.b-blue{background:var(--blue-soft);color:var(--blue-deep)}
+.b-mint{background:var(--mint-soft);color:#00897d}
+.b-navy{background:#eaf1f6;color:var(--mint)}
 
-<div class="nav">
-  <div class="logo">PEN<b>TA</b></div>
-  <div class="navlinks">
-    <a class="navlink" href="https://arche.penta-view.com/parent">로그인</a>
-    <a class="navlink" href="https://arche.penta-view.com/parent?trial=1">회원가입</a>
-    <a class="navcta" href="/samples/trial-ai-workbook">▶ 무료 체험</a>
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.reveal.d1{transition-delay:.08s}.reveal.d2{transition-delay:.16s}.reveal.d3{transition-delay:.24s}
+
+/* 헤더 */
+header{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);border-bottom:1px solid var(--line-soft)}
+.nav{display:flex;align-items:center;gap:16px;height:62px}
+.logo{display:flex;align-items:center;gap:9px;font-size:19px;font-weight:800;letter-spacing:-.02em}
+.logo .mark{width:32px;height:32px;border-radius:9px;object-fit:cover;display:block;box-shadow:0 4px 10px rgba(20,26,41,.22)}
+.logo b{color:var(--blue)}
+.nav .menu{display:flex;gap:1px;margin-left:4px;flex-wrap:nowrap}
+.nav .menu a{font-size:13px;font-weight:600;color:var(--ink-dim);padding:7px 9px;border-radius:9px;transition:.14s;white-space:nowrap}
+.nav .menu .sep{width:1px;height:15px;background:var(--line);margin:0 4px;align-self:center;flex:none}
+.nav .menu a:hover{background:var(--bg);color:var(--ink)}
+.nav .menu a.hot{color:var(--blue);font-weight:800}
+.nav .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border:none;border-radius:13px;font-family:inherit;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn.pri{background:var(--blue);color:#fff;font-size:13.5px;padding:10px 18px;box-shadow:0 4px 14px rgba(49,130,246,.28)}
+.btn.pri:hover{background:var(--blue-deep);transform:translateY(-1px)}
+.btn.ghost{background:#fff;color:var(--ink-dim);border:1px solid var(--line);font-size:13.5px;padding:10px 18px}
+.btn.ghost:hover{border-color:var(--blue);color:var(--blue)}
+.btn.big{font-size:15.5px;padding:15px 28px;border-radius:15px}
+.btn.navy{background:var(--navy);color:#fff;box-shadow:0 4px 14px rgba(20,26,41,.28)}
+.btn.navy:hover{background:#0d1220;transform:translateY(-1px)}
+
+/* 히어로 */
+.hero{background:linear-gradient(180deg,#fff 0%,var(--bg) 100%);padding:64px 0 0;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:520px;background:radial-gradient(closest-side,rgba(49,130,246,.1),transparent);pointer-events:none;animation:float 7s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(18px)}}
+.hero .patent{font-size:11.5px;font-weight:700;color:var(--ink-mute);letter-spacing:.02em;background:#fff;border:1px solid var(--line);border-radius:20px;padding:6px 15px;display:inline-flex;align-items:center;gap:7px;margin-bottom:22px}
+.hero .patent i{width:7px;height:7px;border-radius:50%;background:var(--blue);display:inline-block;animation:pulse 1.8s infinite}
+.hero h1{font-size:clamp(30px,5.2vw,50px);font-weight:800;letter-spacing:-.03em;line-height:1.26}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero p.sub{font-size:clamp(14px,1.9vw,17px);color:var(--ink-dim);font-weight:500;margin:20px auto 0;max-width:620px;line-height:1.75}
+.hero .cta{display:flex;gap:12px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.trial-cta{background:linear-gradient(135deg,#0BB8A6,#3182f6);color:#fff!important;border:none;box-shadow:0 12px 30px -8px rgba(11,184,166,.55);position:relative;animation:trialGlow 2.4s ease-in-out infinite}
+.trial-cta:hover{filter:brightness(1.05)}
+.trial-cta .tbadge{background:rgba(255,255,255,.24);border-radius:20px;padding:2px 9px;font-size:12px;margin-left:8px;font-weight:800;vertical-align:middle}
+@keyframes trialGlow{0%,100%{box-shadow:0 12px 30px -8px rgba(11,184,166,.5)}50%{box-shadow:0 14px 40px -6px rgba(49,130,246,.7)}}
+.hdr-trial{background:linear-gradient(135deg,#0BB8A6,#3182f6)!important;color:#fff!important;border:none!important}
+
+/* 히어로 목업: 본인 작성 검증 리포트 */
+.vmock{max-width:760px;margin:46px auto 0;background:#fff;border-radius:22px 22px 0 0;box-shadow:0 -8px 60px rgba(25,31,40,.12);border:1px solid var(--line-soft);border-bottom:none;padding:22px 24px 8px;text-align:left}
+.vmock .mhead{display:flex;align-items:center;gap:9px;margin-bottom:16px}
+.vmock .mhead .t{font-size:13px;font-weight:800}
+.vmock .mhead .t small{font-weight:600;color:var(--ink-mute);margin-left:6px;font-size:11px}
+.vmock .live{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--safe);background:var(--safe-soft);border-radius:20px;padding:4px 11px;display:flex;align-items:center;gap:5px}
+.vmock .live i{width:6px;height:6px;border-radius:50%;background:var(--safe);animation:pulse 1.6s infinite}
+.vgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:14px}
+.vbox{background:var(--bg);border-radius:14px;padding:14px 15px}
+.vbox .vl{font-size:11px;font-weight:700;color:var(--ink-mute);margin-bottom:10px}
+.rhythm{display:flex;align-items:flex-end;gap:3px;height:44px}
+.rhythm i{flex:1;background:var(--blue);border-radius:2px;height:8%;opacity:.85;transition:height 1s ease}
+.rhythm i.pale{background:#c7d6ec}
+.verdict{display:flex;align-items:center;gap:9px;margin-top:12px}
+.verdict .dotv{width:11px;height:11px;border-radius:50%;background:var(--safe);box-shadow:0 0 0 4px var(--safe-soft)}
+.verdict b{font-size:13px;font-weight:800;color:var(--safe)}
+.verdict span{font-size:11px;color:var(--ink-mute);font-weight:600;margin-left:auto}
+.vmet{display:flex;justify-content:space-between;font-size:12px;padding:7px 0;border-bottom:1px dashed #dde3ea}
+.vmet:last-child{border-bottom:none}
+.vmet b{font-weight:800}
+.vmet .g{color:var(--safe)}
+
+/* 공통 섹션 */
+section{padding:74px 0}
+section[id]{scroll-margin-top:74px}
+section.alt{background:var(--bg)}
+.sec-eyebrow{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:10px}
+.sec-eyebrow.mint{color:#00897d}
+.sec-eyebrow.navy{color:var(--sky)}
+.sec-h{font-size:clamp(24px,3.4vw,34px);font-weight:800;letter-spacing:-.03em;line-height:1.35}
+.sec-h em{font-style:normal;color:var(--blue)}
+.sec-p{font-size:15px;color:var(--ink-dim);font-weight:500;margin-top:12px;max-width:660px;line-height:1.78}
+.center{text-align:center}
+.center .sec-p{margin-left:auto;margin-right:auto}
+
+/* 3층 철학 */
+.layer3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.lc{background:#fff;border:1px solid var(--line-soft);border-radius:20px;padding:26px 24px;transition:.18s;position:relative}
+.lc:hover{transform:translateY(-4px);box-shadow:0 14px 40px rgba(25,31,40,.09)}
+.lc .q{font-size:12px;font-weight:800;color:var(--ink-faint);letter-spacing:.02em}
+.lc .ci{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-size:22px;margin:10px 0 14px}
+.lc h3{font-size:17px;font-weight:800}
+.lc h3 small{display:block;font-size:11px;color:var(--ink-mute);font-weight:600;margin-top:3px}
+.lc p{font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:10px;line-height:1.7}
+.enginenote{margin-top:22px;font-size:11.5px;color:var(--ink-mute);font-weight:600;text-align:center;background:var(--bg);border-radius:12px;padding:11px 16px}
+
+/* 3층 카드 미리보기 샘플 */
+.lcs{margin-top:16px;background:var(--bg);border-radius:12px;padding:13px 14px;text-align:left}
+.lcs .lcl{font-size:10px;font-weight:800;color:var(--ink-mute);letter-spacing:.03em;margin-bottom:9px}
+.lcs svg{display:block;width:100%;height:auto}
+/* 레이더(주파수) */
+.radar-grid{fill:none;stroke:#dce1e8;stroke-width:1}
+.radar-axis{stroke:#e4e8ee;stroke-width:1}
+.radar-area{fill:rgba(49,130,246,.16);stroke:var(--blue);stroke-width:2;stroke-linejoin:round}
+.radar-dot{fill:#fff;stroke:var(--blue);stroke-width:2}
+.radar-lbl{fill:var(--ink-dim);font-size:9.5px;font-weight:800}
+/* 사고 지표(바) */
+.lcs-ind{display:grid;gap:7px}
+.lcs-ind .ir{display:flex;align-items:center;gap:9px}
+.lcs-ind .ir .inm{font-size:10.5px;font-weight:700;color:var(--ink-dim);width:56px;flex:none}
+.lcs-ind .ir .ib{flex:1;height:6px;border-radius:4px;background:#e2e6ea;overflow:hidden}
+.lcs-ind .ir .ib i{display:block;height:100%;border-radius:4px;background:var(--sky)}
+/* 본인 작성 증명(라인) */
+.proof-area{fill:url(#pgrad)}
+.proof-line{fill:none;stroke:var(--blue);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lcs-proof .pv{display:flex;align-items:center;gap:7px;margin-top:8px}
+.lcs-proof .pv .d{width:9px;height:9px;border-radius:50%;background:var(--safe);box-shadow:0 0 0 3px var(--safe-soft);flex:none}
+.lcs-proof .pv b{font-size:11px;font-weight:800;color:var(--safe)}
+.lcs-proof .pv span{font-size:9.5px;color:var(--ink-mute);font-weight:600;margin-left:auto}
+
+/* 왜 지금 */
+.why{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+.wc{background:#fff;border:1px solid var(--line-soft);border-radius:18px;padding:24px 22px}
+.wc .we{font-size:22px}
+.wc h4{font-size:15px;font-weight:800;margin-top:12px}
+.wc p{font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:7px;line-height:1.7}
+
+/* 서비스 */
+.svc{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:40px}
+.scard{background:#fff;border:1px solid var(--line-soft);border-radius:18px;padding:26px;transition:.15s}
+.scard:hover{border-color:var(--blue);box-shadow:0 10px 30px rgba(25,31,40,.06)}
+.scard .si{width:44px;height:44px;border-radius:13px;background:var(--blue-soft);display:grid;place-items:center;font-size:21px;margin-bottom:14px}
+.scard h4{font-size:16px;font-weight:800}
+.scard p{font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:8px;line-height:1.72}
+.scard .tag{margin-top:12px;font-size:11px;font-weight:700;color:var(--safe);background:var(--safe-soft);border-radius:20px;padding:4px 11px;display:inline-block}
+.purpose{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}
+@media(max-width:520px){.purpose{grid-template-columns:1fr}}
+.purpose .pp{background:var(--bg);border-radius:12px;padding:11px 12px;font-size:11.5px;color:var(--ink-dim);font-weight:600;line-height:1.7}
+.purpose .pp b{color:var(--ink);font-weight:800;font-size:10.5px;letter-spacing:.02em}
+.purpose .pl{display:inline-block;font-size:10px;font-weight:800;border-radius:20px;padding:2px 9px;margin-bottom:7px}
+.purpose .pl.h{background:var(--blue-soft);color:var(--blue-deep)}
+.purpose .pl.m{background:var(--mint-soft);color:#00897d}
+
+/* 작동 방식 */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:40px}
+.step{background:#fff;border:1px solid var(--line-soft);border-radius:18px;padding:24px 20px;text-align:center;position:relative}
+.step:not(:last-child)::after{content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);color:var(--ink-faint);font-weight:800;z-index:1}
+.step .sn{font-size:12px;font-weight:800;color:var(--blue)}
+.step .se{font-size:26px;margin-top:6px}
+.step h4{font-size:14.5px;font-weight:800;margin-top:10px}
+.step p{font-size:12px;color:var(--ink-dim);font-weight:500;margin-top:6px;line-height:1.6}
+
+/* 검증 공개 */
+.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:40px}
+.tcard{background:#fff;border:1px solid var(--line-soft);border-radius:18px;padding:24px;text-align:center}
+.tcard .te{font-size:24px}
+.tcard h4{font-size:14.5px;font-weight:800;margin-top:10px}
+.tcard p{font-size:12.5px;color:var(--ink-dim);font-weight:500;margin-top:6px;line-height:1.68}
+
+/* 시작 CTA */
+.start-sec{background:var(--bg)}
+.start-box{background:linear-gradient(135deg,#1d2537,#1b64da);border-radius:26px;padding:52px 40px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.start-box h2{font-size:clamp(22px,3vw,30px);font-weight:800;letter-spacing:-.03em;line-height:1.4}
+.start-box p{font-size:14px;color:#c9d7f2;font-weight:500;margin-top:14px;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.75}
+.start-box .cta{display:flex;gap:12px;justify-content:center;margin-top:26px;flex-wrap:wrap}
+.btn.white{background:#fff;color:var(--blue-deep)}
+.btn.white:hover{transform:translateY(-1px)}
+.btn.outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+.btn.outline:hover{border-color:#fff}
+
+/* 생애주기 역량 로드맵 */
+.rmap{display:flex;align-items:stretch;justify-content:center;gap:6px;margin-top:42px;flex-wrap:wrap}
+.rstage{flex:1;min-width:150px;max-width:190px;background:#fff;border:1px solid var(--line-soft);border-radius:16px;padding:18px 15px;text-align:center;position:relative;transition:.18s}
+.rstage:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(25,31,40,.08)}
+.rstage .rlv{display:inline-block;font-size:11px;font-weight:800;border-radius:20px;padding:3px 11px;margin-bottom:10px}
+.rstage .rt{font-size:15px;font-weight:800}
+.rstage .rd{font-size:12px;color:var(--ink-dim);font-weight:500;margin-top:7px;line-height:1.6}
+.rstage .rd b{color:var(--ink)}
+.rstage.rvision{border-color:rgba(31,149,255,.35);background:linear-gradient(180deg,#f2f9ff,#fff)}
+.rstage.rtrack{border-color:rgba(11,184,166,.35);background:linear-gradient(180deg,#edfdfa,#fff)}
+.rstage.rvision .rlv{background:var(--sky-soft);color:#1877e0}
+.rstage.rtrack .rlv{background:var(--mint-soft);color:#00897d}
+.rstage.arche{border-color:rgba(245,146,10,.4);background:linear-gradient(180deg,#fff7ea,#fff)}
+.rstage.arche .rlv{background:var(--amber-soft);color:#c47207}
+.rstage.goal{border-color:rgba(18,183,106,.4);background:linear-gradient(180deg,#f2fdf7,#fff)}
+.rstage.goal .rlv{background:var(--safe-soft);color:#0e8a4f}
+.rarrow{display:flex;align-items:center;color:var(--ink-faint);font-weight:800;font-size:16px}
+@media(max-width:820px){.rmap{flex-direction:column;align-items:center}.rstage{max-width:280px;width:100%}.rarrow{transform:rotate(90deg)}}
+
+
+/* [밋밋 방지·색감 통일] 일반 섹션 카드에 sky/mint/amber 순환 액센트 */
+.lc,.scard,.step,.wc,.tcard{border-top:3px solid var(--sky)}
+.lc:nth-of-type(3n+2),.step:nth-of-type(3n+2),.wc:nth-of-type(3n+2),.tcard:nth-of-type(3n+2){border-top-color:var(--mint)}
+.lc:nth-of-type(3n),.step:nth-of-type(3n),.wc:nth-of-type(3n),.tcard:nth-of-type(3n){border-top-color:var(--amber)}
+.scard:nth-of-type(2){border-top-color:var(--mint)}
+/* 아이콘 칩 색도 순환 */
+.lc .ci{background:var(--sky-soft)}
+.lc:nth-of-type(3n+2) .ci{background:var(--mint-soft)}
+.lc:nth-of-type(3n) .ci{background:var(--amber-soft)}
+.scard .si{background:var(--sky-soft)}
+.scard:nth-of-type(2) .si{background:var(--mint-soft)}
+.step .se,.wc .we,.tcard .te{}
+.step:nth-of-type(3n+2) .sn{color:var(--mint)}
+.step:nth-of-type(3n) .sn{color:var(--amber)}
+.scard:hover{border-color:var(--mint)}
+
+/* ═══ 펜타 시리즈 (밝은 톤) ═══ */
+/* [새 톤 보강] 코스별 카드 상단 라인 + 아르케 앰버 + 섹션 아이브로우 색 */
+.pt-card{border-top:3px solid var(--sky)}
+.pt-card.vision{border-top:3px solid var(--sky)}
+.pt-card.track{border-top:3px solid var(--mint)}
+.pt-card.arche{border-color:#eef2f6;border-top:3px solid var(--amber)}
+.pt-card.arche .pe{background:rgba(245,146,10,.14);color:var(--amber)}
+.pt-card.arche li::before{color:var(--amber)}
+.pscol.arche{border-color:rgba(245,146,10,.35)}
+#vision .sec-eyebrow{color:var(--sky)}
+#track  .sec-eyebrow{color:var(--mint)}
+#arche  .sec-eyebrow{color:var(--amber)}
+#track  .sec-h em{color:var(--mint)}
+
+.penta{background:var(--pbg);color:var(--pink2);position:relative;overflow:hidden}
+.penta::before{content:"";position:absolute;top:-160px;right:-120px;width:520px;height:520px;background:radial-gradient(closest-side,rgba(11,184,166,.1),transparent);pointer-events:none}
+.penta .wrap{position:relative;z-index:1}
+.penta.ptop::after{content:"";position:absolute;top:0;left:0;right:0;height:150px;background:linear-gradient(180deg,var(--bg),transparent);pointer-events:none;z-index:0}
+.penta+.penta{border-top:1px solid var(--pline)}
+.penta .sec-h{color:#122a3a}
+.penta .sec-h em{color:var(--mint)}
+#vision .sec-h em{color:var(--sky)}
+#arche .sec-h em{color:var(--amber)}
+.penta .sec-p{color:#4a6274}
+.penta .sec-eyebrow{color:var(--sky)}
+.freq{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:36px}
+.fq{background:#ffffff;border:1px solid #e6eef2;border-radius:16px;padding:18px 14px;text-align:center}
+.fq .fn{font-size:11px;font-weight:800;color:var(--sky);letter-spacing:.05em}
+.fq .fbar{height:6px;border-radius:4px;background:#e6eef2;margin:12px 0 10px;overflow:hidden}
+.fq .fbar i{display:block;height:100%;border-radius:4px;background:linear-gradient(90deg,var(--sky),var(--mint));width:0;transition:width 1.1s ease}
+.fq h5{font-size:13px;font-weight:800;color:#122a3a}
+.fq p{font-size:11px;color:#8aa0af;font-weight:500;margin-top:4px}
+.ptrack{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:36px}
+.ptrack.tri{grid-template-columns:repeat(3,1fr)}
+.ptrack.solo{grid-template-columns:1fr;max-width:600px;margin-left:auto;margin-right:auto}
+.psgrid.solo,.annual.solo{grid-template-columns:1fr;max-width:600px;margin-left:auto;margin-right:auto}
+.pt-card{background:#ffffff;border:1px solid #e6eef2;border-radius:20px;padding:28px 26px}
+.pt-card.vision{border-color:rgba(31,149,255,.35)}
+.pt-card.track{border-color:rgba(11,184,166,.3)}
+.pt-card .pe{font-size:11px;font-weight:800;letter-spacing:.05em;display:inline-block;padding:4px 11px;border-radius:20px}
+.pt-card.vision .pe{background:rgba(31,149,255,.14);color:var(--sky)}
+.pt-card.track .pe{background:rgba(11,184,166,.14);color:var(--mint)}
+.pt-card h3{font-size:19px;font-weight:800;color:#122a3a;margin-top:14px}
+.pt-card .who{font-size:12px;color:#8aa0af;font-weight:600;margin-top:4px}
+.pt-card ul{list-style:none;margin-top:16px;display:grid;gap:9px}
+.pt-card li{font-size:13px;color:#4a6274;font-weight:500;padding-left:20px;position:relative;line-height:1.6}
+.pt-card li::before{content:"◆";position:absolute;left:0;color:var(--sky);font-size:9px;top:4px}
+.pt-card.track li::before{color:var(--mint)}
+.pt-card .pcta{margin-top:20px}
+.pbridge{margin-top:36px;background:#ffffff;border:1px solid #e6eef2;border-radius:20px;padding:26px 28px;display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.pbridge .pbi{font-size:30px;flex:none}
+.pbridge .pbt h4{font-size:15px;font-weight:800;color:#122a3a}
+.pbridge .pbt p{font-size:12.5px;color:#4a6274;font-weight:500;margin-top:6px;line-height:1.7}
+
+/* 펜타 시즌 구성 */
+.pseason{margin-top:40px;text-align:left}
+.pseason .psh{font-size:12px;font-weight:800;color:var(--sky);letter-spacing:.05em;text-align:center}
+.pseason .psl{font-size:13px;color:#4a6274;font-weight:500;text-align:center;max-width:620px;margin:10px auto 0;line-height:1.7}
+.pseason .psl b{color:#122a3a}
+.psgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:22px}
+.pscol{background:#ffffff;border:1px solid #e6eef2;border-radius:20px;padding:22px 22px}
+.pscol.vision{border-color:rgba(31,149,255,.35)}
+.pscol.track{border-color:rgba(11,184,166,.3)}
+.pscol .pch{display:flex;align-items:center;gap:7px;font-size:16px;font-weight:800;color:#122a3a;flex-wrap:wrap}
+.pscol .pcsub{font-size:11.5px;color:#8aa0af;font-weight:600;margin:6px 0 4px;line-height:1.55}
+.psrow{display:flex;gap:12px;padding:12px 0;border-top:1px solid #e6eef2;align-items:flex-start}
+.psrow .psn{flex:none;font-size:10px;font-weight:800;color:var(--sky);background:rgba(31,149,255,.14);border-radius:20px;padding:4px 9px;white-space:nowrap;margin-top:1px}
+.pscol.track .psrow .psn{color:var(--mint);background:rgba(11,184,166,.14)}
+.psrow .pst b{display:block;font-size:13px;font-weight:700;color:#122a3a;line-height:1.45}
+.psrow .pst span{display:block;font-size:11px;color:#8aa0af;font-weight:600;margin-top:2px}
+.pscol .psfoot{margin-top:14px;font-size:10.5px;font-weight:700;color:var(--sky);display:flex;align-items:center;gap:6px}
+.pscol.track .psfoot{color:var(--mint)}
+@media(max-width:900px){.psgrid{grid-template-columns:1fr}}
+
+/* 펜타 샘플 미리보기 */
+.psub{font-size:12px;font-weight:800;color:var(--sky);letter-spacing:.05em;margin:40px 0 16px;text-align:center}
+.psample{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:8px}
+.smock{background:#f6fafd;border:1px solid #e6eef2;border-radius:16px;padding:16px 16px 14px;text-align:left}
+.smock .sh{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;color:#8aa0af;margin-bottom:12px}
+.smock .sh .tagm{margin-left:auto;font-size:9.5px;font-weight:800;padding:3px 9px;border-radius:20px;background:#eaf1f6;color:var(--mint)}
+.smock .sh .tagm.g{color:var(--sky)}
+/* 워크북 샘플 */
+.wq{font-size:12px;font-weight:700;color:#122a3a;line-height:1.55}
+.wlens{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.wlens .wi{width:26px;height:26px;border-radius:8px;background:#eaf1f6;display:grid;place-items:center;font-size:13px;flex:none}
+.wlens .wn{font-size:11.5px;font-weight:800;color:#122a3a;line-height:1.25}
+.wlens .wn small{display:block;font-size:9.5px;color:#8aa0af;font-weight:600}
+.wnote{margin-top:8px;font-size:9.5px;color:var(--mint);font-weight:700}
+.wans{margin-top:10px;background:#eef4f9;border:1px dashed #d7e3ec;border-radius:10px;padding:10px 11px}
+.wans .wal{font-size:9.5px;font-weight:800;color:#8aa0af;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.wans .wat{font-size:11px;color:#4a6274;font-weight:500;line-height:1.65}
+.wcursor{display:inline-block;width:1px;height:11px;background:var(--mint);vertical-align:-1px;margin-left:1px;animation:blink 1.1s steps(1) infinite}
+@keyframes blink{0%,50%{opacity:1}50.01%,100%{opacity:0}}
+/* 리포트 샘플 */
+.radar{display:flex;align-items:flex-end;gap:5px;height:56px;padding:0 4px}
+.radar i{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--sky),rgba(31,149,255,.35));opacity:.9}
+.radar i.now{background:linear-gradient(180deg,var(--mint),rgba(11,184,166,.35))}
+.rlegend{display:flex;gap:14px;margin-top:10px;font-size:10px;font-weight:700}
+.rlegend span{display:flex;align-items:center;gap:5px;color:#8aa0af}
+.rlegend span i{width:8px;height:8px;border-radius:2px}
+.rlegend .b4 i{background:var(--sky)}.rlegend .af i{background:var(--mint)}
+.gauge2{margin-top:6px}
+.gauge2 .gl{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:#4a6274;margin-bottom:6px}
+.gauge2 .gl b{color:var(--mint)}
+.gauge2 .gt{height:7px;border-radius:5px;background:#eaf1f6;overflow:hidden}
+.gauge2 .gt i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,var(--sky),var(--mint));width:76%}
+.gauge2 .fr{margin-top:12px;font-size:10.5px;color:#8aa0af;font-weight:600;line-height:1.6}
+.gauge2 .fr b{color:var(--sky)}
+/* 연말 분석 리포트 샘플 카드 */
+.annual{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:6px}
+.acard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .18s ease,box-shadow .18s ease;box-shadow:0 2px 10px -6px rgba(20,26,41,.18)}
+.acard:hover{transform:translateY(-3px);box-shadow:0 16px 34px -18px rgba(20,26,41,.45)}
+.acard .ahero{padding:18px 18px 16px;color:#122a3a;position:relative}
+.acard.vision .ahero{background:linear-gradient(150deg,var(--sky-soft),#ffffff 70%);border-bottom:3px solid var(--sky)}
+.acard.track .ahero{background:linear-gradient(150deg,var(--mint-soft),#ffffff 70%);border-bottom:3px solid #0bb8a6}
+.acard .aeyebrow{font-size:9.5px;font-weight:800;letter-spacing:.14em;padding:3px 9px;border-radius:20px;background:rgba(31,149,255,.12)}
+.acard.vision .aeyebrow{color:var(--sky)}.acard.track .aeyebrow{color:#48e0cf}
+.acard .atitle{font-size:15px;font-weight:800;margin:11px 0 4px;letter-spacing:-.01em}
+.acard .ameta{font-size:11px;font-weight:600;color:#b9c3da}
+.acard .astat{display:flex;gap:8px;margin-top:14px}
+.acard .as{flex:1;background:#f5f9fd;border:1px solid #e6eef2;border-radius:11px;padding:8px 6px;text-align:center}
+.acard .as b{display:block;font-size:14px;font-weight:900;letter-spacing:-.02em}
+.acard.vision .as b{color:var(--sky)}.acard.track .as b{color:#48e0cf}
+.acard .as span{display:block;font-size:9px;color:#9aa6bb;font-weight:600;margin-top:2px;line-height:1.3}
+.acard .alist{list-style:none;margin:0;padding:15px 18px 6px;display:flex;flex-direction:column;gap:9px}
+.acard .alist li{position:relative;padding-left:20px;font-size:12.5px;font-weight:600;color:var(--ink-dim);line-height:1.5}
+.acard .alist li::before{content:"✓";position:absolute;left:0;top:0;font-weight:900;font-size:11px}
+.acard.vision .alist li::before{color:var(--sky)}.acard.track .alist li::before{color:#0bb8a6}
+.acard .alist li b{color:var(--ink);font-weight:800}
+.acard .alink{margin:6px 18px 18px;padding:11px 0;text-align:center;border-radius:11px;font-size:13px;font-weight:800;color:#122a3a}
+.acard.vision .alink{background:linear-gradient(135deg,#1f95ff,#1877e0)}
+.acard.track .alink{background:linear-gradient(135deg,#0bb8a6,#089b8c)}
+@media(max-width:560px){.annual{grid-template-columns:1fr}}
+
+/* 요금제 (KG 사전심사: 상품·가격) */
+.pricing{background:#fff;border-top:1px solid var(--line-soft)}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px;text-align:left}
+.plan{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px 20px;position:relative}
+.plan.hot{border-color:var(--blue);box-shadow:0 14px 34px -18px rgba(49,130,246,.5)}
+.plan .rec{position:absolute;top:-11px;left:20px;background:var(--blue);color:#fff;font-size:10.5px;font-weight:800;padding:4px 11px;border-radius:20px;letter-spacing:.02em}
+.plan .pnm{font-size:16px;font-weight:800}
+.plan .pdesc{font-size:11.5px;color:var(--ink-mute);font-weight:600;margin-top:3px;min-height:32px}
+.plan .price{margin-top:12px;font-size:26px;font-weight:900;letter-spacing:-.02em}
+.plan .price small{font-size:13px;font-weight:700;color:var(--ink-mute)}
+.plan .yr{font-size:11.5px;color:var(--blue-deep);font-weight:700;margin-top:3px}
+.plan ul{list-style:none;margin:14px 0 0;padding:14px 0 0;border-top:1px solid var(--line-soft);display:flex;flex-direction:column;gap:8px;flex:1}
+.plan ul li{position:relative;padding-left:19px;font-size:12.5px;font-weight:600;color:var(--ink-dim);line-height:1.5}
+.plan ul li::before{content:"✓";position:absolute;left:0;color:var(--safe);font-weight:900;font-size:11px}
+.plan .ptrial{font-size:11px;font-weight:700;color:var(--sky);margin-top:12px}
+.plan .pbtn{margin-top:12px;display:block;text-align:center;padding:11px 0;border-radius:11px;font-size:13px;font-weight:800;text-decoration:none;background:var(--ink);color:#fff}
+.plan.hot .pbtn{background:linear-gradient(135deg,var(--blue),var(--blue-deep))}
+.paddon{margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:center;font-size:12.5px;color:var(--ink-dim);font-weight:600;text-align:center}
+.paddon b{color:var(--ink)}
+.paddon .chip{background:var(--bg);border:1px solid var(--line);border-radius:20px;padding:6px 13px}
+.payinfo{margin-top:22px;background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:18px 20px;text-align:left;max-width:860px;margin-left:auto;margin-right:auto}
+.payinfo h4{font-size:12.5px;font-weight:800;color:var(--ink);margin:0 0 10px;display:flex;align-items:center;gap:7px}
+.payinfo dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:7px 14px;font-size:12px;line-height:1.6}
+.payinfo dt{font-weight:800;color:var(--blue-deep);white-space:nowrap}
+.payinfo dd{margin:0;color:var(--ink-dim);font-weight:500}
+.payinfo .plink{margin-top:12px;font-size:11.5px}
+.payinfo .plink a{color:var(--blue);font-weight:700;text-decoration:none;margin-right:14px}
+@media(max-width:760px){.plans{grid-template-columns:1fr}.payinfo dl{grid-template-columns:1fr;gap:2px 0}.payinfo dd{margin-bottom:8px}}
+
+/* 하단 사업자정보 (KG 사전심사) */
+footer .bizinfo{margin-top:22px;padding-top:16px;border-top:1px solid var(--line-soft);font-size:11.5px;color:var(--ink-dim);font-weight:500;line-height:1.95}
+footer .bizinfo b{color:var(--ink);font-weight:700}
+footer .bizinfo .plinks{margin-top:8px}
+footer .bizinfo .plinks a{color:var(--ink-dim);font-weight:700;text-decoration:none;margin-right:14px;border-bottom:1px solid var(--line)}
+
+/* 도입 문의 밴드 */
+.biz{background:#fff;border-top:1px solid var(--line-soft)}
+.biz .row{display:flex;align-items:center;gap:16px;justify-content:center;flex-wrap:wrap;text-align:center}
+.biz .row p{font-size:13px;color:var(--ink-dim);font-weight:600}
+.biz .row a{font-size:13px;font-weight:800;color:var(--blue)}
+
+/* 푸터 */
+footer{background:#fff;border-top:1px solid var(--line-soft);padding:38px 0 46px}
+footer .frow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+footer .brand{font-size:17px;font-weight:800}
+footer .brand b{color:var(--blue)}
+footer .disc{font-size:11.5px;color:var(--ink-mute);font-weight:500;line-height:1.9;margin-top:12px;max-width:660px}
+footer .fr{text-align:right;font-size:12px;color:var(--ink-dim);font-weight:500;line-height:2}
+footer .fr b{color:var(--ink)}
+footer .copy{margin-top:24px;padding-top:18px;border-top:1px solid var(--line-soft);font-size:11px;color:var(--ink-faint);font-weight:500}
+
+/* 비전 카드 탭 힌트 + 루프 모달 */
+.btn.ghostd{background:transparent;color:#4a6274;border:1px solid #3a465f}
+.btn.ghostd:hover{border-color:var(--mint);color:#122a3a}
+.ptaphint{margin-top:12px;font-size:11px;font-weight:700;color:var(--sky);display:flex;align-items:center;gap:6px}
+.pt-card.vision{cursor:pointer}
+.pt-card.vision:hover{border-color:rgba(31,149,255,.6)}
+.lmodal-bd{position:fixed;inset:0;z-index:200;background:rgba(10,14,25,.62);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:20px}
+.lmodal-bd.open{display:flex}
+.lmodal{background:#fff;border-radius:22px;max-width:520px;width:100%;max-height:88vh;overflow:auto;padding:28px 26px;box-shadow:0 24px 70px rgba(0,0,0,.4);position:relative;text-align:left}
+.lmodal .x{position:absolute;top:15px;right:15px;width:32px;height:32px;border-radius:10px;border:none;background:var(--bg);color:var(--ink-dim);font-size:14px;cursor:pointer;font-weight:800}
+.lmodal .x:hover{background:#e5e8eb}
+.lmodal .eyb{font-size:11px;font-weight:800;color:var(--sky);letter-spacing:.04em}
+.lmodal h3{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-top:8px;line-height:1.35}
+.lmodal .lead{font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:9px;line-height:1.7}
+.lsteps{margin-top:22px}
+.lstep2{display:flex;gap:14px;padding-bottom:20px;position:relative}
+.lstep2:not(:last-child)::before{content:"";position:absolute;left:16px;top:36px;bottom:0;width:2px;background:var(--line)}
+.lstep2 .ln{width:34px;height:34px;border-radius:11px;background:var(--navy);color:#fff;display:grid;place-items:center;font-size:14px;font-weight:800;flex:none;z-index:1}
+.lstep2 .lb h4{font-size:14.5px;font-weight:800}
+.lstep2 .lb p{font-size:12.5px;color:var(--ink-dim);font-weight:500;margin-top:5px;line-height:1.65}
+.lloop{background:var(--bg);border-radius:14px;padding:15px 16px;font-size:12.5px;color:var(--ink-dim);font-weight:600;line-height:1.7}
+.lloop b{color:var(--navy)}
+/* 두 대시보드 (모달·메인 공용) */
+.dashduo{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:stretch;margin-top:16px}
+.ddb{background:var(--bg);border:1px solid var(--line-soft);border-radius:13px;padding:13px 14px;text-align:left}
+.ddb.parent{border-color:rgba(49,130,246,.3)}
+.ddb.student{border-color:rgba(0,184,169,.35)}
+.ddb .ddt{font-size:12.5px;font-weight:800}
+.ddb .ddd{font-size:10.5px;color:var(--ink-dim);font-weight:600;margin-top:5px;line-height:1.55}
+.ddmid{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:16px;color:var(--ink-faint);font-weight:800}
+.ddmid span{font-size:8px;color:var(--ink-mute);white-space:nowrap;font-weight:700}
+@media(max-width:560px){.dashduo{grid-template-columns:1fr}.ddmid{flex-direction:row;gap:8px;padding:2px 0}}
+
+@media(max-width:900px){
+  .layer3,.why,.trust,.steps{grid-template-columns:1fr}
+  .svc,.ptrack,.ptrack.tri{grid-template-columns:1fr}
+  .freq{grid-template-columns:repeat(2,1fr)}
+  .step:not(:last-child)::after{display:none}
+  .vgrid{grid-template-columns:1fr}
+  .nav .menu{display:none}
+  footer .fr{text-align:left}
+}
+@media(prefers-reduced-motion:reduce){
+  .reveal{transition:none;opacity:1;transform:none}
+  .hero::before{animation:none}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <a class="logo" href="#"><img class="mark" src="/icon-192.png" alt="펜타 아르케" width="32" height="32">펜타<b>.</b></a>
+    <nav class="menu">
+      <a href="#vision">비전</a>
+      <a href="#track">트랙</a>
+      <a href="#arche">아르케</a>
+      <span class="sep"></span>
+      <a href="#why">왜 펜타</a>
+      <a href="#services">서비스</a>
+      <a href="#verify" class="hot">작성 증명</a>
+      <a href="#roadmap">로드맵</a>
+      <a href="#about">회사 소개</a>
+    </nav>
+    <div class="right">
+      <a class="btn ghost" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">로그인</a>
+      <a class="btn hdr-trial" href="https://arche.penta-view.com/samples/trial-ai-workbook" target="_blank" rel="noopener">▶ 무료 체험</a>
+    </div>
+  </div>
+</header>
+
+<!-- ═══ 히어로 ═══ -->
+<section class="hero">
+  <div class="wrap">
+    <span class="patent reveal"><i></i>특허 출원 · AI 인터랙션 기반 다차원 통합지능 평가</span>
+    <h1 class="reveal d1">AI 시대, 아이의 <em>생각하는 힘</em>을<br>펜타 시리즈가 키웁니다</h1>
+    <p class="sub reveal d2">초등부터 중등까지 — <b>펜타 비전</b>(5대 지성 융합사고)과 <b>펜타 트랙</b>(교과융합·진로 설계)이 아이의 <b>생각하는 힘</b>을 키웁니다. 회차별 워크북으로 사고를 확장하고, <b>성장 리포트</b>로 변화를 눈으로 확인해요.</p>
+    <div class="cta reveal d2">
+      <a class="btn big trial-cta" href="https://arche.penta-view.com/samples/trial-ai-workbook" target="_blank" rel="noopener">▶ 지금 바로 무료 체험 <span class="tbadge">가입 X</span></a>
+      <a class="btn pri big" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">무료로 시작하기</a>
+      <a class="btn ghost big" href="#vision">펜타 시리즈 보기</a>
+    </div>
+    <div class="reveal d2" style="margin-top:14px;font-size:13.5px;color:var(--ink-dim);font-weight:600">가입·결제 없이 <b style="color:#1A237E">AI 워크북 한 편</b>을 지금 풀어보고, 끝나면 <b style="color:#1A237E">성장 리포트</b>까지 받아보세요.</div>
+    <div class="reveal d2" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px">
+      <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:158px;text-align:left"><div style="font-size:12.5px;font-weight:800;color:#3182f6">📘 펜타 비전</div><div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">5대 지성 융합사고 · 초·중</div></div>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:158px;text-align:left"><div style="font-size:12.5px;font-weight:800;color:#0bb8a6">📙 펜타 트랙</div><div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">교과융합·진로 설계 · 중3</div></div>
+      <div style="background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:158px;text-align:left"><div style="font-size:12.5px;font-weight:800;color:#1f95ff">🪜 펜타 아르케</div><div style="font-size:11.5px;color:var(--ink-dim);margin-top:3px">스스로 쓰는 힘·본인 작성 증명</div></div>
+    </div>
+
+    <div class="vmock reveal d3">
+      <div class="mhead">
+        <div class="t">펜타 비전 · 성장 리포트 <small>지성 확장 레이더</small></div>
+        <div class="live"><i></i>성장 추적</div>
+      </div>
+      <div class="vgrid">
+        <div class="vbox">
+          <div class="vl">Before / After · 5대 지성 확장</div>
+          <div class="radar">
+            <i style="height:52%"></i><i class="now" style="height:74%"></i>
+            <i style="height:40%"></i><i class="now" style="height:58%"></i>
+            <i style="height:60%"></i><i class="now" style="height:70%"></i>
+            <i style="height:34%"></i><i class="now" style="height:62%"></i>
+            <i style="height:48%"></i><i class="now" style="height:66%"></i>
+          </div>
+          <div class="rlegend">
+            <span class="b4"><i></i>처음</span><span class="af"><i></i>현재</span>
+            <span style="margin-left:auto;color:var(--mint);font-weight:800">지성 확장 +24%</span>
+          </div>
+        </div>
+        <div class="vbox">
+          <div class="vl">펜타 비전 · 트랙 지표</div>
+          <div class="vmet"><span>사고 가속도</span><b class="g">Lv.2 → 3</b></div>
+          <div class="vmet"><span>진로 주파수(트랙)</span><b class="g">F2 과학·기술</b></div>
+          <div class="vmet"><span>강한 지성</span><b class="g">수학·논리</b></div>
+          <div class="vmet"><span>완주 회차</span><b>시즌 5~12강</b></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 2. 펜타 비전 ═══ -->
+<section class="penta ptop" id="vision">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PENTA VISION · STAGE 1 · 초등~중2</div>
+    <h2 class="sec-h reveal">학부모가 컨설턴트가 되는<br><em>펜타 비전</em></h2>
+    <p class="sec-p reveal d1">사고력이 자라는 결정적 시기. <b>5대 지성 주파수</b>로 아이의 지성을 진단하고, 회차별 워크북으로 사고를 확장하며, 학부모가 리포트를 읽고 아이를 직접 이끄는 <b>학부모–학생 루프</b>입니다. 온라인 구독으로 대치동 컨설팅의 깊이를 집에서.</p>
+
+    <!-- 5대 지성 주파수 -->
+    <div class="freq" style="text-align:left">
+      <div class="fq reveal"><div class="fn">F1</div><div class="fbar"><i data-w="82%"></i></div><h5>수학·논리</h5><p>구조·추론</p></div>
+      <div class="fq reveal d1"><div class="fn">F2</div><div class="fbar"><i data-w="68%"></i></div><h5>과학·기술</h5><p>탐구·검증</p></div>
+      <div class="fq reveal d1"><div class="fn">F3</div><div class="fbar"><i data-w="74%"></i></div><h5>역사·사회</h5><p>맥락·관점</p></div>
+      <div class="fq reveal d2"><div class="fn">F4</div><div class="fbar"><i data-w="60%"></i></div><h5>심리·인지</h5><p>자기이해</p></div>
+      <div class="fq reveal d2"><div class="fn">F5</div><div class="fbar"><i data-w="70%"></i></div><h5>예술·디자인</h5><p>표현·창의</p></div>
+    </div>
+
+    <!-- 비전 카드 -->
+    <div class="ptrack solo" style="text-align:left">
+      <div class="pt-card vision reveal" role="button" tabindex="0" onclick="openLoop()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLoop()}" aria-label="펜타 비전 학부모–학생 루프 자세히 보기">
+        <span class="pe">STAGE 1 · 초등~중2</span>
+        <h3>펜타 비전</h3>
+        <div class="who">학부모가 컨설턴트가 되는 학부모–학생 루프 · 온라인 구독</div>
+        <ul>
+          <li>5대 지성 주파수 진단과 성장 리포트</li>
+          <li>공학·윤리 딜레마 "지적 드라마"로 사고 확장</li>
+          <li>회차별 워크북 — 아이가 직접 사고하고 쓰는 구성</li>
+          <li>학부모가 리포트를 읽고 아이를 이끄는 학부모–학생 루프</li>
+          <li>Before/After 지성 확장 레이더로 변화를 눈으로 확인</li>
+        </ul>
+        <div class="ptaphint">👆 카드를 탭하면 루프 작동 방식이 자세히 열립니다</div>
+        <div class="pcta" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn navy" type="button" onclick="event.stopPropagation();openLoop()">루프 작동 방식 보기 →</button>
+          <a class="btn ghostd" href="mailto:gwkim06@gmail.com?subject=펜타 비전 구독 문의" onclick="event.stopPropagation()">비전 구독 문의</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 비전 시즌 라인업 -->
+    <div class="pseason reveal">
+      <div class="psh">SEASON LINEUP · 비전 시즌 구성</div>
+      <p class="psl"><b>8개 대주제 = 8개 시즌</b>으로 구성됩니다. 각 시즌은 <b>독립적으로 수강·완주</b>할 수 있고, 원하는 시즌부터 골라 담아 시작합니다. <b>첫 강은 무료 체험</b>입니다.</p>
+      <div class="psgrid solo">
+        <div class="pscol vision">
+          <div class="pch">📘 펜타 비전 <span style="font-size:11px;font-weight:700;color:#8aa0af">· 기초(초5~6) · 심화(중1~2)</span></div>
+          <div class="pcsub">8개 대주제를 5대 지성으로 깊게 — 시즌마다 하나의 큰 주제(각 5강)</div>
+          <div class="psrow"><span class="psn">시즌 1</span><div class="pst"><b>시민혁명과 민주정치</b><span>역사 · 정치 · 인권 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 2</span><div class="pst"><b>경제의 성장과 서민문화</b><span>경제 · 역사 · 문화 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>통계로 세상 읽기</b><span>통계 · 사회 · 비판적 사고 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 4</span><div class="pst"><b>문화의 다양성</b><span>문화 · 역사 · 세계시민 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 5</span><div class="pst"><b>문학 속 인간과 사회</b><span>문학 · 역사 · 인간 이해 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 6</span><div class="pst"><b>철학과 인간의 존엄</b><span>철학 · 사회 · 인권 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 7</span><div class="pst"><b>과학과 기술의 탄생</b><span>과학 · 기술 · 역사 · 5강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 8</span><div class="pst"><b>디지털 시대의 인간</b><span>기술 · 윤리 · 미래 · 5강</span></div></div>
+          <div class="psfoot">🎟️ 첫 시즌 1강 무료 체험 · 총 8시즌 40강</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 비전 샘플 -->
+    <div class="psub reveal">샘플 미리보기 · 워크북과 리포트</div>
+    <div class="psample" style="text-align:left">
+      <div class="smock reveal">
+        <div class="sh">📘 펜타 비전 · 워크북<span class="tagm g">STAGE 1</span></div>
+        <div class="wlens"><span class="wi">🔢</span><span class="wn">숫자·논리의 눈<small>공평하게 따져보기</small></span></div>
+        <div class="wq">🤔 만약에? 우리 반 30명 중 28명이 좋아하는 놀이가 있어요. 그런데 2명은 그 놀이를 하면 다쳐요. '많은 사람이 좋아하니까' 그냥 하면 될까?</div>
+        <div class="wnote">✏️ 정답은 없어요 · 네 생각을 자유롭게 써봐요</div>
+        <div class="wans">
+          <div class="wal">✎ 내 생각</div>
+          <div class="wat">28명이 좋아해도 2명이 다치면 안 돼요. 많다고 항상 옳은 건 아니니까요. 다치는 친구는 심판을 맡거나, 규칙을 조금 바꿔서 안 다치게 놀이를 고치면 모두가 함께 할 수 있어요.<span class="wcursor"></span></div>
+        </div>
+      </div>
+      <div class="smock reveal d1">
+        <div class="sh">📊 펜타 비전 · 리포트<span class="tagm g">PentaView</span></div>
+        <div class="radar">
+          <i style="height:52%"></i><i class="now" style="height:74%"></i>
+          <i style="height:40%"></i><i class="now" style="height:58%"></i>
+          <i style="height:60%"></i><i class="now" style="height:70%"></i>
+          <i style="height:34%"></i><i class="now" style="height:62%"></i>
+          <i style="height:48%"></i><i class="now" style="height:66%"></i>
+        </div>
+        <div class="rlegend">
+          <span class="b4"><i></i>처음</span><span class="af"><i></i>현재</span>
+          <span style="margin-left:auto;color:var(--mint);font-weight:800">지성 확장 +24%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 비전 연간 리포트 -->
+    <div class="psub reveal" style="margin-top:34px">연말 분석 리포트 · 프리미엄 샘플</div>
+    <p class="sec-p reveal d1" style="margin-bottom:20px">월·분기 리포트가 쌓이면, 한 해를 통째로 진단하는 <b>연간 성장 리포트</b>가 나옵니다. 성장 궤적·사고 성향·다음 학년 로드맵까지 — <b>학부모가 직접 발행</b>하는, 대치동 컨설팅보다 깊은 한 편의 분석서입니다.</p>
+    <div class="annual solo" style="text-align:left">
+      <a class="acard vision reveal" href="samples/vision-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 비전 연간 성장 리포트 샘플 전체 보기">
+        <div class="ahero">
+          <span class="aeyebrow">ANNUAL REPORT</span>
+          <div class="atitle">📘 펜타 비전 · 연간 성장 리포트</div>
+          <div class="ameta">STAGE 1 · 초등~중2 · 학부모 발행</div>
+          <div class="astat"><div class="as"><b>+28</b><span>융합사고 5역량</span></div><div class="as"><b>상위 20%</b><span>또래 성장폭</span></div><div class="as"><b>4분기</b><span>궤적 추적</span></div></div>
+        </div>
+        <ul class="alist">
+          <li>분기→연간 <b>성장 궤적</b> · 5역량 확장 레이더</li>
+          <li><b>올해 빛난 순간</b> · 사고 성향 페르소나 분석</li>
+          <li>다음 학년 <b>성장 포인트</b> 제안</li>
+        </ul>
+        <span class="alink">연간 리포트 전체 보기 →</span>
+      </a>
+    </div>
+    <p class="reveal" style="font-size:12px;color:var(--ink-mute);margin-top:12px;text-align:center">※ 샘플은 예시 데이터로 구성된 목업입니다. 실제 리포트는 학생 본인의 활동·워크북 기록에서 생성됩니다.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 3. 펜타 트랙 ═══ -->
+<section class="penta" id="track">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PENTA TRACK · STAGE 2 · 중3</div>
+    <h2 class="sec-h reveal">고교 진학의 방향을 여는<br><em>펜타 트랙</em></h2>
+    <p class="sec-p reveal d1">중3, 관심을 진로로 좁혀야 하는 시기. 교과를 넘나드는 <b>융합 인과율 해부</b>로 사고 가속도를 훈련하고, <b>진로 주파수</b>로 관심의 방향을 구체화해 고교 선택과목·활동까지 설계합니다. 리포트는 학부모가 직접 관리 — 그래서 합리적인 구독가.</p>
+
+    <!-- 트랙 카드 -->
+    <div class="ptrack solo" style="text-align:left">
+      <div class="pt-card track reveal">
+        <span class="pe">STAGE 2 · 중3</span>
+        <h3>펜타 트랙</h3>
+        <div class="who">학부모가 직접 관리하는 온라인 구독</div>
+        <ul>
+          <li>교과 융합 인과율 해부 — 사고 가속도 훈련</li>
+          <li>진로 주파수로 관심의 방향을 구체화</li>
+          <li>고교 진학 브릿지 — 선택과목·활동 방향 설계</li>
+          <li>리포트는 학부모가 직접 확인·관리 — 그래서 합리적인 구독가</li>
+        </ul>
+        <div class="pnote" style="margin-top:12px;font-size:11.5px;color:#8aa0af;font-weight:600;background:rgba(255,255,255,.05);border:1px solid #e6eef2;border-radius:10px;padding:9px 12px;line-height:1.6">💬 필요하시면 <b>로그.알 전문 컨설턴트 상담 연결</b>이 가능합니다. 이 경우 <b>별도 컨설팅 비용</b>이 발생할 수 있습니다.</div>
+        <div class="pcta" style="margin-top:12px"><a class="btn navy" href="mailto:gwkim06@gmail.com?subject=펜타 트랙 · 전문 컨설턴트 상담 문의">전문 컨설턴트 상담 문의</a></div>
+      </div>
+    </div>
+
+    <!-- 트랙 시즌 라인업 -->
+    <div class="pseason reveal">
+      <div class="psh">SEASON LINEUP · 트랙 시즌 구성</div>
+      <p class="psl">각 시즌은 <b>12주제 융합 탐구</b>로 구성됩니다. 원하는 시즌부터 골라 담아 시작하고, <b>첫 강은 무료 체험</b>입니다.</p>
+      <div class="psgrid solo">
+        <div class="pscol track">
+          <div class="pch">📙 펜타 트랙 <span style="font-size:11px;font-weight:700;color:#8aa0af">· 중3 · 학문융합</span></div>
+          <div class="pcsub">과목의 경계를 넘는 융합 탐구 — 시즌마다 12주제</div>
+          <div class="psrow"><span class="psn">시즌 1</span><div class="pst"><b>기후·감염·경제 등 융합 탐구</b><span>과학×사회 · 수학×보건 등 · 12강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 2</span><div class="pst"><b>AI·백신·화폐 등 융합 탐구</b><span>기술×경제 · 생명×윤리 등 · 12강</span></div></div>
+          <div class="psrow"><span class="psn">시즌 3</span><div class="pst"><b>재난·뇌과학·에너지 등 융합 탐구</b><span>통계×사회 · 과학×철학 등 · 12강</span></div></div>
+          <div class="psfoot">🎟️ 첫 시즌 1강 무료 체험</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 트랙 샘플 -->
+    <div class="psub reveal">샘플 미리보기 · 워크북과 리포트</div>
+    <div class="psample" style="text-align:left">
+      <div class="smock reveal">
+        <div class="sh">📗 펜타 트랙 · 워크북<span class="tagm">STAGE 2</span></div>
+        <div class="wlens"><span class="wi">🔬</span><span class="wn">과학·기술의 눈<small>인과의 사슬 해부</small></span></div>
+        <div class="wq">🤔 '필터버블'은 개인의 선택일까, 알고리즘의 설계일까? 원인과 결과를 끝까지 따라가 보자.</div>
+        <div class="wnote">✏️ 정답은 없어요 · 네 언어로 논증해 봐요</div>
+        <div class="wans">
+          <div class="wal">✎ 내 생각</div>
+          <div class="wat">처음엔 내 클릭이 원인 같지만, 알고리즘이 비슷한 콘텐츠만 노출해 다시 클릭을 유도해요. 선택과 설계가 서로를 강화하는 되먹임 고리라, 한쪽만 원인이라 말하기 어렵습니다. 고리를 끊으려면 추천 밖의 정보를 일부러 찾아봐야 해요.<span class="wcursor"></span></div>
+        </div>
+      </div>
+      <div class="smock reveal d1">
+        <div class="sh">📈 펜타 트랙 · 리포트<span class="tagm">PentaView</span></div>
+        <div class="gauge2">
+          <div class="gl">사고 가속도<b>Lv.2 → Lv.3</b></div>
+          <div class="gt"><i></i></div>
+          <div class="fr">진로 주파수 — <b>F2 과학·기술</b> · <b>F1 수학·논리</b> 우세<br>데이터·공학 계열로 수렴하는 신호 · 고교 선택과목 방향 제안 포함</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 트랙 연간 리포트 -->
+    <div class="psub reveal" style="margin-top:34px">연말 분석 리포트 · 프리미엄 샘플</div>
+    <p class="sec-p reveal d1" style="margin-bottom:20px">한 해의 융합 탐구가 쌓이면, 사고 가속도의 변화와 진로 주파수를 종합한 <b>연간 성장 리포트</b>가 나옵니다. 진로 매칭과 고교 로드맵까지 담긴 한 편의 분석서입니다.</p>
+    <div class="annual solo" style="text-align:left">
+      <a class="acard track reveal" href="samples/track-annual-report.html" target="_blank" rel="noopener" aria-label="펜타 트랙 연간 성장 리포트 샘플 전체 보기">
+        <div class="ahero">
+          <span class="aeyebrow">ANNUAL REPORT</span>
+          <div class="atitle">📗 펜타 트랙 · 연간 성장 리포트</div>
+          <div class="ameta">STAGE 2 · 중3 · 진로 매칭 포함</div>
+          <div class="astat"><div class="as"><b>Lv.2→3</b><span>사고 가속도</span></div><div class="as"><b>F2·F1</b><span>진로 주파수</span></div><div class="as"><b>고1~고3</b><span>로드맵</span></div></div>
+        </div>
+        <ul class="alist">
+          <li>사고 가속도 <b>Lv 변화</b> · 진로 주파수 매칭</li>
+          <li>관련 <b>학과·진로 정보</b> (커리어넷 연동)</li>
+          <li>고1~고3 <b>선택과목·탐구활동 로드맵</b></li>
+        </ul>
+        <span class="alink">연간 리포트 전체 보기 →</span>
+      </a>
+    </div>
+    <p class="reveal" style="font-size:12px;color:var(--ink-mute);margin-top:12px;text-align:center">※ 샘플은 예시 데이터로 구성된 목업입니다. 실제 리포트는 학생 본인의 활동·워크북 기록에서 생성됩니다.</p>
+  </div>
+</section>
+
+
+<!-- ═══ 4. 펜타 아르케 ═══ -->
+<section class="penta" id="arche">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PENTA ARCHE · STAGE 3 · 고교</div>
+    <h2 class="sec-h reveal">직접 쓰고, 스스로 증명하는<br><em>펜타 아르케</em></h2>
+    <p class="sec-p reveal d1">고교 진학 이후, 생활기록부의 <b>실행 단계</b>. 진로를 좁히는 징검다리, 수행평가를 스스로 완성하는 도우미, 그리고 '이 글은 내가 썼다'를 증명하는 <b>본인 작성 증명</b>까지 — 비전·트랙의 사고 진단이 실행과 증명으로 이어집니다.</p>
+
+    <div class="ptrack tri" style="text-align:left">
+      <div class="pt-card arche reveal">
+        <span class="pe">진로 설계</span>
+        <h3>진로 징검다리</h3>
+        <div class="who">관심 → 진로 → 활동으로 좁히는 단계별 워크시트</div>
+        <ul>
+          <li>흩어진 관심을 진로 가설로 구조화</li>
+          <li>사후 인터뷰로 스스로의 진로를 언어화</li>
+          <li>컨설턴트 코칭 루프로 방향을 다듬기</li>
+        </ul>
+      </div>
+      <div class="pt-card arche reveal d1">
+        <span class="pe">수행평가</span>
+        <h3>수행평가 도우미</h3>
+        <div class="who">주제 선정부터 초안·퇴고까지 스스로 완성</div>
+        <ul>
+          <li>고품질 에디터 — 이미지·수식까지 직접 작성</li>
+          <li>AI는 대신 써주지 않고 사고를 자극</li>
+          <li>DOCX · PDF · HWPX로 내보내기</li>
+        </ul>
+      </div>
+      <div class="pt-card arche reveal d2">
+        <span class="pe">본인 작성 증명</span>
+        <h3>PROOF OF AUTHORSHIP</h3>
+        <div class="who">타이핑 DNA로 '내가 쓴 글'임을 증명</div>
+        <ul>
+          <li>작성 과정의 리듬을 기록하는 무결성 시스템</li>
+          <li>붙여넣기·대필이 아닌 본인 사고의 궤적</li>
+          <li>생기부 신뢰도를 높이는 증명 레이어</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 공통 축 연결 -->
+    <div class="pbridge reveal" style="text-align:left">
+      <div class="pbi">🔒</div>
+      <div class="pbt">
+        <h4>비전·트랙·아르케 — 하나의 지성 성장 궤적</h4>
+        <p>초·중등의 사고 진단(비전·트랙)에서 고교의 실행·증명(아르케)까지. 세 단계 모두 '아이가 직접 쓴 과정'을 기록해, 흩어진 기록이 아닌 하나로 이어진 성장 서사를 완성합니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══ PentaView 3층 철학 ═══ -->
+<section id="why">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PENTAVIEW</div>
+    <h2 class="sec-h reveal">무엇을 · 어떻게 · 진짜인가<br><em>세 가지를 한 번에 봅니다</em></h2>
+    <p class="sec-p reveal d1">성적표 한 줄로는 보이지 않는 것. 펜타는 학생의 지성을 세 층위로 진단하고, 그 결과가 학생 본인의 것임을 증명합니다.</p>
+    <div class="layer3">
+      <div class="lc reveal">
+        <div class="q">무엇을</div>
+        <div class="ci" style="background:var(--blue-soft)">🧭</div>
+        <h3>5대 지성 주파수<small>F1~F5 · 지성의 지도</small></h3>
+        <p>수학·논리, 과학·기술, 역사·사회, 심리·인지, 예술·디자인 — 다섯 축으로 학생의 강한 지성과 잠재된 지성을 그려냅니다.</p>
+        <div class="lcs">
+          <div class="lcl">샘플 · 지성 주파수 레이더</div>
+          <svg viewBox="0 0 220 172" role="img" aria-label="5대 지성 주파수 레이더 차트">
+            <polygon class="radar-grid" points="110,32 165.2,72.1 144.1,136.9 75.9,136.9 54.8,72.1"/>
+            <polygon class="radar-grid" points="110,51.7 146.4,78.2 132.5,121 87.5,121 73.6,78.2"/>
+            <polygon class="radar-grid" points="110,70.9 128.2,84.1 121.3,105.5 98.7,105.5 91.8,84.1"/>
+            <line class="radar-axis" x1="110" y1="90" x2="110" y2="32"/>
+            <line class="radar-axis" x1="110" y1="90" x2="165.2" y2="72.1"/>
+            <line class="radar-axis" x1="110" y1="90" x2="144.1" y2="136.9"/>
+            <line class="radar-axis" x1="110" y1="90" x2="75.9" y2="136.9"/>
+            <line class="radar-axis" x1="110" y1="90" x2="54.8" y2="72.1"/>
+            <polygon class="radar-area" points="110,43.6 145.3,78.5 134.6,123.8 94.3,111.6 78,79.6"/>
+            <circle class="radar-dot" cx="110" cy="43.6" r="2.6"/>
+            <circle class="radar-dot" cx="145.3" cy="78.5" r="2.6"/>
+            <circle class="radar-dot" cx="134.6" cy="123.8" r="2.6"/>
+            <circle class="radar-dot" cx="94.3" cy="111.6" r="2.6"/>
+            <circle class="radar-dot" cx="78" cy="79.6" r="2.6"/>
+            <text class="radar-lbl" x="110" y="20" text-anchor="middle">수학·논리</text>
+            <text class="radar-lbl" x="186" y="66" text-anchor="middle">과학·기술</text>
+            <text class="radar-lbl" x="156" y="158" text-anchor="middle">역사·사회</text>
+            <text class="radar-lbl" x="64" y="158" text-anchor="middle">심리·인지</text>
+            <text class="radar-lbl" x="34" y="66" text-anchor="middle">예술·디자인</text>
+          </svg>
+        </div>
+      </div>
+      <div class="lc reveal d1">
+        <div class="q">어떻게</div>
+        <div class="ci" style="background:var(--sky-soft)">🔬</div>
+        <h3>사고 과정 진단<small>5대 지표 · 사고의 질</small></h3>
+        <p>연결지성 · 비판적 성찰 · 논리적 추론 · 윤리적 성찰 · 창의적 관점. 답이 아니라 <b>생각이 흐른 과정</b>을 진단합니다.</p>
+        <div class="lcs">
+          <div class="lcl">샘플 · 사고 지표</div>
+          <div class="lcs-ind">
+            <div class="ir"><span class="inm">연결지성</span><div class="ib"><i style="width:78%"></i></div></div>
+            <div class="ir"><span class="inm">비판성찰</span><div class="ib"><i style="width:64%"></i></div></div>
+            <div class="ir"><span class="inm">논리추론</span><div class="ib"><i style="width:82%"></i></div></div>
+            <div class="ir"><span class="inm">윤리성찰</span><div class="ib"><i style="width:58%"></i></div></div>
+            <div class="ir"><span class="inm">창의관점</span><div class="ib"><i style="width:70%"></i></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="lc reveal d2">
+        <div class="q">진짜인가</div>
+        <div class="ci" style="background:var(--safe-soft)">🔒</div>
+        <h3>본인 작성 증명<small>타이핑DNA · 대필 아님</small></h3>
+        <p>작성 중의 타이핑 리듬·편집 흐름·의미 변화를 5계층으로 기록해, 학생이 직접 썼음을 데이터로 뒷받침합니다.</p>
+        <div class="lcs">
+          <div class="lcl">샘플 · 작성 검증</div>
+          <div class="lcs-proof">
+            <svg viewBox="0 0 200 56" role="img" aria-label="타이핑 리듬 라인 그래프">
+              <defs><linearGradient id="pgrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="rgba(49,130,246,.28)"/>
+                <stop offset="1" stop-color="rgba(49,130,246,0)"/>
+              </linearGradient></defs>
+              <path class="proof-area" d="M4,32 L20,22 L36,30 L52,38 L68,20 L84,28 L100,16 L116,26 L132,34 L148,19.2 L164,28 L180,20.8 L196,30 L196,52 L4,52 Z"/>
+              <path class="proof-line" d="M4,32 L20,22 L36,30 L52,38 L68,20 L84,28 L100,16 L116,26 L132,34 L148,19.2 L164,28 L180,20.8 L196,30"/>
+            </svg>
+            <div class="pv"><span class="d"></span><b>본인 작성 인증</b><span>붙여넣기 정황 없음</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="enginenote reveal">이 진단·증명은 특허 출원 수식 엔진(CSCI·SRI·메타인지·회복탄력 등)이 계산합니다 · 출원번호 10-2026-0053173</div>
+  </div>
+</section>
+
+<!-- ═══ 왜 지금 ═══ -->
+<section class="alt">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">WHY NOW</div>
+    <h2 class="sec-h reveal">잘 쓴 기록이 흔해질수록,<br><em>진짜가 귀해집니다</em></h2>
+    <div class="why">
+      <div class="wc reveal">
+        <div class="we">🤖</div>
+        <h4>AI 대필의 시대</h4>
+        <p>누구나 매끄러운 글을 뽑아내는 지금, 결과물만으로는 학생의 실제 사고력을 가릴 수 없게 됐습니다.</p>
+      </div>
+      <div class="wc reveal d1">
+        <div class="we">🎤</div>
+        <h4>검증은 강화되는 중</h4>
+        <p>대학은 서류 뒤의 진짜 실력을 확인하려 면접 검증을 높이는 추세. 스스로 설명되지 않는 기록은 오히려 약점이 됩니다.</p>
+      </div>
+      <div class="wc reveal d2">
+        <div class="we">✍️</div>
+        <h4>과정이 곧 경쟁력</h4>
+        <p>펜타는 학생이 직접 사고하고 쓰게 하고, 그 과정을 남깁니다. 면접에서 스스로 설명할 수 있는 기록이 남습니다.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 서비스 ═══ -->
+<section id="services">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">SERVICES</div>
+    <h2 class="sec-h reveal">학생이 스스로 채우는,<br><em>두 개의 핵심 도구</em></h2>
+    <p class="sec-p reveal d1">모든 도구는 학생 본인의 인터뷰·입력에서 출발합니다. 현재는 <b>학부모–학생 루프</b>로 운영됩니다 — 학부모가 곁에서 코치 역할을 맡고, 펜타는 진단·구조·검증을 돕습니다. 쓰는 사람은 언제나 학생 본인입니다.</p>
+    <div class="reveal d1" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px;align-items:center">
+      <span class="badge b-blue">👨‍👩‍👧 학부모–학생 루프</span>
+      <span class="badge b-mint" style="opacity:.5;filter:grayscale(.4)">🧑‍🏫 컨설턴트–학생 루프</span>
+      <span style="font-size:11px;color:#c0313d;font-weight:800;background:#fdecec;border:1px solid #f5c2c2;border-radius:20px;padding:3px 10px">컨설턴트 루프 · 추후 서비스 예정</span>
+    </div>
+    <div class="reveal d1" style="margin-top:18px;max-width:680px;margin-left:auto;margin-right:auto">
+      <p style="font-size:12.5px;color:var(--ink-mute);font-weight:600;margin-bottom:10px">학부모–학생 루프에서는 <b>두 개의 분리된 대시보드</b>로 돌아갑니다 — 학부모가 회차를 보내면 학생이 수행하고, 리포트가 학부모에게 회신됩니다. (전문 컨설턴트가 학부모 자리에 들어가는 <b>컨설턴트–학생 루프</b>는 <b style="color:#c0313d">추후 서비스 예정</b>입니다.)</p>
+      <div class="dashduo" style="margin-top:0">
+        <div class="ddb parent"><div class="ddt">👨‍👩‍👧 학부모 대시보드</div><div class="ddd">회차 전송 · 리포트 확인 · 코칭</div></div>
+        <div class="ddmid">⇄<span>회차▶ / ◀리포트</span></div>
+        <div class="ddb student"><div class="ddt">🎓 학생 대시보드</div><div class="ddd">받은 워크북 수행 · 직접 작성</div></div>
+      </div>
+    </div>
+    <div class="svc" style="text-align:left">
+      <div class="scard reveal">
+        <div class="si">🪜</div>
+        <h4>진로 징검다리</h4>
+        <p>관심사 인터뷰에서 출발해, 진로로 수렴하는 탐구 주제를 발견하고 <b>탐구보고서</b>의 구조를 스스로 잡아갑니다. 작성 중에는 논리·방향을 코칭할 뿐, 완성 문장을 대신 쓰지 않습니다.</p>
+        <div class="purpose">
+          <div class="pp"><span class="pl h">고등</span><b>목적 1</b> 진로 역량 · 탐구 능력 향상<br><b>목적 2</b> 대학 입학 후 리포트 작성 능력 함양</div>
+          <div class="pp"><span class="pl m">중등</span><b>목적 1</b> 진로 역량 · 탐구 능력 향상<br><b>목적 2</b> 고등학교에서의 탐구 역량 함양</div>
+        </div>
+        <span class="tag">탐구 주제·보고서 설계 · 작성 코칭</span>
+      </div>
+      <div class="scard reveal d1">
+        <div class="si">📝</div>
+        <h4>수행평가 도우미</h4>
+        <p>학교 안내문을 올리면 AI가 학생을 인터뷰해 관점을 스스로 고르게 합니다. 그 학생만의 접근 설계도와 예상 채점을 제공합니다.</p>
+        <div class="purpose">
+          <div class="pp"><span class="pl h">고등</span><b>목적 1</b> 진로 역량 · 탐구 능력 향상<br><b>목적 2</b> 대학 입학 후 리포트 작성 능력 함양</div>
+          <div class="pp"><span class="pl m">중등</span><b>목적 1</b> 진로 역량 · 탐구 능력 향상<br><b>목적 2</b> 고등학교에서의 탐구 역량 함양</div>
+        </div>
+        <span class="tag">관점 설계 · 학생이 작성</span>
+      </div>
+    </div>
+    <p class="sec-p reveal" style="margin-top:20px;font-size:12.5px;color:var(--ink-mute)">면접 준비 등 그 밖의 도구도 계정 안에서 함께 제공됩니다.</p>
+  </div>
+</section>
+
+<!-- ═══ 작동 방식 ═══ -->
+<section class="alt" id="how">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">HOW IT WORKS</div>
+    <h2 class="sec-h reveal">인터뷰로 시작해, 스스로 쓰고,<br><em>과정이 증명됩니다</em></h2>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="sn">STEP 1</div><div class="se">💬</div>
+        <h4>인터뷰형 입력</h4>
+        <p>업로드 대신, AI가 던지는 질문에 학생이 자기 경험·관점을 직접 답합니다.</p>
+      </div>
+      <div class="step reveal d1">
+        <div class="sn">STEP 2</div><div class="se">✏️</div>
+        <h4>학생이 직접 수행</h4>
+        <p>설계도를 참고해 학생이 스스로 초안을 씁니다. AI는 방향과 논리를 코칭합니다.</p>
+      </div>
+      <div class="step reveal d2">
+        <div class="sn">STEP 3</div><div class="se">🔒</div>
+        <h4>작성 과정 검증</h4>
+        <p>타이핑 리듬·편집 흐름을 기록해 본인 작성 여부를 진단하고, 리포트로 남깁니다.</p>
+      </div>
+    </div>
+    <p class="sec-p reveal" style="margin-top:26px">펜타는 <b>타인의 학교생활기록부를 수집·거래·분석하지 않습니다.</b> 성적표를 올리면 <b>성적만</b> 판독하고, 활동은 학생 본인의 인터뷰로 받습니다.</p>
+  </div>
+</section>
+
+<!-- ═══ 본인 작성 증명 (검증 공개) ═══ -->
+<section id="verify">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PROOF OF AUTHORSHIP</div>
+    <h2 class="sec-h reveal">학생이 직접 썼음을<br><em>투명하게 보여줍니다</em></h2>
+    <p class="sec-p reveal d1">"이거 AI가 써준 거 아니야?"라는 의심에, 펜타 아르케는 작성 과정 자체를 근거로 답합니다. 결과가 아니라 과정을 증명하는 것 — 펜타 아르케만의 축입니다.</p>
+    <div class="trust">
+      <div class="tcard reveal">
+        <div class="te">⌨️</div>
+        <h4>타이핑DNA 5계층</h4>
+        <p>리듬 · 편집 · 의미 변화 · 개인 이력 · 세션 흐름을 종합해 작성의 진정성을 평가합니다.</p>
+      </div>
+      <div class="tcard reveal d1">
+        <div class="te">🔁</div>
+        <h4>회고 기반 성장</h4>
+        <p>작성 전후의 사고 변화를 기록해, 학생이 실제로 고민하며 발전한 과정을 남깁니다.</p>
+      </div>
+      <div class="tcard reveal d2">
+        <div class="te">🚦</div>
+        <h4>투명한 결과 공개</h4>
+        <p>검증 결과를 인증·보류 신호로 학생·학부모에게 열어 보여줍니다. 숨기지 않습니다.</p>
+      </div>
+    </div>
+    <p class="sec-p reveal" style="margin-top:22px;font-size:12.5px;color:var(--ink-mute)">※ 검증은 붙여넣기·비정상 리듬 등 확률적 정황을 진단하는 보조 지표이며, 최종 판단은 사용자의 몫입니다. 결과나 합격을 보장하지 않습니다.</p>
+  </div>
+</section>
+
+<!-- ═══ 시작 CTA ═══ -->
+<section class="start-sec" id="start">
+  <div class="wrap">
+    <div class="start-box reveal">
+      <h2>본인의 기록으로,<br>지금 시작하세요</h2>
+      <p>학부모가 직접 회원가입하고 바로 사용합니다. 관리자 승인 없이 가입 즉시 시작하며, <b>각 서비스 첫 시즌 1강을 무료</b>로 바로 체험할 수 있어요.</p>
+      <div class="cta">
+        <a class="btn white big" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">무료로 시작하기</a>
+        <a class="btn outline big" href="mailto:gwkim06@gmail.com?subject=펜타 시작·구독 문의">구독 문의</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 생애주기 역량 로드맵 ═══ -->
+<section id="roadmap">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">GROWTH ROADMAP</div>
+    <h2 class="sec-h reveal">한 번의 훈련이 아니라,<br><em>자라는 내내 이어지는 역량</em></h2>
+    <p class="sec-p reveal d1">펜타 시리즈로 <b>사고력과 융합적 창의력</b>을 먼저 기릅니다. 그 힘이 바탕이 되어 중학·고등으로 갈수록 탐구가 깊어지고, 마침내 대학에서 스스로 쓰고 연구하는 역량까지 — 펜타는 아이의 <b>생애주기별 역량 성장</b>을 하나의 축으로 잇습니다.</p>
+
+    <div class="rmap reveal d1">
+      <div class="rstage rvision">
+        <span class="rlv">초5~6</span>
+        <div class="rt">펜타 비전 기초</div>
+        <div class="rd">5가지 눈으로 세상을 보는 <b>사고력의 씨앗</b></div>
+      </div>
+      <div class="rarrow">→</div>
+      <div class="rstage rvision">
+        <span class="rlv">중1~2</span>
+        <div class="rt">펜타 비전 심화</div>
+        <div class="rd">딜레마로 벼리는 <b>융합적 창의력</b></div>
+      </div>
+      <div class="rarrow">→</div>
+      <div class="rstage rtrack">
+        <span class="rlv">중3</span>
+        <div class="rt">펜타 트랙</div>
+        <div class="rd">사고력을 <b>진로 방향</b>으로 수렴</div>
+      </div>
+      <div class="rarrow">→</div>
+      <div class="rstage arche">
+        <span class="rlv">고등</span>
+        <div class="rt">펜타 아르케</div>
+        <div class="rd">진로 징검다리·수행평가로 <b>진로·탐구 역량</b> 실행</div>
+      </div>
+      <div class="rarrow">→</div>
+      <div class="rstage goal">
+        <span class="rlv">대학</span>
+        <div class="rt">대학 역량</div>
+        <div class="rd">스스로 <b>리포트 작성·연구</b>하는 힘</div>
+      </div>
+    </div>
+    <p class="sec-p reveal" style="margin-top:22px;font-size:13px;color:var(--ink-mute)">펜타 비전·트랙이 사고의 뿌리를 키우고, <b>펜타 아르케</b>가 그 역량을 진로·탐구·수행으로 실행합니다. 점차 심화되는 하나의 성장 곡선입니다.</p>
+  </div>
+</section>
+
+<!-- ═══ 회사 소개 · 엔진 ═══ -->
+<section id="about">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">ABOUT LOG.R</div>
+    <h2 class="sec-h reveal">과정을 기록하는 회사,<br><em>Log.R Intelligence Loop Lab</em></h2>
+    <p class="sec-p reveal d1">Log.R은 <b>20년 입시 지도 노하우</b> 위에 세워진 에듀테크 기업입니다. 결과 점수가 아니라 <b>학생의 사고 과정</b>을 기록하고, 그 기록으로 성장을 증명하는 엔진을 만듭니다. 하나의 특허 엔진이 세 개의 현장에서 움직입니다.</p>
+
+    <div class="layer3" style="text-align:left;margin-top:38px">
+      <a class="lc reveal" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block">
+        <div class="ci" style="background:var(--blue-soft)">🏫</div>
+        <h3>Penta-View<small>학교용 · penta-view.com</small></h3>
+        <p>일반고·특성화고를 위한 프로세스 분석 엔진. 사고 과정 기록, 타이핑 무결성 인증, NEIS 규격 기록 지원까지 — 공교육 현장의 행정을 덜어냅니다.</p>
+        <span style="display:inline-block;margin-top:14px;font-size:11.5px;font-weight:800;color:var(--blue)">홈페이지 보기 →</span>
+      </a>
+      <a class="lc reveal d1" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block">
+        <div class="ci" style="background:var(--mint-soft)">🎓</div>
+        <h3>펜타 아르케 (Arche)<small>진로·수행·작성 증명</small></h3>
+        <p>학부모–학생 루프로 운영되며(컨설턴트–학생 루프는 추후 서비스 예정), 학생 본인의 자료를 바탕으로 진로 설계·수행평가·탐구·면접을 돕고 그 과정을 타이핑 기반으로 증명하는 학습 엔진입니다.</p>
+        <span style="display:inline-block;margin-top:14px;font-size:11.5px;font-weight:800;color:var(--blue)">홈페이지 보기 →</span>
+      </a>
+      <a class="lc reveal d2" href="https://penta-view.com" target="_blank" rel="noopener" style="display:block">
+        <div class="ci" style="background:var(--sky-soft)">🌱</div>
+        <h3>확장 라인<small>Next</small></h3>
+        <p>특수학교를 위한 발달 단계별 인지 트래킹·IEP 목표 기록 엔진을 준비하고 있습니다. 배움의 과정을 기록받을 권리는 모든 학생에게 있어야 합니다.</p>
+        <span style="display:inline-block;margin-top:14px;font-size:11.5px;font-weight:800;color:var(--blue)">홈페이지 보기 →</span>
+      </a>
+    </div>
+
+    <div class="reveal" style="margin-top:40px;background:var(--bg);border-radius:20px;padding:30px 34px;text-align:left;max-width:860px;margin-left:auto;margin-right:auto">
+      <div style="font-size:12px;font-weight:800;color:var(--blue);margin-bottom:8px">VISION</div>
+      <div style="font-size:clamp(15px,2vw,18px);font-weight:800;line-height:1.6">학교와 학원이 학생의 성장을 같은 언어로 말하는 세상.</div>
+      <div style="font-size:13px;color:var(--ink-dim);font-weight:500;margin-top:10px;line-height:1.8">수업에서의 사고 기록이 학교 기록이 되고, 학생 본인의 그 기록이 자신의 성장 근거가 되는 것 — Log.R이 특허 기반 프로세스 분석 기술로 만들어가는 미래입니다. 우리는 점수 경쟁의 도구가 아니라, <b>과정이 존중받는 입시 문화의 인프라</b>가 되고자 합니다.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 학원·학교 도입 (작은 안내) ═══ -->
+<section class="biz" style="padding:26px 0">
+  <div class="wrap">
+    <div class="row">
+      <p>학원·학교에서 단체 도입을 검토하시나요?</p>
+      <a href="mailto:gwkim06@gmail.com?subject=펜타 시리즈 기관 도입 문의">기관 도입 문의하기 →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 요금제 (KG 사전심사: 상품·가격·환불) ═══ -->
+<section class="pricing" id="pricing">
+  <div class="wrap center">
+    <div class="sec-eyebrow reveal">PRICING</div>
+    <h2 class="sec-h reveal">정직한 구독,<br><em>명확한 가격</em></h2>
+    <p class="sec-p reveal d1">모든 요금은 부가세 포함 월 구독가입니다. 정기결제는 월 단위이며, 첫 강은 무료 체험입니다.</p>
+
+    <div class="plans">
+      <div class="plan reveal">
+        <div class="pnm">📘 펜타 비전</div>
+        <div class="pdesc">초등~중2 · 5대 지성 사고력</div>
+        <div class="price">12,900<small>원 / 월</small></div>
+        <div class="yr">월 단위 결제 · 언제든 해지 가능</div>
+        <ul>
+          <li>펜타 비전 워크북 전 회차</li>
+          <li>회차 리포트 + 월간 성장 리포트</li>
+          <li>AI 소크 발문 회차당 10회</li>
+        </ul>
+        <div class="ptrial">🎟️ 첫 강 무료 체험</div>
+        <a class="pbtn" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">구독 시작</a>
+      </div>
+
+      <div class="plan hot reveal d1">
+        <span class="rec">추천</span>
+        <div class="pnm">📗 펜타 트랙</div>
+        <div class="pdesc">중3 · 융합 탐구 + 진로 설계</div>
+        <div class="price">19,900<small>원 / 월</small></div>
+        <div class="yr">월 단위 결제 · 언제든 해지 가능</div>
+        <ul>
+          <li>펜타 트랙 워크북 전 회차</li>
+          <li>진로 매칭 · 커리어넷 · 고교 로드맵</li>
+          <li>반기 / 연간 성장 리포트</li>
+          <li>AI 소크 발문 회차당 15회</li>
+        </ul>
+        <div class="ptrial">🎟️ 첫 강 무료 체험</div>
+        <a class="pbtn" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">구독 시작</a>
+      </div>
+
+      <div class="plan reveal d2">
+        <div class="pnm">🪜 올인원 (가정)</div>
+        <div class="pdesc">비전·트랙·아르케 모두</div>
+        <div class="price">29,900<small>원 / 월</small></div>
+        <div class="yr">월 단위 결제 · 언제든 해지 가능</div>
+        <ul>
+          <li>펜타 비전 · 트랙 전체</li>
+          <li>펜타 아르케(진로·수행) 무제한</li>
+          <li>분기 · 연간 프리미엄 리포트</li>
+          <li>AI 소크 발문 넉넉히</li>
+        </ul>
+        <div class="ptrial">🎟️ 첫 강 무료 체험</div>
+        <a class="pbtn" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">구독 시작</a>
+      </div>
+    </div>
+
+    <div class="paddon reveal">
+      <span class="chip">단품 · <b>펜타 아르케 5회권 9,900원</b></span>
+      <span class="chip">🗂️ <b>시즌 개별 구매</b> 가능 · 비전 16,900원~</span>
+      <span class="chip">👨‍👩‍👧 <b>형제 할인</b> 둘째부터 30%</span>
+      <span class="chip">🎟️ 각 코스 <b>첫 강 무료</b></span>
+    </div>
+
+    <div class="payinfo reveal">
+      <h4>💳 결제 · 이용 · 환불 안내</h4>
+      <dl>
+        <dt>상품 형태</dt><dd>온라인 디지털 학습 구독 서비스 (실물 배송 없음)</dd>
+        <dt>이용 개시</dt><dd>결제 승인 즉시 계정에서 이용 가능 (배송 기간 해당 없음)</dd>
+        <dt>결제 방식</dt><dd>신용·체크카드 정기결제(구독) 및 단건 결제 · 매월 자동 청구</dd>
+        <dt>청약철회</dt><dd>결제 후 7일 이내, 콘텐츠를 이용·다운로드하지 않은 경우 전액 환불</dd>
+        <dt>중도 해지</dt><dd>언제든 다음 결제일 전 해지 시 다음 주기부터 청구 중단 · 잔여기간 이용 가능</dd>
+        <dt>환불 문의</dt><dd>gwkim06@gmail.com · 010-2557-5342 (평일 10:00~18:00)</dd>
+      </dl>
+      <div class="plink">
+        <a href="policy/terms.html" target="_blank" rel="noopener">이용약관</a>
+        <a href="policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
+        <a href="policy/refund.html" target="_blank" rel="noopener">청약철회·환불정책</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 학부모–학생 루프 상세 모달 ═══ -->
+<div class="lmodal-bd" id="loopModal" onclick="if(event.target===this)closeLoop()">
+  <div class="lmodal" role="dialog" aria-modal="true" aria-label="학부모–학생 루프 설명">
+    <button class="x" type="button" onclick="closeLoop()" aria-label="닫기">✕</button>
+    <div class="eyb">PENTA VISION · 학부모–학생 루프</div>
+    <h3>학부모가 컨설턴트가 되는<br>순환은 이렇게 돕니다</h3>
+    <p class="lead">펜타는 <b>학부모와 학생이 서로 다른 대시보드</b>를 씁니다. 학부모가 회차를 보내면 학생이 수행하고, 리포트가 학부모에게 돌아오는 순환입니다.</p>
+    <div class="dashduo">
+      <div class="ddb parent"><div class="ddt">👨‍👩‍👧 학부모 대시보드</div><div class="ddd">회차 전송 · 리포트 확인 · 코칭</div></div>
+      <div class="ddmid">⇄<span>회차▶ / ◀리포트</span></div>
+      <div class="ddb student"><div class="ddt">🎓 학생 대시보드</div><div class="ddd">받은 워크북 수행 · 직접 작성</div></div>
+    </div>
+    <div class="lsteps" style="margin-top:22px">
+      <div class="lstep2"><div class="ln">1</div><div class="lb"><h4>학부모가 회차를 전송</h4><p>학부모 대시보드에서 이번에 수행할 워크북 회차를 골라 자녀에게 배정·전송합니다.</p></div></div>
+      <div class="lstep2"><div class="ln">2</div><div class="lb"><h4>아이가 워크북을 수행</h4><p>학생은 자기 대시보드에서 받은 회차를 열어 '만약에?' 질문에 스스로 답을 씁니다. 정답을 고르는 게 아니라 자기 생각을 서술하며, 이 작성 과정이 그대로 기록됩니다.</p></div></div>
+      <div class="lstep2"><div class="ln">3</div><div class="lb"><h4>AI가 진단하고 리포트를 만든다</h4><p>펜타가 5대 지성 주파수와 사고 지표를 진단하고, 본인 작성 여부를 검증해 PentaView 리포트를 생성합니다.</p></div></div>
+      <div class="lstep2"><div class="ln">4</div><div class="lb"><h4>학부모 대시보드로 리포트가 돌아온다</h4><p>어떤 주파수가 강한지, 무엇이 자랐는지, 다음엔 어떤 대화를 나누면 좋은지를 리포트가 짚어줍니다. 학부모가 컨설턴트의 눈을 갖는 단계입니다.</p></div></div>
+      <div class="lstep2"><div class="ln">5</div><div class="lb"><h4>가정에서 아이와 대화</h4><p>리포트의 '가정 연계 대화' 가이드를 따라, 학부모가 아이의 생각을 넓히는 대화를 이끕니다.</p></div></div>
+      <div class="lstep2"><div class="ln">6</div><div class="lb"><h4>다음 회차를 전송 — 궤적이 쌓인다</h4><p>다음 회차를 보내면 지성 성장 궤적이 누적되고, Before/After 레이더로 변화가 보입니다. 그리고 다시 1번으로.</p></div></div>
+    </div>
+    <div class="lloop">🔁 이 순환이 반복되며 아이의 <b>지성 성장 궤적</b>이 시간축으로 쌓입니다. 중3 <b>펜타 트랙</b>도 동일하게 학부모가 직접 관리하는 구독으로 운영되며, 필요 시 로그.알 전문 컨설턴트 상담을 별도로 연결할 수 있습니다(추가 비용).</div>
   </div>
 </div>
 
-<!-- ① 문제 -->
-<section class="sec hero">
-  <span class="eyebrow">초5–고교 · 학부모–학생 루프</span>
-  <h1>AI가 답을 <span class="g">대신 써주는</span> 시대.<br>우리 아이는 지금<br><span class="gi">'공부'</span>하고 있는 걸까요?</h1>
-  <p class="lead">숙제도, 독후감도, 발표 자료도 이제 AI가 몇 초 만에 만들어 줍니다. 아이는 <b>답을 받아 제출</b>하는 건 쉬워졌지만, <b>스스로 생각하는 일</b>은 오히려 더 드물어졌습니다.</p>
-  <div class="think">
-    <div class="t">요즘 부모님들이 하시는 걱정</div>
-    <div class="b">"AI가 숙제 해주는 거랑 <b>뭐가 다른</b> 거지?"</div>
-    <div class="b">"학원은 성적을 올려주는데, <b>생각하는 힘</b>은 누가 키워주지?"</div>
-    <div class="b">"우리 아이가 <b>실제로 달라졌다</b>는 걸 내가 어떻게 알지?"</div>
-  </div>
-  <div class="cta">
-    <a class="btn mint" href="/samples/trial-ai-workbook">🎬 우리 아이가 뭘 하는지 5분만 직접 보기</a>
-    <a class="btn ghost" href="#solve">PENTA가 뭔가요?</a>
-  </div>
-  <div class="trust"><span>🏅 특허 출원 기술</span><span>📚 20년 교육 현장</span><span>🟢 실서비스 중</span></div>
-</section>
-
-<!-- ② 해결 -->
-<section class="sec solve" id="solve">
-  <span class="eyebrow">PENTA는 이렇게 다릅니다</span>
-  <h2>답을 주지 않습니다.<br>아이에게 <span style="color:#8fd3ff">되묻습니다.</span></h2>
-  <p class="lead">PENTA는 정답을 떠먹여 주는 학습이 아닙니다. 아이가 스스로 생각하도록 <b>질문하고, 자료를 보여주고, 반대 의견을 던지고, 다시 생각하게</b> 합니다. 학원이 채워주지 못하는 딱 한 가지 — <b>스스로 생각하는 힘</b>을 키웁니다.</p>
-  <div class="big">AI에게 <span class="u">답을 받는</span> 학습이 아니라,<br>AI와 <span class="u">함께 생각하는</span> 학습.</div>
-  <p class="lead" style="margin-top:18px;font-size:13.5px">여기서 주인공은 AI가 아닙니다. <b style="color:#fff">아이의 생각</b>이 주인공이고, AI는 그 생각을 끌어내는 조력자일 뿐입니다.</p>
-</section>
-
-<!-- ③ 실제 경험 -->
-<section class="sec" id="trial">
-  <span class="eyebrow mint">EXPERIENCE · 5분이면 충분합니다</span>
-  <h2>PENTA에서는<br><span class="gi">이렇게</span> 공부합니다.</h2>
-  <p class="lead">하나의 질문에서 출발해, 아이의 생각이 어떻게 깊어지는지 — 설명 대신 직접 보여드릴게요.</p>
-  <div class="flow">
-    <div class="fstep on"><div class="fn">❓</div><div><div class="ft">하나의 질문</div><div class="fb">"AI는 끝내 인간의 도구로 남을까, 통제를 벗어날까?"</div></div></div>
-    <div class="fstep"><div class="fn">💬</div><div><div class="ft">내 생각</div><div class="fb">"편리하니까 계속 발전시켜야 한다."</div></div></div>
-    <div class="fstep"><div class="fn">🦉</div><div><div class="ft">AI의 되물음</div><div class="fb"><span class="ai">"그렇다면 AI가 잘못을 저질러도, 그 책임은 누가 지지?"</span></div></div></div>
-    <div class="fstep"><div class="fn">📚</div><div><div class="ft">자료 탐구</div><div class="fb">튜링 · 알파고 · 생성형 AI · 로봇 3원칙</div></div></div>
-    <div class="fstep"><div class="fn">🔗</div><div><div class="ft">다섯 관점으로 연결</div><div class="fb">역사 · 과학 · 심리 · 논리 · 예술</div></div></div>
-    <div class="fstep"><div class="fn">⚖️</div><div><div class="ft">반론 견디기</div><div class="fb">"네 주장에 반대하는 사람이 있다면?"</div></div></div>
-    <div class="fstep"><div class="fn">✍️</div><div><div class="ft">생각의 수정</div><div class="fb">"처음엔 무조건 발전이라 봤지만 — <b>안전장치와 책임 규칙이 먼저</b>라고 생각을 고쳤다."</div></div></div>
-  </div>
-  <div class="samplecard"><div class="inner">
-    <div class="tag">실제 체험 회차 · 비전 심화</div>
-    <div class="q">"AI, 과연 인류를 통제할 것인가?"</div>
-    <p class="lead" style="margin-top:8px;font-size:13px">로그인 없이, 지금 바로 우리 아이가 푸는 방식 그대로 체험해보세요.</p>
-  </div></div>
-  <div class="cta">
-    <a class="btn p" href="/samples/trial-ai-workbook">🎬 무료 체험 1강 시작하기</a>
-  </div>
-</section>
-
-<!-- ④ 변화 -->
-<section class="sec change" style="background:var(--soft)">
-  <span class="eyebrow">PROOF · 점수가 아니라 '변화'를 봅니다</span>
-  <h2>우리 아이의<br>생각이 자란 순간.</h2>
-  <p class="lead">PENTA는 아이의 <b>처음 생각</b>과 <b>탐구 후 생각</b>을 나란히 남깁니다. 부모님은 점수표가 아니라, 아이의 생각이 자라는 장면을 직접 보십니다.</p>
-  <div class="compare">
-    <div class="cbox before"><div class="cl">처음 생각</div><div class="cq">"스마트폰은 공부에 방해되니까 무조건 금지해야 한다."</div></div>
-    <div class="arrow">↓</div>
-    <div class="cbox after"><div class="cl">탐구 후 생각</div><div class="cq">"무조건 금지보다는, 사용 시간과 목적에 따라 조건을 정하는 게 낫다고 생각한다."</div></div>
-  </div>
-  <div class="insight">주장 → 근거 → 반론 → 수정.<br><b>생각이 한 단계 깊어졌다는 것</b> — 이게 72점이라는 숫자보다 부모에게 훨씬 또렷한 성장입니다.</div>
-  <p class="lead" style="margin-top:22px;font-size:13.5px;text-align:center"><b>실제로 발행되는 리포트가 궁금하다면?</b><br>1년 치 생각이 쌓인 연간 성장 리포트를 미리 보세요.</p>
-  <div class="cta" style="margin-top:12px">
-    <a class="btn ghost" href="/samples/vision-annual-report" target="_blank" rel="noopener">📘 펜타 비전 샘플 리포트 보기</a>
-    <a class="btn ghost" href="/samples/track-annual-report" target="_blank" rel="noopener">📙 펜타 트랙 샘플 리포트 보기</a>
-  </div>
-</section>
-
-<!-- ⑤ 상품 -->
-<section class="sec price" id="start">
-  <div class="pcard">
-    <div class="pk">🌈 PENTA · 1년 생각 커리큘럼</div>
-    <div class="pbig">1년, 52편의 생각</div>
-    <div class="psub">매주 하나의 질문으로<br>읽고 → 생각하고 → 질문하고 → 탐구하고 →<br>반박하고 → 다시 생각합니다.</div>
-    <div class="pprice">월 <b>12,900원</b><span style="color:#9fb0e0;font-size:13px">부터</span></div>
-    <div class="promo">🎉 런칭 기념 · 첫 3개월 반값 · 선착순 <span id="promoLeft">96</span>자리</div>
-    <a class="btn mint" href="https://arche.penta-view.com/parent?trial=1">우리 아이 생각, 지금 시작하기 →</a>
-  </div>
-  <div class="plans">
-    <div class="ptitle">코스별 가격</div>
-    <div class="prow"><div class="pic" style="background:#e8f1ff">📘</div><div><div class="pnm">펜타 비전</div><div class="pgr">5대 지성 융합사고 · 초5–중2</div></div><div class="pwon">12,900원<small>/월</small></div></div>
-    <div class="prow"><div class="pic" style="background:#e6faf6">📙</div><div><div class="pnm">펜타 트랙</div><div class="pgr">진로·교과융합 설계 · 중3</div></div><div class="pwon">19,900원<small>/월</small></div></div>
-    <div class="prow"><div class="pic" style="background:#f2ecff">🌈</div><div><div class="pnm">펜타 올인원</div><div class="pgr">비전 + 트랙 + 아르케 전체</div></div><div class="pwon">29,900원<small>/월</small></div></div>
-    <div class="prow"><div class="pic" style="background:#fff3e6">🎟️</div><div><div class="pnm">아르케 이용권</div><div class="pgr">진로 징검다리 · 수행평가 도우미 · 중·고등 · 5회</div></div><div class="pwon">9,900원<small>/5회</small></div></div>
-    <div class="pnote">🎉 런칭 기념 · 구독 첫 3개월 반값 · 둘째 자녀부터 30% 형제 할인</div>
-  </div>
-  <div class="payinfo">
-    <h4>💳 결제 · 이용 · 환불 안내</h4>
-    <dl>
-      <div class="r"><dt>상품 형태</dt><dd>온라인 디지털 학습 구독 서비스 (실물 배송 없음)</dd></div>
-      <div class="r"><dt>이용 개시</dt><dd>결제 승인 즉시 계정에서 이용 가능 (배송 기간 해당 없음)</dd></div>
-      <div class="r"><dt>결제 방식</dt><dd>신용·체크카드 정기결제(구독) 및 단건 결제 · 매월 자동 청구</dd></div>
-      <div class="r"><dt>청약철회</dt><dd>결제 후 7일 이내, 콘텐츠를 이용·다운로드하지 않은 경우 전액 환불</dd></div>
-      <div class="r"><dt>중도 해지</dt><dd>언제든 다음 결제일 전 해지 시 다음 주기부터 청구 중단 · 잔여기간 이용 가능</dd></div>
-      <div class="r"><dt>환불 문의</dt><dd>gwkim06@gmail.com · 010-2557-5342 (평일 10:00~18:00)</dd></div>
-    </dl>
-    <div class="plink">
-      <a href="policy/terms.html" target="_blank" rel="noopener">이용약관</a>
-      <a href="policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
-      <a href="policy/refund.html" target="_blank" rel="noopener">청약철회·환불정책</a>
+<!-- ═══ 푸터 ═══ -->
+<footer>
+  <div class="wrap">
+    <div class="frow">
+      <div class="fl">
+        <div class="brand">Log.R · 펜타<b>.</b></div>
+        <p class="disc">
+          펜타는 학생 본인의 자료만을 활용하며, 타인의 학교생활기록부를 수집·거래·분석하지 않습니다. 성적표는 성적만 판독하고, 활동은 학생 본인의 입력으로 받습니다.
+          모든 설계·진단·검증은 Log.R 입시연구소의 자체 노하우에 기반하며, 학교생활기록부 공식 기재문을 대신 작성하지 않습니다(기재는 학교의 권한입니다).
+          핵심 분석 기술은 특허 출원 중입니다(발명의 명칭: AI 인터랙션 기반 다차원 통합지능 평가 시스템 · 출원번호 10-2026-0053173). 등록 여부는 심사 결과에 따라 확정됩니다.
+          검증·진단 결과는 보조 지표이며 결과·합격을 보장하지 않습니다. 개인정보는 관련 법령에 따라 처리됩니다.
+        </p>
+      </div>
+      <div class="fr">
+        <b>로그.알 (로그·알 입시연구소)</b><br>
+        대표 김기욱<br>
+        문의 <b>gwkim06@gmail.com</b><br>
+        penta-view.com
+      </div>
     </div>
-  </div>
-  <div class="finehelp">체험은 무료 · 언제든 해지 · 카드 등록 시 선착순 확정</div>
-  <div class="cta" style="margin-top:18px">
-    <a class="btn ghost" href="https://arche.penta-view.com/parent">이미 회원이신가요? 로그인 →</a>
-  </div>
-</section>
-
-<!-- 사업자 정보 -->
-<footer class="bizfoot">
-  <div class="fbrand">Log.R · 펜타<b>.</b></div>
-  <div class="fdisc">
-    펜타는 학생 본인의 자료만을 활용하며, 타인의 학교생활기록부를 수집·거래·분석하지 않습니다. 성적표는 성적만 판독하고, 활동은 학생 본인의 입력으로 받습니다.
-    모든 설계·진단·검증은 Log.R 입시연구소의 자체 노하우에 기반하며, 학교생활기록부 공식 기재문을 대신 작성하지 않습니다(기재는 학교의 권한입니다).
-    핵심 분석 기술은 특허 출원 중입니다(발명의 명칭: AI 인터랙션 기반 다차원 통합지능 평가 시스템 · 출원번호 10-2026-0053173). 등록 여부는 심사 결과에 따라 확정됩니다.
-    검증·진단 결과는 보조 지표이며 결과·합격을 보장하지 않습니다. 개인정보는 관련 법령에 따라 처리됩니다.
-  </div>
-  <div class="biz">
-    <b>상호</b> 로그.알 &nbsp;·&nbsp; <b>대표자</b> 김기욱 &nbsp;·&nbsp; <b>사업자등록번호</b> 538-10-03175 &nbsp;·&nbsp; <b>통신판매업신고번호</b> 2026-인천서해-0396<br>
-    <b>사업장 주소</b> 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) &nbsp;·&nbsp; <b>연락처</b> 010-2557-5342 &nbsp;·&nbsp; <b>이메일</b> gwkim06@gmail.com<br>
-    <b>개인정보보호책임자</b> 김기욱 (gwkim06@gmail.com)
-    <div class="plinks">
-      <a href="policy/terms.html" target="_blank" rel="noopener">이용약관</a>
-      <a href="policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
-      <a href="policy/refund.html" target="_blank" rel="noopener">청약철회·환불정책</a>
+    <div class="bizinfo">
+      <b>상호</b> 로그.알 &nbsp;·&nbsp; <b>대표자</b> 김기욱 &nbsp;·&nbsp; <b>사업자등록번호</b> 538-10-03175 &nbsp;·&nbsp; <b>통신판매업신고번호</b> 2026-인천서해-0396<br>
+      <b>사업장 주소</b> 인천광역시 서구 도요지로236번길 9, 101동 503호(검암동, 더프라임) &nbsp;·&nbsp; <b>연락처</b> 010-2557-5342 &nbsp;·&nbsp; <b>이메일</b> gwkim06@gmail.com<br>
+      <b>개인정보보호책임자</b> 김기욱 (gwkim06@gmail.com)
+      <div class="plinks">
+        <a href="policy/terms.html" target="_blank" rel="noopener">이용약관</a>
+        <a href="policy/privacy.html" target="_blank" rel="noopener">개인정보처리방침</a>
+        <a href="policy/refund.html" target="_blank" rel="noopener">청약철회·환불정책</a>
+      </div>
     </div>
+    <div class="copy">© 2026 Log.R Intelligence Loop Lab. All rights reserved.</div>
   </div>
-  <div class="copy">© 2026 Log.R Intelligence Loop Lab. All rights reserved.</div>
 </footer>
 
-</div>
 <script>
-/* 선착순 카운터 (promo_status · anon) */
-(function(){try{
-  var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/promo_status",K="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
-  fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K},body:JSON.stringify({p_code:'LAUNCH50'})})
-    .then(function(r){return r.json();}).then(function(d){ if(d&&typeof d.remaining!=='undefined'){var e=document.getElementById('promoLeft');if(e)e.textContent=d.remaining;}}).catch(function(){});
-}catch(e){}})();
-/* 방문 집계 */
-(function(){try{
-  var Kk='arche_vid',vid=localStorage.getItem(Kk);if(!vid){vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(Kk,vid);}
-  var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit",K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
-  fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
-}catch(e){}})();
+// 학부모–학생 루프 모달
+function openLoop(){var m=document.getElementById('loopModal');if(m){m.classList.add('open');document.body.style.overflow='hidden';}}
+function closeLoop(){var m=document.getElementById('loopModal');if(m){m.classList.remove('open');document.body.style.overflow='';}}
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();});
+
+// 스크롤 리빌
+(function(){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+})();
+
+// 히어로 타이핑 리듬 목업 애니메이션
+(function(){
+  var box=document.getElementById('rhythm'); if(!box)return;
+  var heights=[35,60,42,78,55,88,40,66,92,48,72,58,84,50,68,38,80,62,90,46];
+  heights.forEach(function(h,i){
+    var bar=document.createElement('i');
+    if(i%7===0) bar.className='pale';
+    box.appendChild(bar);
+    setTimeout(function(){ bar.style.height=h+'%'; }, 220+i*45);
+  });
+})();
+
+// 지성 주파수 바 채우기 (뷰 진입 시)
+(function(){
+  var freq=document.querySelector('.freq'); if(!freq)return;
+  var done=false;
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting && !done){ done=true;
+        freq.querySelectorAll('.fbar i').forEach(function(el,i){
+          setTimeout(function(){ el.style.width=el.getAttribute('data-w'); }, 120+i*90);
+        });
+      }
+    });
+  },{threshold:.3});
+  io.observe(freq);
+})();
+</script>
+
+<!-- 방문자 집계 (개인정보 미수집: 랜덤 방문자 토큰만 · IP·이름 저장 안 함) -->
+<script>
+(function(){
+  try{
+    var K='arche_vid', vid=localStorage.getItem(K);
+    if(!vid){ vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem(K,vid); }
+    var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit";
+    var K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn"; // 공개(RLS-safe) publishable 키
+    fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},
+      body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
+  }catch(e){}
+})();
+</script>
+
+<!-- ═══ 런칭 프로모 팝업 (선착순 반값) ═══ -->
+<div id="promoPop" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(10,14,25,.62);backdrop-filter:blur(2px);align-items:center;justify-content:center;padding:20px;font-family:'Noto Sans KR',sans-serif">
+  <div style="position:relative;width:100%;max-width:360px;background:#fff;border-radius:22px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:promoUp .35s ease">
+    <button id="promoX" aria-label="닫기" style="position:absolute;top:12px;right:12px;z-index:2;width:32px;height:32px;border:none;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;font-size:18px;cursor:pointer;line-height:1">×</button>
+    <div style="background:linear-gradient(135deg,#1A237E,#3949ab);color:#fff;padding:24px 22px 20px;text-align:center">
+      <div style="display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);border-radius:20px;padding:6px 13px;margin-bottom:14px"><span style="width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 4px rgba(74,222,128,.28)"></span>런칭 기념 프로모션</div>
+      <div style="font-size:26px;font-weight:900;letter-spacing:-.02em;line-height:1.3">첫 3개월 <span style="color:#ffd979">반값</span></div>
+      <div id="promoLine" style="font-size:13.5px;color:#cdd6f0;margin-top:9px;line-height:1.6">선착순 100명 중 <b style="color:#fff;font-size:15px" id="promoLeft">96</b>자리 남음 · 비전 6,450원~</div>
+    </div>
+    <div style="padding:18px 22px 22px;text-align:center">
+      <div style="font-size:13px;color:#4e5968;line-height:1.65">초5–고교 · AI가 정답 대신 되묻고,<br>아이의 <b style="color:#191f28">사고력 성장을 리포트</b>로 보여드려요.</div>
+      <div style="margin-top:12px;background:#f4f7fb;border:1px solid #e8ebf0;border-radius:10px;padding:9px 12px;font-size:11.5px;color:#4e5968;line-height:1.55">💳 <b style="color:#1A237E">결제 카드를 등록하면</b> 선착순 자리가 확정돼요 · 첫 3개월 반값</div>
+      <a id="promoCta" href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:16px;background:#3182f6;color:#fff;text-decoration:none;border-radius:13px;padding:15px;font-size:15.5px;font-weight:800;box-shadow:0 8px 20px rgba(49,130,246,.32)">선착순 반값으로 시작하기</a>
+      <a href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:9px;color:#1A237E;text-decoration:none;border-radius:13px;padding:12px;font-size:14px;font-weight:800;border:1.5px solid #d3ddf1">체험 1강 무료로 보기</a>
+      <button id="promoHide" style="margin-top:14px;background:none;border:none;color:#8b95a1;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit">오늘 하루 보지 않기</button>
+    </div>
+  </div>
+</div>
+<style>@keyframes promoUp{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}</style>
+<script>
+(function(){
+  try{
+    var HIDE='penta_promo_hide';
+    var today=new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(HIDE)===today) return;              // 오늘 하루 안 보기
+    var pop=document.getElementById('promoPop'); if(!pop) return;
+    function close(){ pop.style.display='none'; }
+    function hideToday(){ try{ localStorage.setItem(HIDE,today); }catch(e){} close(); }
+    // 선착순 카운터 (promo_status · anon)
+    var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/promo_status";
+    var K="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
+    fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K,'Authorization':'Bearer '+K},body:JSON.stringify({p_code:'LAUNCH50'})})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||typeof d.remaining==='undefined') return;
+        var rem=d.remaining, el=document.getElementById('promoLeft'); if(el)el.textContent=rem;
+        if(!d.active||rem<=0){
+          var line=document.getElementById('promoLine'); if(line)line.innerHTML='<b style="color:#fff">선착순 마감</b> · 정식 오픈';
+          var cta=document.getElementById('promoCta'); if(cta)cta.textContent='지금 시작하기';
+        }
+      }).catch(function(){});
+    // 노출 (살짝 지연 → 페이지 먼저 보이고 팝업)
+    setTimeout(function(){ pop.style.display='flex'; }, 900);
+    document.getElementById('promoX').onclick=close;
+    document.getElementById('promoHide').onclick=hideToday;
+    pop.addEventListener('click',function(e){ if(e.target===pop) close(); });
+  }catch(e){}
+})();
 </script>
 <script src="/shared/pwa-install.js" data-manifest="/manifest-penta.json" defer></script>
-</body></html>
+</body>
+</html>
