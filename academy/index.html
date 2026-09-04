@@ -419,6 +419,7 @@ function renderView(v){
       + '<div id="dash-risk" class="mount"></div>'
       + '<div class="h1" style="font-size:15px;margin-top:24px">바로가기</div>'
       + '<div class="grid g4" style="margin-top:12px">'
+      + qa('people','학생·강사 관리','원생등록·반배정·수강료·강사','members')
       + qa('cal','학원 시간표','시간표 작성·배포','timetable')
       + qa('spark','새 강좌 소개','모집 자료 생성','newcourse')
       + qa('mega','홍보 포스팅','블로그·밴드 콘텐츠','promo')
@@ -439,7 +440,7 @@ function renderView(v){
       + ph('📨','학부모 소식 전송','소식지·시간표·새 강좌·월간 분석표·진로/수행 결과를 수강생 학부모 대시보드로 전송 + 알림. (기존 ArcheParentHub)', 'arche_parent_hub.js · ArcheParentHub.mountSend');
     case 'hqnews': return head('본사 소식','로그·알 입시연구소 공지·입시 뉴스')
       + ph('📰','본사 소식','본사 공지·입시 뉴스·홍보 영상. 홍보 스튜디오에서 우리 학원 톤으로 각색 가능.', 'hq_posts');
-    case 'members': return head('학생·반 관리','반 생성·명명 → 학생 등록 → 반 배정·이동')
+    case 'members': return head('학생·강사 관리','반 개설(과목·수강료) → 원생 등록·반 배정 → 강사 등록·계정 발급·담당반')
       + '<div id="members-mount" class="mount"></div>';
     case 'billing': return head('구독·결제','학원 구독료(규모 기반) · 세금계산서')
       + ph('💳','학원 구독 결제','기본료+규모 기반 학원 구독(toss-billing) · 수강생 수강료는 학원 자체(우리 미개입).', 'toss-billing (B2B)');
@@ -645,25 +646,28 @@ async function mountMembers(host){
   try{
     var rc = await sb.from('academy_classes').select('*').eq('academy_id',acid).order('created_at');
     classes = rc.data||[];
-    var rs = await sb.from('students').select('id,name,grade,class_id,penta_course').eq('academy_id',acid).order('name');
+    var rs = await sb.from('students').select('id,name,grade,school,phone,class_id,penta_course').eq('academy_id',acid).order('name');
     students = rs.data||[];
-    var rt = await sb.from('academy_users').select('uid,email,role').eq('academy_id',acid);
-    teachers = rt.data||[];
+    var rt = await sb.from('academy_users').select('uid,email,role,name,subject,login_id,must_change').eq('academy_id',acid);
+    teachers = (rt.data||[]).filter(function(t){ return t.role!=='owner'; });
     try{ var rsa = await sb.from('student_accounts').select('student_id,login_id,must_change').eq('academy_id',acid); (rsa.data||[]).forEach(function(a){ stuAcct[a.student_id]=a; }); }catch(_){}
     try{ var rpa = await sb.from('parent_accounts').select('student_id,login_id').eq('academy_id',acid); (rpa.data||[]).forEach(function(a){ parAcct[a.student_id]=a; }); }catch(_){}
   }catch(e){ host.innerHTML = phRaw('⚠️','불러오기 실패', (e&&e.message)||e); return; }
   render();
 
+  function won(n){ n=Number(n)||0; return n.toLocaleString('ko-KR')+'원'; }
   function countIn(cid){ return students.filter(function(s){return s.class_id===cid;}).length; }
-  function tName(uid){ var t=teachers.filter(function(x){return x.uid===uid;})[0]; return t?(t.email||'강사'):''; }
+  function classOf(cid){ return classes.filter(function(c){return c.id===cid;})[0]||null; }
+  function tName(uid){ var t=teachers.filter(function(x){return x.uid===uid;})[0]; return t?(t.name||t.email||'강사'):''; }
   function classOpts(sel){
     return '<option value="">— 미배정 —</option>'+classes.map(function(c){
-      return '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+esc(c.name)+'</option>';
+      return '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+esc(c.name)+(c.tuition?(' · 월 '+won(c.tuition)):'')+'</option>';
     }).join('');
   }
   function teacherOpts(sel){
     return '<option value="">담당 강사 (선택)</option>'+teachers.map(function(t){
-      return '<option value="'+t.uid+'"'+(t.uid===sel?' selected':'')+'>'+esc(t.email||t.uid.slice(0,8))+'</option>';
+      var lbl=(t.name||t.email||t.uid.slice(0,8))+(t.subject?(' · '+t.subject):'');
+      return '<option value="'+t.uid+'"'+(t.uid===sel?' selected':'')+'>'+esc(lbl)+'</option>';
     }).join('');
   }
 
@@ -677,20 +681,50 @@ async function mountMembers(host){
         var n=countIn(c.id), full=n>=c.capacity;
         return '<div class="card" style="border-color:'+(full?'#f0445233':'var(--line)')+'">'
           +'<div style="display:flex;align-items:center;gap:8px"><b style="font-size:14.5px">'+esc(c.name)+'</b>'
+          +(c.tuition?'<span style="font-size:11px;font-weight:800;color:#137a44;background:#eafaf0;border-radius:20px;padding:2px 8px">월 '+won(c.tuition)+'</span>':'')
           +'<span style="margin-left:auto;font-size:12px;font-weight:800;color:'+(full?'var(--risk)':'var(--brand)')+'">'+n+'/'+c.capacity+'</span></div>'
-          +'<div class="d">'+(c.teacher_id?('담당 '+esc(tName(c.teacher_id))):'담당 강사 미지정')+(c.schedule?' · '+esc(c.schedule):'')+'</div>'
-          +'<div style="display:flex;gap:6px;margin-top:10px">'
-          +'<button class="tab" data-ren="'+c.id+'" data-nm="'+esc(c.name)+'" style="padding:5px 10px;font-size:11.5px">이름 수정</button>'
+          +'<div class="d">'+(c.subject?('📘 '+esc(c.subject)+' · '):'')+(c.teacher_id?('담당 '+esc(tName(c.teacher_id))):'담당 강사 미지정')+(c.schedule?' · '+esc(c.schedule):'')+'</div>'
+          +'<div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">'
+          +'<button class="tab" data-ren="'+c.id+'" data-nm="'+esc(c.name)+'" style="padding:5px 10px;font-size:11.5px">이름</button>'
+          +'<button class="tab" data-tuition="'+c.id+'" data-tv="'+(c.tuition||'')+'" style="padding:5px 10px;font-size:11.5px">수강료</button>'
+          +'<button class="tab" data-cteach="'+c.id+'" data-tid="'+(c.teacher_id||'')+'" style="padding:5px 10px;font-size:11.5px">담당강사</button>'
           +'<button class="tab" data-del="'+c.id+'" style="padding:5px 10px;font-size:11.5px;color:var(--risk)">삭제</button>'
           +'</div></div>';
       }).join('')+'</div>';
     }
     // 새 반 만들기
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center">'
-      +'<input id="m-cname" placeholder="새 반 이름 (예: 월수금 A반)" style="flex:2;min-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
-      +'<input id="m-ccap" type="number" value="10" min="1" max="30" title="정원" style="width:80px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-cname" placeholder="새 반 이름 (예: 월수금 A반)" style="flex:2;min-width:150px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-csubj" placeholder="과목(예: 수학)" style="width:110px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-ctuition" type="number" placeholder="월 수강료" min="0" step="1000" title="월 수강료(원)" style="width:110px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-ccap" type="number" value="10" min="1" max="30" title="정원" style="width:70px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
       +'<select id="m-cteacher" style="flex:1;min-width:150px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+teacherOpts('')+'</select>'
       +'<button id="m-cadd" class="tab on" style="padding:10px 18px">+ 반 만들기</button></div>';
+    h+='</div>';
+
+    /* ── 강사 관리 ── */
+    h+='<div class="card" style="margin-top:16px"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🧑‍🏫 강사 <span style="font-size:12px;font-weight:500;color:var(--ink-mute)">· '+teachers.length+'명 · 등록 시 로그인 계정 자동 발급(코스웨어 권한)</span></div>';
+    if(!teachers.length){ h+='<div style="font-size:13px;color:var(--ink-mute);padding:6px 0 12px">등록된 강사가 없습니다. 아래에서 강사를 등록하면 아이디·비번이 자동 생성됩니다.</div>'; }
+    else {
+      h+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+        +'<thead><tr style="text-align:left;color:var(--ink-mute);font-size:11.5px"><th style="padding:6px 8px">이름</th><th style="padding:6px 8px">과목</th><th style="padding:6px 8px">담당 반</th><th style="padding:6px 8px">로그인 아이디</th><th></th></tr></thead><tbody>';
+      h+=teachers.map(function(t){
+        var myClasses=classes.filter(function(c){return c.teacher_id===t.uid;}).map(function(c){return esc(c.name);});
+        return '<tr style="border-top:1px solid var(--line-soft)">'
+          +'<td style="padding:8px;font-weight:700">'+esc(t.name||'-')+'</td>'
+          +'<td style="padding:8px;color:var(--ink-dim)">'+esc(t.subject||'-')+'</td>'
+          +'<td style="padding:8px;color:var(--ink-dim)">'+(myClasses.length?myClasses.join(', '):'<span style="color:var(--ink-mute)">미배정</span>')+'</td>'
+          +'<td style="padding:8px"><b>'+esc(t.login_id||t.email||'-')+'</b>'+(t.must_change?' <span style="font-size:10px;color:var(--ink-mute)">/0000</span>':'')+'</td>'
+          +'<td style="padding:8px;text-align:right;white-space:nowrap"><button class="tab" data-tpw="'+t.uid+'" style="padding:4px 9px;font-size:11px">비번초기화</button> <button class="tab" data-tdel="'+t.uid+'" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:var(--risk)">삭제</button></td>'
+          +'</tr>';
+      }).join('');
+      h+='</tbody></table></div>';
+    }
+    h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center">'
+      +'<input id="m-tname" placeholder="강사 이름" style="flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-tsubj" placeholder="수업 과목 (예: 국어)" style="flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<button id="m-tadd" class="tab on" style="padding:10px 18px">+ 강사 등록</button></div>';
+    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 등록하면 로그인 아이디·초기비번(0000)이 자동 발급되고, 코스웨어(배정·수업) 권한이 부여됩니다. 담당 반은 반 카드의 [담당강사]에서 지정하세요.</div>';
     h+='</div>';
 
     /* ── 학생 관리 ── */
@@ -709,10 +743,13 @@ async function mountMembers(host){
         } else {
           acctCell = '<button class="tab on" data-issue="'+s.id+'" style="padding:5px 11px;font-size:11px">🔑 계정 발급</button>';
         }
+        var cls=classOf(s.class_id);
+        var feeBadge=(cls&&cls.tuition)?'<div style="margin-top:5px"><span style="font-size:11px;font-weight:800;color:#137a44;background:#eafaf0;border-radius:20px;padding:2px 8px">💳 월 '+won(cls.tuition)+'</span></div>':'';
+        var subInfo=[]; if(s.school)subInfo.push(esc(s.school)); if(s.penta_course)subInfo.push(esc(s.penta_course));
         return '<tr style="border-top:1px solid var(--line-soft)">'
-          +'<td style="padding:8px;font-weight:700">'+esc(s.name||'-')+'<div style="font-size:10.5px;color:var(--ink-mute);font-weight:400">'+esc(s.penta_course||'')+'</div></td>'
+          +'<td style="padding:8px;font-weight:700">'+esc(s.name||'-')+(subInfo.length?'<div style="font-size:10.5px;color:var(--ink-mute);font-weight:400">'+subInfo.join(' · ')+'</div>':'')+(s.phone?'<div style="font-size:10.5px;color:var(--ink-mute);font-weight:400">📞 '+esc(s.phone)+'</div>':'')+'</td>'
           +'<td style="padding:8px;color:var(--ink-dim)">'+esc(s.grade||'-')+'</td>'
-          +'<td style="padding:8px"><select data-move="'+s.id+'" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;min-width:140px">'+classOpts(s.class_id)+'</select></td>'
+          +'<td style="padding:8px"><select data-move="'+s.id+'" style="padding:7px 10px;border:1px solid var(--line);border-radius:8px;font-size:12.5px;min-width:140px">'+classOpts(s.class_id)+'</select>'+feeBadge+'</td>'
           +'<td style="padding:8px">'+acctCell+'</td>'
           +'<td style="padding:8px;text-align:right"><button class="tab" data-delstu="'+s.id+'" style="padding:4px 9px;font-size:11px;color:var(--risk)">삭제</button></td>'
           +'</tr>';
@@ -721,11 +758,13 @@ async function mountMembers(host){
     }
     // 학생 등록
     h+='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;align-items:center">'
-      +'<input id="m-sname" placeholder="학생 이름" style="flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
-      +'<input id="m-sgrade" placeholder="학년 (예: 중2)" style="width:120px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-sname" placeholder="학생 이름" style="flex:1;min-width:110px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-sgrade" placeholder="학년(예: 중2)" style="width:100px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-sschool" placeholder="학교" style="width:130px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="m-sphone" placeholder="연락처(학부모)" style="width:140px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
       +'<select id="m-sclass" style="min-width:150px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+classOpts('')+'</select>'
-      +'<button id="m-sadd" class="tab on" style="padding:10px 18px">+ 학생 등록</button></div>';
-    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 여기서 등록은 명단(roster) 생성입니다. 학생 로그인 계정 발급은 별도(설정)에서 연결됩니다.</div>';
+      +'<button id="m-sadd" class="tab on" style="padding:10px 18px">+ 원생 등록</button></div>';
+    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 원생 등록은 명단(roster) 생성입니다. 반을 배정하면 그 반의 수강료가 배지로 표시됩니다. 로그인 계정은 오른쪽 [계정 발급]에서 발급하세요.</div>';
     h+='</div>';
 
     host.innerHTML=h;
@@ -735,12 +774,17 @@ async function mountMembers(host){
   function bind(){
     var cadd=host.querySelector('#m-cadd'); if(cadd) cadd.onclick=createClass;
     var sadd=host.querySelector('#m-sadd'); if(sadd) sadd.onclick=addStudent;
+    var tadd=host.querySelector('#m-tadd'); if(tadd) tadd.onclick=addTeacher;
     host.querySelectorAll('[data-move]').forEach(function(sel){ sel.onchange=function(){ moveStudent(sel.getAttribute('data-move'), sel.value||null); }; });
     host.querySelectorAll('[data-ren]').forEach(function(b){ b.onclick=function(){ renameClass(b.getAttribute('data-ren'), b.getAttribute('data-nm')); }; });
+    host.querySelectorAll('[data-tuition]').forEach(function(b){ b.onclick=function(){ setTuition(b.getAttribute('data-tuition'), b.getAttribute('data-tv')); }; });
+    host.querySelectorAll('[data-cteach]').forEach(function(b){ b.onclick=function(){ setClassTeacher(b.getAttribute('data-cteach'), b.getAttribute('data-tid')); }; });
     host.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ deleteClass(b.getAttribute('data-del')); }; });
     host.querySelectorAll('[data-delstu]').forEach(function(b){ b.onclick=function(){ removeStudent(b.getAttribute('data-delstu')); }; });
     host.querySelectorAll('[data-issue]').forEach(function(b){ b.onclick=function(){ issueAccount('create-student', b.getAttribute('data-issue'), b); }; });
     host.querySelectorAll('[data-parent]').forEach(function(b){ b.onclick=function(){ issueAccount('create-parent', b.getAttribute('data-parent'), b); }; });
+    host.querySelectorAll('[data-tpw]').forEach(function(b){ b.onclick=function(){ teacherAction('reset_pw', b.getAttribute('data-tpw'), b); }; });
+    host.querySelectorAll('[data-tdel]').forEach(function(b){ b.onclick=function(){ teacherAction('delete', b.getAttribute('data-tdel'), b, b.getAttribute('data-tnm')); }; });
   }
 
   async function issueAccount(fn, sid, btn){
@@ -767,11 +811,58 @@ async function mountMembers(host){
 
   async function createClass(){
     var nm=(host.querySelector('#m-cname').value||'').trim();
+    var subj=(host.querySelector('#m-csubj').value||'').trim();
+    var tu=parseInt(host.querySelector('#m-ctuition').value,10); if(!(tu>=0))tu=null;
     var cap=parseInt(host.querySelector('#m-ccap').value,10)||10;
     var tid=host.querySelector('#m-cteacher').value||null;
     if(!nm){ alert('반 이름을 입력하세요.'); return; }
-    try{ var r=await sb.from('academy_classes').insert({academy_id:acid, name:nm, capacity:cap, teacher_id:tid}); if(r.error)throw r.error; reload(); }
+    try{ var r=await sb.from('academy_classes').insert({academy_id:acid, name:nm, subject:subj||null, tuition:tu, capacity:cap, teacher_id:tid}); if(r.error)throw r.error; reload(); }
     catch(e){ alert('반 생성 실패: '+((e&&e.message)||e)); }
+  }
+  async function setTuition(id, cur){
+    var v=prompt('월 수강료(원)를 입력하세요. 비우면 미표시.', cur||''); if(v==null) return;
+    v=String(v).replace(/[^0-9]/g,''); var tu=v?parseInt(v,10):null;
+    try{ var r=await sb.from('academy_classes').update({tuition:tu}).eq('id',id); if(r.error)throw r.error; reload(); }
+    catch(e){ alert('수강료 저장 실패: '+((e&&e.message)||e)); }
+  }
+  async function setClassTeacher(id, curTid){
+    if(!teachers.length){ alert('먼저 강사를 등록하세요.'); return; }
+    var list=teachers.map(function(t,i){ return (i+1)+'. '+(t.name||t.email)+(t.subject?(' ('+t.subject+')'):''); }).join('\n');
+    var pick=prompt('담당 강사 번호를 고르세요 (0=미지정)\n\n'+list, ''); if(pick==null) return;
+    var n=parseInt(pick,10); var tid = (n>=1 && n<=teachers.length) ? teachers[n-1].uid : null;
+    try{ var r=await sb.from('academy_classes').update({teacher_id:tid}).eq('id',id); if(r.error)throw r.error; reload(); }
+    catch(e){ alert('담당 강사 지정 실패: '+((e&&e.message)||e)); }
+  }
+  async function addTeacher(){
+    if(ST.role!=='owner'){ alert('강사 등록은 원장만 가능합니다.'); return; }
+    var nm=(host.querySelector('#m-tname').value||'').trim();
+    var subj=(host.querySelector('#m-tsubj').value||'').trim();
+    if(!nm){ alert('강사 이름을 입력하세요.'); return; }
+    var btn=host.querySelector('#m-tadd'); if(btn){ btn.disabled=true; btn.textContent='등록 중…'; }
+    try{
+      var sess=(await sb.auth.getSession()).data.session;
+      var base=(window.FN_BASE)||((window.SB_URL||'')+'/functions/v1');
+      var r=await fetch(base+'/create-teacher', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')}, body:JSON.stringify({name:nm, subject:subj}) });
+      var d=await r.json();
+      if(d.error){ if(d.need_code){ alert('학원 전용주소(슬러그)를 먼저 설정하세요.\n[학원 설정] → 전용주소.'); } else alert('강사 등록 실패: '+d.error); }
+      else { alert('✓ 강사 등록 완료 ('+esc(nm)+')\n\n로그인 아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n\n(강사는 이 아이디로 로그인 → 코스웨어 사용 가능. 최초 로그인 시 비밀번호 변경)'); }
+      reload();
+    }catch(e){ alert('등록 오류: '+((e&&e.message)||e)); if(btn){btn.disabled=false; btn.textContent='+ 강사 등록';} }
+  }
+  async function teacherAction(action, uid, btn, nm){
+    if(ST.role!=='owner'){ alert('강사 관리는 원장만 가능합니다.'); return; }
+    if(action==='delete' && !confirm('강사 '+(nm||'')+' 을(를) 삭제할까요? 담당 반은 미지정으로 바뀌고 로그인 계정이 삭제됩니다.')) return;
+    if(action==='reset_pw' && !confirm('이 강사의 비밀번호를 0000으로 초기화할까요?')) return;
+    if(btn){ btn.disabled=true; }
+    try{
+      var sess=(await sb.auth.getSession()).data.session;
+      var base=(window.FN_BASE)||((window.SB_URL||'')+'/functions/v1');
+      var r=await fetch(base+'/create-teacher', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')}, body:JSON.stringify({action:action, teacher_uid:uid}) });
+      var d=await r.json();
+      if(d.error){ alert('처리 실패: '+d.error); if(btn)btn.disabled=false; }
+      else if(action==='reset_pw'){ alert('✓ 비밀번호 초기화 완료\n아이디: '+d.login_id+'\n새 비밀번호: '+(d.pw||'0000')); reload(); }
+      else { reload(); }
+    }catch(e){ alert('오류: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
   }
   async function renameClass(id, cur){
     var nm=prompt('반 이름 수정', cur||''); if(nm==null) return; nm=nm.trim(); if(!nm) return;
@@ -786,10 +877,12 @@ async function mountMembers(host){
   async function addStudent(){
     var nm=(host.querySelector('#m-sname').value||'').trim();
     var gr=(host.querySelector('#m-sgrade').value||'').trim();
+    var sc=(host.querySelector('#m-sschool').value||'').trim();
+    var ph=(host.querySelector('#m-sphone').value||'').trim();
     var cid=host.querySelector('#m-sclass').value||null;
-    if(!nm){ alert('학생 이름을 입력하세요.'); return; }
-    try{ var r=await sb.from('students').insert({academy_id:acid, name:nm, grade:gr||null, class_id:cid}); if(r.error)throw r.error; reload(); }
-    catch(e){ alert('학생 등록 실패: '+((e&&e.message)||e)); }
+    if(!nm){ alert('원생 이름을 입력하세요.'); return; }
+    try{ var r=await sb.from('students').insert({academy_id:acid, name:nm, grade:gr||null, school:sc||null, phone:ph||null, class_id:cid}); if(r.error)throw r.error; reload(); }
+    catch(e){ alert('원생 등록 실패: '+((e&&e.message)||e)); }
   }
   async function moveStudent(sid, cid){
     try{ var r=await sb.from('students').update({class_id:cid}).eq('id',sid); if(r.error)throw r.error;
