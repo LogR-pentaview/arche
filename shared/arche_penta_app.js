@@ -99,6 +99,23 @@
   function byStage(rows, stage){ return stage ? (rows||[]).filter(function(r){return r.stage===stage;}) : (rows||[]); }
   // 코스 스펙에 맞는 카탈로그/배정 행 필터 (stage + level)
   function bySpec(rows, spec){ var out=(!spec||!spec.stage)?(rows||[]):(rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); try{ if(window._pentaSeason!=null){ out=out.filter(function(r){ return String(r.season)===String(window._pentaSeason); }); } }catch(e){} return out; }
+  // 회차 셀렉트: 시리즈(비전기초/심화/트랙)별 optgroup으로 명확히 구분 — 전체/통합 뷰에서 섞이지 않게
+  var SERIES_ORDER=[
+    {key:'starter',      label:'🌱 비전 기초 · 초5~6',  stage:'vision', level:'starter'},
+    {key:'architecture', label:'🏛 비전 심화 · 중1~2',  stage:'vision', level:'architecture'},
+    {key:'track',        label:'🎯 트랙 · 중3·입시',    stage:'track',  level:null},
+    {key:'master',       label:'🔷 지성 다이빙',          stage:'master', level:null}
+  ];
+  function seriesKeyOf(r){ var st=r.stage||'', lv=r.level||''; if(st==='vision'&&lv==='architecture')return 'architecture'; if(st==='vision')return 'starter'; if(st==='track')return 'track'; if(st==='master')return 'master'; return 'etc'; }
+  function catOptionsHTML(cat){
+    var groups={}; (cat||[]).forEach(function(c){ var k=seriesKeyOf(c); (groups[k]=groups[k]||[]).push(c); });
+    function opt(c){ return '<option value="'+c.id+'">시즌'+esc(c.season)+' · '+esc(c.week)+'주차 · '+esc(c.title)+'</option>'; }
+    function bySw(a,b){ return (a.season-b.season)||(a.week-b.week); }
+    var html='', used={};
+    SERIES_ORDER.forEach(function(s){ var rows=groups[s.key]; if(!rows||!rows.length)return; used[s.key]=1; rows.sort(bySw); html+='<optgroup label="'+esc(s.label)+'">'+rows.map(opt).join('')+'</optgroup>'; });
+    Object.keys(groups).forEach(function(k){ if(used[k])return; var rows=groups[k]; rows.sort(bySw); html+='<optgroup label="기타">'+rows.map(opt).join('')+'</optgroup>'; });
+    return html || (cat||[]).map(opt).join('');
+  }
   async function loadStudents(){
     var students=(window._students||[]).slice();
     if(!students.length){ try{ var r=await window.sb.from('students').select('id,name').eq('academy_id',acadId()).order('name'); if(r&&r.data)students=r.data; }catch(e){} }
@@ -284,7 +301,7 @@
     if(!cat.length){ top.appendChild(el('<div class="sub" style="margin-top:6px">'+(window._isB2C?'배정 가능한 회차가 없습니다. 무료 체험 1강 또는 구독/구매 후 이용해 주세요.':'이 코스의 회차가 아직 없습니다.')+'</div>')); }
     else {
       var selrow=el('<div class="row" style="margin-top:8px;align-items:center"></div>');
-      var cs=el('<select id="pn-csel" style="flex:1;min-width:200px"></select>'); cs.innerHTML=cat.map(function(c){return '<option value="'+c.id+'">시즌'+esc(c.season)+' '+esc(c.week)+'주차 · '+esc(c.title)+'</option>';}).join('');
+      var cs=el('<select id="pn-csel" style="flex:1;min-width:200px"></select>'); cs.innerHTML=catOptionsHTML(cat);
       var pv=el('<button class="act gh" style="flex:none">📖 워크북 미리보기</button>');
       pv.addEventListener('click', function(){ var id=+cs.value; var c=cat.filter(function(x){return x.id===id;})[0]; if(c) openWorkbookPreview(c); });
       selrow.appendChild(cs); selrow.appendChild(pv); top.appendChild(selrow);
