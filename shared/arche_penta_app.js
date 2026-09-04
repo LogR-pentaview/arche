@@ -300,11 +300,48 @@
     var top=el('<div class="edit"><h4>① 전송할 회차 선택</h4></div>');
     if(!cat.length){ top.appendChild(el('<div class="sub" style="margin-top:6px">'+(window._isB2C?'배정 가능한 회차가 없습니다. 무료 체험 1강 또는 구독/구매 후 이용해 주세요.':'이 코스의 회차가 아직 없습니다.')+'</div>')); }
     else {
-      var selrow=el('<div class="row" style="margin-top:8px;align-items:center"></div>');
-      var cs=el('<select id="pn-csel" style="flex:1;min-width:200px"></select>'); cs.innerHTML=catOptionsHTML(cat);
-      var pv=el('<button class="act gh" style="flex:none">📖 워크북 미리보기</button>');
-      pv.addEventListener('click', function(){ var id=+cs.value; var c=cat.filter(function(x){return x.id===id;})[0]; if(c) openWorkbookPreview(c); });
-      selrow.appendChild(cs); selrow.appendChild(pv); top.appendChild(selrow);
+      // 폴더형 회차 선택: 시리즈(비전기초/심화/트랙) → 시즌 → 회차 드릴다운
+      top.appendChild(el('<input type="hidden" id="pn-csel">'));
+      var sum=el('<div id="pn-picksum" style="margin-top:8px"></div>');
+      var pkHost=el('<div id="pn-pick" style="margin-top:8px"></div>');
+      top.appendChild(sum); top.appendChild(pkHost);
+      var pk={ sk:null, se:null, id:null };
+      function serMeta(k){ for(var i=0;i<SERIES_ORDER.length;i++) if(SERIES_ORDER[i].key===k) return SERIES_ORDER[i]; return {key:k,label:'기타'}; }
+      function serName(k){ return serMeta(k).label.replace(/ · .*/,''); }
+      function seriesInCat(){ var arr=[],known={}; SERIES_ORDER.forEach(function(s){ known[s.key]=1; if(cat.some(function(c){return seriesKeyOf(c)===s.key;})) arr.push(s.key); }); if(cat.some(function(c){return !known[seriesKeyOf(c)];})) arr.push('etc'); return arr; }
+      function seasonsOf(k){ var s={}; cat.forEach(function(c){ if(seriesKeyOf(c)===k) s[c.season]=1; }); return Object.keys(s).map(Number).sort(function(a,b){return a-b;}); }
+      function weeksOf(k,se){ return cat.filter(function(c){return seriesKeyOf(c)===k && c.season===+se;}).sort(function(a,b){return a.week-b.week;}); }
+      function fbtn(icon,label,sub){ return '<button type="button" class="pn-fb" style="display:flex;width:100%;align-items:center;gap:10px;background:#fff;border:1.5px solid #e9ecf1;border-radius:12px;padding:12px 14px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:inherit">'
+        +'<span style="font-size:19px;flex:none">'+icon+'</span>'
+        +'<span style="flex:1;min-width:0"><b style="font-size:14px;color:#191f28">'+label+'</b>'+(sub?'<br><span style="font-size:11px;color:#8b95a1;font-weight:600">'+sub+'</span>':'')+'</span>'
+        +'<span style="color:#c9cfd8;font-weight:900;flex:none">›</span></button>'; }
+      function crumb(){ var p=['<button type="button" class="pn-bk" data-lv="0" style="background:none;border:0;color:#4e5968;font-weight:800;cursor:pointer;padding:0;font-size:12.5px">📂 회차</button>'];
+        if(pk.sk){ p.push('<span style="color:#c9cfd8">/</span><button type="button" class="pn-bk" data-lv="1" style="background:none;border:0;color:#4e5968;font-weight:800;cursor:pointer;padding:0;font-size:12.5px">'+esc(serName(pk.sk))+'</button>'); }
+        if(pk.se!=null){ p.push('<span style="color:#c9cfd8">/</span><button type="button" class="pn-bk" data-lv="2" style="background:none;border:0;color:#4e5968;font-weight:800;cursor:pointer;padding:0;font-size:12.5px">시즌 '+pk.se+'</button>'); }
+        return '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:10px">'+p.join('')+'</div>'; }
+      function setSum(){ var c=pk.id?cat.filter(function(x){return x.id===pk.id;})[0]:null;
+        sum.innerHTML='';
+        if(!c){ sum.appendChild(el('<div class="sub" style="color:#8b95a1;padding:2px">폴더에서 회차를 선택하세요 · <b>시리즈 → 시즌 → 회차</b></div>')); return; }
+        var row=el('<div class="row" style="align-items:center;gap:8px;background:#f0f7f2;border:1.5px solid #cfe8d9;border-radius:12px;padding:10px 12px"></div>');
+        row.appendChild(el('<div style="flex:1;min-width:0"><div style="font-size:11px;color:#3fa34d;font-weight:800">✔ 선택한 회차</div><div style="font-size:14px;font-weight:800;color:#191f28;word-break:keep-all">'+esc(serName(seriesKeyOf(c)))+' · 시즌'+esc(c.season)+' · '+esc(c.week)+'주차 · '+esc(c.title)+'</div></div>'));
+        var pv=el('<button type="button" class="act gh" style="flex:none">📖 미리보기</button>'); pv.addEventListener('click', function(){ openWorkbookPreview(c); });
+        row.appendChild(pv); sum.appendChild(row); }
+      function renderPick(){ var sers=seriesInCat();
+        if(!pk.sk && sers.length===1){ pk.sk=sers[0]; }
+        var html=crumb();
+        if(!pk.sk){ sers.forEach(function(k){ var n=cat.filter(function(c){return seriesKeyOf(c)===k;}).length; html+=fbtn('📁', esc(serMeta(k).label), n+'개 회차'); }); }
+        else if(pk.se==null){ seasonsOf(pk.sk).forEach(function(n){ html+=fbtn('📁','시즌 '+n, weeksOf(pk.sk,n).length+'개 회차'); }); }
+        else { weeksOf(pk.sk,pk.se).forEach(function(w){ var on=(pk.id===w.id);
+          html+='<button type="button" class="pn-wk" data-id="'+w.id+'" style="display:flex;width:100%;align-items:center;gap:10px;background:'+(on?'#eef7f1':'#fff')+';border:1.5px solid '+(on?'#3fa34d':'#e9ecf1')+';border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;text-align:left;font-family:inherit">'
+            +'<span style="flex:none;width:34px;height:34px;border-radius:9px;background:#f0f2f5;color:#4e5968;display:grid;place-items:center;font-weight:900;font-size:12px">'+w.week+'주</span>'
+            +'<span style="flex:1;min-width:0"><b style="font-size:14px;color:#191f28">'+esc(w.title)+'</b>'+(w.theme?'<br><span style="font-size:11px;color:#8b95a1;font-weight:600">'+esc(w.theme)+'</span>':'')+'</span>'
+            +(on?'<span style="color:#3fa34d;font-weight:900;flex:none">✔</span>':'<span style="color:#c9cfd8;font-weight:900;flex:none">›</span>')+'</button>'; }); }
+        pkHost.innerHTML=html;
+        [].forEach.call(pkHost.querySelectorAll('.pn-bk'), function(b){ b.addEventListener('click', function(){ var lv=+b.getAttribute('data-lv'); if(lv===0){pk.sk=null;pk.se=null;} else if(lv===1){pk.se=null;} renderPick(); }); });
+        [].forEach.call(pkHost.querySelectorAll('.pn-fb'), function(b,i){ b.addEventListener('click', function(){ if(!pk.sk){ pk.sk=seriesInCat()[i]; pk.se=null; } else if(pk.se==null){ pk.se=seasonsOf(pk.sk)[i]; } renderPick(); }); });
+        [].forEach.call(pkHost.querySelectorAll('.pn-wk'), function(b){ b.addEventListener('click', function(){ pk.id=+b.getAttribute('data-id'); var h=document.getElementById('pn-csel'); if(h) h.value=pk.id; setSum(); renderPick(); }); });
+      }
+      setSum(); renderPick();
       if(window._isB2C && _catAll && cat.length<_catAll.length){ top.appendChild(el('<div class="sub" style="margin-top:6px;color:#8b95a1">🔒 구독/구매한 시즌과 무료 체험 1강만 배정할 수 있어요. 전체 시즌은 <b>구독·결제</b> 후 이용해 주세요.</div>')); }
     }
     body.appendChild(top);
