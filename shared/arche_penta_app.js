@@ -633,6 +633,30 @@
       .in('student_id', studentIds).order('updated_at',{ascending:false});
     if(r.error) throw r.error; return r.data||[];
   }
-  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.6', _callPenta: callPenta,
-    openReview: openReview, listSubmissions: listSubmissionsFor };
+  // [학원용] 교사용 워크북 미리보기(커리큘럼·관제에서 호출). row={stage,level,season,week,tier}
+  async function openAcademyPreview(row){
+    if(!window.ArchePentaWorkbook){ toast('워크북 모듈(arche_penta_workbook.js) 미로드'); return; }
+    var ov=el('<div class="pnta-ov wb"><div class="pnta-ovc wb"><button class="pnta-wbx">✕ 닫기</button><div class="pnta-wbtag">👩‍🏫 교사용 미리보기 · 수업 가이드·발문 포함</div><div class="wbmount">불러오는 중…</div></div></div>');
+    document.body.appendChild(ov);
+    ov.querySelector('.pnta-wbx').addEventListener('click',function(){ ov.remove(); });
+    var ac=await academyLessonByKey(row);
+    var mnt=ov.querySelector('.wbmount'); if(!mnt) return; mnt.innerHTML='';
+    if(!ac){ mnt.innerHTML='<div style="padding:22px;color:#8b95a1;font-size:13px">학원용 워크북을 불러오지 못했습니다. (회차 정보 확인)</div>'; return; }
+    ArchePentaWorkbook.render(mnt, { lesson: ac, mode:'preview', readOnly:false, role:'staff', tier:(row.tier||'일반') });
+  }
+  // [학원용] 관제: 특정 학생이 수행 중/제출한 워크북을 교사용(답안 포함, 읽기전용)으로 열기
+  async function openStudentWorkbook(studentId, opts){
+    opts=opts||{};
+    try{
+      var r=await window.sb.rpc('list_penta_assignments',{p_academy:acadId(),p_student:String(studentId)});
+      var rows=(r&&r.data)||[]; if(!rows.length){ toast('이 학생에게 배정된 회차가 없습니다'); return; }
+      // 가장 최근(active) 배정 1건
+      var a=rows.filter(function(x){return x.active!==false;})[0]||rows[0];
+      _appRole='staff';
+      await openWorkbook(a, studentId, true); // readOnly=true → 학생 답안 프리필 + 교사뷰
+    }catch(e){ toast('워크북 열기 실패: '+((e&&e.message)||e)); }
+  }
+  window.ArchePentaApp = { mount: mount, mountRole: mountRole, version:'1.7', _callPenta: callPenta,
+    openReview: openReview, listSubmissions: listSubmissionsFor,
+    openAcademyPreview: openAcademyPreview, openStudentWorkbook: openStudentWorkbook };
 })();
