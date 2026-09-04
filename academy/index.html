@@ -450,8 +450,10 @@ function renderView(v){
     /* ===== 공통(원장·강사) ===== */
     case 'live': return head(LIVE_LABEL, '반 선택 → 학생 실시간 현황 + 라이브 판서 방송')
       + '<div id="live-mount" class="mount"></div>';
-    case 'course': return head('코스웨어','회차 배정·전송 → 학생 수행 → 제출·리포트')
-      + '<div id="course-mount" class="mount"></div>';
+    case 'course': return head('코스웨어','반별 차시(커리큘럼) 편성 → 수업 때 순차 개방 · 또는 바로 배정')
+      + '<div class="tabs" id="cw-tabs" style="margin-top:6px"><span class="tab on" data-cw="curri">📚 차시 편성</span><span class="tab" data-cw="assign">⚡ 바로 배정·전송</span></div>'
+      + '<div id="cw-curri" class="mount"></div>'
+      + '<div id="cw-assign" class="mount" style="display:none"></div>';
     case 'bridge':
     case 'mystudents': // 강사 담당학생도 진로/수행 접근
       if(v==='mystudents') return head('담당 학생','내가 맡은 반·학생') + ph('🧑‍🏫','담당 학생','강사별 담당 학생 명단·진행률.', 'students(담당) ');
@@ -529,16 +531,25 @@ async function openAcademyCourse(id, opt){
 
 /* 뷰 진입 시 실제 모듈 마운트 */
 function mountView(v, host){
-  // 코스웨어(강사/원장): 전체 배정·전송·리포트 흐름(arche_penta_app). 회차 선택은 시리즈 optgroup으로 구분.
+  // 코스웨어(강사/원장): [차시 편성] 반별 커리큘럼 + [바로 배정] arche_penta_app
   if(v==='course'){
-    var el1=host.querySelector('#course-mount');
-    if(!el1) return;
-    if(window.ArchePentaApp && window.sb){
-      try{ ArchePentaApp.mountRole(el1, 'staff'); }
-      catch(e){ el1.innerHTML=phRaw('⚠️','코스웨어 로드 실패', (e&&e.message)||e); }
-    } else {
-      el1.innerHTML = phRaw('🔌','코스웨어 미연결','로그인(DB 연결) 후 회차 선택·배정이 표시됩니다. 미리보기 모드에서는 비활성.');
+    var curri=host.querySelector('#cw-curri'), asg=host.querySelector('#cw-assign');
+    var tabs=host.querySelector('#cw-tabs');
+    var asgMounted=false;
+    function mountAssign(){
+      if(asgMounted) return; asgMounted=true;
+      if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(asg,'staff'); }catch(e){ asg.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } }
+      else asg.innerHTML=phRaw('🔌','미연결','로그인 후 배정이 표시됩니다.');
     }
+    if(tabs) tabs.querySelectorAll('[data-cw]').forEach(function(t){ t.onclick=function(){
+      tabs.querySelectorAll('[data-cw]').forEach(function(x){x.classList.toggle('on',x===t);});
+      var mode=t.getAttribute('data-cw');
+      curri.style.display = mode==='curri'?'':'none';
+      asg.style.display   = mode==='assign'?'':'none';
+      if(mode==='assign') mountAssign();
+    }; });
+    if(window.mountCurriculum && window.sb) mountCurriculum(curri);
+    else if(curri) curri.innerHTML = phRaw('🔌','미연결','로그인(DB 연결) 후 차시 편성이 활성화됩니다.');
     return;
   }
   // 학생: 받은 워크북 수행
@@ -897,6 +908,93 @@ async function mountMembers(host){
   }
 }
 
+/* ========================= 코스웨어 · 반별 차시(커리큘럼) 편성 ========================= */
+var _cwClass=null, _cwCatalog=null, _cwMap={};
+async function cwLoadCatalog(){
+  if(_cwCatalog) return _cwCatalog;
+  var r=await sb.rpc('list_penta_catalog'); var rows=(r&&r.data)||[];
+  _cwMap={}; rows.forEach(function(c){ _cwMap[c.id]={id:c.id,stage:c.stage,level:c.level||'',season:+c.season,week:+c.week,theme:c.theme||'',title:c.title||''}; });
+  _cwCatalog=rows.map(function(c){ return { id:c.id, level:(c.stage==='track'?'track':(c.level||'')), season:+c.season, week:+c.week, theme:c.theme||'', title:c.title||'', grade_band:c.grade_band||'', tier:(c.stage==='track') }; });
+  return _cwCatalog;
+}
+async function mountCurriculum(host){
+  if(!window.sb || !ST.academy){ host.innerHTML=phRaw('🔌','미연결','로그인(DB 연결) 후 차시 편성이 활성화됩니다.'); return; }
+  var acid=ST.academy.id, classes=[];
+  try{ var rc=await sb.from('academy_classes').select('id,name,grade_band').eq('academy_id',acid).order('created_at'); classes=rc.data||[]; }
+  catch(e){ host.innerHTML=phRaw('⚠️','불러오기 실패',(e&&e.message)||e); return; }
+  if(!classes.length){ host.innerHTML=phRaw('🏷️','반이 없습니다','[학생·강사 관리]에서 먼저 반을 만들고 학생을 배정하세요.'); return; }
+  if(!_cwClass || !classes.some(function(c){return c.id===_cwClass;})) _cwClass=classes[0].id;
+  host.innerHTML='<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px">'
+    +'<select id="cw-csel" style="padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-weight:700;min-width:170px">'
+    + classes.map(function(c){return '<option value="'+c.id+'"'+(c.id===_cwClass?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')
+    +'</select>'
+    +'<button id="cw-add" class="tab on" style="padding:10px 16px">+ 차시 추가</button>'
+    +'<span style="font-size:12px;color:var(--ink-mute)">회차를 순서대로 편성 → [수업 개방] 시 이 반 학생 전원에게 배정됩니다</span></div>'
+    +'<div id="cw-list" style="margin-top:14px"></div>';
+  host.querySelector('#cw-csel').onchange=function(e){ _cwClass=e.target.value; cwRenderList(host); };
+  host.querySelector('#cw-add').onclick=function(){ cwOpenPicker(host); };
+  cwRenderList(host);
+}
+async function cwRenderList(host){
+  var el=host.querySelector('#cw-list'); if(!el) return;
+  el.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:10px">불러오는 중…</div>';
+  var rows=[]; try{ var r=await sb.from('academy_curriculum').select('*').eq('class_id',_cwClass).order('order_no'); rows=r.data||[]; }
+  catch(e){ el.innerHTML=phRaw('⚠️','실패',(e&&e.message)||e); return; }
+  if(!rows.length){ el.innerHTML='<div style="border:1px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--ink-mute);font-size:13px">아직 편성된 차시가 없습니다.<br>[+ 차시 추가]로 학원용 회차를 순서대로 담아보세요.</div>'; return; }
+  var SER={starter:['🌱 비전 기초','#c8a24a'],architecture:['🏛 비전 심화','#6366f1'],track:['🎯 트랙','#3fa34d'],master:['🔷 지성 다이빙','#0ea5e9']};
+  function skey(r){ if(r.stage==='vision'&&r.level==='architecture')return'architecture'; if(r.stage==='vision')return'starter'; if(r.stage==='track')return'track'; return 'master'; }
+  el.innerHTML=rows.map(function(r,i){
+    var f=(i===0),la=(i===rows.length-1); var s=SER[skey(r)]||['회차','#8b95a1']; var opened=r.status==='opened';
+    return '<div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;flex-wrap:wrap">'
+      +'<div style="display:flex;flex-direction:column;gap:3px">'
+      +'<button data-mv="'+r.id+'" data-d="-1" '+(f?'disabled':'')+' style="padding:1px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer;opacity:'+(f?'.3':'1')+'">▲</button>'
+      +'<button data-mv="'+r.id+'" data-d="1" '+(la?'disabled':'')+' style="padding:1px 7px;border:1px solid var(--line);border-radius:5px;background:#fff;cursor:pointer;opacity:'+(la?'.3':'1')+'">▼</button></div>'
+      +'<div style="width:26px;text-align:center;font-weight:900;color:'+s[1]+';font-size:15px">'+(i+1)+'</div>'
+      +'<div style="flex:1;min-width:120px"><div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap"><span style="font-size:10.5px;font-weight:800;color:#fff;background:'+s[1]+';border-radius:20px;padding:2px 8px">'+s[0]+'</span>'
+        +'<b style="font-size:14px">'+esc(r.title||'')+'</b>'
+        +(r.tier==='특목'?'<span style="font-size:10px;font-weight:800;color:#b45309;background:#fff2e0;border-radius:20px;padding:2px 7px">특목</span>':'')+'</div>'
+        +'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">시즌'+esc(r.season)+' · '+esc(r.week)+'주차'+(r.theme?(' · '+esc(r.theme)):'')+'</div></div>'
+      +(opened?'<span style="font-size:10.5px;font-weight:800;color:var(--safe);border:1px solid var(--safe);border-radius:6px;padding:3px 8px">✓ 개방됨</span>'
+              :'<button data-open="'+r.id+'" class="tab on" style="padding:6px 12px;font-size:11.5px">▶ 수업 개방</button>')
+      +'<button data-pv="'+r.id+'" class="tab" style="padding:6px 10px;font-size:11.5px">👩‍🏫 미리보기</button>'
+      +'<button data-del="'+r.id+'" class="tab" style="padding:6px 9px;font-size:11.5px;color:var(--risk)">삭제</button>'
+      +'</div>';
+  }).join('');
+  var byId={}; rows.forEach(function(r){byId[r.id]=r;});
+  el.querySelectorAll('[data-pv]').forEach(function(b){ b.onclick=function(){ var r=byId[+b.getAttribute('data-pv')]; if(window.ArchePentaApp&&ArchePentaApp.openAcademyPreview) ArchePentaApp.openAcademyPreview({stage:r.stage,level:r.level,season:r.season,week:r.week,tier:r.tier}); else alert('워크북 모듈 미로드'); }; });
+  el.querySelectorAll('[data-mv]').forEach(function(b){ b.onclick=function(){ cwMove(host, rows, +b.getAttribute('data-mv'), +b.getAttribute('data-d')); }; });
+  el.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=async function(){ if(!confirm('이 차시를 편성에서 삭제할까요?'))return; try{ await sb.from('academy_curriculum').delete().eq('id',+b.getAttribute('data-del')); cwRenderList(host); }catch(e){ alert('삭제 실패: '+((e&&e.message)||e)); } }; });
+  el.querySelectorAll('[data-open]').forEach(function(b){ b.onclick=async function(){ var id=+b.getAttribute('data-open'); if(!confirm('이 차시를 수업 개방할까요?\n이 반 학생 전원에게 배정되어 학생 화면에 나타납니다.'))return; b.disabled=true; b.textContent='개방 중…'; try{ var r=await sb.rpc('academy_curriculum_open',{p_id:id}); if(r.error)throw r.error; alert('✓ 수업 개방 완료 — '+(r.data||0)+'명에게 배정되었습니다.'); cwRenderList(host); }catch(e){ alert('개방 실패: '+((e&&e.message)||e)); b.disabled=false; b.textContent='▶ 수업 개방'; } }; });
+}
+async function cwMove(host, rows, id, d){
+  var i=-1; rows.forEach(function(r,ix){ if(r.id===id)i=ix; }); var j=i+d; if(i<0||j<0||j>=rows.length)return;
+  var a=rows[i], b=rows[j];
+  try{ await sb.from('academy_curriculum').update({order_no:b.order_no}).eq('id',a.id); await sb.from('academy_curriculum').update({order_no:a.order_no}).eq('id',b.id); cwRenderList(host); }
+  catch(e){ alert('순서 변경 실패: '+((e&&e.message)||e)); }
+}
+async function cwOpenPicker(host){
+  try{ await cwLoadCatalog(); }catch(e){ alert('회차 목록 로드 실패: '+((e&&e.message)||e)); return; }
+  var ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(15,20,30,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:22px 12px';
+  var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:16px;max-width:560px;width:100%;padding:16px;margin-top:16px';
+  box.innerHTML='<div style="display:flex;align-items:center;margin-bottom:10px"><b style="font-size:15px">차시로 담을 회차 선택</b><button id="cwp-x" style="margin-left:auto;border:0;background:#f0f2f6;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer">닫기</button></div><div id="cwp-pick"></div>';
+  ov.appendChild(box); document.body.appendChild(ov);
+  box.querySelector('#cwp-x').onclick=function(){ ov.remove(); };
+  ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
+  if(window.ArcheCoursePicker){
+    ArcheCoursePicker.mount(box.querySelector('#cwp-pick'), { catalog:_cwCatalog, onPick:async function(id, opt){
+      var src=_cwMap[id]; if(!src){ alert('회차 정보를 찾지 못했습니다.'); return; }
+      try{
+        var rr=await sb.from('academy_curriculum').select('order_no').eq('class_id',_cwClass).order('order_no',{ascending:false}).limit(1);
+        var nextNo=((rr.data&&rr.data[0]&&rr.data[0].order_no)||0)+1;
+        var ins=await sb.from('academy_curriculum').insert({academy_id:ST.academy.id, class_id:_cwClass, order_no:nextNo, catalog_id:src.id, stage:src.stage, level:src.level, season:src.season, week:src.week, tier:(opt&&opt.tier)||null, title:src.title, theme:src.theme});
+        if(ins.error)throw ins.error;
+        ov.remove(); cwRenderList(host);
+      }catch(e){ alert('차시 추가 실패: '+((e&&e.message)||e)); }
+    }});
+  } else { box.querySelector('#cwp-pick').innerHTML='<div style="color:#8b95a1;padding:20px">회차 선택기(course_picker.js) 미로드 — 파일 업로드 확인</div>'; }
+}
+window.mountCurriculum=mountCurriculum;
+
 /* ========================= 원장 대시보드 (경영지표·재등록 방어) ========================= */
 async function mountDashboard(host){
   var statEl = host.querySelector('#dash-stats'), riskEl = host.querySelector('#dash-risk'), moreEl = host.querySelector('#dash-more');
@@ -1059,8 +1157,13 @@ async function refreshControl(){
       +'<div style="height:6px;background:var(--panel-3);border-radius:4px;margin-top:10px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+L[1]+'"></div></div>'
       +'<div class="d" style="margin-top:6px">작성 '+fill+'/'+total+' · '+((a.stagnation_sec||0)>=60?('정체 '+Math.floor((a.stagnation_sec||0)/60)+'분'):(esc(a.current_title||'대기')))+'</div>'
       +((a.care_level||0)>=2?'<div style="font-size:11px;font-weight:800;color:var(--risk);margin-top:6px">⚠️ 케어 '+(a.care_level>=3?'긴급':'경고')+'</div>':'')
+      +'<button data-wb="'+s.id+'" class="tab" style="width:100%;margin-top:9px;padding:7px;font-size:11.5px;font-weight:700">👩‍🏫 이 학생 워크북 보기(교사용)</button>'
       +'</div>';
   }).join('');
+  grid.querySelectorAll('[data-wb]').forEach(function(b){ b.onclick=function(){
+    if(window.ArchePentaApp && ArchePentaApp.openStudentWorkbook) ArchePentaApp.openStudentWorkbook(b.getAttribute('data-wb'));
+    else alert('워크북 모듈(arche_penta_app.js) 미로드 — 파일 업로드 확인');
+  }; });
   var up=document.getElementById('ctl-updated'); if(up) up.textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
