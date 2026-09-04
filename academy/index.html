@@ -1089,6 +1089,21 @@ async function mountDashboard(host){
 var _ctlTimer=null, _ctlClass=null, _ctlClasses=[];
 function stopLiveControl(){ if(_ctlTimer){ clearInterval(_ctlTimer); _ctlTimer=null; } }
 
+/* 이 반이 현재 진행하는 회차(커리큘럼 개방 우선, 없으면 최신 편성)를 교사용 워크북으로 열기 */
+async function openClassWorkbook(classId){
+  if(!window.sb || !classId){ alert('반을 먼저 선택하세요.'); return; }
+  if(!(window.ArchePentaApp && ArchePentaApp.openAcademyPreview)){ alert('워크북 모듈(arche_penta_app.js) 미로드 — 파일 업로드 확인'); return; }
+  var tier='일반';
+  try{ var rc=await sb.from('academy_classes').select('tier').eq('id',classId).limit(1); if(rc.data&&rc.data[0]&&rc.data[0].tier==='특목')tier='특목'; }catch(e){}
+  var cur=null;
+  try{
+    var r=await sb.from('academy_curriculum').select('*').eq('class_id',classId).order('order_no',{ascending:false});
+    var list=r.data||[];
+    cur=list.filter(function(x){return x.status==='opened';})[0]||list[0];
+  }catch(e){}
+  if(!cur){ alert('이 반에 편성된 차시가 없습니다.\n[코스웨어 → 차시 편성]에서 회차를 담고 [수업 개방]하세요.'); return; }
+  ArchePentaApp.openAcademyPreview({ stage:cur.stage, level:cur.level, season:cur.season, week:cur.week, tier:tier });
+}
 async function mountLiveControl(host){
   if(!window.sb || !ST.academy){ host.innerHTML = phRaw('🔌','미연결','로그인(DB 연결) 후 실시간 관제·판서가 활성화됩니다.'); return; }
   var acid = ST.academy.id;
@@ -1102,6 +1117,7 @@ async function mountLiveControl(host){
     +'<select id="ctl-class" style="padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-weight:700;min-width:180px">'
     + _ctlClasses.map(function(c){return '<option value="'+c.id+'"'+(c.id===_ctlClass?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')
     +'</select>'
+    +'<button id="ctl-wb" class="tab on" style="border-radius:9px;padding:10px 16px">📖 이 회차 워크북(교사용)</button>'
     +'<button id="ctl-board" class="live" style="border-radius:9px;padding:10px 16px"><span class="dot"></span> 🖊️ 라이브 판서 시작</button>'
     +'<span id="ctl-updated" style="margin-left:auto;font-size:11.5px;color:var(--ink-mute)">—</span>'
     +'</div>'
@@ -1110,6 +1126,7 @@ async function mountLiveControl(host){
 
   host.querySelector('#ctl-class').onchange=function(e){ _ctlClass=e.target.value; refreshControl(); };
   host.querySelector('#ctl-board').onclick=function(){ openBoard(_ctlClass); };
+  var _wbBtn=host.querySelector('#ctl-wb'); if(_wbBtn) _wbBtn.onclick=function(){ openClassWorkbook(_ctlClass); };
 
   stopLiveControl();
   refreshControl();
@@ -1168,13 +1185,8 @@ async function refreshControl(){
       +'<div style="height:6px;background:var(--panel-3);border-radius:4px;margin-top:10px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+L[1]+'"></div></div>'
       +'<div class="d" style="margin-top:6px">작성 '+fill+'/'+total+' · '+((a.stagnation_sec||0)>=60?('정체 '+Math.floor((a.stagnation_sec||0)/60)+'분'):(esc(a.current_title||'대기')))+'</div>'
       +((a.care_level||0)>=2?'<div style="font-size:11px;font-weight:800;color:var(--risk);margin-top:6px">⚠️ 케어 '+(a.care_level>=3?'긴급':'경고')+'</div>':'')
-      +'<button data-wb="'+s.id+'" class="tab" style="width:100%;margin-top:9px;padding:7px;font-size:11.5px;font-weight:700">👩‍🏫 이 학생 워크북 보기(교사용)</button>'
       +'</div>';
   }).join('');
-  grid.querySelectorAll('[data-wb]').forEach(function(b){ b.onclick=function(){
-    if(window.ArchePentaApp && ArchePentaApp.openStudentWorkbook) ArchePentaApp.openStudentWorkbook(b.getAttribute('data-wb'), _ctlClass);
-    else alert('워크북 모듈(arche_penta_app.js) 미로드 — 파일 업로드 확인');
-  }; });
   var up=document.getElementById('ctl-updated'); if(up) up.textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 
