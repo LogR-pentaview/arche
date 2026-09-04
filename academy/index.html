@@ -164,6 +164,8 @@ button{font-family:inherit;cursor:pointer}
 <script src="/shared/arche_penta_workbook.js"></script>
 <script src="/shared/arche_soke_chat.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
+<!-- 학원용 코스 선택기 (시리즈로 명확히 구분) -->
+<script src="/academy/course_picker.js"></script>
 <script>
 /* =========================================================================
    펜타 학원용(B2B2C) 셸 — 골격 v0.1
@@ -494,9 +496,39 @@ function renderView(v){
   }
 }
 
+/* 코스 선택 → 학원용 워크북(117강) 로드 → 교사뷰로 열기(수업 준비/미리보기)
+   · 서버 RPC가 학생 요청 시 교사 콘텐츠를 스트립. 원장/강사(staff)는 원본.
+   · tier(일반/특목): 트랙 반 등급. 특목 블록은 특목반에서만 노출. */
+async function openAcademyCourse(id, opt){
+  opt = opt || {};
+  if(!(window.sb && window.sb.rpc)){ alert('로그인 후 이용하세요.'); return; }
+  var ov = document.getElementById('acourse-ov');
+  if(!ov){
+    ov = document.createElement('div'); ov.id='acourse-ov';
+    ov.style.cssText='position:fixed;inset:0;z-index:9000;background:#eef1f5;overflow:auto';
+    ov.innerHTML='<div style="position:sticky;top:0;z-index:2;background:#141a29;color:#fff;display:flex;align-items:center;gap:10px;padding:9px 12px;font:700 13px sans-serif">'
+      +'<button id="acourse-x" style="background:#20283c;color:#fff;border:0;border-radius:8px;padding:7px 12px;font-weight:800;cursor:pointer">← 닫기</button>'
+      +'<span style="flex:none;font-size:11px;font-weight:800;color:#0e2418;background:linear-gradient(90deg,#e6c877,#c8a24a);border-radius:12px;padding:3px 9px">👩‍🏫 교사용 준비</span>'
+      +'<span id="acourse-t" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">회차 준비</span></div>'
+      +'<div id="acourse-wb"></div>';
+    document.body.appendChild(ov);
+    ov.querySelector('#acourse-x').addEventListener('click', function(){ ov.remove(); });
+  }
+  var wb = ov.querySelector('#acourse-wb');
+  wb.innerHTML='<div style="padding:26px;text-align:center;color:#8b95a1">회차를 불러오는 중…</div>';
+  try{
+    var r = await window.sb.rpc('penta_academy_workbook_get', { p_id: id });
+    if(r.error) throw r.error;
+    var lesson = r.data;
+    if(!lesson){ wb.innerHTML='<div style="padding:26px;text-align:center;color:#c0313d">회차를 찾을 수 없어요.</div>'; return; }
+    ov.querySelector('#acourse-t').textContent = (opt.tier?('['+opt.tier+'반] '):'')+(lesson.title||'회차');
+    ArchePentaWorkbook.render(wb, { lesson: lesson, mode:'preview', readOnly:false, role:'staff', tier:(opt.tier||'일반') });
+  }catch(e){ wb.innerHTML='<div style="padding:26px;text-align:center;color:#c0313d">로드 실패: '+((e&&e.message)||e)+'</div>'; }
+}
+
 /* 뷰 진입 시 실제 모듈 마운트 */
 function mountView(v, host){
-  // 코스웨어(강사/원장): 배정·제출·리포트
+  // 코스웨어(강사/원장): 전체 배정·전송·리포트 흐름(arche_penta_app). 회차 선택은 시리즈 optgroup으로 구분.
   if(v==='course'){
     var el1=host.querySelector('#course-mount');
     if(!el1) return;
@@ -504,7 +536,7 @@ function mountView(v, host){
       try{ ArchePentaApp.mountRole(el1, 'staff'); }
       catch(e){ el1.innerHTML=phRaw('⚠️','코스웨어 로드 실패', (e&&e.message)||e); }
     } else {
-      el1.innerHTML = phRaw('🔌','코스웨어 미연결','로그인(DB 연결) 후 배정·전송·리포트가 표시됩니다. 미리보기 모드에서는 비활성.');
+      el1.innerHTML = phRaw('🔌','코스웨어 미연결','로그인(DB 연결) 후 회차 선택·배정이 표시됩니다. 미리보기 모드에서는 비활성.');
     }
     return;
   }
