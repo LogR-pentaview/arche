@@ -3282,7 +3282,21 @@ async function renderB2CParentHome(){
   if(!child){
     try{ var r=await sb.from('students').select('*').order('created_at',{ascending:true}).limit(1); if(r&&r.data&&r.data[0]){ child=r.data[0]; window._activeStudent=child; } }catch(e){}
   }
-  if(!child) return; // 등록된 자녀 없으면 기존 홈(등록 안내) 유지
+  if(!child){
+    // [b2c·자녀 미등록] 컨설턴트 홈이 남지 않도록 학부모 전용 시작 화면을 렌더
+    try{ applyB2CSidebar('중'); }catch(e){}
+    v.innerHTML = '<div class="b2cd-view" style="max-width:820px;margin:0 auto;padding:8px 4px 60px">'
+      + '<div style="background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:16px;padding:22px 20px;margin-bottom:12px">'
+      + '<div style="font-size:20px;font-weight:800;color:#1b64da">환영합니다, 학부모님 🦉</div>'
+      + '<div style="font-size:13.5px;color:#4e5968;margin-top:6px;line-height:1.65">자녀를 등록하면 아이 전용 학습이 시작됩니다. 학년에 따라 <b>펜타 비전·트랙·아르케</b>가 자동으로 맞춰지고, 각 과정 <b>첫 시즌 1강을 무료</b>로 바로 체험할 수 있어요.</div>'
+      + '<button id="b2c-addkid-btn" style="margin-top:16px;background:#3182f6;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer">＋ 자녀 등록하고 시작하기</button>'
+      + '</div>'
+      + '<div id="b2c-tut-banner" style="cursor:pointer;background:linear-gradient(135deg,#f3f0ff,#fff);border:1px solid #e0d8fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px"><span style="font-size:22px">🚀</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#4f46a8">처음이신가요? 3분 시작 튜터리얼</div><div style="font-size:12px;color:#6b7688">자녀 등록부터 무료 체험·리포트까지 한 번에</div></div><span style="color:#8b95a1;font-size:18px">›</span></div>'
+      + '</div>';
+    try{ var _ab=document.getElementById('b2c-addkid-btn'); if(_ab)_ab.onclick=function(){ var n=document.querySelector('.nav[data-v="students"]'); if(n)go(n); }; }catch(e){}
+    try{ var _tb=document.getElementById('b2c-tut-banner'); if(_tb)_tb.onclick=function(){ try{ b2cTutorial(true); }catch(e){} }; }catch(e){}
+    return;
+  }
   try{ applyB2CSidebar(b2cBand(child.grade)); }catch(e){}
   ArcheParentDash.mount(v, {
     parent:{ name: (window._parentName||'학부모') },
