@@ -2333,7 +2333,9 @@ async function ensureAcademy(user){
     || (user.email.split('@')[0]+' 학원');
   // 구글 등 소셜 가입(user_metadata에 account_type 없음)은 학부모앱 플래그(_pv_oauth_acct)로 b2c 지정
   var _oauthAcct=''; try{ _oauthAcct=localStorage.getItem('_pv_oauth_acct')||''; localStorage.removeItem('_pv_oauth_acct'); }catch(_e){}
-  var acctype=_md.account_type||_oauthAcct||'b2b';
+  // ★ OAuth(구글 등) 신규는 학원 가입 경로가 없으므로 무조건 학부모(b2c)로 강제 — 플래그 유실 시 b2b 오생성 방지
+  var _isOAuth=false; try{ var _pv=(user.app_metadata&&user.app_metadata.provider)||''; var _ids=(user.identities||[]).map(function(x){return x.provider;}); _isOAuth = (_pv && _pv!=='email') || _ids.some(function(p){return p&&p!=='email';}); }catch(_e){}
+  var acctype=_md.account_type||_oauthAcct||(_isOAuth?'b2c':'b2b');
   // 학부모(b2c)는 관리자 승인 없이 즉시 시작 → 가입 시 approved=true. 학원(b2b)은 기존대로 승인 대기.
   var _newAcad={name:nm,owner_uid:user.id,account_type:acctype};
   if(acctype==='b2c'){ _newAcad.approved=true; }
