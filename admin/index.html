@@ -264,7 +264,19 @@
   // ===== 학원/학부모 회원 =====
   async function renderMembers(p, type){
     var title = type==='b2c' ? '학부모 회원' : '학원 회원';
-    p.innerHTML = '<div class="h1">'+title+'</div><div class="sub">회원 승인·상태 관리</div><div id="mfilt"></div><div id="mlist"><div class="muted">불러오는 중…</div></div>';
+    var issueCard = (type==='b2c') ? '' : (
+      '<div style="border:1px solid #c8a24a;border-radius:12px;padding:14px 16px;margin:10px 0 16px;background:#fffdf6">'
+      + '<div style="font-weight:800;margin-bottom:9px">＋ 학원(원장) 직접 발급</div>'
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      + '<input id="ac-name" placeholder="학원명 *" style="flex:1;min-width:140px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      + '<input id="ac-email" placeholder="원장 이메일 *" style="flex:1;min-width:160px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      + '<input id="ac-slug" placeholder="전용주소(영문소문자,선택)" style="flex:1;min-width:140px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      + '<input id="ac-phone" placeholder="전화(선택)" style="width:120px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      + '<input id="ac-region" placeholder="지역(선택)" style="width:110px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      + '<button class="btn g" onclick="mCreateAcademy()" style="white-space:nowrap">발급</button></div>'
+      + '<div style="font-size:11px;color:#8b95a1;margin-top:7px">발급하면 원장 로그인 계정(이메일+임시비번)이 생성됩니다. 임시비번은 안내창에 표시되니 학원에 전달하세요.</div>'
+      + '<div id="ac-msg" style="font-size:12px;margin-top:6px;min-height:14px"></div></div>');
+    p.innerHTML = '<div class="h1">'+title+'</div><div class="sub">회원 승인·상태 관리</div>'+issueCard+'<div id="mfilt"></div><div id="mlist"><div class="muted">불러오는 중…</div></div>';
     var d = await adminApi({action:'academies'});
     var list = document.getElementById('mlist');
     if(d.error){ list.innerHTML='<div class="muted">오류: '+esc(d.error)+'</div>'; return; }
@@ -345,6 +357,17 @@
   };
   window.memSetFilter = function(type,f){ window._memFilter = window._memFilter || {}; window._memFilter[type]=f; go(type==='b2c'?'parent':'acad'); };
   window.mApprove = async function(id){ var r=await adminApi({action:'approve',academy_id:id,approved:true}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
+  window.mCreateAcademy = async function(){
+    var g=function(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';};
+    var name=g('ac-name'), email=g('ac-email'), slug=g('ac-slug'), phone=g('ac-phone'), region=g('ac-region');
+    var m=document.getElementById('ac-msg');
+    if(!name||!email){ if(m){m.style.color='#f04452';m.textContent='학원명과 원장 이메일은 필수입니다.';} return; }
+    if(m){m.style.color='#8b95a1';m.textContent='발급 중…';}
+    var r=await adminApi({action:'create_academy',name:name,email:email,slug:slug,phone:phone,region:region});
+    if(r.error){ if(m){m.style.color='#f04452';m.textContent='실패: '+r.error;} return; }
+    alert('✓ 학원 발급 완료 — '+name+'\n\n원장 로그인 아이디(이메일): '+r.login_id+'\n임시 비밀번호: '+r.pw+'\n\n이 정보를 학원에 전달하세요.\n원장은 로그인 화면에서 이 이메일/비번으로 로그인 → 첫 로그인 후 비밀번호를 변경하면 됩니다.');
+    go(document.querySelector('.nav.on').dataset.t);
+  };
   window.mDemo = async function(id,toDemo){ var r=await adminApi({action:'set_demo',academy_id:id,is_demo:toDemo}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
 
   // ===== 영업매니저 =====
