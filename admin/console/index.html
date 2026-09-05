@@ -1435,7 +1435,18 @@ const ADMIN=(function(){
     var d=await call(t);
     if(d.error){body.innerHTML='<div style="color:var(--risk);padding:20px">'+esc(d.error)+'</div>';return;}
     if(t==='academies'){
-      body.innerHTML=(d.rows||[]).map(function(a){
+      var _addCard='<div class="card" style="margin-bottom:12px;padding:14px 16px;border:1px solid var(--gold,#c8a24a)">'
+        +'<div style="font-weight:800;color:var(--ink);margin-bottom:9px">＋ 학원(원장) 직접 발급</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+        +'<input id="ac-name" placeholder="학원명 *" style="flex:1;min-width:140px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+        +'<input id="ac-email" placeholder="원장 이메일 *" style="flex:1;min-width:160px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+        +'<input id="ac-slug" placeholder="전용주소(영문소문자, 선택)" style="flex:1;min-width:140px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+        +'<input id="ac-phone" placeholder="전화(선택)" style="width:120px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+        +'<input id="ac-region" placeholder="지역(선택)" style="width:110px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px">'
+        +'<button class="btn" onclick="ADMIN.createAcademy()" style="white-space:nowrap">발급</button></div>'
+        +'<div style="font-size:11px;color:var(--ink-mute);margin-top:7px">발급 시 원장 로그인 계정(이메일+임시비번)이 생성됩니다. 비번은 발급 후 안내창에 표시되니 학원에 전달하세요. 학원은 이메일로 로그인 → 첫 로그인 후 비번 변경.</div>'
+        +'<div id="ac-msg" style="font-size:12px;margin-top:6px;min-height:14px"></div></div>';
+      body.innerHTML=_addCard+((d.rows||[]).map(function(a){
         var ap=a.approved!==false;
         var kind=a.is_admin?'admin':(a.is_demo?'demo':'member');
         var kindBadge=a.is_admin?'<span style="font-size:10px;color:#fff;background:var(--gold);border-radius:10px;padding:1px 8px">관리자</span>'
@@ -1453,7 +1464,7 @@ const ADMIN=(function(){
           else btns+='<button onclick="event.stopPropagation();ADMIN.setDemo(\''+a.id+'\',true,\''+esc(a.name||'')+'\')" style="padding:4px 10px;background:transparent;color:var(--ink-mute);border:1px solid var(--line);border-radius:6px;font-size:11px;cursor:pointer">체험으로 전환</button>';
         }
         return '<div class="card" style="margin-bottom:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px"><div onclick="admOpenAcademy(\''+a.id+'\')" style="flex:1;cursor:pointer"><b style="color:var(--ink)">'+esc(a.name||'-')+'</b> '+kindBadge+apiBadge+apBadge+'<div style="font-size:11px;color:var(--ink-mute);margin-top:2px">코드 '+esc(a.code||'-')+' · 학생 '+a.students+'명 · '+(a.created_at||'').slice(0,10)+expTxt+'</div></div><span style="display:flex;gap:6px">'+btns+'</span></div>';
-      }).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>';
+      }).join('')||'<div style="color:var(--ink-mute);padding:12px">학원 없음</div>');
     } else if(t==='golden'){
       body.innerHTML=card('골든시드 총 '+d.total+'건',kv(d.by_doctype))+card('계열 분포',kv(d.by_field))+uploadBox('golden_documents','year,univ,doctype,field,chars,text_body,source_file');
     } else if(t==='admission'){
@@ -1676,8 +1687,19 @@ const ADMIN=(function(){
     m.innerHTML='✓ 정회원 전환 완료 — '+esc(d.name||'')+' · 로그인: <b>'+esc(d.auth_email||'')+'</b>'+note+(pw?' · 새 비밀번호 적용됨':'')+(d.kept_demo?'<br><span style="color:var(--reach)">⚠ 아직 demo.penta-view.com 도메인입니다. 실제 이메일로 바꾸려면 이메일을 입력해 다시 전환하세요.</span>':'');
     setTimeout(function(){ADMIN.tab('guests');},1800);
   }
-  return {tab,init,changePw,loadKey,saveKey,testKey,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest,setDemo};
+  return {tab,init,changePw,loadKey,saveKey,testKey,doUpload,approve,charge,runDue,createGuest,guestDetail,convertGuest,setDemo,createAcademy};
   async function approve(id,ok){ var r=await callBody({action:'approve',academy_id:id,approved:ok}); if(r.error)return alert('실패: '+r.error); tab('academies'); }
+  async function createAcademy(){
+    var g=function(id){var e=document.getElementById(id);return e?(e.value||'').trim():'';};
+    var name=g('ac-name'), email=g('ac-email'), slug=g('ac-slug'), phone=g('ac-phone'), region=g('ac-region');
+    var m=document.getElementById('ac-msg');
+    if(!name||!email){ if(m){m.style.color='var(--risk)';m.textContent='학원명과 원장 이메일은 필수입니다.';} return; }
+    if(m){m.style.color='var(--ink-mute)';m.textContent='발급 중…';}
+    var r=await callBody({action:'create_academy',name:name,email:email,slug:slug,phone:phone,region:region});
+    if(r.error){ if(m){m.style.color='var(--risk)';m.textContent='실패: '+r.error;} return; }
+    alert('✓ 학원 발급 완료 — '+name+'\n\n원장 로그인 아이디(이메일): '+r.login_id+'\n임시 비밀번호: '+r.pw+'\n\n이 정보를 학원에 전달하세요.\n원장은 로그인 화면에서 이 이메일/비번으로 로그인 → 첫 로그인 후 비밀번호를 변경하면 됩니다.');
+    tab('academies');
+  }
   async function setDemo(id,toDemo,name){
     var msg=toDemo?((name||'이 학원')+'을 체험 상태로 되돌릴까요?\n· 7일 만료·크레딧 제한이 다시 적용됩니다\n· 데이터는 유지됩니다'):((name||'이 학원')+'을 정회원으로 전환할까요?\n· 만료·크레딧 제한 해제');
     if(!confirm(msg))return;
