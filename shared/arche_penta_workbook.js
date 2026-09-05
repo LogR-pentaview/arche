@@ -212,6 +212,36 @@
 .apw.track .vlinks a.primary{background:var(--acc-l);color:#0e2418}
 .apw .vlinks a.search{background:rgba(255,255,255,.14);color:#fff;border:1px solid rgba(255,255,255,.3)}
 .apw .vsearch{margin-top:10px;font-size:12.5px;color:#fff;background:rgba(200,162,74,.2);border:1px dashed var(--acc);border-radius:10px;padding:8px 12px}
+/* ── 블록: 조별 토론(discuss) ── */
+.apw .apw-disc{margin-top:14px;background:linear-gradient(155deg,var(--navy),#0f1526);border-radius:16px;padding:16px 17px;color:#eef1ff;position:relative;overflow:hidden}
+.apw.track .apw-disc{background:linear-gradient(155deg,#141a29,#1b2740)}
+.apw .apw-disc::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--acc),var(--acc-l))}
+.apw .apw-disc-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.apw .apw-disc-badge{font-size:12.5px;font-weight:800;color:var(--navy);background:linear-gradient(90deg,var(--acc),var(--acc-l));border-radius:20px;padding:5px 13px}
+.apw.track .apw-disc-badge{color:#0e2418}
+.apw .apw-disc-q{font-size:15.5px;font-weight:800;color:#fff;line-height:1.6;margin-bottom:12px}
+.apw .apw-disc-q .lab{display:block;font-size:11px;font-weight:800;color:var(--acc-l);margin-bottom:4px;letter-spacing:.03em}
+.apw .apw-disc-sides{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:11px}
+.apw .apw-disc-side{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:11px 12px;font-size:13px;font-weight:700;color:#eef1ff;line-height:1.5}
+.apw .apw-disc-side .sn{display:block;font-size:11px;color:var(--acc-l);margin-bottom:3px;font-weight:800}
+.apw .apw-disc-guide{background:rgba(200,162,74,.16);border:1px dashed var(--acc);border-radius:11px;padding:10px 12px;font-size:12.5px;color:#fff;line-height:1.6}
+.apw.track .apw-disc-guide{background:rgba(182,227,74,.14);border-color:var(--acc-l)}
+/* ── 교사용(staff) 수업 가이드 레이어 ── */
+.apw .apw-roletag{font-size:10px;font-weight:800;color:#0e2418;background:linear-gradient(90deg,var(--acc-l),var(--acc));border-radius:12px;padding:2px 8px;margin-left:4px;vertical-align:middle}
+.apw .apw-teach{margin:2px 0 14px;background:#fff7e6;border:1.5px solid var(--acc-l);border-radius:15px;padding:14px 15px;position:relative;overflow:hidden}
+.apw .apw-teach::before{content:'';position:absolute;top:0;left:0;width:100%;height:4px;background:linear-gradient(90deg,var(--acc-d),var(--acc))}
+.apw .apw-teach-h{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-bottom:8px}
+.apw .apw-teach-h .tt{font-size:13px;font-weight:900;color:var(--acc-d)}
+.apw .apw-teach-h .tc{font-size:11px;font-weight:800;color:var(--navy);background:#fff;border:1px solid var(--acc-l);border-radius:20px;padding:3px 9px}
+.apw .apw-teach-sec{margin-top:9px}
+.apw .apw-teach-sec b{display:block;font-size:11.5px;font-weight:800;color:var(--acc-d);margin-bottom:3px;letter-spacing:.02em}
+.apw .apw-teach-sec p{font-size:13px;color:#4a3d1e;line-height:1.65;margin:0}
+.apw .apw-teach-sec ul{margin:0;padding-left:18px}
+.apw .apw-teach-sec li{font-size:13px;color:#4a3d1e;line-height:1.7;margin-bottom:4px}
+.apw .apw-teach-watch{margin-top:9px;background:#fff;border:1px dashed var(--acc);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#6b5620;line-height:1.6}
+/* ── 등급(tier) 전용 블록 표시 ── */
+.apw .apw-tierblk{position:relative;border-left:3px solid var(--acc);padding-left:11px;border-radius:3px}
+.apw .apw-tierblk::before{content:attr(data-tier);display:inline-block;margin:2px 0 6px;font-size:10.5px;font-weight:800;color:#0e2418;background:linear-gradient(90deg,var(--acc-l),var(--acc));border-radius:11px;padding:2px 9px}
 /* ── 다짐/씰 ── */
 .apw .declare{background:linear-gradient(150deg,var(--navy),#0f1526);color:#fff;border-radius:18px;padding:22px 20px;margin:14px}
 .apw.track .declare{background:linear-gradient(150deg,#141a29,#1b2740)}
@@ -323,6 +353,8 @@
   function render(mount, opts){
     inject();
     opts=opts||{}; var L=opts.lesson||{}; var mode=opts.mode||'live'; var ro=!!opts.readOnly;
+    var ROLE=(opts.role||window._wbRole||'student'); // 'staff'=교사용(가이드·발문 표시) / 'student'=수강생
+    var TIER=(opts.tier||window._wbTier||'일반'); // 반(class) 등급: '특목'이면 tier:'특목' 블록도 노출, 아니면 숨김
     var pre=opts.prefill||{};
     var academyId = opts.academyId || window._acadId || (window._academy&&window._academy.id) || null;
     var studentId = opts.studentId || (window._activeStudent&&window._activeStudent.id) || null;
@@ -347,11 +379,11 @@
     // 스킨 결정: 라면 시리즈(series/skin)만 ramyeon(불꽃). 그 외는 기존 그대로 vision/track.
     var isRamyeon = (L.skin==='ramyeon' || L.series==='ramyeon' || L.series==='bibim');
     var _skin = isRamyeon ? 'ramyeon' : ((L.stage==='track')?'track':'vision');
-    var root=document.createElement('div'); root.className='apw '+_skin+(ro?' ro':'');
+    var root=document.createElement('div'); root.className='apw '+_skin+(ro?' ro':'')+(ROLE==='staff'?' staff':'');
 
     // ── 상단 스텝바 (뷰 구성 이후 채움) ──────────────────────────
     var top=el('<div class="apw-top"><div class="apw-topin">'
-      +'<div class="apw-brand"><span class="apw-mk">P</span><div>'+esc(L.stage==='track'?'펜타 트랙':'펜타 비전')+'<small>'+esc((L.gradeBand||'')+' · '+(L.theme||'워크북'))+(L.fusion?'  ·  🔀 '+esc(L.fusion):'')+'</small></div></div>'
+      +'<div class="apw-brand"><span class="apw-mk">P</span><div>'+esc(L.stage==='track'?'펜타 트랙':'펜타 비전')+(ROLE==='staff'?' <span class="apw-roletag">👩‍🏫 교사용</span>':'')+'<small>'+esc((L.gradeBand||'')+' · '+(L.theme||'워크북'))+(L.fusion?'  ·  🔀 '+esc(L.fusion):'')+'</small></div></div>'
       +'<div class="apw-steps"></div></div><div class="apw-prog"><i></i></div></div>');
     root.appendChild(top);
     var stepsWrap=top.querySelector('.apw-steps');
@@ -401,7 +433,7 @@
       var page=document.createElement('div'); page.className='page';
       var rawName=stg.name||('STAGE '+(si+1));
       var shortName=rawName.replace(/^(STAGE|STEP)\s*\d+\s*·?\s*/i,'').trim()||rawName;
-      page.innerHTML='<span class="eyebrow">'+esc(stg.icon||'✦')+' '+esc(rawName)+'</span>'
+      page.innerHTML='<span class="eyebrow">'+(stg.part?('['+esc(stg.part)+'부] '):'')+esc(stg.icon||'✦')+' '+esc(rawName)+'</span>'
         +'<div class="ph"><span class="no">'+('0'+(si+1)).slice(-2)+'</span><h2 class="title serif">'+esc(shortName)+'</h2></div>'
         +(stg.desc?'<div class="stgdesc">'+esc(stg.desc)+'</div>':'');
       // 라면 전용: 스테이지마다 통섭별에 눈이 하나씩 켜짐 (펜타는 미주입)
@@ -410,6 +442,7 @@
         _st.innerHTML=consilienceStar(Math.min(si+1,5), axes)+'<div class="cap"><b>'+(si+1)+'번째 갈래</b>에 불이 켜졌어요 · 하나의 이야기가 다섯 눈으로 번져 갑니다</div>';
         page.appendChild(_st);
       }
+      if(ROLE==='staff' && stg.teach){ page.appendChild(teachPanel(stg)); }
       (stg.blocks||[]).forEach(function(b){ page.appendChild(renderBlock(b, stepNoRef)); });
       v.appendChild(page);
 
@@ -603,10 +636,35 @@
     }
 
     // ── 블록 렌더러 ───────────────────────────────────────────────
+    // 교사용 수업 가이드 패널 (staff뷰만 · 각 stage 상단)
+    function teachPanel(stg){
+      var T=stg.teach||{};
+      var gmap={solo:'개인',group:'조별',class:'전체'};
+      var w=document.createElement('div'); w.className='apw-teach';
+      var chips='';
+      if(stg.part) chips+='<span class="tc">'+esc(stg.part)+'부</span>';
+      if(T.minutes) chips+='<span class="tc">⏱ '+esc(T.minutes)+'분</span>';
+      if(T.grouping) chips+='<span class="tc">'+esc(gmap[T.grouping]||T.grouping)+'</span>';
+      var html='<div class="apw-teach-h"><span class="tt">👩‍🏫 교사용 수업 가이드</span>'+chips+'</div>';
+      if(T.goal)  html+='<div class="apw-teach-sec"><b>수업 목표</b><p>'+esc(T.goal)+'</p></div>';
+      if(T.guide) html+='<div class="apw-teach-sec"><b>진행 가이드</b><p>'+esc(T.guide)+'</p></div>';
+      if(Array.isArray(T.prompts)&&T.prompts.length){
+        html+='<div class="apw-teach-sec"><b>💬 던질 발문</b><ul>'+T.prompts.map(function(p){return '<li>'+esc(p)+'</li>';}).join('')+'</ul></div>';
+      }
+      if(T.watch) html+='<div class="apw-teach-watch">👀 <b style="display:inline">관제 포인트</b> · '+esc(T.watch)+'</div>';
+      w.innerHTML=html;
+      return w;
+    }
+
     function renderBlock(b, noRef){
       var w=document.createElement('div'); w.className='blk';
       if(b.id) w.setAttribute('data-id', b.id);
       var t=b.t||b.type;
+
+      // 등급(tier) 게이팅: 특정 등급 전용 블록은 그 등급의 반에서만 노출
+      if(b.tier && b.tier!==TIER){ w.style.display='none'; return w; }
+      // 교사용/특목반에서 등급 전용 블록임을 표시(CSS ::before 배지)
+      if(b.tier){ w.classList.add('apw-tierblk'); w.setAttribute('data-tier', b.tier+' 전용'); }
 
       if(t==='star'){
         w.innerHTML='<div class="cstar">'+consilienceStar(b.active||0, b.axes||axes)+(b.caption?'<div class="cap">'+esc(b.caption)+'</div>':'')+'</div>';
@@ -774,6 +832,31 @@
           cd.addEventListener('click',function(){ if(ro)return; state.answers[cid]=cd.getAttribute('data-v'); w.querySelectorAll('.card').forEach(function(x){x.classList.remove('on');}); cd.classList.add('on'); root.dispatchEvent(new Event('input')); });
         });
         var rta=w.querySelector('textarea'); rta.addEventListener('input',function(){state.answers[rid]=rta.value;});
+        return w;
+      }
+      if(t==='discuss'){
+        var fmtMap={'조별찬반':'👥 찬반 토론','배심원매트릭스':'⚖️ 배심원 판결','상호검증':'🛡️ 상호 검증','발표':'🎤 조별 발표'};
+        var fmt=fmtMap[b.format]||'👥 조별 토론';
+        var sides='';
+        if(Array.isArray(b.sides)&&b.sides.length){
+          sides='<div class="apw-disc-sides">'+b.sides.map(function(s,i){
+            var m=String(s).split(/\s*·\s*/); var tag=(m.length>1)?m.shift().trim():String.fromCharCode(65+i);
+            return '<div class="apw-disc-side"><span class="sn">'+esc(tag)+'</span>'+esc(m.join(' · ').trim()||s)+'</div>';
+          }).join('')+'</div>';
+        }
+        var guideMap={
+          '조별찬반':'조별로 입장을 정해 토론한 뒤, 아래에 우리 조의 결론을 적어요.',
+          '배심원매트릭스':'딜레마를 승인/거부로 판결하고, 근거(양·질·사회비용)를 위 판결문에 적어요.',
+          '상호검증':'옆 조가 우리 설계를 공격하면, 방어·보강해 아래에 적어요.',
+          '발표':'조별로 합의한 내용을 발표하고, 아래에 정리해요.'
+        };
+        var guide=b.guide||guideMap[b.format]||'조별로 토론한 뒤 아래에 결과를 적어요.';
+        w.innerHTML='<div class="apw-disc"><div class="apw-disc-h"><span class="apw-disc-badge">'+esc(fmt)+'</span></div>'
+          +'<div class="apw-disc-q"><span class="lab">논제</span>'+esc(b.q||'')+'</div>'
+          +sides
+          +'<div class="apw-disc-guide">📣 '+esc(guide)+'</div>'
+          +((ROLE==='staff'&&b.teachNote)?'<div class="apw-disc-guide" style="margin-top:9px;background:#fff7e6;border-color:var(--acc);color:#6b5620">👩‍🏫 '+esc(b.teachNote)+'</div>':'')
+          +'</div>';
         return w;
       }
       w.style.display='none'; return w;
