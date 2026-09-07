@@ -354,6 +354,18 @@
     inject();
     opts=opts||{}; var L=opts.lesson||{}; var mode=opts.mode||'live'; var ro=!!opts.readOnly;
     var ROLE=(opts.role||window._wbRole||'student'); // 'staff'=교사용(가이드·발문 표시) / 'student'=수강생
+    // [무료 워크북 체험 집계] b2c(학부모/무료) 컨텍스트에서 워크북을 열면 1회 이벤트 로그 (관리자 지표용)
+    try{
+      if(window._isB2C && window.sb && window.sb.rpc && ROLE!=='staff'){
+        var _sid=opts.studentId||(window._activeStudent&&window._activeStudent.id)||null;
+        var _key='wbtrial:'+(_sid||'anon')+':'+((L.stage||'')+(L.level||'')+(L.season||'')+(L.week||''))+':'+mode;
+        var _seen=false; try{ _seen=sessionStorage.getItem(_key)==='1'; }catch(_e){}
+        if(!_seen){
+          try{ sessionStorage.setItem(_key,'1'); }catch(_e){}
+          window.sb.rpc('log_wb_trial',{ p_kind:(mode==='preview'?'sample':'workbook'), p_student:_sid, p_meta:{ stage:L.stage||null, level:L.level||null, season:L.season||null, week:L.week||null, title:L.title||null, mode:mode } }).catch(function(){});
+        }
+      }
+    }catch(_e){}
     var TIER=(opts.tier||window._wbTier||'일반'); // 반(class) 등급: '특목'이면 tier:'특목' 블록도 노출, 아니면 숨김
     var pre=opts.prefill||{};
     var academyId = opts.academyId || window._acadId || (window._academy&&window._academy.id) || null;
