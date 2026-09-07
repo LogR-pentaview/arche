@@ -240,8 +240,16 @@
       + '<div class="kpi"><div class="lab">학부모 회원</div><div class="num">'+(s.parents||0)+'<small> 명</small></div></div>'
       + '<div class="kpi"><div class="lab">영업매니저</div><div class="num">'+(s.managers||0)+'<small> 명</small></div></div>'
       + '<div class="kpi"><div class="lab">전체 학생</div><div class="num">'+(s.students||0)+'<small> 명</small></div></div>'
+      + '<div class="kpi"><div class="lab">무료 워크북 체험자</div><div class="num" id="kpi-wbtrial">…<small> 명</small></div><div class="lab" id="kpi-wbtrial-sub" style="margin-top:2px;color:var(--text-secondary,#8b95a1)"></div></div>'
       + '</div>'
       + '<div id="dash-new" style="margin-top:6px"></div>';
+    (async function(){
+      try{
+        var w=await sb.rpc('admin_wb_trial_summary'); var wd=(w&&w.data)||{};
+        var el=document.getElementById('kpi-wbtrial'); if(el) el.innerHTML=(wd.people_total||0)+'<small> 명</small>';
+        var sub=document.getElementById('kpi-wbtrial-sub'); if(sub) sub.textContent='최근 7일 '+(wd.people_7d||0)+'명 · 30일 '+(wd.people_30d||0)+'명';
+      }catch(e){ var el2=document.getElementById('kpi-wbtrial'); if(el2) el2.innerHTML='0<small> 명</small>'; }
+    })();
     try{
       var dd = await adminApi({action:'academies'});
       var rows = (dd && dd.rows) || [];
