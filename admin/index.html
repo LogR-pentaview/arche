@@ -112,6 +112,7 @@
     <div class="navlabel">회원</div>
     <div class="nav" data-t="acad" onclick="go('acad')"><i class="ti ti-building-store"></i>학원 회원</div>
     <div class="nav" data-t="parent" onclick="go('parent')"><i class="ti ti-users"></i>학부모 회원</div>
+    <div class="nav" data-t="school" onclick="go('school')"><i class="ti ti-school"></i>학교(B2G)</div>
     <div class="navlabel">영업</div>
     <div class="nav" data-t="mgr" onclick="go('mgr')"><i class="ti ti-user-star"></i>영업매니저<span class="b" id="nb-mgr" style="display:none">0</span></div>
     <div class="nav" data-t="commission" onclick="go('commission')"><i class="ti ti-coin"></i>커미션·정산</div>
@@ -207,6 +208,7 @@
     if(t==='dash') return renderDash(p);
     if(t==='acad') return renderMembers(p, 'b2b');
     if(t==='parent') return renderMembers(p, 'b2c');
+    if(t==='school') return renderSchool(p);
     if(t==='mgr') return renderManagers(p);
     if(t==='commission') return renderCommission(p);
     if(t==='posts') return renderPosts(p);
@@ -379,6 +381,103 @@
   window.mDemo = async function(id,toDemo){ var r=await adminApi({action:'set_demo',academy_id:id,is_demo:toDemo}); if(r.error)return alert('실패: '+r.error); go(document.querySelector('.nav.on').dataset.t); };
 
   // ===== 영업매니저 =====
+  /* ===== 학교(B2G) 관리 — 학교 등록·교사 발급·45분 학교버전 15회 편성 ===== */
+  var _schSel=null, _schArch=null;
+  async function renderSchool(p){
+    if(!_schArch){ var ra=await sb.rpc('school_arch_list'); _schArch=(ra&&ra.data)||[]; }
+    if(_schSel){ return renderSchoolDetail(p); }
+    var r=await sb.rpc('school_list'); var rows=(r&&r.data)||[];
+    var list=rows.map(function(s){
+      return '<tr><td style="padding:9px 8px;border-bottom:1px solid #eef0f3"><b>'+esc(s.name)+'</b>'+(s.region?' <span style="font-size:11px;color:#8b95a1">· '+esc(s.region)+'</span>':'')+'</td>'
+        +'<td style="padding:9px 8px;border-bottom:1px solid #eef0f3">'+esc(s.phone||'-')+'</td>'
+        +'<td style="padding:9px 8px;border-bottom:1px solid #eef0f3;text-align:center">'+(s.lesson_count||0)+'회</td>'
+        +'<td style="padding:9px 8px;border-bottom:1px solid #eef0f3;text-align:right"><button class="btn g" onclick="schOpen(\''+s.academy_id+'\',\''+s.class_id+'\',\''+esc(s.name).replace(/\x27/g,"&#39;")+'\')">관리 →</button></td></tr>';
+    }).join('')||'<tr><td colspan="4" class="muted" style="padding:14px 8px">등록된 학교가 없습니다.</td></tr>';
+    p.innerHTML='<div class="h1">학교(B2G)</div><div class="sub">학교 등록 · 교사(원장) 계정 발급 · 45분 학교버전 코스 편성</div>'
+      +'<div style="border:1px solid #c8a24a;border-radius:12px;padding:14px 16px;margin:10px 0 16px;background:#fffdf6">'
+      +'<div style="font-weight:800;margin-bottom:9px">＋ 학교 직접 등록</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      +'<input id="sc-name" placeholder="학교명 *" style="flex:1;min-width:160px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="sc-region" placeholder="지역(선택)" style="width:120px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="sc-phone" placeholder="연락처(선택)" style="width:130px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<button class="btn g" onclick="schCreate()" style="white-space:nowrap">등록</button></div>'
+      +'<div id="sc-msg" style="font-size:12px;margin-top:6px;min-height:14px"></div></div>'
+      +'<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr>'
+      +'<th style="text-align:left;padding:8px;color:#6b7688;font-size:12px">학교</th><th style="text-align:left;padding:8px;color:#6b7688;font-size:12px">연락처</th>'
+      +'<th style="text-align:center;padding:8px;color:#6b7688;font-size:12px">편성</th><th></th></tr></thead><tbody>'+list+'</tbody></table>';
+  }
+  window.schCreate=async function(){
+    var name=(document.getElementById('sc-name').value||'').trim(); var m=document.getElementById('sc-msg');
+    if(!name){ m.style.color='#c0392b'; m.textContent='학교명을 입력하세요.'; return; }
+    m.style.color='#6b7688'; m.textContent='등록 중…';
+    var r=await sb.rpc('create_school',{p_name:name,p_region:(document.getElementById('sc-region').value||'').trim()||null,p_phone:(document.getElementById('sc-phone').value||'').trim()||null});
+    if(r.error){ m.style.color='#c0392b'; m.textContent='실패: '+r.error.message; return; }
+    go('school');
+  };
+  window.schOpen=function(aid,cid,name){ _schSel={academy_id:aid,class_id:cid,name:name}; go('school'); };
+  window.schBack=function(){ _schSel=null; go('school'); };
+  async function renderSchoolDetail(p){
+    var s=_schSel;
+    p.innerHTML='<div class="h1"><button class="btn" onclick="schBack()" style="margin-right:8px">← 목록</button>🏫 '+esc(s.name)+'</div>'
+      +'<div style="border:1px solid #dcdfe4;border-radius:12px;padding:14px 16px;margin:12px 0">'
+      +'<div style="font-weight:800;margin-bottom:6px">👩‍🏫 담당 교사(원장) 계정 발급</div>'
+      +'<div class="muted" style="margin-bottom:9px;font-size:12px">발급된 교사는 학원앱(/academy)에 로그인해 학생 등록·회차 개방·관제를 합니다. 학생 계정은 교사가 학원앱에서 발급합니다.</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      +'<input id="st-name" placeholder="교사 이름 *" style="width:160px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="st-subject" placeholder="담당(선택)" style="width:140px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<button class="btn g" onclick="schIssueTeacher()" style="white-space:nowrap">교사 계정 발급</button></div>'
+      +'<div id="st-msg" style="font-size:12px;margin-top:6px;min-height:14px"></div><div id="st-list" style="margin-top:10px"></div></div>'
+      +'<div style="border:1px solid #dcdfe4;border-radius:12px;padding:14px 16px;margin:12px 0">'
+      +'<div style="font-weight:800;margin-bottom:6px">📚 45분 학교버전 코스 편성 <span id="sc-cnt" class="muted" style="font-weight:400"></span></div>'
+      +'<div class="muted" style="margin-bottom:10px;font-size:12px">펜타비전 심화 40회 중 담을 회차를 고르세요(권장 15회). 편성한 회차가 학생 워크북으로 서빙됩니다.</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">'
+      +'<div><b style="font-size:12px;color:#6b7688">전체 40회</b><div id="sc-pool" style="margin-top:8px;max-height:460px;overflow:auto"></div></div>'
+      +'<div><b style="font-size:12px;color:#6b7688">편성 목록</b><div id="sc-cur" style="margin-top:8px"></div></div></div></div>';
+    schLoadTeachers(); schLoadCurri();
+  }
+  async function schLoadTeachers(){
+    var r=await sb.from('academy_users').select('login_id,name,subject,role').eq('academy_id',_schSel.academy_id);
+    var rows=(r&&r.data)||[];
+    document.getElementById('st-list').innerHTML = rows.length ? ('<table style="width:100%;border-collapse:collapse;font-size:12.5px"><tbody>'
+      +rows.map(function(t){return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eef0f3"><b>'+esc(t.login_id||'-')+'</b> <span class="muted">/0000</span></td><td style="padding:6px 8px;border-bottom:1px solid #eef0f3">'+esc(t.name||'-')+(t.subject?' · '+esc(t.subject):'')+'</td><td style="padding:6px 8px;border-bottom:1px solid #eef0f3">'+(t.role==='owner'?'원장(교사)':'교사')+'</td></tr>';}).join('')
+      +'</tbody></table>') : '<div class="muted" style="font-size:12px">발급된 교사 계정이 없습니다.</div>';
+  }
+  window.schIssueTeacher=async function(){
+    var name=(document.getElementById('st-name').value||'').trim(); var m=document.getElementById('st-msg');
+    if(!name){ m.style.color='#c0392b'; m.textContent='교사 이름을 입력하세요.'; return; }
+    m.style.color='#6b7688'; m.textContent='발급 중…';
+    var s=await getSession();
+    try{
+      var res=await fetch(FN_BASE+'/create-teacher',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(s?s.access_token:'')},
+        body:JSON.stringify({academy_id:_schSel.academy_id,name:name,subject:(document.getElementById('st-subject').value||'').trim(),role:'owner'})});
+      var d=await res.json();
+      if(!res.ok||d.error){ m.style.color='#c0392b'; m.textContent='실패: '+(d.error||res.status); return; }
+      m.style.color='#1c7a45'; m.innerHTML='✓ 발급 완료 — 아이디 <b>'+esc(d.login_id)+'</b> / 초기비번 <b>0000</b> (학원앱 최초 로그인 시 변경)';
+      document.getElementById('st-name').value='';document.getElementById('st-subject').value='';schLoadTeachers();
+    }catch(e){ m.style.color='#c0392b'; m.textContent='실패: '+e; }
+  };
+  async function schLoadCurri(){
+    var r=await sb.rpc('school_curriculum_list',{p_class:_schSel.class_id}); var cur=(r&&r.data)||[];
+    var added={}; cur.forEach(function(c){added[c.season+'-'+c.week]=true;});
+    var cs=0,pool='';
+    _schArch.forEach(function(a){
+      if(a.season!==cs){cs=a.season; pool+='<div style="font-size:12px;font-weight:800;color:#1A237E;background:#fff7e6;border-radius:7px;padding:4px 9px;margin:9px 0 5px">시즌 '+a.season+'</div>';}
+      var on=added[a.season+'-'+a.week];
+      pool+='<div style="display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid #eef0f3;border-radius:8px;margin-bottom:5px;font-size:12.5px"><div style="flex:1;min-width:0">'+esc(a.title)+'<div style="color:#8b95a1;font-size:11px">'+esc(a.fusion||'')+'</div></div>'
+        +'<button class="btn" '+(on?'disabled':'')+' onclick="schAddLesson('+a.season+','+a.week+')">'+(on?'담김':'+ 담기')+'</button></div>';
+    });
+    document.getElementById('sc-pool').innerHTML=pool;
+    var lst=cur.map(function(c,i){
+      return '<div style="display:flex;align-items:center;gap:6px;padding:6px 9px;border:1px solid #eef0f3;border-radius:8px;margin-bottom:5px;font-size:12.5px"><b style="color:#C8A24A;width:20px">'+(i+1)+'</b><div style="flex:1;min-width:0">'+esc(c.title)+'<div style="color:#8b95a1;font-size:11px">시즌 '+c.season+' · '+c.week+'주차</div></div>'
+        +'<button class="btn" onclick="schMove('+c.id+',-1)">▲</button><button class="btn" onclick="schMove('+c.id+',1)">▼</button><button class="btn" onclick="schDel('+c.id+')">✕</button></div>';
+    }).join('')||'<div class="muted" style="font-size:12px">편성된 회차가 없습니다.</div>';
+    document.getElementById('sc-cur').innerHTML=lst;
+    document.getElementById('sc-cnt').textContent='· '+cur.length+'회';
+  }
+  window.schAddLesson=async function(se,wk){ var r=await sb.rpc('school_curriculum_add',{p_class:_schSel.class_id,p_season:se,p_week:wk}); if(r.error){alert('추가 실패: '+r.error.message);return;} schLoadCurri(); };
+  window.schDel=async function(id){ if(!confirm('이 회차를 편성에서 뺄까요?'))return; var r=await sb.rpc('school_curriculum_del',{p_id:id}); if(r.error){alert('삭제 실패: '+r.error.message);return;} schLoadCurri(); };
+  window.schMove=async function(id,dir){ var r=await sb.rpc('school_curriculum_move',{p_id:id,p_dir:dir}); if(r.error){alert('이동 실패: '+r.error.message);return;} schLoadCurri(); };
+
   async function renderManagers(p){
     p.innerHTML = '<div class="h1">영업매니저 관리</div><div class="sub">가입 승인·코드 발행·정산 계좌 확인</div><div id="mgrlist"><div class="muted">불러오는 중…</div></div>';
     var r = await sb.rpc('admin_list_managers');
