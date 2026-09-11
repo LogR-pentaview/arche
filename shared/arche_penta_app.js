@@ -25,7 +25,10 @@
   async function academyLessonByKey(c){
     try{
       if(window._isB2C || !window.sb || !window.sb.rpc || !c) return null;
-      var r = await window.sb.rpc('penta_academy_workbook_by_key', { p_stage:c.stage, p_level:(c.level||''), p_season:c.season, p_week:c.week });
+      var _lv = (c.level||'');
+      // [학교 B2G] 학교 테넌트는 펜타비전 심화를 45분 학교버전(architecture45)으로 서빙
+      if(window._pentaSchool && c.stage==='vision' && (_lv==='architecture' || _lv==='architecture45' || _lv==='')) _lv='architecture45';
+      var r = await window.sb.rpc('penta_academy_workbook_by_key', { p_stage:c.stage, p_level:_lv, p_season:c.season, p_week:c.week });
       if(r && !r.error && r.data) return r.data;
     }catch(e){}
     return null;
