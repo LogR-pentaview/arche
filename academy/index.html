@@ -379,7 +379,7 @@ function renderShell(){
 
   // 강사/원장이면 상단 학생선택 + 라이브 버튼 + 기존 컨설팅 화면 링크
   var isTeacher = (role==='owner'||role==='staff');
-  var lg=document.getElementById('s-legacy'); if(lg) lg.classList.toggle('hidden', !isTeacher);
+  var lg=document.getElementById('s-legacy'); if(lg) lg.classList.toggle('hidden', !isTeacher || menuKey==='school');  // [학교] 기존 컨설팅 화면 숨김
   document.getElementById('top-stusel').classList.toggle('hidden', !isTeacher);
   document.getElementById('top-live').classList.toggle('hidden', !isTeacher);
   document.getElementById('top-live').onclick=function(){ go('live'); };
