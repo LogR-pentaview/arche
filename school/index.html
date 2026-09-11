@@ -58,20 +58,43 @@ function app(){return el('app');}
 async function boot(){
   if(!sb){ app().innerHTML='<div class="card">설정 로드 실패(config.js 확인)</div>'; return; }
   var {data:{session}}=await sb.auth.getSession();
-  if(!session){ renderGate('로그인이 필요합니다.'); return; }
+  if(!session){ renderLogin(); return; }
   ST.user=session.user;
   el('who').textContent=(session.user.email||'').replace('@stu.penta-view.com','');
   var r=await sb.rpc('school_arch_list');
   if(r.error){ renderGate('접근 오류: '+r.error.message); return; }
   ST.arch=r.data||[];
-  if(!ST.arch.length){ renderGate('학교 콘솔 접근 권한이 없습니다. (영업매니저 승인 계정 또는 관리자만 이용)'); return; }
+  if(!ST.arch.length){ renderGate('이 계정은 학교 콘솔 권한이 없습니다.<br>영업매니저(승인) 또는 관리자 계정으로 로그인하세요.', true); return; }
   renderSchools();
 }
-function renderGate(m){
-  app().innerHTML='<div id="gate" class="card"><h3>학교 콘솔</h3><p class="muted">'+esc(m)+'</p>'
-    +'<div class="row" style="justify-content:center;margin-top:10px"><a class="btn o" href="/login/">로그인으로</a></div></div>';
+function renderLogin(m){
+  app().innerHTML='<div id="gate" class="card"><h3>🏫 학교 콘솔 로그인</h3>'
+    +'<p class="muted">영업매니저(승인) 또는 관리자 계정으로 로그인하세요.</p>'
+    +'<div style="display:flex;flex-direction:column;gap:8px;margin-top:12px;text-align:left">'
+    +'<input class="inp" id="lg-id" placeholder="아이디 또는 이메일" autocomplete="username">'
+    +'<input class="inp" id="lg-pw" type="password" placeholder="비밀번호" autocomplete="current-password">'
+    +'<button class="btn" onclick="doLogin()">로그인</button>'
+    +(m?'<div class="msg err">'+esc(m)+'</div>':'<div id="lg-msg"></div>')
+    +'</div>'
+    +'<p class="muted" style="margin-top:12px">영업매니저 가입 신청은 <a href="/login/">여기</a>에서.</p></div>';
+  var pw=el('lg-pw'); if(pw) pw.addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
 }
-async function doLogout(){ try{ await sb.auth.signOut(); }catch(e){} location.href='/login/'; }
+async function doLogin(){
+  var idv=(el('lg-id').value||'').trim(); var pw=el('lg-pw').value||''; var m=el('lg-msg');
+  if(!idv||!pw){ if(m){m.className='msg err';m.textContent='아이디와 비밀번호를 입력하세요.';} return; }
+  var email=(idv.indexOf('@')>0)?idv:(idv.toLowerCase()+'@stu.penta-view.com');
+  if(m){m.className='msg';m.textContent='로그인 중…';}
+  var r=await sb.auth.signInWithPassword({email:email,password:pw});
+  if(r.error){ if(m){m.className='msg err';m.textContent='로그인 실패: '+r.error.message;} return; }
+  boot();
+}
+function renderGate(m, showLogout){
+  app().innerHTML='<div id="gate" class="card"><h3>학교 콘솔</h3><p class="muted">'+m+'</p>'
+    +'<div class="row" style="justify-content:center;margin-top:10px">'
+    +(showLogout?'<button class="btn o" onclick="doLogout()">다른 계정으로 로그인</button>':'<button class="btn o" onclick="renderLogin()">로그인</button>')
+    +'</div></div>';
+}
+async function doLogout(){ try{ await sb.auth.signOut(); }catch(e){} renderLogin(); }
 
 /* ============ 학교 목록 ============ */
 async function renderSchools(){
