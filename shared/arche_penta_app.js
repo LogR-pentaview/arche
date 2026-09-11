@@ -294,10 +294,13 @@
   // ── 컨설턴트/원장 뷰 (코스 기반: 학년폴더 · 일괄/개별 전송 · 수강 등록/진급) ──
   async function renderStaff(root, opts){
     opts=opts||{}; var course=opts.course||null; var spec=courseSpec(course);
-    root.innerHTML='<div class="ph"><div><h2>'+esc(spec.title)+' · 컨설턴트</h2><div class="sub">'+esc(spec.desc)+'</div></div></div>'
-      +'<div class="tabs"><button data-t="assign" class="on">회차 배정·전송</button><button data-t="review">제출·리포트</button></div>'
+    var onlyRev=!!opts.onlyReview;   // [학교] 제출·리포트만 노출(배정 탭 숨김)
+    root.innerHTML='<div class="ph"><div><h2>'+esc(onlyRev?'제출물 검토 · 분석리포트 발행':(spec.title+' · 컨설턴트'))+'</h2><div class="sub">'+esc(onlyRev?'학생이 제출한 워크북을 열어 검토하고 분석리포트를 발행합니다.':spec.desc)+'</div></div></div>'
+      +(onlyRev
+          ? '<div class="tabs"><button data-t="review" class="on">제출·리포트</button></div>'
+          : '<div class="tabs"><button data-t="assign" class="on">회차 배정·전송</button><button data-t="review">제출·리포트</button></div>')
       +'<div id="pn-body"><div class="empty">불러오는 중…</div></div>';
-    var tab='assign';
+    var tab=onlyRev?'review':'assign';
     root.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){ root.querySelectorAll('.tabs button').forEach(function(x){x.classList.remove('on');}); b.classList.add('on'); tab=b.dataset.t; draw(); }); });
     async function draw(){ var body=root.querySelector('#pn-body'); body.innerHTML='<div class="empty">불러오는 중…</div>';
       if(tab==='assign') return drawAssign(body, course, spec); return drawReviewCourse(body, course, spec); }
