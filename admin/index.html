@@ -459,12 +459,14 @@
   async function schLoadCurri(){
     var r=await sb.rpc('school_curriculum_list',{p_class:_schSel.class_id}); var cur=(r&&r.data)||[];
     var added={}; cur.forEach(function(c){added[c.season+'-'+c.week]=true;});
+    var full=cur.length>=15;   // 최대 15회
     var cs=0,pool='';
+    if(full) pool+='<div style="font-size:12px;color:#c0392b;background:#fdecec;border-radius:7px;padding:6px 10px;margin-bottom:8px">최대 15회까지 담을 수 있습니다. 더 담으려면 오른쪽에서 회차를 먼저 빼세요.</div>';
     _schArch.forEach(function(a){
       if(a.season!==cs){cs=a.season; pool+='<div style="font-size:12px;font-weight:800;color:#1A237E;background:#fff7e6;border-radius:7px;padding:4px 9px;margin:9px 0 5px">시즌 '+a.season+'</div>';}
       var on=added[a.season+'-'+a.week];
       pool+='<div style="display:flex;align-items:center;gap:8px;padding:6px 9px;border:1px solid #eef0f3;border-radius:8px;margin-bottom:5px;font-size:12.5px"><div style="flex:1;min-width:0">'+esc(a.title)+'<div style="color:#8b95a1;font-size:11px">'+esc(a.fusion||'')+'</div></div>'
-        +'<button class="btn" '+(on?'disabled':'')+' onclick="schAddLesson('+a.season+','+a.week+')">'+(on?'담김':'+ 담기')+'</button></div>';
+        +'<button class="btn" '+((on||full)?'disabled':'')+' onclick="schAddLesson('+a.season+','+a.week+')">'+(on?'담김':(full?'가득참':'+ 담기'))+'</button></div>';
     });
     document.getElementById('sc-pool').innerHTML=pool;
     var lst=cur.map(function(c,i){
@@ -472,7 +474,7 @@
         +'<button class="btn" onclick="schMove('+c.id+',-1)">▲</button><button class="btn" onclick="schMove('+c.id+',1)">▼</button><button class="btn" onclick="schDel('+c.id+')">✕</button></div>';
     }).join('')||'<div class="muted" style="font-size:12px">편성된 회차가 없습니다.</div>';
     document.getElementById('sc-cur').innerHTML=lst;
-    document.getElementById('sc-cnt').textContent='· '+cur.length+'회';
+    document.getElementById('sc-cnt').textContent='· '+cur.length+'/15회';
   }
   window.schAddLesson=async function(se,wk){ var r=await sb.rpc('school_curriculum_add',{p_class:_schSel.class_id,p_season:se,p_week:wk}); if(r.error){alert('추가 실패: '+r.error.message);return;} schLoadCurri(); };
   window.schDel=async function(id){ if(!confirm('이 회차를 편성에서 뺄까요?'))return; var r=await sb.rpc('school_curriculum_del',{p_id:id}); if(r.error){alert('삭제 실패: '+r.error.message);return;} schLoadCurri(); };
