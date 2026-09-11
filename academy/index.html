@@ -344,6 +344,15 @@ var NAV = {
     {v:'pdash', i:'home', t:'자녀 대시보드'},
     {v:'preport', i:'report', t:'자녀 리포트'},
     {v:'pnews', i:'bell', t:'학원 소식', tag:'NEW'}
+  ],
+  // [학교 B2G] 원장/강사 계정이 학교 테넌트면 이 축약 메뉴 사용
+  school: [
+    {sec:'학교 수업'},
+    {v:'live', i:'live', t:'실시간 수업 관제', tag:'LIVE'},
+    {v:'course', i:'course', t:'코스웨어(선택 회차)'},
+    {sec:'관리'},
+    {v:'members', i:'people', t:'학생 등록'},
+    {v:'reports', i:'report', t:'제출물·분석리포트'}
   ]
 };
 var ROLE_KO = { owner:'원장', staff:'강사', student:'학생', parent:'학부모' };
@@ -357,9 +366,10 @@ function renderShell(){
   document.getElementById('s-role').textContent = (ROLE_KO[role]||'') + ' · ACADEMY';
   document.getElementById('s-who').textContent = (ST.user && ST.user.email) || (ST.preview?('미리보기('+ROLE_KO[role]+')'):'—');
 
-  // 사이드바
+  // 사이드바 (학교 테넌트는 축약 메뉴)
+  var menuKey = (window._pentaSchool && (role==='owner'||role==='staff')) ? 'school' : role;
   var nl = document.getElementById('navlist'); nl.innerHTML='';
-  (NAV[role]||[]).forEach(function(it){
+  (NAV[menuKey]||NAV[role]||[]).forEach(function(it){
     if(it.sec){ var l=document.createElement('div'); l.className='navlabel'; l.textContent=it.sec; nl.appendChild(l); return; }
     var d=document.createElement('div'); d.className='nav'; d.dataset.v=it.v;
     d.innerHTML=svg(IC[it.i]||IC.home)+' <span>'+it.t+'</span>'+(it.tag?('<span class="tag '+(it.tag==='LIVE'?'':'new')+'">'+it.tag+'</span>'):'');
@@ -375,7 +385,7 @@ function renderShell(){
   document.getElementById('top-live').onclick=function(){ go('live'); };
 
   // 첫 화면
-  var first = (NAV[role]||[]).find(function(x){return x.v;});
+  var first = (NAV[menuKey]||NAV[role]||[]).find(function(x){return x.v;});
   if(first) go(first.v);
 }
 
@@ -450,6 +460,8 @@ function renderView(v){
     /* ===== 공통(원장·강사) ===== */
     case 'live': return head(LIVE_LABEL, '반 선택 → 학생 실시간 현황 + 라이브 판서 방송')
       + '<div id="live-mount" class="mount"></div>';
+    case 'reports': return head('제출물 · 분석리포트','학생이 제출한 워크북 → [제출·리포트] 탭에서 검토 후 분석리포트 발행')
+      + '<div id="reports-mount" class="mount"></div>';
     case 'course': return head('코스웨어','반별 차시(커리큘럼) 편성 → 수업 때 순차 개방 · 또는 바로 배정')
       + '<div class="tabs" id="cw-tabs" style="margin-top:6px"><span class="tab on" data-cw="curri">📚 차시 편성</span><span class="tab" data-cw="assign">⚡ 바로 배정·전송</span></div>'
       + '<div id="cw-curri" class="mount"></div>'
@@ -590,6 +602,15 @@ function mountView(v, host){
     if(el5) mountLiveControl(el5);
     return;
   }
+  // [학교 B2G] 제출물·분석리포트 (ArchePentaApp staff → 제출·리포트 탭)
+  if(v==='reports'){
+    var elr=host.querySelector('#reports-mount');
+    if(elr){
+      if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(elr,'staff'); }catch(e){ elr.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } }
+      else elr.innerHTML=phRaw('🔌','미연결','로그인 후 제출물·리포트가 표시됩니다.');
+    }
+    return;
+  }
   // 원장 대시보드 — 경영지표·재등록 방어
   if(v==='dash'){
     if(host.querySelector('#dash-stats')) mountDashboard(host);
@@ -716,7 +737,8 @@ async function mountMembers(host){
       +'<button id="m-cadd" class="tab on" style="padding:10px 18px">+ 반 만들기</button></div>';
     h+='</div>';
 
-    /* ── 강사 관리 ── */
+    /* ── 강사 관리 ── (학교 테넌트에선 숨김) */
+    if(!window._pentaSchool){
     h+='<div class="card" style="margin-top:16px"><div style="font-size:15px;font-weight:800;margin-bottom:12px">🧑‍🏫 강사 <span style="font-size:12px;font-weight:500;color:var(--ink-mute)">· '+teachers.length+'명 · 등록 시 로그인 계정 자동 발급(코스웨어 권한)</span></div>';
     if(!teachers.length){ h+='<div style="font-size:13px;color:var(--ink-mute);padding:6px 0 12px">등록된 강사가 없습니다. 아래에서 강사를 등록하면 아이디·비번이 자동 생성됩니다.</div>'; }
     else {
@@ -740,6 +762,7 @@ async function mountMembers(host){
       +'<button id="m-tadd" class="tab on" style="padding:10px 18px">+ 강사 등록</button></div>';
     h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 등록하면 로그인 아이디·초기비번(0000)이 자동 발급되고, 코스웨어(배정·수업) 권한이 부여됩니다. 담당 반은 반 카드의 [담당강사]에서 지정하세요.</div>';
     h+='</div>';
+    } // [학교] 강사 관리 끝
 
     /* ── 학생 관리 ── */
     h+='<div class="card" style="margin-top:16px"><div style="font-size:15px;font-weight:800;margin-bottom:12px">👥 학생 <span style="font-size:12px;font-weight:500;color:var(--ink-mute)">· '+students.length+'명 · 반 드롭다운으로 배정/이동</span></div>';
