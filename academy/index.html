@@ -251,14 +251,14 @@ function applyBrand(b){
 async function resolveMembership(user){
   // 1) 원장(학원 소유자)
   try{
-    var { data:owned } = await sb.from('academies').select('id,name,slug').eq('owner_uid', user.id).limit(1);
+    var { data:owned } = await sb.from('academies').select('id,name,slug,account_type').eq('owner_uid', user.id).limit(1);
     if(owned && owned[0]) return { role:'owner', academy:owned[0] };
   }catch(e){}
   // 2) 강사(academy_users)
   try{
     var { data:au } = await sb.from('academy_users').select('academy_id,role').eq('uid', user.id).limit(1);
     if(au && au[0]){
-      var { data:ac } = await sb.from('academies').select('id,name,slug').eq('id', au[0].academy_id).limit(1);
+      var { data:ac } = await sb.from('academies').select('id,name,slug,account_type').eq('id', au[0].academy_id).limit(1);
       return { role:(au[0].role==='owner'?'owner':'staff'), academy:(ac&&ac[0])||null };
     }
   }catch(e){}
@@ -266,7 +266,7 @@ async function resolveMembership(user){
   try{
     var { data:stu } = await sb.from('students').select('id,name,academy_id,grade,class_id').eq('auth_uid', user.id).limit(1);
     if(stu && stu[0]){
-      var { data:ac2 } = await sb.from('academies').select('id,name,slug').eq('id', stu[0].academy_id).limit(1);
+      var { data:ac2 } = await sb.from('academies').select('id,name,slug,account_type').eq('id', stu[0].academy_id).limit(1);
       return { role:'student', academy:(ac2&&ac2[0])||null, student:stu[0] };
     }
   }catch(e){}
@@ -1344,6 +1344,7 @@ function setPentaGlobals(){
   window._acadId = (ST.academy && ST.academy.id) || null;
   window._academy = ST.academy || null;
   window._myUid = (ST.user && ST.user.id) || null;
+  window._pentaSchool = !!(ST.academy && ST.academy.account_type==='school');  // [학교 B2G] 심화→45분 학교버전 서빙 스위치
   window._role = pentaRole();
   if(ST.role==='student' && ST.membership && ST.membership.student){
     var s=ST.membership.student;
