@@ -1,0 +1,258 @@
+<!doctype html><html lang="ko"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>펜타비전 · 학교(B2G) 콘솔</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+<style>
+:root{--navy:#1A237E;--gold:#C8A24A;--ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e5e8ec;--soft:#f5f6f8;--bg:#eef1f5}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Pretendard Variable',Pretendard,'Malgun Gothic',sans-serif;background:var(--bg);color:var(--ink)}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:12px 18px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+.top h1{font-size:16px;margin:0;color:var(--navy);font-weight:800}
+.top .tag{font-size:11px;font-weight:800;color:#fff;background:var(--gold);border-radius:20px;padding:3px 10px}
+.top .sp{flex:1}
+.top a,.top button{font-size:12.5px;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:8px;padding:7px 12px;cursor:pointer;text-decoration:none}
+.wrap{max-width:1120px;margin:0 auto;padding:18px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:16px}
+.card h3{margin:0 0 12px;font-size:14px;color:var(--navy);display:flex;align-items:center;gap:7px}
+.btn{background:var(--navy);color:#fff;border:none;border-radius:9px;padding:9px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.g{background:var(--gold)}.btn.o{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+.btn:disabled{opacity:.45;cursor:default}
+.inp{padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-family:inherit;background:#fff}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:var(--mute);font-size:12.5px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:9px 8px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--dim);font-weight:700;font-size:12px}
+.pill{font-size:11px;border:1px solid var(--line);border-radius:20px;padding:2px 9px;color:var(--dim)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+.li{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;font-size:13px}
+.li .t{flex:1;min-width:0}
+.li .t small{color:var(--mute);font-size:11px;display:block}
+.seasonhead{font-size:12px;font-weight:800;color:var(--navy);background:#fff7e6;border-radius:7px;padding:5px 9px;margin:10px 0 6px}
+.msg{font-size:12.5px;padding:9px 12px;border-radius:9px;margin-top:8px}
+.msg.ok{background:#e8f6ee;color:#1c7a45}.msg.err{background:#fdecec;color:#c0392b}
+#gate{max-width:420px;margin:60px auto;text-align:center}
+</style>
+</head><body>
+<div class="top">
+  <h1>펜타비전 학교 콘솔</h1><span class="tag">B2G</span>
+  <span class="sp"></span>
+  <span id="who" class="muted"></span>
+  <a href="/academy/">학원앱</a>
+  <button onclick="doLogout()">로그아웃</button>
+</div>
+<div class="wrap" id="app"><div class="muted">불러오는 중…</div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/config.js"></script>
+<script>
+var SBU=window.SB_URL||'https://dvxepjctjazobrkjrkdw.supabase.co';
+var SBK=window.SB_KEY||'';
+var sb=(window.supabase&&SBK)?window.supabase.createClient(SBU,SBK):null;
+var ST={user:null, school:null, arch:[], curri:[]};
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function el(id){return document.getElementById(id);}
+function app(){return el('app');}
+
+async function boot(){
+  if(!sb){ app().innerHTML='<div class="card">설정 로드 실패(config.js 확인)</div>'; return; }
+  var {data:{session}}=await sb.auth.getSession();
+  if(!session){ renderGate('로그인이 필요합니다.'); return; }
+  ST.user=session.user;
+  el('who').textContent=(session.user.email||'').replace('@stu.penta-view.com','');
+  var r=await sb.rpc('school_arch_list');
+  if(r.error){ renderGate('접근 오류: '+r.error.message); return; }
+  ST.arch=r.data||[];
+  if(!ST.arch.length){ renderGate('학교 콘솔 접근 권한이 없습니다. (영업매니저 승인 계정 또는 관리자만 이용)'); return; }
+  renderSchools();
+}
+function renderGate(m){
+  app().innerHTML='<div id="gate" class="card"><h3>학교 콘솔</h3><p class="muted">'+esc(m)+'</p>'
+    +'<div class="row" style="justify-content:center;margin-top:10px"><a class="btn o" href="/login/">로그인으로</a></div></div>';
+}
+async function doLogout(){ try{ await sb.auth.signOut(); }catch(e){} location.href='/login/'; }
+
+/* ============ 학교 목록 ============ */
+async function renderSchools(){
+  ST.school=null;
+  var r=await sb.rpc('school_list'); var rows=r.data||[];
+  var list=rows.map(function(s){
+    return '<tr><td><b>'+esc(s.name)+'</b>'+(s.region?' <span class="pill">'+esc(s.region)+'</span>':'')+'</td>'
+      +'<td>'+esc(s.phone||'-')+'</td><td style="text-align:center">'+(s.lesson_count||0)+'회</td>'
+      +'<td style="text-align:right"><button class="btn o" data-open="'+s.academy_id+'" data-cls="'+s.class_id+'" data-name="'+esc(s.name)+'">관리 →</button></td></tr>';
+  }).join('')||'<tr><td colspan="4" class="muted">등록된 학교가 없습니다. 아래에서 등록하세요.</td></tr>';
+  app().innerHTML=
+    '<div class="card"><h3>🏫 학교 목록</h3><table><thead><tr><th>학교</th><th>연락처</th><th style="text-align:center">편성</th><th></th></tr></thead><tbody>'+list+'</tbody></table></div>'
+    +'<div class="card"><h3>➕ 학교 등록</h3><div class="row">'
+    +'<input class="inp" id="ns-name" placeholder="학교명 *" style="min-width:220px">'
+    +'<input class="inp" id="ns-region" placeholder="지역(선택)" style="width:130px">'
+    +'<input class="inp" id="ns-phone" placeholder="연락처(선택)" style="width:150px">'
+    +'<button class="btn" onclick="createSchool()">등록</button></div><div id="ns-msg"></div></div>';
+  Array.prototype.forEach.call(document.querySelectorAll('[data-open]'),function(b){
+    b.onclick=function(){ openSchool({academy_id:b.getAttribute('data-open'),class_id:b.getAttribute('data-cls'),name:b.getAttribute('data-name')}); };
+  });
+}
+async function createSchool(){
+  var name=(el('ns-name').value||'').trim(); var m=el('ns-msg');
+  if(!name){ m.className='msg err';m.textContent='학교명을 입력하세요.'; return; }
+  m.className='msg';m.textContent='등록 중…';
+  var r=await sb.rpc('create_school',{p_name:name,p_region:(el('ns-region').value||'').trim()||null,p_phone:(el('ns-phone').value||'').trim()||null});
+  if(r.error){ m.className='msg err';m.textContent='실패: '+r.error.message; return; }
+  renderSchools();
+}
+
+/* ============ 학교 상세 ============ */
+async function openSchool(s){
+  ST.school=s;
+  app().innerHTML='<div class="card"><div class="row"><button class="btn o" onclick="renderSchools()">← 학교 목록</button>'
+    +'<h3 style="margin:0 0 0 6px">🏫 '+esc(s.name)+'</h3></div></div>'
+    +'<div class="card"><h3>👩‍🏫 담당 교사 계정</h3><div class="muted" style="margin-bottom:8px">교사는 발급된 아이디로 <b>학원앱(/academy)</b>에 로그인해 학생 등록·회차 개방·관제를 수행합니다.</div>'
+    +'<div class="row"><input class="inp" id="tc-name" placeholder="교사 이름 *" style="width:160px"><input class="inp" id="tc-subject" placeholder="담당(선택)" style="width:140px">'
+    +'<button class="btn g" onclick="issueTeacher()">교사(원장) 계정 발급</button></div><div id="tc-msg"></div>'
+    +'<div id="tc-list" style="margin-top:10px"></div></div>'
+    +'<div class="card"><h3>📚 45분 학교버전 코스 편성 <span class="muted" id="cw-count"></span></h3>'
+    +'<div class="muted" style="margin-bottom:10px">펜타비전 심화 40회 중 학교 수업에 담을 회차를 고르세요. (권장 15회 내외) · 편성한 회차가 학생 워크북으로 서빙됩니다.</div>'
+    +'<div class="grid2"><div><b style="font-size:12.5px;color:var(--dim)">전체 40회</b><div id="cw-pool" style="margin-top:8px;max-height:520px;overflow:auto"></div></div>'
+    +'<div><b style="font-size:12.5px;color:var(--dim)">편성 목록</b><div id="cw-list" style="margin-top:8px"></div>'
+    +'<div class="row" style="margin-top:10px"><button class="btn o" onclick="printPackage()">🖨 교사 패키지 인쇄(지도안·워크시트)</button></div></div></div></div>';
+  loadTeachers(); loadCurri();
+}
+
+async function loadTeachers(){
+  var r=await sb.from('academy_users').select('uid,login_id,name,subject,role').eq('academy_id',ST.school.academy_id);
+  var rows=(r.data||[]);
+  el('tc-list').innerHTML = rows.length? ('<table><thead><tr><th>아이디</th><th>이름</th><th>역할</th></tr></thead><tbody>'
+    +rows.map(function(t){return '<tr><td><b>'+esc(t.login_id||'-')+'</b> <span class="muted">/0000</span></td><td>'+esc(t.name||'-')+(t.subject?' <span class="pill">'+esc(t.subject)+'</span>':'')+'</td><td>'+(t.role==='owner'?'원장(교사)':'교사')+'</td></tr>';}).join('')
+    +'</tbody></table>') : '<div class="muted">아직 발급된 교사 계정이 없습니다.</div>';
+}
+async function issueTeacher(){
+  var name=(el('tc-name').value||'').trim(); var m=el('tc-msg');
+  if(!name){ m.className='msg err';m.textContent='교사 이름을 입력하세요.'; return; }
+  m.className='msg';m.textContent='발급 중…';
+  var {data:{session}}=await sb.auth.getSession();
+  var base=SBU.replace(/\/$/,'')+'/functions/v1';
+  try{
+    var res=await fetch(base+'/create-teacher',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(session?session.access_token:''),'apikey':SBK},
+      body:JSON.stringify({academy_id:ST.school.academy_id, name:name, subject:(el('tc-subject').value||'').trim(), role:'owner'})});
+    var d=await res.json();
+    if(!res.ok||d.error){ m.className='msg err';m.textContent='실패: '+(d.error||res.status); return; }
+    m.className='msg ok';m.innerHTML='✓ 발급 완료 — 아이디 <b>'+esc(d.login_id)+'</b> / 초기비번 <b>0000</b> (학원앱에서 최초 로그인 시 변경)';
+    el('tc-name').value='';el('tc-subject').value='';loadTeachers();
+  }catch(e){ m.className='msg err';m.textContent='실패: '+e; }
+}
+
+/* ============ 편성 ============ */
+async function loadCurri(){
+  var r=await sb.rpc('school_curriculum_list',{p_class:ST.school.class_id});
+  ST.curri=r.data||[];
+  var added={}; ST.curri.forEach(function(c){added[c.season+'-'+c.week]=true;});
+  var curSeason=0, pool='';
+  ST.arch.forEach(function(a){
+    if(a.season!==curSeason){curSeason=a.season; pool+='<div class="seasonhead">시즌 '+a.season+'</div>';}
+    var key=a.season+'-'+a.week, on=added[key];
+    pool+='<div class="li"><div class="t">'+esc(a.title)+'<small>'+esc(a.fusion||'')+'</small></div>'
+      +'<button class="btn o" '+(on?'disabled':'')+' data-add="'+a.season+'_'+a.week+'">'+(on?'담김':'+ 담기')+'</button></div>';
+  });
+  el('cw-pool').innerHTML=pool;
+  var lst=ST.curri.map(function(c,i){
+    return '<div class="li"><b style="color:var(--gold);width:22px">'+(i+1)+'</b><div class="t">'+esc(c.title)+'<small>시즌 '+c.season+' · '+c.week+'주차</small></div>'
+      +'<button class="btn o" data-mv="'+c.id+'_-1" title="위로">▲</button>'
+      +'<button class="btn o" data-mv="'+c.id+'_1" title="아래로">▼</button>'
+      +'<button class="btn o" data-del="'+c.id+'" title="삭제">✕</button></div>';
+  }).join('')||'<div class="muted">편성된 회차가 없습니다. 왼쪽에서 담으세요.</div>';
+  el('cw-list').innerHTML=lst;
+  el('cw-count').textContent='· '+ST.curri.length+'회';
+  Array.prototype.forEach.call(document.querySelectorAll('[data-add]'),function(b){b.onclick=function(){var p=b.getAttribute('data-add').split('_');addLesson(+p[0],+p[1]);};});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mv]'),function(b){b.onclick=function(){var p=b.getAttribute('data-mv').split('_');moveLesson(+p[0],+p[1]);};});
+  Array.prototype.forEach.call(document.querySelectorAll('[data-del]'),function(b){b.onclick=function(){delLesson(+b.getAttribute('data-del'));};});
+}
+async function addLesson(se,wk){ var r=await sb.rpc('school_curriculum_add',{p_class:ST.school.class_id,p_season:se,p_week:wk}); if(r.error){alert('추가 실패: '+r.error.message);return;} loadCurri(); }
+async function delLesson(id){ if(!confirm('이 회차를 편성에서 뺄까요?'))return; var r=await sb.rpc('school_curriculum_del',{p_id:id}); if(r.error){alert('삭제 실패: '+r.error.message);return;} loadCurri(); }
+async function moveLesson(id,dir){ var r=await sb.rpc('school_curriculum_move',{p_id:id,p_dir:dir}); if(r.error){alert('이동 실패: '+r.error.message);return;} loadCurri(); }
+
+/* ============ 교사 패키지 인쇄 (45분 지도안 + 학생 워크시트) ============ */
+var SUBJ={"역사":["역사","역사(시대·사건)"],"정치":["사회","정치와 법·시민 참여"],"경제":["사회","경제·시장"],"사회":["사회","사회·문화"],"시민":["사회","시민 참여"],"인권":["사회","인권과 헌법"],"사회비판":["사회","사회 문제·변동"],"문화":["사회","문화의 다양성"],"인류학":["사회","문화·인류"],"교류":["사회","국제 교류"],"생활":["사회","일상·생활"],"관계":["도덕","관계·소통"],"철학":["도덕","가치·사상"],"윤리":["도덕","윤리·정의"],"종교":["도덕","삶의 의미·종교문화"],"인식":["도덕","앎·성찰"],"수학":["수학","수·규칙"],"통계":["수학","자료·통계"],"논리":["수학","논리·추론"],"예측":["수학","규칙·예측"],"데이터":["수학","자료 해석"],"과학":["과학","탐구·자연"],"의학":["과학","생명·의학"],"우주":["과학","지구·우주"],"안전":["과학","안전·환경"],"기술":["기술·가정","기술 활용"],"미래":["기술·가정","미래 기술"],"미래학":["기술·가정","미래 사회"],"예술":["미술·음악","표현·감상"],"감성":["미술·음악","정서·표현"],"디자인":["미술·음악","디자인"],"문학":["국어","문학·읽기"],"미디어":["국어","매체·비판적 읽기"],"인문":["국어","인문 통합"],"융합":["범교과","융합 탐구"]};
+function strip(s){return String(s||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();}
+function subjectsOf(f){var t=String(f||'').split(/[×xX*·,]/).map(function(x){return x.trim();}).filter(Boolean);var seen={},o=[];t.forEach(function(x){var m=SUBJ[x];if(m&&!seen[m[0]]){seen[m[0]]=1;o.push({s:m[0],a:m[1]});}});return o;}
+function stMap(c){var m={};(c.stages||[]).forEach(function(s){m[s.key]=s;});return m;}
+function blkId(s,id){return ((s&&s.blocks)||[]).filter(function(b){return b.id===id;})[0]||{};}
+function blkT(s,t){return ((s&&s.blocks)||[]).filter(function(b){return b.t===t;})[0]||{};}
+function reads(s){return ((s&&s.blocks)||[]).filter(function(b){return b.t==='read';}).map(function(b){return strip(b.title);});}
+
+function lessonHTML(row,idx){
+  var c=row.content, S=stMap(c);
+  var coreQ=strip(blkT(S.s3_disc,'discuss').q)||strip(row.theme);
+  var dilemma=strip(blkT(S.prep,'info').body);
+  var subs=subjectsOf(c.fusion);
+  var eye3=blkId(S.eyes,'eye3'), eye4=blkId(S.eyes,'eye4'), mk=blkId(S.eyes,'project_design');
+  function watch(k){return strip(((S[k]||{}).teach||{}).watch)||'—';}
+  function pr(k){return (((S[k]||{}).teach||{}).prompts)||[];}
+  function asks(arr){return '<div class="ask"><b>발문</b>'+arr.filter(Boolean).map(function(q){return '<div>“'+strip(q)+'”</div>';}).join('')+'</div>';}
+  var plan=[
+    ['도입','5분','사고 레이더 진단(전) · 오늘의 딜레마 · 가치 좌표 · 가설 한 줄'+(dilemma?'<div class="sub">'+esc(dilemma.slice(0,140))+(dilemma.length>140?'…':'')+'</div>':''), asks(pr('prep').length?pr('prep'):[coreQ]), watch('prep')],
+    ['전개①','12분','핵심 개념 읽기 & 관점 선택<div class="sub">'+reads(S.read).map(esc).join(' · ')+'</div>강점(의의)·한계(그늘) 서술', asks(pr('read').concat([blkT(S.read,'choice').q])), watch('read')],
+    ['전개②','13분','관점 충돌 토론(조별 찬반) → 조 결론 한 문장', asks([coreQ, blkT(S.s3_disc,'discuss').teachNote]), watch('s3_disc')],
+    ['전개③','10분','5대 지성 융합 2개 렌즈<div class="sub">'+esc(strip(eye3.head))+' · '+esc(strip(eye4.head))+'</div>→ 나의 논지 구축 + 안전장치', asks([eye3.q,eye4.q]), watch('eyes')],
+    ['정리','5분','레이더 재진단(후) · “나는 ___라고 결론짓는다” · 제출', asks([blkId(S.close,'closing').q]), watch('close')]
+  ];
+  var planRows=plan.map(function(p){return '<tr><td class="c b">'+p[0]+'</td><td class="c">'+p[1]+'</td><td>'+p[2]+'</td><td>'+p[3]+'</td><td class="g">'+esc(p[4])+'</td></tr>';}).join('');
+  var subRows=subs.map(function(x){return '<tr><td class="b">'+esc(x.s)+'</td><td>['+esc(x.a)+'] '+esc(strip(row.theme))+'을(를) '+esc(x.a)+' 관점에서 이해·적용</td></tr>';}).join('')
+    +'<tr><td class="b cream">핵심역량</td><td class="cream">비판적·창의적 사고 · 협력적 소통 · 공동체 역량 (2022 개정 총론)</td></tr>';
+  function box(h,hint,n){var r='<div class="wsh">'+esc(h)+(hint?'<span class="hint"> · '+esc(strip(hint))+'</span>':'')+'</div>';for(var i=0;i<n;i++)r+='<div class="wl"></div>';return '<div class="wbox">'+r+'</div>';}
+  var ws=box('① [진단] 오늘의 딜레마에 대한 나의 처음 입장', blkId(S.prep,'hypothesis').hint, 2)
+    +box('② [개념] 이 개념의 의의(강점)와 한계(그늘)', strip(blkId(S.read,'light').head)+' / '+strip(blkId(S.read,'shadow').head), 4)
+    +box('③ [토론] 우리 조의 결론과 핵심 근거', blkId(S.s3_disc,'s3_group').placeholder, 3)
+    +box('④ [융합] '+(strip(eye3.head)||'역사·사회 렌즈'), eye3.q, 3)
+    +box('⑤ [융합] '+(strip(eye4.head)||'심리·인지 렌즈'), eye4.q, 3)
+    +box('⑥ [논지] '+(strip(mk.head)||'나의 결론(설계)'), mk.q, 4)
+    +box('⑦ [결론 선언] '+(strip(blkId(S.close,'closing').head)||'오늘의 결론'), blkId(S.close,'closing').q, 2);
+  var axes=(c.radarAxes&&c.radarAxes.length?c.radarAxes:['수학·논리','과학·기술','역사·사회','심리·인지','예술·디자인']);
+  var radar='<table class="rad"><tr><th>지성 축</th><th>탐구 전(1~5)</th><th>탐구 후(1~5)</th></tr>'+axes.map(function(a){return '<tr><td>'+esc(strip(a))+'</td><td></td><td></td></tr>';}).join('')+'</table>';
+  return '<section class="lp">'
+    +'<h2><span class="no">'+idx+'차시</span> '+esc(row.title)+'</h2>'
+    +'<div class="meta">시즌 '+row.season+' · '+esc(strip(row.theme))+' · 융합 '+esc(strip(c.fusion))+'</div>'
+    +'<table class="ov"><tr><td class="b">핵심 질문</td><td>'+esc(coreQ)+'</td></tr>'
+      +'<tr><td class="b">학습 목표</td><td>① '+esc(strip(row.theme))+' 개념 이해·설명 ② 근거로 자기 입장 논증 ③ 5대 지성 융합 분석</td></tr>'
+      +'<tr><td class="b">평가</td><td>정성·과정중심 — 산출물 리포트 + 사고 성장 레이더(전/후)</td></tr></table>'
+    +'<h3>45분 수업 지도안</h3><table class="plan"><tr><th>단계</th><th>시간</th><th>교수·학습 활동</th><th>교사 발문</th><th>유의점</th></tr>'+planRows+'</table>'
+    +'<h3>성취기준 · 역량 연계 <span class="note">※ 코드는 학교 채택 교과서 대조·확정 권장</span></h3><table class="sub">'+subRows+'</table>'
+    +'<div class="wsttl">학생 산출물 — 사고 분석 리포트</div><div class="wsname">반 __________  이름 __________  날짜 __________</div>'+ws
+    +'<div class="wsh">⑧ [사고 성장 레이더]</div>'+radar
+    +'</section>';
+}
+async function printPackage(){
+  var r=await sb.rpc('school_lesson_content',{p_class:ST.school.class_id});
+  if(r.error){ alert('불러오기 실패: '+r.error.message); return; }
+  var rows=r.data||[];
+  if(!rows.length){ alert('편성된 회차가 없습니다. 먼저 회차를 담아주세요.'); return; }
+  var body=rows.map(function(row,i){return lessonHTML(row,i+1);}).join('<div class="pb"></div>');
+  var css='body{font-family:"Malgun Gothic",sans-serif;color:#222;margin:0}'
+    +'.lp{padding:22px 26px}.pb{page-break-after:always}'
+    +'h2{color:#1A237E;border-bottom:2px solid #C8A24A;padding-bottom:5px;font-size:19px;margin:0 0 4px}h2 .no{color:#C8A24A;margin-right:6px}'
+    +'.meta{color:#6b7688;font-size:12px;margin-bottom:10px}'
+    +'h3{color:#1A237E;font-size:14px;margin:16px 0 6px}h3 .note{font-weight:400;color:#8b95a1;font-size:11px}'
+    +'table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:6px}'
+    +'td,th{border:1px solid #d9dce1;padding:6px 8px;vertical-align:top;text-align:left}th{background:#1A237E;color:#fff;font-weight:700}'
+    +'.ov td.b,.sub td.b{background:#f5f6f8;font-weight:700;width:120px}'
+    +'.plan td.c{text-align:center;width:52px}.plan td.b{font-weight:700;background:#f5f6f8}.plan td.g{color:#6b7688;font-size:11px;width:130px}'
+    +'.plan .sub,.ov .sub{color:#6b7688;font-size:11px;margin-top:3px}'
+    +'.ask b{color:#C8A24A;display:block;font-size:11px;margin-bottom:3px}.ask div{margin-bottom:3px}'
+    +'.cream{background:#fff7e6}'
+    +'.wsttl{margin-top:16px;background:#1A237E;color:#fff;padding:6px 10px;border-radius:6px;font-weight:700;font-size:13px}'
+    +'.wsname{font-size:12px;margin:8px 0}'
+    +'.wbox{border:1px solid #d9dce1;border-radius:8px;padding:9px 11px;margin-bottom:8px}'
+    +'.wsh{font-weight:700;color:#1A237E;font-size:12.5px;margin-bottom:6px}.wsh .hint{font-weight:400;color:#8b95a1;font-size:11px}'
+    +'.wl{border-bottom:1px solid #d9dce1;height:22px}'
+    +'.rad td,.rad th{text-align:center}';
+  var w=window.open('','_blank');
+  w.document.write('<!doctype html><html><head><meta charset="utf-8"><title>'+esc(ST.school.name)+' · 교사 패키지</title><style>'+css+'</style></head><body>'
+    +'<div class="lp" style="border-bottom:0"><h2 style="border:0">'+esc(ST.school.name)+' · 펜타비전 45분 학교버전</h2><div class="meta">교사용 지도안 + 학생 워크시트 · 총 '+rows.length+'차시 · 인쇄(Ctrl+P)로 PDF 저장</div></div>'
+    +body+'</body></html>');
+  w.document.close();
+  setTimeout(function(){ try{w.focus();w.print();}catch(e){} }, 600);
+}
+
+boot();
+</script>
+</body></html>
