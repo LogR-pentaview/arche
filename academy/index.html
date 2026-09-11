@@ -606,7 +606,7 @@ function mountView(v, host){
   if(v==='reports'){
     var elr=host.querySelector('#reports-mount');
     if(elr){
-      if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(elr,'staff'); }catch(e){ elr.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } }
+      if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(elr,'staff',{onlyReview:true}); }catch(e){ elr.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } }
       else elr.innerHTML=phRaw('🔌','미연결','로그인 후 제출물·리포트가 표시됩니다.');
     }
     return;
