@@ -10,6 +10,7 @@
 (function(){
   "use strict";
   var TYPES=[
+    {v:'homenote',  label:'🔔 알림장(강사)'},
     {v:'notice',    label:'📢 소식지·안내'},
     {v:'timetable', label:'📅 시간표'},
     {v:'new_course',label:'🆕 새 강좌 안내'},
@@ -18,6 +19,8 @@
     {v:'perf',      label:'📝 수행평가 결과'},
     {v:'etc',       label:'✉️ 기타'}
   ];
+  // 학원 소식(원장) vs 알림장(강사) 구분용 — homenote만 알림장
+  var NOTE_TYPE='homenote';
   function typeLabel(t){ var f=TYPES.filter(function(x){return x.v===t;})[0]; return f?f.label:'✉️ 기타'; }
   function acadId(){ return window._acadId || (window._academy&&window._academy.id) || null; }
   function esc(s){return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
@@ -200,5 +203,5 @@
     wrap.appendChild(cta);
   }
 
-  window.ArcheParentHub={ mountSend:mountSend, loadInbox:loadInbox, openItem:openItem, renderList:renderList, renderSample:renderSample, typeLabel:typeLabel, TYPES:TYPES, version:'1.1' };
+  window.ArcheParentHub={ mountSend:mountSend, loadInbox:loadInbox, openItem:openItem, renderList:renderList, renderSample:renderSample, typeLabel:typeLabel, TYPES:TYPES, NOTE_TYPE:NOTE_TYPE, version:'1.2' };
 })();
