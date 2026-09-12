@@ -164,6 +164,7 @@ button{font-family:inherit;cursor:pointer}
 <script src="/shared/arche_penta_workbook.js"></script>
 <script src="/shared/arche_soke_chat.js"></script>
 <script src="/shared/arche_penta_app.js"></script>
+<script src="/shared/arche_parent_hub.js"></script>
 <!-- 학원용 코스 선택기 (시리즈로 명확히 구분) -->
 <script src="/academy/course_picker.js"></script>
 <script>
@@ -311,6 +312,7 @@ var NAV = {
     {sec:'수업 콘텐츠'},
     {v:'bridge', i:'bridge', t:'진로 징검다리'},
     {v:'perf', i:'perf', t:'수행평가 도우미'},
+    {v:'submits', i:'report', t:'학생 제출물 관리'},
     {sec:'홍보 · 소통'},
     {v:'newcourse', i:'spark', t:'새 강좌 소개'},
     {v:'promo', i:'mega', t:'홍보 스튜디오'},
@@ -332,8 +334,8 @@ var NAV = {
     {v:'perf', i:'perf', t:'수행평가 도우미'},
     {sec:'학생'},
     {v:'sm', i:'people', t:'학원생 관리'},
-    {v:'toowner', i:'send', t:'원장 보고'},
-    {v:'psend', i:'send', t:'학부모 소식 전송'}
+    {v:'submits', i:'report', t:'학생 제출물 관리'},
+    {v:'toowner', i:'send', t:'원장 보고'}
   ],
   student: [
     {sec:'나의 학습'},
@@ -345,8 +347,9 @@ var NAV = {
   parent: [
     {sec:'자녀'},
     {v:'pdash', i:'home', t:'자녀 대시보드'},
-    {v:'preport', i:'report', t:'자녀 리포트'},
-    {v:'pnews', i:'bell', t:'학원 소식', tag:'NEW'}
+    {v:'preport', i:'report', t:'분석 리포트'},
+    {v:'pnews', i:'bell', t:'학원 소식'},
+    {v:'pnote', i:'bell', t:'알림장', tag:'NEW'}
   ],
   // [학교 B2G] 원장/강사 계정이 학교 테넌트면 이 축약 메뉴 사용
   school: [
@@ -449,9 +452,12 @@ function renderView(v){
       + ph('📣','홍보 스튜디오','학생 성장 데이터·본사 소식으로 네이버 블로그·밴드용 홍보 글을 자동 생성 — 복사하거나 Word로 저장. (익명·합격보장 표현 없이 안전)', '기존 academy 홍보 스튜디오 로직 이식');
     case 'notice': return head('안내문 스튜디오','시간표·신설강좌 안내문 (기존 기능)')
       + ph('📄','안내문 스튜디오','학원 로고·연락처가 들어간 시간표·신설강좌·개별 안내문 제작 → 학부모·학생에게 배포.', '기존 academy 안내문 스튜디오 로직 이식');
-    case 'psend': return head('학부모 소식 전송','소식지·시간표·새강좌·개별 소식 → 학부모 대시보드')
-      + '<div id="parent-hub-mount" class="mount"></div>'
-      + ph('📨','학부모 소식 전송','소식지·시간표·새 강좌·월간 분석표·진로/수행 결과를 수강생 학부모 대시보드로 전송 + 알림. (기존 ArcheParentHub)', 'arche_parent_hub.js · ArcheParentHub.mountSend');
+    case 'psend': return head('학부모 소식 전송','소식지·시간표·새강좌·월간 분석표 → 재원생 학부모 대시보드 [학원 소식]')
+      + '<div id="parent-hub-mount" class="mount"></div>';
+    case 'submits': return head('학생 제출물 관리','학생 워크북 제출 수집 → 검토·분석리포트 발행 → 학부모 전송(리포트·알림장)')
+      + '<div class="tabs" id="sb-tabs" style="margin-top:6px"><span class="tab on" data-sb="review">📥 제출물·분석리포트</span><span class="tab" data-sb="send">📨 학부모 전송(리포트·알림장)</span></div>'
+      + '<div id="sb-review" class="mount"></div>'
+      + '<div id="sb-send" class="mount" style="display:none"></div>';
     case 'hqnews': return head('본사 소식','로그·알 입시연구소 공지·입시 뉴스')
       + ph('📰','본사 소식','본사 공지·입시 뉴스·홍보 영상. 홍보 스튜디오에서 우리 학원 톤으로 각색 가능.', 'hq_posts');
     case 'members': return head(window._pentaSchool?'학생 등록':'강사 관리', window._pentaSchool?'학급(반) 만들기 → 학생 등록(이름·반·번) → 로그인 계정 발급':'수업반 개설 → 강사 등록(로그인 계정 발급) → 담당 반 배정·변경  (학생은 [학원생 관리])')
@@ -514,11 +520,12 @@ function renderView(v){
         {k:'성장',v:'—',s:'%'}
       ])
       + ph('👨‍👩‍👧','자녀 학습 현황','학원 브랜딩으로 보는 자녀 리포트·수업 요약(아르케 b2c 학부모앱과 분리).', 'parent 뷰 · arche_parent_hub');
-    case 'preport': return head('자녀 리포트','발행된 리포트 모아보기')
-      + ph('📑','자녀 리포트','담당 강사가 발행한 리포트 열람.', 'arche_penta_report.js');
-    case 'pnews': return head('학원 소식','학원이 보낸 시간표·새 강좌·소식지·안내')
-      + '<div id="parent-inbox-mount" class="mount"></div>'
-      + ph('🔔','학원 소식 수신함','학원이 전송한 시간표·새 강좌 안내·소식지·월간 분석표를 확인. (원장/강사의 [학부모 소식 전송]과 짝)', 'arche_parent_hub.js · ArcheParentHub.loadInbox/renderList');
+    case 'preport': return head('분석 리포트','담당 강사가 발행한 우리 아이 분석 리포트 열람')
+      + '<div id="preport-mount" class="mount"></div>';
+    case 'pnews': return head('학원 소식','학원(원장)이 보낸 시간표·새 강좌·소식지·월간 분석표')
+      + '<div id="parent-inbox-mount" class="mount"></div>';
+    case 'pnote': return head('알림장','담당 강사가 보낸 알림장(과제·수업 안내 등)')
+      + '<div id="parent-note-mount" class="mount"></div>';
     default: return head(v,'') + ph('🧩', v, '준비 중.', '');
   }
 }
@@ -594,12 +601,47 @@ function mountView(v, host){
     if(elc) mountStudentClass(elc);
     return;
   }
-  // 학부모: 자녀 워크북·리포트 열람
+  // 학부모: 자녀 워크북·분석 리포트 열람
   if(v==='pdash' || v==='preport'){
-    var el3=host.querySelector('.mount');
+    var el3=host.querySelector('#preport-mount') || host.querySelector('.mount');
     if(el3 && window.ArchePentaApp && window.sb){
-      try{ ArchePentaApp.mountRole(el3, 'parent'); }catch(e){}
+      try{ ArchePentaApp.mountRole(el3, 'parent'); }catch(e){ el3.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); }
     }
+    return;
+  }
+  // 학부모: 학원 소식(원장) / 알림장(강사) 수신함 — parent_inbox
+  if(v==='pnews' || v==='pnote'){
+    var elpi=host.querySelector('.mount');
+    if(elpi && window.ArcheParentHub && window.sb){
+      elpi.innerHTML='<div style="text-align:center;color:#8b95a1;font-size:13px;padding:24px">불러오는 중…</div>';
+      var noteType=(window.ArcheParentHub.NOTE_TYPE||'homenote'), wantNote=(v==='pnote');
+      ArcheParentHub.loadInbox(window._acadId, window._parentStudentId).then(function(items){
+        var f=(items||[]).filter(function(it){ return wantNote ? (it.type===noteType) : (it.type!==noteType); });
+        ArcheParentHub.renderList(elpi, f);
+      }).catch(function(e){ elpi.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); });
+    } else if(elpi){ elpi.innerHTML=phRaw('🔌','미연결','로그인 후 이용하세요.'); }
+    return;
+  }
+  // 원장/강사: 학부모 소식 전송 (ArcheParentHub)
+  if(v==='psend'){
+    var elph=host.querySelector('#parent-hub-mount');
+    if(elph){ if(window.ArcheParentHub && window.sb){ try{ ArcheParentHub.mountSend(elph); }catch(e){ elph.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } } else elph.innerHTML=phRaw('🔌','미연결','로그인 후 이용하세요.'); }
+    return;
+  }
+  // 학생 제출물 관리 (제출물·분석리포트 검토 + 학부모 전송) — 강사/원장
+  if(v==='submits'){
+    var sbR=host.querySelector('#sb-review'), sbS=host.querySelector('#sb-send');
+    var _mR=false, _mS=false;
+    function _showR(){ if(_mR||!sbR)return; if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(sbR,'staff',{onlyReview:true}); }catch(e){ sbR.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } } else sbR.innerHTML=phRaw('🔌','미연결','로그인 후 제출물이 표시됩니다.'); _mR=true; }
+    function _showS(){ if(_mS||!sbS)return; if(window.ArcheParentHub && window.sb){ try{ ArcheParentHub.mountSend(sbS); }catch(e){ sbS.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } } else sbS.innerHTML=phRaw('🔌','미연결','로그인 후 이용하세요.'); _mS=true; }
+    host.querySelectorAll('[data-sb]').forEach(function(t){ t.onclick=function(){
+      host.querySelectorAll('[data-sb]').forEach(function(x){ x.classList.remove('on'); }); t.classList.add('on');
+      var k=t.getAttribute('data-sb');
+      if(sbR) sbR.style.display=(k==='review')?'':'none';
+      if(sbS) sbS.style.display=(k==='send')?'':'none';
+      if(k==='review') _showR(); else _showS();
+    }; });
+    _showR();
     return;
   }
   // 학생·반 관리
@@ -1705,6 +1747,13 @@ function setPentaGlobals(){
   if(ST.role==='student' && ST.membership && ST.membership.student){
     var s=ST.membership.student;
     window._activeStudent = { id:s.id, name:s.name, grade:s.grade, class_id:s.class_id||null };
+  }
+  // 학부모: parent_accounts 기준 소속 학원·자녀 지정 (수신함·리포트 조회용)
+  if(ST.role==='parent' && ST.membership && ST.membership.parent){
+    var p=ST.membership.parent;
+    window._acadId = p.academy_id || window._acadId || null;
+    window._parentStudentId = p.student_id || null;
+    if(p.student_id) window._activeStudent = { id:p.student_id, name:(p.student_name||''), grade:'' };
   }
 }
 
