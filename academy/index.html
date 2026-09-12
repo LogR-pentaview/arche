@@ -304,6 +304,7 @@ var NAV = {
     {sec:'운영'},
     {v:'dash', i:'dash', t:'원장 대시보드'},
     {v:'sm', i:'people', t:'학원생 관리'},
+    {v:'members', i:'people', t:'강사 관리'},
     {v:'live', i:'live', t:LIVE_LABEL, tag:'LIVE'},
     {v:'course', i:'course', t:'코스웨어'},
     {v:'timetable', i:'cal', t:'학원 시간표'},
@@ -317,7 +318,7 @@ var NAV = {
     {v:'psend', i:'send', t:'학부모 소식 전송'},
     {v:'hqnews', i:'news', t:'본사 소식'},
     {sec:'관리'},
-    {v:'members', i:'people', t:'학생·강사 관리'},
+    {v:'staffmsg', i:'bell', t:'강사 보고'},
     {v:'billing', i:'card', t:'구독·결제'},
     {v:'settings', i:'cog', t:'학원 설정', tag:'화이트라벨'}
   ],
@@ -331,6 +332,8 @@ var NAV = {
     {v:'perf', i:'perf', t:'수행평가 도우미'},
     {sec:'담당'},
     {v:'mystudents', i:'people', t:'담당 학생'},
+    {v:'scon', i:'people', t:'상담 관리'},
+    {v:'toowner', i:'send', t:'원장 보고'},
     {v:'psend', i:'send', t:'학부모 소식 전송'}
   ],
   student: [
@@ -452,10 +455,16 @@ function renderView(v){
       + ph('📨','학부모 소식 전송','소식지·시간표·새 강좌·월간 분석표·진로/수행 결과를 수강생 학부모 대시보드로 전송 + 알림. (기존 ArcheParentHub)', 'arche_parent_hub.js · ArcheParentHub.mountSend');
     case 'hqnews': return head('본사 소식','로그·알 입시연구소 공지·입시 뉴스')
       + ph('📰','본사 소식','본사 공지·입시 뉴스·홍보 영상. 홍보 스튜디오에서 우리 학원 톤으로 각색 가능.', 'hq_posts');
-    case 'members': return head(window._pentaSchool?'학생 등록':'학생·강사 관리', window._pentaSchool?'학급(반) 만들기 → 학생 등록(이름·반·번) → 로그인 계정 발급':'반 개설(과목·수강료) → 원생 등록·반 배정 → 강사 등록·계정 발급·담당반')
+    case 'members': return head(window._pentaSchool?'학생 등록':'강사 관리', window._pentaSchool?'학급(반) 만들기 → 학생 등록(이름·반·번) → 로그인 계정 발급':'수업반 개설 → 강사 등록(로그인 계정 발급) → 담당 반 배정·변경  (학생은 [학원생 관리])')
       + '<div id="members-mount" class="mount"></div>';
-    case 'sm': return head('학원생 관리','학생 정보 · 상담내역 · 희망 진로/진학 · 시험 성적(내신·학원) · 성적 추이 그래프')
+    case 'sm': return head('학원생 관리','신규 등록·반 배정 · 학생 정보 · 상담 · 진로/진학 · 시험 성적 · 성적 추이')
       + '<div id="sm-mount" class="mount"></div>';
+    case 'scon': return head('상담 관리','담당 학생 상담 기록 등록·수정')
+      + '<div id="scon-mount" class="mount"></div>';
+    case 'toowner': return head('원장 보고','건의사항·특이사항을 원장에게 보고')
+      + '<div id="toowner-mount" class="mount"></div>';
+    case 'staffmsg': return head('강사 보고','강사가 보낸 건의사항·특이사항 확인')
+      + '<div id="staffmsg-mount" class="mount"></div>';
     case 'billing': return head('구독·결제','학원 구독료(규모 기반) · 세금계산서')
       + ph('💳','학원 구독 결제','기본료+규모 기반 학원 구독(toss-billing) · 수강생 수강료는 학원 자체(우리 미개입).', 'toss-billing (B2B)');
     case 'settings': return head('학원 설정','전용 주소(아이디 접두·화이트라벨) · 브랜드')
@@ -606,6 +615,9 @@ function mountView(v, host){
     if(elsm) mountStudentMgmt(elsm);
     return;
   }
+  if(v==='scon'){ var elsc=host.querySelector('#scon-mount'); if(elsc) mountStaffConsult(elsc); return; }
+  if(v==='toowner'){ var elto=host.querySelector('#toowner-mount'); if(elto) mountToOwner(elto); return; }
+  if(v==='staffmsg'){ var elsi=host.querySelector('#staffmsg-mount'); if(elsi) mountStaffInbox(elsi); return; }
   // 실시간 강의실 (관제 + 판서) — 강사/원장
   if(v==='live'){
     var el5=host.querySelector('#live-mount');
@@ -777,7 +789,8 @@ async function mountMembers(host){
     h+='</div>';
     } // [학교] 강사 관리 끝
 
-    /* ── 학생 관리 ── */
+    /* ── 학생 관리 (학교 테넌트만 여기 · 학원은 [학원생 관리]로 이동) ── */
+    if(isSchool){
     h+='<div class="card" style="margin-top:16px"><div style="font-size:15px;font-weight:800;margin-bottom:12px">👥 학생 <span style="font-size:12px;font-weight:500;color:var(--ink-mute)">· '+students.length+'명 · 반 드롭다운으로 배정/이동</span></div>';
     if(!students.length){ h+='<div style="font-size:13px;color:var(--ink-mute);padding:6px 0 12px">등록된 학생이 없습니다.</div>'; }
     else {
@@ -816,8 +829,9 @@ async function mountMembers(host){
       +'<select id="m-sclass" style="min-width:150px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+classOpts('')+'</select>'
       +(isSchool?'<input id="m-sseat" type="number" min="1" placeholder="번호" style="width:80px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px">':'')
       +'<button id="m-sadd" class="tab on" style="padding:10px 18px">+ '+(isSchool?'학생 등록':'원생 등록')+'</button></div>';
-    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">'+(isSchool?'※ 이름·반·번을 입력해 등록합니다. 로그인 계정은 [계정 발급]에서 발급하세요.':'※ 원생 등록은 명단(roster) 생성입니다. 반을 배정하면 그 반의 수강료가 배지로 표시됩니다. 로그인 계정은 오른쪽 [계정 발급]에서 발급하세요.')+'</div>';
+    h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 이름·반·번을 입력해 등록합니다. 로그인 계정은 [계정 발급]에서 발급하세요.</div>';
     h+='</div>';
+    } // 학생 관리 끝(학교 전용)
 
     host.innerHTML=h;
     bind();
@@ -966,17 +980,62 @@ async function mountStudentMgmt(host){
   var S={ list:[], sel:null, tab:'info', consults:[], exams:[] };
   function inp(id,val,ph,w){ return '<input id="'+id+'" value="'+(val==null?'':esc(String(val)))+'" placeholder="'+(ph||'')+'" style="'+(w||'flex:1;min-width:120px')+';padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'; }
   function gv(id){ var e=host.querySelector('#'+id); return e?(e.value||'').trim():''; }
-  async function loadList(){ var r=await sb.from('students').select('id,name,school,grade,student_phone,parent_phone,phone,subjects,career,interest,target_univ,target_major,target_major2,target_major3,target_school,target_school_type').eq('academy_id',acid).order('name'); S.list=(r&&r.data)||[]; }
+  async function loadList(){
+    var r=await sb.from('students').select('id,name,school,grade,student_phone,parent_phone,phone,subjects,career,interest,target_univ,target_major,target_major2,target_major3,target_school,target_school_type,class_id').eq('academy_id',acid).order('name'); S.list=(r&&r.data)||[];
+    try{ var rc=await sb.from('academy_classes').select('id,name').eq('academy_id',acid).order('created_at'); S.classes=(rc&&rc.data)||[]; }catch(e){ S.classes=[]; }
+    S.acct={}; try{ var ra=await sb.from('student_accounts').select('student_id,login_id').eq('academy_id',acid); (ra&&ra.data||[]).forEach(function(a){ S.acct[a.student_id]=a; }); }catch(e){}
+  }
+  function clsOpts(sel){ return '<option value="">— 반 미배정 —</option>'+(S.classes||[]).map(function(c){ return '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+esc(c.name)+'</option>'; }).join(''); }
   async function loadSub(){ if(!S.sel){return;} try{ var rc=await sb.from('consultations').select('*').eq('student_id',S.sel.id).order('created_at',{ascending:false}); S.consults=(rc&&rc.data)||[]; }catch(e){ S.consults=[]; } try{ var re=await sb.from('academy_exams').select('*').eq('student_id',S.sel.id).order('exam_date',{ascending:true}); S.exams=(re&&re.data)||[]; }catch(e){ S.exams=[]; } }
   function shell(){
-    var opts=S.list.map(function(s){ return '<option value="'+s.id+'"'+(S.sel&&S.sel.id===s.id?' selected':'')+'>'+esc(s.name||'-')+(s.school?(' · '+esc(s.school)):'')+(s.grade?(' · '+esc(s.grade)):'')+'</option>'; }).join('');
-    host.innerHTML='<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
-      +'<b style="font-size:13px;color:var(--ink-dim)">학생 선택</b>'
-      +'<select id="sm-pick" style="flex:1;min-width:180px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px"><option value="">— 학생을 선택하세요 ('+S.list.length+'명) —</option>'+opts+'</select>'
-      +'<span style="font-size:11px;color:var(--ink-mute)">새 학생 등록은 [학생·강사 관리]</span></div></div>'
-      +'<div id="sm-detail"></div>';
-    var pick=host.querySelector('#sm-pick'); if(pick) pick.onchange=function(){ selectStu(pick.value); };
+    var reg='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">＋ 신규 학생 등록</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
+      +'<input id="sm-nname" placeholder="이름 *" style="width:110px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="sm-nschool" placeholder="학교" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="sm-ngrade" placeholder="학년" style="width:85px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="sm-nsphone" placeholder="학생 연락처" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="sm-npphone" placeholder="부모 연락처" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<input id="sm-nsubj" placeholder="수강 과목" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+      +'<select id="sm-nclass" style="width:140px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+clsOpts('')+'</select>'
+      +'<button class="tab on" id="sm-nadd" style="padding:9px 16px">+ 등록</button></div>'
+      +'<div id="sm-nmsg" style="font-size:12px;margin-top:6px"></div></div>';
+    var rows=S.list.map(function(s){
+      var a=S.acct[s.id];
+      var acct=a?('<b>'+esc(a.login_id)+'</b> <span style="color:var(--ink-mute)">/0000</span>'):'<button class="tab on" data-issue="'+s.id+'" style="padding:4px 10px;font-size:11px">🔑 계정 발급</button>';
+      return '<tr style="border-top:1px solid var(--line-soft)"><td style="padding:8px;font-weight:700">'+esc(s.name||'-')+'</td>'
+        +'<td style="padding:8px;color:var(--ink-dim)">'+esc(s.school||'')+(s.grade?(' · '+esc(s.grade)):'')+'</td>'
+        +'<td style="padding:8px"><select data-cmove="'+s.id+'" style="padding:6px 9px;border:1px solid var(--line);border-radius:8px;font-size:12px;min-width:120px">'+clsOpts(s.class_id)+'</select></td>'
+        +'<td style="padding:8px;font-size:12px">'+acct+'</td>'
+        +'<td style="padding:8px;text-align:right;white-space:nowrap"><button class="tab on" data-open="'+s.id+'" style="padding:4px 10px;font-size:11px">관리 →</button> <button class="tab" data-sdel="'+s.id+'" style="padding:4px 8px;font-size:11px;color:var(--risk)">삭제</button></td></tr>';
+    }).join('')||'<tr><td colspan="5" style="padding:14px;color:var(--ink-mute)">등록된 학생이 없습니다. 위에서 등록하세요.</td></tr>';
+    var listCard='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">👥 학생 '+S.list.length+'명 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 반 배정 변경 · [관리]에서 상세</span></div>'
+      +'<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="text-align:left;color:var(--ink-mute);font-size:11px"><th style="padding:6px 8px">이름</th><th style="padding:6px 8px">학교·학년</th><th style="padding:6px 8px">반</th><th style="padding:6px 8px">로그인</th><th></th></tr></thead><tbody>'+rows+'</tbody></table></div></div>';
+    host.innerHTML=reg+listCard+'<div id="sm-detail"></div>';
+    var badd=host.querySelector('#sm-nadd'); if(badd) badd.onclick=addStudentSM;
+    host.querySelectorAll('[data-open]').forEach(function(x){ x.onclick=function(){ selectStu(x.getAttribute('data-open')); var d=host.querySelector('#sm-detail'); if(d) try{ d.scrollIntoView({behavior:'smooth',block:'start'}); }catch(_){}; }; });
+    host.querySelectorAll('[data-sdel]').forEach(function(x){ x.onclick=function(){ delStudentSM(x.getAttribute('data-sdel')); }; });
+    host.querySelectorAll('[data-cmove]').forEach(function(x){ x.onchange=function(){ moveClassSM(x.getAttribute('data-cmove'), x.value||null); }; });
+    host.querySelectorAll('[data-issue]').forEach(function(x){ x.onclick=function(){ issueAccountSM(x.getAttribute('data-issue'), x); }; });
     if(S.sel) renderDetail();
+  }
+  async function addStudentSM(){
+    var m=host.querySelector('#sm-nmsg'); var nm=gv('sm-nname'); if(!nm){ m.style.color='var(--risk)'; m.textContent='이름을 입력하세요.'; return; }
+    m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
+    var row={ academy_id:acid, name:nm, school:gv('sm-nschool')||null, grade:gv('sm-ngrade')||null, student_phone:gv('sm-nsphone')||null, parent_phone:gv('sm-npphone')||null, subjects:gv('sm-nsubj')||null, class_id:(host.querySelector('#sm-nclass').value||null) };
+    if(window._myUid) row.consultant_uid=window._myUid;
+    var r=await sb.from('students').insert(row); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+    await loadList(); shell();
+  }
+  async function moveClassSM(sid,cid){ var r=await sb.from('students').update({class_id:cid}).eq('id',sid); if(r.error){ alert('반 변경 실패: '+r.error.message); } await loadList(); if(S.sel&&S.sel.id===sid) S.sel.class_id=cid; }
+  async function delStudentSM(sid){ if(!confirm('이 학생을 삭제할까요?'))return; var r=await sb.from('students').delete().eq('id',sid); if(r.error){ alert('삭제 실패: '+r.error.message); return; } if(S.sel&&S.sel.id===sid) S.sel=null; await loadList(); shell(); }
+  async function issueAccountSM(sid,btn){ if(btn){btn.disabled=true;btn.textContent='발급 중…';}
+    try{ var sess=(await sb.auth.getSession()).data.session; var base=(window.FN_BASE)||((window.SB_URL||'')+'/functions/v1');
+      var r=await fetch(base+'/create-student',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')},body:JSON.stringify({student_id:sid})});
+      var d=await r.json();
+      if(d.error){ if(d.need_code) alert('학원 전용주소(슬러그)를 [학원 설정]에서 먼저 지정하세요.'); else alert('발급 실패: '+d.error); }
+      else alert('✓ 계정 발급 완료\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000'));
+      await loadList(); shell();
+    }catch(e){ alert('발급 오류: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
   }
   async function selectStu(id){ if(!id){ S.sel=null; var d=host.querySelector('#sm-detail'); if(d)d.innerHTML=''; return; } S.sel=S.list.filter(function(x){return x.id===id;})[0]||null; await loadSub(); renderDetail(); }
   function tabbar(){ var t=[['info','기본 정보'],['career','진로·진학'],['consult','상담내역'],['score','시험 성적'],['trend','성적 추이']]; return '<div class="tabs" style="margin-top:12px;flex-wrap:wrap">'+t.map(function(x){return '<span class="tab'+(S.tab===x[0]?' on':'')+'" data-smt="'+x[0]+'">'+x[1]+'</span>';}).join('')+'</div>'; }
@@ -1103,6 +1162,112 @@ async function mountStudentMgmt(host){
   await loadList(); shell();
 }
 window.mountStudentMgmt=mountStudentMgmt;
+
+/* ========================= 강사: 상담 관리 (담당 학생 상담 등록·수정) ========================= */
+async function mountStaffConsult(host){
+  var acid=window._acadId;
+  if(!window.sb||!acid){ host.innerHTML=phRaw('🔌','미연결','로그인 후 이용할 수 있어요.'); return; }
+  var T={ list:[], sel:null, items:[], edit:null };
+  function g(id){ var e=host.querySelector('#'+id); return e?(e.value||'').trim():''; }
+  async function load(){ var r=await sb.from('students').select('id,name,school,grade').eq('academy_id',acid).order('name'); T.list=(r&&r.data)||[]; }
+  async function loadC(){ if(!T.sel){T.items=[];return;} try{ var r=await sb.from('consultations').select('*').eq('student_id',T.sel.id).order('created_at',{ascending:false}); T.items=(r&&r.data)||[]; }catch(e){ T.items=[]; } }
+  function render(){
+    var opts=T.list.map(function(s){ return '<option value="'+s.id+'"'+(T.sel&&T.sel.id===s.id?' selected':'')+'>'+esc(s.name||'-')+(s.grade?(' · '+esc(s.grade)):'')+'</option>'; }).join('');
+    var body='';
+    if(T.sel){
+      var e=T.edit||{};
+      body='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">'+(T.edit?'상담 수정':'＋ 상담 기록')+' — '+esc(T.sel.name)+'</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><select id="sc-kind" style="width:120px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px"><option value="student"'+(e.kind!=='parent'?' selected':'')+'>학생 상담</option><option value="parent"'+(e.kind==='parent'?' selected':'')+'>학부모 상담</option></select>'
+        +'<input id="sc-career" value="'+esc(e.career||'')+'" placeholder="희망 진로(선택)" style="width:150px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
+        +'<input id="sc-target" value="'+esc(e.target_univ||'')+'" placeholder="목표 대학/학교(선택)" style="width:170px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px"></div>'
+        +'<textarea id="sc-act" placeholder="활동/현황(선택)" style="width:100%;min-height:40px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px;margin-bottom:8px">'+esc(e.activities||'')+'</textarea>'
+        +'<textarea id="sc-memo" placeholder="상담 내용 *" style="width:100%;min-height:60px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+esc(e.memo||'')+'</textarea>'
+        +'<div style="margin-top:8px"><button class="tab on" id="sc-save" style="padding:9px 18px">'+(T.edit?'수정 저장':'상담 저장')+'</button>'+(T.edit?' <button class="tab" id="sc-cancel" style="padding:9px 14px">취소</button>':'')+' <span id="sc-msg" style="font-size:12px;margin-left:6px"></span></div></div>';
+      var list=T.items.map(function(c){
+        var badge=(c.kind==='parent')?'<span style="font-size:10.5px;font-weight:800;color:#7b5fef;background:#f0edff;border-radius:20px;padding:2px 8px">학부모</span>':'<span style="font-size:10.5px;font-weight:800;color:#137a44;background:#eafaf0;border-radius:20px;padding:2px 8px">학생</span>';
+        var meta=[c.target_univ,c.career].filter(Boolean).join(' · ');
+        return '<div style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+badge+'<span style="font-size:11px;color:var(--ink-mute)">'+esc((c.created_at||'').slice(0,10))+'</span>'+(meta?'<span style="font-size:11.5px;color:var(--ink-dim)">'+esc(meta)+'</span>':'')+'<span style="margin-left:auto"></span><button class="tab" data-ce="'+c.id+'" style="padding:3px 9px;font-size:10.5px">수정</button> <button class="tab" data-cd="'+c.id+'" style="padding:3px 9px;font-size:10.5px;color:var(--risk)">삭제</button></div>'+(c.activities?'<div style="font-size:12.5px;color:var(--ink-dim);margin-bottom:3px">활동: '+esc(c.activities)+'</div>':'')+'<div style="font-size:13px;white-space:pre-wrap">'+esc(c.memo||'')+'</div></div>';
+      }).join('')||'<div style="color:var(--ink-mute);font-size:13px">상담 기록이 없습니다.</div>';
+      body+='<div class="card">'+list+'</div>';
+    } else { body='<div class="card" style="color:var(--ink-mute);font-size:13px">위에서 학생을 선택하세요.</div>'; }
+    host.innerHTML='<div class="card"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b style="font-size:13px;color:var(--ink-dim)">학생 선택</b>'
+      +'<select id="sc-pick" style="flex:1;min-width:180px;padding:10px;border:1px solid var(--line);border-radius:9px;font-size:13px"><option value="">— 학생 선택 ('+T.list.length+'명) —</option>'+opts+'</select></div></div>'+body;
+    var p=host.querySelector('#sc-pick'); if(p) p.onchange=function(){ pick(p.value); };
+    var sv=host.querySelector('#sc-save'); if(sv) sv.onclick=save;
+    var cc=host.querySelector('#sc-cancel'); if(cc) cc.onclick=function(){ T.edit=null; render(); };
+    host.querySelectorAll('[data-ce]').forEach(function(x){ x.onclick=function(){ T.edit=T.items.filter(function(i){return String(i.id)===x.getAttribute('data-ce');})[0]||null; render(); }; });
+    host.querySelectorAll('[data-cd]').forEach(function(x){ x.onclick=function(){ del(x.getAttribute('data-cd')); }; });
+  }
+  async function pick(id){ if(!id){T.sel=null;T.edit=null;render();return;} T.sel=T.list.filter(function(x){return x.id===id;})[0]||null; T.edit=null; await loadC(); render(); }
+  async function save(){ var m=host.querySelector('#sc-msg'); var memo=g('sc-memo'); if(!memo){ m.style.color='var(--risk)'; m.textContent='상담 내용을 입력하세요.'; return; }
+    var row={ student_id:T.sel.id, kind:(host.querySelector('#sc-kind').value||'student'), career:g('sc-career')||null, target_univ:g('sc-target')||null, activities:g('sc-act')||null, memo:memo };
+    m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
+    var r = T.edit ? await sb.from('consultations').update(row).eq('id',T.edit.id) : await sb.from('consultations').insert(row);
+    if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+    T.edit=null; await loadC(); render();
+  }
+  async function del(id){ if(!confirm('이 상담 기록을 삭제할까요?'))return; var r=await sb.from('consultations').delete().eq('id',id); if(r.error){ alert('삭제 실패: '+r.error.message); return; } await loadC(); render(); }
+  host.innerHTML=phRaw('⏳','불러오는 중…',''); await load(); render();
+}
+window.mountStaffConsult=mountStaffConsult;
+
+/* ========================= 강사 → 원장 보고 (건의사항·특이사항) ========================= */
+async function mountToOwner(host){
+  var acid=window._acadId, uid=window._myUid;
+  if(!window.sb||!acid){ host.innerHTML=phRaw('🔌','미연결','로그인 후 이용할 수 있어요.'); return; }
+  var students=[], mine=[];
+  function g(id){ var e=host.querySelector('#'+id); return e?(e.value||'').trim():''; }
+  async function load(){ try{ var r=await sb.from('students').select('id,name').eq('academy_id',acid).order('name'); students=(r&&r.data)||[]; }catch(e){ students=[]; }
+    try{ var r2=await sb.from('staff_reports').select('*').eq('academy_id',acid).eq('staff_uid',uid).order('created_at',{ascending:false}); mine=(r2&&r2.data)||[]; }catch(e){ mine=[]; } }
+  function render(){
+    var sopts='<option value="">— 관련 학생(선택) —</option>'+students.map(function(s){return '<option value="'+s.id+'">'+esc(s.name)+'</option>';}).join('');
+    var form='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">✍ 원장에게 보고</div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><select id="to-kind" style="width:130px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px"><option value="건의사항">건의사항</option><option value="특이사항">특이사항</option></select>'
+      +'<select id="to-stu" style="width:170px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+sopts+'</select>'
+      +'<input id="to-title" placeholder="제목(선택)" style="flex:1;min-width:150px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px"></div>'
+      +'<textarea id="to-body" placeholder="내용 *" style="width:100%;min-height:80px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px"></textarea>'
+      +'<div style="margin-top:8px"><button class="tab on" id="to-send" style="padding:9px 18px">보고 보내기</button> <span id="to-msg" style="font-size:12px;margin-left:6px"></span></div></div>';
+    var nameOf=function(id){ var s=students.filter(function(x){return x.id===id;})[0]; return s?s.name:''; };
+    var list=mine.map(function(r){
+      var kc=(r.kind==='특이사항')?'#c8871a':'#2f7de0';
+      return '<div style="border:1px solid var(--line);border-radius:10px;padding:11px 13px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px"><span style="font-size:10.5px;font-weight:800;color:#fff;background:'+kc+';border-radius:20px;padding:2px 8px">'+esc(r.kind)+'</span>'+(r.student_id?'<span style="font-size:11.5px;color:var(--ink-dim)">'+esc(nameOf(r.student_id))+'</span>':'')+'<span style="font-size:11px;color:var(--ink-mute)">'+esc((r.created_at||'').slice(0,10))+'</span>'+(r.status==='read'?'<span style="font-size:10.5px;color:#137a44;margin-left:auto">✓ 원장 확인</span>':'<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">대기</span>')+'</div>'+(r.title?'<div style="font-weight:700;font-size:13px;margin-bottom:2px">'+esc(r.title)+'</div>':'')+'<div style="font-size:13px;white-space:pre-wrap">'+esc(r.body||'')+'</div></div>';
+    }).join('')||'<div style="color:var(--ink-mute);font-size:13px">보낸 보고가 없습니다.</div>';
+    host.innerHTML=form+'<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">📮 내가 보낸 보고</div>'+list+'</div>';
+    var b=host.querySelector('#to-send'); if(b) b.onclick=send;
+  }
+  async function send(){ var m=host.querySelector('#to-msg'); var body=g('to-body'); if(!body){ m.style.color='var(--risk)'; m.textContent='내용을 입력하세요.'; return; }
+    var row={ academy_id:acid, staff_uid:uid, student_id:(host.querySelector('#to-stu').value||null), kind:(host.querySelector('#to-kind').value||'건의사항'), title:g('to-title')||null, body:body };
+    m.style.color='var(--ink-mute)'; m.textContent='보내는 중…';
+    var r=await sb.from('staff_reports').insert(row); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+    await load(); render();
+  }
+  host.innerHTML=phRaw('⏳','불러오는 중…',''); await load(); render();
+}
+window.mountToOwner=mountToOwner;
+
+/* ========================= 원장: 강사 보고함 ========================= */
+async function mountStaffInbox(host){
+  var acid=window._acadId;
+  if(!window.sb||!acid){ host.innerHTML=phRaw('🔌','미연결','로그인 후 이용할 수 있어요.'); return; }
+  var rows=[], names={}, snames={};
+  async function load(){
+    try{ var r=await sb.from('staff_reports').select('*').eq('academy_id',acid).order('created_at',{ascending:false}); rows=(r&&r.data)||[]; }catch(e){ rows=[]; }
+    try{ var ru=await sb.from('academy_users').select('uid,name,login_id').eq('academy_id',acid); (ru&&ru.data||[]).forEach(function(u){ names[u.uid]=u.name||u.login_id||'강사'; }); }catch(e){}
+    try{ var rs=await sb.from('students').select('id,name').eq('academy_id',acid); (rs&&rs.data||[]).forEach(function(s){ snames[s.id]=s.name; }); }catch(e){}
+  }
+  function render(){
+    var open=rows.filter(function(r){return r.status!=='read';}).length;
+    var list=rows.map(function(r){
+      var kc=(r.kind==='특이사항')?'#c8871a':'#2f7de0';
+      return '<div style="border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px;'+(r.status!=='read'?'background:#fbfdff':'')+'"><div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap"><span style="font-size:10.5px;font-weight:800;color:#fff;background:'+kc+';border-radius:20px;padding:2px 8px">'+esc(r.kind)+'</span><b style="font-size:12.5px">'+esc(names[r.staff_uid]||'강사')+'</b>'+(r.student_id?'<span style="font-size:11.5px;color:var(--ink-dim)">· '+esc(snames[r.student_id]||'')+'</span>':'')+'<span style="font-size:11px;color:var(--ink-mute)">'+esc((r.created_at||'').slice(0,16).replace('T',' '))+'</span><span style="margin-left:auto"></span>'+(r.status!=='read'?'<button class="tab on" data-rr="'+r.id+'" style="padding:3px 10px;font-size:10.5px">확인 처리</button>':'<span style="font-size:10.5px;color:#137a44">✓ 확인함</span>')+'</div>'+(r.title?'<div style="font-weight:700;font-size:13px;margin-bottom:2px">'+esc(r.title)+'</div>':'')+'<div style="font-size:13px;white-space:pre-wrap">'+esc(r.body||'')+'</div></div>';
+    }).join('')||'<div style="color:var(--ink-mute);font-size:13px">받은 보고가 없습니다.</div>';
+    host.innerHTML='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">📬 강사 보고 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 미확인 '+open+'건</span></div>'+list+'</div>';
+    host.querySelectorAll('[data-rr]').forEach(function(x){ x.onclick=function(){ markRead(x.getAttribute('data-rr')); }; });
+  }
+  async function markRead(id){ var r=await sb.from('staff_reports').update({status:'read'}).eq('id',id); if(r.error){ alert('처리 실패: '+r.error.message); return; } await load(); render(); }
+  host.innerHTML=phRaw('⏳','불러오는 중…',''); await load(); render();
+}
+window.mountStaffInbox=mountStaffInbox;
 
 /* ========================= 코스웨어 · 반별 차시(커리큘럼) 편성 ========================= */
 var _cwClass=null, _cwCatalog=null, _cwMap={};
