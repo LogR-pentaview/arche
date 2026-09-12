@@ -325,6 +325,33 @@
       + '</div>';
   }
 
+  // [학원 내부 전용] 과목 성적×워크북 교차분석 카드 (학부모 비공개)
+  var VERDICT_STYLE={ '이해우위':['#2f9e44','#eafaf0'], '성적우위':['#1971c2','#e7f1ff'], '동반정체':['#e8590c','#fff1e6'], '동반우수':['#7048e8','#f0ebff'] };
+  function subjectDiagCardHTML(diag){
+    if(!diag||!diag.length) return '';
+    var rows=diag.map(function(d){
+      var vs=VERDICT_STYLE[d.verdict]||['#4e5968','#f1f3f5'];
+      return '<div style="border:1px solid #e6e9f0;border-radius:12px;padding:12px 13px;margin-bottom:8px;background:#fff">'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px"><span style="font-size:13px;font-weight:800;color:#141a29">'+esc(d.subject||'')+'</span>'
+        +(d.verdict?('<span style="font-size:10.5px;font-weight:800;color:'+vs[0]+';background:'+vs[1]+';border-radius:20px;padding:2px 9px">'+esc(d.verdict)+'</span>'):'')+'</div>'
+        +((d.score_line||d.workbook_line)?('<div style="font-size:11px;color:#8b95a1;margin-bottom:6px;line-height:1.6">'+(d.score_line?('📊 '+esc(d.score_line)):'')+(d.workbook_line?('<br>📝 '+esc(d.workbook_line)):'')+'</div>'):'')
+        +(d.reason?('<div style="font-size:12.5px;color:#2c3547;line-height:1.7">'+esc(d.reason)+'</div>'):'')
+        +(d.action?('<div style="font-size:12px;color:#137a44;font-weight:700;margin-top:7px;background:#f0faf4;border-radius:8px;padding:7px 10px">💡 '+esc(d.action)+'</div>'):'')
+        +'</div>';
+    }).join('');
+    return '<div style="max-width:460px;margin:16px auto 0;font-family:\'Pretendard Variable\',Pretendard,sans-serif">'
+      +'<div style="display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:#141a29;margin-bottom:6px">📚 과목별 성적 × 워크북 교차 분석 <span style="font-size:10px;font-weight:800;color:#fff;background:#c0313d;border-radius:5px;padding:2px 7px">학원 내부용</span></div>'
+      +'<div style="font-size:11px;color:#8b95a1;margin-bottom:9px;line-height:1.6">국어·수학·사회·과학 · 상담·수강 설계용 — <b style="color:#c0313d">학부모 발행분에는 포함되지 않습니다.</b></div>'
+      +rows+'</div>';
+  }
+  function noScoreNoticeHTML(){
+    return '<div style="max-width:460px;margin:16px auto 0;font-family:\'Pretendard Variable\',Pretendard,sans-serif">'
+      +'<div style="border:1px dashed #f0b429;background:#fffaf0;border-radius:12px;padding:14px 15px">'
+      +'<div style="font-size:12.5px;font-weight:800;color:#b8860b;margin-bottom:4px">📚 과목별 교차 분석 — 성적 입력 필요</div>'
+      +'<div style="font-size:12px;color:#8a6d1f;line-height:1.65">국어·수학·사회·과학 성적(학원시험·학교내신)이 입력되어 있어야 성적 × 워크북 교차 분석이 생성됩니다. <b>[학원생 관리]에서 성적을 입력</b>한 뒤 다시 분석을 실행하세요.</div>'
+      +'</div></div>';
+  }
+
   // ── 발행자(학부모/컨설턴트) 관리 UI ─────────────────────────────────────
   var PERIODS=[{k:'monthly',n:'월간'},{k:'quarterly',n:'분기'},{k:'half',n:'반기'},{k:'annual',n:'연간'}];
 
@@ -350,6 +377,21 @@
       radar_before:s.radar_before, radar_after:s.radar_after, compass:s.compass,
       golden:(rep.golden&&rep.golden.sentence)||'', velocity:(rep.velocity&&rep.velocity.score)||null,
       persona:(rep.persona&&rep.persona.name)||(rep.signature&&rep.signature.name)||'' };
+  }
+  // [학원 내부] 과목 성적 로드(학원시험 + 학교내신) — 4과목 교차분석 근거
+  async function loadSubjectScores(studentId){
+    var out={exams:[],naesin:[]};
+    try{ var re=await sb().from('academy_exams').select('subject,exam_type,score,max_score,exam_date,title').eq('student_id',studentId).order('exam_date',{ascending:false}).limit(40); (re&&re.data||[]).forEach(function(e){ out.exams.push(e); }); }catch(_e){}
+    try{ var rn=await sb().from('middle_school_grades').select('subject,semester,achievement').eq('student_id',studentId).limit(60); (rn&&rn.data||[]).forEach(function(g){ out.naesin.push(g); }); }catch(_e){}
+    return out;
+  }
+  function hasAnyScore(sc){ return !!(sc && ((sc.exams&&sc.exams.length)||(sc.naesin&&sc.naesin.length))); }
+  // [학원 내부 전용] 과목 교차분석 저장/로드 (penta_period_diag · 강사·원장 전용 RLS, 학부모 비공개)
+  async function savePeriodDiag(ctx, stage, level, ptype, pkey, diag){
+    try{ await sb().from('penta_period_diag').upsert({ academy_id:(ctx.academyId||window._acadId||null), student_id:ctx.studentId, stage:stage, level:(level||''), period_type:ptype, period_key:pkey, diag:diag, updated_at:new Date().toISOString() }, { onConflict:'student_id,stage,level,period_type,period_key' }); }catch(_e){}
+  }
+  async function loadPeriodDiag(ctx, stage, level, ptype, pkey){
+    try{ var r=await sb().from('penta_period_diag').select('diag').eq('student_id',ctx.studentId).eq('stage',stage).eq('level',(level||'')).eq('period_type',ptype).eq('period_key',pkey).limit(1); return (r&&r.data&&r.data[0]&&r.data[0].diag)||null; }catch(_e){ return null; }
   }
   async function token(){ try{var s=await sb().auth.getSession(); return (s&&s.data&&s.data.session)?s.data.session.access_token:'';}catch(e){return '';} }
   async function callPeriod(payload){
@@ -439,12 +481,19 @@
         var career_hint=''; picked.forEach(function(s){ var c=s.report&&(s.report.career||(s.answers&&s.answers.career_choice)); if(c&&!career_hint)career_hint=c; });
         var payload={ stage:stage, level:level, period_type:state.type, period_key:key, period_label:periodLabel(state.type,key),
           student:{name:ctx.name||'',grade:ctx.grade||''}, lessons:lessons, counts:{total:lessons.length}, career_hint:career_hint };
+        // [학원 내부] 성적이 입력되어 있으면 4과목 교차분석용 데이터를 함께 전달
+        var scores=null;
+        if(ctx.internal){ scores=await loadSubjectScores(ctx.studentId); if(hasAnyScore(scores)) payload.subjects_data=scores; }
         var res=await callPeriod(payload);
         var ai; try{ ai=JSON.parse(res.text); }catch(pe){ throw new Error('AI 응답 파싱 실패'); }
+        // subject_diag는 학원 내부 전용 — 학부모 발행 리포트(penta_period_reports)에 절대 저장하지 않음
+        var sdiag=(ctx.internal && ai.subject_diag && ai.subject_diag.length) ? ai.subject_diag : null;
+        try{ delete ai.subject_diag; }catch(_x){}
         ai.stage=stage; ai.period_type=state.type; ai.period_key=key; ai.period_label=payload.period_label; ai.counts={total:lessons.length}; ai.meta={name:ctx.name,grade:ctx.grade}; ai.status='draft';
         if(stage==='track'){ try{ await enrichCareers(ai); }catch(_ce){} }
         await sb().rpc('save_penta_period_report',{ p_student:ctx.studentId, p_stage:stage, p_level:level, p_period_type:state.type, p_period_key:key, p_period_label:payload.period_label, p_report:ai, p_status:'draft' });
-        toast('분석 완료 · 초안 생성됨'); openReportOverlay(ai); redraw();
+        if(ctx.internal && sdiag){ await savePeriodDiag(ctx, stage, level, state.type, key, sdiag); }
+        toast('분석 완료 · 초안 생성됨'); openReportOverlay(ai, { diag:sdiag, noScores:(ctx.internal && !hasAnyScore(scores)) }); redraw();
       }catch(e){ toast('실패: '+(e.message||e)); btn.disabled=false; btn.innerHTML='✨ 이 기간 분석 실행'; }
     }
 
@@ -454,13 +503,22 @@
       catch(e){ toast('발행 실패: '+(e.message||e)); btn.disabled=false; btn.textContent='발행'; }
     }
 
-    function openReportOverlay(report){
+    function openReportOverlay(report, opts){
+      opts=opts||{};
       var ov=el('<div class="ppr-ov"><div class="ppr-ovc"><div class="ppr-ovx"></div><div class="rpmount"></div></div></div>');
       var xbtn=el('<button>✕ 닫기</button>'); xbtn.addEventListener('click',function(){ov.remove();}); ov.querySelector('.ppr-ovx').appendChild(xbtn);
-      // 초안이면 발행 버튼도
-      if(report.status!=='sent'){ var pb=el('<button style="background:#5c8f16;margin-right:8px">📤 발행하기</button>'); pb.addEventListener('click',async function(){ pb.disabled=true; pb.innerHTML='<span class="spin"></span>'; try{ var rep=Object.assign({},report,{status:'sent'}); await sb().rpc('save_penta_period_report',{ p_student:ctx.studentId, p_stage:stage, p_level:level, p_period_type:report.period_type, p_period_key:report.period_key, p_period_label:report.period_label, p_report:rep, p_status:'sent' }); toast('발행 완료 ✅'); ov.remove(); redraw(); }catch(e){ toast('발행 실패: '+(e.message||e)); pb.disabled=false; pb.textContent='📤 발행하기'; } }); ov.querySelector('.ppr-ovx').insertBefore(pb, xbtn); }
+      // 초안이면 발행 버튼도 (★subject_diag는 report에 없으므로 발행돼도 학부모에게 안 감)
+      if(report.status!=='sent'){ var pb=el('<button style="background:#5c8f16;margin-right:8px">📤 발행하기</button>'); pb.addEventListener('click',async function(){ pb.disabled=true; pb.innerHTML='<span class="spin"></span>'; try{ var rep=Object.assign({},report,{status:'sent'}); delete rep.subject_diag; await sb().rpc('save_penta_period_report',{ p_student:ctx.studentId, p_stage:stage, p_level:level, p_period_type:report.period_type, p_period_key:report.period_key, p_period_label:report.period_label, p_report:rep, p_status:'sent' }); toast('발행 완료 ✅'); ov.remove(); redraw(); }catch(e){ toast('발행 실패: '+(e.message||e)); pb.disabled=false; pb.textContent='📤 발행하기'; } }); ov.querySelector('.ppr-ovx').insertBefore(pb, xbtn); }
       document.body.appendChild(ov);
-      renderReport(ov.querySelector('.rpmount'), report);
+      var host=ov.querySelector('.rpmount');
+      renderReport(host, report);
+      // [학원 내부 전용] 과목 교차분석 카드 — 강사·원장 뷰에서만
+      if(ctx.internal){
+        function paintDiag(d){ var w=document.createElement('div'); w.innerHTML=(d&&d.length)?subjectDiagCardHTML(d):(opts.noScores?noScoreNoticeHTML():''); if(w.firstChild) host.appendChild(w.firstChild); }
+        if(opts.diag!==undefined && opts.diag!==null){ paintDiag(opts.diag); }
+        else if(opts.noScores){ paintDiag(null); }
+        else { loadPeriodDiag(ctx, report.stage||stage, level, report.period_type, report.period_key).then(function(d){ paintDiag(d); }); }
+      }
     }
 
     redraw();
@@ -486,5 +544,5 @@
     })();
   }
 
-  window.ArchePentaPeriod = { renderReport: renderReport, mountManage: mountManage, mountViewer: mountViewer, version:'1.0' };
+  window.ArchePentaPeriod = { renderReport: renderReport, mountManage: mountManage, mountViewer: mountViewer, version:'1.1' };
 })();
