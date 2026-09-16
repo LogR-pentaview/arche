@@ -2122,6 +2122,73 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=14"></script>
 <script src="/shared/arche_parent_hub.js"></script>
+<script src="/shared/arche_entitlements.js"></script>
+<style>
+.nav.ent-locked{opacity:.5}
+.nav.ent-locked .ent-lock{margin-left:auto;font-size:11px;opacity:.85}
+.entov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:2147483600;overflow:auto;padding:26px 14px;display:flex;align-items:flex-start;justify-content:center}
+.entbox{max-width:520px;width:100%;background:#fff;border-radius:18px;padding:22px 22px 20px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.entbox h3{margin:0 0 3px;font-size:18px;color:#1A237E}
+.entbox .p{font-size:12.5px;color:#6b7688;margin-bottom:14px}
+.entbox .cta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.entbox .cta button{border:0;border-radius:10px;padding:11px 16px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}
+.entbox .cta .pri{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;flex:1}
+.entbox .cta .mut{background:#eef1f6;color:#4e5968}
+.entbox .sample{border:1px solid #e6e9f0;border-radius:12px;padding:4px;max-height:56vh;overflow:auto;background:#f7f9fd}
+</style>
+<script>
+/* ===== 상품 구독 게이팅 (arche_entitlements.js 기반) ===== */
+// data-v → 상품 키. 없는 키는 베이스/공통(항상 개방).
+window.VIEW_PRODUCT = {
+  penta:'penta',
+  sr:'bridge_perf', perf:'bridge_perf', gdesign:'bridge_perf', gperf:'bridge_perf',
+  diag:'admissions', arche:'admissions', curri:'admissions', roadmap:'admissions',
+  report:'admissions', iv:'admissions', essaybatch:'admissions',
+  goip:'admissions', greport:'admissions', gdiag:'admissions', gconsult:'admissions',
+  groadmap:'admissions', gessay:'admissions', ginterview:'admissions', gintake:'admissions', gstudents:'admissions',
+  promo:'promo', notice:'promo'
+};
+// 잠긴 상품 클릭 시 샘플 타입(ArcheParentHub.renderSample 재활용). 없으면 일반 안내.
+window.PRODUCT_SAMPLE = { penta:{type:'penta',title:'펜타 성장 리포트'}, bridge_perf:{type:'design',title:'진로 징검다리 결과지'}, admissions:{type:'perf',title:'컨설팅 리포트'}, promo:{type:'etc',title:'홍보 콘텐츠'} };
+
+window.entHas = function(key){ try{ return window.ArcheEntitlements ? ArcheEntitlements.has(window._ent||{}, key) : true; }catch(e){ return true; } };
+
+window.applyEntitlementGating = function(){
+  if(!window.ArcheEntitlements) return;
+  var ent = window._ent || {};
+  document.querySelectorAll('.nav[data-v]').forEach(function(el){
+    var v = el.getAttribute('data-v');
+    var prod = window.VIEW_PRODUCT[v];
+    if(!prod) return;                               // 베이스/공통 = 패스
+    var ok = ArcheEntitlements.has(ent, prod);
+    if(ok){ el.classList.remove('ent-locked'); var lk=el.querySelector('.ent-lock'); if(lk)lk.remove(); if(el._entOrigClick){ el.onclick=el._entOrigClick; el._entOrigClick=null; } return; }
+    if(el.classList.contains('ent-locked')) return; // 이미 처리됨
+    el.classList.add('ent-locked');
+    if(!el.querySelector('.ent-lock')){ var s=document.createElement('span'); s.className='ent-lock'; s.textContent='🔒'; el.appendChild(s); }
+    el._entOrigClick = el.onclick;                  // 인라인 onclick 백업
+    el.onclick = function(e){ if(e){e.preventDefault();e.stopPropagation();} showLockOverlay(prod); return false; };
+  });
+};
+
+window.showLockOverlay = function(prod){
+  var meta = (window.ArcheEntitlements && ArcheEntitlements.PRODUCTS[prod]) || {label:prod,desc:''};
+  var t = (window.ArcheEntitlements && ArcheEntitlements.trial(window._ent||{}, prod)) || {status:'off'};
+  var ov=document.createElement('div'); ov.className='entov';
+  var statusTxt = t.status==='expired' ? '무료 체험이 종료되었습니다.' : '아직 구독하지 않은 상품입니다.';
+  ov.innerHTML='<div class="entbox"><button class="mut" style="float:right;border:0;border-radius:8px;padding:6px 11px;cursor:pointer" id="ent-x">✕</button>'
+    +'<h3>🔒 '+esc(meta.label)+'</h3><div class="p">'+esc(meta.desc||'')+'<br><b style="color:#c0313d">'+statusTxt+'</b></div>'
+    +'<div class="sample" id="ent-sample"><div style="padding:20px;color:#8b95a1;font-size:12.5px;text-align:center">샘플 불러오는 중…</div></div>'
+    +'<div class="cta"><button class="pri" id="ent-try">무료 체험 시작</button><button class="mut" id="ent-ask">구독 문의</button></div></div>';
+  document.body.appendChild(ov);
+  ov.addEventListener('click',function(e){ if(e.target===ov) ov.remove(); });
+  ov.querySelector('#ent-x').onclick=function(){ ov.remove(); };
+  ov.querySelector('#ent-try').onclick=function(){ ov.remove(); try{ go(document.querySelector('.nav[data-v="billing"]')); }catch(_){} alert('무료 체험/구독은 [구독·결제]에서 시작할 수 있습니다. (관리자 승인 방식은 추후 자동화)'); };
+  ov.querySelector('#ent-ask').onclick=function(){ ov.remove(); alert('구독 문의: penta-view.com / 본사'); };
+  // 샘플 렌더 (있으면)
+  var host=ov.querySelector('#ent-sample'); var sm=window.PRODUCT_SAMPLE[prod];
+  try{ if(sm && window.ArcheParentHub && ArcheParentHub.renderSample){ host.innerHTML=''; ArcheParentHub.renderSample(host, sm.type, sm.title); } else { host.innerHTML='<div style="padding:20px;color:#8b95a1;font-size:12.5px;text-align:center">이 상품의 샘플 미리보기는 준비 중입니다.</div>'; } }catch(e){ host.innerHTML='<div style="padding:20px;color:#8b95a1;font-size:12.5px;text-align:center">샘플을 불러오지 못했습니다.</div>'; }
+};
+</script>
 <script src="/shared/arche_career_bridge.js?v=4"></script>
 <script src="/shared/arche_season_picker.js?v=10"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
@@ -2518,8 +2585,9 @@ async function enterApp(session){
   if(!ac && u.user_metadata && u.user_metadata.academy_id){ return; }
   window._academy=ac;
   var isAdmin=false, approved=true;
-  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits,account_type,logo_url,phone,address,name').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._acctTypeCur=ar[0].account_type||'b2b'; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null; window._acadId=ac.id; window._acadBrand={name:ar[0].name||(ac&&ac.name)||'',logo_url:ar[0].logo_url||'',phone:ar[0].phone||'',address:ar[0].address||''};} }
+  if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits,account_type,logo_url,phone,address,name,entitlements').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._acctTypeCur=ar[0].account_type||'b2b'; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null; window._acadId=ac.id; window._ent=ar[0].entitlements||{}; window._acadBrand={name:ar[0].name||(ac&&ac.name)||'',logo_url:ar[0].logo_url||'',phone:ar[0].phone||'',address:ar[0].address||''};} }
   window._isB2C=(window._acctTypeCur==='b2c');
+  try{ if(window.applyEntitlementGating) applyEntitlementGating(); }catch(_eg){}
   if(window._demo && window._demo.expires && new Date(window._demo.expires)<new Date()){
     await sb.auth.signOut();
     gate.style.display='flex';
