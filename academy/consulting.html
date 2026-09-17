@@ -526,7 +526,7 @@
       <button id="seg-goip" type="button" onclick="trackSeg('goip')">🏫 고입 컨설팅</button>
     </div>
     <div class="navgroup dae" id="grp-dae">
-      <div class="grouphead" onclick="toggleGroup('dae')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg> 대입 컨설팅<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="grouphead" onclick="toggleGroup('dae')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1 2.7 3 6 3s6-2 6-3v-5"/></svg> 입시센터 · 대입<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="navsub">
         <div class="nav" data-v="students" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> <span class="nav-lbl" data-b2c="자녀 관리">학생 관리</span></div>
         <div class="nav" data-v="intake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg> 학생 자료 입력</div>
@@ -535,8 +535,6 @@
         <div class="nav" data-v="arche" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg> 합격 역설계</div>
         <div class="nav" data-v="curri" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 이수과목 검증</div>
         <div class="nav" data-v="roadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
-        <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 진로 징검다리</div>
-        <div class="nav" data-v="perf" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> 수행평가 도우미</div>
         <div class="nav" data-v="iv" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2a4 4 0 014 4v5a4 4 0 01-8 0V6a4 4 0 014-4z"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg> 면접 준비</div>
         <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg> 컨설팅 리포트</div>
       </div>
@@ -544,7 +542,7 @@
 
     <!-- 고입 컨설팅 그룹 -->
     <div class="navgroup goip" id="grp-goip">
-      <div class="grouphead" onclick="toggleGroup('goip')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg> 고입 컨설팅<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="grouphead" onclick="toggleGroup('goip')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg> 입시센터 · 고입<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="navsub">
         <div class="nav" data-v="gstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/></svg> <span class="nav-lbl" data-b2c="자녀 관리">학생 관리</span></div>
         <div class="nav" data-v="gintake" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 5v14M5 12h14"/></svg> 학생 자료 입력</div>
@@ -552,8 +550,6 @@
         <div class="nav" data-v="gdiag" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg> <span class="nav-lbl" data-b2c="자녀 진단">학생 진단</span></div>
         <div class="nav" data-v="goip" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg> 지원가능·성향 매칭</div>
         <div class="nav" data-v="groadmap" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 18l6-3 6 3 6-3M3 12l6-3 6 3 6-3M3 6l6-3 6 3 6-3"/></svg> 성장 로드맵</div>
-        <div class="nav" data-v="gdesign" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 진로 징검다리</div>
-        <div class="nav" data-v="gperf" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> 수행평가 도우미</div>
         <div class="nav" data-v="gessay" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h7"/></svg> 자소서 준비</div>
         <div class="nav" data-v="ginterview" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 1v11"/><rect x="9" y="1" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0014 0M12 19v4M8 23h8"/></svg> 면접 준비</div>
         <div class="nav" data-v="greport" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg> 고입 리포트</div>
@@ -562,11 +558,20 @@
     </div>
 
     <div class="navgroup penta open" id="grp-penta">
-      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 융합사고 역량 코스<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg> 펜타 시리즈<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="navsub">
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
+      </div>
+    </div>
+    <div class="navgroup bridge open" id="grp-bridge">
+      <div class="grouphead" onclick="var g=document.getElementById('grp-bridge');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 진로 징검다리 · 수행평가<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="navsub">
+        <div class="nav" data-v="sr" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 진로 징검다리 <span style="font-size:9px;color:var(--ink-mute)">대입</span></div>
+        <div class="nav" data-v="perf" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> 수행평가 도우미 <span style="font-size:9px;color:var(--ink-mute)">대입</span></div>
+        <div class="nav" data-v="gdesign" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 20l9-5-9-5-9 5 9 5z"/><path d="M12 12V3"/></svg> 진로 징검다리 <span style="font-size:9px;color:var(--ink-mute)">고입</span></div>
+        <div class="nav" data-v="gperf" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg> 수행평가 도우미 <span style="font-size:9px;color:var(--ink-mute)">고입</span></div>
       </div>
     </div>
     <div class="navlabel navlabel-con">학원 운영 · 마케팅</div>
