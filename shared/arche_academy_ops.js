@@ -365,6 +365,9 @@
   async function mountMembers(host){
     var sb=window.sb;
     if(!sb || !window._academy){ host.innerHTML = phRaw('🔌','미연결','로그인(DB 연결) 후 반·강사 관리가 활성화됩니다.'); return; }
+    var isOwner=(window._isOwner===true);
+    var canManage=(isOwner || window._myRole==='manager');
+    if(!canManage){ host.innerHTML = phRaw('🔒','원장·부원장 전용','반·강사 관리는 원장 또는 부원장만 이용할 수 있습니다. 권한이 필요하면 원장에게 요청하세요.'); return; }
     var acid = window._acadId||(window._academy&&window._academy.id);
     host.innerHTML = '<div style="padding:20px;color:var(--ink-mute);font-size:13px">불러오는 중…</div>';
     var classes=[], students=[], teachers=[], stuAcct={}, parAcct={};
@@ -434,12 +437,18 @@
           +'<thead><tr style="text-align:left;color:var(--ink-mute);font-size:11.5px"><th style="padding:6px 8px">이름</th><th style="padding:6px 8px">과목</th><th style="padding:6px 8px">담당 반</th><th style="padding:6px 8px">로그인 아이디</th><th></th></tr></thead><tbody>';
         h+=teachers.map(function(t){
           var myClasses=classes.filter(function(c){return c.teacher_id===t.uid;}).map(function(c){return esc(c.name);});
+          var isMgr=(t.role==='manager');
+          var roleBadge=isMgr?' <span style="font-size:9.5px;font-weight:800;color:#1b64da;background:#e8f1ff;border-radius:20px;padding:2px 7px">부원장</span>':'';
+          var promoBtn=isOwner?(isMgr
+              ?'<button class="tab" data-trole="'+t.uid+'" data-to="teacher" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px">부원장 해제</button> '
+              :'<button class="tab" data-trole="'+t.uid+'" data-to="manager" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:#1b64da">부원장 지정</button> '):'';
+          var delBtn=isOwner?'<button class="tab" data-tdel="'+t.uid+'" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:var(--risk)">삭제</button>':'';
           return '<tr style="border-top:1px solid var(--line-soft,#eef1f4)">'
-            +'<td style="padding:8px;font-weight:700">'+esc(t.name||'-')+'</td>'
+            +'<td style="padding:8px;font-weight:700">'+esc(t.name||'-')+roleBadge+'</td>'
             +'<td style="padding:8px;color:var(--ink-dim)">'+esc(t.subject||'-')+'</td>'
             +'<td style="padding:8px;color:var(--ink-dim)">'+(myClasses.length?myClasses.join(', '):'<span style="color:var(--ink-mute)">미배정</span>')+'</td>'
             +'<td style="padding:8px"><b>'+esc(t.login_id||t.email||'-')+'</b>'+(t.must_change?' <span style="font-size:10px;color:var(--ink-mute)">/0000</span>':'')+'</td>'
-            +'<td style="padding:8px;text-align:right;white-space:nowrap"><button class="tab" data-tpw="'+t.uid+'" style="padding:4px 9px;font-size:11px">비번초기화</button> <button class="tab" data-tdel="'+t.uid+'" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:var(--risk)">삭제</button></td>'
+            +'<td style="padding:8px;text-align:right;white-space:nowrap">'+promoBtn+'<button class="tab" data-tpw="'+t.uid+'" style="padding:4px 9px;font-size:11px">비번초기화</button> '+delBtn+'</td>'
             +'</tr>';
         }).join('');
         h+='</tbody></table></div>';
@@ -464,6 +473,7 @@
       host.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ deleteClass(b.getAttribute('data-del')); }; });
       host.querySelectorAll('[data-tpw]').forEach(function(b){ b.onclick=function(){ teacherAction('reset_pw', b.getAttribute('data-tpw'), b); }; });
       host.querySelectorAll('[data-tdel]').forEach(function(b){ b.onclick=function(){ teacherAction('delete', b.getAttribute('data-tdel'), b, b.getAttribute('data-tnm')); }; });
+      host.querySelectorAll('[data-trole]').forEach(function(b){ b.onclick=function(){ setTeacherRole(b.getAttribute('data-trole'), b.getAttribute('data-to'), b, b.getAttribute('data-tnm')); }; });
     }
     async function reload(){ await mountMembers(host); }
     async function createClass(){
@@ -495,8 +505,16 @@
       try{ var r=await sb.from('academy_classes').update({teacher_id:tid}).eq('id',id); if(r.error)throw r.error; reload(); }
       catch(e){ alert('담당 강사 지정 실패: '+((e&&e.message)||e)); }
     }
+    async function setTeacherRole(uid, to, btn, nm){
+      if(!isOwner){ alert('부원장 지정·해제는 원장만 가능합니다.'); return; }
+      var toMgr=(to==='manager');
+      if(!confirm((nm||'이 강사')+(toMgr?' 을(를) 부원장으로 지정할까요?\n부원장은 반·강사 관리 권한을 갖습니다(강사 등록·반 편성·수강료 설정 등). 강사 삭제·부원장 지정은 원장만 가능합니다.':' 의 부원장 권한을 해제할까요?\n일반 강사로 돌아가 반·강사 관리 메뉴가 숨겨집니다.'))) return;
+      if(btn) btn.disabled=true;
+      try{ var r=await sb.from('academy_users').update({role:(toMgr?'manager':'teacher')}).eq('academy_id',acid).eq('uid',uid); if(r.error)throw r.error; alert('✓ '+(toMgr?'부원장으로 지정':'부원장 해제')+'되었습니다.\n(해당 강사가 재로그인하면 권한이 반영됩니다.)'); reload(); }
+      catch(e){ alert('권한 변경 실패: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
+    }
     async function addTeacher(){
-      if(window._isOwner===false){ alert('강사 등록은 원장만 가능합니다.'); return; }
+      if(!canManage){ alert('강사 등록은 원장·부원장만 가능합니다.'); return; }
       var nm=(host.querySelector('#m-tname').value||'').trim();
       var subj=(host.querySelector('#m-tsubj').value||'').trim();
       if(!nm){ alert('강사 이름을 입력하세요.'); return; }
@@ -512,7 +530,8 @@
       }catch(e){ alert('등록 오류: '+((e&&e.message)||e)); if(btn){btn.disabled=false; btn.textContent='+ 강사 등록';} }
     }
     async function teacherAction(action, uid, btn, nm){
-      if(window._isOwner===false){ alert('강사 관리는 원장만 가능합니다.'); return; }
+      if(action==='delete' && !isOwner){ alert('강사 삭제는 원장만 가능합니다.'); return; }
+      if(action!=='delete' && !canManage){ alert('강사 관리는 원장·부원장만 가능합니다.'); return; }
       if(action==='delete' && !confirm('강사 '+(nm||'')+' 을(를) 삭제할까요? 담당 반은 미지정으로 바뀌고 로그인 계정이 삭제됩니다.')) return;
       if(action==='reset_pw' && !confirm('이 강사의 비밀번호를 0000으로 초기화할까요?')) return;
       if(btn){ btn.disabled=true; }
