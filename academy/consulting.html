@@ -2682,6 +2682,9 @@ async function enterApp(session){
   }
   if(window._demo) setupDemoMode();
   if(window._isOwner!==true){ var _rn=document.querySelector('.nav[data-v="roi"]'); if(_rn)_rn.style.display='none'; }
+  // 관리 권한(반·강사 관리): 원장 + 부원장(manager)만 노출 — 일반 강사 숨김
+  window._canManage = (window._isOwner===true || window._myRole==='manager');
+  if(!window._canManage){ var _mn=document.querySelector('.nav[data-v="members"]'); if(_mn)_mn.style.display='none'; }
   loadStudents();
 }
 /* ===== 게스트 체험 모드 ===== */
