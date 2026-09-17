@@ -519,6 +519,7 @@
     <div class="navlabel navlabel-con">학생 관리</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
     <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="전체 자녀 관리">전체 학생 관리</span></div>
+    <div class="nav" data-v="sm" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg> <span class="nav-lbl">학원생 관리</span></div>
 
     <!-- 펜타 시리즈 (독립 메뉴) -->
     <div class="navgroup penta open" id="grp-penta">
@@ -527,6 +528,9 @@
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
+        <div class="nav" data-v="live" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg> 실시간 관제 <span style="font-size:9px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7B1FA2,#E91E63);border-radius:5px;padding:1px 5px">LIVE</span></div>
+        <div class="nav" data-v="course" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 코스웨어</div>
+        <div class="nav" data-v="submits" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> 학생 제출물 관리</div>
       </div>
     </div>
     <!-- 대입 컨설팅 그룹 -->
@@ -571,6 +575,8 @@
     </div>
 
     <div class="navlabel navlabel-con">학원 운영 · 마케팅</div>
+    <div class="nav" data-v="members" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> 반 · 강사 관리</div>
+    <div class="nav" data-v="staffmsg" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg> 강사 보고</div>
     <div class="nav" data-v="hqnews" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></svg> 본사 소식</div>
     <div class="nav" data-v="promo" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-2v6l-18-2z"/><path d="M8 12v5a2 2 0 002 2h1"/><circle cx="18" cy="6" r="2"/></svg> 홍보 스튜디오</div>
     <div class="nav" data-v="notice" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8h13l4-3v14l-4-3H3z"/><path d="M7 19v2"/></svg> 안내문 스튜디오</div>
@@ -762,6 +768,54 @@
             <div id="as-list"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
           </div>
         </div>
+      </section>
+      <section class="view" id="v-sm">
+        <div class="eyebrow">Academy Student</div>
+        <div class="h1">학원생 관리</div>
+        <div class="sub">학생별 기본정보 · 진로/진학 · 상담내역 · 시험성적 입력과 성적 변화추이를 한 곳에서 관리합니다 · 원장·강사 공유</div>
+        <div id="sm-mount" style="margin-top:16px"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
+      </section>
+      <section class="view" id="v-live">
+        <div class="eyebrow">Live Class</div>
+        <div class="h1">실시간 관제</div>
+        <div class="sub">반 선택 → 학생 실시간 현황(작성·정체·제출) + 라이브 판서 방송</div>
+        <div id="live-mount" style="margin-top:16px"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
+      </section>
+      <section class="view" id="v-course">
+        <div class="eyebrow">Courseware</div>
+        <div class="h1">코스웨어</div>
+        <div class="sub">반별 차시(커리큘럼) 편성 → 수업 때 순차 개방 · 또는 바로 배정</div>
+        <div class="tabs" id="cw-tabs" style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+          <span class="tab on" data-cw="curri" style="cursor:pointer;font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-radius:9px">📚 차시 편성</span>
+          <span class="tab" data-cw="assign" style="cursor:pointer;font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-radius:9px">⚡ 바로 배정·전송</span>
+        </div>
+        <div id="cw-curri" style="margin-top:14px"></div>
+        <div id="cw-assign" style="margin-top:14px;display:none"></div>
+      </section>
+      <section class="view" id="v-submits">
+        <div class="eyebrow">Submissions</div>
+        <div class="h1">학생 제출물 관리</div>
+        <div class="sub">학생 워크북 제출 수집 → 검토·분석리포트 발행 → 학부모 전송(리포트·알림장) · 정기 리포트</div>
+        <div class="tabs" id="sb-tabs" style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap">
+          <span class="tab on" data-sb="review" style="cursor:pointer;font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-radius:9px">📥 제출물·분석리포트</span>
+          <span class="tab" data-sb="send" style="cursor:pointer;font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-radius:9px">📨 학부모 전송(리포트·알림장)</span>
+          <span class="tab" data-sb="period" style="cursor:pointer;font-size:12.5px;font-weight:700;padding:8px 14px;border:1px solid var(--line);border-radius:9px">📈 정기 리포트</span>
+        </div>
+        <div id="sb-review" style="margin-top:14px"></div>
+        <div id="sb-send" style="margin-top:14px;display:none"></div>
+        <div id="sb-period" style="margin-top:14px;display:none"></div>
+      </section>
+      <section class="view" id="v-members">
+        <div class="eyebrow">Class & Teacher</div>
+        <div class="h1">반 · 강사 관리</div>
+        <div class="sub">수업 반 개설 → 강사 등록(로그인 계정 발급) → 담당 반 배정 · 학생 등록·관리는 [학원생 관리]에서</div>
+        <div id="members-mount" style="margin-top:16px"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
+      </section>
+      <section class="view" id="v-staffmsg">
+        <div class="eyebrow">Staff Report</div>
+        <div class="h1">강사 보고</div>
+        <div class="sub">원장은 강사 보고를 확인하고, 강사는 원장에게 건의·특이사항을 보고합니다</div>
+        <div id="staffmsg-mount" style="margin-top:16px"><div style="color:var(--ink-mute);padding:14px">불러오는 중…</div></div>
       </section>
       <section class="view" id="v-hqnews">
         <div class="eyebrow">From HQ</div>
@@ -2124,6 +2178,9 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_app.js?v=14"></script>
 <script src="/shared/arche_parent_hub.js"></script>
 <script src="/shared/arche_entitlements.js"></script>
+<script src="/shared/arche_penta_period.js"></script>
+<script src="/academy/course_picker.js"></script>
+<script src="/shared/arche_academy_ops.js"></script>
 <style>
 .nav.ent-locked{opacity:.5}
 .nav.ent-locked .ent-lock{margin-left:auto;font-size:11px;opacity:.85}
@@ -2141,7 +2198,7 @@ window.ADMIN=ADMIN;
 /* ===== 상품 구독 게이팅 (arche_entitlements.js 기반) ===== */
 // data-v → 상품 키. 없는 키는 베이스/공통(항상 개방).
 window.VIEW_PRODUCT = {
-  penta:'penta',
+  penta:'penta', live:'penta', course:'penta', submits:'penta',
   sr:'bridge_perf', perf:'bridge_perf', gdesign:'bridge_perf', gperf:'bridge_perf',
   diag:'admissions', arche:'admissions', curri:'admissions', roadmap:'admissions',
   report:'admissions', iv:'admissions', essaybatch:'admissions',
@@ -2228,12 +2285,13 @@ window.showLockOverlay = function(prod){
 </script>
 <!-- ▲▲ 아르케 무결성·회고·리포트 모듈 끝 ▲▲ -->
 <script>
-const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",roi:"원장 대시보드",hqnews:"본사 소식",notice:"안내문 스튜디오",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"융합사고 역량 코스",psend:"학부모 전송"};
+const crumbMap={home:"컨설팅 홈",basecon:"학생 기본 상담",allstudents:"전체 학생 관리",sm:"학원생 관리",live:"실시간 관제",course:"코스웨어",submits:"학생 제출물 관리",members:"반 · 강사 관리",staffmsg:"강사 보고",roi:"원장 대시보드",hqnews:"본사 소식",notice:"안내문 스튜디오",students:"학생 관리",intake:"학생 자료 입력",consult:"상담 기록",diag:"학생 진단",arche:"합격 역설계",curri:"이수과목 검증",roadmap:"성장 로드맵",sr:"진로 징검다리",perf:"수행평가 도우미",iv:"면접 준비",report:"컨설팅 리포트",goip:"고입 · 지원가능·성향 매칭",greport:"고입 · 종합 리포트",gstudents:"고입 · 학생 관리",gintake:"고입 · 학생 자료 입력",gconsult:"고입 · 상담 관리",gdiag:"고입 · 학생 진단",groadmap:"고입 · 성장 로드맵",gdesign:"고입 · 진로 징검다리",gperf:"고입 · 수행평가 도우미",gessay:"고입 · 자소서 준비",ginterview:"고입 · 면접 준비",essaybatch:"자소서 채점",admin_data:"입시자료 조회",admin:"관리자 콘솔",settings:"설정",billing:"구독·결제",penta:"융합사고 역량 코스",psend:"학부모 전송"};
 const DAE_VIEWS=['students','intake','consult','diag','arche','curri','roadmap','sr','perf','iv','report'];
 const GOIP_VIEWS=['goip','gstudents','gintake','gconsult','gdiag','groadmap','gdesign','gperf','gessay','ginterview'];
 function toggleGroup(g){ if(window.trackSeg)trackSeg(g); }
 function go(el){
   if(el.classList.contains('disabled')){ alert('준비 중인 기능입니다.'); return; }
+  try{ if(window.stopLiveControl) window.stopLiveControl(); }catch(_sl){}
   document.querySelectorAll('.nav').forEach(n=>n.classList.remove('on'));el.classList.add('on');
   const v=el.dataset.v;
   // 소속 그룹 자동 펼침
@@ -2246,7 +2304,7 @@ function go(el){
     if(vw)vw.classList.add('on');
   }
   document.getElementById('crumb').textContent=crumbMap[v]||v; if(!_same)window.scrollTo(0,0);
-  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='sm'&&window.mountStudentMgmt)mountStudentMgmt(document.getElementById('sm-mount')); if(v==='live'&&window.mountLiveControl)mountLiveControl(document.getElementById('live-mount')); if(v==='course'&&window.mountCourseView)mountCourseView(document.getElementById('v-course')); if(v==='submits'&&window.mountSubmitsView)mountSubmitsView(document.getElementById('v-submits')); if(v==='members'&&window.mountMembers)mountMembers(document.getElementById('members-mount')); if(v==='staffmsg'&&window.mountStaffMsg)mountStaffMsg(document.getElementById('staffmsg-mount')); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
