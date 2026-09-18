@@ -5,18 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>펜타 시리즈 · 스스로 생각하는 힘을 키우는 학습 플랫폼 — PentaView</title>
 <meta name="description" content="AI가 대신 써주는 시대, 펜타 시리즈는 아이가 스스로 사고하고 직접 쓰게 합니다. 펜타 비전(융합사고) · 펜타 트랙(진로 설계) · 펜타 아르케(본인 작성 증명).">
-<meta name="theme-color" content="#2563eb">
+<meta name="theme-color" content="#4f46e5">
 <link rel="icon" type="image/png" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  /* 전문·신뢰 팔레트 · slate 기반 + 절제된 3색(비전 딥블루 / 트랙 딥틸 / 아르케 브론즈) */
-  --bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--line-soft:#eef2f7;
-  --ink:#0f172a;--ink-dim:#475569;--ink-mute:#94a3b8;--ink-faint:#cbd5e1;
-  --blue:#2563eb;--blue-deep:#1d4ed8;--blue-soft:#eaf1fe;
-  --sky:#2563eb;--sky-soft:#eaf1fe;--mint:#0f766e;--mint-soft:#e3f3f1;
-  --amber:#b45309;--amber-soft:#f6ecde;--safe:#15803d;--safe-soft:#e9f6ee;--navy:#0f172a;
+  /* Aurora Light · 인디고→바이올렛→핑크 스펙트럼 (밝고 고급) — 비전 인디고 / 트랙 바이올렛 / 아르케 핑크 */
+  --bg:#faf9ff;--panel:#fff;--line:#ece9f7;--line-soft:#f3f1fb;
+  --ink:#1e1b3a;--ink-dim:#5b5676;--ink-mute:#9993ad;--ink-faint:#d8d4e6;
+  --blue:#4f46e5;--blue-deep:#4338ca;--blue-soft:#eeecfe;
+  --sky:#4f46e5;--sky-soft:#eeecfe;--mint:#7c3aed;--mint-soft:#f2ebfe;
+  --amber:#db2777;--amber-soft:#fce7f1;--safe:#7c3aed;--safe-soft:#f2ebfe;--navy:#1e1b3a;
+  --aurora:linear-gradient(135deg,#4f46e5 0%,#7c3aed 52%,#db2777 100%);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg);color:var(--ink);letter-spacing:-.012em;-webkit-font-smoothing:antialiased;line-height:1.6}
@@ -63,7 +64,8 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .item .bd .tag{display:inline-block;font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 9px;background:var(--sky-soft);color:var(--sky);margin-top:8px}
 
 /* 리포트 카드(강조) */
-.report-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 14px 40px -22px rgba(20,26,41,.35);padding:18px}
+.report-card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 18px 44px -24px rgba(79,70,229,.42);padding:18px;position:relative;overflow:hidden}
+.report-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--aurora)}
 .rc-head{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .rc-head .t{font-size:14.5px;font-weight:800}
 .rc-head .live{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--safe);background:var(--safe-soft);border-radius:20px;padding:4px 10px;display:flex;align-items:center;gap:5px}
@@ -133,8 +135,8 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .annual.track .ae{color:#00897d;background:var(--mint-soft)}
 .annual .at{font-size:15px;font-weight:800;margin:9px 0 3px}
 .annual .am{font-size:11px;color:var(--ink-mute);font-weight:600}
-.annual .alink{display:block;text-align:center;padding:12px;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8)}
-.annual.track .alink{background:linear-gradient(135deg,#0f766e,#0b5c56)}
+.annual .alink{display:block;text-align:center;padding:12px;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#4f46e5,#4338ca)}
+.annual.track .alink{background:linear-gradient(135deg,#7c3aed,#6d28d9)}
 
 /* 3층 철학 / 왜지금 / 로드맵 */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
@@ -181,8 +183,11 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .payinfo .plink a{color:var(--blue);font-weight:700;margin-right:14px}
 
 /* CTA 밴드 */
-.cta-band{background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:18px;padding:26px 20px;text-align:center;color:#fff;margin-top:20px}
-.cta-band p{color:#c7d2e8}
+.cta-band{background:var(--aurora);border-radius:18px;padding:26px 20px;text-align:center;color:#fff;margin-top:20px;position:relative;overflow:hidden;box-shadow:0 22px 46px -24px rgba(124,58,237,.65)}
+.cta-band::after{content:"";position:absolute;top:-50px;right:-40px;width:200px;height:200px;border-radius:50%;background:rgba(255,255,255,.13)}
+.cta-band h3,.cta-band p,.cta-band .btn{position:relative}
+.cta-band p{color:rgba(255,255,255,.9)}
+.cta-band .btn.white{color:var(--blue)}
 .cta-band h3{font-size:18px;font-weight:800}
 .cta-band p{font-size:12.5px;color:#c9d7f2;margin-top:8px;line-height:1.7}
 .cta-band .btn.white{background:#fff;color:var(--blue-deep);margin-top:14px}
