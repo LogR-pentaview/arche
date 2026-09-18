@@ -471,7 +471,7 @@
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
       <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
       <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
-      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1;display:none">학원</button>
+      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
@@ -485,11 +485,6 @@
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
       <button id="au-signup" style="flex:1;padding:11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:9px;font-weight:500;cursor:pointer">회원가입</button>
     </div>
-    <button id="au-google" style="display:none;width:100%;margin-top:10px;padding:11px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:9px;font-weight:700;cursor:pointer;align-items:center;justify-content:center;gap:9px;font-size:14px">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      <span>Google로 계속하기 (원클릭)</span>
-    </button>
-    <div id="au-google-note" style="display:none;font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:6px;line-height:1.5">구글 계정으로 <b style="color:var(--gold,#3182f6)">인증메일 없이 즉시 가입·로그인</b>됩니다.</div>
     <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#3182f6)">스팸함·프로모션함</b>을 확인하세요.</div>
     <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
 <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:2px;line-height:1.5">회원가입 후 <b style="color:var(--gold,#3182f6)">각 서비스 첫 시즌 1강을 무료</b>로 바로 시작할 수 있습니다.<br>한 브라우저에서는 한 계정만 로그인됩니다.</div>
@@ -2327,15 +2322,10 @@ async function ensureAcademy(user){
     return null;
   }
   // 3) 신규 가입(원장) — 학원 생성 후 academy_users에 owner로 등록
-  var _md=user.user_metadata||{};
   const nm=(document.getElementById('au-name')&&document.getElementById('au-name').value.trim())
-    || _md.academy_name || _md.full_name || _md.name
+    || (user.user_metadata&&user.user_metadata.academy_name)
     || (user.email.split('@')[0]+' 학원');
-  // 구글 등 소셜 가입(user_metadata에 account_type 없음)은 학부모앱 플래그(_pv_oauth_acct)로 b2c 지정
-  var _oauthAcct=''; try{ _oauthAcct=localStorage.getItem('_pv_oauth_acct')||''; localStorage.removeItem('_pv_oauth_acct'); }catch(_e){}
-  // ★ OAuth(구글 등) 신규는 학원 가입 경로가 없으므로 무조건 학부모(b2c)로 강제 — 플래그 유실 시 b2b 오생성 방지
-  var _isOAuth=false; try{ var _pv=(user.app_metadata&&user.app_metadata.provider)||''; var _ids=(user.identities||[]).map(function(x){return x.provider;}); _isOAuth = (_pv && _pv!=='email') || _ids.some(function(p){return p&&p!=='email';}); }catch(_e){}
-  var acctype=_md.account_type||_oauthAcct||(_isOAuth?'b2c':'b2b');
+  var acctype=(user.user_metadata&&user.user_metadata.account_type)||'b2b';
   // 학부모(b2c)는 관리자 승인 없이 즉시 시작 → 가입 시 approved=true. 학원(b2b)은 기존대로 승인 대기.
   var _newAcad={name:nm,owner_uid:user.id,account_type:acctype};
   if(acctype==='b2c'){ _newAcad.approved=true; }
@@ -2407,8 +2397,6 @@ function setLoginRole(r){
   // 학원(con)은 신규 가입 없이 로그인만 — 기존 회원 로그인 유지. 회원가입은 학부모(parent)만.
   document.getElementById('au-name').style.display=parent?'block':'none';
   document.getElementById('au-signup').style.display=parent?'block':'none';
-  var _gbtn=document.getElementById('au-google'); if(_gbtn)_gbtn.style.display=parent?'flex':'none';
-  var _gnote=document.getElementById('au-google-note'); if(_gnote)_gnote.style.display=parent?'block':'none';
   // 이름 입력란 라벨
   var nm=document.getElementById('au-name');
   if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명';
@@ -2548,10 +2536,6 @@ async function enterApp(session){
     return msg('가입 신청이 접수되었습니다. 관리자 승인 후 이용 가능합니다.');
   }
   window._isAdmin=isAdmin;
-  // [A · 학원 분리] 학원(b2b·비관리자)은 새 학원용 앱(/academy/)으로 분리. b2c(학부모)·관리자는 기존 흐름 유지.
-  if(!isAdmin && !window._isB2C){
-    if((location.pathname||'').indexOf('/academy')<0){ location.replace('/academy/'); return; }
-  }
   if(!isAdmin){ if(!(await ensureConsent(u,(window._isB2C?'parent':'consultant')))) return; }
   document.getElementById('acadname').textContent=(ac?ac.name:'')+' · '+u.email+(isAdmin?' · 관리자':'');
   gate.style.display='none';
@@ -2931,29 +2915,62 @@ window.b2cOpenPeriodViewer=b2cOpenPeriodViewer;
 /* [사용 안내] 아르케 사용법 / 융합사고(펜타) 사용법 — 기능별 단계 안내 */
 function b2cOpenGuide(){
   var v=document.getElementById('v-home'); if(!v) return; if(window._b2cActivateHome)_b2cActivateHome(v);
-  function feat(ic,title,desc,steps){
+  /* [메뉴별 튜터리얼] 왼쪽 메뉴 순서대로, 아르케/펜타를 처음 접하는 방문자도 이해할 수 있게 기능을 하나씩 설명 */
+  function feat(ic,title,where,desc,steps){
     return '<div style="background:#fff;border:1px solid #eef1f4;border-radius:14px;padding:16px 18px;margin-bottom:12px">'
-      +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:6px"><span style="font-size:20px">'+ic+'</span><div style="font-weight:800;font-size:15px">'+title+'</div></div>'
-      +'<div style="font-size:12.5px;color:#4e5968;line-height:1.6;margin-bottom:10px">'+desc+'</div>'
-      +'<ol style="margin:0;padding-left:18px;font-size:12.5px;color:#191f28;line-height:1.9">'+steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol></div>';
+      +'<div style="display:flex;align-items:center;gap:9px;margin-bottom:'+(where?'6px':'6px')+'"><span style="font-size:20px">'+ic+'</span><div style="font-weight:800;font-size:15px">'+title+'</div></div>'
+      +(where?'<div style="display:inline-block;font-size:11px;font-weight:700;color:#4e5968;background:#f2f4f7;border-radius:7px;padding:3px 9px;margin-bottom:9px">📍 '+where+'</div>':'')
+      +'<div style="font-size:12.5px;color:#4e5968;line-height:1.68;margin-bottom:'+(steps&&steps.length?'10px':'0')+'">'+desc+'</div>'
+      +(steps&&steps.length?'<ol style="margin:0;padding-left:18px;font-size:12.5px;color:#191f28;line-height:1.9">'+steps.map(function(s){return '<li>'+s+'</li>';}).join('')+'</ol>':'')
+      +'</div>';
   }
-  var start='<div style="font-size:12px;font-weight:800;color:#4f46a8;letter-spacing:.02em;margin:6px 2px 10px;display:flex;align-items:center;gap:7px"><span style="width:22px;height:22px;border-radius:7px;background:#eceafc;display:grid;place-items:center">🚀</span>시작하기 · 계정과 자녀</div>'
-    +feat('🏠','① 우리 가정 코드 만들기','자녀를 <b>처음 등록</b>할 때, 우리 가정만의 <b>고유 코드</b>를 한 번 정합니다. 이 코드가 모든 자녀 로그인 아이디의 <b>앞부분</b>이 됩니다.',['첫 자녀 등록 시 <b>가정 고유 코드</b> 입력 안내가 뜹니다 (영문/숫자, 예: <b>KIM</b>)','코드를 정하면 자녀 아이디가 <b>코드+번호</b>로 자동 생성됩니다','예) 첫째 <b>KIM0001</b> · 둘째 <b>KIM0002</b> …','코드는 <b>처음 한 번만</b> 정하면 되고, 이후 자녀도 같은 코드로 이어집니다'])
-    +feat('👶','② 자녀 등록','코드를 정한 뒤에는 이름·학년만 입력하면 자녀가 등록되고 로그인 아이디가 자동 발급됩니다.',['왼쪽 메뉴 <b>자녀 관리 → 자녀 등록</b>에서 이름·학년을 입력·저장합니다','저장하면 <b>코드+번호</b> 아이디가 발급됩니다 (초기 비밀번호 <b>0000</b>)','예) 김소율(중2) 등록 → 아이디 <b>KIM0001</b>','학년에 맞는 코스(초=펜타 / 중=아르케+펜타 / 고=아르케)가 자동 배정됩니다'])
-    +feat('🔑','③ 계정 활성화 · 자녀 로그인','자녀는 발급된 아이디와 초기 비밀번호(0000)로 로그인하고, 첫 로그인 때 비밀번호를 바꾸면 계정이 활성화됩니다.',['로그인 화면에 <b>자녀 아이디(예: KIM0001)</b>와 초기 비밀번호 <b>0000</b>을 입력합니다','첫 로그인 시 안내에 따라 <b>새 비밀번호로 변경</b>합니다','비밀번호를 잊었다면 <b>설정 → 자녀 비밀번호 초기화</b>(0000으로 재설정)'])
-    +feat('📱','④ 자녀 대시보드','자녀가 로그인하면 학년에 맞는 대시보드가 열립니다. 부모님이 보낸 과제와 코스가 여기 모여요.',['초등: 펜타 비전(기초·심화) / 중등: 아르케 + 펜타(심화·트랙) / 고등: 아르케','부모님이 보낸 회차·워크북을 자녀가 직접 수행합니다','수행 결과·리포트는 <b>학부모 대시보드</b>로 회신됩니다']);
-  var arche='<div style="font-size:12px;font-weight:800;color:#1b64da;letter-spacing:.02em;margin:22px 2px 10px;display:flex;align-items:center;gap:7px"><span style="width:22px;height:22px;border-radius:7px;background:#e8f3ff;display:grid;place-items:center">🎓</span>펜타 아르케 사용법 · 진로·수행</div>'
-    +feat('🪜','진로 징검다리','관심사 인터뷰에서 출발해 진로 탐구 주제를 찾고 보고서 구조를 잡습니다. 자녀가 직접 답하며 진행하고 AI는 방향만 코칭합니다(대필 없음).',['자녀 계정으로 로그인해 <b>진로 징검다리</b>를 엽니다','AI의 관심사 질문에 자녀가 직접 답합니다','나만의 탐구 주제와 보고서 뼈대가 도출됩니다','완성되면 <b>학부모 대시보드</b>에서 리포트를 확인해 코칭합니다'])
-    +feat('📝','수행평가 도우미','학교 수행평가 안내문을 올리면 관점을 스스로 고르게 하고, 그 학생만의 접근 설계도와 예상 채점 기준을 제공합니다. 작성은 자녀 본인이 합니다.',['학교에서 받은 <b>수행평가 안내문</b>을 업로드합니다','AI 인터뷰로 자녀가 관점을 선택합니다','나만의 접근 설계도·예상 채점기준을 확인합니다','자녀가 직접 작성하고 스스로 점검합니다']);
-  var penta='<div style="font-size:12px;font-weight:800;color:#9a7b28;letter-spacing:.02em;margin:22px 2px 10px;display:flex;align-items:center;gap:7px"><span style="width:22px;height:22px;border-radius:7px;background:#f6efdb;display:grid;place-items:center">✦</span>펜타 비전·트랙 사용법 · 융합사고</div>'
-    +'<div style="background:#fffdf4;border:1px solid #f2e2b0;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#6b5a2a;line-height:1.65;margin-bottom:12px">펜타 비전·트랙은 <b>비전 기초(초5~6) → 비전 심화(중1~2) → 트랙(중3)</b> 3단계로 이어지는 융합사고 코스입니다. 5대 지성(수학·논리 / 과학·기술 / 역사·사회 / 심리·인지 / 예술·디자인)을 균형 있게 키웁니다.</div>'
-    +feat('🗂','시즌 폴더 고르기','각 코스는 <b>시즌(폴더)</b>으로 묶여 있고 시즌마다 하나의 큰 주제가 있습니다(예: 근대 민주주의와 경제). 폴더의 명함에서 주제·학습목적을 보고 고릅니다.',['왼쪽 <b>펜타 시리즈</b>에서 코스를 선택합니다','시즌 폴더(시즌1·2·3)의 명함에서 주제를 확인합니다','관심 가는 시즌을 <b>체험 1강</b> 또는 <b>시즌 시작</b>으로 엽니다'])
-    +feat('📘','워크북 학습·성장 확인','자녀가 회차별 워크북을 단계(스텝)대로 풀며 사고를 확장합니다. 탐구 전/후 <b>지성 확장 레이더</b>로 성장을 눈으로 확인합니다.',['시즌 안의 회차(워크북)를 순서대로 진행합니다','읽기·영상·딜레마로 생각을 넓히고 직접 씁니다','탐구 전/후 레이더와 리포트로 성장을 확인합니다','학부모는 리포트를 읽고 아이와 대화로 이어갑니다']);
+  function head(txt,color,bg,ic){ return '<div style="font-size:12px;font-weight:800;color:'+color+';letter-spacing:.02em;margin:22px 2px 10px;display:flex;align-items:center;gap:7px"><span style="width:22px;height:22px;border-radius:7px;background:'+bg+';display:grid;place-items:center">'+ic+'</span>'+txt+'</div>'; }
+  function note(bg,bd,color,html){ return '<div style="background:'+bg+';border:1px solid '+bd+';border-radius:12px;padding:12px 15px;font-size:12.3px;color:'+color+';line-height:1.68;margin-bottom:12px">'+html+'</div>'; }
+  /* 처음 방문자용 3줄 요약 — 펜타뷰가 뭐 하는 곳인지부터 */
+  var intro='<div style="background:linear-gradient(135deg,#f5f3ff,#eef4ff);border:1px solid #e3e0fb;border-radius:16px;padding:18px 18px 16px;margin-bottom:10px">'
+    +'<div style="font-weight:800;font-size:15px;color:#4f46a8;margin-bottom:9px">🦉 펜타뷰가 처음이신가요?</div>'
+    +'<div style="font-size:12.8px;color:#3d3a52;line-height:1.75">펜타뷰는 자녀의 <b>스스로 생각하는 힘(사고력)</b>과 <b>진로·학교생활</b>을 함께 키우는 학습 서비스예요. 크게 두 갈래로 나뉩니다.</div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">'
+      +'<div style="flex:1;min-width:190px;background:#fff;border:1px solid #efeafd;border-radius:11px;padding:11px 13px"><div style="font-weight:800;font-size:12.5px;color:#9a7b28;margin-bottom:3px">✦ 융합사고 · 펜타 비전·트랙</div><div style="font-size:11.8px;color:#5b5676;line-height:1.62">여러 과목을 넘나들며 한 주제를 깊이 파고드는 <b>생각 훈련 코스</b>예요. (초5~중3)</div></div>'
+      +'<div style="flex:1;min-width:190px;background:#fff;border:1px solid #e5eefb;border-radius:11px;padding:11px 13px"><div style="font-weight:800;font-size:12.5px;color:#1b64da;margin-bottom:3px">🎓 진로·수행 · 펜타 아르케</div><div style="font-size:11.8px;color:#5b5676;line-height:1.62"><b>진로 탐구</b>와 <b>학교 수행평가</b>를 스스로 준비하도록 돕는 코스예요. (중·고)</div></div>'
+    +'</div>'
+    +'<div style="font-size:11.8px;color:#6b6786;line-height:1.6;margin-top:11px;background:#fff;border-radius:9px;padding:9px 12px">💡 <b>AI가 정답이나 글을 대신 써주지 않아요.</b> 질문으로만 도와서, 자녀가 스스로 생각하고 직접 씁니다.</div>'
+  +'</div>';
+  /* ── 시작 · 계정 ── */
+  var gStart=head('시작 · 계정','#4f46a8','#eceafc','🚀')
+    +feat('🏠','홈','왼쪽 메뉴 › 홈','로그인하면 가장 먼저 보이는 화면이에요. 등록한 자녀의 학습 현황과 지금 할 일이 한눈에 모입니다.',['자녀별 <b>코스·과제·리포트 발행 대기</b>를 카드로 확인해요','위쪽 <b>🚀 3분 시작 튜터리얼</b> 배너로 전체 흐름을 빠르게 익힐 수 있어요','자녀가 여러 명이면 상단에서 자녀를 바꿔가며 볼 수 있어요'])
+    +feat('🔖','우리 가정 코드란?','','자녀를 처음 등록할 때 우리 가정만의 <b>고유 코드</b>(예: KIM)를 한 번 정해요. 이 코드가 모든 자녀 로그인 아이디의 앞부분이 되어서, 자녀별 아이디를 따로 외울 필요가 없어요.',['첫 자녀 등록 때 <b>가정 코드</b> 입력 안내가 떠요 (영문/숫자, 예: <b>KIM</b>)','자녀 아이디가 <b>코드+번호</b>로 자동 생성돼요 — 첫째 <b>KIM0001</b> · 둘째 <b>KIM0002</b>','코드는 <b>처음 한 번만</b> 정하면 되고, 이후 자녀도 같은 코드로 이어져요']);
+  /* ── 자녀 ── */
+  var gChild=head('자녀','#4f46a8','#eceafc','👨‍👧')
+    +feat('👨‍👧','자녀 관리','왼쪽 메뉴 › 자녀 관리','자녀를 등록·수정하는 곳이에요. 이름·학년만 넣으면 로그인 아이디가 자동으로 만들어집니다.',['<b>자녀 등록</b>에서 이름·학년을 입력·저장해요','<b>코드+번호</b> 아이디가 발급돼요 (초기 비밀번호 <b>0000</b>)','학년에 맞는 코스가 자동 배정돼요 — 초=융합사고 / 중=융합사고+진로·수행 / 고=진로·수행','자녀는 발급된 아이디와 0000으로 로그인한 뒤 새 비밀번호로 바꾸면 준비 끝!'])
+    +feat('🗂','자녀 제출함','왼쪽 메뉴 › 자녀 제출함','자녀가 워크북·활동을 다 풀어 <b>제출</b>하면 여기로 모여요. 부모님이 확인하고 <b>성장 리포트</b>를 발행해 아이와 대화로 이어갑니다.',['자녀가 제출하면 <b>발행 대기</b> 뱃지가 떠요','제출물을 열어 자녀의 생각·답을 확인해요','<b>리포트 발행</b>을 누르면 자녀 성장 리포트가 만들어져요','리포트를 함께 보며 아이와 이야기를 나눠요']);
+  /* ── 학습 콘텐츠 · 융합사고 ── */
+  var gLearn=head('학습 콘텐츠 · 융합사고','#9a7b28','#f6efdb','✦')
+    +note('#fffdf4','#f2e2b0','#6b5a2a','<b>융합사고(펜타 비전·트랙)</b>는 <b>비전 기초(초5~6) → 비전 심화(중1~2) → 트랙(중3)</b> 3단계로 이어지는 코스예요. 수학·논리 / 과학·기술 / 역사·사회 / 심리·인지 / 예술·디자인 — 이 <b>5가지 생각의 힘(5대 지성)</b>을 골고루 키웁니다.')
+    +feat('📘','펜타 비전 · 📙 펜타 트랙','왼쪽 메뉴 › 학습 콘텐츠','한 주제를 여러 과목의 눈으로 바라보며 <b>스스로 생각을 넓히는</b> 워크북 학습이에요. 자녀가 읽기·영상·딜레마를 보고 자기 생각을 직접 씁니다.',['코스를 고르면 <b>시즌(폴더)</b>이 보여요 — 시즌마다 큰 주제가 하나 있어요 (예: 근대 민주주의와 경제)','마음에 드는 시즌의 <b>1강을 무료로 체험</b>해볼 수 있어요','자녀가 회차별 워크북을 <b>단계(스텝)</b>대로 풀어요','탐구 <b>전/후 레이더</b>(생각의 넓이를 별 모양 그래프로 보여줌)로 성장을 눈으로 확인해요']);
+  /* ── 펜타 아르케 · 진로/수행 ── */
+  var gArche=head('펜타 아르케 · 진로와 수행','#1b64da','#e8f3ff','🎓')
+    +note('#f4f9ff','#d8e8fb','#2b4a75','<b>펜타 아르케</b>는 <b>중·고 자녀</b>를 위한 진로·학교생활 코스예요. AI가 답을 대신 써주지 않고 <b>질문으로만</b> 도와서, 자녀가 스스로 진로를 찾고 글을 씁니다(대필 아님).')
+    +feat('🪜','진로 (진로 징검다리)','왼쪽 메뉴 › 펜타 아르케 · 진로','‘<b>진로 징검다리</b>’는 자녀의 관심사에서 출발해 <b>진짜 하고 싶은 탐구 주제</b>를 찾고 보고서 뼈대를 잡아주는 기능이에요.',['자녀 계정으로 <b>진로 징검다리</b>를 열어요','AI의 관심사 질문에 자녀가 직접 답해요','자기만의 <b>탐구 주제와 보고서 뼈대</b>가 만들어져요','완성되면 학부모 화면에서 리포트를 보고 코칭해요'])
+    +feat('📝','수행평가 도우미','왼쪽 메뉴 › 펜타 아르케 · 수행평가','학교에서 받은 <b>수행평가 안내문</b>을 올리면, 자녀가 스스로 관점을 고르게 하고 그 학생만의 <b>접근 설계도·예상 채점 기준</b>을 만들어줘요. 글은 자녀 본인이 씁니다.',['학교 <b>수행평가 안내문</b>을 업로드해요','AI 인터뷰로 자녀가 <b>관점</b>을 골라요','나만의 접근 설계도·예상 채점기준을 확인해요','자녀가 직접 작성하고 스스로 점검해요']);
+  /* ── 정기 성장 리포트 ── */
+  var gReport=head('정기 성장 리포트','#4f46a8','#eceafc','📈')
+    +feat('📈','정기 성장 리포트','왼쪽 메뉴 › 정기 성장 리포트','자녀의 <b>월간·분기·연간</b> 활동을 모아 성향·발전을 종합 분석해 발행하는 리포트예요. 낱개 워크북 리포트보다 <b>긴 흐름의 성장</b>을 보여줍니다.',['코스(비전·트랙)를 골라요','기간(월/분기/연)을 정하고 <b>분석·발행</b>을 눌러요','완성된 리포트를 자녀와 함께 봐요']);
+  /* ── 구매·결제 ── */
+  var gBuy=head('구매·결제','#4f46a8','#eceafc','💳')
+    +feat('🛍️','상품 담기 · 🛒 장바구니 · 💳 구독·결제','왼쪽 메뉴 › 구매·결제','무료 체험 뒤 마음에 들면 결제하는 곳이에요. 전체를 여는 <b>구독</b>과, 원하는 <b>시즌만 골라 담는</b> 방식 두 가지가 있어요.',['<b>상품 담기</b>에서 원하는 시즌·코스를 장바구니에 담아요','<b>장바구니</b>에서 담은 상품을 확인·수정해요','<b>구독·결제</b>에서 결제하면 자녀에게 전체 시즌을 보낼 수 있어요']);
+  /* ── 본사 소식 ── */
+  var gNews=head('본사 소식','#4f46a8','#eceafc','📌')
+    +feat('📌','공지 · 📰 교육뉴스 · 🎓 입시소식','왼쪽 메뉴 › 본사 소식','학원·본사의 공지와 교육·입시 소식을 모아 보는 곳이에요.',['<b>공지</b>: 학원/서비스 안내','<b>교육뉴스</b>: 학습·교육 관련 소식','<b>입시소식</b>: 대입·고입 관련 정보']);
+  /* ── 설정 ── */
+  var gSet=head('설정','#4f46a8','#eceafc','⚙️')
+    +feat('⚙️','설정','왼쪽 메뉴 › 설정','학부모 비밀번호를 바꾸거나, 자녀가 비밀번호를 잊었을 때 초기화하는 곳이에요.',['<b>학부모 비밀번호 변경</b>: 내 로그인 비밀번호를 바꿔요','<b>자녀 비밀번호 초기화</b>: 자녀 비밀번호를 0000으로 되돌려요 (자녀는 다음 로그인 때 새로 설정)']);
+  var tip='<div style="background:#f0f4ff;border:1px solid #dbe4fb;border-radius:12px;padding:13px 15px;margin-top:6px;display:flex;align-items:center;gap:10px;cursor:pointer" onclick="b2cTutorial(true)"><span style="font-size:20px">🚀</span><div style="flex:1"><div style="font-weight:800;font-size:13px;color:#1b64da">전체 흐름을 한 번에 보고 싶다면</div><div style="font-size:11.8px;color:#6b7688">3분 시작 튜터리얼을 다시 볼 수 있어요</div></div><span style="color:#8b95a1;font-size:18px">›</span></div>';
   v.innerHTML='<div style="max-width:820px;margin:0 auto;padding:16px 14px 60px">'
     +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:14px">← 대시보드로</button>'
     +'<div style="font-size:21px;font-weight:800;margin:2px 2px 2px">사용 안내</div>'
-    +'<div style="font-size:13px;color:#8b95a1;margin:2px 2px 16px">각 기능의 사용 방법을 아르케·펜타로 나눠 안내합니다.</div>'
-    +start+arche+penta+'</div>';
+    +'<div style="font-size:13px;color:#8b95a1;margin:2px 2px 16px">왼쪽 메뉴 순서대로, 각 기능을 처음 쓰는 분도 알 수 있게 설명해요.</div>'
+    +intro+gStart+gChild+gLearn+gArche+gReport+gBuy+gNews+gSet+tip+'</div>';
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenGuide=b2cOpenGuide;
@@ -3023,12 +3040,12 @@ window.b2cAddToCart=b2cAddToCart;
 function b2cBuyNow(ref, price){
   var s=window._activeStudent;
   if(!s||!s.id){ alert('먼저 홈에서 자녀를 선택/등록해 주세요.'); return; }
+  if(!window.ArcheCart||!ArcheCart.buyNow){ alert('결제 모듈 미로드 — /shared/arche_cart.js(1.3+) 업로드·경로를 확인하세요.'); return; }
   if(!(Number(price)>0)){ alert('가격 정보가 없어 결제할 수 없어요.'); return; }
-  // 전용 결제위젯 페이지로 이동 (앱과 분리 → 취소해도 앱 유지)
-  location.href = '/pay/checkout?mode=buy&ref=' + encodeURIComponent(ref)
-    + '&student=' + encodeURIComponent(s.id)
-    + '&amount=' + (Number(price))
-    + '&name=' + encodeURIComponent('펜타 단품 결제');
+  try{
+    var p=ArcheCart.buyNow(s.id, ref, Number(price));
+    if(p&&p.catch){ p.catch(function(e){ if(!(e&&(e.code==='USER_CANCEL'||e.code==='PAY_PROCESS_CANCELED'))){ alert('결제창 오류: '+((e&&e.message)||e)); } }); }
+  }catch(e){ alert('결제 시작 실패: '+((e&&e.message)||e)); }
 }
 window.b2cBuyNow=b2cBuyNow;
 /* [선물하기] 시즌 단품을 선물코드로 발급 → QR/링크. (B2C 학부모=발급권한 · KG 결제 연동 시 결제완료 자동발급으로 전환) */
@@ -3284,21 +3301,7 @@ async function renderB2CParentHome(){
   if(!child){
     try{ var r=await sb.from('students').select('*').order('created_at',{ascending:true}).limit(1); if(r&&r.data&&r.data[0]){ child=r.data[0]; window._activeStudent=child; } }catch(e){}
   }
-  if(!child){
-    // [b2c·자녀 미등록] 컨설턴트 홈이 남지 않도록 학부모 전용 시작 화면을 렌더
-    try{ applyB2CSidebar('중'); }catch(e){}
-    v.innerHTML = '<div class="b2cd-view" style="max-width:820px;margin:0 auto;padding:8px 4px 60px">'
-      + '<div style="background:linear-gradient(135deg,#eef3ff,#fff);border:1px solid #dbe4fb;border-radius:16px;padding:22px 20px;margin-bottom:12px">'
-      + '<div style="font-size:20px;font-weight:800;color:#1b64da">환영합니다, 학부모님 🦉</div>'
-      + '<div style="font-size:13.5px;color:#4e5968;margin-top:6px;line-height:1.65">자녀를 등록하면 아이 전용 학습이 시작됩니다. 학년에 따라 <b>펜타 비전·트랙·아르케</b>가 자동으로 맞춰지고, 각 과정 <b>첫 시즌 1강을 무료</b>로 바로 체험할 수 있어요.</div>'
-      + '<button id="b2c-addkid-btn" style="margin-top:16px;background:#3182f6;color:#fff;border:0;border-radius:10px;padding:12px 20px;font-weight:800;font-size:14px;cursor:pointer">＋ 자녀 등록하고 시작하기</button>'
-      + '</div>'
-      + '<div id="b2c-tut-banner" style="cursor:pointer;background:linear-gradient(135deg,#f3f0ff,#fff);border:1px solid #e0d8fb;border-radius:14px;padding:13px 15px;display:flex;align-items:center;gap:11px"><span style="font-size:22px">🚀</span><div style="flex:1;min-width:0"><div style="font-weight:800;font-size:13.5px;color:#4f46a8">처음이신가요? 3분 시작 튜터리얼</div><div style="font-size:12px;color:#6b7688">자녀 등록부터 무료 체험·리포트까지 한 번에</div></div><span style="color:#8b95a1;font-size:18px">›</span></div>'
-      + '</div>';
-    try{ var _ab=document.getElementById('b2c-addkid-btn'); if(_ab)_ab.onclick=function(){ var n=document.querySelector('.nav[data-v="students"]'); if(n)go(n); }; }catch(e){}
-    try{ var _tb=document.getElementById('b2c-tut-banner'); if(_tb)_tb.onclick=function(){ try{ b2cTutorial(true); }catch(e){} }; }catch(e){}
-    return;
-  }
+  if(!child) return; // 등록된 자녀 없으면 기존 홈(등록 안내) 유지
   try{ applyB2CSidebar(b2cBand(child.grade)); }catch(e){}
   ArcheParentDash.mount(v, {
     parent:{ name: (window._parentName||'학부모') },
@@ -3517,17 +3520,6 @@ document.getElementById('au-signup').onclick=async()=>{
   if(error)return msg(error.message);
   if(data.session) enterApp(data.session);
   else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='확인 메일을 보냈습니다. 인증 후 로그인하세요.<br><span style="color:var(--gold,#3182f6);font-size:11.5px;line-height:1.5">⚠️ 인증 메일은 Supabase(해외 서버)에서 발송됩니다. 메일이 안 보이면 <b>스팸함·프로모션함</b>을 꼭 확인하세요.</span>'; }
-};
-// [구글 원클릭] 학부모(b2c) 소셜 로그인 — 인증메일 없이 즉시 가입·로그인.
-//   복귀 시 getSession → enterApp → ensureAcademy가 신규면 b2c로 프로비저닝(_pv_oauth_acct 플래그).
-var _gBtn=document.getElementById('au-google');
-if(_gBtn) _gBtn.onclick=async()=>{
-  if(!sb)return msg('DB 미로드 — 페이지 새로고침 해주세요.');
-  try{ localStorage.setItem('_pv_oauth_acct','b2c'); }catch(_e){}
-  msg('구글 로그인 창으로 이동합니다…',true);
-  var redir=location.origin+location.pathname;
-  var {error}=await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:redir, queryParams:{ prompt:'select_account' } } });
-  if(error){ try{ localStorage.removeItem('_pv_oauth_acct'); }catch(_e){} msg('구글 로그인 실패: '+error.message+' (관리자: Supabase에서 Google 제공자 활성화 필요)'); }
 };
 document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.replace('/login');};
 /* 회원 탈퇴 — 상단 로그아웃과 분리해 페이지 맨 아래로 이동(실수 클릭 방지). 대상자에게만 표시 */
