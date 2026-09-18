@@ -5,17 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>펜타 시리즈 · 스스로 생각하는 힘을 키우는 학습 플랫폼 — PentaView</title>
 <meta name="description" content="AI가 대신 써주는 시대, 펜타 시리즈는 아이가 스스로 사고하고 직접 쓰게 합니다. 펜타 비전(융합사고) · 펜타 트랙(진로 설계) · 펜타 아르케(본인 작성 증명).">
-<meta name="theme-color" content="#3182f6">
+<meta name="theme-color" content="#2563eb">
 <link rel="icon" type="image/png" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
 :root{
-  --bg:#f2f4f6;--panel:#fff;--line:#e5e8eb;--line-soft:#eef1f4;
-  --ink:#191f28;--ink-dim:#4e5968;--ink-mute:#8b95a1;--ink-faint:#b0b8c1;
-  --blue:#3182f6;--blue-deep:#1b64da;--blue-soft:#e8f3ff;
-  --sky:#1f95ff;--sky-soft:#e8f5ff;--mint:#0bb8a6;--mint-soft:#e0fbf6;
-  --amber:#f5920a;--amber-soft:#fff3d6;--safe:#12b76a;--safe-soft:#ecfdf3;--navy:#141a29;
+  /* 전문·신뢰 팔레트 · slate 기반 + 절제된 3색(비전 딥블루 / 트랙 딥틸 / 아르케 브론즈) */
+  --bg:#f8fafc;--panel:#fff;--line:#e2e8f0;--line-soft:#eef2f7;
+  --ink:#0f172a;--ink-dim:#475569;--ink-mute:#94a3b8;--ink-faint:#cbd5e1;
+  --blue:#2563eb;--blue-deep:#1d4ed8;--blue-soft:#eaf1fe;
+  --sky:#2563eb;--sky-soft:#eaf1fe;--mint:#0f766e;--mint-soft:#e3f3f1;
+  --amber:#b45309;--amber-soft:#f6ecde;--safe:#15803d;--safe-soft:#e9f6ee;--navy:#0f172a;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Pretendard Variable',Pretendard,-apple-system,sans-serif;background:var(--bg);color:var(--ink);letter-spacing:-.012em;-webkit-font-smoothing:antialiased;line-height:1.6}
@@ -132,8 +133,8 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .annual.track .ae{color:#00897d;background:var(--mint-soft)}
 .annual .at{font-size:15px;font-weight:800;margin:9px 0 3px}
 .annual .am{font-size:11px;color:var(--ink-mute);font-weight:600}
-.annual .alink{display:block;text-align:center;padding:12px;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1f95ff,#1877e0)}
-.annual.track .alink{background:linear-gradient(135deg,#0bb8a6,#089b8c)}
+.annual .alink{display:block;text-align:center;padding:12px;font-size:13px;font-weight:800;color:#fff;background:linear-gradient(135deg,#2563eb,#1d4ed8)}
+.annual.track .alink{background:linear-gradient(135deg,#0f766e,#0b5c56)}
 
 /* 3층 철학 / 왜지금 / 로드맵 */
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
@@ -180,7 +181,8 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .payinfo .plink a{color:var(--blue);font-weight:700;margin-right:14px}
 
 /* CTA 밴드 */
-.cta-band{background:linear-gradient(135deg,#1d2537,#1b64da);border-radius:18px;padding:26px 20px;text-align:center;color:#fff;margin-top:20px}
+.cta-band{background:linear-gradient(135deg,#0f172a,#1e3a8a);border-radius:18px;padding:26px 20px;text-align:center;color:#fff;margin-top:20px}
+.cta-band p{color:#c7d2e8}
 .cta-band h3{font-size:18px;font-weight:800}
 .cta-band p{font-size:12.5px;color:#c9d7f2;margin-top:8px;line-height:1.7}
 .cta-band .btn.white{background:#fff;color:var(--blue-deep);margin-top:14px}
