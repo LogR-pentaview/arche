@@ -36,7 +36,15 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .logo{display:flex;align-items:center;gap:8px;font-size:18px;font-weight:800}
 .logo .mark{width:30px;height:30px;border-radius:8px;object-fit:cover;box-shadow:0 4px 10px rgba(20,26,41,.2)}
 .logo b{color:var(--blue)}
-.top .right{margin-left:auto;display:flex;gap:6px}
+.top .right{margin-left:auto;display:flex;gap:6px;align-items:center}
+.logindrop{position:relative}
+.loginmenu{position:absolute;top:calc(100% + 8px);right:0;z-index:120;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:0 18px 44px -18px rgba(30,27,58,.4);padding:6px;min-width:236px;display:none}
+.loginmenu.open{display:block}
+.loginmenu .lmhead{font-size:10.5px;font-weight:800;color:var(--ink-mute);letter-spacing:.04em;padding:8px 12px 6px}
+.loginmenu a{display:block;padding:10px 12px;border-radius:10px;transition:.12s}
+.loginmenu a:hover{background:var(--vs)}
+.loginmenu a b{display:block;font-size:13.5px;font-weight:800;color:var(--ink)}
+.loginmenu a span{display:block;font-size:11px;color:var(--ink-mute);font-weight:600;margin-top:2px}
 .tabnav{border-top:1px solid var(--line-soft);overflow-x:auto;background:#fff;-webkit-overflow-scrolling:touch}
 .tabnav::-webkit-scrollbar{height:0}
 .tabnav .inner{display:flex;gap:2px;max-width:860px;margin:0 auto;padding:0 10px}
@@ -235,7 +243,15 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   <div class="top">
     <a class="logo" href="#"><img class="mark" src="/icon-192.png" alt="펜타" width="30" height="30">펜타<b>.</b></a>
     <div class="right">
-      <a class="btn ghost" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">로그인</a>
+      <div class="logindrop">
+        <button class="btn ghost logbtn" type="button" onclick="toggleLoginMenu(event)">로그인 <span style="font-size:9px;opacity:.55">▾</span></button>
+        <div class="loginmenu" id="loginmenu">
+          <div class="lmhead">이용자별 로그인</div>
+          <a href="https://arche.penta-view.com/parent" target="_blank" rel="noopener"><b>👨‍👩‍👧 학부모</b><span>가정용 구독 · 자녀 리포트</span></a>
+          <a href="https://arche.penta-view.com/academy" target="_blank" rel="noopener"><b>🏫 학원</b><span>원장 · 강사 · 재원생 학부모</span></a>
+          <a href="https://arche.penta-view.com/school" target="_blank" rel="noopener"><b>🎓 학교</b><span>교사 · 학생 · 관리자</span></a>
+        </div>
+      </div>
       <a class="btn pri" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">무료 시작</a>
     </div>
   </div>
@@ -641,6 +657,8 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
 </footer>
 
 <script>
+function toggleLoginMenu(e){ if(e){e.stopPropagation();} var m=document.getElementById('loginmenu'); if(m) m.classList.toggle('open'); }
+document.addEventListener('click',function(e){ var m=document.getElementById('loginmenu'); if(m&&m.classList.contains('open')&&!e.target.closest('.logindrop')) m.classList.remove('open'); });
 function openLoop(){var m=document.getElementById('loopModal');if(m){m.classList.add('open');document.body.style.overflow='hidden';}}
 function closeLoop(){var m=document.getElementById('loopModal');if(m){m.classList.remove('open');document.body.style.overflow='';}}
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();});
