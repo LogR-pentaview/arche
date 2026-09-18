@@ -716,11 +716,11 @@
       <section class="view" id="v-allstudents">
         <div class="eyebrow">Student Management</div>
         <div class="h1" data-b2c="자녀 관리">학생 관리</div>
-        <div class="sub" data-b2c-sub="자녀를 등록·관리합니다 · 학년에 따라 고입/대입이 자동 구분됩니다">학생을 한 곳에서 등록·관리합니다 · 학년에 따라 고입/대입이 자동 구분됩니다</div>
+        <div class="sub" data-b2c-sub="자녀를 등록·관리합니다 · 학년에 따라 초등/고입/대입이 자동 구분됩니다">학생을 한 곳에서 등록·관리합니다 · 학년에 따라 초등/고입/대입이 자동 구분됩니다</div>
         <div style="background:rgba(0,184,169,.07);border:1px solid rgba(0,184,169,.25);border-radius:12px;padding:14px 16px;margin-top:14px;font-size:12.5px;color:var(--ink-dim);line-height:1.7">
           <b style="color:var(--ink)">쉽게 등록하기</b><br>
           <b>①</b> 이름·지역·성별·<b>학년</b> 입력 → [등록] &nbsp;→&nbsp; <b>②</b> 학생 <b>로그인 아이디 자동 생성</b> &nbsp;→&nbsp; <b>③</b> [열기]로 자료 입력(학생 자료 업로드)으로 이동<br>
-          <span style="color:var(--ink-mute);font-size:11.5px">※ 중학생(중1~중3)은 <b>고입</b>, 고등학생(고1~N수)은 <b>대입</b>으로 자동 분류됩니다.</span>
+          <span style="color:var(--ink-mute);font-size:11.5px">※ <b>초등</b>은 융합사고 코스, <b>중학생(중1~중3)</b>은 고입, <b>고등학생(고1~N수)</b>은 대입으로 자동 분류됩니다.</span>
         </div>
         <div style="display:grid;grid-template-columns:340px 1fr;gap:24px;margin-top:20px" class="stu-grid">
           <div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start">
@@ -3686,13 +3686,19 @@ async function renderAllStudents(){
   if(!window._allStudents.length){ list.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._isB2C?'등록된 자녀가 없습니다. 왼쪽에서 등록하세요.':'등록된 학생이 없습니다. 왼쪽에서 등록하세요.')+'</div>'; return; }
   var _AVC={dae:'#3b7a9e',goip:'#7c3aed'};
   list.innerHTML='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(272px,1fr));gap:14px">'+window._allStudents.map(function(s){
-    var goip=s.admission_track==='고입';
-    var badge=goip?'<span style="font-size:10px;color:#7c3aed;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>':'<span style="font-size:10px;color:#1b64da;background:#e5f0fa;border-radius:6px;padding:2px 8px;font-weight:600">대입</span>';
+    /* [배지] 학년대 기준(초/중/고)으로 구분 — 초등은 입시 트랙(고입·대입)이 아니라 '초등'으로 표시 */
+    var _band=(window.b2cBand?b2cBand(s.grade):(s.admission_track==='고입'?'중':'고'));
+    var goip=(_band==='중');
+    var badge = (_band==='초')
+      ? '<span style="font-size:10px;color:#0a7d5a;background:#e3f6ee;border-radius:6px;padding:2px 8px;font-weight:600">초등</span>'
+      : (_band==='중')
+      ? '<span style="font-size:10px;color:#7c3aed;background:#f3e8fa;border-radius:6px;padding:2px 8px;font-weight:600">고입</span>'
+      : '<span style="font-size:10px;color:#1b64da;background:#e5f0fa;border-radius:6px;padding:2px 8px;font-weight:600">대입</span>';
     if(s.is_rookie)badge+=' <span style="font-size:10px;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:2px 8px;font-weight:600">신입생</span>';
     var acct=window._allAcct&&window._allAcct[s.id];
     var acctLbl=acct?('<span style="color:var(--safe)">아이디 '+esc(acct.login_id)+'</span>'):'<span style="color:var(--ink-mute)">계정 없음</span>';
     var _ini=esc(String(s.name||'-').trim().charAt(0)||'·');
-    var _av=goip?_AVC.goip:_AVC.dae;
+    var _av=(_band==='초')?'#0a7d5a':(goip?_AVC.goip:_AVC.dae);
     return '<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 1px 2px rgba(25,31,40,.03),0 10px 26px rgba(25,31,40,.04)">'
       +'<div style="display:flex;align-items:center;gap:11px;margin-bottom:12px">'
         +'<div style="width:44px;height:44px;border-radius:13px;background:'+_av+';display:grid;place-items:center;font-family:\'Noto Serif KR\',serif;font-weight:600;color:#fff;font-size:18px;flex:none">'+_ini+'</div>'
@@ -3723,7 +3729,7 @@ async function addAllStudent(){
   if(!grade){m.style.color='var(--risk)';m.textContent='학년을 선택하세요 (고입/대입 자동 구분).';return;}
   if(!sb){m.style.color='var(--risk)';m.textContent='DB 미로드 — 새로고침';return;}
   if(window._demo && (window._allStudents||[]).length>=2){m.style.color='var(--risk)';m.textContent='체험 모드에서는 최대 2명까지 등록할 수 있습니다.';return;}
-  var track=grade.indexOf('중')>=0?'고입':'대입';
+  var track=grade.indexOf('중')>=0?'고입':grade.indexOf('초')>=0?'초등':'대입';
   var acs=await sb.from('academies').select('id').limit(1); var acid=acs.data&&acs.data[0]&&acs.data[0].id;
   if(!acid){m.style.color='var(--risk)';m.textContent='학원 정보 없음';return;}
   var row={academy_id:acid,name:name,region:reg,gender:gen,grade:grade,admission_track:track,
@@ -7773,7 +7779,7 @@ async function saveBaseCon(){
   var name=document.getElementById('bc-name').value.trim();
   var grade=document.getElementById('bc-grade').value;
   if(!name||!grade){m.style.color='var(--risk)';m.textContent='이름과 학년은 필수입니다.';return;}
-  var track=grade.indexOf('중')>=0?'고입':'대입';
+  var track=grade.indexOf('중')>=0?'고입':grade.indexOf('초')>=0?'초등':'대입';
   var kindEl=document.getElementById('bc-kind');
   var kindVal=(window._isB2C)?'학부모':(kindEl?kindEl.value:'학생');
   var row={name:name,grade:grade,track:track,kind:kindVal,
