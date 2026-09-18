@@ -3,22 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AI, 과연 인류를 통제할 것인가 · 펜타 무료 체험</title>
-<meta name="description" content="AI가 답을 주는 시대, 아이가 스스로 답을 세우는 무료 체험 워크북. 가입 없이 지금 한 편, 끝까지.">
-<link rel="canonical" href="https://arche.penta-view.com/samples/trial-ai-workbook">
+<title>기후위기, 성장을 멈춰야 하는가 · 펜타 트랙 무료 체험</title>
+<meta name="description" content="중3 교과 융합·진로 설계 워크북. 과학×경제×윤리를 가로질러 스스로 논지를 세우는 무료 체험.">
+<link rel="canonical" href="https://arche.penta-view.com/samples/track-workbook-real">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="PENTA · PentaView">
-<meta property="og:title" content="AI, 과연 인류를 통제할 것인가 — 펜타 무료 체험">
-<meta property="og:description" content="답을 검색하는 수업이 아니라, 아이가 스스로 답을 세우는 수업. 가입 없이 지금 한 편 무료로 해보세요.">
-<meta property="og:url" content="https://arche.penta-view.com/samples/trial-ai-workbook">
+<meta property="og:title" content="기후위기, 성장을 멈춰야 하는가 — 펜타 트랙 무료 체험">
+<meta property="og:description" content="중3 교과 융합·진로 설계. 답 대신 되묻는 수업, 가입 없이 지금 한 편 무료로.">
+<meta property="og:url" content="https://arche.penta-view.com/samples/track-workbook-real">
 <meta property="og:image" content="https://arche.penta-view.com/icon-512.png">
-<meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="AI, 과연 인류를 통제할 것인가 — 펜타 무료 체험">
-<meta name="twitter:description" content="답 대신 되묻는 수업. 가입 없이 지금 한 편 무료로.">
-<meta name="twitter:image" content="https://arche.penta-view.com/icon-512.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
 <style>
-/* 펜타 비전 심화 워크북 스킨 (실제 penta_catalog 콘텐츠 렌더) */
+/* 펜타 트랙 워크북 스킨 */
 :root{--indigo:#1A237E;--blue:#3182f6;--blueD:#1b64da;--mint:#0BB8A6;--gold:#c8a24a;--goldD:#a2842f;--amber:#e0453a;
   --ink:#191f28;--dim:#4e5968;--mute:#8b95a1;--line:#e6eaf0;--soft:#f4f7fb;--paper:#fbfcfe;}
 *{box-sizing:border-box}html,body{margin:0}
@@ -27,7 +23,7 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .brandbar{max-width:520px;margin:0 auto 12px;padding:0 16px;display:flex;align-items:center;gap:10px}
 .mk{width:32px;height:32px;flex:0 0 auto;border-radius:9px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;display:grid;place-items:center;font-weight:900;font-family:serif;font-size:17px;box-shadow:0 4px 12px rgba(49,130,246,.32)}
 .brandtx b{font-size:15px;color:var(--indigo);font-weight:800}.brandtx span{display:block;font-size:11px;color:var(--mute);margin-top:1px}
-.grade{margin-left:auto;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--blue),var(--blueD));padding:5px 11px;border-radius:20px}
+.grade{margin-left:auto;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,#0BB8A6,#0aa596);padding:5px 11px;border-radius:20px}
 .prog{max-width:520px;margin:0 auto 8px;padding:0 16px}.pbar{height:5px;border-radius:4px;background:#dbe3ef;overflow:hidden}
 .pfill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--mint));transition:width .45s cubic-bezier(.4,0,.2,1)}
 .chips{display:flex;gap:6px;overflow-x:auto;padding:10px 16px 2px;max-width:520px;margin:0 auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
@@ -65,19 +61,16 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .opt{background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:13px 15px;cursor:pointer;transition:.2s}
 .opt:hover{border-color:#b9cdf0}.opt .ol{font-size:14px;font-weight:700;color:var(--ink)}.opt .od{font-size:12.5px;color:var(--mute);margin-top:4px;line-height:1.5}
 .opt.on{border-color:var(--blue);background:#eef4ff}.opt.on .ol{color:var(--blueD)}
-/* scale */
 .scalebox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px 16px;margin:14px 0;box-shadow:0 6px 18px -12px rgba(20,26,41,.18)}
 .scalebox .sq{font-size:14px;font-weight:700;color:var(--ink);margin-bottom:12px}
 .scalebox .ends{display:flex;justify-content:space-between;font-size:11.5px;font-weight:700;color:var(--dim);margin-bottom:5px}
 .scalebox .ends .l{color:var(--blueD)}.scalebox .ends .r{color:var(--mint)}
 .scalebox input[type=range]{width:100%;accent-color:var(--blue)}
 .scalebox .val{text-align:center;font-size:12px;color:var(--mute);margin-top:6px}
-/* stats */
 .stats{display:flex;gap:8px;margin:14px 0}
 .stats .st{flex:1;background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 10px;text-align:center}
 .stats .st .k{font-size:12px;font-weight:800;color:var(--indigo)}
 .stats .st .v{font-size:12.5px;color:var(--dim);margin-top:4px;font-weight:600}
-/* video */
 .videobox{margin:14px 0}
 .vid{position:relative;width:100%;padding-top:56.25%;border-radius:14px;overflow:hidden;background:#000;box-shadow:0 10px 30px -16px rgba(20,26,41,.4)}
 .vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
@@ -86,7 +79,6 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .vtitle{font-size:13.5px;font-weight:800;color:var(--ink);margin:10px 2px 4px}
 .vbody{font-size:12.5px;color:var(--dim);line-height:1.6;margin:0 2px}
 .mission{margin-top:10px;background:#eef4ff;border:1px solid #d5e3ff;border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--blueD);line-height:1.55}
-/* radar */
 .radar-wrap{display:flex;flex-direction:column;gap:14px;margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 8px 24px -16px rgba(20,26,41,.25)}
 .radar-wrap svg{width:100%;max-width:300px;margin:0 auto;display:block}
 .legend{display:flex;gap:16px;justify-content:center;font-size:11.5px;margin-top:4px}.legend span{display:flex;align-items:center;gap:5px;color:var(--dim)}
@@ -96,7 +88,6 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .frq input[type=range]{width:100%;accent-color:var(--blue)}
 .growth{display:flex;align-items:center;gap:12px;margin-top:14px;background:#eafaf7;border:1px solid #bfe9e3;border-radius:12px;padding:13px 15px}
 .growth .p{font-size:22px;font-weight:900;color:var(--mint)}.growth .t{font-size:13px;font-weight:800;color:var(--ink)}.growth .d{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.5}
-/* 표지 */
 .cover{padding:8px 4px 4px}
 .cover .era{font-size:11px;font-weight:900;letter-spacing:.14em;color:var(--mint);margin-bottom:12px;text-align:center}
 .cover h1{font-size:26px;font-weight:900;color:var(--ink);line-height:1.35;margin:6px 0 8px;text-align:center;letter-spacing:-.02em}
@@ -133,138 +124,105 @@ body{background:linear-gradient(180deg,#eef3fb 0%,#f4f7fb 22%,#f4f7fb 100%);font
 .done-screen h2{color:var(--ink);font-size:22px;margin:0 0 8px}.done-screen p{color:var(--dim);font-size:14px;line-height:1.7}
 .done-screen .card2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:18px;text-align:left;font-size:13px;color:var(--dim);line-height:1.7}.done-screen .card2 b{color:var(--indigo)}
 @media(min-width:560px){body{padding-top:22px}}
-/* 체험 리포트 발행 박스 (done 화면) */
-.rp-gen-box{background:#fff;border:1.5px dashed var(--blue);border-radius:16px;padding:18px;margin-top:18px;text-align:center;box-shadow:0 8px 24px -18px rgba(49,130,246,.4)}
-.rp-gen-t{font-size:15.5px;font-weight:800;color:var(--ink)}.rp-gen-d{font-size:12.5px;color:var(--dim);margin:6px 0 13px;line-height:1.6}
-.rp-gen-box input{width:100%;border:1px solid #d7dee8;border-radius:11px;padding:13px;font-family:inherit;font-size:15px;margin-bottom:10px;text-align:center;box-sizing:border-box}
-.rp-gen-box input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(49,130,246,.14)}
-.rp-gen-btn{width:100%;border:0;border-radius:12px;padding:15px;font-family:inherit;font-size:15.5px;font-weight:800;cursor:pointer;background:linear-gradient(135deg,var(--mint),#0aa596);color:#fff;box-shadow:0 8px 22px -10px rgba(11,184,166,.6)}
-.rp-gen-btn:active{transform:scale(.99)}
-/* 리포트 뷰 */
-.report{padding:6px 2px 10px;animation:fade .4s ease}
-.rp-badge{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.06em;color:#fff;background:linear-gradient(135deg,var(--mint),#0aa596);padding:5px 12px;border-radius:20px}
-.rp-title{font-size:26px;font-weight:900;color:var(--ink);margin:12px 0 2px}.rp-title span{font-size:16px;color:var(--mute);font-weight:700}
-.rp-meta{font-size:12.5px;color:var(--mute);margin-bottom:14px}
-.rp-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 17px;margin-bottom:12px;box-shadow:0 8px 24px -18px rgba(20,26,41,.25)}
-.rp-h{font-size:14px;font-weight:800;color:var(--indigo);margin-bottom:12px}
-.rp-radar{max-width:300px;margin:0 auto}
-.rp-growth{display:flex;align-items:center;gap:12px;margin-top:10px;background:#eafaf7;border:1px solid #bfe9e3;border-radius:12px;padding:12px 14px}
-.rp-growth .p{font-size:24px;font-weight:900;color:var(--mint)}.rp-growth .t{font-size:13px;font-weight:800;color:var(--ink)}.rp-growth .d{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.5}
-.rp-step,.rp-lens{margin-bottom:10px}
-.rp-k{font-size:12px;font-weight:800;color:var(--blueD);margin-bottom:4px}
-.rp-v{font-size:13.5px;line-height:1.7;color:var(--ink);background:var(--soft);border-radius:10px;padding:11px 13px;white-space:pre-wrap}
-.rp-empty{color:var(--mute);font-style:italic}
-.rp-arrow{text-align:center;color:var(--mute);font-size:15px;margin:2px 0}
-.rp-comment{background:linear-gradient(135deg,#eef4ff,#eafaf7);border:1px solid #d5e3ff;border-radius:16px;padding:16px 17px;font-size:13.5px;line-height:1.75;color:var(--ink);margin-bottom:14px}
-.rp-comment b{color:var(--indigo)}
-.rp-note{margin-top:10px;font-size:11.5px;color:var(--dim);border-top:1px dashed #cdd7ea;padding-top:9px;line-height:1.6}
-.rp-cta{display:block;text-align:center;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)}
-.rp-cta-sub{text-align:center;font-size:12px;color:var(--mute);margin-top:10px}
-.rp-prebanner{max-width:760px;margin:0 auto 14px;background:#fffdf4;border:1px solid #E8D9A0;border-radius:12px;padding:12px 15px;font-size:12.5px;color:#8a6d1f;line-height:1.6;text-align:center}
-.rp-prov-cta{display:block;max-width:760px;margin:18px auto 0;text-align:center;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)}
-.rp-prov-sub{max-width:760px;margin:10px auto 0;text-align:center;font-size:12px;color:var(--mute)}
-@media print{.brandbar,.prog,.chips,.nav,.rp-prebanner,.rp-prov-cta,.rp-prov-sub,.soke{display:none!important}body{padding:0}.report{padding:0}.rp-card,.rp-comment{box-shadow:none;break-inside:avoid}}
+@media print{.brandbar,.prog,.chips,.nav,.soke{display:none!important}body{padding:0}}
 </style>
 </head>
 <body>
 
 <div class="brandbar">
   <span class="mk">P</span>
-  <div class="brandtx"><b>펜타 비전</b><span>무료 체험 · 우리 아이의 생각 한 편</span></div>
-  <div class="grade" id="gradeChip" style="background:linear-gradient(135deg,#0BB8A6,#0aa596)">무료 체험</div>
+  <div class="brandtx"><b>펜타 트랙</b><span>무료 체험 · 교과 융합 + 진로 설계</span></div>
+  <div class="grade" id="gradeChip">무료 체험</div>
 </div>
 <div class="prog"><div class="pbar"><div class="pfill" id="pfill"></div></div></div>
 <div class="chips" id="chips"></div>
 <div class="wrap" id="host"></div>
 <div class="nav"><div class="navin" id="nav"></div></div>
 
-<!-- 실제 서비스 리포트 렌더러 (완료 시 정식 리포트와 동일 디자인으로 발행) -->
-<script src="/shared/arche_penta_report.js"></script>
 <script>
-/* ★ 실제 서비스 콘텐츠 — penta_catalog id=128 (비전 심화 시즌8-3 · AI) content 원문 그대로 · 무료 체험판 */
+/* ★ 펜타 트랙(중3 융합·진로) 무료 체험 워크북 — 신규 집필 */
 const LESSON = {
-  "unit":8,"week":3,"lesson":3,"season":8,"stage":"vision","level":"architecture",
-  "title":"AI, 과연 인류를 통제할 것인가",
-  "subtitle":"AI의 이로움과 위험을 견주며 ‘누가 방향을 정하는가’를 해부합니다",
-  "intro":"AI의 이로움과 위험을 견주며 ‘누가 방향을 정하는가’를 해부합니다",
-  "theme":"AI — 도구인가 위협인가","fusion":"기술 × 미래 × 윤리","gradeBand":"중1~2","est_min":55,
-  "radarAxes":["수학·논리","과학·기술","역사·사회","심리·인지","예술·디자인"],
+  "unit":1,"week":1,"lesson":1,"season":1,"stage":"track","level":"track",
+  "title":"기후위기, 성장을 멈춰야 하는가",
+  "subtitle":"과학·경제·윤리를 가로질러 ‘지속가능성’의 조건을 해부합니다",
+  "intro":"과학·경제·윤리를 가로질러 ‘지속가능성’의 조건을 해부합니다",
+  "theme":"성장 vs 지속가능성","fusion":"과학 × 경제 × 윤리","gradeBand":"중3","est_min":60,
+  "radarAxes":["논리·분석","과학·수리","비판","사회·공동체","예술·정서"],
   "glossary":[
-    {"term":"생성형 AI","def":"글·그림·코드를 새로 만들어내는 AI"},
-    {"term":"알고리즘 편향","def":"데이터의 치우침이 결정에 확대되는 문제"},
-    {"term":"딥페이크","def":"AI로 만든 가짜 영상·이미지"},
-    {"term":"AI 정렬","def":"AI를 인간의 가치에 맞게 만드는 일"},
-    {"term":"자율무기","def":"사람 없이 스스로 판단하는 무기"}
+    {"term":"탄소중립","def":"배출한 탄소만큼 흡수·제거해 순배출을 0으로"},
+    {"term":"외부효과","def":"거래 당사자가 아닌 제3자·사회가 떠안는 비용·이익"},
+    {"term":"지속가능발전","def":"미래 세대의 몫을 해치지 않는 범위의 발전"},
+    {"term":"기후정의","def":"기후위기의 책임과 피해가 불평등하게 나뉘는 문제"},
+    {"term":"그린워싱","def":"실제보다 친환경인 척 포장하는 마케팅"}
   ],
   "stages":[
-    {"key":"prep","icon":"🎯","name":"STAGE 1 · 초기 진단","desc":"탐구 전, 지금의 사고 주파수를 스스로 진단합니다.",
-     "blocks":[{"t":"radar","mode":"before","q":"이 주제에 대한 지금 나의 사고 주파수는? (탐구 전)"}]},
+    {"key":"prep","icon":"🎯","name":"STAGE 1 · 초기 진단","desc":"탐구 전, 지금의 융합 사고 좌표를 스스로 진단합니다.",
+     "blocks":[{"t":"radar","mode":"before","q":"이 주제에 대한 지금 나의 사고 좌표는? (탐구 전)"}]},
     {"key":"compass","icon":"🧭","name":"STAGE 2 · 가치 좌표","desc":"충돌하는 두 가치 사이에서 내 입장의 좌표를 찍습니다.",
      "blocks":[
-       {"t":"info","title":"⚖ 오늘의 딜레마","body":"AI는 눈부시게 발전한다. 의료·번역·창작을 돕는 <b>강력한 도구</b>이지만, 일자리·편향·오용·자율무기 같은 <b>위험</b>도 크다. AI는 끝내 <b>인간의 도구</b>로 남을까, 아니면 <b>인간의 통제를 벗어날까?</b> 우리는 발전을 밀어붙일까, 신중히 규제할까?"},
-       {"t":"scale","id":"compass","role":"compass","q":"나의 가치 좌표 — AI를 어떻게 대할 것인가?","min":0,"max":100,"minLabel":"밀어붙여 발전","maxLabel":"신중히 규제"},
-       {"t":"text","id":"hypothesis","head":"🎯 나의 가설 한 줄","q":"위 딜레마에 대한 지금 나의 잠정 입장을 한 문장으로.","hint":"틀려도 좋습니다 — 검증 대상일 뿐.","rows":3}
+       {"t":"info","title":"⚖ 오늘의 딜레마","body":"한 개발도상국이 값싼 석탄 발전으로 <b>빠른 경제성장</b>을 이루려 한다. 일자리와 소득이 늘지만, 탄소배출이 급증해 <b>기후위기</b>를 키운다. 선진국은 이미 그렇게 성장해 놓고 이제 와 규제를 요구한다. <b>성장을 멈추거나 늦춰야 할까, 성장하며 전환할 길을 찾아야 할까?</b> 그리고 그 부담은 <b>누가</b> 져야 할까?"},
+       {"t":"scale","id":"compass","role":"compass","q":"나의 가치 좌표 — 무엇을 우선할까?","min":0,"max":100,"minLabel":"성장·발전 우선","maxLabel":"기후·지속가능 우선"},
+       {"t":"text","id":"hypothesis","head":"🎯 나의 가설 한 줄","q":"위 딜레마에 대한 지금 나의 잠정 입장을 한 문장으로. 탐구 후 어떻게 바뀌는지 봅니다.","hint":"틀려도 좋습니다 — 검증 대상일 뿐.","rows":3}
      ]},
-    {"key":"read","icon":"📖","name":"STAGE 3 · 개념 읽기","desc":"핵심 개념을 깊이 읽고, 밝은 면과 그늘을 함께 짚습니다.",
+    {"key":"read","icon":"📖","name":"STAGE 3 · 개념 읽기","desc":"세 교과의 눈으로 문제의 뼈대를 읽습니다.",
      "blocks":[
-       {"t":"read","title":"🤖 점점 똑똑해지는 AI","source":"알파고~생성형 AI","body":"‘기계가 생각할 수 있는가’를 물은 <b>튜링</b> 이후, AI는 바둑 챔피언을 이긴 <b>알파고</b>를 거쳐, 이제 글·그림·코드를 만드는 <b>생성형 AI</b>에 이르렀다. 번역·의료 진단·연구를 돕는 등 <b>인간 능력을 확장</b>하는 강력한 도구가 되었다. 발전 속도는 상상 이상으로 빠르다."},
-       {"t":"read","title":"⚖ 이로움과 두려움 사이","source":"편익 vs 위험","body":"AI는 편리하지만 그늘도 짙다. <b>일자리 대체</b>, 데이터에 담긴 <b>편향의 확대</b>, <b>가짜정보·딥페이크</b>, 나아가 <b>자율무기</b>까지 — 잘못 쓰이면 큰 해를 끼친다. 특히 AI가 <b>왜 그런 결정을 했는지 사람도 모르는</b> 경우가 늘며, ‘통제할 수 있는가’라는 근본 물음이 커졌다."},
-       {"t":"read","title":"🧭 누가 방향을 정하는가","source":"정렬(alignment)·로봇 3원칙","body":"작가 아시모프는 일찍이 ‘<b>로봇은 인간을 해쳐선 안 된다</b>’는 <b>로봇 3원칙</b>을 상상했다. 오늘날 과학자들은 AI가 <b>인간의 가치에 맞게 작동하도록(정렬)</b> 만드는 일에 매달린다. AI가 인류를 지배할지 아닐지는 정해진 운명이 아니라, <b>인간이 지금 어떤 규칙과 방향을 정하느냐</b>에 달려 있다."},
-       {"t":"choice","id":"view","q":"AI를 대하는 가장 지혜로운 태도는?","hint":"정답은 없다. 근거가 중요하다.","options":[
-         {"v":"tool","label":"강력한 도구로 활용","desc":"이로움을 최대화"},
-         {"v":"caution","label":"위험에 대비·규제","desc":"통제 장치 마련"},
-         {"v":"steer","label":"인간이 방향을 정함","desc":"정렬·규칙이 관건"}
+       {"t":"read","title":"🔬 과학 — 배출과 온도의 사슬","source":"IPCC·탄소예산","body":"대기 중 온실가스가 늘면 지구가 흡수하는 열이 커져 평균기온이 오른다(강화된 온실효과). 과학자들은 산업화 이전 대비 <b>1.5℃</b> 상승을 넘기지 않으려면 인류가 배출할 수 있는 탄소의 총량(<b>탄소예산</b>)이 얼마 남지 않았다고 본다. 중요한 건, 배출과 기온 상승 사이에 <b>시간 지연</b>이 있어 지금 줄여도 효과는 나중에 나타난다는 점이다."},
+       {"t":"read","title":"💰 경제 — 값이 매겨지지 않은 비용","source":"외부효과·탄소가격","body":"석탄으로 전기를 싸게 만들면 소비자에겐 이득이다. 그러나 그 과정에서 나온 탄소가 <b>기후피해</b>라는 비용을 사회 전체·미래 세대에 떠넘긴다(<b>외부효과</b>). 시장 가격엔 이 비용이 빠져 있어, ‘싸 보이지만 사실은 비싼’ 셈이다. 그래서 경제학자들은 탄소에 값을 매기는 <b>탄소세·배출권거래</b> 같은 제도로 ‘숨은 비용’을 가격에 되돌리자고 말한다."},
+       {"t":"read","title":"⚖ 윤리 — 책임과 피해의 엇갈림","source":"기후정의","body":"기후위기를 <b>가장 적게 일으킨</b> 가난한 나라·미래 세대가 <b>가장 크게</b> 피해를 본다. 반대로 많이 배출하며 성장한 쪽은 상대적으로 덜 다친다. ‘누가 얼마나 책임지고, 누가 부담을 나눌 것인가’ — 이 <b>기후정의</b>의 물음은 과학·경제만으로는 풀 수 없는 <b>가치의 문제</b>다."},
+       {"t":"stats","items":[{"k":"과학","v":"1.5℃·탄소예산"},{"k":"경제","v":"외부효과"},{"k":"윤리","v":"기후정의"}]},
+       {"t":"choice","id":"view","q":"지금 내 생각에 가장 가까운 길은?","hint":"정답은 없습니다. 근거가 중요합니다.","options":[
+         {"v":"grow","label":"성장 우선 — 기술로 해결","desc":"발전하며 혁신으로 배출을 줄인다"},
+         {"v":"transition","label":"성장하며 전환","desc":"탄소가격·재생에너지로 방향을 튼다"},
+         {"v":"degrowth","label":"성장 속도 조절","desc":"과잉소비를 줄여 배출을 낮춘다"}
        ]},
-       {"t":"text","id":"light","head":"🔎 강점·의의","q":"AI가 인류에게 주는 이로움과 그 조건을 논하라.","hint":"AI의 편익.","rows":4},
-       {"t":"text","id":"shadow","head":"🤔 한계·그늘","tone":"shadow","q":"AI의 위험(편향·오용·통제 불능)과 대비책은 무엇인지 분석하라.","hint":"통제·편향.","rows":4}
+       {"t":"text","id":"light","head":"🔎 강점·근거","q":"네가 고른 길이 옳다고 볼 수 있는 근거를, 과학·경제·윤리 중 두 가지 이상 엮어 논하라.","hint":"교과를 교차해 근거를 세워라.","rows":4},
+       {"t":"text","id":"shadow","head":"🤔 한계·그늘","tone":"shadow","q":"그 길의 약점·부작용은? (예: 기술낙관의 위험, 규제의 성장 둔화, 부담의 전가) 스스로 반례를 들어라.","hint":"내 입장의 약점을 먼저 찾아라.","rows":4}
      ]},
     {"key":"video","icon":"🎬","name":"STAGE 4 · 영상으로 확장","desc":"영상으로 시야를 넓히고, 내 논리와 대조합니다.",
-     "blocks":[{"t":"video","id":"video_a","title":"AI, 도구인가 위협인가","body":"AI의 발전과 통제 문제를 영상으로 확인해 보세요.","mission":"‘AI를 인간의 도구로 지키려면’ 필요한 규칙을 하나 제안해 보세요.","ansLabel":"관찰·반응","placeholder":"영상에서 얻은 통찰 / 내 입장과의 차이…","search":"인공지능 AI 위험 통제 정렬 일자리 편향"}]},
+     "blocks":[{"t":"video","id":"video_a","title":"기후위기와 탄소중립, 무엇이 쟁점인가","body":"성장과 지속가능성의 쟁점을 영상으로 확인해 보세요.","mission":"영상의 관점과 내 입장의 공통점·차이를 한 문단으로 적어보세요.","ansLabel":"관찰·반응","placeholder":"영상에서 얻은 통찰 / 내 입장과의 차이…","search":"기후위기 탄소중립 성장 지속가능성 탄소세 쟁점"}]},
     {"key":"mid","icon":"💭","name":"STAGE 5 · 중간 성찰","desc":"여기까지의 자료로, 처음 가설은 어떻게 흔들렸나요?",
      "blocks":[{"t":"text","id":"mid_reflect","head":"💭 입장의 이동","q":"“처음엔 ___라 보았으나, ___ 때문에 ___로 이동했다.” 형태로.","hint":"가설이 바뀌었다면 그 근거를 명시.","rows":4}]},
-    {"key":"eyes","icon":"💡","name":"STAGE 6 · 5대 지성으로 해부","desc":"다섯 지성의 렌즈로 주제를 다각도 해부합니다.",
+    {"key":"eyes","icon":"💡","name":"STAGE 6 · 5축으로 해부","desc":"트랙의 다섯 축으로 주제를 다각도 해부합니다.",
      "blocks":[
-       {"t":"text","id":"eye1","head":"🔢 수학·논리 렌즈","q":"AI의 이로움과 해로움을 견주어, ‘순이득’이 되는 조건을 논하라.","hint":"득실 저울","rows":4},
-       {"t":"text","id":"eye2","head":"🔬 과학·기술 렌즈","q":"이 문제를 완화할 기술적·제도적 장치를 하나 설계하라.","hint":"장치 설계","rows":4},
-       {"t":"text","id":"eye3","head":"🏛 역사·사회 렌즈","q":"과거의 기술 변화(산업혁명 등)와 지금을 비교하면 무엇이 보이나?","hint":"과거와 비교","rows":4},
-       {"t":"text","id":"eye4","head":"🧠 심리·인지 렌즈","q":"사람들이 AI에 빠지거나 불안해하는 심리는 무엇인가?","hint":"몰입·불안 심리","rows":4},
-       {"t":"text","id":"eye5","head":"🎨 예술·디자인 렌즈","q":"이 주제(AI와 인간)를 한 장의 이미지로 표현한다면?","hint":"이미지로","rows":4}
+       {"t":"text","id":"eye1","head":"🔢 논리·분석","q":"‘지속가능한 성장’이 성립하려면 어떤 조건이 충족돼야 할까? ‘~한 경우에만 가능하다’ 형태로 조건을 붙여 논증하라.","hint":"조건으로 논증","rows":4},
+       {"t":"text","id":"eye2","head":"🔬 과학·수리","q":"탄소배출과 기온 상승의 관계를 ‘상관’이 아니라 ‘인과’로 볼 수 있는 근거를 데이터·원리로 설명하라.","hint":"인과·수치로","rows":4},
+       {"t":"text","id":"eye3","head":"🧐 비판","q":"기업·정부의 ‘친환경’ 주장 중 <b>그린워싱</b>(겉과 속이 다른 것)을 어떻게 가려낼까? 판별 기준을 세워라.","hint":"겉과 속 구분","rows":4},
+       {"t":"text","id":"eye4","head":"🌍 사회·공동체","q":"기후 부담을 ‘공정하게’ 나누는 원칙을 하나 제안하라. (예: 배출 책임에 비례, 능력에 비례)","hint":"기후정의로","rows":4},
+       {"t":"text","id":"eye5","head":"🎨 예술·정서","q":"‘성장과 지속가능성의 갈등’을 한 장면·이미지·비유로 표현한다면?","hint":"이미지·비유로","rows":4}
      ]},
-    {"key":"make","icon":"🛠","name":"STAGE 7 · 논지 구축","desc":"자료를 종합해 나만의 결론을 세우고, 반론까지 견딥니다.",
+    {"key":"make","icon":"🛠","name":"STAGE 7 · 논지 구축 + 진로","desc":"자료를 종합해 나만의 결론을 세우고, 진로로 잇습니다.",
      "blocks":[
-       {"t":"text","id":"project_design","head":"🛠 나의 결론(설계)","q":"AI를 ‘인간을 위해 쓰는’ 원칙 3가지를 세우고 논증하라.","hint":"편익·안전·책임 등 축을 세워도 좋다.","rows":5},
-       {"t":"text","id":"project_lock","head":"🔐 자기 반박(안전장치)","tone":"green","q":"그 원칙이 기술 발전 자체를 지나치게 가로막지 않으려면 무엇이 필요한가?","hint":"스스로 반박해보라.","rows":3},
-       {"t":"text","id":"peer_attack","head":"🙋 예상 반론","q":"“기술은 결국 인간을 대체·지배할 것이다”라는 주장에 어떻게 답할까?","rows":3},
-       {"t":"text","id":"peer_defense","head":"💪 재반론","tone":"gold","q":"기술의 주인이 인간이어야 하는 이유와 그 방법을 논증하라.","rows":3}
+       {"t":"text","id":"project_design","head":"🛠 나의 결론(설계)","q":"‘성장과 기후’ 문제를 풀 원칙 3가지를 제시하고, 각각 왜 필요한지 교과를 엮어 논증하라.","hint":"과학·경제·윤리 축을 세워도 좋다.","rows":5},
+       {"t":"text","id":"project_lock","head":"🔐 자기 반박(안전장치)","tone":"green","q":"그 원칙이 ‘가난한 나라의 발전 기회’를 빼앗지 않으려면 무엇이 더 필요한가?","hint":"스스로 반박해보라.","rows":3},
+       {"t":"text","id":"peer_attack","head":"🙋 예상 반론","q":"“성장 없이는 어차피 환경도 못 지킨다”는 주장에 어떻게 답할까?","rows":3},
+       {"t":"text","id":"career_link","head":"🧭 진로로 잇기","tone":"gold","q":"이 주제와 연결되는 진로·학과를 하나 떠올리고, 고교에서 해보고 싶은 <b>탐구 주제</b>를 한 줄로 적어라.","hint":"예: 환경공학 — ‘우리 지역 재생에너지 잠재량 분석’","rows":3}
      ]},
-    {"key":"close","icon":"🌟","name":"STAGE 8 · 최종 진단","desc":"탐구 후 사고 주파수를 다시 진단합니다. 확장된 면적이 오늘의 성장입니다.",
-     "blocks":[{"t":"radar","mode":"after","q":"탐구를 마친 지금, 나의 사고 주파수는? (탐구 후)"}]}
+    {"key":"close","icon":"🌟","name":"STAGE 8 · 최종 진단","desc":"탐구 후 사고 좌표를 다시 진단합니다. 확장된 면적이 오늘의 성장입니다.",
+     "blocks":[{"t":"radar","mode":"after","q":"탐구를 마친 지금, 나의 사고 좌표는? (탐구 후)"}]}
   ],
-  "submit":{"label":"제출하기","note":"제출하면 담당 컨설턴트가 검토·확정한 뒤 PentaView 리포트가 발행됩니다."}
+  "submit":{"label":"제출하기","note":"제출하면 담당 컨설턴트가 검토·확정한 뒤 PentaView 트랙 리포트가 발행됩니다."}
 };
 
-/* ── 렌더러 (실제 arche_penta_workbook.js 블록 타입 호환: radar/info/read/text/choice/scale/stats/video) ── */
 const AXES = LESSON.radarAxes;
 const AXES_SHORT = AXES.map(a=>a.split('·')[0]);
 const state = { answers:{}, scales:{}, radar_before:[5,5,5,5,5], radar_after:[5,5,5,5,5], step:0, sokeUsed:0 };
-/* 🦉 소크(소크라테스) 되묻기 — 무료 체험 총 5회 · 비전 톤(부드러운 되묻기) */
+/* 🦉 소크 되묻기 — 무료 체험 총 5회 · 트랙 톤(융합·인과·반론·진로) */
 const SOKE_MAX = 5;
 const SOKE = [
-  "지금 쓴 생각에서 가장 중요한 낱말 하나를 고른다면? 그 말을 네 방식대로 다시 풀어볼래?",
-  "왜 그렇게 생각했어? 그렇게 볼 수 있는 예나 근거를 하나만 들어줄래?",
-  "반대로 생각하는 친구가 있다면 뭐라고 말할까? 그 말에 너는 어떻게 답하겠어?",
-  "다른 사람의 눈(그때 그 시대 사람, 반대편)으로 보면 이 문제는 어떻게 보일까?",
-  "네 생각이 맞다면, 그다음엔 어떤 일이 따라올까? 한 걸음만 더 밀어보자."
+  "네 주장에서 원인과 결과를 떼어내 볼래? '무엇 때문에 → 무엇이 된다' 한 줄로 정리하면 훨씬 또렷해져.",
+  "그 근거는 '우연히 같이 나타난 것'일까, '진짜 원인'일까? 우연이 아니라고 볼 수 있는 이유는 뭐야?",
+  "가장 센 반론은 뭘까? 그 반론이 옳은 부분까지 인정한 다음, 어디서 너와 갈리는지 짚어볼래?",
+  "이 문제를 다른 교과(과학·경제·윤리)의 눈으로 교차해 보면, 새로 보이는 게 있을까?",
+  "네 결론을 진로로 잇는다면 어떤 탐구를 더 해보고 싶어? 한 가지만 정해볼래?"
 ];
-const SOKE_EMPTY = "먼저 네 생각을 한 줄이라도 적어볼까? 그럼 소크가 그 생각을 같이 깊게 만들어 줄게. (이건 횟수에서 안 빠져)";
+const SOKE_EMPTY = "먼저 지금 떠오르는 생각을 한 줄이라도 적어볼래? 그래야 소크가 그 생각을 같이 파고들 수 있어. (이건 횟수에서 안 빠져)";
 const esc = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const rich = s => (s==null?'':String(s));
 const STEPS = [{cover:true}].concat(LESSON.stages.map((s,i)=>({stage:s,i})));
 const TOTAL = STEPS.length;
 const host=document.getElementById('host'),chipsEl=document.getElementById('chips'),navEl=document.getElementById('nav'),pfill=document.getElementById('pfill');
-document.getElementById('gradeChip').textContent=LESSON.gradeBand||'';
+document.getElementById('gradeChip').textContent='무료 체험';
 
-/* 소크 UI를 답변칸(d) 아래에 부착 */
 function attachSoke(d, b){
   const wrap=document.createElement('div'); wrap.className='soke';
   wrap.innerHTML='<button class="soke-btn" type="button">🦉 소크에게 물어보기 <span class="left"></span></button><div class="soke-msg"></div>';
@@ -342,7 +300,7 @@ function renderBlock(b){
     const isBefore=b.mode==='before';const arr=isBefore?state.radar_before:state.radar_after;
     let sl='';AXES.forEach((ax,i)=>{sl+=`<div class="frq" data-i="${i}"><div class="top"><b>${esc(ax)}</b><span class="v">${arr[i]}</span></div><input type="range" min="0" max="10" value="${arr[i]}"></div>`;});
     const legend=isBefore?'':`<div class="legend"><span><span class="sw" style="background:#94abcc"></span>탐구 전</span><span><span class="sw" style="background:#3182f6"></span>탐구 후</span></div>`;
-    const growth=isBefore?'':`<div class="growth"><div class="p" id="gp">+0%</div><div><div class="t">지성 확장</div><div class="d">파란 면적(지금)이 회색 면적(처음)보다 넓어진 만큼, 사고가 확장된 거예요.</div></div></div>`;
+    const growth=isBefore?'':`<div class="growth"><div class="p" id="gp">+0%</div><div><div class="t">사고 확장</div><div class="d">파란 면적(지금)이 회색 면적(처음)보다 넓어진 만큼, 사고가 확장된 거예요.</div></div></div>`;
     d.innerHTML=`<div class="q" style="margin-top:8px">${esc(b.q)}</div><div class="radar-wrap"><div id="rsvg">${radarSVG(isBefore?arr:state.radar_before,isBefore?null:arr)}</div>${legend}<div class="sliders">${sl}</div></div>${growth}`;
     d.querySelectorAll('.frq').forEach(row=>{const i=+row.getAttribute('data-i'),rg=row.querySelector('input'),vv=row.querySelector('.v');
       rg.addEventListener('input',()=>{vv.textContent=rg.value;arr[i]=+rg.value;
@@ -354,14 +312,14 @@ function renderBlock(b){
 
 function renderCover(){
   const s=LESSON;const el=document.createElement('div');el.className='cover';
-  el.innerHTML=`<div class="era">시즌 ${s.season} · ${s.week}주차 · 비전 심화</div>
+  el.innerHTML=`<div class="era">펜타 트랙 · 중3 · 교과 융합</div>
     <h1>${esc(s.title)}</h1>
     <div class="center"><span class="fusion">${esc(s.fusion||'')}</span></div>
-    <div class="lede">${esc(s.subtitle||s.intro||'')}<br><br>오늘은 <b>${esc(s.theme)}</b>를 <b>${esc(s.fusion||'')}</b>의 눈으로 파고들어, 마지막에 나만의 논지를 세웁니다. 예상 소요 <b>${s.est_min||'—'}분</b>.</div>
+    <div class="lede">${esc(s.subtitle||s.intro||'')}<br><br>오늘은 <b>${esc(s.theme)}</b>를 <b>${esc(s.fusion||'')}</b>의 눈으로 파고들어, 마지막에 나만의 논지를 세우고 <b>진로</b>로 잇습니다. 예상 소요 <b>${s.est_min||'—'}분</b>.</div>
     <div class="roadmap"><div class="rt">오늘의 탐구 여정 · ${s.stages.length}단계</div>
       ${s.stages.map(st=>`<div class="rm"><div class="rn">${st.icon}</div><div class="rmtx"><h4>${esc(st.name)}</h4><p>${esc(st.desc||'')}</p></div></div>`).join('')}</div>
     ${(s.glossary&&s.glossary.length)?`<div class="gloss"><div class="gt">📌 핵심 용어</div>${s.glossary.map(g=>`<div class="gi"><b>${esc(g.term)}</b> — ${esc(g.def)}</div>`).join('')}</div>`:''}
-    <div class="disc">ⓘ 이 워크북은 <b>학생이 직접 사고하고 쓰도록</b> 설계되었습니다. AI는 정답을 주지 않고 <b>되묻습니다.</b> 제출하면 담당 컨설턴트 검토 후 <b>PentaView 리포트</b>가 발행됩니다.</div>`;
+    <div class="disc">ⓘ 이 워크북은 <b>학생이 직접 사고하고 쓰도록</b> 설계되었습니다. AI는 정답을 주지 않고 <b>되묻습니다.</b> 제출하면 담당 컨설턴트 검토 후 <b>PentaView 트랙 리포트</b>(진로 매칭·고교 로드맵 포함)가 발행됩니다.</div>`;
   return el;
 }
 function renderStage(st){
@@ -371,78 +329,15 @@ function renderStage(st){
 }
 function renderDone(){
   const el=document.createElement('div');el.className='done-screen';
-  el.innerHTML=`<div class="big">🌟</div><h2>방금, 아이의 생각 한 편이 만들어졌어요</h2>
-    <p>답을 받아 적은 게 아니라 — <b>스스로 묻고, 근거를 찾고, 반론을 견디고, 생각을 고쳤습니다.</b><br>이게 펜타의 한 회차예요. 1년이면 <b>이런 탐구 52편</b>이 쌓입니다.</p>
-    <div class="rp-gen-box">
-      <div class="rp-gen-t">📄 지금 바로 <b>체험 리포트</b>를 받아보세요</div>
-      <div class="rp-gen-d">방금 아이가 쓴 답으로, 실제 발행되는 리포트를 그 자리에서 만들어 드려요.</div>
-      <input id="rp-name" placeholder="아이 이름 (선택)" maxlength="20">
-      <button id="rp-gen" class="rp-gen-btn">📄 체험 리포트 발행하기 →</button>
-    </div>
-    <div class="card2"><b>부모님은 이걸 받아보십니다</b><br>· 아이의 <b>처음 생각 → 탐구 후 생각</b>이 나란히 남아요 ("A라고 했다가 B로 깊어졌네")<br>· 5대 지성 성장 레이더 <b>Before/After</b>로 변화가 눈에 보여요<br>· 점수가 아니라 <b>생각의 궤적</b>이 기록으로 누적됩니다</div>
+  el.innerHTML=`<div class="big">🌟</div><h2>탐구를 마쳤어요</h2>
+    <p>과학·경제·윤리를 가로질러 <b>스스로 논지를 세우고 진로로 이었습니다.</b><br>이게 펜타 트랙의 한 회차예요.</p>
+    <div class="card2"><b>정식 트랙 리포트는 여기까지 갑니다</b><br>· 사고 가속도 <b>Lv 변화</b> + 진로 주파수 매칭<br>· 관심에 맞는 <b>학과·진로 정보</b>(커리어넷 연동)<br>· 고1~고3 <b>선택과목·탐구활동 로드맵</b><br><br>
+    <b>오늘 다룬 융합</b> · ${esc(LESSON.fusion||'')} — 성장과 지속가능성을 저울에 달아 해부</div>
     <a href="https://arche.penta-view.com/parent?trial=1" style="display:block;margin-top:18px;background:linear-gradient(135deg,#3182f6,#1A237E);color:#fff;text-decoration:none;border-radius:13px;padding:16px;font-size:16px;font-weight:800;box-shadow:0 8px 22px -8px rgba(49,130,246,.5)">우리 아이도 시작하기 →</a>
     <div style="font-size:12px;color:#8b95a1;margin-top:10px">런칭 기념 · 첫 3개월 반값 · 선착순</div>`;
-  const gb=el.querySelector('#rp-gen');
-  if(gb) gb.onclick=()=>{ const nm=(el.querySelector('#rp-name').value||'').trim(); state.childName=nm||'우리 아이'; state.step='report'; render(); };
   return el;
 }
-/* 체험 답변 → 실제 리포트 렌더러(ArchePentaReport)용 데이터 구성 */
-function buildReportData(){
-  const before=state.radar_before, after=state.radar_after;
-  const bA=areaOf(before)||1, aA=areaOf(after);
-  const growthPct=Math.round((aA-bA)/bA*100);
-  const ans=state.answers;
-  const pick=(...ids)=>{ for(const id of ids){ if(ans[id]&&String(ans[id]).trim()) return String(ans[id]).trim(); } return ''; };
-  // 가장 크게 자란 축
-  let gi=0,gd=-99; for(let i=0;i<5;i++){const d=after[i]-before[i]; if(d>gd){gd=d;gi=i;}}
-  const golden=pick('project_design','hypothesis','mid_reflect','shadow','light');
-  return {
-    level:'architecture',
-    student:{ name:(state.childName||'우리 아이'), grade:LESSON.gradeBand||'' },
-    lesson:{ season:LESSON.season, week:LESSON.week, theme:LESSON.theme, title:LESSON.title },
-    persona:{ name:'스스로 기준을 세우는 탐구가',
-      tagline:'답을 받아 적지 않고, AI의 빛과 그늘을 저울에 달아 "누가 방향을 정하는가"까지 스스로 물은 사고입니다.' },
-    radar:{ axes:AXES_SHORT, before:before, after:after, growthPct:growthPct,
-      note:(gd>0?('특히 '+AXES[gi]+' 영역이 가장 크게 확장됐습니다.'):'다섯 지성을 고르게 확장했습니다.') },
-    frequencies: AXES.map((ax,i)=>({ name:ax, score:after[i] })),
-    benchmark:{ topic:'AI, 도구인가 위협인가 — 3단계 사고 대조', levels:[
-      {label:'Lv.1 · 현상 나열', text:'AI가 편리하다/위험하다를 사례로 늘어놓는 단계.'},
-      {label:'Lv.2 · 구조 분석', text:'편익과 위험을 나누고, 왜 그런지 근거를 들어 따지는 단계.'},
-      {label:'Lv.3 · 가치 통합', text:'"누가 방향을 정하는가"로 문제를 다시 세우고, 인간의 책임까지 논증하는 단계.'}
-    ]},
-    golden: golden ? { sentence:golden, critique:'학생이 스스로 세운 기준이 담긴 문장입니다. 다음엔 반대 입장이 가장 세게 반박할 지점까지 미리 답해 두면 논지가 더 단단해집니다.' } : null,
-    roadmap:{ items:[
-      {icon:'🔎', title:'근거의 출처 따지기', desc:'주장마다 "무슨 근거로?"를 한 번 더 묻기'},
-      {icon:'⚖', title:'양면 저울 세우기', desc:'좋은 점과 위험을 같은 무게로 나란히 두기'},
-      {icon:'🧭', title:'나만의 기준 문장화', desc:'"AI를 어떻게 써야 하는가"의 원칙을 한 문장으로'}
-    ], nextQuestion:'AI가 내린 결정을 사람이 이해하지 못할 때, 그 책임은 누구에게 있을까?' },
-    homeTalk:{ intro:'오늘 아이가 세운 생각을 집에서 한 번 더 꺼내 보세요. 정답보다 근거를 되물어 주시면 됩니다.', items:[
-      {q:'우리 집은 AI를 어디에 쓰고 있을까? 그 방향은 누가 정한 걸까?', tip:'아이의 답에 "왜 그렇게 생각해?"를 한 번 더 물어봐 주세요.'},
-      {q:'AI에게 절대 맡기면 안 되는 결정은 뭐라고 생각해?', tip:'아이의 기준을 함께 한 문장으로 정리해 보세요.'}
-    ]},
-    glossary: LESSON.glossary,
-    consultantConfirmed:false,
-    date: new Date().toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric'})
-  };
-}
 function render(){
-  // 리포트 뷰 (특수 스텝)
-  if(state.step==='report'){
-    host.innerHTML='';const rpage=document.createElement('div');rpage.className='page on';
-    const banner=document.createElement('div');banner.className='rp-prebanner';banner.innerHTML='📄 <b>체험 미리보기 리포트</b> · 정식 구독 시 담당 컨설턴트·AI 분석이 더해져 발행됩니다';
-    rpage.appendChild(banner);
-    const mnt=document.createElement('div');rpage.appendChild(mnt);
-    const cta=document.createElement('a');cta.className='rp-prov-cta';cta.href='https://arche.penta-view.com/parent?trial=1';cta.textContent='우리 아이도 이렇게 시작하기 →';
-    const sub=document.createElement('div');sub.className='rp-prov-sub';sub.textContent='런칭 기념 · 첫 3개월 반값 · 선착순 100명';
-    rpage.appendChild(cta);rpage.appendChild(sub);
-    host.appendChild(rpage);
-    if(window.ArchePentaReport){ try{ window.ArchePentaReport.render(mnt, buildReportData()); }catch(e){ mnt.innerHTML='<div style="padding:30px;text-align:center;color:#8b95a1">리포트를 그리지 못했어요: '+esc(e.message)+'</div>'; } }
-    else { mnt.innerHTML='<div style="padding:30px;text-align:center;color:#8b95a1">리포트 모듈을 불러오지 못했어요. 새로고침 후 다시 시도해 주세요.</div>'; }
-    window.scrollTo({top:0,behavior:'smooth'});pfill.style.width='100%';chipsEl.innerHTML='';navEl.innerHTML='';
-    const back=document.createElement('button');back.className='btn prev';back.textContent='←';back.onclick=()=>{state.step=TOTAL;render();};navEl.appendChild(back);
-    const pr=document.createElement('button');pr.className='btn next';pr.textContent='🖨 저장 · 인쇄';pr.onclick=()=>window.print();navEl.appendChild(pr);
-    return;
-  }
   const st=STEPS[state.step];host.innerHTML='';
   const page=document.createElement('div');page.className='page on';
   if(state.step===TOTAL)page.appendChild(renderDone());
