@@ -2681,6 +2681,39 @@ function applySchoolConsentLabels(){
 }
 window.applySchoolConsentLabels=applySchoolConsentLabels;
 
+/* [학교용] account_type='school' 교사(원장) 로그인 시 입시 컨설팅 화면을 감추고 학교용(워크북·관제·제출물·학생관리)으로 정리 — school 모드에서만 */
+function applySchoolMode(){
+  function qcard(v,ic,t,d){ return '<div onclick="goView(\''+v+'\')" style="cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:.15s"><div style="font-size:22px">'+ic+'</div><div style="font-weight:800;font-size:14px;margin-top:6px;color:var(--ink)">'+t+' →</div><div style="font-size:12px;color:var(--ink-mute);margin-top:3px;line-height:1.5">'+d+'</div></div>'; }
+  try{
+    // 1) 사이드바: 입시 컨설팅·B2C 마케팅·매출 메뉴 숨김 (학교는 B2G)
+    ['roi','basecon','sm','promo','notice','psend','billing'].forEach(function(v){ var n=document.querySelector('.nav[data-v="'+v+'"]'); if(n) n.style.display='none'; });
+    ['trackseg','grp-dae','grp-goip'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+    // 2) 홈 타이틀·라벨 학교용
+    var eb=document.querySelector('#v-home .eyebrow'); if(eb) eb.textContent='School Cockpit';
+    var h1=document.querySelector('#v-home .h1'); if(h1) h1.textContent='학교 홈';
+    // 3) 홈의 입시 전용 블록 숨김 (흐름·대입/고입 카드·입시 KPI)
+    var fs=document.querySelector('#v-home .flowstrip'); if(fs) fs.style.display='none';
+    var tc=document.querySelector('#v-home .trackcard'); if(tc){ var g=tc.closest('.grid'); if(g) g.style.display='none'; }
+    var g4=document.querySelector('#v-home .grid.g4'); if(g4) g4.style.display='none';
+    // 4) 학생 등록 배너 문구 학교용으로
+    var host=document.getElementById('v-home');
+    var banner=host? host.querySelector('[onclick*="allstudents"]') : null;
+    if(banner){ var bs=banner.querySelector('div[style*="ink-mute"]'); if(bs) bs.textContent='학생을 등록하면 로그인 아이디가 자동 생성됩니다 (초기 비밀번호 000000)'; var bt=banner.querySelector('[data-b2c]'); if(bt) bt.textContent='학생 등록·계정 발급'; }
+    // 5) 학교용 퀵링크 삽입 (1회)
+    if(host && !document.getElementById('school-quick')){
+      var q=document.createElement('div'); q.id='school-quick';
+      q.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0 8px';
+      q.innerHTML = qcard('live','🖥️','실시간 관제','반 전원에게 회차를 열고 진행을 관제합니다')
+        + qcard('course','📚','코스웨어','45분 학교버전 워크북을 편성·수업합니다')
+        + qcard('submits','📝','학생 제출물','학생 워크북 제출을 확인·피드백합니다')
+        + qcard('allstudents','👩‍🎓','학생 관리','학생을 등록하고 계정을 발급합니다');
+      if(banner && banner.parentNode){ banner.parentNode.insertBefore(q, banner.nextSibling); }
+      else { host.insertBefore(q, host.firstChild); }
+    }
+  }catch(e){ try{ console.warn('applySchoolMode', e); }catch(_){} }
+}
+window.applySchoolMode=applySchoolMode;
+
 async function enterApp(session){
   var u=session.user;
   window._myUid=u.id;
@@ -2714,6 +2747,7 @@ async function enterApp(session){
   var _azS=document.getElementById('au-account-zone'); if(_azS)_azS.style.display='block';
   try{ applyB2CLabels(); }catch(e){}
   try{ if(window._isSchool) applySchoolConsentLabels(); }catch(e){}
+  try{ if(window._isSchool) applySchoolMode(); }catch(e){}
   if(isAdmin){
     // 관리자는 무조건 본사 대시보드(/admin/) 하나만 사용 — 학원앱 내 관리자 콘솔로 새지 않게 자동 이동
     if((location.pathname||'').indexOf('/admin')<0){ location.replace('/admin/'); return; }
