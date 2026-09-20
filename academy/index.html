@@ -2693,6 +2693,8 @@ function applySchoolMode(){
     // 1-c) 펜타 비전/심화/트랙 '직접 배정' 메뉴 숨김 — 학교는 코스웨어 차시 편성(15회 선정)→개방으로만 전달. 나머지는 편성 화면에서 목차·미리보기.
     document.querySelectorAll('#grp-penta .nav').forEach(function(n){ var oc=n.getAttribute('onclick')||''; if(oc.indexOf('ArchePentaApp.mount(')>=0) n.style.display='none'; });
     var _gph=document.querySelector('#grp-penta .grouphead'); if(_gph){ _gph.innerHTML=_gph.innerHTML.replace('사고력 관리 엔진','수업 · 워크북'); }
+    // 1-d) 상단 컨설턴트/학생 뷰 토글·활성학생 선택은 학원 컨설팅용 → 학교 교사 화면에선 숨김
+    ['topbar-roletoggle','topbar-studenttag'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display='none'; });
     // 2) 홈 타이틀·라벨 학교용
     var eb=document.querySelector('#v-home .eyebrow'); if(eb) eb.textContent='School Cockpit';
     var h1=document.querySelector('#v-home .h1'); if(h1) h1.textContent='학교 홈';
@@ -7074,8 +7076,9 @@ function onKeyMode(mode){
 }
 async function loadApiKey(){
   var sub=document.querySelector('#v-settings .sub');
-  if(sub)sub.textContent=window._isB2C?'계정·구독 설정':'계정·팀 설정';
-  var tc=document.getElementById('team-card'); if(tc&&window._isB2C)tc.style.display='none';
+  if(sub)sub.textContent=window._isSchool?'계정 설정':(window._isB2C?'계정·구독 설정':'계정·팀 설정');
+  var tc=document.getElementById('team-card'); if(tc&&(window._isB2C||window._isSchool))tc.style.display='none';
+  var bc0=document.getElementById('brand-card'); if(bc0&&window._isSchool)bc0.style.display='none';
 }
 async function saveKeyMode(){
   var m=document.getElementById('set-msg'); if(!sb){m.textContent='DB 미로드';return;}
@@ -7121,7 +7124,7 @@ async function teamCall(action,extra){
 async function loadTeam(){
   var card=document.getElementById('team-card'); if(!card)return;
   // 원장(소유자)만 노출 · B2C(학부모)는 팀 기능 없음
-  if(window._isOwner!==true || window._role==='stu' || window._isB2C){ card.style.display='none'; return; }
+  if(window._isOwner!==true || window._role==='stu' || window._isB2C || window._isSchool){ card.style.display='none'; return; }
   card.style.display='';
   var list=document.getElementById('tm-list'); if(list)list.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
   try{
@@ -10210,7 +10213,7 @@ window.downloadPromoDoc=async function(){
   /* ---- 설정: 브랜딩 카드 ---- */
   window.brandLoad=async function(){
     var card=document.getElementById('brand-card'); if(!card)return;
-    if(window._isB2C || window._isOwner!==true){ card.style.display='none'; return; }
+    if(window._isB2C || window._isSchool || window._isOwner!==true){ card.style.display='none'; return; }
     card.style.display='';
     var b=await window.loadAcadBrand(true);
     var ph=document.getElementById('brand-phone'), ad=document.getElementById('brand-addr');
