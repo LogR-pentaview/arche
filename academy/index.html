@@ -2690,6 +2690,9 @@ function applySchoolMode(){
     ['trackseg','grp-dae','grp-goip'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
     // 1-b) '학원 운영·마케팅' 섹션 전체는 학교에 불필요 → 섹션 라벨까지 숨김
     document.querySelectorAll('.navlabel').forEach(function(l){ if(l.textContent && l.textContent.indexOf('학원 운영')>=0) l.style.display='none'; });
+    // 1-c) 펜타 비전/심화/트랙 '직접 배정' 메뉴 숨김 — 학교는 코스웨어 차시 편성(15회 선정)→개방으로만 전달. 나머지는 편성 화면에서 목차·미리보기.
+    document.querySelectorAll('#grp-penta .nav').forEach(function(n){ var oc=n.getAttribute('onclick')||''; if(oc.indexOf('ArchePentaApp.mount(')>=0) n.style.display='none'; });
+    var _gph=document.querySelector('#grp-penta .grouphead'); if(_gph){ _gph.innerHTML=_gph.innerHTML.replace('사고력 관리 엔진','수업 · 워크북'); }
     // 2) 홈 타이틀·라벨 학교용
     var eb=document.querySelector('#v-home .eyebrow'); if(eb) eb.textContent='School Cockpit';
     var h1=document.querySelector('#v-home .h1'); if(h1) h1.textContent='학교 홈';
