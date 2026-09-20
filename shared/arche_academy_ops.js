@@ -651,6 +651,8 @@
     el.innerHTML='<div style="color:var(--ink-mute);font-size:13px;padding:10px">불러오는 중…</div>';
     var rows=[]; try{ var r=await sb.from('academy_curriculum').select('*').eq('class_id',_cwClass).order('order_no'); rows=r.data||[]; }
     catch(e){ el.innerHTML=phRaw('⚠️','실패',(e&&e.message)||e); return; }
+    /* [학교용] 최대 15회 선정 상한 — 추가 버튼 상태 갱신 */
+    (function(){ var isSchool=(window._isSchool===true), MAXN=15; window._cwCount=rows.length; var addBtn=host.querySelector('#cw-add'); if(!addBtn||!isSchool)return; if(rows.length>=MAXN){ addBtn.disabled=true; addBtn.style.opacity='.5'; addBtn.textContent='최대 15회 편성됨'; } else { addBtn.disabled=false; addBtn.style.opacity='1'; addBtn.textContent='+ 차시 추가 ('+rows.length+'/15)'; } })();
     if(!rows.length){ el.innerHTML='<div style="border:1px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--ink-mute);font-size:13px">아직 편성된 차시가 없습니다.<br>[+ 차시 추가]로 학원용 회차를 순서대로 담아보세요.</div>'; return; }
     var SER={starter:['🌱 비전 기초','#c8a24a'],architecture:['🏛 비전 심화','#6366f1'],track:['🎯 트랙','#3fa34d'],master:['🔷 지성 다이빙','#0ea5e9']};
     function skey(r){ if(r.stage==='vision'&&r.level==='architecture')return'architecture'; if(r.stage==='vision')return'starter'; if(r.stage==='track')return'track'; return 'master'; }
@@ -686,6 +688,7 @@
   }
   async function cwOpenPicker(host){
     var sb=window.sb;
+    if(window._isSchool===true && (window._cwCount||0)>=15){ alert('학교 코스웨어는 최대 15회까지 편성할 수 있어요.\n먼저 편성 목록에서 회차를 빼고 추가하세요.'); return; }
     try{ await cwLoadCatalog(); }catch(e){ alert('회차 목록 로드 실패: '+((e&&e.message)||e)); return; }
     var ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(15,20,30,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:22px 12px';
     var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:16px;max-width:560px;width:100%;padding:16px;margin-top:16px';
@@ -712,6 +715,8 @@
   function mountCourseView(host){
     var curri=host.querySelector('#cw-curri'), asg=host.querySelector('#cw-assign'), tabs=host.querySelector('#cw-tabs');
     var asgMounted=false;
+    /* [학교용] 개별 '바로 배정·전송'은 막고, 차시 편성(선정 15회)→수업 개방만 허용 */
+    if(window._isSchool===true){ try{ if(tabs){ var _at=tabs.querySelector('[data-cw="assign"]'); if(_at)_at.style.display='none'; var _ct=tabs.querySelector('[data-cw="curri"]'); if(_ct){_ct.classList.add('on');} } if(asg)asg.style.display='none'; if(curri)curri.style.display=''; }catch(e){} }
     function mountAssign(){
       if(asgMounted) return; asgMounted=true;
       if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(asg,'staff'); }catch(e){ asg.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } }
