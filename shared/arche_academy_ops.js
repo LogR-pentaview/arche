@@ -632,14 +632,14 @@
     var acid=window._acadId||(window._academy&&window._academy.id), classes=[];
     try{ var rc=await sb.from('academy_classes').select('id,name,grade_band').eq('academy_id',acid).order('created_at'); classes=rc.data||[]; }
     catch(e){ host.innerHTML=phRaw('⚠️','불러오기 실패',(e&&e.message)||e); return; }
-    if(!classes.length){ host.innerHTML=phRaw('🏷️','반이 없습니다','[반·강사 관리]에서 먼저 반을 만들고 학생을 배정하세요.'); return; }
+    if(!classes.length){ host.innerHTML=phRaw('🏷️','반이 없습니다',(window._isSchool===true)?'[학생 관리]에서 엑셀로 학생을 업로드하면 학년·반이 자동 생성됩니다.':'[반·강사 관리]에서 먼저 반을 만들고 학생을 배정하세요.'); return; }
     if(!_cwClass || !classes.some(function(c){return c.id===_cwClass;})) _cwClass=classes[0].id;
     host.innerHTML='<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">'
       +'<select id="cw-csel" style="padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-weight:700;min-width:170px">'
       + classes.map(function(c){return '<option value="'+c.id+'"'+(c.id===_cwClass?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')
       +'</select>'
       +'<button id="cw-add" class="tab on" style="padding:10px 16px">+ 차시 추가</button>'
-      +'<span style="font-size:12px;color:var(--ink-mute)">회차를 순서대로 편성 → [수업 개방] 시 이 반 학생 전원에게 배정됩니다</span></div>'
+      +'<span style="font-size:12px;color:var(--ink-mute)">'+((window._isSchool===true)?'펜타 비전 심화 40강 중 <b>최대 15강</b>을 골라 담고 [수업 개방] → 이 반 학생 전원에게 전달됩니다':'회차를 순서대로 편성 → [수업 개방] 시 이 반 학생 전원에게 배정됩니다')+'</span></div>'
       +'<div id="cw-list" style="margin-top:14px"></div>';
     host.querySelector('#cw-csel').onchange=function(e){ _cwClass=e.target.value; cwRenderList(host); };
     host.querySelector('#cw-add').onclick=function(){ cwOpenPicker(host); };
@@ -692,12 +692,13 @@
     try{ await cwLoadCatalog(); }catch(e){ alert('회차 목록 로드 실패: '+((e&&e.message)||e)); return; }
     var ov=document.createElement('div'); ov.style.cssText='position:fixed;inset:0;z-index:9000;background:rgba(15,20,30,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:22px 12px';
     var box=document.createElement('div'); box.style.cssText='background:#fff;border-radius:16px;max-width:560px;width:100%;padding:16px;margin-top:16px';
-    box.innerHTML='<div style="display:flex;align-items:center;margin-bottom:10px"><b style="font-size:15px">차시로 담을 회차 선택</b><button id="cwp-x" style="margin-left:auto;border:0;background:#f0f2f6;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer">닫기</button></div><div id="cwp-pick"></div>';
+    box.innerHTML='<div style="display:flex;align-items:center;margin-bottom:10px"><b style="font-size:15px">'+(window._isSchool===true?'펜타 비전 심화 40강 중 선택 (최대 15강)':'차시로 담을 회차 선택')+'</b><button id="cwp-x" style="margin-left:auto;border:0;background:#f0f2f6;border-radius:8px;padding:6px 12px;font-weight:800;cursor:pointer">닫기</button></div><div id="cwp-pick"></div>';
     ov.appendChild(box); document.body.appendChild(ov);
     box.querySelector('#cwp-x').onclick=function(){ ov.remove(); };
     ov.onclick=function(e){ if(e.target===ov) ov.remove(); };
     if(window.ArcheCoursePicker){
-      ArcheCoursePicker.mount(box.querySelector('#cwp-pick'), { catalog:_cwCatalog, onPick:async function(id, opt){
+      var _cat=_cwCatalog; if(window._isSchool===true){ _cat=_cwCatalog.filter(function(x){ return x.level==='architecture'; }); }
+      ArcheCoursePicker.mount(box.querySelector('#cwp-pick'), { catalog:_cat, onPick:async function(id, opt){
         var src=_cwMap[id]; if(!src){ alert('회차 정보를 찾지 못했습니다.'); return; }
         try{
           var rr=await sb.from('academy_curriculum').select('order_no').eq('class_id',_cwClass).order('order_no',{ascending:false}).limit(1);
