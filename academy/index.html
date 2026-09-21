@@ -2306,7 +2306,7 @@ function go(el){
     if(vw)vw.classList.add('on');
   }
   document.getElementById('crumb').textContent=crumbMap[v]||v; if(!_same)window.scrollTo(0,0);
-  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='sm'&&window.mountStudentMgmt)mountStudentMgmt(document.getElementById('sm-mount')); if(v==='live'&&window.mountLiveControl)mountLiveControl(document.getElementById('live-mount')); if(v==='course'&&window.mountCourseView)mountCourseView(document.getElementById('v-course')); if(v==='submits'&&window.mountSubmitsView)mountSubmitsView(document.getElementById('v-submits')); if(v==='members'&&window.mountMembers)mountMembers(document.getElementById('members-mount')); if(v==='staffmsg'&&window.mountStaffMsg)mountStaffMsg(document.getElementById('staffmsg-mount')); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
+  if(v==='diag'){if(window.renderDiag)renderDiag(); if(window.renderCareerMatch)renderCareerMatch();} if(v==='arche'){if(window.renderArche)renderArche();if(window.renderSimCard)renderSimCard();} if(v==='curri'){if(window.renderCurri)renderCurri();if(window.renderCourseRoadmap)renderCourseRoadmap();} if(v==='roadmap'){if(window.renderRmCourse)renderRmCourse();if(window.renderRmGpa)renderRmGpa();if(window.renderTopics)renderTopics();} if(v==='sr'){window._designTrack='dae'; if(window.careerMount)careerMount('dae');} if(v==='perf'){window._designTrack='dae'; if(window.perfMount)perfMount('dae');} if(v==='iv'&&window.renderInterview)renderInterview(); if(v==='intake'&&window.refreshIntake){refreshIntake();if(window.renderIVIntake)renderIVIntake('dae');} if(v==='consult'){if(window.renderConsult)renderConsult();if(window.renderMB)renderMB();} if(v==='report'&&window.renderReport)renderReport(); if(v==='basecon'&&window.renderBaseCon)renderBaseCon(); if(v==='allstudents'&&window.renderAllStudents)renderAllStudents(); if(v==='sm'&&window.mountStudentMgmt)mountStudentMgmt(document.getElementById('sm-mount')); if(v==='live'&&window.mountLiveControl)mountLiveControl(document.getElementById('live-mount')); if(v==='course'&&window.mountCourseView)mountCourseView(document.getElementById('v-course')); if(v==='submits'&&window.mountSubmitsView)mountSubmitsView(document.getElementById('v-submits')); if(v==='members'&&window.mountMembers)mountMembers(document.getElementById('members-mount')); if(v==='staffmsg'&&window.mountStaffMsg)mountStaffMsg(document.getElementById('staffmsg-mount')); if(v==='roi'&&window.renderROI)renderROI(); if(v==='hqnews'&&window.renderHqNews){renderHqNews(); if(window.hqMarkSeen)hqMarkSeen();} if(v==='promo'&&window.renderPromo)renderPromo(); if(v==='notice'&&window.renderNotice)renderNotice(); if(v==='goip'&&window.renderGoip)renderGoip(); if(v==='greport'&&window.renderGreport)renderGreport(); if(v==='gstudents'&&window.renderGStudents)renderGStudents(); if(v==='gintake'&&window.renderGIntake){renderGIntake();if(window.renderIVIntake)renderIVIntake('goip');} if(v==='gconsult'&&window.renderGConsult)renderGConsult(); if(v==='gdiag'&&window.renderGDiag)renderGDiag(); if(v==='groadmap'&&window.renderGRoadmap)renderGRoadmap(); if(v==='gdesign'){window._designTrack='goip'; if(window.careerMount)careerMount('goip');} if(v==='gperf'){window._designTrack='goip'; if(window.perfMount)perfMount('goip');} if(window.syncTopbarPicker)syncTopbarPicker(v); if(v==='gessay'&&window.renderGEssay)renderGEssay(); if(v==='ginterview'&&window.renderGInterview)renderGInterview(); if(v==='essaybatch'&&window.EB&&window.EB.init)window.EB.init(); if(v==='admin'&&window.ADMIN)window.ADMIN.init(); if(v==='admin_data'&&window.AD&&window.AD.init)window.AD.init(); if(v==='billing'&&window.renderBilling)renderBilling(); if(v==='settings'&&window.loadApiKey){loadApiKey(); if(window.loadTeam)loadTeam(); if(window.brandLoad)brandLoad(); if(window._isSchool&&window.renderSchoolSettings)renderSchoolSettings();} if(v==='stuset'&&window.renderStuSettings)renderStuSettings();
   if(!window._navPop){ try{ history.pushState({v:v},'', '#'+v); }catch(e){} }
   try{ if(window.innerWidth<=960){ var _sd=document.querySelector('.side'); var _bd=document.getElementById('mnav-backdrop'); if(_sd)_sd.classList.remove('open'); if(_bd)_bd.classList.remove('open'); } }catch(e){}
   window._curView=v;
@@ -2904,6 +2904,100 @@ async function schoolResetPw(id){
   }catch(e){ alert('초기화 오류: '+((e&&e.message)||e)); }
 }
 window.schoolResetPw=schoolResetPw;
+
+/* ===================== [학교용] 설정: ①비밀번호 변경 ②내 계정·학교 정보(+로그아웃) ③학기말 데이터 관리 ===================== */
+async function renderSchoolSettings(){
+  var v=document.getElementById('v-settings'); if(!v) return;
+  ['apikey-card','brand-card','team-card'].forEach(function(id){ var e=document.getElementById(id); if(e)e.style.display='none'; });
+  var sub=v.querySelector('.sub'); if(sub)sub.textContent='계정 · 학교 데이터 설정';
+  if(!document.getElementById('school-settings')){
+    var panel=document.createElement('div'); panel.id='school-settings';
+    panel.style.cssText='max-width:620px;display:flex;flex-direction:column;gap:16px;margin-top:18px';
+    panel.innerHTML=''
+      +'<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
+        +'<div style="font-weight:800;font-size:15px;margin-bottom:4px">🔑 내 비밀번호 변경</div>'
+        +'<div style="font-size:12.5px;color:var(--ink-dim);margin:2px 0 12px">초기 비밀번호(000000)에서 나만의 비밀번호로 바꾸세요. <b>6자 이상</b>.</div>'
+        +'<input id="ss-pw" type="password" placeholder="새 비밀번호 (6자 이상)" style="width:100%;max-width:320px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-family:inherit">'
+        +'<div style="margin-top:10px"><button onclick="schoolChangePw()" style="padding:10px 18px;background:var(--gold);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer;font-family:inherit">비밀번호 변경</button> <span id="ss-pw-msg" style="font-size:12px;margin-left:6px"></span></div>'
+      +'</div>'
+      +'<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
+        +'<div style="font-weight:800;font-size:15px;margin-bottom:10px">👩‍🏫 내 계정 · 학교 정보</div>'
+        +'<div id="ss-acct" style="font-size:13px;color:var(--ink-dim);line-height:1.9">불러오는 중…</div>'
+        +'<div style="margin-top:14px"><button onclick="sbSignOutReload()" style="padding:9px 16px;background:#fff;border:1px solid var(--line);border-radius:9px;font-weight:700;color:var(--ink-dim);cursor:pointer;font-family:inherit">로그아웃</button></div>'
+      +'</div>'
+      +'<div style="background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px">'
+        +'<div style="font-weight:800;font-size:15px;margin-bottom:4px">🗄️ 학기말 데이터 관리</div>'
+        +'<div style="font-size:12.5px;color:var(--ink-dim);margin:2px 0 12px;line-height:1.6">학기가 끝나면 명단을 내려받아 보관하고, 학생 개인정보는 파기해 최소 보관하세요. <b>반은 유지</b>되어 다음 학기에 재사용됩니다.</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
+          +'<button onclick="schoolExportRoster()" style="padding:9px 16px;background:#fff;border:1px solid var(--line);border-radius:9px;font-weight:700;color:var(--ink);cursor:pointer;font-family:inherit">⬇ 학생 명단 CSV 내려받기</button>'
+          +'<button onclick="schoolPurgeAll()" style="padding:9px 16px;background:#fff;border:1px solid var(--risk);border-radius:9px;font-weight:700;color:var(--risk);cursor:pointer;font-family:inherit">🗑 학생 데이터 전체 파기</button>'
+        +'</div>'
+        +'<div id="ss-data-msg" style="font-size:12px;margin-top:10px;color:var(--ink-mute)"></div>'
+      +'</div>';
+    v.appendChild(panel);
+  }
+  schoolAcctInfo();
+}
+window.renderSchoolSettings=renderSchoolSettings;
+
+async function schoolChangePw(){
+  var el=document.getElementById('ss-pw'), m=document.getElementById('ss-pw-msg'); if(!el)return;
+  var np=(el.value||''); if(np.length<6){ if(m){m.style.color='var(--risk)';m.textContent='6자 이상 입력하세요.';} return; }
+  if(m){m.style.color='var(--ink-mute)';m.textContent='변경 중…';}
+  try{
+    var r=await sb.auth.updateUser({password:np});
+    if(r.error){ if(m){m.style.color='var(--risk)';m.textContent='실패: '+r.error.message;} return; }
+    try{ if(window._myUid) await sb.from('academy_users').update({must_change:false}).eq('uid',window._myUid); }catch(_e){}
+    el.value=''; if(m){m.style.color='var(--safe)';m.textContent='✓ 변경되었습니다.';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='오류: '+((e&&e.message)||e);} }
+}
+window.schoolChangePw=schoolChangePw;
+
+async function schoolAcctInfo(){
+  var box=document.getElementById('ss-acct'); if(!box) return;
+  var school=(window._acadBrand&&window._acadBrand.name)||(window._academy&&window._academy.name)||'-';
+  var me={};
+  try{ if(window._myUid){ var r=await sb.from('academy_users').select('name,subject,login_id,email,role').eq('uid',window._myUid).limit(1); me=(r.data&&r.data[0])||{}; } }catch(e){}
+  function row(k,val){ return '<div><span style="display:inline-block;width:92px;color:var(--ink-mute)">'+k+'</span><b style="color:var(--ink)">'+esc(val||'-')+'</b></div>'; }
+  box.innerHTML = row('학교', school) + row('이름', me.name) + row('담당', me.subject) + row('로그인 아이디', me.login_id||me.email) + row('역할', me.role==='owner'?'담당 교사(원장)':'교사');
+}
+window.schoolAcctInfo=schoolAcctInfo;
+
+async function schoolExportRoster(){
+  var m=document.getElementById('ss-data-msg'); var acid=_schAcid(); if(!acid){ if(m)m.textContent='학교 정보를 찾을 수 없습니다.'; return; }
+  if(m){m.style.color='var(--ink-mute)';m.textContent='명단 준비 중…';}
+  try{
+    var st=await sb.from('students').select('name,grade,seat_no,class_id').eq('academy_id',acid);
+    var cl=await sb.from('academy_classes').select('id,name').eq('academy_id',acid);
+    var ac=await sb.from('student_accounts').select('student_id,login_id').eq('academy_id',acid);
+    var studs=st.data||[]; if(!studs.length){ if(m){m.style.color='var(--risk)';m.textContent='등록된 학생이 없습니다.';} return; }
+    var cname={}; (cl.data||[]).forEach(function(c){ cname[c.id]=c.name; });
+    var acct={}; (ac.data||[]).forEach(function(a){ acct[a.student_id]=a.login_id; });
+    var stWithId=await sb.from('students').select('id,name,grade,seat_no,class_id').eq('academy_id',acid);
+    var rows=(stWithId.data||[]).sort(function(a,b){ var ca=(cname[a.class_id]||'').localeCompare(cname[b.class_id]||'','ko'); if(ca)return ca; return (parseInt(a.seat_no||'0',10)||0)-(parseInt(b.seat_no||'0',10)||0); });
+    var lines=['반,번호,이름,학년,아이디'];
+    rows.forEach(function(s){ lines.push([cname[s.class_id]||'미배정', s.seat_no||'', (s.name||'').replace(/,/g,' '), s.grade||'', acct[s.id]||''].join(',')); });
+    var csv='﻿'+lines.join('\r\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'}); var url=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=url; a.download='학생명단_'+(school_slug_(school_name_()))+'_'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(url);},1000);
+    if(m){m.style.color='var(--safe)';m.textContent='✓ '+rows.length+'명 명단을 내려받았습니다.';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='내려받기 실패: '+((e&&e.message)||e);} }
+}
+function school_name_(){ return (window._acadBrand&&window._acadBrand.name)||(window._academy&&window._academy.name)||'school'; }
+function school_slug_(s){ return String(s||'school').replace(/[^0-9A-Za-z가-힣]/g,''); }
+window.schoolExportRoster=schoolExportRoster;
+
+async function schoolPurgeAll(){
+  var m=document.getElementById('ss-data-msg'); var acid=_schAcid(); if(!acid){ if(m)m.textContent='학교 정보를 찾을 수 없습니다.'; return; }
+  var st=await sb.from('students').select('id,name').eq('academy_id',acid); var studs=st.data||[];
+  if(!studs.length){ if(m){m.style.color='var(--ink-mute)';m.textContent='파기할 학생 데이터가 없습니다.'; } return; }
+  if(!confirm('학생 '+studs.length+'명의 계정·제출물·기록을 모두 영구 파기합니다.\n반(폴더)은 유지됩니다. 파기된 정보는 복구할 수 없습니다.\n\n먼저 [명단 CSV 내려받기]로 보관하셨나요? 계속하려면 확인을 누르세요.')) return;
+  var typed=prompt('확인을 위해 파기 를 입력하세요.'); if(typed==null || typed.trim()!=='파기'){ if(m){m.style.color='var(--ink-mute)';m.textContent='취소되었습니다.'; } return; }
+  var ok=0, fail=0;
+  for(var i=0;i<studs.length;i++){ if(m){m.style.color='var(--ink-mute)';m.textContent='파기 중… '+(i+1)+'/'+studs.length;} try{ await purgeStudentReq(studs[i].id); ok++; }catch(e){ fail++; } }
+  if(m){m.style.color='var(--safe)';m.textContent='✓ 파기 완료 · '+ok+'명'+(fail?(' · 실패 '+fail):'')+' (반 유지)';}
+}
+window.schoolPurgeAll=schoolPurgeAll;
 
 async function enterApp(session){
   var u=session.user;
