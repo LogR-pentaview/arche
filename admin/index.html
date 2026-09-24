@@ -146,7 +146,7 @@
   var SUMMARY = null;
   function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
   window.doLogout = async function(){ await signOut(); location.replace('/login'); };
-  window.APP_VERSION="2026.08.19.2";
+  window.APP_VERSION="2026.09.24.2";
   (function(){ var el=document.getElementById('ver-cur'); if(el)el.textContent=window.APP_VERSION; })();
   window.checkAppUpdate=async function(){
     var m=document.getElementById('ver-msg'),ap=document.getElementById('ver-apply');
@@ -397,21 +397,30 @@
       +'<div style="border:1px solid #c8a24a;border-radius:12px;padding:14px 16px;margin:10px 0 16px;background:#fffdf6">'
       +'<div style="font-weight:800;margin-bottom:9px">＋ 학교 직접 등록</div>'
       +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">'
-      +'<input id="sc-name" placeholder="학교명 *" style="flex:1;min-width:160px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
-      +'<input id="sc-region" placeholder="지역(선택)" style="width:120px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
-      +'<input id="sc-phone" placeholder="연락처(선택)" style="width:130px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="sc-name" placeholder="학교명 *" style="flex:1;min-width:150px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="sc-slug" oninput="schSlugPrev()" placeholder="전용주소(영문) *" style="width:150px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="sc-region" placeholder="지역(선택)" style="width:110px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
+      +'<input id="sc-phone" placeholder="연락처(선택)" style="width:120px;padding:9px 11px;border:1px solid #dcdfe4;border-radius:8px;font-size:13px">'
       +'<button class="btn g" onclick="schCreate()" style="white-space:nowrap">등록</button></div>'
-      +'<div id="sc-msg" style="font-size:12px;margin-top:6px;min-height:14px"></div></div>'
+      +'<div id="sc-addr" style="font-size:11.5px;color:#6b7688;margin-top:7px;min-height:14px"></div>'
+      +'<div id="sc-msg" style="font-size:12px;margin-top:4px;min-height:14px"></div></div>'
       +'<table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr>'
       +'<th style="text-align:left;padding:8px;color:#6b7688;font-size:12px">학교</th><th style="text-align:left;padding:8px;color:#6b7688;font-size:12px">연락처</th>'
       +'<th style="text-align:center;padding:8px;color:#6b7688;font-size:12px">편성</th><th></th></tr></thead><tbody>'+list+'</tbody></table>';
   }
+  window.schSlugPrev=function(){
+    var el=document.getElementById('sc-slug'), a=document.getElementById('sc-addr'); if(!el||!a) return;
+    var s=(el.value||'').toLowerCase().replace(/[^a-z0-9]/g,''); if(el.value!==s) el.value=s;
+    a.innerHTML = s ? ('전용주소 <b>'+s+'.arche.penta-view.com</b> · 아이디 예: 학생 <b>'+s+'0001</b> / 교사 <b>'+s+'t01</b>') : '';
+  };
   window.schCreate=async function(){
     var name=(document.getElementById('sc-name').value||'').trim(); var m=document.getElementById('sc-msg');
+    var slug=(document.getElementById('sc-slug').value||'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
     if(!name){ m.style.color='#c0392b'; m.textContent='학교명을 입력하세요.'; return; }
+    if(!/^[a-z][a-z0-9]{1,19}$/.test(slug)){ m.style.color='#c0392b'; m.textContent='전용주소는 영문 소문자로 시작하는 2~20자(영문·숫자)로 입력하세요. 예: hansung'; return; }
     m.style.color='#6b7688'; m.textContent='등록 중…';
-    var r=await sb.rpc('create_school',{p_name:name,p_region:(document.getElementById('sc-region').value||'').trim()||null,p_phone:(document.getElementById('sc-phone').value||'').trim()||null});
-    if(r.error){ m.style.color='#c0392b'; m.textContent='실패: '+r.error.message; return; }
+    var r=await sb.rpc('create_school',{p_name:name,p_region:(document.getElementById('sc-region').value||'').trim()||null,p_phone:(document.getElementById('sc-phone').value||'').trim()||null,p_slug:slug});
+    if(r.error){ m.style.color='#c0392b'; m.textContent='실패: '+(/slug|주소/.test(r.error.message)?'전용주소 오류: '+r.error.message+' (이미 사용 중이거나 예약어일 수 있습니다)':r.error.message); return; }
     go('school');
   };
   window.schOpen=function(aid,cid,name){ _schSel={academy_id:aid,class_id:cid,name:name}; go('school'); };
@@ -439,7 +448,7 @@
     var r=await sb.from('academy_users').select('login_id,name,subject,role').eq('academy_id',_schSel.academy_id);
     var rows=(r&&r.data)||[];
     document.getElementById('st-list').innerHTML = rows.length ? ('<table style="width:100%;border-collapse:collapse;font-size:12.5px"><tbody>'
-      +rows.map(function(t){return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eef0f3"><b>'+esc(t.login_id||'-')+'</b> <span class="muted">/0000</span></td><td style="padding:6px 8px;border-bottom:1px solid #eef0f3">'+esc(t.name||'-')+(t.subject?' · '+esc(t.subject):'')+'</td><td style="padding:6px 8px;border-bottom:1px solid #eef0f3">'+(t.role==='owner'?'원장(교사)':'교사')+'</td></tr>';}).join('')
+      +rows.map(function(t){return '<tr><td style="padding:6px 8px;border-bottom:1px solid #eef0f3"><b>'+esc(t.login_id||'-')+'</b> <span class="muted">/000000</span></td><td style="padding:6px 8px;border-bottom:1px solid #eef0f3">'+esc(t.name||'-')+(t.subject?' · '+esc(t.subject):'')+'</td><td style="padding:6px 8px;border-bottom:1px solid #eef0f3">'+(t.role==='owner'?'원장(교사)':'교사')+'</td></tr>';}).join('')
       +'</tbody></table>') : '<div class="muted" style="font-size:12px">발급된 교사 계정이 없습니다.</div>';
   }
   window.schIssueTeacher=async function(){
@@ -452,7 +461,7 @@
         body:JSON.stringify({academy_id:_schSel.academy_id,name:name,subject:(document.getElementById('st-subject').value||'').trim(),role:'owner'})});
       var d=await res.json();
       if(!res.ok||d.error){ m.style.color='#c0392b'; m.textContent='실패: '+(d.error||res.status); return; }
-      m.style.color='#1c7a45'; m.innerHTML='✓ 발급 완료 — 아이디 <b>'+esc(d.login_id)+'</b> / 초기비번 <b>0000</b> (학원앱 최초 로그인 시 변경)';
+      m.style.color='#1c7a45'; m.innerHTML='✓ 발급 완료 — 아이디 <b>'+esc(d.login_id)+'</b> / 초기비번 <b>000000</b> (학원앱 최초 로그인 시 변경)';
       document.getElementById('st-name').value='';document.getElementById('st-subject').value='';schLoadTeachers();
     }catch(e){ m.style.color='#c0392b'; m.textContent='실패: '+e; }
   };
