@@ -2414,7 +2414,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.07.14";
+window.APP_VERSION="2026.09.24.1";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -3045,6 +3045,7 @@ async function enterApp(session){
   if(ac){ var {data:ar}=await sb.from('academies').select('is_admin,approved,is_demo,demo_expires_at,demo_credits,account_type,logo_url,phone,address,name,entitlements').eq('id',ac.id).limit(1); if(ar&&ar[0]){isAdmin=ar[0].is_admin; approved=ar[0].approved; window._acctTypeCur=ar[0].account_type||'b2b'; window._demo=ar[0].is_demo?{expires:ar[0].demo_expires_at,credits:ar[0].demo_credits||{}}:null; window._acadId=ac.id; window._ent=ar[0].entitlements||{}; window._acadBrand={name:ar[0].name||(ac&&ac.name)||'',logo_url:ar[0].logo_url||'',phone:ar[0].phone||'',address:ar[0].address||''};} }
   window._isB2C=(window._acctTypeCur==='b2c');
   window._isSchool=(window._acctTypeCur==='school'); /* [학교용] 개인정보처리 문구 분기 — 학원(b2b)·학부모(b2c)는 false */
+  window._pentaSchool=(window._isSchool===true); /* [학교 B2G] 펜타비전 심화→45분 학교버전(architecture45) 서빙 스위치 (교사·학생 공통) */
   try{ if(window.applyEntitlementGating) applyEntitlementGating(); }catch(_eg){}
   if(window._demo && window._demo.expires && new Date(window._demo.expires)<new Date()){
     await sb.auth.signOut();
@@ -3269,6 +3270,7 @@ window.enterParentViewer=enterParentViewer;
 async function enterStudentApp(session){
   /* [학교용] 학생 소속 학교(account_type='school') 감지 → 동의 게이트 문구 분기 (학원·학부모 학생은 false) */
   try{ var _sp=await sb.from('students').select('academy_id').limit(1); var _said=_sp&&_sp.data&&_sp.data[0]&&_sp.data[0].academy_id; if(_said){ var _sac=await sb.from('academies').select('account_type').eq('id',_said).limit(1); window._isSchool=!!(_sac&&_sac.data&&_sac.data[0]&&_sac.data[0].account_type==='school'); } }catch(e){}
+  window._pentaSchool=(window._isSchool===true); /* [학교 B2G] 학생 세션: 심화→45분 학교버전 서빙 스위치 */
   if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
   document.body.classList.add('student-mode');
