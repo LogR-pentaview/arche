@@ -56,6 +56,14 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .panel.on{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .ptitle{font-size:20px;font-weight:800;letter-spacing:-.02em;margin-bottom:4px}
+.tagline{display:inline-block;font-size:16.5px;font-weight:800;letter-spacing:-.02em;line-height:1.35;margin:4px 0 11px;background:var(--aurora);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.tagline.hero{font-size:19px;margin:6px 0 13px}
+.tagchain{display:flex;align-items:center;gap:7px;flex-wrap:wrap;font-size:11px;font-weight:800;margin:2px 0 12px}
+.tagchain span{border-radius:20px;padding:4px 10px;background:var(--blue-soft);color:var(--blue)}
+.tagchain span.mid{background:var(--mint-soft);color:var(--mint)}
+.tagchain span.end{background:var(--amber-soft);color:var(--amber)}
+.tagchain i{color:var(--ink-faint);font-style:normal;font-weight:800}
+.tagchain span.self{outline:2px solid currentColor;outline-offset:1px}
 .ptitle small{font-size:12px;color:var(--ink-mute);font-weight:600}
 .psub{font-size:12.5px;color:var(--ink-mute);font-weight:600;margin-bottom:15px;line-height:1.6}
 .eyebrow{font-size:11.5px;font-weight:800;color:var(--sky);letter-spacing:.05em;margin:22px 0 8px}
@@ -348,8 +356,10 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   <!-- ═══ 비전 ═══ -->
   <section class="panel" data-p="vision">
     <div class="ptitle">📘 펜타 비전 <small>· 초등~중2</small></div>
+    <div class="tagline">생각을 만든다</div>
+    <div class="tagchain"><span class="self">비전 · 생각</span><i>→</i><span class="mid">트랙 · 진로</span><i>→</i><span class="end">아르케 · 로드맵</span></div>
     <div class="psub">5대 지성 융합사고 · 학부모가 컨설턴트가 되는 학부모–학생 루프 · 온라인 구독</div>
-    <p class="lead">사고력이 자라는 결정적 시기. <b>5대 지성 주파수</b>로 아이의 지성을 진단하고, 회차별 워크북으로 사고를 확장하며, 학부모가 리포트를 읽고 아이를 직접 이끕니다. 온라인 구독으로 대치동 컨설팅의 깊이를 집에서.</p>
+    <p class="lead">사고의 뿌리가 자라는 결정적 시기. 정답을 외우는 게 아니라 아이가 <b>스스로 생각을 만들어내는</b> 힘을 기릅니다. <b>5대 지성 주파수</b>로 아이의 지성을 진단하고, 회차별 워크북으로 사고를 확장하며, 학부모가 리포트를 읽고 아이를 직접 이끕니다. 온라인 구독으로 대치동 컨설팅의 깊이를 집에서.</p>
 
     <div class="eyebrow">5대 지성 주파수</div>
     <div class="freq">
@@ -412,8 +422,10 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   <!-- ═══ 트랙 ═══ -->
   <section class="panel" data-p="track">
     <div class="ptitle">📗 펜타 트랙 <small>· 중3</small></div>
-    <div class="psub">융합 탐구 + 진로 설계 · 학부모가 직접 관리하는 온라인 구독</div>
-    <p class="lead">중3, 관심을 진로로 좁혀야 하는 시기. 교과를 넘나드는 <b>융합 인과율 해부</b>로 사고 가속도를 훈련하고, <b>진로 주파수</b>로 관심의 방향을 구체화해 고교 선택과목·활동까지 설계합니다.</p>
+    <div class="tagline hero">생각을 읽으면, 진로의 방향이 보입니다.</div>
+    <div class="tagchain"><span>비전 · 생각</span><i>→</i><span class="mid self">트랙 · 진로</span><i>→</i><span class="end">아르케 · 로드맵</span></div>
+    <div class="psub">생각에서 진로를 찾는다 · 융합 탐구로 관심을 진로로 좁히는 온라인 구독</div>
+    <p class="lead">중3, 관심을 진로로 좁혀야 하는 시기. 정해진 직업 목록에서 고르는 게 아니라 <b>아이의 생각 속에서</b> 방향을 찾습니다. 교과를 넘나드는 <b>융합 인과율 해부</b>로 사고 가속도를 훈련하고, <b>진로 주파수</b>로 관심의 방향을 구체화해 고교 선택과목·활동까지 설계합니다.</p>
 
     <div class="list">
       <div class="item"><div class="ico" style="background:var(--mint-soft)">🔬</div><div class="bd"><h4>교과 융합 인과율 해부</h4><p>과학×사회, 기술×경제 등 과목의 경계를 넘는 탐구로 사고 가속도를 훈련합니다.</p></div></div>
@@ -461,8 +473,10 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   <!-- ═══ 아르케 ═══ -->
   <section class="panel" data-p="arche">
     <div class="ptitle">🪜 펜타 아르케 <small>· 고교</small></div>
-    <div class="psub">직접 쓰고, 스스로 증명하는 — 진로 설계·수행평가·본인 작성 증명</div>
-    <p class="lead">고교 진학 이후, 생활기록부의 <b>실행 단계</b>. 진로를 좁히는 징검다리, 수행평가를 스스로 완성하는 도우미, 그리고 '이 글은 내가 썼다'를 증명하는 <b>본인 작성 증명</b>까지 — 비전·트랙의 사고 진단이 실행과 증명으로 이어집니다.</p>
+    <div class="tagline">진로에 도달할 로드맵을 세운다</div>
+    <div class="tagchain"><span>비전 · 생각</span><i>→</i><span class="mid">트랙 · 진로</span><i>→</i><span class="end self">아르케 · 로드맵</span></div>
+    <div class="psub">직접 쓰고, 스스로 증명하는 — 진로 로드맵·수행평가·본인 작성 증명</div>
+    <p class="lead">고교 진학 이후, 찾은 진로에 <b>실제로 도달하기 위한 실행 단계</b>. 전공·진로 방향과 탐구 주제를 로드맵으로 세우고, 수행평가를 스스로 완성하며, '이 글은 내가 썼다'를 증명하는 <b>본인 작성 증명</b>까지 — 비전·트랙의 사고 진단이 실행과 증명으로 이어집니다.</p>
 
     <div class="list">
       <div class="item"><div class="ico" style="background:var(--amber-soft)">🪜</div><div class="bd"><h4>진로 징검다리</h4><p>관심 → 진로 → 활동으로 좁히는 단계별 워크시트. 흩어진 관심을 진로 가설로 구조화하고, 탐구보고서 구조를 스스로 잡습니다.</p></div></div>
