@@ -64,6 +64,30 @@ header{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid
 .tagchain span.end{background:var(--amber-soft);color:var(--amber)}
 .tagchain i{color:var(--ink-faint);font-style:normal;font-weight:800}
 .tagchain span.self{outline:2px solid currentColor;outline-offset:1px}
+.story-hero{text-align:center;padding:16px 4px 4px}
+.story-eyb{font-size:11px;font-weight:800;letter-spacing:.14em;color:var(--mint)}
+.story-h1{font-size:26px;font-weight:900;letter-spacing:-.03em;line-height:1.3;margin:9px 0 13px}
+.story-h1 .g{background:var(--aurora);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.story-sub{font-size:13.5px;color:var(--ink-dim);line-height:1.85;font-weight:500;max-width:560px;margin:0 auto 15px}
+.story-hero .tagchain{justify-content:center}
+.narr{font-size:13.5px;color:var(--ink-dim);line-height:1.9;font-weight:500;margin-bottom:12px}
+.narr b{color:var(--ink)}
+.probs{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 4px}
+.probs .p{flex:1;min-width:150px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+.probs .p .e{font-size:20px}
+.probs .p h5{font-size:13px;font-weight:800;margin:6px 0 3px}
+.probs .p small{font-size:11.5px;color:var(--ink-mute);line-height:1.65;display:block}
+.journey{display:grid;gap:11px;margin-top:2px}
+.jcard{display:block;background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 14px 34px -26px rgba(79,70,229,.4);cursor:pointer;text-align:left;width:100%;position:relative;overflow:hidden;transition:transform .12s,box-shadow .12s;-webkit-appearance:none;font-family:inherit}
+.jcard:hover{box-shadow:0 18px 40px -22px rgba(79,70,229,.5)}
+.jcard:active{transform:scale(.994)}
+.jcard::before{content:"";position:absolute;top:0;left:0;bottom:0;width:4px;background:var(--c,var(--blue))}
+.jcard .jt{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.jcard .jt b{font-size:15.5px;font-weight:800}
+.jcard .jt small{font-size:11px;color:var(--ink-mute);font-weight:700}
+.jcard .jcopy{font-size:13.5px;font-weight:800;color:var(--c,var(--blue));margin:8px 0 4px;letter-spacing:-.01em}
+.jcard .jd{font-size:12px;color:var(--ink-dim);line-height:1.68}
+.jcard .jgo{font-size:11.5px;font-weight:800;color:var(--c,var(--blue));margin-top:9px;display:inline-block}
 .ptitle small{font-size:12px;color:var(--ink-mute);font-weight:600}
 .psub{font-size:12.5px;color:var(--ink-mute);font-weight:600;margin-bottom:15px;line-height:1.6}
 .eyebrow{font-size:11.5px;font-weight:800;color:var(--sky);letter-spacing:.05em;margin:22px 0 8px}
@@ -265,7 +289,8 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   </div>
   <nav class="tabnav">
     <div class="inner" id="tabs">
-      <button class="on" data-t="report">📊 성장 리포트</button>
+      <button class="on" data-t="story">✨ 이야기</button>
+      <button data-t="report">📊 성장 리포트</button>
       <button data-t="vision">📘 비전</button>
       <button data-t="track">📗 트랙</button>
       <button data-t="arche">🪜 아르케</button>
@@ -279,8 +304,69 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
 
 <main class="wrap">
 
-  <!-- ═══ 성장 리포트 (기본) ═══ -->
-  <section class="panel on" data-p="report">
+  <!-- ═══ 이야기 (기본) ═══ -->
+  <section class="panel on" data-p="story">
+    <div class="story-hero">
+      <div class="story-eyb">PENTA SERIES · Log.R</div>
+      <h1 class="story-h1">AI가 답을 써주는 시대,<br>우리는 <span class="g">생각의 과정</span>을 남깁니다</h1>
+      <p class="story-sub">정답은 검색하면 나오고, 글은 AI가 대신 써주는 시대. 그러나 대학도 사회도 결국 묻습니다 — "이 생각, 정말 네 것이니?" 펜타 시리즈는 아이가 스스로 사고하고 직접 쓴 <b>그 과정</b>을 기록하고 증명합니다.</p>
+      <div class="tagchain"><span>비전 · 생각</span><i>→</i><span class="mid">트랙 · 진로</span><i>→</i><span class="end">아르케 · 로드맵</span></div>
+    </div>
+
+    <div class="eyebrow">WHY · 펜타가 태어난 이유</div>
+    <p class="narr">20년간 입시 현장에서 지켜본 것은, <b>점수는 남지만 '어떻게 그 답에 도달했는지'는 아무도 기록하지 않는다</b>는 것이었습니다. AI가 결과물을 대신 만들어주는 지금, 그 공백은 더 커졌습니다. 펜타는 교육에서 사라진 <b>'과정'</b>을 되살리기 위해 태어났습니다.</p>
+    <div class="probs">
+      <div class="p"><div class="e">🤖</div><h5>결과만 남는 교육</h5><small>답과 점수는 남지만, 거기 도달한 사고의 궤적은 어디에도 기록되지 않습니다.</small></div>
+      <div class="p"><div class="e">✍️</div><h5>AI 대필의 일상화</h5><small>누구나 매끄러운 글을 뽑는 지금, 결과물만으론 실제 사고력을 가릴 수 없습니다.</small></div>
+      <div class="p"><div class="e">🎤</div><h5>강화되는 검증</h5><small>대학은 서류 뒤 '진짜 실력'을 확인하려 면접·과정 검증을 높이는 추세입니다.</small></div>
+    </div>
+
+    <div class="eyebrow">SERIES · 생각이 자라는 3단계</div>
+    <p class="narr" style="margin-bottom:11px">한 아이의 성장 여정을 초등부터 고교까지 이어서 설계했습니다. <b>생각을 만들고 → 진로를 찾고 → 로드맵으로 도달</b>하는 하나의 흐름입니다.</p>
+    <div class="journey">
+      <button class="jcard" style="--c:#4f46e5" onclick="document.querySelector('[data-t=&quot;vision&quot;]').click();window.scrollTo(0,0)">
+        <div class="jt"><b>📘 펜타 비전</b><small>· 초등~중2</small></div>
+        <div class="jcopy">생각을 만든다</div>
+        <div class="jd">정답을 외우는 게 아니라, 5대 지성 주파수로 아이가 스스로 생각을 만들어내는 힘을 기릅니다.</div>
+        <span class="jgo">비전 자세히 보기 →</span>
+      </button>
+      <button class="jcard" style="--c:#7c3aed" onclick="document.querySelector('[data-t=&quot;track&quot;]').click();window.scrollTo(0,0)">
+        <div class="jt"><b>📗 펜타 트랙</b><small>· 중3</small></div>
+        <div class="jcopy">생각에서 진로를 찾는다</div>
+        <div class="jd">직업 목록에서 고르는 게 아니라, 만들어진 생각 속에서 진로의 방향을 찾아 고교 설계로 잇습니다.</div>
+        <span class="jgo">트랙 자세히 보기 →</span>
+      </button>
+      <button class="jcard" style="--c:#db2777" onclick="document.querySelector('[data-t=&quot;arche&quot;]').click();window.scrollTo(0,0)">
+        <div class="jt"><b>🪜 펜타 아르케</b><small>· 고교</small></div>
+        <div class="jcopy">진로에 도달할 로드맵을 세운다</div>
+        <div class="jd">찾은 진로를 탐구·수행평가·본인 작성 증명으로 실행해, 생활기록부의 실제 근거로 남깁니다.</div>
+        <span class="jgo">아르케 자세히 보기 →</span>
+      </button>
+    </div>
+
+    <div class="eyebrow">PURPOSE · 우리가 추구하는 교육</div>
+    <div class="grid3">
+      <div class="mini"><div class="e">🧠</div><h4>스스로 사고하게</h4><p>답을 주지 않습니다. 아이가 스스로 답에 도달하는 힘을 기릅니다.</p></div>
+      <div class="mini"><div class="e">📝</div><h4>과정을 존중하게</h4><p>결과 점수가 아니라, 생각이 자란 궤적 그 자체를 기록합니다.</p></div>
+      <div class="mini"><div class="e">🔏</div><h4>본인임을 증명하게</h4><p>'이 생각은 내가 했다'를 데이터로 뒷받침합니다.</p></div>
+    </div>
+
+    <div class="eyebrow">WORLDVIEW · Log.R의 펜타 세계관</div>
+    <div class="vision-box">
+      <div class="ve">VISION</div>
+      <div class="vt">학교와 학원이 학생의 성장을 같은 언어로 말하는 세상.</div>
+      <div class="vd">수업에서의 사고 기록이 학교 기록이 되고, 그 기록이 학생 자신의 성장 근거가 되는 것 — Log.R이 특허 기반 프로세스 분석 기술로 만들어가는 미래입니다. 우리는 점수 경쟁의 도구가 아니라, <b>과정이 존중받는 입시 문화의 인프라</b>가 되고자 합니다.</div>
+    </div>
+
+    <div class="cta-band">
+      <h3>아이의 생각이 자라는 여정, 지금 시작하세요</h3>
+      <p>학부모가 직접 회원가입하고 바로 사용합니다. 관리자 승인 없이 가입 즉시 시작하며, 각 서비스 첫 시즌 1강을 무료로 체험할 수 있어요.</p>
+      <a class="btn white big" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">무료로 시작하기</a>
+    </div>
+  </section>
+
+  <!-- ═══ 성장 리포트 ═══ -->
+  <section class="panel" data-p="report">
     <div class="ptitle">성적표에 없던 <span style="color:var(--blue)">생각의 성장</span></div>
     <div class="psub">펜타 시리즈는 아이가 스스로 사고하고 직접 쓰게 하고, 그 변화를 리포트로 남깁니다 · 이제 <b>국·수·사·과·예 과목별 분석</b>까지</div>
     <div class="report-card">
@@ -422,7 +508,7 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   <!-- ═══ 트랙 ═══ -->
   <section class="panel" data-p="track">
     <div class="ptitle">📗 펜타 트랙 <small>· 중3</small></div>
-    <div class="tagline hero">생각을 읽으면, 진로의 방향이 보입니다.</div>
+    <div class="tagline hero">생각을 읽으면, 진로의 방향이 보인다.</div>
     <div class="tagchain"><span>비전 · 생각</span><i>→</i><span class="mid self">트랙 · 진로</span><i>→</i><span class="end">아르케 · 로드맵</span></div>
     <div class="psub">생각에서 진로를 찾는다 · 융합 탐구로 관심을 진로로 좁히는 온라인 구독</div>
     <p class="lead">중3, 관심을 진로로 좁혀야 하는 시기. 정해진 직업 목록에서 고르는 게 아니라 <b>아이의 생각 속에서</b> 방향을 찾습니다. 교과를 넘나드는 <b>융합 인과율 해부</b>로 사고 가속도를 훈련하고, <b>진로 주파수</b>로 관심의 방향을 구체화해 고교 선택과목·활동까지 설계합니다.</p>
@@ -724,7 +810,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();
     window.scrollTo(0,0);
   }
   tabs.forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-t')); }; });
-  show('report');
+  show('story');
 })();
 </script>
 
