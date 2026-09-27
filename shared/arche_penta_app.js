@@ -192,11 +192,12 @@
   function growthPct(before,after){ try{ var b=(before||[]).reduce(function(a,x){return a+(+x||0);},0); var a=(after||[]).reduce(function(s,x){return s+(+x||0);},0); if(!b)return null; return Math.round((a-b)/b*100);}catch(e){return null;} }
 
   // 리포트 조립: penta-ai 결과 + 제출 메타(레이더/컴퍼스/학생/회차)
-  function assembleReport(ai, sub, cat, studentName){
+  function assembleReport(ai, sub, cat, studentName, studentGrade){
     var rep = Object.assign({}, ai);
     rep.stage = cat.stage;
     rep.level = cat.level || '';
-    rep.student = { name: studentName || sub.student_id, grade: cat.grade_band||'' };
+    rep.student = { name: studentName || sub.student_id, grade: studentGrade || cat.grade_band || '' };
+    if(studentGrade) rep.grade_label = studentGrade; /* [5과목] 약점 예측 '학년 기준' 표기용 */
     rep.lesson = { season:cat.season, week:cat.week, theme:cat.theme, title:cat.title, date: (new Date()).toISOString().slice(0,10).replace(/-/g,'.') };
     rep.date = rep.lesson.date;
     var _glo=(cat.content && (cat.content.glossary || cat.content.terms)); if(Array.isArray(_glo)&&_glo.length) rep.glossary=_glo;
@@ -538,11 +539,12 @@
           var payload = {
             theme:sub.theme, title:sub.title, level:sub.level,
             answers:sub.answers, radar_before:sub.radar_before, radar_after:sub.radar_after,
-            compass:sub.compass, matrix:(a.content&&a.content.theme)||'', career:(sub.answers&&sub.answers.career_choice)||''
+            compass:sub.compass, matrix:(a.content&&a.content.theme)||'', career:(sub.answers&&sub.answers.career_choice)||'',
+            grade:(stu&&stu.grade)||'', student:{ name:(stu&&stu.name)||'', grade:(stu&&stu.grade)||'' } /* [5과목] 학년맞춤 약점 예측용 */
           };
           var res=await callPenta(task, payload);
           var ai; try{ ai=JSON.parse(res.text); }catch(pe){ throw new Error('AI 응답 파싱 실패'); }
-          report = assembleReport(ai, sub, a, stu.name);
+          report = assembleReport(ai, sub, a, stu.name, (stu&&stu.grade)||'');
           await saveReport(sub.id, report, (report.persona&&report.persona.name)||(report.signature&&report.signature.name)||null, 'reviewed', false);
           toast('리포트 초안을 생성했어요'); paint();
         }catch(e){ toast('생성 실패: '+(e.message||e)); genBtn.disabled=false; genBtn.textContent='AI 리포트 생성'; }

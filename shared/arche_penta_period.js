@@ -148,13 +148,60 @@
   + ".ppr-ovx button{font:inherit;font-weight:800;font-size:13px;padding:8px 14px;border-radius:10px;border:0;background:#141a29;color:#fff;cursor:pointer}"
   + ".ppr .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:pprspin .7s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes pprspin{to{transform:rotate(360deg)}}"
   + ".ppm .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.5);border-top-color:#fff;border-radius:50%;animation:pprspin .7s linear infinite;vertical-align:-2px;margin-right:6px}"
-  + ".ppm .toast,.ppr .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#141a29;color:#fff;font-size:12.5px;font-weight:700;padding:11px 17px;border-radius:99px;z-index:2147483647;opacity:0;transition:.2s}.ppm .toast.on,.ppr .toast.on{opacity:1}";
+  + ".ppm .toast,.ppr .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#141a29;color:#fff;font-size:12.5px;font-weight:700;padding:11px 17px;border-radius:99px;z-index:2147483647;opacity:0;transition:.2s}.ppm .toast.on,.ppr .toast.on{opacity:1}"
+  + ".ppr .psubj{background:#fff;border:1px solid var(--line-soft);border-left:4px solid var(--sc,#c8a24a);border-radius:14px;margin:2px 20px 9px;padding:14px 15px}"
+  + ".ppr .psh{display:flex;align-items:center;gap:9px;flex-wrap:wrap}"
+  + ".ppr .psic{width:28px;height:28px;flex:none;border-radius:8px;background:var(--sc,#c8a24a);color:#fff;display:grid;place-items:center;font-size:13px;font-weight:800}"
+  + ".ppr .psn{font-size:13.5px;font-weight:800;color:var(--navy)}.ppr .psl{font-size:10px;color:var(--mute);font-weight:600}"
+  + ".ppr .pslv{margin-left:auto;font-size:9.5px;font-weight:800;border-radius:20px;padding:3px 9px;display:flex;align-items:center;gap:4px}.ppr .pslv i{width:7px;height:7px;border-radius:50%}"
+  + ".ppr .pssc{display:flex;align-items:center;gap:9px;margin:10px 0 2px}.ppr .pstk{flex:1;height:7px;border-radius:4px;background:var(--line);overflow:hidden}.ppr .pstk i{display:block;height:100%;border-radius:4px;background:var(--sc,#c8a24a)}.ppr .psv{font-family:var(--mono);font-size:11px;font-weight:800;color:var(--navy);min-width:46px;text-align:right}"
+  + ".ppr .pscap{font-size:10px;color:var(--mute)}.ppr .pscap b{color:var(--dim)}"
+  + ".ppr .psstep{margin-top:9px}.ppr .psstep .h{font-size:10px;font-weight:800;color:var(--gold-d);margin-bottom:3px}.ppr .psstep .b{font-size:11.5px;color:var(--dim);line-height:1.65}.ppr .psstep .b b{color:var(--ink)}"
+  + ".ppr .psquote{display:block;font-size:11px;color:var(--dim);background:var(--cream);border-left:2px solid var(--sc,#c8a24a);padding:5px 9px;border-radius:0 6px 6px 0;margin-top:5px;font-style:italic}"
+  + ".ppr .psweak{background:#fff6ed;border:1px solid #f0d3ad;border-radius:8px;padding:9px 11px;margin-top:9px}.ppr .psweak .h{font-size:10px;font-weight:800;color:#b5651a;display:flex;gap:5px;margin-bottom:3px}.ppr .psweak .h .pv{font-size:8.5px;font-weight:800;background:#f3e0c6;color:#8a5a12;padding:2px 6px;border-radius:20px;margin-left:auto}.ppr .psweak p{font-size:11px;color:#7a5f38;line-height:1.65}.ppr .psweak p b{color:#8a4e10}"
+  + ".ppr .psstrat{margin-top:9px;border-top:1px dashed var(--line-soft);padding-top:8px}.ppr .psstrat .h{font-size:10.5px;font-weight:800;color:#3f8a5a;margin-bottom:5px}.ppr .psstrat .r{display:grid;grid-template-columns:70px 1fr;gap:7px;margin-bottom:5px}.ppr .psstrat .r .t{font-size:10.5px;font-weight:800;color:var(--ink)}.ppr .psstrat .r .d{font-size:11px;color:var(--dim);line-height:1.55}.ppr .psstrat .r .d b{color:var(--ink)}";
 
   function inject(){ if(!document.getElementById('ppr-css')){ var s=document.createElement('style'); s.id='ppr-css'; s.textContent=CSS; document.head.appendChild(s); } }
   function toast(msg){ var t=el('<div class="toast"></div>'); t.textContent=msg; document.body.appendChild(t); requestAnimationFrame(function(){t.classList.add('on');}); setTimeout(function(){ t.classList.remove('on'); setTimeout(function(){t.remove();},250); },2200); }
 
   var PTLABEL={ monthly:'월간', quarterly:'분기', half:'반기', annual:'연간' };
   var STAGE_TITLE={ vision:'펜타 비전', track:'펜타 트랙' };
+
+  // [신규] 5과목 사고 분석 (원래 리포트에 더해짐)
+  var PSUBJ={ kor:{n:'국어',ic:'국',lens:'글을 읽고 내 생각으로 정리',c:'#2a78d6'}, mat:{n:'수학',ic:'수',lens:'숫자·규칙으로 따지기',c:'#1baf7a'}, soc:{n:'사회',ic:'사',lens:'배운 걸 실제 사회에 연결',c:'#7048e8'}, sci:{n:'과학',ic:'과',lens:'원인과 결과를 끝까지',c:'#e8712c'}, art:{n:'예술',ic:'예',lens:'새롭게 상상·표현',c:'#c2557e'} };
+  var PSUBJ_ORDER=['kor','mat','sci','soc','art'];
+  function psLevel(sc){ sc=num(sc,0);
+    if(sc>=90)return {name:'최상위',dot:'#2f9e44',bg:'#eafaf0',fg:'#1c7a3f',note:'또래 중에서도 아주 뛰어납니다.'};
+    if(sc>=80)return {name:'우수',dot:'#1971c2',bg:'#e7f1ff',fg:'#155a9c',note:'또래 평균보다 뚜렷이 앞섭니다.'};
+    if(sc>=65)return {name:'양호',dot:'#c99326',bg:'#fbf1da',fg:'#93701a',note:'또래 평균 수준입니다.'};
+    if(sc>=50)return {name:'성장중',dot:'#c2557e',bg:'#fbe9f0',fg:'#a13a68',note:'지금 도우면 크게 오를 구간입니다.'};
+    return {name:'기초',dot:'#8b95a1',bg:'#f1f3f5',fg:'#5c6470',note:'기초부터 차근차근 다지면 좋아요.'};
+  }
+  function subjectsSectionHTML(subjects, gradeLbl){
+    if(!subjects||!subjects.length) return '';
+    var byKey={}; subjects.forEach(function(s){byKey[s.key]=s;});
+    var ordered=PSUBJ_ORDER.filter(function(k){return byKey[k];}).map(function(k){return byKey[k];});
+    (subjects||[]).forEach(function(s){ if(PSUBJ_ORDER.indexOf(s.key)<0) ordered.push(s); });
+    return ordered.map(function(s){
+      var m=PSUBJ[s.key]||{n:s.name||s.key,ic:(s.name||' ').slice(0,1),lens:s.lens||'',c:'#c8a24a'};
+      var lv=psLevel(s.score); var st=s.strat||{}; var sc=Math.round(num(s.score,0));
+      var h='<div class="psubj" style="--sc:'+m.c+'">'
+        +'<div class="psh"><div class="psic">'+esc(m.ic)+'</div><div><div class="psn">'+esc(s.name||m.n)+' <span class="psl">· '+esc(s.lens||m.lens)+'</span></div></div>'
+        +'<span class="pslv" style="background:'+lv.bg+';color:'+lv.fg+'"><i style="background:'+lv.dot+'"></i>'+esc(lv.name)+'</span></div>'
+        +'<div class="pssc"><div class="pstk"><i style="width:'+clamp(sc,0,100)+'%"></i></div><div class="psv">'+sc+' / 100</div></div>'
+        +'<div class="pscap"><b>'+esc(lv.name)+'</b> — '+esc(s.level_note||lv.note)+'</div>';
+      if(s.analysis) h+='<div class="psstep"><div class="h">📊 이 기간 분석</div><div class="b">'+esc(s.analysis)+(s.quote?('<span class="psquote">'+esc(s.quote)+'</span>'):'')+'</div></div>';
+      if(s.weakness) h+='<div class="psweak"><div class="h">⚠️ 예상 학습 약점 <span class="pv">예측'+(gradeLbl?(' · '+esc(gradeLbl)):'')+'</span></div><p>'+esc(s.weakness)+'</p></div>';
+      if(st.class||st.home||st.success){
+        h+='<div class="psstrat"><div class="h">🌱 성장 전략</div>'
+          +(st.class?'<div class="r"><div class="t">🎯 수업</div><div class="d">'+esc(st.class)+'</div></div>':'')
+          +(st.home?'<div class="r"><div class="t">🏠 집</div><div class="d">'+esc(st.home)+'</div></div>':'')
+          +(st.success?'<div class="r"><div class="t">✅ 성공</div><div class="d">'+esc(st.success)+'</div></div>':'')
+          +'</div>';
+      }
+      return h+'</div>';
+    }).join('');
+  }
 
   // ── 레이더 SVG (5축, before/after) ──────────────────────────────────────
   function radarSVG(axes, before, after){
@@ -229,6 +276,12 @@
     }
 
     var no=6;
+    // [신규] 과목별 사고 분석 (5과목) — 원래 섹션에 더해짐
+    if(report.subjects && report.subjects.length){
+      box.appendChild(el('<div class="sect"><span class="n">0'+(no++)+'</span> 과목별 사고 분석 <span class="badge">5과목</span></div>'));
+      var _gl=(report.grade_label||(report.meta&&report.meta.grade)||'');
+      var _sw=el('<div></div>'); _sw.innerHTML=subjectsSectionHTML(report.subjects, _gl); while(_sw.firstChild){ box.appendChild(_sw.firstChild); }
+    }
     // 06 코칭(비전)
     if(report.coaching&&report.coaching.length){
       box.appendChild(el('<div class="sect"><span class="n">0'+(no++)+'</span> 영역별 코칭 포인트</div>'));
@@ -544,5 +597,5 @@
     })();
   }
 
-  window.ArchePentaPeriod = { renderReport: renderReport, mountManage: mountManage, mountViewer: mountViewer, version:'1.1' };
+  window.ArchePentaPeriod = { renderReport: renderReport, mountManage: mountManage, mountViewer: mountViewer, version:'2.0' };
 })();
