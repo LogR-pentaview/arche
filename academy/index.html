@@ -476,9 +476,9 @@
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
-    <input id="au-sid" type="text" placeholder="재원생 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-sid" type="text" placeholder="재원생 아이디 (예: 학원주소0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-email" type="text" placeholder="이메일(원장) 또는 아이디(강사)" autocomplete="username" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-name" type="text" placeholder="학원명 (회원가입 시 필수)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
@@ -486,7 +486,7 @@
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
       <button id="au-signup" style="flex:1;padding:11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:9px;font-weight:500;cursor:pointer">회원가입</button>
     </div>
-    <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#3182f6)">스팸함·프로모션함</b>을 확인하세요.</div>
+    <div id="au-signup-note" style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#3182f6)">스팸함·프로모션함</b>을 확인하세요.</div>
     <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
       <button onclick="toggleGuestForm()" style="width:100%;padding:10px;background:transparent;color:var(--gold,#3182f6);border:1px dashed var(--gold,#3182f6);border-radius:9px;font-weight:600;cursor:pointer;font-size:13px">🎫 무료 체험하기 (게스트)</button>
 <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:10px;line-height:1.5">한 브라우저에서는 한 계정만 로그인됩니다.<br>여러 역할을 동시에 쓰려면 다른 브라우저나 시크릿 창을 이용하세요.</div>
@@ -2515,22 +2515,24 @@ function setLoginRole(r){
   window._acctType=(r==='parent')?'b2c':'b2b';
   document.querySelectorAll('#login-role button').forEach(b=>b.classList.toggle('on',b.dataset.lr===r));
   var stu=r==='stu', adm=r==='adm', parent=r==='parent', con=r==='con';
-  var emailLogin=(con||parent);
-  document.getElementById('au-sid').style.display=stu?'block':'none';
+  var idLogin=(stu||parent);   // 재원생·재원생 부모: 학원이 발급한 아이디로 로그인
+  document.getElementById('au-sid').style.display=idLogin?'block':'none';
   document.getElementById('au-adm').style.display=adm?'block':'none';
-  document.getElementById('au-email').style.display=emailLogin?'block':'none';
-  document.getElementById('au-pw').style.display=stu?'block':'block';
-  document.getElementById('au-name').style.display=parent?'block':'none';
-  document.getElementById('au-signup').style.display=parent?'block':'none';
-  // 이름 입력란 라벨
-  var nm=document.getElementById('au-name');
-  if(nm)nm.placeholder=parent?'보호자 성함 또는 자녀 이름 (가입 시)':'학원명 (가입 시 필수)';
+  document.getElementById('au-email').style.display=con?'block':'none';   // 학원(원장)만 이메일 로그인
+  document.getElementById('au-pw').style.display='block';
+  document.getElementById('au-name').style.display='none';    // 학원용은 자가가입 없음(전원 학원 발급)
+  document.getElementById('au-signup').style.display='none';  // 학원용은 자가가입 없음(전원 학원 발급)
+  // 아이디 입력란 라벨(재원생 / 재원생 부모 구분)
+  var sidEl=document.getElementById('au-sid');
+  if(sidEl)sidEl.placeholder=parent?'재원생 부모 아이디 (예: 학원주소0001p)':'재원생 아이디 (예: 학원주소0001)';
+  // 자가가입 안내문 숨김(학원용은 발급 방식)
+  var suNote=document.getElementById('au-signup-note'); if(suNote)suNote.style.display='none';
   // 역할별 안내문
   var desc=document.getElementById('login-role-desc');
   if(desc){
     desc.textContent = con?'기존 학원(원장·강사) 로그인 · 신규 도입은 본사로 문의':
-      parent?'재원생 부모 · 자녀 리포트 열람':
-      stu?'학원이 발급한 재원생(학생) 계정':
+      parent?'학원이 발급한 재원생 부모 계정 로그인':
+      stu?'학원이 발급한 재원생(학생) 계정 로그인':
       '플랫폼 관리자 전용';
   }
   var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
@@ -3452,7 +3454,15 @@ document.getElementById('au-login').onclick=async()=>{
     var aid=(document.getElementById('au-adm').value||'').trim().toLowerCase();
     if(!aid)return msg('관리자 아이디를 입력하세요.');
     email=(aid.indexOf('@')>0)?aid:ADMIN_EMAIL;
-  } else { email=auE(); }
+  } else if(window._loginRole==='parent'){
+    var pid=(document.getElementById('au-sid').value||'').trim().toLowerCase();
+    if(!pid)return msg('재원생 부모 아이디를 입력하세요.');
+    email=(pid.indexOf('@')>0)?pid:(pid+'@'+STU_EMAIL_DOMAIN);
+  } else {
+    // 학원 탭: 원장(이메일 그대로) · 강사(발급 아이디 → @stu 자동)
+    var cv=auE();
+    email=(cv.indexOf('@')>0)?cv:(cv.toLowerCase()+'@'+STU_EMAIL_DOMAIN);
+  }
   const {data,error}=await sb.auth.signInWithPassword({email:email,password:pw});
   if(error)return msg(error.message);
   try{ await sb.rpc('record_login'); }catch(_e){}
