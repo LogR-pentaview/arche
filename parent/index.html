@@ -470,16 +470,15 @@
     <div class="mono" style="font-size:10px;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;margin:4px 0 16px">학원 컨설팅 엔진 · 로그인</div>
     <div class="roletoggle" id="login-role" style="margin-bottom:6px;width:100%">
       <button class="on" data-lr="parent" onclick="setLoginRole('parent')" style="flex:1">학부모</button>
-      <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">학생</button>
-      <button data-lr="con" onclick="setLoginRole('con')" style="flex:1">학원</button>
+      <button data-lr="stu" onclick="setLoginRole('stu')" style="flex:1">자녀</button>
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
-    <input id="au-sid" type="text" placeholder="학생 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-sid" type="text" placeholder="자녀 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-pw" type="password" placeholder="비밀번호" autocomplete="current-password" style="width:100%;margin-bottom:6px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
-    <input id="au-name" type="text" placeholder="보호자 성함 또는 학생 이름 (회원가입 시)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
+    <input id="au-name" type="text" placeholder="보호자 성함 또는 자녀 이름 (회원가입 시)" style="width:100%;margin-bottom:14px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <div id="au-msg" style="min-height:16px;font-size:12px;color:var(--risk);margin-bottom:10px"></div>
     <div style="display:flex;gap:8px">
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
@@ -2410,13 +2409,13 @@ function setLoginRole(r){
   var _gnote=document.getElementById('au-google-note'); if(_gnote)_gnote.style.display=parent?'block':'none';
   // 이름 입력란 라벨
   var nm=document.getElementById('au-name');
-  if(nm)nm.placeholder=parent?'보호자 성함 또는 학생 이름 (가입 시)':'학원명';
+  if(nm)nm.placeholder=parent?'보호자 성함 또는 자녀 이름 (가입 시)':'학원명';
   // 역할별 안내문
   var desc=document.getElementById('login-role-desc');
   if(desc){
     desc.textContent = con?'기존 학원 회원 로그인 전용':
       parent?'학부모 회원가입 · 자녀 직접 관리 · 각 서비스 첫 시즌 1강 무료':
-      stu?'학원/학부모가 발급한 학생 계정':
+      stu?'학부모가 발급한 자녀(학생) 계정':
       '플랫폼 관리자 전용';
   }
   var msg=document.getElementById('au-msg'); if(msg)msg.textContent='';
