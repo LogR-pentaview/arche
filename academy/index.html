@@ -2520,15 +2520,15 @@ function setLoginRole(r){
   document.getElementById('au-adm').style.display=adm?'block':'none';
   document.getElementById('au-email').style.display=emailLogin?'block':'none';
   document.getElementById('au-pw').style.display=stu?'block':'block';
-  document.getElementById('au-name').style.display=emailLogin?'block':'none';
-  document.getElementById('au-signup').style.display=emailLogin?'block':'none';
+  document.getElementById('au-name').style.display=parent?'block':'none';
+  document.getElementById('au-signup').style.display=parent?'block':'none';
   // 이름 입력란 라벨
   var nm=document.getElementById('au-name');
   if(nm)nm.placeholder=parent?'보호자 성함 또는 자녀 이름 (가입 시)':'학원명 (가입 시 필수)';
   // 역할별 안내문
   var desc=document.getElementById('login-role-desc');
   if(desc){
-    desc.textContent = con?'학원·교습소 · 팀 운영 가능':
+    desc.textContent = con?'기존 학원(원장·강사) 로그인 · 신규 도입은 본사로 문의':
       parent?'재원생 부모 · 자녀 리포트 열람':
       stu?'학원이 발급한 재원생(학생) 계정':
       '플랫폼 관리자 전용';
