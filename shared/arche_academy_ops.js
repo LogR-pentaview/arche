@@ -129,20 +129,24 @@
     function viewConsult(s){
       var ec=S.editC?(S.consults.filter(function(x){return x.id===S.editC;})[0]||null):null;
       var kOpt=function(v){ return '<option value="student"'+(v!=='parent'?' selected':'')+'>학생 상담</option><option value="parent"'+(v==='parent'?' selected':'')+'>학부모 상담</option>'; };
+      var ctOpt=function(v){ return '<option value="enrolled"'+(v!=='admission'?' selected':'')+'>🎓 재원생 상담</option><option value="admission"'+(v==='admission'?' selected':'')+'>🆕 입학 상담</option>'; };
+      var cf=S._cfilter||'all';
+      var filterBar='<div style="display:flex;gap:6px;margin-bottom:10px"><span class="tab'+(cf==='all'?' on':'')+'" data-cf="all" style="padding:5px 12px;font-size:12px">전체</span><span class="tab'+(cf==='admission'?' on':'')+'" data-cf="admission" style="padding:5px 12px;font-size:12px">🆕 입학상담</span><span class="tab'+(cf==='enrolled'?' on':'')+'" data-cf="enrolled" style="padding:5px 12px;font-size:12px">🎓 재원생상담</span></div>';
       var add='<div style="border:1px dashed '+(ec?'var(--brand)':'var(--line)')+';border-radius:10px;padding:12px;margin-bottom:12px"><div style="font-weight:700;font-size:13px;margin-bottom:8px">'+(ec?'✎ 상담 기록 수정':'＋ 상담 기록 추가')+'</div>'
-        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><select id="sm-ckind" style="width:120px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+kOpt(ec&&ec.kind)+'</select>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"><select id="sm-ctype" style="width:130px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+ctOpt(ec&&ec.consult_type)+'</select><select id="sm-ckind" style="width:120px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+kOpt(ec&&ec.kind)+'</select>'
         +inp('sm-ccareer',ec&&ec.career, '희망 진로(선택)','width:150px')+inp('sm-ctarget',ec&&ec.target_univ, '목표 대학/학교(선택)','width:160px')+'</div>'
         +'<textarea id="sm-cact" placeholder="활동/현황(선택)" style="width:100%;min-height:44px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px;margin-bottom:8px">'+(ec?esc(ec.activities||''):'')+'</textarea>'
         +'<textarea id="sm-cmemo" placeholder="상담 내용(메모) *" style="width:100%;min-height:60px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+(ec?esc(ec.memo||''):'')+'</textarea>'
         +'<div style="margin-top:8px"><button class="tab on" id="sm-add-consult" style="padding:9px 18px">'+(ec?'수정 저장':'상담 저장')+'</button>'+(ec?' <button class="tab" id="sm-cancel-consult" style="padding:9px 14px">취소</button>':'')+' <span id="sm-consult-msg" style="font-size:12px;margin-left:6px"></span></div></div>';
-      var list=S.consults.map(function(c){
+      var list=S.consults.filter(function(c){ return cf==='all'||(c.consult_type||'enrolled')===cf; }).map(function(c){
         var badge=(c.kind==='parent')?'<span style="font-size:10.5px;font-weight:800;color:#7b5fef;background:#f0edff;border-radius:20px;padding:2px 8px">학부모</span>':'<span style="font-size:10.5px;font-weight:800;color:#137a44;background:#eafaf0;border-radius:20px;padding:2px 8px">학생</span>';
+        var tbadge=((c.consult_type||'enrolled')==='admission')?'<span style="font-size:10.5px;font-weight:800;color:#b45309;background:#fff6e8;border-radius:20px;padding:2px 8px">🆕 입학</span>':'<span style="font-size:10.5px;font-weight:800;color:#1b64da;background:#eaf1ff;border-radius:20px;padding:2px 8px">🎓 재원생</span>';
         var meta=[c.target_univ,c.target_major,c.career].filter(Boolean).join(' · ');
-        return '<div style="border:1px solid '+(S.editC===c.id?'var(--brand)':'var(--line)')+';border-radius:10px;padding:11px 13px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+badge+'<span style="font-size:11px;color:var(--ink-mute)">'+esc((c.created_at||'').slice(0,10))+'</span>'+(meta?'<span style="font-size:11.5px;color:var(--ink-dim)">'+esc(meta)+'</span>':'')+'<span style="margin-left:auto"></span><button class="tab" data-cedit="'+c.id+'" style="padding:3px 9px;font-size:10.5px">수정</button> <button class="tab" data-cdel="'+c.id+'" style="padding:3px 9px;font-size:10.5px;color:var(--risk)">삭제</button></div>'
+        return '<div style="border:1px solid '+(S.editC===c.id?'var(--brand)':'var(--line)')+';border-radius:10px;padding:11px 13px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">'+tbadge+badge+'<span style="font-size:11px;color:var(--ink-mute)">'+esc((c.created_at||'').slice(0,10))+'</span>'+(meta?'<span style="font-size:11.5px;color:var(--ink-dim)">'+esc(meta)+'</span>':'')+'<span style="margin-left:auto"></span><button class="tab" data-cedit="'+c.id+'" style="padding:3px 9px;font-size:10.5px">수정</button> <button class="tab" data-cdel="'+c.id+'" style="padding:3px 9px;font-size:10.5px;color:var(--risk)">삭제</button></div>'
           +(c.activities?'<div style="font-size:12.5px;color:var(--ink-dim);margin-bottom:3px">활동: '+esc(c.activities)+'</div>':'')
           +'<div style="font-size:13px;white-space:pre-wrap">'+esc(c.memo||'')+'</div></div>';
-      }).join('')||'<div style="color:var(--ink-mute);font-size:13px">상담 기록이 없습니다.</div>';
-      return add+list;
+      }).join('')||'<div style="color:var(--ink-mute);font-size:13px">해당 유형의 상담 기록이 없습니다.</div>';
+      return filterBar+add+list;
     }
     function viewScore(s){
       var today=new Date().toISOString().slice(0,10);
@@ -194,6 +198,7 @@
       var b3=host.querySelector('#sm-add-consult'); if(b3) b3.onclick=addConsult;
       var bc=host.querySelector('#sm-cancel-consult'); if(bc) bc.onclick=function(){ S.editC=null; renderDetail(); };
       var b4=host.querySelector('#sm-add-exam'); if(b4) b4.onclick=addExam;
+      host.querySelectorAll('[data-cf]').forEach(function(x){ x.onclick=function(){ S._cfilter=x.getAttribute('data-cf'); renderDetail(); }; });
       host.querySelectorAll('[data-cedit]').forEach(function(x){ x.onclick=function(){ S.editC=x.getAttribute('data-cedit'); renderDetail(); var d=host.querySelector('#sm-detail'); if(d)try{d.scrollIntoView({behavior:'smooth',block:'start'});}catch(_){} }; });
       host.querySelectorAll('[data-cdel]').forEach(function(x){ x.onclick=function(){ delConsult(x.getAttribute('data-cdel')); }; });
       host.querySelectorAll('[data-edel]').forEach(function(x){ x.onclick=function(){ delExam(x.getAttribute('data-edel')); }; });
@@ -216,7 +221,7 @@
       var r=await sb().from('students').update(upd).eq('id',S.sel.id); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
       m.style.color='var(--safe)'; m.textContent='✓ 저장됨'; S.sel=Object.assign(S.sel,upd); }
     async function addConsult(){ var m=host.querySelector('#sm-consult-msg'); var memo=gv('sm-cmemo'); if(!memo){ m.style.color='var(--risk)'; m.textContent='상담 내용을 입력하세요.'; return; }
-      var row={ kind:(host.querySelector('#sm-ckind').value||'student'), career:gv('sm-ccareer')||null, target_univ:gv('sm-ctarget')||null, activities:gv('sm-cact')||null, memo:memo };
+      var row={ kind:(host.querySelector('#sm-ckind').value||'student'), consult_type:((host.querySelector('#sm-ctype')&&host.querySelector('#sm-ctype').value)||'enrolled'), career:gv('sm-ccareer')||null, target_univ:gv('sm-ctarget')||null, activities:gv('sm-cact')||null, memo:memo };
       m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
       var r;
       if(S.editC){ r=await sb().from('consultations').update(row).eq('id',S.editC); }

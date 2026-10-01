@@ -232,7 +232,17 @@
       // 총점 요약 upsert
       var sr=await sb().from('exam_student_results').upsert([{ paper_id:S.paperId, academy_id:acid, student_id:sid, total_score:tot, graded_at:new Date().toISOString() }],{onConflict:'paper_id,student_id'});
       if(sr.error){ m.textContent='총점 저장 실패: '+sr.error.message; return; }
-      m.textContent='✓ 저장됨 (총점 '+tot+')';
+      // 성적 데이터 통합: 학원 성적(academy_exams)에 총점 연동 → 학원생 관리 성적추이에 자동 반영
+      try{
+        var paper=S.papers.filter(function(x){return x.id===S.paperId;})[0]||{};
+        var ax={ academy_id:acid, student_id:sid, exam_type:'학원', exam_paper_id:S.paperId,
+          exam_date:(paper.exam_date||new Date().toISOString().slice(0,10)),
+          title:(paper.title||null), subject:(paper.subject||null), score:tot, max_score:(paper.max_score||100) };
+        var ex=await sb().from('academy_exams').select('id').eq('exam_paper_id',S.paperId).eq('student_id',sid).limit(1);
+        if(ex&&ex.data&&ex.data[0]) await sb().from('academy_exams').update(ax).eq('id',ex.data[0].id);
+        else await sb().from('academy_exams').insert(ax);
+      }catch(e){}
+      m.textContent='✓ 저장됨 (총점 '+tot+' · 성적추이 연동)';
     }
 
     root.innerHTML='<div class="ph">불러오는 중…</div>';
