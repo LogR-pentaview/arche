@@ -113,18 +113,24 @@
       var today=new Date().toISOString().slice(0,10);
       var cls=S.classes.filter(function(c){return c.id===S.classId;})[0]||{};
       var N=S._newN||5;
-      var rows=''; for(var i=1;i<=N;i++){ rows+='<tr><td style="width:34px;text-align:center;font-weight:700">'+i+'</td>'
-        +'<td><input data-c="ul" data-i="'+i+'" placeholder="대단원"></td>'
-        +'<td><input data-c="um" data-i="'+i+'" placeholder="중단원"></td>'
-        +'<td><input data-c="us" data-i="'+i+'" placeholder="소단원"></td>'
-        +'<td><input data-c="qt" data-i="'+i+'" placeholder="유형"></td>'
-        +'<td style="width:64px"><input data-c="pt" data-i="'+i+'" type="number" value="'+(Math.round(100/N))+'" placeholder="배점"></td>'
-        +'<td style="width:56px"><input data-c="an" data-i="'+i+'" placeholder="정답"></td></tr>'; }
+      var EX=S._exExtract||{};
+      var rows=''; for(var i=1;i<=N;i++){ var e=EX[i]||{};
+        rows+='<tr><td style="width:34px;text-align:center;font-weight:700">'+i+'</td>'
+        +'<td><input data-c="ul" data-i="'+i+'" value="'+esc(e.unit_large||'')+'" placeholder="대단원"></td>'
+        +'<td><input data-c="um" data-i="'+i+'" value="'+esc(e.unit_mid||'')+'" placeholder="중단원"></td>'
+        +'<td><input data-c="us" data-i="'+i+'" value="'+esc(e.unit_small||'')+'" placeholder="소단원"></td>'
+        +'<td><input data-c="qt" data-i="'+i+'" value="'+esc(e.qtype||'')+'" placeholder="유형"></td>'
+        +'<td style="width:64px"><input data-c="pt" data-i="'+i+'" type="number" value="'+(e.points!=null?e.points:Math.round(100/N))+'" placeholder="배점"></td>'
+        +'<td style="width:56px"><input data-c="an" data-i="'+i+'" value="'+esc(e.answer||'')+'" placeholder="정답"></td></tr>'; }
       return '<div class="card"><div class="h">📋 시험 등록 <span class="sub">· 문항별 단원·유형 태그</span></div>'
         +'<div class="row1"><input id="exa-title" placeholder="시험명 (예: 3월 1차 자체평가)" style="flex:1;min-width:160px">'
         +'<input id="exa-date" type="date" value="'+today+'">'
         +'<input id="exa-subj" placeholder="과목" value="'+esc(cls.subject||'')+'" style="width:90px">'
         +'<input id="exa-n" type="number" value="'+N+'" style="width:72px" title="문항 수"><button class="btn sub" id="exa-setn">문항수 적용</button></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:#eaf1ff;border:1px dashed #cfe0ff;border-radius:10px;padding:9px 11px;margin:2px 0 6px">'
+        +'<label style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--b);color:#1b64da;border-radius:9px;padding:8px 12px;font-size:12px;font-weight:800;cursor:pointer">📄 시험지·정답·문항분류표 문서/사진<input id="exa-ext" type="file" accept="image/*,application/pdf" multiple style="display:none"></label>'
+        +'<span style="font-size:11px;color:#1b64da">PDF·사진을 올리면 AI가 문항표를 자동으로 채웁니다</span>'
+        +(S._exMsg?'<div style="width:100%;font-size:11.5px;font-weight:700;color:'+(S._exBusy?'#3182f6':(/실패/.test(S._exMsg)?'#f04452':'#12b76a'))+'">'+esc(S._exMsg)+'</div>':'')+'</div>'
         +'<div style="overflow-x:auto;margin-top:6px"><table><thead><tr><th>#</th><th>대단원</th><th>중단원</th><th>소단원</th><th>유형</th><th>배점</th><th>정답</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
         +'<div style="margin-top:12px"><button class="btn" id="exa-create">시험 생성</button> <button class="btn sub" id="exa-cancel">취소</button> <span id="exa-cmsg" style="font-size:12px;margin-left:6px"></span></div></div>';
     }
@@ -201,9 +207,10 @@
     function bind(){
       var cl=root.querySelector('#exa-cls'); if(cl) cl.onchange=async function(){ S.classId=this.value; S.paperId=null; S.gradeStu=null; S.heatStu=null; root.innerHTML='<div class="ph">불러오는 중…</div>'; await loadStudents(); await loadPapers(); await loadPaper(); render(); };
       var pp=root.querySelector('#exa-paper'); if(pp) pp.onchange=async function(){ S.paperId=this.value||null; root.innerHTML='<div class="ph">불러오는 중…</div>'; await loadPaper(); render(); };
-      var nw=root.querySelector('#exa-new'); if(nw) nw.onclick=function(){ S.creating=true; S._newN=5; render(); };
+      var nw=root.querySelector('#exa-new'); if(nw) nw.onclick=function(){ S.creating=true; S._newN=5; S._exExtract=null; S._exMsg=''; render(); };
       // create form
-      var setn=root.querySelector('#exa-setn'); if(setn) setn.onclick=function(){ var n=parseInt(root.querySelector('#exa-n').value,10); if(n>0&&n<=100){ S._newN=n; render(); } };
+      var setn=root.querySelector('#exa-setn'); if(setn) setn.onclick=function(){ collectExamRows(); var n=parseInt(root.querySelector('#exa-n').value,10); if(n>0&&n<=100){ S._newN=n; render(); } };
+      var ext=root.querySelector('#exa-ext'); if(ext) ext.onchange=function(){ extractExam(this.files); this.value=''; };
       var cc=root.querySelector('#exa-create'); if(cc) cc.onclick=createExam;
       var cx=root.querySelector('#exa-cancel'); if(cx) cx.onclick=function(){ S.creating=false; render(); };
       // grade
@@ -217,6 +224,24 @@
       var hstu=root.querySelector('#exa-hstu'); if(hstu) hstu.onchange=function(){ S.heatStu=this.value; render(); };
     }
 
+    function collectExamRows(){ var N=S._newN||5; S._exExtract=S._exExtract||{}; for(var i=1;i<=N;i++){ var g=function(c){ var e=root.querySelector('[data-c="'+c+'"][data-i="'+i+'"]'); return e?e.value:undefined; };
+      var o={unit_large:g('ul'),unit_mid:g('um'),unit_small:g('us'),qtype:g('qt'),points:g('pt'),answer:g('an')}; if(o.unit_large!==undefined) S._exExtract[i]=o; } }
+    async function extractExam(files){
+      if(!files||!files.length) return; collectExamRows();
+      S._exBusy=true; S._exMsg='문서 분석 중… (최대 1분)'; render();
+      try{
+        var imgs=[]; for(var i=0;i<files.length&&i<6;i++){ imgs.push(await fileB64(files[i])); }
+        var cls=S.classes.filter(function(c){return c.id===S.classId;})[0]||{};
+        var tok=await token();
+        var r=await fetch(fnBase()+'/assignment-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:'extract', context:{subject:cls.subject}, images:imgs})});
+        var jj=await r.json().catch(function(){return{error:'응답 오류'};});
+        if(!r.ok||jj.error) throw new Error(jj.error||('HTTP '+r.status));
+        var its=jj.items||[]; if(!its.length){ S._exBusy=false; S._exMsg='문항을 인식하지 못했습니다. 더 선명한 파일로 시도하세요.'; render(); return; }
+        S._newN=its.length; S._exExtract={}; its.forEach(function(it,idx){ S._exExtract[it.item_no||(idx+1)]=it; });
+        S._exBusy=false; S._exMsg='✓ '+its.length+'문항 인식 · 표에 채웠습니다. 확인·수정 후 [시험 생성]';
+        render();
+      }catch(e){ S._exBusy=false; S._exMsg='자동 추출 실패: '+(e.message||e); render(); }
+    }
     async function createExam(){
       var title=(root.querySelector('#exa-title').value||'').trim(); if(!title){ alert('시험명을 입력하세요.'); return; }
       var m=root.querySelector('#exa-cmsg'); m.textContent='생성 중…';
