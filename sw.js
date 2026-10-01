@@ -1,29 +1,21 @@
-/* Arche PWA Service Worker — index는 network-first(배포 즉시 반영), 아이콘 등 정적만 캐시 */
-const CACHE = 'arche-v7.0';
-const STATIC = ['/manifest.json','/icon-192.png','/icon-512.png','/icon-180.png'];
-
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)).then(() => self.skipWaiting()));
+/* Arche PWA Service Worker — KILL SWITCH (v8.0)
+ * 기존 서비스워커·캐시를 완전히 제거하고, 모든 요청을 네트워크 직통으로 돌립니다.
+ * 캐시로 인한 "예전 화면이 계속 뜨는" 문제를 원천 차단합니다.
+ * (fetch 핸들러 없음 → 캐시 개입 0 · 재접속 시 항상 서버 최신본) */
+self.addEventListener('install', function(e){ self.skipWaiting(); });
+self.addEventListener('activate', function(e){
+  e.waitUntil((async function(){
+    try{
+      // 1) 저장된 모든 캐시 삭제
+      var keys = await caches.keys();
+      await Promise.all(keys.map(function(k){ return caches.delete(k); }));
+    }catch(_){}
+    try{
+      // 2) 서비스워커 자신을 등록 해제 (이후 페이지는 SW 없이 네트워크로만 동작)
+      await self.registration.unregister();
+    }catch(_){}
+    // ※ 의도적으로 clients.claim()·navigate()를 호출하지 않습니다
+    //    (페이지가 /sw.js를 재등록하는 구조라 reload 루프를 방지)
+  })());
 });
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  if (e.request.method !== 'GET') return;
-  // API·외부 도메인은 서비스워커 개입 없이 통과
-  if (url.origin !== location.origin) return;
-  // 페이지 이동: network-first, 오프라인 시 캐시 폴백
-  if (e.request.mode === 'navigate') {
-    // 경로별로 캐시/폴백(/parent·/academy·/login 구분) — 오프라인에서 직전 다른 앱이 뜨던 문제 방지
-    e.respondWith(
-      fetch(e.request).then(r => { const cp = r.clone(); caches.open(CACHE).then(c => c.put(url.pathname, cp)); return r; })
-        .catch(() => caches.match(url.pathname).then(m => m || caches.match('/')))
-    );
-    return;
-  }
-  // 정적 리소스: cache-first
-  if (STATIC.includes(url.pathname)) {
-    e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-  }
-});
+/* fetch 이벤트 미처리 → 브라우저 기본 네트워크 요청 그대로 통과 */
