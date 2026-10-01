@@ -94,16 +94,19 @@
     function clsOpts(){ return S.classes.map(function(c){ return '<option value="'+c.id+'"'+(c.id===S.classId?' selected':'')+'>'+esc(c.name)+(c.subject?' · '+esc(c.subject):'')+'</option>'; }).join(''); }
 
     function render(){
-      var selRow=(S.tab==='exam')?'':'<div class="row1"><select id="td-cls">'+(S.classes.length?clsOpts():'<option>담당 반 없음</option>')+'</select></div>';
+      var fullTab=(S.tab==='exam'||S.tab==='design');
+      var selRow=fullTab?'':'<div class="row1"><select id="td-cls">'+(S.classes.length?clsOpts():'<option>담당 반 없음</option>')+'</select></div>';
       var head=selRow
-        +'<div class="atoggle"><button data-t="penta" class="'+(S.tab==='penta'?'on':'')+'">📘 펜타 시리즈</button><button data-t="lesson" class="'+(S.tab==='lesson'?'on':'')+'">📚 강의 관리</button><button data-t="exam" class="'+(S.tab==='exam'?'on':'')+'">🧪 시험 분석</button></div>';
+        +'<div class="atoggle"><button data-t="penta" class="'+(S.tab==='penta'?'on':'')+'">📘 펜타 시리즈</button><button data-t="lesson" class="'+(S.tab==='lesson'?'on':'')+'">📚 강의 관리</button><button data-t="exam" class="'+(S.tab==='exam'?'on':'')+'">🧪 시험 분석</button><button data-t="design" class="'+(S.tab==='design'?'on':'')+'">🧭 수업 설계</button></div>';
       var body;
       if(S.tab==='exam') body='<div id="td-exam-mount"><div class="ph">불러오는 중…</div></div>';
+      else if(S.tab==='design') body='<div id="td-design-mount"><div class="ph">불러오는 중…</div></div>';
       else if(!S.classId) body='<div class="ph">담당 반이 없습니다. 원장이 반을 지정하면 표시됩니다.</div>';
       else if(S.tab==='penta') body=viewPenta();
       else body=viewLesson();
       root.innerHTML=head+body; bind();
       if(S.tab==='exam'){ var em=root.querySelector('#td-exam-mount'); if(window.mountExamAnalysis) mountExamAnalysis(em); else if(em) em.innerHTML='<div class="ph">시험 분석 모듈 로드 실패 (arche_exam_analysis.js)</div>'; }
+      if(S.tab==='design'){ var dm=root.querySelector('#td-design-mount'); if(window.mountLessonDesign) mountLessonDesign(dm); else if(dm) dm.innerHTML='<div class="ph">수업 설계 모듈 로드 실패 (arche_lesson_design.js)</div>'; }
     }
 
     function viewPenta(){
