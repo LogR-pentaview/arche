@@ -1,4 +1,4 @@
-/* Arche PWA Service Worker — KILL SWITCH (v8.0)
+/* Arche PWA Service Worker — KILL SWITCH (v8.5)
  * 기존 서비스워커·캐시를 완전히 제거하고, 모든 요청을 네트워크 직통으로 돌립니다.
  * 캐시로 인한 "예전 화면이 계속 뜨는" 문제를 원천 차단합니다.
  * (fetch 핸들러 없음 → 캐시 개입 0 · 재접속 시 항상 서버 최신본) */
