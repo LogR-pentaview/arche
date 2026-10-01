@@ -96,8 +96,9 @@
     async function loadAll(){
       if(D.loaded) return;
       try{ var ow=await sb().from('academies').select('owner_uid').eq('id',acid).limit(1); D.ownerUid=(ow&&ow.data&&ow.data[0])?ow.data[0].owner_uid:null; }catch(e){}
-      try{ var tu=await sb().from('academy_users').select('uid,name,subject,role,status').eq('academy_id',acid).eq('role','teacher');
-        D.teachers=((tu&&tu.data)||[]).filter(function(t){ return (t.status||'active')!=='inactive'; }); }catch(e){ D.teachers=[]; }
+      try{ var tu=await sb().from('academy_users').select('uid,name,subject,role,status').eq('academy_id',acid);
+        // 원장(owner) 제외한 모든 소속 직원을 강사/스태프로 집계 (role 값이 teacher/staff/instructor 등 제각각일 수 있음)
+        D.teachers=((tu&&tu.data)||[]).filter(function(t){ return (t.status||'active')!=='inactive' && t.role!=='owner' && t.uid!==D.ownerUid; }); }catch(e){ D.teachers=[]; }
       try{ var cl=await sb().from('academy_classes').select('id,name,subject,teacher_id').eq('academy_id',acid).order('created_at'); D.classes=(cl&&cl.data)||[]; }catch(e){ D.classes=[]; }
       // 원장 직강 반이 있으면 가상 강사 추가
       if(D.ownerUid && D.classes.some(function(c){return c.teacher_id===D.ownerUid;})){
