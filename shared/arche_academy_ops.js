@@ -24,10 +24,16 @@
     function gv(id){ var e=host.querySelector('#'+id); return e?(e.value||'').trim():''; }
     async function loadList(){
       var r=await sb().from('students').select('id,name,school,grade,student_phone,parent_phone,phone,subjects,career,interest,target_univ,target_major,target_major2,target_major3,target_school,target_school_type,class_id').eq('academy_id',acid).order('name'); S.list=(r&&r.data)||[];
-      try{ var rc=await sb().from('academy_classes').select('id,name').eq('academy_id',acid).order('created_at'); S.classes=(rc&&rc.data)||[]; }catch(e){ S.classes=[]; }
+      try{ var rc=await sb().from('academy_classes').select('id,name,subject').eq('academy_id',acid).order('created_at'); S.classes=(rc&&rc.data)||[]; }catch(e){ S.classes=[]; }
+      S.enroll={}; try{ var ren=await sb().from('student_enrollments').select('student_id,class_id').eq('academy_id',acid); (ren&&ren.data||[]).forEach(function(e){ (S.enroll[e.student_id]=S.enroll[e.student_id]||[]).push(e.class_id); }); }catch(e){}
       S.acct={}; try{ var ra=await sb().from('student_accounts').select('student_id,login_id').eq('academy_id',acid); (ra&&ra.data||[]).forEach(function(a){ S.acct[a.student_id]=a; }); }catch(e){}
     }
     function clsOpts(sel){ return '<option value="">— 반 미배정 —</option>'+(S.classes||[]).map(function(c){ return '<option value="'+c.id+'"'+(c.id===sel?' selected':'')+'>'+esc(c.name)+'</option>'; }).join(''); }
+    function clsById(id){ return (S.classes||[]).filter(function(x){return x.id===id;})[0]||null; }
+    function clsLabel(id){ var c=clsById(id); return c?(c.name+(c.subject?(' · '+c.subject):'')):''; }
+    function enrollSubjects(ids){ var ss=[]; (ids||[]).forEach(function(id){ var c=clsById(id); if(c&&c.subject&&ss.indexOf(c.subject)<0)ss.push(c.subject); }); return ss.join('·'); }
+    function clsChecks(prefix,selIds){ selIds=selIds||[]; if(!(S.classes||[]).length) return '<span style="color:var(--ink-mute);font-size:12px">개설된 반이 없습니다. [반·강사 관리]에서 먼저 반을 만드세요.</span>'; return (S.classes).map(function(c){ var on=selIds.indexOf(c.id)>=0; return '<label style="display:inline-flex;align-items:center;gap:5px;border:1px solid '+(on?'var(--brand)':'var(--line)')+';border-radius:9px;padding:6px 10px;font-size:12.5px;cursor:pointer;margin:0 6px 6px 0"><input type="checkbox" value="'+c.id+'" '+(on?'checked':'')+' data-clschk="'+prefix+'">'+esc(c.name)+(c.subject?' <span style="color:var(--ink-mute)">· '+esc(c.subject)+'</span>':'')+'</label>'; }).join(''); }
+    function checkedIds(prefix){ return Array.prototype.slice.call(host.querySelectorAll('[data-clschk="'+prefix+'"]:checked')).map(function(x){return x.value;}); }
     async function loadSub(){ if(!S.sel){return;} try{ var rc=await sb().from('consultations').select('*').eq('student_id',S.sel.id).order('created_at',{ascending:false}); S.consults=(rc&&rc.data)||[]; }catch(e){ S.consults=[]; } try{ var re=await sb().from('academy_exams').select('*').eq('student_id',S.sel.id).order('exam_date',{ascending:true}); S.exams=(re&&re.data)||[]; }catch(e){ S.exams=[]; } }
     function shell(){
       var reg='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:10px">＋ 신규 학생 등록</div>'
@@ -36,17 +42,23 @@
         +'<input id="sm-nschool" placeholder="학교" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
         +'<input id="sm-ngrade" placeholder="학년" style="width:85px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
         +'<input id="sm-nsphone" placeholder="학생 연락처" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
-        +'<input id="sm-npphone" placeholder="부모 연락처" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
-        +'<input id="sm-nsubj" placeholder="수강 과목" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
-        +'<select id="sm-nclass" style="width:140px;padding:9px;border:1px solid var(--line);border-radius:9px;font-size:13px">'+clsOpts('')+'</select>'
-        +'<button class="tab on" id="sm-nadd" style="padding:9px 16px">+ 등록</button></div>'
+        +'<input id="sm-npphone" placeholder="부모 연락처" style="width:120px;padding:9px 11px;border:1px solid var(--line);border-radius:9px;font-size:13px"></div>'
+        +'<div style="margin-top:9px;font-size:12px;color:var(--ink-dim);font-weight:700">수강 과목 / 수강반 <span style="font-weight:400;color:var(--ink-mute)">(복수 선택 가능 · 반이 곧 과목)</span></div>'
+        +'<div id="sm-nclasses" style="margin-top:6px">'+clsChecks('new',[])+'</div>'
+        +'<div style="margin-top:8px"><button class="tab on" id="sm-nadd" style="padding:9px 16px">+ 등록</button></div>'
         +'<div id="sm-nmsg" style="font-size:12px;margin-top:6px"></div></div>';
+      var bulk='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:6px">📥 엑셀 일괄 등록 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 전체 명단 한 번에</span></div>'
+        +'<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:10px">열 순서: <b>이름 · 학교 · 학년 · 수강반(쉼표로 복수) · 학생연락처 · 학부모연락처</b>. 이름+학부모연락처로 기존 학생을 찾아 <b>갱신</b>하고, 없는 반은 <b>자동 생성</b>합니다. (.xlsx / .csv)</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="file" id="sm-xls" accept=".xlsx,.xls,.csv" style="font-size:12.5px">'
+        +'<button class="tab" id="sm-xls-tmpl" style="padding:8px 12px">양식 내려받기</button></div>'
+        +'<div id="sm-xls-msg" style="font-size:12px;margin-top:8px"></div></div>';
+      reg=reg+bulk;
       var rows=S.list.map(function(s){
         var a=S.acct[s.id];
         var acct=a?('<b>'+esc(a.login_id)+'</b> <span style="color:var(--ink-mute)">/0000</span>'):'<button class="tab on" data-issue="'+s.id+'" style="padding:4px 10px;font-size:11px">🔑 계정 발급</button>';
         return '<tr style="border-top:1px solid var(--line-soft)"><td style="padding:8px;font-weight:700">'+esc(s.name||'-')+'</td>'
           +'<td style="padding:8px;color:var(--ink-dim)">'+esc(s.school||'')+(s.grade?(' · '+esc(s.grade)):'')+'</td>'
-          +'<td style="padding:8px"><select data-cmove="'+s.id+'" style="padding:6px 9px;border:1px solid var(--line);border-radius:8px;font-size:12px;min-width:120px">'+clsOpts(s.class_id)+'</select></td>'
+          +'<td style="padding:8px;font-size:12px">'+((S.enroll[s.id]||[]).map(function(cid){return esc(clsLabel(cid));}).filter(Boolean).join(', ')||'<span style="color:var(--ink-mute)">미배정</span>')+'</td>'
           +'<td style="padding:8px;font-size:12px">'+acct+'</td>'
           +'<td style="padding:8px;text-align:right;white-space:nowrap"><button class="tab on" data-open="'+s.id+'" style="padding:4px 10px;font-size:11px">관리 →</button> <button class="tab" data-sdel="'+s.id+'" style="padding:4px 8px;font-size:11px;color:var(--risk)">삭제</button></td></tr>';
       }).join('')||'<tr><td colspan="5" style="padding:14px;color:var(--ink-mute)">등록된 학생이 없습니다. 위에서 등록하세요.</td></tr>';
@@ -56,16 +68,20 @@
       var badd=host.querySelector('#sm-nadd'); if(badd) badd.onclick=addStudentSM;
       host.querySelectorAll('[data-open]').forEach(function(x){ x.onclick=function(){ selectStu(x.getAttribute('data-open')); var d=host.querySelector('#sm-detail'); if(d) try{ d.scrollIntoView({behavior:'smooth',block:'start'}); }catch(_){}; }; });
       host.querySelectorAll('[data-sdel]').forEach(function(x){ x.onclick=function(){ delStudentSM(x.getAttribute('data-sdel')); }; });
-      host.querySelectorAll('[data-cmove]').forEach(function(x){ x.onchange=function(){ moveClassSM(x.getAttribute('data-cmove'), x.value||null); }; });
       host.querySelectorAll('[data-issue]').forEach(function(x){ x.onclick=function(){ issueAccountSM(x.getAttribute('data-issue'), x); }; });
+      host.querySelectorAll('[data-clschk]').forEach(function(x){ x.onchange=function(){ var lab=x.closest('label'); if(lab) lab.style.borderColor=x.checked?'var(--brand)':'var(--line)'; }; });
+      var bx=host.querySelector('#sm-xls'); if(bx) bx.onchange=function(){ if(this.files&&this.files[0]) bulkUpload(this.files[0]); };
+      var bt=host.querySelector('#sm-xls-tmpl'); if(bt) bt.onclick=downloadTemplate;
       if(S.sel) renderDetail();
     }
     async function addStudentSM(){
       var m=host.querySelector('#sm-nmsg'); var nm=gv('sm-nname'); if(!nm){ m.style.color='var(--risk)'; m.textContent='이름을 입력하세요.'; return; }
       m.style.color='var(--ink-mute)'; m.textContent='등록 중…';
-      var row={ academy_id:acid, name:nm, school:gv('sm-nschool')||null, grade:gv('sm-ngrade')||null, student_phone:gv('sm-nsphone')||null, parent_phone:gv('sm-npphone')||null, subjects:gv('sm-nsubj')||null, class_id:(host.querySelector('#sm-nclass').value||null) };
+      var selC=checkedIds('new');
+      var row={ academy_id:acid, name:nm, school:gv('sm-nschool')||null, grade:gv('sm-ngrade')||null, student_phone:gv('sm-nsphone')||null, parent_phone:gv('sm-npphone')||null, subjects:(enrollSubjects(selC)||null), class_id:(selC[0]||null) };
       if(window._myUid) row.consultant_uid=window._myUid;
-      var r=await sb().from('students').insert(row); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+      var r=await sb().from('students').insert(row).select('id').single(); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+      if(r.data&&selC.length){ var erows=selC.map(function(cid){ return {academy_id:acid,student_id:r.data.id,class_id:cid}; }); try{ await sb().from('student_enrollments').insert(erows); }catch(e){} }
       await loadList(); shell();
     }
     async function moveClassSM(sid,cid){ var r=await sb().from('students').update({class_id:cid}).eq('id',sid); if(r.error){ alert('반 변경 실패: '+r.error.message); } await loadList(); if(S.sel&&S.sel.id===sid) S.sel.class_id=cid; }
@@ -99,8 +115,8 @@
         + row2('학교·학년', inp('sm-school',s.school,'학교','width:150px')+inp('sm-grade',s.grade,'학년(예:중2/고1)','width:120px'))
         + row2('학생 연락처', inp('sm-sphone',s.student_phone||s.phone,'학생 휴대폰','width:170px'))
         + row2('부모 연락처', inp('sm-pphone',s.parent_phone,'학부모 휴대폰','width:170px'))
-        + row2('수강 과목', inp('sm-subjects',s.subjects,'예: 국어·수학·영어'))
-        + '<div style="margin-top:6px"><button class="tab on" id="sm-save-info" style="padding:9px 18px">저장</button> <span id="sm-info-msg" style="font-size:12px;margin-left:6px"></span></div>';
+        + row2('수강 과목/수강반', '<div style="display:flex;flex-wrap:wrap">'+clsChecks('edit', S.enroll[s.id]||[])+'</div>')
+        + '<div style="margin-top:6px"><button class="tab on" id="sm-save-info" style="padding:9px 18px">저장</button> <span id="sm-info-msg" style="font-size:12px;margin-left:6px"></span> <span style="font-size:11px;color:var(--ink-mute);margin-left:4px">· 반 선택이 곧 수강 과목으로 저장됩니다</span></div>';
     }
     function viewCareer(s){
       return row2('희망 진로', inp('sm-career',s.career,'예: 의사/개발자'))
@@ -182,10 +198,18 @@
       host.querySelectorAll('[data-cdel]').forEach(function(x){ x.onclick=function(){ delConsult(x.getAttribute('data-cdel')); }; });
       host.querySelectorAll('[data-edel]').forEach(function(x){ x.onclick=function(){ delExam(x.getAttribute('data-edel')); }; });
       host.querySelectorAll('[data-tf]').forEach(function(x){ x.onclick=function(){ var v=x.getAttribute('data-tf'); S._tf=(v==='all')?null:v; renderDetail(); }; });
+      host.querySelectorAll('[data-clschk="edit"]').forEach(function(x){ x.onchange=function(){ var lab=x.closest('label'); if(lab) lab.style.borderColor=x.checked?'var(--brand)':'var(--line)'; }; });
     }
     async function saveInfo(){ var m=host.querySelector('#sm-info-msg'); m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
-      var upd={ name:gv('sm-name')||S.sel.name, school:gv('sm-school')||null, grade:gv('sm-grade')||null, student_phone:gv('sm-sphone')||null, parent_phone:gv('sm-pphone')||null, subjects:gv('sm-subjects')||null };
+      var selC=checkedIds('edit');
+      var upd={ name:gv('sm-name')||S.sel.name, school:gv('sm-school')||null, grade:gv('sm-grade')||null, student_phone:gv('sm-sphone')||null, parent_phone:gv('sm-pphone')||null, subjects:(enrollSubjects(selC)||null), class_id:(selC[0]||null) };
       var r=await sb().from('students').update(upd).eq('id',S.sel.id); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
+      // 수강반(enrollment) 동기화
+      var cur=S.enroll[S.sel.id]||[];
+      var toAdd=selC.filter(function(c){return cur.indexOf(c)<0;});
+      var toDel=cur.filter(function(c){return selC.indexOf(c)<0;});
+      try{ if(toAdd.length){ await sb().from('student_enrollments').insert(toAdd.map(function(cid){return {academy_id:acid,student_id:S.sel.id,class_id:cid};})); } }catch(e){}
+      try{ if(toDel.length){ await sb().from('student_enrollments').delete().eq('student_id',S.sel.id).in('class_id',toDel); } }catch(e){}
       m.style.color='var(--safe)'; m.textContent='✓ 저장됨'; await loadList(); S.sel=Object.assign(S.sel,upd); }
     async function saveCareer(){ var m=host.querySelector('#sm-career-msg'); m.style.color='var(--ink-mute)'; m.textContent='저장 중…';
       var upd={ career:gv('sm-career')||null, interest:gv('sm-interest')||null, target_school:gv('sm-tschool')||null, target_univ:gv('sm-tuniv')||null, target_major:gv('sm-tmajor')||null, target_major2:gv('sm-tmajor2')||null };
@@ -206,6 +230,66 @@
       var r=await sb().from('academy_exams').insert(row); if(r.error){ m.style.color='var(--risk)'; m.textContent='실패: '+r.error.message; return; }
       await loadSub(); renderDetail(); }
     async function delExam(id){ if(!confirm('이 성적을 삭제할까요?'))return; var r=await sb().from('academy_exams').delete().eq('id',id); if(r.error){ alert('삭제 실패: '+r.error.message); return; } await loadSub(); renderDetail(); }
+
+    function downloadTemplate(){
+      var header='이름,학교,학년,수강반,학생연락처,학부모연락처';
+      var ex1='김민준,한빛중,중2,"수학A,영어B",010-1234-5678,010-8765-4321';
+      var ex2='이서연,대성중,중3,국어심화,010-2222-3333,010-4444-5555';
+      var csv='﻿'+[header,ex1,ex2].join('\r\n');
+      var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+      var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='학원생_일괄등록_양식.csv';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(function(){URL.revokeObjectURL(a.href);},800);
+    }
+    function norm(s){ return (s==null?'':String(s)).trim(); }
+    function digits(s){ return norm(s).replace(/[^0-9]/g,''); }
+    async function ensureClass(name){
+      var nm=norm(name); if(!nm) return null;
+      var hit=(S.classes||[]).filter(function(c){ return norm(c.name).toLowerCase()===nm.toLowerCase(); })[0];
+      if(hit) return hit.id;
+      var r=await sb().from('academy_classes').insert({academy_id:acid,name:nm,status:'active'}).select('id,name,subject').single();
+      if(r.error||!r.data) return null;
+      S.classes.push(r.data); return r.data.id;
+    }
+    async function bulkUpload(file){
+      var m=host.querySelector('#sm-xls-msg');
+      if(!window.XLSX){ m.style.color='var(--risk)'; m.textContent='엑셀 라이브러리(XLSX)가 로드되지 않았습니다. 페이지를 새로고침하거나 CSV로 시도해 주세요.'; return; }
+      m.style.color='var(--ink-mute)'; m.textContent='파일 읽는 중…';
+      try{
+        var buf=await file.arrayBuffer();
+        var wb=XLSX.read(buf,{type:'array'});
+        var ws=wb.Sheets[wb.SheetNames[0]];
+        var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        if(!rows.length){ m.textContent='빈 파일입니다.'; return; }
+        var start=0; var h0=norm(rows[0][0]);
+        if(/이름|성명|name/i.test(h0)) start=1; // 헤더 스킵
+        var added=0,updated=0,skipped=0,enr=0;
+        for(var i=start;i<rows.length;i++){
+          var r=rows[i]; if(!r) continue;
+          var name=norm(r[0]); if(!name){ continue; }
+          var school=norm(r[1]), grade=norm(r[2]);
+          var clsStr=norm(r[3]), sphone=norm(r[4]), pphone=norm(r[5]);
+          var clsNames=clsStr.split(/[,/·|]/).map(norm).filter(Boolean);
+          var clsIds=[]; for(var k=0;k<clsNames.length;k++){ var cid=await ensureClass(clsNames[k]); if(cid)clsIds.push(cid); }
+          // 기존 학생 매칭(이름+학부모연락처, 없으면 이름)
+          var exist=(S.list||[]).filter(function(s){ if(norm(s.name)!==name) return false; if(pphone) return digits(s.parent_phone)===digits(pphone); return true; })[0];
+          var payload={ academy_id:acid, name:name, school:school||null, grade:grade||null,
+            student_phone:sphone||null, parent_phone:pphone||null,
+            subjects:(enrollSubjects(clsIds)||null), class_id:(clsIds[0]||null) };
+          var sid=null;
+          if(exist){ var u=await sb().from('students').update(payload).eq('id',exist.id); if(!u.error){ updated++; sid=exist.id; } else { skipped++; continue; } }
+          else { if(window._myUid) payload.consultant_uid=window._myUid; var ins=await sb().from('students').insert(payload).select('id').single(); if(!ins.error&&ins.data){ added++; sid=ins.data.id; } else { skipped++; continue; } }
+          // enrollment 추가(기존 유지, 없는 것만)
+          if(sid&&clsIds.length){
+            var cur=S.enroll[sid]||[];
+            var toAdd=clsIds.filter(function(c){return cur.indexOf(c)<0;});
+            if(toAdd.length){ try{ await sb().from('student_enrollments').insert(toAdd.map(function(c){return {academy_id:acid,student_id:sid,class_id:c};})); enr+=toAdd.length; }catch(e){} }
+          }
+          m.textContent='처리 중… '+(added+updated)+'명';
+        }
+        await loadList(); shell();
+        var m2=host.querySelector('#sm-xls-msg'); if(m2){ m2.style.color='var(--safe)'; m2.textContent='✓ 완료 · 신규 '+added+'명 · 갱신 '+updated+'명 · 수강반 연결 '+enr+'건'+(skipped?(' · 건너뜀 '+skipped):''); }
+      }catch(e){ m.style.color='var(--risk)'; m.textContent='실패: '+((e&&e.message)||e); }
+    }
 
     host.innerHTML=phRaw('⏳','불러오는 중…','');
     await loadList(); shell();
