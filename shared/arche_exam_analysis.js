@@ -10,7 +10,11 @@
   "use strict";
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function sb(){ return window.sb; }
+  function fnBase(){ return window.FN_BASE || ((window.SB_URL||'')+'/functions/v1'); }
+  async function token(){ try{ var s=(await sb().auth.getSession()).data.session; return s?s.access_token:''; }catch(e){ return ''; } }
   function col(v){ return v<=50?'#f04452':(v<=65?'#f79009':(v<=84?'#7bc86c':'#12b76a')); }
+  // 이미지 파일 → base64(순수, data: 접두어 제거)
+  function fileB64(f){ return new Promise(function(res,rej){ var r=new FileReader(); r.onload=function(){ var s=String(r.result||''); var i=s.indexOf(','); res({mime:(f.type||'image/jpeg'),data:(i>=0?s.slice(i+1):s)}); }; r.onerror=rej; r.readAsDataURL(f); }); }
 
   function injectCSS(){
     if(document.getElementById('exa-css'))return;
@@ -53,7 +57,8 @@
     var canManage=(window._isOwner===true||window._canManage===true||window._myRole==='owner'||window._myRole==='manager');
 
     var S={ classes:[], classId:null, papers:[], paperId:null, mode:'grade', // grade | heat
-            students:[], items:[], itemRes:{}, gradeStu:null, heatScope:'class', heatStu:null, creating:false };
+            students:[], items:[], itemRes:{}, itemAns:{}, itemConf:{}, gradeStu:null, heatScope:'class', heatStu:null, creating:false,
+            grading:false, autoStu:null, autoMsg:'' };
 
     try{
       var rc=await sb().from('academy_classes').select('id,name,subject,teacher_id').eq('academy_id',acid).order('created_at');
@@ -77,12 +82,12 @@
       S.papers=(r&&r.data)||[]; if(!S.paperId && S.papers[0]) S.paperId=S.papers[0].id;
     }
     async function loadPaper(){
-      S.items=[]; S.itemRes={};
+      S.items=[]; S.itemRes={}; S.itemAns={}; S.itemConf={};
       if(!S.paperId) return;
       var it=await sb().from('exam_items').select('item_no,unit_large,unit_mid,unit_small,qtype,points,answer').eq('paper_id',S.paperId).order('item_no');
       S.items=(it&&it.data)||[];
-      var rr=await sb().from('exam_item_results').select('student_id,item_no,correct').eq('paper_id',S.paperId);
-      ((rr&&rr.data)||[]).forEach(function(r){ S.itemRes[r.student_id+'|'+r.item_no]=r.correct; });
+      var rr=await sb().from('exam_item_results').select('student_id,item_no,correct,student_answer,confidence').eq('paper_id',S.paperId);
+      ((rr&&rr.data)||[]).forEach(function(r){ var k=r.student_id+'|'+r.item_no; S.itemRes[k]=r.correct; if(r.student_answer!=null)S.itemAns[k]=r.student_answer; if(r.confidence!=null)S.itemConf[k]=r.confidence; });
     }
 
     function clsOpts(){ return S.classes.map(function(c){ return '<option value="'+c.id+'"'+(c.id===S.classId?' selected':'')+'>'+esc(c.name)+(c.subject?' · '+esc(c.subject):'')+'</option>'; }).join(''); }
@@ -130,19 +135,28 @@
       if(!S.students.length) return '<div class="ph">반에 학생이 없습니다.</div>';
       var sid=S.gradeStu||S.students[0].id;
       var opts=S.students.map(function(s){return '<option value="'+s.id+'"'+(s.id===sid?' selected':'')+'>'+esc(s.name)+'</option>';}).join('');
-      var rows=S.items.map(function(it){ var c=S.itemRes[sid+'|'+it.item_no];
+      var rows=S.items.map(function(it){ var k=sid+'|'+it.item_no; var c=S.itemRes[k]; var ans=S.itemAns[k]; var cf=S.itemConf[k];
         var tag=[it.unit_large,it.unit_mid].filter(Boolean).join(' › ')+(it.qtype?' · '+it.qtype:'');
-        return '<tr><td style="width:34px;text-align:center;font-weight:700">'+it.item_no+'</td>'
+        var low=(cf!=null && cf<0.6);
+        var ansCell=(ans!=null)
+          ? '<span style="font-size:11px">'+(esc(ans)||'<span style=\"color:#c9d0d8\">(공란)</span>')+'</span>'+(cf!=null?' <span style="font-size:9.5px;font-weight:800;color:'+(low?'#f04452':'#8b95a1')+'">'+Math.round(cf*100)+'%</span>':'')
+          : '<span style="color:#c9d0d8">-</span>';
+        return '<tr'+(low?' style="background:#fff7f7"':'')+'><td style="width:34px;text-align:center;font-weight:700">'+it.item_no+'</td>'
           +'<td style="font-size:11px;color:var(--dim)">'+esc(tag||'-')+'</td>'
+          +'<td style="font-size:11px;color:var(--ink);max-width:130px">'+ansCell+'</td>'
           +'<td style="width:72px"><div class="ox"><button class="o'+(c===true?' on':'')+'" data-ox="o" data-no="'+it.item_no+'">O</button><button class="x'+(c===false?' on':'')+'" data-ox="x" data-no="'+it.item_no+'">X</button></div></td></tr>';
       }).join('');
       // 총점 계산(현재 입력 기준)
       var tot=0,max=0; S.items.forEach(function(it){ max+=Number(it.points||0); if(S.itemRes[sid+'|'+it.item_no]===true) tot+=Number(it.points||0); });
-      return '<div class="card"><div class="h">✍️ 채점 <span class="sub">· 학생별 문항 정오 (답안지 기반 누적)</span></div>'
+      var bar='<div class="row1" style="margin-top:2px"><label class="btn sub" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px">📷 답안지 자동채점<input id="exa-ans" type="file" accept="image/*" multiple style="display:none"></label>'
+        +'<span style="font-size:11px;color:var(--mute)">선택 학생의 답안지 이미지 → AI 자동 O/X</span></div>';
+      var amsg=S.autoMsg?'<div class="note" style="color:'+(S.grading?'#3182f6':(/실패/.test(S.autoMsg)?'#f04452':'#12b76a'))+'">'+esc(S.autoMsg)+'</div>':'';
+      return '<div class="card"><div class="h">✍️ 채점 <span class="sub">· 답안지 자동채점 + 강사 검수</span></div>'
         +'<div class="row1"><select id="exa-gstu">'+opts+'</select><div style="font-weight:800;font-size:13px">총점 '+tot+' / '+max+'</div></div>'
-        +'<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>단원·유형</th><th>정오</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
-        +'<div style="margin-top:10px"><button class="btn" id="exa-gsave">저장</button> <span id="exa-gmsg" style="font-size:12px;margin-left:6px"></span></div>'
-        +'<div class="note">※ O/X를 누르고 [저장]하면 해당 학생 결과가 누적됩니다. 히트맵은 채점된 학생 전체로 집계됩니다.</div></div>';
+        +bar+amsg
+        +'<div style="overflow-x:auto"><table><thead><tr><th>#</th><th>단원·유형</th><th>학생답/신뢰도</th><th>정오</th></tr></thead><tbody>'+rows+'</tbody></table></div>'
+        +'<div style="margin-top:10px"><button class="btn" id="exa-gsave">검수 완료 · 저장</button> <span id="exa-gmsg" style="font-size:12px;margin-left:6px"></span></div>'
+        +'<div class="note">※ 답안지를 올리면 AI가 문항별 학생답을 읽어 O/X를 자동 입력합니다. <b>빨간 행(낮은 신뢰도)과 서술형</b>은 반드시 확인·수정 후 [검수 완료·저장]하세요 → 성적·히트맵에 반영됩니다.</div></div>';
     }
 
     // ===== 히트맵 =====
@@ -197,6 +211,7 @@
       var gstu=root.querySelector('#exa-gstu'); if(gstu) gstu.onchange=function(){ S.gradeStu=this.value; render(); };
       root.querySelectorAll('.ox button').forEach(function(b){ b.onclick=function(){ var no=+this.dataset.no, sid=S.gradeStu||S.students[0].id; var cur=S.itemRes[sid+'|'+no]; var val=(this.dataset.ox==='o'); S.itemRes[sid+'|'+no]=(cur===val?undefined:val); render(); }; });
       var gs=root.querySelector('#exa-gsave'); if(gs) gs.onclick=saveGrade;
+      var af=root.querySelector('#exa-ans'); if(af) af.onchange=function(){ autoGrade(this.files); this.value=''; };
       // heat
       root.querySelectorAll('.seg button[data-hs]').forEach(function(b){ b.onclick=function(){ S.heatScope=this.dataset.hs; render(); }; });
       var hstu=root.querySelector('#exa-hstu'); if(hstu) hstu.onchange=function(){ S.heatStu=this.value; render(); };
@@ -222,16 +237,38 @@
       S.creating=false; S.paperId=pid; await loadPapers(); await loadPaper(); render();
     }
 
+    async function autoGrade(files){
+      var sid=S.gradeStu||(S.students[0]&&S.students[0].id);
+      if(!sid||!files||!files.length) return;
+      S.grading=true; S.autoMsg='답안지 분석 중… (최대 1분 소요)'; render();
+      try{
+        var imgs=[]; for(var i=0;i<files.length && i<6;i++){ imgs.push(await fileB64(files[i])); }
+        var tok=await token();
+        var r=await fetch(fnBase()+'/exam-grade-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({paper_id:S.paperId, student_id:sid, images:imgs})});
+        var j=await r.json().catch(function(){return{error:'응답 오류'};});
+        if(!r.ok||j.error) throw new Error(j.error||('HTTP '+r.status));
+        var n=0,low=0; (j.results||[]).forEach(function(res){ var k=sid+'|'+res.item_no;
+          if(res.correct===true||res.correct===false){ S.itemRes[k]=res.correct; n++; }
+          S.itemAns[k]=(res.student_answer!=null?res.student_answer:'');
+          if(res.confidence!=null){ S.itemConf[k]=res.confidence; if(res.confidence<0.6) low++; } });
+        S.grading=false; S.autoMsg='✓ 자동채점 완료 ('+n+'문항'+(low?' · 확인필요 '+low+'개':'')+') · 검수 후 [검수 완료·저장]';
+      }catch(e){ S.grading=false; S.autoMsg='자동채점 실패: '+(e.message||e); }
+      render();
+    }
+
     async function saveGrade(){
-      var sid=S.gradeStu||S.students[0].id; var m=root.querySelector('#exa-gmsg'); m.textContent='저장 중…';
-      var rows=[]; var tot=0;
-      S.items.forEach(function(it){ var c=S.itemRes[sid+'|'+it.item_no]; if(c===undefined)return;
-        rows.push({ paper_id:S.paperId, academy_id:acid, student_id:sid, item_no:it.item_no, correct:c });
+      var sid=S.gradeStu||S.students[0].id; var m=root.querySelector('#exa-gmsg'); if(m) m.textContent='저장 중…';
+      var rows=[]; var tot=0; var usedAI=false;
+      S.items.forEach(function(it){ var k=sid+'|'+it.item_no; var c=S.itemRes[k]; var ans=S.itemAns[k]; var cf=S.itemConf[k];
+        if(c===undefined && ans==null) return;
+        rows.push({ paper_id:S.paperId, academy_id:acid, student_id:sid, item_no:it.item_no,
+          correct:(c===undefined?null:c), student_answer:(ans!=null?String(ans):null), confidence:(cf!=null?cf:null) });
+        if(cf!=null) usedAI=true;
         if(c===true) tot+=Number(it.points||0); });
-      if(rows.length){ var r=await sb().from('exam_item_results').upsert(rows,{onConflict:'paper_id,student_id,item_no'}); if(r.error){ m.textContent='실패: '+r.error.message; return; } }
+      if(rows.length){ var r=await sb().from('exam_item_results').upsert(rows,{onConflict:'paper_id,student_id,item_no'}); if(r.error){ if(m)m.textContent='실패: '+r.error.message; return; } }
       // 총점 요약 upsert
-      var sr=await sb().from('exam_student_results').upsert([{ paper_id:S.paperId, academy_id:acid, student_id:sid, total_score:tot, graded_at:new Date().toISOString() }],{onConflict:'paper_id,student_id'});
-      if(sr.error){ m.textContent='총점 저장 실패: '+sr.error.message; return; }
+      var sr=await sb().from('exam_student_results').upsert([{ paper_id:S.paperId, academy_id:acid, student_id:sid, total_score:tot, graded_by:(usedAI?'ai_reviewed':'manual'), graded_at:new Date().toISOString() }],{onConflict:'paper_id,student_id'});
+      if(sr.error){ if(m)m.textContent='총점 저장 실패: '+sr.error.message; return; }
       // 성적 데이터 통합: 학원 성적(academy_exams)에 총점 연동 → 학원생 관리 성적추이에 자동 반영
       try{
         var paper=S.papers.filter(function(x){return x.id===S.paperId;})[0]||{};
@@ -242,7 +279,7 @@
         if(ex&&ex.data&&ex.data[0]) await sb().from('academy_exams').update(ax).eq('id',ex.data[0].id);
         else await sb().from('academy_exams').insert(ax);
       }catch(e){}
-      m.textContent='✓ 저장됨 (총점 '+tot+' · 성적추이 연동)';
+      if(m) m.textContent='✓ 저장됨 (총점 '+tot+' · 성적추이 연동)';
     }
 
     root.innerHTML='<div class="ph">불러오는 중…</div>';
