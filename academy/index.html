@@ -516,12 +516,12 @@
 <!-- ===== 사이드바 재정리 (8그룹) ===== -->
     <div class="navlabel navlabel-con">원장 대시보드</div>
     <div class="nav" data-v="roi" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5M4 19h16"/><rect x="7" y="11" width="3.2" height="5"/><rect x="12" y="8" width="3.2" height="8"/><rect x="17" y="13.5" width="3.2" height="2.5"/></svg> 원장 대시보드</div>
+    <div class="nav" data-v="tdash" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> 강사 대시보드</div>
     <div class="navlabel navlabel-con">학생 관리</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
     <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="전체 자녀 관리">전체 학생 관리</span></div>
     <div class="nav" data-v="sm" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg> <span class="nav-lbl">학원생 관리</span></div>
     <div class="nav" data-v="attend" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v15H4z"/><path d="M8 3v4M16 3v4M4 9h16"/><path d="M9 14l2 2 4-4"/></svg> 출석부</div>
-    <div class="nav" data-v="tdash" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> 강사 대시보드</div>
     <div class="navlabel navlabel-con">학원 운영 · 마케팅</div>
     <div class="nav" data-v="members" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> 반 · 강사 관리</div>
     <div class="nav" data-v="staffmsg" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg> 강사 보고</div>
@@ -2199,8 +2199,9 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_period.js"></script>
 <script src="/academy/course_picker.js"></script>
 <script src="/shared/arche_academy_ops.js?v=2"></script>
-<script src="/shared/arche_teacher_dash.js?v=2"></script>
+<script src="/shared/arche_teacher_dash.js?v=3"></script>
 <script src="/shared/arche_exam_analysis.js?v=1"></script>
+<script src="/shared/arche_lesson_design.js?v=1"></script>
 <style>
 .nav.ent-locked{opacity:.5}
 .nav.ent-locked .ent-lock{margin-left:auto;font-size:11px;opacity:.85}
