@@ -513,29 +513,22 @@
       <div class="tag">PentaView · 입시 컨설팅 엔진</div>
     </div></div>
 
-    <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
+<!-- ===== 사이드바 재정리 (8그룹) ===== -->
+    <div class="navlabel navlabel-con">원장 대시보드</div>
     <div class="nav" data-v="roi" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5M4 19h16"/><rect x="7" y="11" width="3.2" height="5"/><rect x="12" y="8" width="3.2" height="8"/><rect x="17" y="13.5" width="3.2" height="2.5"/></svg> 원장 대시보드</div>
-    <div class="nav" data-v="stuset" id="nav-stuset" style="display:none" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 설정</div>
     <div class="navlabel navlabel-con">학생 관리</div>
     <div class="nav" data-v="basecon" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/><path d="M8 9h8M8 13h5"/></svg> <span class="nav-lbl" data-b2c="자녀 기본 정보 입력">학생 기본 상담</span></div>
     <div class="nav" data-v="allstudents" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> <span class="nav-lbl" data-b2c="전체 자녀 관리">전체 학생 관리</span></div>
     <div class="nav" data-v="sm" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h4"/></svg> <span class="nav-lbl">학원생 관리</span></div>
-
-    <!-- 사고력 관리 엔진 (독립 메뉴) -->
-    <div class="navgroup penta open" id="grp-penta">
-      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 3a5 5 0 00-3 9c.6.5 1 1.2 1 2v1h4v-1c0-.8.4-1.5 1-2a5 5 0 00-3-9z"/><path d="M8 19h4M9 22h2"/></svg> 사고력 관리 엔진<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
-      <div class="navsub">
-        <div class="navlabel" style="padding:6px 10px 3px;font-size:9px;letter-spacing:.12em;color:var(--ink-mute)">워크북</div>
-        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
-        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
-        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
-        <div class="navlabel" style="padding:8px 10px 3px;font-size:9px;letter-spacing:.12em;color:var(--ink-mute)">수업 운영</div>
-        <div class="nav" data-v="live" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg> 실시간 관제 <span style="font-size:9px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7B1FA2,#E91E63);border-radius:5px;padding:1px 5px">LIVE</span></div>
-        <div class="nav" data-v="course" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 코스웨어</div>
-        <div class="nav" data-v="submits" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> 학생 제출물 관리</div>
-      </div>
-    </div>
-    <!-- 대입 컨설팅 그룹 -->
+    <div class="nav" data-v="attend" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v15H4z"/><path d="M8 3v4M16 3v4M4 9h16"/><path d="M9 14l2 2 4-4"/></svg> 출석부</div>
+    <div class="navlabel navlabel-con">학원 운영 · 마케팅</div>
+    <div class="nav" data-v="members" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> 반 · 강사 관리</div>
+    <div class="nav" data-v="staffmsg" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg> 강사 보고</div>
+    <div class="nav" data-v="promo" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-2v6l-18-2z"/><path d="M8 12v5a2 2 0 002 2h1"/><circle cx="18" cy="6" r="2"/></svg> 홍보 스튜디오</div>
+    <div class="nav" data-v="notice" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8h13l4-3v14l-4-3H3z"/><path d="M7 19v2"/></svg> 안내문 스튜디오</div>
+    <div class="nav" data-v="psend" onclick="go(this);if(window.ArcheParentHub)ArcheParentHub.mountSend(document.getElementById('parent-hub-mount'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg> 학부모 전송</div>
+    <div class="navlabel navlabel-con">컨설팅</div>
+    <div class="nav on" data-v="home" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg> 컨설팅 홈</div>
     <div class="trackseg no-b2c-hide" id="trackseg">
       <button id="seg-dae" class="on" type="button" onclick="trackSeg('dae')">🎓 대입 컨설팅</button>
       <button id="seg-goip" type="button" onclick="trackSeg('goip')">🏫 고입 컨설팅</button>
@@ -556,8 +549,6 @@
         <div class="nav" data-v="report" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5"/></svg> 컨설팅 리포트</div>
       </div>
     </div>
-
-    <!-- 고입 컨설팅 그룹 -->
     <div class="navgroup goip" id="grp-goip">
       <div class="grouphead" onclick="toggleGroup('goip')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 21V9l8-6 8 6v12"/><path d="M9 21v-7h6v7"/></svg> 고입 컨설팅<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
       <div class="navsub">
@@ -575,17 +566,26 @@
 
       </div>
     </div>
-
-    <div class="navlabel navlabel-con">학원 운영 · 마케팅</div>
-    <div class="nav" data-v="members" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 3.5a3 3 0 010 5.5M21 20c0-2-1-3.6-3-4.6"/></svg> 반 · 강사 관리</div>
-    <div class="nav" data-v="attend" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v15H4z"/><path d="M8 3v4M16 3v4M4 9h16"/><path d="M9 14l2 2 4-4"/></svg> 출석부</div>
-    <div class="nav" data-v="staffmsg" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg> 강사 보고</div>
+<!-- 펜타 시리즈 -->
+    <div class="navgroup penta open" id="grp-penta">
+      <div class="grouphead" onclick="var g=document.getElementById('grp-penta');if(g)g.classList.toggle('open')"><svg class="gi" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M9 3a5 5 0 00-3 9c.6.5 1 1.2 1 2v1h4v-1c0-.8.4-1.5 1-2a5 5 0 00-3-9z"/><path d="M8 19h4M9 22h2"/></svg> 펜타 시리즈<svg class="gcaret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>
+      <div class="navsub">
+        <div class="navlabel" style="padding:6px 10px 3px;font-size:9px;letter-spacing:.12em;color:var(--ink-mute)">워크북</div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
+        <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
+        <div class="navlabel" style="padding:8px 10px 3px;font-size:9px;letter-spacing:.12em;color:var(--ink-mute)">수업 운영</div>
+        <div class="nav" data-v="live" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg> 실시간 관제 <span style="font-size:9px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7B1FA2,#E91E63);border-radius:5px;padding:1px 5px">LIVE</span></div>
+        <div class="nav" data-v="course" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 코스웨어</div>
+        <div class="nav" data-v="submits" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> 학생 제출물 관리</div>
+      </div>
+    </div>
+    <div class="navlabel navlabel-con">본사 소식</div>
     <div class="nav" data-v="hqnews" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 01-5.8-1.6"/></svg> 본사 소식</div>
-    <div class="nav" data-v="promo" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 11l18-2v6l-18-2z"/><path d="M8 12v5a2 2 0 002 2h1"/><circle cx="18" cy="6" r="2"/></svg> 홍보 스튜디오</div>
-    <div class="nav" data-v="notice" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 8h13l4-3v14l-4-3H3z"/><path d="M7 19v2"/></svg> 안내문 스튜디오</div>
-    <div class="nav" data-v="psend" onclick="go(this);if(window.ArcheParentHub)ArcheParentHub.mountSend(document.getElementById('parent-hub-mount'))"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg> 학부모 전송</div>
+    <div class="navlabel navlabel-con">구독 · 결제</div>
     <div class="nav" data-v="billing" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg> 구독·결제</div>
     <div class="navlabel navlabel-con" style="margin-top:8px">시스템</div>
+    <div class="nav" data-v="stuset" id="nav-stuset" style="display:none" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg> 설정</div>
     <div class="nav" data-v="essaybatch" id="nav-essaybatch" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16M4 10h16M4 15h10"/><path d="M15 19l2 2 4-4"/></svg> 골든시드 채점 <span style="font-size:9px;color:var(--ink-mute);letter-spacing:.1em">내부</span></div>
     <div class="nav" data-v="admin_data" id="nav-admindata" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/><circle cx="19" cy="18" r="2"/></svg> 입시자료 조회</div>
     <div class="nav" data-v="admin" id="nav-admin" onclick="go(this)" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 2l8 4v6c0 5-3.5 8-8 10-4.5-2-8-5-8-10V6z"/></svg> 관리자 콘솔</div>
@@ -2175,6 +2175,7 @@ window.ADMIN=ADMIN;
 <script src="https://js.tosspayments.com/v1/payment"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <!-- ▼▼ 아르케 무결성·회고·리포트 모듈 (shared) — 2026-07-25 추가 ▼▼ -->
 <script src="/shared/arche_typing_v2.js"></script>
 <script src="/shared/arche_writing_diff.js"></script>
@@ -2190,7 +2191,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_entitlements.js"></script>
 <script src="/shared/arche_penta_period.js"></script>
 <script src="/academy/course_picker.js"></script>
-<script src="/shared/arche_academy_ops.js"></script>
+<script src="/shared/arche_academy_ops.js?v=2"></script>
 <style>
 .nav.ent-locked{opacity:.5}
 .nav.ent-locked .ent-lock{margin-left:auto;font-size:11px;opacity:.85}
