@@ -12,6 +12,8 @@
   function esc(s){ return (s==null?'':String(s)).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   function sb(){ return window.sb; }
   function col(v){ return v<=50?'#f04452':(v<=65?'#f79009':(v<=84?'#7bc86c':'#12b76a')); }
+  function fnBase(){ return window.FN_BASE||((window.SB_URL||'')+'/functions/v1'); }
+  async function token(){ try{ var s=(await sb().auth.getSession()).data.session; return s?s.access_token:''; }catch(e){ return ''; } }
 
   function injectCSS(){
     if(document.getElementById('lsd-css'))return;
@@ -120,9 +122,9 @@
     // 4) 수업 스토리텔링 (가이드 템플릿)
     function storyCard(){
       return '<div class="card"><div class="h">✍️ 수업 스토리텔링 · 단원 연계 <span class="sub">· 설계 가이드</span></div>'
-        +'<div class="row1"><input id="lsd-stunit" placeholder="단원/주제 (예: 일차함수의 그래프)" value="'+esc(S.stunit||'')+'" style="flex:1;min-width:180px"><button class="btn sub" id="lsd-stgo">가이드 생성</button></div>'
+        +'<div class="row1"><input id="lsd-stunit" placeholder="단원/주제 (예: 일차함수의 그래프)" value="'+esc(S.stunit||'')+'" style="flex:1;min-width:180px"><button class="btn" id="lsd-stai">✨ AI 생성</button><button class="btn sub" id="lsd-stgo">가이드(템플릿)</button></div>'
         +'<div id="lsd-stres" style="margin-top:10px">'+(S.storyHTML||'')+'</div>'
-        +'<div class="note">※ 단원과 연결된 실생활 사례·타과목 연계·핵심 발문 틀을 제시합니다. AI 자동 생성(서사 완성)은 전용 엔진 연동 시 제공됩니다.</div></div>';
+        +'<div class="note">※ [✨ AI 생성]은 단원·과목·학년(+취약점)을 반영해 도입·타과목 연계·핵심 발문·진로 연결·형성평가·스토리텔링을 생성합니다. AI 결과는 교사가 검토·수정 후 사용하세요.</div></div>';
     }
 
     function bind(){
@@ -133,6 +135,34 @@
       var bs=root.querySelector('#lsd-bsearch'); if(bs) bs.onclick=searchBank;
       var ra=root.querySelector('#lsd-radd'); if(ra) ra.onclick=addBank;
       var st=root.querySelector('#lsd-stgo'); if(st) st.onclick=storyGuide;
+      var ai=root.querySelector('#lsd-stai'); if(ai) ai.onclick=aiStory;
+    }
+
+    async function aiStory(){
+      var u=(root.querySelector('#lsd-stunit').value||'').trim(); S.stunit=u; var box=root.querySelector('#lsd-stres');
+      if(!u){ S.storyHTML='<div class="d" style="color:var(--mute)">단원/주제를 입력하세요.</div>'; box.innerHTML=S.storyHTML; return; }
+      box.innerHTML='<div class="d" style="color:var(--mute)">✨ AI가 수업 설계를 생성 중… (최대 40초)</div>';
+      var cls=curClass();
+      var payload={ unit:u, subject:cls.subject||'', grade:cls.grade_band||'', weakness:(S.weak&&S.weak[0]?S.weak[0].name:''), career:'' };
+      try{
+        var tok=await token();
+        var r=await fetch(fnBase()+'/lesson-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({payload:payload})});
+        var jd=await r.json();
+        if(!r.ok||jd.error) throw new Error(jd.error||('HTTP '+r.status));
+        var d=null; try{ d=JSON.parse(jd.text); }catch(e){ d=null; }
+        if(!d){ S.storyHTML='<div class="d">'+esc(jd.text||'생성 결과가 비어 있습니다.')+'</div>'; box.innerHTML=S.storyHTML; return; }
+        var cross=(d.cross||[]).map(function(c){return '<li><b>'+esc(c.subject||'')+'</b> — '+esc(c.link||'')+'</li>';}).join('');
+        var qs=(d.questions||[]).map(function(q){return '<li>'+esc(q)+'</li>';}).join('');
+        S.storyHTML='<div class="d" style="line-height:1.75">'
+          +(d.story?'<div style="background:var(--vs);border-radius:10px;padding:10px 12px;margin-bottom:9px">🎬 '+esc(d.story)+'</div>':'')
+          +'<b>① 도입(Hook)</b><div style="margin:2px 0 7px">'+esc(d.hook||'')+'</div>'
+          +'<b>② 타과목 연계</b><ul style="margin:3px 0 7px 16px">'+cross+'</ul>'
+          +'<b>③ 핵심 발문</b><ul style="margin:3px 0 7px 16px">'+qs+'</ul>'
+          +'<b>④ 진로 연결</b><div style="margin:2px 0 7px">'+esc(d.career||'')+'</div>'
+          +'<b>⑤ 형성평가</b><div style="margin:2px 0 0">'+esc(d.formative||'')+'</div>'
+          +'</div><div class="note">✨ AI 생성('+esc(jd.model||'gemini')+') · 교사 검토 후 사용</div>';
+        box.innerHTML=S.storyHTML;
+      }catch(e){ S.storyHTML='<div class="d" style="color:var(--risk)">AI 생성 실패: '+esc((e&&e.message)||e)+'</div>'; box.innerHTML=S.storyHTML; }
     }
 
     async function careerSearch(){
