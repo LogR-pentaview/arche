@@ -14,7 +14,7 @@
       ]
     },
     {
-      "source": "/(academy|parent|login|admin|partner)",
+      "source": "/(academy|parent|login|admin|partner)(/.*)?",
       "headers": [
         { "key": "Cache-Control", "value": "no-cache, must-revalidate" }
       ]
