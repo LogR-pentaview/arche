@@ -465,7 +465,7 @@
       classes = rc.data||[];
       var rs = await sb.from('students').select('id,name,grade,school,phone,class_id,penta_course').eq('academy_id',acid).order('name');
       students = rs.data||[];
-      var rt = await sb.from('academy_users').select('uid,email,role,name,subject,login_id,must_change').eq('academy_id',acid);
+      var rt = await sb.from('academy_users').select('uid,email,role,name,subject,login_id,must_change,is_consultant').eq('academy_id',acid);
       teachers = (rt.data||[]).filter(function(t){ return t.role!=='owner'; });
       try{ var rsa = await sb.from('student_accounts').select('student_id,login_id,must_change').eq('academy_id',acid); (rsa.data||[]).forEach(function(a){ stuAcct[a.student_id]=a; }); }catch(_){}
       try{ var rpa = await sb.from('parent_accounts').select('student_id,login_id').eq('academy_id',acid); (rpa.data||[]).forEach(function(a){ parAcct[a.student_id]=a; }); }catch(_){}
@@ -527,17 +527,20 @@
         h+=teachers.map(function(t){
           var myClasses=classes.filter(function(c){return c.teacher_id===t.uid;}).map(function(c){return esc(c.name);});
           var isMgr=(t.role==='manager');
+          var isCons=(t.is_consultant===true);
           var roleBadge=isMgr?' <span style="font-size:9.5px;font-weight:800;color:#1b64da;background:#e8f1ff;border-radius:20px;padding:2px 7px">부원장</span>':'';
+          var consBadge=isCons?' <span style="font-size:9.5px;font-weight:800;color:#6b46c1;background:#efeaff;border-radius:20px;padding:2px 7px">🎓 컨설턴트</span>':'';
+          var consBtn=isOwner?'<button class="tab" data-tcons="'+t.uid+'" data-to="'+(isCons?'0':'1')+'" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:#6b46c1">'+(isCons?'컨설턴트 해제':'컨설턴트 지정')+'</button> ':'';
           var promoBtn=isOwner?(isMgr
               ?'<button class="tab" data-trole="'+t.uid+'" data-to="teacher" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px">부원장 해제</button> '
               :'<button class="tab" data-trole="'+t.uid+'" data-to="manager" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:#1b64da">부원장 지정</button> '):'';
           var delBtn=isOwner?'<button class="tab" data-tdel="'+t.uid+'" data-tnm="'+esc(t.name||'')+'" style="padding:4px 9px;font-size:11px;color:var(--risk)">삭제</button>':'';
           return '<tr style="border-top:1px solid var(--line-soft,#eef1f4)">'
-            +'<td style="padding:8px;font-weight:700">'+esc(t.name||'-')+roleBadge+'</td>'
+            +'<td style="padding:8px;font-weight:700">'+esc(t.name||'-')+roleBadge+consBadge+'</td>'
             +'<td style="padding:8px;color:var(--ink-dim)">'+esc(t.subject||'-')+'</td>'
             +'<td style="padding:8px;color:var(--ink-dim)">'+(myClasses.length?myClasses.join(', '):'<span style="color:var(--ink-mute)">미배정</span>')+'</td>'
             +'<td style="padding:8px"><b>'+esc(t.login_id||t.email||'-')+'</b>'+(t.must_change?' <span style="font-size:10px;color:var(--ink-mute)">/0000</span>':'')+'</td>'
-            +'<td style="padding:8px;text-align:right;white-space:nowrap">'+promoBtn+'<button class="tab" data-tpw="'+t.uid+'" style="padding:4px 9px;font-size:11px">비번초기화</button> '+delBtn+'</td>'
+            +'<td style="padding:8px;text-align:right;white-space:nowrap">'+consBtn+promoBtn+'<button class="tab" data-tpw="'+t.uid+'" style="padding:4px 9px;font-size:11px">비번초기화</button> '+delBtn+'</td>'
             +'</tr>';
         }).join('');
         h+='</tbody></table></div>';
@@ -563,6 +566,7 @@
       host.querySelectorAll('[data-tpw]').forEach(function(b){ b.onclick=function(){ teacherAction('reset_pw', b.getAttribute('data-tpw'), b); }; });
       host.querySelectorAll('[data-tdel]').forEach(function(b){ b.onclick=function(){ teacherAction('delete', b.getAttribute('data-tdel'), b, b.getAttribute('data-tnm')); }; });
       host.querySelectorAll('[data-trole]').forEach(function(b){ b.onclick=function(){ setTeacherRole(b.getAttribute('data-trole'), b.getAttribute('data-to'), b, b.getAttribute('data-tnm')); }; });
+      host.querySelectorAll('[data-tcons]').forEach(function(b){ b.onclick=function(){ setTeacherConsultant(b.getAttribute('data-tcons'), b.getAttribute('data-to'), b, b.getAttribute('data-tnm')); }; });
     }
     async function reload(){ await mountMembers(host); }
     async function createClass(){
@@ -600,6 +604,14 @@
       if(!confirm((nm||'이 강사')+(toMgr?' 을(를) 부원장으로 지정할까요?\n부원장은 반·강사 관리 권한을 갖습니다(강사 등록·반 편성·수강료 설정 등). 강사 삭제·부원장 지정은 원장만 가능합니다.':' 의 부원장 권한을 해제할까요?\n일반 강사로 돌아가 반·강사 관리 메뉴가 숨겨집니다.'))) return;
       if(btn) btn.disabled=true;
       try{ var r=await sb.from('academy_users').update({role:(toMgr?'manager':'teacher')}).eq('academy_id',acid).eq('uid',uid); if(r.error)throw r.error; alert('✓ '+(toMgr?'부원장으로 지정':'부원장 해제')+'되었습니다.\n(해당 강사가 재로그인하면 권한이 반영됩니다.)'); reload(); }
+      catch(e){ alert('권한 변경 실패: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
+    }
+    async function setTeacherConsultant(uid, to, btn, nm){
+      if(!isOwner){ alert('컨설턴트 권한 지정·해제는 원장만 가능합니다.'); return; }
+      var on=(to==='1');
+      if(!confirm((nm||'이 강사')+(on?' 에게 컨설턴트 권한을 부여할까요?\n컨설턴트는 수행평가 도우미에서 학생 제출물을 검토·AI분석하고 완성(예상등급) 처리할 수 있습니다.':' 의 컨설턴트 권한을 해제할까요?\n해제하면 수행평가 검토·완성 권한이 사라집니다.'))) return;
+      if(btn) btn.disabled=true;
+      try{ var r=await sb.from('academy_users').update({is_consultant:on}).eq('academy_id',acid).eq('uid',uid); if(r.error)throw r.error; alert('✓ '+(on?'컨설턴트로 지정':'컨설턴트 해제')+'되었습니다.\n(해당 강사가 재로그인하면 수행평가 메뉴에 반영됩니다.)'); reload(); }
       catch(e){ alert('권한 변경 실패: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
     }
     async function addTeacher(){
