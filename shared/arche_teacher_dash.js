@@ -97,7 +97,7 @@
       var fullTab=(S.tab==='exam'||S.tab==='design'||S.tab==='agrade');
       var selRow=fullTab?'':'<div class="row1"><select id="td-cls">'+(S.classes.length?clsOpts():'<option>담당 반 없음</option>')+'</select></div>';
       var head=selRow
-        +'<div class="atoggle"><button data-t="penta" class="'+(S.tab==='penta'?'on':'')+'">📘 펜타 시리즈</button><button data-t="lesson" class="'+(S.tab==='lesson'?'on':'')+'">📚 강의 관리</button><button data-t="agrade" class="'+(S.tab==='agrade'?'on':'')+'">📋 과제 채점</button><button data-t="exam" class="'+(S.tab==='exam'?'on':'')+'">🧪 시험 분석</button><button data-t="design" class="'+(S.tab==='design'?'on':'')+'">🧭 수업 설계</button></div>';
+        +'<div class="atoggle"><button data-t="penta" class="'+(S.tab==='penta'?'on':'')+'">📘 펜타 시리즈</button><button data-t="lesson" class="'+(S.tab==='lesson'?'on':'')+'">📚 강의 관리</button><button data-t="agrade" class="'+(S.tab==='agrade'?'on':'')+'">🤖 AI 과제채점</button><button data-t="exam" class="'+(S.tab==='exam'?'on':'')+'">🧪 시험 분석</button><button data-t="design" class="'+(S.tab==='design'?'on':'')+'">🧭 수업 설계</button></div>';
       var body;
       if(S.tab==='exam') body='<div id="td-exam-mount"><div class="ph">불러오는 중…</div></div>';
       else if(S.tab==='design') body='<div id="td-design-mount"><div class="ph">불러오는 중…</div></div>';
@@ -123,7 +123,7 @@
       var n=S.students.length;
       // 과제 추가 + 목록
       var cls=S.classes.filter(function(c){return c.id===S.classId;})[0]||{};
-      var addForm='<div class="card"><div class="h">➕ 과제 등록</div>'
+      var addForm='<div class="card"><div class="h">➕ 과제 등록 <span class="sub">· 등록 후 간편채점 또는 [🤖 AI 과제채점] 탭에서 채점</span></div>'
         +'<div class="row1" style="margin:0"><input id="td-atitle" placeholder="과제명 (예: 3/18 함수 워크시트)" style="flex:1;min-width:160px">'
         +'<input id="td-adate" type="date" value="'+(new Date().toISOString().slice(0,10))+'">'
         +'<input id="td-asubj" placeholder="과목" value="'+esc(cls.subject||'')+'" style="width:90px">'
@@ -134,7 +134,7 @@
         var pct=n?Math.round(sub/n*100):0;
         return '<div class="arow"><div style="width:150px;font-weight:700;font-size:12.5px">'+esc(a.title)+'<div style="font-size:10.5px;color:var(--mute);font-weight:500">'+esc((a.assigned_date||'').slice(5))+(a.subject?' · '+esc(a.subject):'')+'</div></div>'
           +'<div class="bar"><i style="width:'+pct+'%"></i></div><div class="pc">'+pct+'%</div>'
-          +'<button class="btn sub" data-grade="'+a.id+'" style="padding:5px 10px">채점</button>'
+          +'<button class="btn sub" data-grade="'+a.id+'" style="padding:5px 10px">간편채점</button>'
           +'<button class="btn sub" data-adel="'+a.id+'" style="padding:5px 8px;color:var(--risk)">삭제</button></div>';
       }).join('')||'<div class="d" style="color:var(--mute)">등록된 과제가 없습니다.</div>';
       var subCard='<div class="card"><div class="h">📝 수업일별 과제 제출율 <span class="sub">· 학생 '+n+'명</span></div>'+subRows+'</div>';
@@ -150,7 +150,7 @@
               +'<td><select class="inp" data-dil="'+s.id+'"><option value="">성실도</option>'
                 +['우수','보통','미흡'].map(function(d){return '<option'+(r.diligence===d?' selected':'')+'>'+d+'</option>';}).join('')+'</select></td></tr>';
           }).join('');
-          gradeCard='<div class="card"><div class="h">✍️ 채점 · '+esc(a.title)+' <span class="sub">· 입력 후 [저장]</span></div>'
+          gradeCard='<div class="card"><div class="h">✍️ 간편 채점 · '+esc(a.title)+' <span class="sub">· 제출·점수·성실도 빠른 입력 · 문항별 정밀 채점은 [🤖 AI 과제채점] 탭</span></div>'
             +'<table><thead><tr><th>학생</th><th style="text-align:center">제출</th><th>점수</th><th>성실도</th></tr></thead><tbody>'+rows+'</tbody></table>'
             +'<div style="margin-top:10px"><button class="btn" id="td-gsave">저장</button> <button class="btn sub" id="td-gclose">닫기</button> <span id="td-gmsg" style="font-size:12px;margin-left:6px"></span></div></div>';
         }
