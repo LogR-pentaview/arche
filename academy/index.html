@@ -3270,6 +3270,29 @@ function pvInjectCss(){
     +".pv-ovc{max-width:900px;margin:0 auto;background:#eef1f8;border-radius:18px;padding:14px}"
     +".pv-ovx{display:flex;justify-content:flex-end;position:sticky;top:0}"
     +".pv-ovx button{border:none;background:#1A237E;color:#fff;border-radius:10px;padding:8px 14px;font:inherit;font-weight:800;font-size:13px;cursor:pointer}"
+    +".pv-sec{font-size:13px;font-weight:900;color:#1A237E;margin:22px 4px 0;display:flex;align-items:center;gap:7px}"
+    +".pv-sec .mo{margin-left:auto;font-size:11px;font-weight:700;color:#8b95a1}"
+    +".pv-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:10px}"
+    +".pv-kpi{background:#fff;border:1px solid #e6e9f0;border-radius:16px;padding:15px 16px 14px;box-shadow:0 1px 3px rgba(0,23,51,.04)}"
+    +".pv-kpi .kl{font-size:11.5px;font-weight:800;color:#8b95a1;letter-spacing:.2px}"
+    +".pv-kpi .kv{font-size:27px;font-weight:900;color:#1A237E;margin:5px 0 1px;line-height:1}"
+    +".pv-kpi .kv small{font-size:13px;font-weight:800;color:#8b95a1;margin-left:2px}"
+    +".pv-kpi .ks{font-size:11.5px;color:#6b7688;min-height:15px}"
+    +".pv-kpi .kbar{height:7px;border-radius:99px;background:#eef1f6;margin-top:9px;overflow:hidden}"
+    +".pv-kpi .kbar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#1A237E,#4a57c4);transition:width .5s}"
+    +".pv-kpi.empty .kv{color:#cdd3de;font-size:20px;margin-top:9px}"
+    +".pv-kpi.empty .kbar{display:none}"
+    +".pv-exam{background:#fff;border:1px solid #e6e9f0;border-radius:16px;padding:16px 18px;margin-top:10px;box-shadow:0 1px 3px rgba(0,23,51,.04)}"
+    +".pv-spark{display:flex;align-items:flex-end;gap:5px;height:46px;margin:4px 0 12px}"
+    +".pv-spark>i{flex:1;background:#dbe0f2;border-radius:3px 3px 0 0;min-height:4px;position:relative}"
+    +".pv-spark>i:last-child{background:#1A237E}"
+    +".pv-exrow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid #f0f2f6;font-size:13px}"
+    +".pv-exrow:first-of-type{border-top:none}"
+    +".pv-exrow .sj{font-weight:800;color:#243244;min-width:58px}"
+    +".pv-exrow .ti{color:#8b95a1;font-size:11.5px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}"
+    +".pv-exrow .pc{font-weight:900;color:#1A237E}"
+    +".pv-exempty{color:#8b95a1;font-size:12.5px;text-align:center;padding:14px 0}"
+    +"@media(max-width:560px){.pv-kpis{grid-template-columns:1fr}}"
     +".pv-note{font-size:11px;color:#8b95a1;text-align:center;margin-top:20px;line-height:1.7}";
   document.head.appendChild(s);
 }
@@ -3285,10 +3308,16 @@ async function pvRenderDashboard(root, stu){
     +'<div class="eb">PENTAVIEW · 학부모 대시보드</div>'
     +'<h1>'+pvEsc(stu.name||'자녀')+' 학부모님</h1>'
     +'<div class="meta">'+pvEsc(stu.grade||'')+(band?(' · '+band):'')+(pentaOn?(' · '+pvCourseLabel(stu.penta_course)+' 수강 중'):'')+'</div></div>';
+  h+='<div class="pv-sec">📈 자녀 현황 요약 <span class="mo" id="pv-kmo"></span></div>';
+  h+='<div class="pv-kpis" id="pv-kpis">'+pvKpiSkel()+'</div>';
+  h+='<div class="pv-sec">🧪 자체시험 성적 추이</div>';
+  h+='<div class="pv-exam" id="pv-exam"><div class="pv-exempty">불러오는 중…</div></div>';
+  h+='<div class="pv-sec">📬 받은 자료 · 리포트</div>';
   h+='<div class="pv-grid" id="pv-grid"><div class="pv-empty">불러오는 중…</div></div>';
-  h+='<div class="pv-note">자녀가 수강 중인 항목은 실제 결과를, 아직 수강하지 않은 항목은 샘플을 보여드립니다.<br>수강 확대·문의는 담당 선생님께 연락해 주세요.</div>';
+  h+='<div class="pv-note">출석·과제·시험 기록은 학원에서 입력되는 즉시 반영됩니다.<br>수강 중인 항목은 실제 결과를, 아직 수강 전인 항목은 샘플을 보여드립니다. 문의는 담당 선생님께 연락해 주세요.</div>';
   h+='</div>';
   root.innerHTML=h;
+  pvLoadKpis(stu);
   var grid=root.querySelector('#pv-grid');
 
   // 학원 전송함(소식지·시간표·새강좌·월간분석표·진로·수행 등) 로드
@@ -3329,6 +3358,68 @@ async function pvRenderDashboard(root, stu){
     else { btn.addEventListener('click', function(){ pvSample(c); }); }
     grid.appendChild(card);
   });
+}
+/* ── 학부모 대시보드 실데이터 KPI ── */
+function pvKpiSkel(){
+  return ['출석','과제 완성율','자체시험 평균'].map(function(l){
+    return '<div class="pv-kpi"><div class="kl">'+l+'</div><div class="kv" style="color:#cdd3de;font-size:20px;margin-top:9px">…</div><div class="ks"></div></div>';
+  }).join('');
+}
+function pvPct(v){ v=Number(v); if(!(v>=0))return null; if(v<=1)v=v*100; return Math.round(v); }
+function pvKpiCard(label, pct, sub, empty){
+  if(empty) return '<div class="pv-kpi empty"><div class="kl">'+label+'</div><div class="kv">아직 기록 없음</div><div class="ks">학원 입력 시 자동 반영</div></div>';
+  var w=Math.max(0,Math.min(100,pct==null?0:pct));
+  return '<div class="pv-kpi"><div class="kl">'+label+'</div><div class="kv">'+(pct==null?'—':pct)+'<small>%</small></div>'
+    +'<div class="ks">'+pvEsc(sub||'')+'</div><div class="kbar"><i style="width:'+w+'%"></i></div></div>';
+}
+async function pvLoadKpis(stu){
+  var kw=document.getElementById('pv-kpis'), ew=document.getElementById('pv-exam'), mo=document.getElementById('pv-kmo');
+  var att=[], asg=[], exm=[];
+  try{
+    var r=await Promise.all([
+      sb.from('attendance_records').select('status,updated_at').eq('student_id',stu.id),
+      sb.from('assignment_scores').select('completion_rate,score,submitted,graded_at,updated_at').eq('student_id',stu.id),
+      sb.from('academy_exams').select('title,subject,score,max_score,exam_date,exam_type').eq('student_id',stu.id).order('exam_date',{ascending:true})
+    ]);
+    att=(r[0]&&r[0].data)||[]; asg=(r[1]&&r[1].data)||[]; exm=(r[2]&&r[2].data)||[];
+  }catch(e){}
+  // 출석: 이번 달 우선, 없으면 전체
+  var now=new Date(), mk=now.getFullYear()+'-'+('0'+(now.getMonth()+1)).slice(-2);
+  function inMonth(ts){ return ts&&String(ts).slice(0,7)===mk; }
+  var attM=att.filter(function(a){return inMonth(a.updated_at);});
+  var useM=attM.length>0, attUse=useM?attM:att;
+  if(mo) mo.textContent=useM?(mk.replace('-','.')+' 기준'):(att.length?'전체 기간':'');
+  var aTot=attUse.length, aAbs=attUse.filter(function(a){return a.status==='absent';}).length,
+      aLate=attUse.filter(function(a){return a.status==='late';}).length,
+      aEar=attUse.filter(function(a){return a.status==='early';}).length;
+  var attCard = aTot? pvKpiCard('📅 출석률', Math.round((aTot-aAbs)/aTot*100),
+      '총 '+aTot+'회 · 결석 '+aAbs+' · 지각 '+aLate+(aEar?(' · 조퇴 '+aEar):''), false)
+    : pvKpiCard('📅 출석률',null,'',true);
+  // 과제 완성율 (최근 12건)
+  var asgC=asg.filter(function(x){return x.completion_rate!=null;})
+    .sort(function(a,b){return String(b.graded_at||b.updated_at||'').localeCompare(String(a.graded_at||a.updated_at||''));}).slice(0,12);
+  var asgCard;
+  if(asgC.length){ var avg=Math.round(asgC.reduce(function(s,x){return s+pvPct(x.completion_rate);},0)/asgC.length);
+    var sub=asg.filter(function(x){return x.submitted;}).length+' / '+asg.length+'건 제출 · 최근 '+asgC.length+'건 평균';
+    asgCard=pvKpiCard('📝 과제 완성율',avg,sub,false);
+  } else asgCard=pvKpiCard('📝 과제 완성율',null,'',true);
+  // 자체시험 평균
+  var exV=exm.filter(function(x){return Number(x.max_score)>0&&x.score!=null;});
+  var exCard;
+  if(exV.length){ var ea=Math.round(exV.reduce(function(s,x){return s+Number(x.score)/Number(x.max_score)*100;},0)/exV.length);
+    exCard=pvKpiCard('🧪 자체시험 평균',ea,'최근 '+exV.length+'회 평균 득점률',false);
+  } else exCard=pvKpiCard('🧪 자체시험 평균',null,'',true);
+  if(kw) kw.innerHTML=attCard+asgCard+exCard;
+  // 성적 추이 (최근 8회 스파크 + 최근 5행)
+  if(ew){
+    if(exV.length){
+      var last8=exV.slice(-8).map(function(x){return {pct:Math.round(Number(x.score)/Number(x.max_score)*100), x:x};});
+      var spark='<div class="pv-spark">'+last8.map(function(p){return '<i style="height:'+Math.max(6,p.pct)+'%" title="'+pvEsc((p.x.subject||'')+' '+p.pct+'%')+'"></i>';}).join('')+'</div>';
+      var rows=exV.slice(-5).reverse().map(function(x){var pc=Math.round(Number(x.score)/Number(x.max_score)*100);
+        return '<div class="pv-exrow"><span class="sj">'+pvEsc(x.subject||'시험')+'</span><span class="ti">'+pvEsc(x.title||x.exam_type||'')+(x.exam_date?(' · '+String(x.exam_date).slice(0,10)):'')+'</span><span class="pc">'+pc+'%</span></div>';}).join('');
+      ew.innerHTML=spark+rows;
+    } else ew.innerHTML='<div class="pv-exempty">아직 등록된 자체시험 성적이 없어요.<br>학원에서 시험 성적을 입력하면 추이가 표시됩니다.</div>';
+  }
 }
 function pvOpenList(title, items){
   var body=pvOverlay();
@@ -3394,7 +3485,7 @@ async function enterStudentApp(session){
   }
   if(_gP)_gP.classList.add('open');
   // 공통: 컨설턴트/관리 전용 메뉴 숨김
-  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice','psend'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice','psend','sm','members','staffmsg','tactivity','newsletter','tdash','attend','refbank'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
   // 인터뷰·성적 제출: 고=대입 자료입력 / 중=고입 자료입력 / 초=없음
   var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(lvl==='고'){ _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _ivn.style.display='none'; } }
   var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn){ if(lvl==='중'){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _givn.style.display='none'; } }
