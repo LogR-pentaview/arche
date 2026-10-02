@@ -5135,7 +5135,7 @@ async function perfSaveAsmt(track){
 function perfAsmtCard(a,sub,track){
   var st=sub?sub.status:'assigned'; var lb=PF_ST[st]||[st,'var(--ink-mute)'];
   var h='<div style="border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:10px">'
-    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:13px">'+esc(a.title||'(제목 없음)')+'</b>'+(a.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(a.subject)+'</span>':'')+'<span style="font-size:10.5px;font-weight:700;color:#fff;background:'+lb[1]+';border-radius:6px;padding:1px 8px">'+esc(lb[0])+'</span>'+(sub&&sub.round?'<span style="font-size:10px;color:var(--ink-mute)">라운드 '+sub.round+'</span>':'')+'<button onclick="perfDelAsmt('+a.id+',\''+track+'\')" style="margin-left:auto;border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:15px;line-height:1">×</button></div>'
+    +'<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:13px">'+esc(a.title||'(제목 없음)')+'</b>'+(a.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(a.subject)+'</span>':'')+(a.created_by_type==='student'?'<span style="font-size:10px;font-weight:700;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:5px;padding:0 6px">🙋 학생 등록</span>':'')+'<span style="font-size:10.5px;font-weight:700;color:#fff;background:'+lb[1]+';border-radius:6px;padding:1px 8px">'+esc(lb[0])+'</span>'+(sub&&sub.round?'<span style="font-size:10px;color:var(--ink-mute)">라운드 '+sub.round+'</span>':'')+'<button onclick="perfDelAsmt('+a.id+',\''+track+'\')" style="margin-left:auto;border:none;background:transparent;color:var(--risk);cursor:pointer;font-size:15px;line-height:1">×</button></div>'
     +'<div style="margin-bottom:6px">'+pfTracker(perfStepOf(sub))+'</div>'
     +'<button class="btn ghost" style="padding:3px 10px;font-size:11px;margin-bottom:6px" onclick="perfTogSpec('+a.id+')">평가지 상세</button>'
     +'<div id="pf-spec-detail-'+a.id+'" style="display:none">'+perfSpecHtml(a)+'</div>'
@@ -5219,13 +5219,77 @@ async function perfStuView(track,s){
   var box=document.getElementById('perf-root-'+track); box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">불러오는 중…</div>';
   var q=await sb.from('perf_assessments').select('*').eq('student_id',s.id).eq('status','active').order('created_at',{ascending:false});
   if(q.error){ box.innerHTML='<div style="font-size:12px;color:var(--risk)">'+esc(q.error.message)+'</div>'; return; }
-  var asmts=q.data||[]; if(!asmts.length){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">아직 배포된 수행평가가 없습니다. 선생님이 수행평가를 등록하면 여기에 표시됩니다.</div>'; return; }
-  var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); var subs={}; (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;});
-  box.innerHTML=asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('');
+  var asmts=q.data||[]; var subs={};
+  if(asmts.length){ var ids=asmts.map(function(a){return a.id;}); var sq=await sb.from('perf_submissions').select('*').in('assessment_id',ids).eq('student_id',s.id); (sq.data||[]).forEach(function(x){subs[x.assessment_id]=x;}); }
+  var h=perfStuAddCard(track);
+  if(!asmts.length) h+='<div style="font-size:12px;color:var(--ink-mute);padding:4px 2px">아직 등록된 수행평가가 없어요. 위에서 <b>직접 안내서를 올려</b> 시작하거나, 선생님이 배포하면 여기에 표시됩니다.</div>';
+  else h+=asmts.map(function(a){ return perfStuCard(a,subs[a.id],track); }).join('');
+  box.innerHTML=h;
+  if(window._pfJustCreated){ var jaid=window._pfJustCreated; window._pfJustCreated=null; setTimeout(function(){ try{ perfStuToggle(jaid,track); }catch(_){} },60); }
+}
+/* 학생 직접 등록 (안내서 업로드 → AI 분석 → self 등록 → 기존 루프 진입) */
+function perfStuAddCard(track){
+  return '<div style="border:1px dashed var(--gold,#3182f6);border-radius:10px;padding:13px 15px;margin-bottom:14px;background:rgba(49,130,246,.04)">'
+    +'<div style="display:flex;align-items:center;gap:8px;cursor:pointer" onclick="perfStuAddToggle(\''+track+'\')"><b style="font-size:13px;color:var(--gold,#3182f6)">➕ 내 수행평가 직접 등록</b><span style="font-size:11px;color:var(--ink-mute)">학교에서 받은 안내서를 올려 스스로 시작</span><span id="pf-add-caret-'+track+'" style="margin-left:auto;font-size:13px;color:var(--ink-mute)">▾</span></div>'
+    +'<div id="pf-add-body-'+track+'" style="display:none;margin-top:10px">'
+      +'<div style="font-size:11.5px;color:var(--ink-mute);line-height:1.6;margin-bottom:9px">학교 수행평가 <b style="color:var(--ink)">평가지·안내문·가정통신문</b>을 사진이나 파일로 올리면 AI가 과제·채점기준을 정리해 줘요. 등록 후 <b style="color:var(--ink)">관점 설계 → 작성 → 선생님 검토</b> 순서로 진행합니다. <span style="color:var(--gold,#3182f6)">학교 제출용 완성본(HWPX 등)은 선생님 최종 확인 후 받을 수 있어요.</span></div>'
+      +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px">'
+        +'<input type="file" id="pf-sfile-'+track+'" accept=".pdf,.docx,.txt,.md" style="font-size:12px;color:var(--ink-dim)">'
+        +'<label style="cursor:pointer;font-size:12px;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);padding:5px 10px;border-radius:6px">📷 사진 첨부<input type="file" id="pf-simg-'+track+'" accept="image/*" multiple style="display:none" onchange="perfStuImgPick(\''+track+'\')"></label>'
+        +'<button class="btn" onclick="perfStuParse(\''+track+'\')">AI로 분석</button></div>'
+      +'<div id="pf-simgnames-'+track+'" style="font-size:11px;color:var(--ink-mute);margin-bottom:6px"></div>'
+      +'<textarea id="pf-sraw-'+track+'" rows="2" placeholder="또는 평가 안내 내용을 직접 붙여넣기 (파일 추출이 안 될 때)" style="width:100%;margin-bottom:8px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;resize:vertical;box-sizing:border-box"></textarea>'
+      +'<div id="pf-sparsemsg-'+track+'" style="font-size:12px;min-height:14px;margin-bottom:4px"></div>'
+      +'<div id="pf-sspec-'+track+'"></div></div></div>';
+}
+function perfStuAddToggle(track){ var b=document.getElementById('pf-add-body-'+track),c=document.getElementById('pf-add-caret-'+track); if(!b)return; var open=(b.style.display==='none'); b.style.display=open?'block':'none'; if(c)c.textContent=open?'▴':'▾'; }
+function perfStuImgPick(track){ var inp=document.getElementById('pf-simg-'+track); var files=Array.prototype.slice.call(inp.files||[]); window._pfSImgs=window._pfSImgs||{}; window._pfSImgs[track]=files; var n=document.getElementById('pf-simgnames-'+track); if(n)n.textContent=files.length?('사진 '+files.length+'장 첨부됨'):''; }
+async function perfStuParse(track){
+  var m=document.getElementById('pf-sparsemsg-'+track);
+  var raw=(document.getElementById('pf-sraw-'+track).value||'').trim();
+  var fileInput=document.getElementById('pf-sfile-'+track); var f=fileInput&&fileInput.files[0];
+  var imgs=(window._pfSImgs&&window._pfSImgs[track])||[];
+  m.style.color='var(--ink-mute)'; var text=raw;
+  try{ if(!text&&f){ m.textContent='파일 텍스트 추출 중…'; var t=await extractExtraText(f); if(t&&t.trim())text=t.trim().slice(0,15000); } }catch(e){}
+  var b64=[]; if(imgs.length){ m.textContent='사진 처리 중…'; for(var i=0;i<imgs.length&&i<6;i++){ try{ b64.push(await pfFileToB64(imgs[i])); }catch(_){} } }
+  if(!text&&!b64.length){ m.style.color='var(--risk)'; m.textContent='평가지 파일·사진을 올리거나 내용을 붙여넣어 주세요.'; return; }
+  m.style.color='var(--ink-mute)'; m.textContent='AI가 평가 자료를 분석하는 중… (10~25초)';
+  try{ var d=await callAI('perf_parse',{text:text||'(이미지 참조)',images:b64}); var o=JSON.parse(d.text);
+    window._pfSSpec=window._pfSSpec||{}; window._pfSSpec[track]={spec:o,fname:(f?f.name:null)};
+    m.style.color='var(--safe)'; m.textContent='분석 완료 — 확인 후 등록하세요.'; perfStuSpecConfirm(track,o,f?f.name:null);
+  }catch(e){ m.style.color='var(--risk)'; m.textContent='분석 실패: '+(e.message||e); }
+}
+function perfStuSpecConfirm(track,o,fname){
+  o=o||{}; var box=document.getElementById('pf-sspec-'+track);
+  var rubN=(o.rubric||[]).length, stdN=(o.standards||[]).length;
+  box.innerHTML='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:12px">'
+    +pfField('과목','pf-ss-subject',track,o.subject||'')+pfField('과제명','pf-ss-title',track,o.title||'')+pfField('단원/영역','pf-ss-unit',track,o.unit||'')
+    +(o.task_body?'<div style="font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:2px 0 8px;white-space:pre-wrap;max-height:120px;overflow:auto;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:var(--panel-2)"><b style="color:var(--ink)">과제 내용</b>\n'+esc(o.task_body)+'</div>':'')
+    +'<div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">AI가 정리함 · 성취기준 '+stdN+'개 · 채점기준 '+rubN+'개 (등록 후 선생님이 함께 다듬어 드려요)</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="perfStuSaveAsmt(\''+track+'\')">✅ 등록하고 시작하기</button><span id="pf-ssavemsg-'+track+'" style="font-size:11.5px;align-self:center"></span></div></div>';
+}
+async function perfStuSaveAsmt(track){
+  var s=perfStu(track); var m=document.getElementById('pf-ssavemsg-'+track);
+  var cache=(window._pfSSpec&&window._pfSSpec[track])||{}; var o=cache.spec||{};
+  function V(id){ var e=document.getElementById(id+'-'+track); return e?e.value.trim():''; }
+  var title=V('pf-ss-title')||o.title||''; if(!title){ if(m){m.style.color='var(--risk)';m.textContent='과제명을 입력하세요.';} return; }
+  var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
+  if(!acid){ try{ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; }catch(_){}}
+  var std=(o.standards||[]).map(function(x){return {code:(x.code||'').toString().trim(),text:(x.text||'').toString().trim()};});
+  var rub=(o.rubric||[]).map(function(x){return {area:(x.area||'').toString().trim(),points:(x.points!=null&&!isNaN(Number(x.points))?Number(x.points):null),criteria:(x.criteria||'').toString().trim()};});
+  var row={academy_id:acid,student_id:s.id,title:title,subject:(V('pf-ss-subject')||o.subject||null),unit:(V('pf-ss-unit')||o.unit||null),standards:std,task_body:o.task_body||null,rubric:rub,submit_method:o.submit_method||null,notice:o.notice||null,source_file:cache.fname||null,blueprint:{total_points:(o.total_points!=null?o.total_points:null),reflect_ratio:o.reflect_ratio||null},status:'active',created_by_type:'student',created_by:((s&&s.auth_uid)||window._myUid||null)};
+  if(m){m.style.color='var(--ink-mute)';m.textContent='등록 중…';}
+  var ins=await sb.from('perf_assessments').insert(row).select('*').single();
+  if(ins.error){ if(m){m.style.color='var(--risk)';m.textContent='등록 실패: '+ins.error.message;} return; }
+  var sub=await sb.from('perf_submissions').insert({assessment_id:ins.data.id,student_id:s.id,status:'assigned'});
+  if(sub.error){ if(m){m.style.color='var(--risk)';m.textContent='시작 준비 실패: '+sub.error.message;} return; }
+  if(window.toast)toast('내 수행평가를 등록했어요 — 관점 설계부터 시작하세요',true);
+  window._pfJustCreated=ins.data.id; if(window._pfSSpec)window._pfSSpec[track]=null;
+  perfMount(track);
 }
 function perfStuCard(a,sub,track){
   var step=perfStepOf(sub);
-  return '<div style="border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden"><div style="padding:12px 14px;cursor:pointer;background:var(--panel-2)" onclick="perfStuToggle('+a.id+',\''+track+'\')"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:13px;color:var(--ink)">'+esc(a.title||'수행평가')+'</b>'+(a.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(a.subject)+'</span>':'')+(a.due_at?'<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">마감 '+esc(String(a.due_at).slice(0,10))+'</span>':'')+'</div><div style="margin-top:8px">'+pfTracker(step)+'</div></div><div id="pf-work-'+a.id+'" style="display:none;padding:0 14px 14px"></div></div>';
+  return '<div style="border:1px solid var(--line);border-radius:10px;margin-bottom:10px;overflow:hidden"><div style="padding:12px 14px;cursor:pointer;background:var(--panel-2)" onclick="perfStuToggle('+a.id+',\''+track+'\')"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><b style="font-size:13px;color:var(--ink)">'+esc(a.title||'수행평가')+'</b>'+(a.subject?'<span style="font-size:11px;color:var(--ink-mute)">· '+esc(a.subject)+'</span>':'')+(a.created_by_type==='student'?'<span style="font-size:10px;font-weight:700;color:var(--gold,#3182f6);border:1px solid var(--gold,#3182f6);border-radius:5px;padding:0 6px">내가 올림</span>':'')+(a.due_at?'<span style="font-size:10.5px;color:var(--ink-mute);margin-left:auto">마감 '+esc(String(a.due_at).slice(0,10))+'</span>':'')+'</div><div style="margin-top:8px">'+pfTracker(step)+'</div></div><div id="pf-work-'+a.id+'" style="display:none;padding:0 14px 14px"></div></div>';
 }
 async function perfStuToggle(aid,track){
   var pane=document.getElementById('pf-work-'+aid); if(!pane)return;
