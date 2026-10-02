@@ -2219,7 +2219,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_entitlements.js"></script>
 <script src="/shared/arche_penta_period.js"></script>
 <script src="/academy/course_picker.js"></script>
-<script src="/shared/arche_academy_ops.js?v=3"></script>
+<script src="/shared/arche_academy_ops.js?v=4"></script>
 <script src="/shared/arche_teacher_dash.js?v=4"></script>
 <script src="/shared/arche_assignment_grade.js?v=1"></script>
 <script src="/shared/arche_exam_analysis.js?v=4"></script>
@@ -2364,7 +2364,10 @@ window.toggleMobileNav=toggleMobileNav;
 function careerMount(which){
   var id=(which==='goip')?'career-mount-goip':'career-mount';
   var m=document.getElementById(id);
-  if(m&&window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
+  if(!m)return;
+  // 컨설팅 기능 가드: 학생(수신)은 허용, 강사 중에는 원장·컨설턴트만
+  if(window._role!=='stu' && !(window._isOwner===true || window._isConsultant===true)){ m.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:14px 2px">🔒 진로 징검다리 운영은 <b>컨설턴트 권한</b>이 있는 선생님만 이용할 수 있습니다. 원장님께 컨설턴트 지정을 요청하세요.</div>'; return; }
+  if(window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
 }
 window.careerMount=careerMount;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
@@ -2489,10 +2492,10 @@ function msg(t,ok){auMsg.textContent=t;auMsg.style.color=ok?'var(--safe)':'var(-
 
 async function ensureAcademy(user){
   // 1) 소속(academy_users) 우선 — 원장(owner)도, 초대된 컨설턴트도 여기서 해결
-  var {data:au}=await sb.from('academy_users').select('academy_id,role').eq('uid',user.id).limit(1);
+  var {data:au}=await sb.from('academy_users').select('academy_id,role,is_consultant').eq('uid',user.id).limit(1);
   if(au&&au[0]){
     var {data:ac2}=await sb.from('academies').select('id,name').eq('id',au[0].academy_id).limit(1);
-    if(ac2&&ac2[0]){ window._isOwner=(au[0].role==='owner'); window._myRole=au[0].role||'consultant'; return ac2[0]; }
+    if(ac2&&ac2[0]){ window._isOwner=(au[0].role==='owner'); window._myRole=au[0].role||'consultant'; window._isConsultant=(au[0].is_consultant===true); return ac2[0]; }
   }
   // 2) (구계정 호환) 내가 소유한 학원
   let {data:acs}=await sb.from('academies').select('id,name').eq('owner_uid',user.id).limit(1);
@@ -3170,6 +3173,9 @@ async function enterApp(session){
   // 관리 권한(반·강사 관리): 원장 + 부원장(manager)만 노출 — 일반 강사 숨김
   window._canManage = (window._isOwner===true || window._myRole==='manager');
   if(!window._canManage){ var _mn=document.querySelector('.nav[data-v="members"]'); if(_mn)_mn.style.display='none'; }
+  // 수행평가 도우미·진로 징검다리(컨설팅 기능): 원장 또는 컨설턴트 권한 강사만 — 그 외 강사는 메뉴 숨김
+  window._canConsult = (window._isOwner===true || window._isConsultant===true);
+  if(!window._canConsult){ ['perf','gperf','sr','gdesign'].forEach(function(v){ var e=document.querySelector('.nav[data-v="'+v+'"]'); if(e)e.style.display='none'; }); }
   loadStudents();
 }
 /* ===== 게스트 체험 모드 ===== */
@@ -5025,6 +5031,7 @@ async function perfMount(track){
   var box=document.getElementById('perf-root-'+track); if(!box||!sb)return; var s=perfStu(track);
   if(!s){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute)">학생을 먼저 선택하면 수행평가 도우미를 사용할 수 있습니다.</div>'; return; }
   if(window._role==='stu') return perfStuView(track,s);
+  if(!(window._isOwner===true || window._isConsultant===true)){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:14px 2px">🔒 수행평가 검토·완성은 <b>컨설턴트 권한</b>이 있는 선생님만 이용할 수 있습니다. 원장님께 컨설턴트 지정을 요청하세요.</div>'; return; }
   return perfConView(track,s);
 }
 /* ---------- 공용 표시 ---------- */
