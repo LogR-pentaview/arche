@@ -2123,8 +2123,8 @@ window.ADMIN=ADMIN;
       <section class="view" id="v-billing">
         <div class="eyebrow">Subscription</div>
         <div class="h1">구독 · 결제</div>
-        <div class="sub" id="billing-plan-label">플랜을 선택하고 추가 인원에 따른 예상 청구액을 확인하세요</div>
-        <div id="billing-card" style="max-width:680px;margin-top:16px">
+        <div class="sub" id="billing-plan-label">필요한 모듈만 골라 구독하세요 · 토스페이먼츠 안전결제</div>
+        <div id="billing-card" style="max-width:980px;margin-top:16px">
           <div id="billing-body" style="font-size:13px;color:var(--ink-dim)">불러오는 중…</div>
         </div>
       </section>
@@ -2220,7 +2220,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_penta_period.js"></script>
 <script src="/academy/course_picker.js"></script>
 <script src="/shared/arche_academy_ops.js?v=4"></script>
-<script src="/shared/arche_teacher_dash.js?v=4"></script>
+<script src="/shared/arche_teacher_dash.js?v=5"></script>
 <script src="/shared/arche_assignment_grade.js?v=1"></script>
 <script src="/shared/arche_exam_analysis.js?v=4"></script>
 <script src="/shared/arche_lesson_design.js?v=2"></script>
@@ -2370,6 +2370,35 @@ function careerMount(which){
   if(window.ArcheCareerBridge){ try{ window.ArcheCareerBridge.mount(m); }catch(e){ m.innerHTML='<div style="padding:20px;color:#8b95a1">진로 징검다리 로드 실패: '+(e.message||e)+'</div>'; } }
 }
 window.careerMount=careerMount;
+/* ===== 사이드바 대메뉴 아코디언 (접기/펴기) ===== */
+function initNavAccordion(){
+  var side=document.querySelector('.side'); if(!side||side._accInit)return; side._accInit=true;
+  var labels=[].slice.call(side.querySelectorAll('.navlabel-con'));
+  labels.forEach(function(lab){
+    var members=[]; var n=lab.nextElementSibling;
+    while(n && !n.classList.contains('navlabel-con')){ members.push(n); n=n.nextElementSibling; }
+    members.forEach(function(m){ m._roleHidden=(m.style.display==='none'); });
+    lab._members=members;
+    if(members.length && members.every(function(m){return m._roleHidden;})){ lab.style.display='none'; return; }
+    lab.style.cursor='pointer';
+    if(!lab.querySelector('.acccaret')){ var cv=document.createElement('span'); cv.className='acccaret'; cv.textContent='▸'; cv.style.cssText='float:right;font-size:10px;opacity:.5;transition:transform .2s;margin-top:3px'; lab.appendChild(cv); }
+    lab.addEventListener('click', function(){ setNavGroup(lab, !lab.classList.contains('acc-open')); });
+    setNavGroup(lab, false);
+  });
+  [].slice.call(side.querySelectorAll('.nav')).forEach(function(nv){ nv.addEventListener('click', function(){ try{ expandGroupOfNav(nv); }catch(e){} }); });
+}
+function setNavGroup(lab, open){
+  lab.classList.toggle('acc-open', open);
+  (lab._members||[]).forEach(function(m){ m.style.display = open ? (m._roleHidden?'none':'') : 'none'; });
+  var c=lab.querySelector('.acccaret'); if(c)c.style.transform=open?'rotate(90deg)':'';
+}
+function expandGroupOfNav(navEl){
+  var side=document.querySelector('.side'); if(!side||!navEl)return;
+  [].slice.call(side.querySelectorAll('.navlabel-con')).forEach(function(l){
+    if((l._members||[]).some(function(m){return m===navEl||m.contains(navEl);})) setNavGroup(l,true);
+  });
+}
+window.initNavAccordion=initNavAccordion; window.expandGroupOfNav=expandGroupOfNav;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
 function goView(v){
   var el=document.querySelector('.nav[data-v="'+v+'"]');
@@ -3177,6 +3206,15 @@ async function enterApp(session){
   window._canConsult = (window._isOwner===true || window._isConsultant===true);
   if(!window._canConsult){ ['perf','gperf','sr','gdesign'].forEach(function(v){ var e=document.querySelector('.nav[data-v="'+v+'"]'); if(e)e.style.display='none'; }); }
   loadStudents();
+  // 사이드바 아코디언 초기화(역할 숨김 반영 후)
+  try{ initNavAccordion(); }catch(e){}
+  // 역할별 첫 화면: 원장→원장대시보드, 강사→강사대시보드
+  try{
+    var _first=(window._isOwner===true)?'roi':'tdash';
+    var _fn=document.querySelector('.nav[data-v="'+_first+'"]');
+    if(!_fn || _fn.style.display==='none') _fn=document.querySelector('.nav[data-v="tdash"]');
+    if(_fn){ try{ expandGroupOfNav(_fn); }catch(e){} go(_fn); }
+  }catch(e){}
 }
 /* ===== 게스트 체험 모드 ===== */
 var DEMO_TASK_LABEL={parse_record:'학생 자료 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'진로 징검다리',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
@@ -3507,7 +3545,8 @@ async function enterStudentApp(session){
     try{sessionStorage.setItem('pw_prompted','1');}catch(e){}
     setTimeout(function(){ if(confirm('초기 비밀번호(0000)입니다. 지금 변경하시겠어요?')) changeStudentPw(); },400);
   }
-  var h=document.querySelector('.nav[data-v="home"]'); if(h)go(h);
+  try{ initNavAccordion(); }catch(e){}
+  var h=document.querySelector('.nav[data-v="home"]'); if(h){ try{ expandGroupOfNav(h); }catch(e){} go(h); }
 }
 function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
@@ -7702,51 +7741,91 @@ async function academyCall(action,extra){
   var d=await r.json(); if(!r.ok)throw new Error(d.error||('HTTP '+r.status)); return d;
 }
 window.academyCall=academyCall;
-var MOD_DESC={general:'출석부·가정통신문·과제/답안 채점·강사활동·기출은행·학부모 대시보드',consult:'수행평가 도우미·진로 징검다리·컨설팅 리포트·면접',penta:'펜타 비전·트랙·아르케 워크북·리포트'};
+var MOD_META={
+  general:{icon:'📋',accent:'#3182f6',feat:['출석부·사전 인지 체크','가정통신문 AI 자동생성','과제·답안지 AI 채점','강사 활동·대시보드','기출은행 관리','학부모 대시보드']},
+  consult:{icon:'🎓',accent:'#12b76a',feat:['수행평가 도우미','진로 징검다리','컨설팅 리포트','면접 준비']},
+  penta:{icon:'🧠',accent:'#7c5cff',feat:['펜타 비전·트랙','아르케 워크북','회차·월간 리포트','사고력 진단']}
+};
 async function renderBillingAcademy(){
   var body=document.getElementById('billing-body'); if(!body)return;
-  body.innerHTML='불러오는 중…';
+  body.innerHTML='<div style="padding:34px 0;text-align:center;color:var(--ink-mute);font-size:13px">불러오는 중…</div>';
   try{
     var d=await academyCall('status');
-    var cnt=d.student_count||0, inc=d.included||100, over=d.over_count||0, overAmt=d.over_amount||0;
+    var cnt=d.student_count||0, inc=d.included||100, over=d.over_count||0, blocks=Math.ceil(over/10);
     var keys=d.billing_keys||[]; var hasCard=keys.length>0; var card=keys[0];
-    var notConf=(d.configured===false);
-    var html='<style>.bpill{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}.bcard{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:13px}.modc{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:10px}</style>';
-    if(notConf) html+='<div class="bcard" style="margin-bottom:14px;border-color:var(--gold);color:var(--gold);font-size:12px">⚠ 결제 모듈이 아직 구성되지 않았습니다(TOSS_SECRET_KEY). 구성 전에는 구독 버튼이 비활성화됩니다.</div>';
-    // 상단 요약
-    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px">'
-      +'<div class="bcard"><div style="font-size:10.5px;color:var(--ink-mute)">현재 재원</div><div style="font-size:18px;font-weight:800;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+cnt+'명</div></div>'
-      +'<div class="bcard"><div style="font-size:10.5px;color:var(--ink-mute)">기본 포함</div><div style="font-size:18px;font-weight:800;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+inc+'명</div></div>'
-      +'<div class="bcard"><div style="font-size:10.5px;color:var(--ink-mute)">초과 / 모듈당</div><div style="font-size:16px;font-weight:800;color:'+(over>0?'var(--gold)':'var(--ink)')+';margin-top:2px">'+over+'명 · +'+won(overAmt)+'</div></div></div>';
-    // 카드
-    html+='<div class="bcard" style="display:flex;align-items:center;gap:10px;margin-bottom:16px">'
-      +(hasCard?('<span class="bpill" style="background:var(--safe);color:#fff">카드 등록됨</span><span style="font-size:12px;color:var(--ink-dim)">'+esc(card.card_company||'')+' '+esc(card.card_masked||'')+'</span>'):'<span class="bpill" style="border:1px solid var(--line);color:var(--ink-dim)">카드 미등록</span>')
-      +'<button class="btn ghost" style="margin-left:auto;padding:6px 12px;font-size:12px" onclick="registerCardAcademy()"'+(notConf?' disabled':'')+'>'+(hasCard?'카드 변경':'카드 등록')+'</button></div>';
-    // 모듈 3개
-    html+='<div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">모듈별 구독 <span style="font-size:11px;font-weight:400;color:var(--ink-mute)">· 필요한 것만 선택 · 각각 별도 결제(토스 10만 룰)</span></div>';
-    (d.modules||[]).forEach(function(m){
-      var on=m.status==='active'; var canceled=m.status==='canceled';
-      var blocks=Math.ceil(over/10);
-      var pill=on?'<span class="bpill" style="background:var(--safe);color:#fff">구독중</span>':(canceled?'<span class="bpill" style="background:var(--risk);color:#fff">해지됨</span>':'<span class="bpill" style="border:1px solid var(--line);color:var(--ink-dim)">미구독</span>');
-      html+='<div class="modc"><div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px"><b style="font-size:14px;color:var(--ink)">'+esc(m.name)+'</b>'+pill
-        +'<span style="margin-left:auto;font-size:15px;font-weight:800;color:var(--ink);font-family:\'JetBrains Mono\',monospace">'+won(m.total)+'<span style="font-size:11px;color:var(--ink-mute);font-weight:400">/월</span></span></div>'
-        +'<div style="font-size:11.5px;color:var(--ink-mute);line-height:1.5;margin-bottom:8px">'+esc(MOD_DESC[m.module]||'')+'</div>'
-        +'<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:7px">기본권 '+won(m.base)+(blocks>0?(' + 추가권 '+blocks+'개(10명) '+won(blocks*10000)):'')+(on&&m.next_charge_at?(' · 다음 청구 '+dfmt(m.next_charge_at)):'')+'</div>'
-        +(blocks>0?('<div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;margin-bottom:9px">'+(function(){var c="";for(var k=0;k<blocks;k++){c+='<span style="font-size:11px;font-weight:700;color:var(--gold,#3182f6);background:rgba(49,130,246,.1);border:1px solid rgba(49,130,246,.35);border-radius:7px;padding:2px 9px">추가권 +10명 · '+won(10000)+'</span>';}return c;})()+'<span style="font-size:10.5px;color:var(--ink-mute)">재원 '+cnt+'명 기준 자동 · 결제 '+(blocks+1)+'건</span></div>'):'<div style="font-size:10.5px;color:var(--ink-mute);margin-bottom:9px">재원 100명 이하 · 추가권 없음</div>')
-        +'<div style="display:flex;gap:7px;flex-wrap:wrap">'
+    var notConf=(d.configured===false); var mods=d.modules||[];
+    var activeSum=mods.filter(function(m){return m.status==='active';}).reduce(function(s,m){return s+(m.total||0);},0);
+    var activeCnt=mods.filter(function(m){return m.status==='active';}).length;
+    var acadNm=(window._academy&&window._academy.name)||'';
+    var H='<style>'
+      +'.acb{max-width:980px}'
+      +'.acb-hero{background:linear-gradient(135deg,#1A237E,#0F1548);color:#fff;border-radius:18px;padding:22px 24px;position:relative;overflow:hidden}'
+      +'.acb-hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 90% 8%,rgba(212,175,55,.2),transparent 46%);pointer-events:none}'
+      +'.acb-hero .eb{position:relative;font-size:11px;font-weight:800;letter-spacing:2px;color:#E8D9A0}'
+      +'.acb-hero h2{position:relative;font-size:21px;font-weight:900;margin:6px 0 2px}'
+      +'.acb-hero .hs{position:relative;font-size:12.5px;color:#c7cdf0}'
+      +'.acb-stat{position:relative;display:flex;gap:28px;flex-wrap:wrap;margin-top:16px}'
+      +'.acb-stat .k{font-size:11px;color:#aab0e0}.acb-stat .v{font-size:20px;font-weight:900;margin-top:2px}'
+      +'.acb-cardbar{position:relative;margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:11px 14px}'
+      +'.acb-cardbar .cbtn{margin-left:auto;background:#fff;color:#1A237E;border:none;border-radius:9px;padding:8px 15px;font-weight:800;font-size:12.5px;cursor:pointer}'
+      +'.acb-trust{display:flex;gap:7px;flex-wrap:wrap;margin:14px 0 10px}'
+      +'.acb-trust span{font-size:11px;color:var(--ink-mute);background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:4px 11px}'
+      +'.acb-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(252px,1fr));gap:12px}'
+      +'.acb-mod{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:17px 17px 16px;display:flex;flex-direction:column}'
+      +'.acb-mod.on{box-shadow:0 3px 16px rgba(26,35,126,.1)}'
+      +'.acb-ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:20px;margin-bottom:10px}'
+      +'.acb-mod h3{margin:0;font-size:15px;font-weight:900;color:var(--ink)}'
+      +'.acb-price{font-size:24px;font-weight:900;color:var(--ink);margin:9px 0 1px}'
+      +'.acb-price small{font-size:12px;color:var(--ink-mute);font-weight:700}'
+      +'.acb-feat{list-style:none;padding:0;margin:11px 0 12px;font-size:12px;color:var(--ink-dim);line-height:1.95}'
+      +'.acb-feat li::before{content:"✓ ";color:var(--safe);font-weight:900}'
+      +'.acb-chip{font-size:10.5px;font-weight:700;color:#3182f6;background:rgba(49,130,246,.09);border:1px solid rgba(49,130,246,.3);border-radius:7px;padding:2px 8px}'
+      +'.acb-cta{border:none;border-radius:10px;padding:10px;font-weight:800;font-size:13px;cursor:pointer;width:100%;margin-top:auto}'
+      +'.acb-cta:disabled{opacity:.55;cursor:not-allowed}'
+      +'.acb-pill{font-size:10.5px;font-weight:800;border-radius:20px;padding:2px 9px}'
+      +'</style><div class="acb">';
+    if(notConf) H+='<div style="margin-bottom:12px;background:rgba(212,175,55,.1);border:1px solid #E8D9A0;color:#8a6d1b;border-radius:12px;padding:11px 14px;font-size:12px">⚠ 결제 모듈 구성 전입니다. 구독 버튼은 구성 후 활성화됩니다.</div>';
+    // HERO
+    H+='<div class="acb-hero"><div class="eb">PENTAVIEW · 구독 관리</div>'
+      +'<h2>'+esc(acadNm||'학원 구독')+'</h2>'
+      +'<div class="hs">필요한 모듈만 골라 구독하세요 · 각 모듈 별도 결제로 안전하게</div>'
+      +'<div class="acb-stat">'
+        +'<div><div class="k">현재 재원</div><div class="v">'+cnt+'<span style="font-size:13px"> 명</span></div></div>'
+        +'<div><div class="k">기본 포함</div><div class="v">'+inc+'<span style="font-size:13px"> 명</span></div></div>'
+        +'<div><div class="k">이번 달 구독 합계</div><div class="v">'+won(activeSum)+'</div></div>'
+        +(activeCnt?('<div><div class="k">구독 중</div><div class="v">'+activeCnt+'<span style="font-size:13px"> 모듈</span></div></div>'):'')
+      +'</div>'
+      +'<div class="acb-cardbar">'+(hasCard?('<span class="acb-pill" style="background:rgba(18,183,106,.95);color:#fff">카드 등록됨</span><span style="font-size:12px;color:#dfe3f7">'+esc(card.card_company||'')+' '+esc(card.card_masked||'')+'</span>'):'<span class="acb-pill" style="background:rgba(255,255,255,.2);color:#fff">카드 미등록</span><span style="font-size:12px;color:#c7cdf0">구독하려면 카드를 먼저 등록하세요</span>')
+        +'<button class="cbtn" onclick="registerCardAcademy()"'+(notConf?' disabled':'')+'>'+(hasCard?'카드 변경':'+ 카드 등록')+'</button></div></div>';
+    // TRUST
+    H+='<div class="acb-trust"><span>🔒 토스페이먼츠 안전결제</span><span>💳 카드정보 미보관 · 토스 암호화</span><span>🧾 영수증 자동 발급</span><span>↩ 언제든 해지</span></div>';
+    // MODULES
+    H+='<div class="acb-grid">';
+    mods.forEach(function(m){
+      var meta=MOD_META[m.module]||{icon:'📦',accent:'#3182f6',feat:[]};
+      var on=m.status==='active', canceled=m.status==='canceled';
+      var pill=on?'<span class="acb-pill" style="background:var(--safe);color:#fff">구독중</span>':(canceled?'<span class="acb-pill" style="background:#fdeaea;color:var(--risk)">해지됨</span>':'<span class="acb-pill" style="background:var(--panel-2);color:var(--ink-mute)">미구독</span>');
+      H+='<div class="acb-mod'+(on?' on':'')+'" style="'+(on?('border-color:'+meta.accent):'')+'">'
+        +'<div class="acb-ic" style="background:'+meta.accent+'18;color:'+meta.accent+'">'+meta.icon+'</div>'
+        +'<div style="display:flex;align-items:center;gap:7px"><h3>'+esc(m.name)+'</h3>'+pill+'</div>'
+        +'<div class="acb-price">'+won(m.total)+'<small> / 월</small></div>'
+        +'<div style="font-size:11px;color:var(--ink-mute)">기본권 '+won(m.base)+(blocks>0?(' + 추가권 '+blocks+'개'):'')+(on&&m.next_charge_at?(' · 다음 '+dfmt(m.next_charge_at)):'')+'</div>'
+        +'<ul class="acb-feat">'+meta.feat.map(function(f){return '<li>'+esc(f)+'</li>';}).join('')+'</ul>'
+        +(blocks>0?('<div style="display:flex;gap:5px;flex-wrap:wrap;margin-bottom:11px">'+(function(){var c="";for(var k=0;k<blocks;k++)c+='<span class="acb-chip">추가권 +10명·'+won(10000)+'</span>';return c;})()+'</div>'):'')
         +(on
-          ?('<button class="btn ghost" style="padding:5px 12px;font-size:12px" onclick="academyChargeNow(\''+m.module+'\')"'+(notConf?' disabled':'')+'>지금 청구</button><button class="btn ghost" style="padding:5px 12px;font-size:12px;color:var(--risk)" onclick="academyCancel(\''+m.module+'\')">해지</button>')
-          :('<button class="btn" style="padding:5px 14px;font-size:12px" onclick="academySubscribe(\''+m.module+'\')"'+((notConf||!hasCard)?' disabled':'')+'>구독 시작</button>'+(!hasCard?'<span style="font-size:11px;color:var(--ink-mute);align-self:center">← 먼저 카드 등록</span>':'')))
-        +'</div></div>';
+          ?('<div style="display:flex;gap:7px;margin-top:auto"><button class="acb-cta" style="flex:1;background:var(--panel-2);color:var(--ink)" onclick="academyChargeNow(\''+m.module+'\')"'+(notConf?' disabled':'')+'>지금 청구</button><button class="acb-cta" style="flex:1;background:#fdeaea;color:var(--risk)" onclick="academyCancel(\''+m.module+'\')">해지</button></div>')
+          :('<button class="acb-cta" style="background:'+((hasCard&&!notConf)?meta.accent:'var(--ink-mute)')+';color:#fff" onclick="academySubscribe(\''+m.module+'\')"'+((notConf||!hasCard)?' disabled':'')+'>'+(hasCard?'구독 시작':'카드 등록 후 구독')+'</button>'))
+        +'</div>';
     });
-    html+='<div id="billing-msg" style="min-height:14px;font-size:12px;margin:10px 0 2px"></div>';
-    html+='<div style="font-size:11px;color:var(--ink-mute);line-height:1.6">※ 구독 시작 시 첫 달 요금이 즉시 결제됩니다. 재원생 100명 초과분은 모듈별로 10명당 '+won(10000)+'씩 별도 청구됩니다(각 건 10만원 이하).</div>';
-    // 결제 내역
+    H+='</div>';
+    H+='<div id="billing-msg" style="min-height:14px;font-size:12px;margin:12px 2px 2px"></div>';
+    H+='<div style="font-size:11px;color:var(--ink-mute);line-height:1.6;margin-top:2px">※ 구독 시작 시 첫 달 요금이 즉시 결제됩니다. 재원 100명 초과분은 모듈별 추가권(10명당 '+won(10000)+')으로 각각 별도 청구되며, 모든 결제 건은 10만원 이하로 안전하게 처리됩니다.</div>';
     if((d.payments||[]).length){
-      html+='<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:12px"><div style="font-size:12px;font-weight:700;color:var(--ink);margin-bottom:8px">결제 내역</div><div style="font-size:12px">'+d.payments.map(function(p){var ok=p.status==='DONE'||p.status==='APPROVED';var kl=(p.kind==='recurring_over'?'초과':(p.kind==='recurring'?'기본':(p.kind||'')));return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)"><span style="color:var(--ink-dim)">'+dfmt(p.approved_at||p.created_at)+' · '+esc(kl)+' · '+(p.student_count||'-')+'명</span><span style="display:flex;gap:8px;align-items:center"><b style="font-family:\'JetBrains Mono\',monospace;color:var(--ink)">'+won(p.amount)+'</b><span style="font-size:10.5px;color:'+(ok?'var(--safe)':'var(--risk)')+'">'+esc(ok?'완료':(p.status||'실패'))+'</span>'+(p.receipt_url?' <a href="'+esc(p.receipt_url)+'" target="_blank" style="font-size:10.5px;color:var(--gold,#3182f6)">영수증</a>':'')+'</span></div>';}).join('')+'</div></div>';
+      H+='<div style="margin-top:18px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px"><div style="font-size:12.5px;font-weight:800;color:var(--ink);margin-bottom:6px">결제 내역</div>'+d.payments.map(function(p){var ok=p.status==='DONE'||p.status==='APPROVED';var kl=(p.kind==='recurring_over'?'추가권':(p.kind==='recurring'?'기본권':(p.kind||'')));return '<div style="display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid var(--line-soft,#f0f2f6);font-size:12px"><span style="color:var(--ink-dim)">'+dfmt(p.approved_at||p.created_at)+' · '+esc(kl)+' · '+(p.student_count||'-')+'명</span><span style="display:flex;gap:9px;align-items:center"><b style="font-family:\'JetBrains Mono\',monospace;color:var(--ink)">'+won(p.amount)+'</b><span style="font-size:10.5px;font-weight:700;color:'+(ok?'var(--safe)':'var(--risk)')+'">'+esc(ok?'완료':(p.status||'실패'))+'</span>'+(p.receipt_url?' <a href="'+esc(p.receipt_url)+'" target="_blank" style="font-size:10.5px;color:#3182f6">영수증</a>':'')+'</span></div>';}).join('')+'</div>';
     }
-    body.innerHTML=html;
-  }catch(e){ body.innerHTML='<div style="color:var(--risk)">상태 조회 실패: '+esc(e.message||e)+'</div>'; }
+    H+='</div>';
+    body.innerHTML=H;
+  }catch(e){ body.innerHTML='<div style="color:var(--risk);padding:20px">상태 조회 실패: '+esc(e.message||e)+'</div>'; }
 }
 window.renderBillingAcademy=renderBillingAcademy;
 async function registerCardAcademy(){
