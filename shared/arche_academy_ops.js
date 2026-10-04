@@ -55,7 +55,7 @@
       reg=reg+bulk;
       var rows=S.list.map(function(s){
         var a=S.acct[s.id];
-        var acct=a?('<b>'+esc(a.login_id)+'</b> <span style="color:var(--ink-mute)">/0000</span>'):'<button class="tab on" data-issue="'+s.id+'" style="padding:4px 10px;font-size:11px">🔑 계정 발급</button>';
+        var acct=a?('<b>'+esc(a.login_id)+'</b> <span style="color:var(--ink-mute)">/000000</span>'):'<button class="tab on" data-issue="'+s.id+'" style="padding:4px 10px;font-size:11px">🔑 계정 발급</button>';
         return '<tr style="border-top:1px solid var(--line-soft)"><td style="padding:8px;font-weight:700">'+esc(s.name||'-')+'</td>'
           +'<td style="padding:8px;color:var(--ink-dim)">'+esc(s.school||'')+(s.grade?(' · '+esc(s.grade)):'')+'</td>'
           +'<td style="padding:8px;font-size:12px">'+((S.enroll[s.id]||[]).map(function(cid){return esc(clsLabel(cid));}).filter(Boolean).join(', ')||'<span style="color:var(--ink-mute)">미배정</span>')+'</td>'
@@ -91,7 +91,7 @@
         var r=await fetch(base+'/create-student',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')},body:JSON.stringify({student_id:sid})});
         var d=await r.json();
         if(d.error){ if(d.need_code) alert('학원 전용주소(슬러그)를 [학원 설정]에서 먼저 지정하세요.'); else alert('발급 실패: '+d.error); }
-        else alert('✓ 계정 발급 완료\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000'));
+        else alert('✓ 계정 발급 완료\n아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'000000'));
         await loadList(); shell();
       }catch(e){ alert('발급 오류: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
     }
@@ -539,7 +539,7 @@
             +'<td style="padding:8px;font-weight:700">'+esc(t.name||'-')+roleBadge+consBadge+'</td>'
             +'<td style="padding:8px;color:var(--ink-dim)">'+esc(t.subject||'-')+'</td>'
             +'<td style="padding:8px;color:var(--ink-dim)">'+(myClasses.length?myClasses.join(', '):'<span style="color:var(--ink-mute)">미배정</span>')+'</td>'
-            +'<td style="padding:8px"><b>'+esc(t.login_id||t.email||'-')+'</b>'+(t.must_change?' <span style="font-size:10px;color:var(--ink-mute)">/0000</span>':'')+'</td>'
+            +'<td style="padding:8px"><b>'+esc(t.login_id||t.email||'-')+'</b>'+(t.must_change?' <span style="font-size:10px;color:var(--ink-mute)">/000000</span>':'')+'</td>'
             +'<td style="padding:8px;text-align:right;white-space:nowrap">'+consBtn+promoBtn+'<button class="tab" data-tpw="'+t.uid+'" style="padding:4px 9px;font-size:11px">비번초기화</button> '+delBtn+'</td>'
             +'</tr>';
         }).join('');
@@ -549,7 +549,7 @@
         +'<input id="m-tname" placeholder="강사 이름" style="flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
         +'<input id="m-tsubj" placeholder="수업 과목 (예: 국어)" style="flex:1;min-width:120px;padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px">'
         +'<button id="m-tadd" class="tab on" style="padding:10px 18px">+ 강사 등록</button></div>';
-      h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 등록하면 로그인 아이디·초기비번(0000)이 자동 발급됩니다. 담당 반은 반 카드의 [담당강사]에서 지정하세요. 학생 등록·관리는 [학원생 관리]에서.</div>';
+      h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:8px">※ 등록하면 로그인 아이디·초기비번(000000)이 자동 발급됩니다. 담당 반은 반 카드의 [담당강사]에서 지정하세요. 학생 등록·관리는 [학원생 관리]에서.</div>';
       h+='</div>';
 
       host.innerHTML=h;
@@ -626,7 +626,7 @@
         var r=await fetch(base+'/create-teacher', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')}, body:JSON.stringify({name:nm, subject:subj}) });
         var d=await r.json();
         if(d.error){ if(d.need_code){ alert('학원 전용주소(슬러그)를 먼저 설정하세요. [설정]에서 지정.'); } else alert('강사 등록 실패: '+d.error); }
-        else { alert('✓ 강사 등록 완료 ('+esc(nm)+')\n\n로그인 아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'0000')+'\n\n(강사는 이 아이디로 로그인. 최초 로그인 시 비밀번호 변경)'); }
+        else { alert('✓ 강사 등록 완료 ('+esc(nm)+')\n\n로그인 아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'000000')+'\n\n(강사는 이 아이디로 로그인. 최초 로그인 시 비밀번호 변경)'); }
         reload();
       }catch(e){ alert('등록 오류: '+((e&&e.message)||e)); if(btn){btn.disabled=false; btn.textContent='+ 강사 등록';} }
     }
@@ -634,7 +634,7 @@
       if(action==='delete' && !isOwner){ alert('강사 삭제는 원장만 가능합니다.'); return; }
       if(action!=='delete' && !canManage){ alert('강사 관리는 원장·부원장만 가능합니다.'); return; }
       if(action==='delete' && !confirm('강사 '+(nm||'')+' 을(를) 삭제할까요? 담당 반은 미지정으로 바뀌고 로그인 계정이 삭제됩니다.')) return;
-      if(action==='reset_pw' && !confirm('이 강사의 비밀번호를 0000으로 초기화할까요?')) return;
+      if(action==='reset_pw' && !confirm('이 강사의 비밀번호를 000000으로 초기화할까요?')) return;
       if(btn){ btn.disabled=true; }
       try{
         var sess=(await sb.auth.getSession()).data.session;
@@ -642,7 +642,7 @@
         var r=await fetch(base+'/create-teacher', { method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:''),'apikey':(window.SB_KEY||'')}, body:JSON.stringify({action:action, teacher_uid:uid}) });
         var d=await r.json();
         if(d.error){ alert('처리 실패: '+d.error); if(btn)btn.disabled=false; }
-        else if(action==='reset_pw'){ alert('✓ 비밀번호 초기화 완료\n아이디: '+d.login_id+'\n새 비밀번호: '+(d.pw||'0000')); reload(); }
+        else if(action==='reset_pw'){ alert('✓ 비밀번호 초기화 완료\n아이디: '+d.login_id+'\n새 비밀번호: '+(d.pw||'000000')); reload(); }
         else { reload(); }
       }catch(e){ alert('오류: '+((e&&e.message)||e)); if(btn)btn.disabled=false; }
     }
