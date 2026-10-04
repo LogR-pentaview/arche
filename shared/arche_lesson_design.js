@@ -33,6 +33,12 @@
     return '';
   }
   function levelOfGrade(g){ g=String(g||''); if(/^중/.test(g)) return '중'; if(/^고/.test(g)||g==='고등') return '고'; return ''; }
+  // 출처 분류: 내신(학교 기출) / 학평(전국연합 학력평가·모의고사) / 수능
+  function srcCat(x){ var s=String((x&&x.source_type)||'');
+    if(/수능/.test(s)) return '수능';
+    if(/학평|모의|학력/.test(s)) return '학평';
+    return '내신';
+  }
 
   function injectCSS(){
     if(document.getElementById('lsd-css'))return;
@@ -66,6 +72,7 @@
     ".lsd .qtag{font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;background:var(--p2);color:var(--dim)}",
     ".lsd .qtag.b{background:var(--bs);color:var(--b2)}.lsd .qtag.r{background:#fdecec;color:var(--risk)}.lsd .qtag.w{background:#fff6e8;color:#b45309}",
     ".lsd .qtag.g{background:#eef2f7;color:#415168}.lsd .qtag.link{background:#eafaf1;color:#0f7a43;border:1px solid #bfe8cf}",
+    ".lsd .qtag.v{background:#f3eefe;color:#6b3fc0}.lsd .qtag.hp{background:#e7f0ff;color:#1b64da}",
     ".lsd .qitem.xlv{border-color:#bfe8cf;background:#fbfffd}",
     ".lsd .qitem .ct{font-size:12px;color:var(--ink);margin-top:7px;line-height:1.55}",
     ".lsd .qitem .un{font-size:11px;color:var(--mute);margin-top:4px}",
@@ -211,12 +218,13 @@
       if(!terms.length){ S.pMsg='단원을 선택하거나 입력하세요.'; render(); return; }
       S.pBusy=true; S.pMsg=''; S.pRows=[]; S.pCov=null; render();
       try{
+        // 과목명 하드필터 제거: 수능 미적분·기하·확통처럼 과목명이 달라도 개념(단원 term)으로 매칭.
+        // 과목 일치는 랭킹 가점으로만 사용.
         var q=sb().from('ref_exam_bank')
           .select('id,source_type,school,region,year,round,grade,semester,subject,unit_large,unit_mid,unit_small,qtype,difficulty,content,answer')
-          .order('year',{ascending:false}).limit(400);
-        if(S.pSubject) q=q.ilike('subject','%'+S.pSubject+'%');
+          .order('year',{ascending:false}).limit(700);
         var r=await q; var rows=(r&&r.data)||[];
-        // 학년 필터(있으면 우대하되 비어있는 행도 허용)
+        var psub=String(S.pSubject||'');
         var scored=[];
         rows.forEach(function(x){
           var hay=[x.unit_large,x.unit_mid,x.unit_small,x.content,x.qtype].map(function(v){return String(v||'');});
@@ -229,16 +237,18 @@
           });
           if(!hit) return;
           var gradeMatch = (!S.pGrade || !x.grade || x.grade===S.pGrade)?0:-1;
-          var score = unitHit*10 + hit*2 + (DIFF_RANK[x.difficulty]||0) + (x.year?Math.min(x.year-2000,30)*0.05:0) + gradeMatch*0.5;
+          var subjAff = (psub && String(x.subject||'').indexOf(psub)>=0)?1:0; // 과목 일치 가점
+          var score = unitHit*10 + hit*2 + (DIFF_RANK[x.difficulty]||0) + (x.year?Math.min(x.year-2000,30)*0.05:0) + gradeMatch*0.5 + subjAff*1.5;
           scored.push({row:x, score:score, unitHit:unitHit});
         });
         scored.sort(function(a,b){ return b.score-a.score; });
         S.pRows=scored.map(function(s){return s.row;});
         // 커버리지
-        var schools={}, years={}, xlv=0;
+        var schools={}, years={}, xlv=0, src={'내신':0,'학평':0,'수능':0};
         S.pRows.forEach(function(x){ if(x.school) schools[x.school]=1; if(x.year) years[x.year]=1;
+          src[srcCat(x)]++;
           if(S.pBaseLevel==='중' && rowLevel(x)==='고') xlv++; });
-        S.pCov={ n:S.pRows.length, schools:Object.keys(schools).length, years:Object.keys(years).sort(), label:label, xlv:xlv, base:S.pBaseLevel };
+        S.pCov={ n:S.pRows.length, schools:Object.keys(schools).length, years:Object.keys(years).sort(), label:label, xlv:xlv, base:S.pBaseLevel, src:src };
         S.pMsg = S.pRows.length ? '' : '해당 단원으로 매칭된 기출이 아직 없습니다. 기출은행에 자료가 쌓이면 자동으로 검색됩니다.';
       }catch(e){ S.pMsg='검색 실패: '+((e&&e.message)||e); }
       S.pBusy=false; render();
@@ -340,14 +350,18 @@
           +'<span class="covpill">📄 '+cov.n+'문항</span>'
           +'<span class="covpill'+(cov.schools?'':' warn')+'">🏫 학교 '+cov.schools+'곳</span>'
           +'<span class="covpill'+(cov.years.length?'':' warn')+'">🗓️ '+(cov.years.length?(cov.years[cov.years.length-1]+'~'+cov.years[0]):'연도 미상')+'</span>'
+          +((cov.src&&cov.src['내신'])?('<span class="covpill">🏫 내신 '+cov.src['내신']+'</span>'):'')
+          +((cov.src&&cov.src['학평'])?('<span class="covpill">📝 학평 '+cov.src['학평']+'</span>'):'')
+          +((cov.src&&cov.src['수능'])?('<span class="covpill" style="background:#f3eefe;color:#6b3fc0;border-color:#ddd0f5">🎯 수능 '+cov.src['수능']+'</span>'):'')
           +((cov.xlv)?('<span class="covpill link">🔗 고1 연계 '+cov.xlv+'문항</span>'):'')
           +'</div>';
         var list=S.pRows.slice(0,30).map(function(x){
           var dcl=(x.difficulty==='최상'?'r':(x.difficulty==='상'?'w':''));
           var unit=[x.unit_large,x.unit_mid,x.unit_small].filter(Boolean).join(' › ');
           var xl=(cov.base==='중' && rowLevel(x)==='고');
+          var sc=srcCat(x); var scCls=(sc==='수능'?'v':(sc==='학평'?'hp':'b'));
           return '<div class="qitem'+(xl?' xlv':'')+'"><div class="top">'
-            +'<span class="qtag b">'+esc(x.source_type||'기출')+'</span>'
+            +'<span class="qtag '+scCls+'">'+sc+'</span>'
             +(x.school?'<span class="qtag">'+esc(x.school)+'</span>':'')
             +(x.year?'<span class="qtag">'+esc(x.year)+(x.round?(' '+esc(x.round)):'')+'</span>':'')
             +(x.grade?'<span class="qtag g">'+esc(x.grade)+'</span>':'')
@@ -359,6 +373,7 @@
         }).join('');
         var actions = S.pRows.length ? ('<div class="row1" style="margin:4px 0 10px"><button class="btn" id="lsd-proj-btn">🖥️ 수업용 보기 (학생 투사)</button><button class="btn gold" id="lsd-print-btn">🖨️ 수업 전 출력물</button></div>') : '';
         body=covHTML
+          +((cov.base==='고')?('<div class="note" style="color:#334">🎓 고등은 <b>주변학교 내신 · 전국연합 학력평가 · 수능</b>을 함께 검색합니다.</div>'):'')
           +((cov.xlv)?('<div class="note" style="color:#0f7a43">🔗 중등 단원이라, 같은 개념의 <b>고1 기출(주변학교·학력평가 포함)</b> '+cov.xlv+'문항도 함께 찾았습니다. 아래 <b>🔗 고1 연계</b> 표시를 참고하세요.</div>'):'')
           +actions+(S.pMsg?('<div class="d" style="color:var(--warn);margin-bottom:8px">'+esc(S.pMsg)+'</div>'):'')+list
           +(S.pRows.length>30?'<div class="note">상위 30문항 표시 · 출력물/투사는 전체 '+S.pRows.length+'문항 포함</div>':'')
