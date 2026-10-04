@@ -112,6 +112,8 @@
     "@media print{ body.lsd-printing>*:not(#lsd-print){display:none !important;} #lsd-print{display:block !important;} @page{margin:14mm;} }",
     "#lsd-print .ph-wrap{font-family:'Noto Sans CJK KR','Malgun Gothic',sans-serif;color:#111}",
     "#lsd-print h1{font-size:19px;margin:0 0 4px}#lsd-print .sub{font-size:12px;color:#555;margin-bottom:2px}",
+    "#lsd-print h2{font-size:14px;color:#1A237E;border-bottom:2px solid #e8ecf3;padding-bottom:3px;margin:16px 0 7px}",
+    "#lsd-print ul{margin:4px 0 8px 18px}#lsd-print p{margin:4px 0;font-size:11.5px;line-height:1.6}",
     "#lsd-print .cov2{font-size:12px;color:#1b64da;font-weight:700;margin:8px 0 14px}",
     "#lsd-print table{width:100%;border-collapse:collapse;font-size:11.5px}",
     "#lsd-print th{background:#f2f5f9;border:1px solid #d7dee6;padding:6px 7px;text-align:left;font-size:10.5px}",
@@ -405,14 +407,32 @@
         setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
       }catch(e){ alert('다운로드 실패: '+((e&&e.message)||e)); }
     }
+    function printDesignDoc(){
+      if(!designHas()){ alert('인쇄할 설계 내용이 없습니다. AI 수업안 생성·진로 검색·기출 검색 중 하나 이상을 먼저 진행하세요.'); return; }
+      var cls=curClass();
+      var head=[S.pArea, S.pGrade, curSelLabel()].filter(Boolean).join(' · ');
+      var html='<div class="ph-wrap"><h1>📘 수업 설계안</h1>'
+        +'<div class="sub">'+(cls&&cls.name?esc(cls.name)+' · ':'')+esc(head)+' · 작성일 '+ymdStr()+'</div>'
+        +'<div style="height:6px"></div>'+designSections()
+        +'<div class="fn">ARCHE 학원앱 · 수업 설계 자동 생성</div></div>';
+      var box=document.getElementById('lsd-print'); if(!box){ box=document.createElement('div'); box.id='lsd-print'; document.body.appendChild(box); }
+      box.innerHTML=html;
+      document.body.classList.add('lsd-printing');
+      var done=function(){ document.body.classList.remove('lsd-printing'); window.removeEventListener('afterprint',done); };
+      window.addEventListener('afterprint',done);
+      setTimeout(function(){ try{ window.print(); }catch(e){ done(); } }, 60);
+    }
+    function refreshDesign(){ var el=root.querySelector('#lsd-design'); if(el){ el.outerHTML=designCard(); var dd=root.querySelector('#lsd-dldoc'); if(dd) dd.onclick=downloadDesignDoc; var pd=root.querySelector('#lsd-prdoc'); if(pd) pd.onclick=printDesignDoc; } }
     function designCard(){
       var has=designHas();
       var chk=function(ok,label){ return '<span style="font-size:11.5px;color:'+(ok?'#0f7a43':'#b0b8c4')+';margin-right:12px">'+(ok?'✅':'⬜')+' '+label+'</span>'; };
-      return '<div class="card" style="border:1px solid #cfe0ff;background:linear-gradient(180deg,#f7faff,#fff)">'
-        +'<div class="h" style="color:#1b64da">✅ 수업 설계안 저장 <span class="sub">· 설계한 내용을 문서로 다운로드</span></div>'
+      return '<div class="card" id="lsd-design" style="border:1px solid #cfe0ff;background:linear-gradient(180deg,#f7faff,#fff)">'
+        +'<div class="h" style="color:#1b64da">✅ 수업 설계안 완료 · 저장 <span class="sub">· 설계한 내용을 문서로</span></div>'
         +'<div style="margin:6px 0 10px">'+chk(!!S.storyData,'AI 수업안')+chk(!!(S.careerItems&&S.careerItems.length),'진로·학과')+chk(!!(S.weak&&S.weak.length),'취약 단원')+chk(!!(S.pRows&&S.pRows.length),'기출 경향')+'</div>'
-        +'<div class="row1"><button class="btn" id="lsd-dldoc"'+(has?'':' disabled')+'>📄 수업 설계안 다운로드 (.doc)</button></div>'
-        +'<div class="note">위에서 생성·검색한 내용(수업안·진로·취약·기출)이 한 문서로 모여 저장됩니다. 한글·워드에서 열고 편집·인쇄할 수 있어요.</div></div>';
+        +'<div class="row1"><button class="btn" id="lsd-dldoc"'+(has?'':' disabled')+'>📄 문서 다운로드 (.doc)</button>'
+        +'<button class="btn gold" id="lsd-prdoc"'+(has?'':' disabled')+'>🖨️ 인쇄 / PDF 저장</button></div>'
+        +'<div class="note">위에서 생성·검색한 내용(수업안·진로·취약·기출)이 한 문서로 모입니다. <b>[문서 다운로드]</b>는 한글·워드 편집용, <b>[인쇄]</b>는 바로 출력/PDF 저장용이에요.'
+        +(has?'':' <b style="color:#b45309">· 아직 저장할 내용이 없습니다. 위에서 수업안·진로·기출 중 하나를 먼저 진행하세요.</b>')+'</div></div>';
     }
 
     function render(){
@@ -533,10 +553,14 @@
 
     // 3) 수업 스토리텔링
     function storyCard(){
+      var selLbl=curSelLabel();
+      var val=S.stunit||selLbl||'';
       return '<div class="card"><div class="h">✍️ 수업 스토리텔링 · 단원 연계 <span class="sub">· 설계 가이드</span></div>'
-        +'<div class="row1"><input id="lsd-stunit" placeholder="단원/주제 (예: 일차함수의 그래프)" value="'+esc(S.stunit||'')+'" style="flex:1;min-width:180px"><button class="btn" id="lsd-stai">✨ AI 생성</button><button class="btn sub" id="lsd-stgo">가이드(템플릿)</button></div>'
+        +'<div class="d">위에서 고른 <b>과목·단원</b>이 자동으로 반영됩니다. 필요하면 아래에서 직접 수정하세요.</div>'
+        +(selLbl?('<div style="margin:8px 0 2px"><button class="btn sub" id="lsd-stuse" style="font-size:11.5px">📍 선택 단원 «'+esc(selLbl)+'»으로 설계</button></div>'):'')
+        +'<div class="row1" style="margin-top:7px"><input id="lsd-stunit" placeholder="단원/주제 (예: 이차함수의 그래프)" value="'+esc(val)+'" style="flex:1;min-width:180px"><button class="btn" id="lsd-stai">✨ AI 생성</button><button class="btn sub" id="lsd-stgo">가이드(템플릿)</button></div>'
         +'<div id="lsd-stres" style="margin-top:10px">'+(S.storyHTML||'')+'</div>'
-        +'<div class="note">※ [✨ AI 생성]은 단원·과목·학년(+취약점)을 반영해 도입·타과목 연계·핵심 발문·진로 연결·형성평가·스토리텔링을 생성합니다. AI 결과는 교사가 검토·수정 후 사용하세요.</div></div>';
+        +'<div class="note">※ [✨ AI 생성]은 선택한 <b>과목('+esc(S.selCourse||S.pArea||'')+')·학년('+esc(S.pGrade||'')+')·단원</b>(+취약점)을 반영해 도입·타과목 연계·핵심 발문·진로 연결·형성평가·스토리텔링을 생성합니다. 교사 검토·수정 후 사용하세요.</div></div>';
     }
 
     function bind(){
@@ -555,6 +579,7 @@
       var pj=root.querySelector('#lsd-proj-btn'); if(pj) pj.onclick=openProjection;
       var pr=root.querySelector('#lsd-print-btn'); if(pr) pr.onclick=buildHandout;
       var dd=root.querySelector('#lsd-dldoc'); if(dd) dd.onclick=downloadDesignDoc;
+      var pd=root.querySelector('#lsd-prdoc'); if(pd) pd.onclick=printDesignDoc;
       var ra=root.querySelector('#lsd-radd'); if(ra) ra.onclick=quickAddBank;
       // 기존
       var cg=root.querySelector('#lsd-cgo'); if(cg) cg.onclick=function(){ careerSearch(); };
@@ -562,7 +587,8 @@
       var wl=root.querySelector('#lsd-wload'); if(wl) wl.onclick=loadWeak;
       var sp=root.querySelector('#lsd-spadd'); if(sp) sp.onclick=addSpecial;
       var st=root.querySelector('#lsd-stgo'); if(st) st.onclick=storyGuide;
-      var ai=root.querySelector('#lsd-stai'); if(ai) ai.onclick=aiStory;
+      var ai=root.querySelector('#lsd-stai'); if(ai) ai.onclick=function(){ aiStory(); };
+      var su=root.querySelector('#lsd-stuse'); if(su) su.onclick=function(){ aiStory(curSelLabel()); };
     }
 
     async function quickAddBank(){
@@ -577,12 +603,14 @@
       S.pAddMsg='✓ 기출은행에 저장됨'; if(m)m.textContent=S.pAddMsg;
     }
 
-    async function aiStory(){
-      var u=(root.querySelector('#lsd-stunit').value||'').trim(); S.stunit=u; var box=root.querySelector('#lsd-stres');
-      if(!u){ S.storyHTML='<div class="d" style="color:var(--mute)">단원/주제를 입력하세요.</div>'; box.innerHTML=S.storyHTML; return; }
+    async function aiStory(forceU){
+      var inp=root.querySelector('#lsd-stunit');
+      var u=(forceU!=null?String(forceU):(inp?inp.value:'')||'').trim(); S.stunit=u; if(inp&&forceU!=null) inp.value=u;
+      var box=root.querySelector('#lsd-stres');
+      if(!u){ S.storyHTML='<div class="d" style="color:var(--mute)">단원/주제를 선택하거나 입력하세요.</div>'; box.innerHTML=S.storyHTML; return; }
       box.innerHTML='<div class="d" style="color:var(--mute)">✨ AI가 수업 설계를 생성 중… (최대 40초)</div>';
       var cls=curClass();
-      var payload={ unit:u, subject:cls.subject||S.pArea||'', grade:cls.grade_band||S.pGrade||'', weakness:(S.weak&&S.weak[0]?S.weak[0].name:''), career:'' };
+      var payload={ unit:u, subject:S.selCourse||S.pArea||cls.subject||'', grade:S.pGrade||gradeFromBand(cls.grade_band)||'', weakness:(S.weak&&S.weak[0]?S.weak[0].name:''), career:'' };
       try{
         var tok=await token();
         var r=await fetch(fnBase()+'/lesson-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({payload:payload})});
@@ -601,7 +629,7 @@
           +'<b>④ 진로 연결</b><div style="margin:2px 0 7px">'+esc(d.career||'')+'</div>'
           +'<b>⑤ 형성평가</b><div style="margin:2px 0 0">'+esc(d.formative||'')+'</div>'
           +'</div><div class="note">✨ AI 생성('+esc(jd.model||'gemini')+') · 교사 검토 후 사용</div>';
-        box.innerHTML=S.storyHTML;
+        box.innerHTML=S.storyHTML; refreshDesign();
       }catch(e){ S.storyHTML='<div class="d" style="color:var(--risk)">AI 생성 실패: '+esc((e&&e.message)||e)+'</div>'; box.innerHTML=S.storyHTML; }
     }
 
@@ -625,7 +653,7 @@
           +items.slice(0,12).map(function(x){ return '<span class="cc"><b>'+esc(x.major||'')+'</b><small>'+esc(x.series||'')+'</small></span>'; }).join('')
           +'<div class="note">수업 도입에서 "<b>'+esc(q)+'</b> 단원이 '+esc(items[0].series||'')+' 계열로 어떻게 이어지는지" 연결해 설명하면 동기부여에 좋습니다.</div>'; }
       }catch(e){ S.careerHTML='<div class="d" style="color:var(--risk)">조회 실패: '+esc((e&&e.message)||e)+'</div>'; }
-      box.innerHTML=S.careerHTML;
+      box.innerHTML=S.careerHTML; refreshDesign();
     }
 
     async function loadWeak(){
