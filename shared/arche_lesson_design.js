@@ -344,11 +344,82 @@
       setTimeout(function(){ try{ window.print(); }catch(e){ done(); } }, 60);
     }
 
+    // ===== 수업 설계안 문서 다운로드 =====
+    function ymdStr(){ var n=new Date(); return n.getFullYear()+'.'+String(n.getMonth()+1).padStart(2,'0')+'.'+String(n.getDate()).padStart(2,'0'); }
+    function designHas(){ return !!(S.storyData || (S.careerItems&&S.careerItems.length) || (S.weak&&S.weak.length) || (S.pRows&&S.pRows.length)); }
+    function designSections(){
+      var out='';
+      var d=S.storyData;
+      if(d){
+        out+='<h2>📚 수업안'+(S.storyUnit?(' — '+esc(S.storyUnit)):'')+'</h2>';
+        if(d.story) out+='<p style="background:#f3eefe;padding:9px 11px;border-radius:6px"><b>🎬 스토리텔링</b> &nbsp;'+esc(d.story)+'</p>';
+        out+='<p><b>① 도입(Hook)</b><br>'+esc(d.hook||'')+'</p>';
+        out+='<p><b>② 타과목 연계</b></p><ul>'+(d.cross||[]).map(function(c){return '<li><b>'+esc(c.subject||'')+'</b> — '+esc(c.link||'')+'</li>';}).join('')+'</ul>';
+        out+='<p><b>③ 핵심 발문</b></p><ul>'+(d.questions||[]).map(function(q){return '<li>'+esc(q)+'</li>';}).join('')+'</ul>';
+        out+='<p><b>④ 진로 연결</b><br>'+esc(d.career||'')+'</p>';
+        out+='<p><b>⑤ 형성평가</b><br>'+esc(d.formative||'')+'</p>';
+        out+='<p style="font-size:11px;color:#888">✨ AI 생성('+esc(S.storyModel||'gemini')+') · 교사 검토 후 사용</p>';
+      }
+      if(S.careerItems&&S.careerItems.length){
+        out+='<h2>🧭 수업 연계 진로·학과'+(S.careerQ?(' — '+esc(S.careerQ)):'')+'</h2>';
+        out+='<p>'+S.careerItems.map(function(x){return '<b>'+esc(x.major||'')+'</b>('+esc(x.series||'')+')';}).join(' · ')+'</p>'
+          +(S.careerFb?('<p style="font-size:11px;color:#888">※ 단원 직접 매칭이 없어 '+esc(S.pArea||'')+' 계열로 보완</p>'):'');
+      }
+      if(S.weak&&S.weak.length){
+        out+='<h2>🎯 취약 단원 (최근 시험)</h2><table><thead><tr><th>단원</th><th>유형</th><th>정답률</th></tr></thead><tbody>'
+          +S.weak.map(function(w){return '<tr><td>'+esc(w.name)+'</td><td>'+esc(w.qt||'')+'</td><td>'+w.pct+'%</td></tr>';}).join('')+'</tbody></table>';
+      }
+      if(S.pRows&&S.pRows.length){
+        var cov=S.pCov||{};
+        out+='<h2>🧪 이 단원 학교 기출 출제 경향'+(cov.label?(' — '+esc(cov.label)):'')+'</h2>';
+        out+='<p style="color:#1b64da;font-size:12px">주변학교 '+(cov.schools||0)+'곳 · 총 '+S.pRows.length+'문항'
+          +((cov.src&&cov.src['학평'])?(' · 학평 '+cov.src['학평']):'')+((cov.src&&cov.src['수능'])?(' · 수능 '+cov.src['수능']):'')+'</p>';
+        out+='<table><thead><tr><th>출처</th><th>난이도</th><th>유형</th><th>출제 요지</th></tr></thead><tbody>'
+          +S.pRows.slice(0,40).map(function(x){
+            var where=[x.school||x.source_type||'-',(x.year||''),(x.round||''),(x.grade||'')].filter(Boolean).join(' ');
+            return '<tr><td>'+esc(where)+'</td><td>'+esc(x.difficulty||'')+'</td><td>'+esc(x.qtype||'')+'</td><td>'+esc(x.content||'')+'</td></tr>';
+          }).join('')+'</tbody></table>'
+          +'<p style="font-size:11px;color:#888">※ 저작권 보호를 위해 문항 원문이 아닌 출제 요지·메타정보입니다.</p>';
+      }
+      return out;
+    }
+    function downloadDesignDoc(){
+      if(!designHas()){ alert('저장할 설계 내용이 없습니다. AI 수업안 생성·진로 검색·기출 검색 중 하나 이상을 먼저 진행하세요.'); return; }
+      var cls=curClass();
+      var head=[S.pArea, S.pGrade, curSelLabel()].filter(Boolean).join(' · ');
+      var css='body{font-family:"맑은 고딕","Malgun Gothic",sans-serif;color:#222;font-size:11pt;line-height:1.6;margin:24px}'
+        +'h1{font-size:19pt;color:#1A237E;margin:0 0 4px}h2{font-size:13pt;color:#1A237E;border-bottom:2px solid #e8ecf3;padding-bottom:3px;margin:18px 0 7px}'
+        +'.meta{font-size:10.5pt;color:#555;margin-bottom:6px}table{width:100%;border-collapse:collapse;font-size:10pt;margin:6px 0}'
+        +'th,td{border:1px solid #ccc;padding:5px 7px;text-align:left;vertical-align:top}th{background:#f2f5fa}ul{margin:4px 0 8px 18px}p{margin:4px 0}';
+      var html='<!doctype html><html><head><meta charset="utf-8"><title>수업 설계안</title><style>'+css+'</style></head><body>'
+        +'<h1>수업 설계안</h1>'
+        +'<div class="meta">'+(cls&&cls.name?esc(cls.name)+' · ':'')+esc(head)+' · 작성일 '+ymdStr()+'</div>'
+        +designSections()
+        +'<p style="margin-top:22px;font-size:10pt;color:#888;text-align:center">ARCHE 학원앱 · 수업 설계 자동 생성</p>'
+        +'</body></html>';
+      try{
+        var blob=new Blob(['﻿'+html], {type:'application/msword'});
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement('a'); a.href=url; a.download='수업설계안_'+ymdStr().replace(/\./g,'')+'.doc';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+      }catch(e){ alert('다운로드 실패: '+((e&&e.message)||e)); }
+    }
+    function designCard(){
+      var has=designHas();
+      var chk=function(ok,label){ return '<span style="font-size:11.5px;color:'+(ok?'#0f7a43':'#b0b8c4')+';margin-right:12px">'+(ok?'✅':'⬜')+' '+label+'</span>'; };
+      return '<div class="card" style="border:1px solid #cfe0ff;background:linear-gradient(180deg,#f7faff,#fff)">'
+        +'<div class="h" style="color:#1b64da">✅ 수업 설계안 저장 <span class="sub">· 설계한 내용을 문서로 다운로드</span></div>'
+        +'<div style="margin:6px 0 10px">'+chk(!!S.storyData,'AI 수업안')+chk(!!(S.careerItems&&S.careerItems.length),'진로·학과')+chk(!!(S.weak&&S.weak.length),'취약 단원')+chk(!!(S.pRows&&S.pRows.length),'기출 경향')+'</div>'
+        +'<div class="row1"><button class="btn" id="lsd-dldoc"'+(has?'':' disabled')+'>📄 수업 설계안 다운로드 (.doc)</button></div>'
+        +'<div class="note">위에서 생성·검색한 내용(수업안·진로·취약·기출)이 한 문서로 모여 저장됩니다. 한글·워드에서 열고 편집·인쇄할 수 있어요.</div></div>';
+    }
+
     function render(){
       syncPrepDefaults();
       root.innerHTML=''
         +'<div class="row1" style="margin-bottom:12px"><select id="lsd-cls">'+(S.classes.length?clsOpts():'<option>담당 반 없음</option>')+'</select></div>'
-        +prepCard()+careerCard()+weakCard()+storyCard();
+        +prepCard()+careerCard()+weakCard()+storyCard()+designCard();
       bind();
     }
 
@@ -483,6 +554,7 @@
       var pat=root.querySelector('#lsd-padd-toggle'); if(pat) pat.onclick=function(){ S.pAdd=!S.pAdd; S.pAddMsg=''; render(); };
       var pj=root.querySelector('#lsd-proj-btn'); if(pj) pj.onclick=openProjection;
       var pr=root.querySelector('#lsd-print-btn'); if(pr) pr.onclick=buildHandout;
+      var dd=root.querySelector('#lsd-dldoc'); if(dd) dd.onclick=downloadDesignDoc;
       var ra=root.querySelector('#lsd-radd'); if(ra) ra.onclick=quickAddBank;
       // 기존
       var cg=root.querySelector('#lsd-cgo'); if(cg) cg.onclick=function(){ careerSearch(); };
@@ -518,6 +590,7 @@
         if(!r.ok||jd.error) throw new Error(jd.error||('HTTP '+r.status));
         var d=null; try{ d=JSON.parse(jd.text); }catch(e){ d=null; }
         if(!d){ S.storyHTML='<div class="d">'+esc(jd.text||'생성 결과가 비어 있습니다.')+'</div>'; box.innerHTML=S.storyHTML; return; }
+        S.storyData=d; S.storyModel=jd.model||'gemini'; S.storyUnit=u;
         var cross=(d.cross||[]).map(function(c){return '<li><b>'+esc(c.subject||'')+'</b> — '+esc(c.link||'')+'</li>';}).join('');
         var qs=(d.questions||[]).map(function(q){return '<li>'+esc(q)+'</li>';}).join('');
         S.storyHTML='<div class="d" style="line-height:1.75">'
@@ -546,6 +619,7 @@
         if(!items.length && S.pArea && S.pArea!==q){
           var r2=await window.careernet('major_search',S.pArea); items=(r2&&r2.items)||[]; usedFallback=true;
         }
+        S.careerItems=items.slice(0,12); S.careerQ=q; S.careerFb=usedFallback;
         if(!items.length){ S.careerHTML='<div class="d" style="color:var(--mute)">「'+esc(q)+'」에 연결되는 학과를 찾지 못했습니다. 더 일반적인 키워드(과목·계열)로 시도해보세요.</div>'; }
         else { S.careerHTML=(usedFallback?('<div class="note" style="margin:0 0 8px">※ 「'+esc(q)+'」 직접 매칭이 없어 <b>'+esc(S.pArea)+'</b> 계열로 보완 검색했습니다.</div>'):'')
           +items.slice(0,12).map(function(x){ return '<span class="cc"><b>'+esc(x.major||'')+'</b><small>'+esc(x.series||'')+'</small></span>'; }).join('')
