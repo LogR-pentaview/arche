@@ -430,11 +430,14 @@
     }
 
     // 1) 수업 연계 진로·학과 (커리어넷)
+    function curSelLabel(){ return S.selSmall||S.selMid||S.selLarge||S.selCourse||''; }
     function careerCard(){
       var cls=curClass();
+      var selLbl=curSelLabel();
       return '<div class="card"><div class="h">🧭 수업 연계 진로·학과 <span class="sub">· 커리어넷</span></div>'
-        +'<div class="d">수업 주제·단원과 연결되는 학과·계열을 찾아 수업 동기부여에 활용합니다.</div>'
-        +'<div class="row1" style="margin-top:9px"><input id="lsd-cq" placeholder="키워드 (예: 함수, 통계, 생명과학)" value="'+esc(S.cq||cls.subject||'')+'" style="flex:1;min-width:160px">'
+        +'<div class="d">수업 주제·단원과 연결되는 학과·계열을 찾아 수업 동기부여에 활용합니다. <b>위에서 고른 중단원</b>으로 바로 검색할 수 있어요.</div>'
+        +(selLbl?('<div style="margin:8px 0 2px"><button class="btn sub" id="lsd-cuse" style="font-size:11.5px">📍 선택 단원 «'+esc(selLbl)+'»으로 찾기</button></div>'):'')
+        +'<div class="row1" style="margin-top:7px"><input id="lsd-cq" placeholder="키워드 (예: 이차함수, 통계, 유전)" value="'+esc(S.cq||selLbl||cls.subject||'')+'" style="flex:1;min-width:160px">'
         +'<button class="btn" id="lsd-cgo">🔎 학과 찾기</button></div>'
         +'<div id="lsd-cres" style="margin-top:10px">'+(S.careerHTML||'')+'</div></div>';
     }
@@ -482,7 +485,8 @@
       var pr=root.querySelector('#lsd-print-btn'); if(pr) pr.onclick=buildHandout;
       var ra=root.querySelector('#lsd-radd'); if(ra) ra.onclick=quickAddBank;
       // 기존
-      var cg=root.querySelector('#lsd-cgo'); if(cg) cg.onclick=careerSearch;
+      var cg=root.querySelector('#lsd-cgo'); if(cg) cg.onclick=function(){ careerSearch(); };
+      var cu=root.querySelector('#lsd-cuse'); if(cu) cu.onclick=function(){ careerSearch(curSelLabel()); };
       var wl=root.querySelector('#lsd-wload'); if(wl) wl.onclick=loadWeak;
       var sp=root.querySelector('#lsd-spadd'); if(sp) sp.onclick=addSpecial;
       var st=root.querySelector('#lsd-stgo'); if(st) st.onclick=storyGuide;
@@ -528,15 +532,24 @@
       }catch(e){ S.storyHTML='<div class="d" style="color:var(--risk)">AI 생성 실패: '+esc((e&&e.message)||e)+'</div>'; box.innerHTML=S.storyHTML; }
     }
 
-    async function careerSearch(){
-      var q=(root.querySelector('#lsd-cq').value||'').trim(); S.cq=q; var box=root.querySelector('#lsd-cres');
+    async function careerSearch(forceQ){
+      var inp=root.querySelector('#lsd-cq');
+      var q=(forceQ!=null?String(forceQ):(inp?inp.value:'')||'').trim(); S.cq=q;
+      if(inp && forceQ!=null) inp.value=q;
+      var box=root.querySelector('#lsd-cres');
       if(!q){ S.careerHTML='<div class="d" style="color:var(--mute)">키워드를 입력하세요.</div>'; box.innerHTML=S.careerHTML; return; }
       if(!window.careernet){ S.careerHTML='<div class="d" style="color:var(--risk)">커리어넷 연동이 없습니다.</div>'; box.innerHTML=S.careerHTML; return; }
       box.innerHTML='<div class="d" style="color:var(--mute)">커리어넷 검색 중…</div>';
-      try{ var r=await window.careernet('major_search',q); var items=(r&&r.items)||[];
-        if(!items.length){ S.careerHTML='<div class="d" style="color:var(--mute)">검색 결과가 없습니다.</div>'; }
-        else { S.careerHTML=items.slice(0,12).map(function(x){ return '<span class="cc"><b>'+esc(x.major||'')+'</b><small>'+esc(x.series||'')+'</small></span>'; }).join('')
-          +'<div class="note">수업 도입에서 "이 단원이 '+esc(items[0].series||'')+' 계열로 어떻게 이어지는지" 연결해 설명하면 동기부여에 좋습니다.</div>'; }
+      try{
+        var r=await window.careernet('major_search',q); var items=(r&&r.items)||[]; var usedFallback=false;
+        // 단원명이 너무 구체적이라 학과 직접 매칭이 없으면 과목군 계열로 보완
+        if(!items.length && S.pArea && S.pArea!==q){
+          var r2=await window.careernet('major_search',S.pArea); items=(r2&&r2.items)||[]; usedFallback=true;
+        }
+        if(!items.length){ S.careerHTML='<div class="d" style="color:var(--mute)">「'+esc(q)+'」에 연결되는 학과를 찾지 못했습니다. 더 일반적인 키워드(과목·계열)로 시도해보세요.</div>'; }
+        else { S.careerHTML=(usedFallback?('<div class="note" style="margin:0 0 8px">※ 「'+esc(q)+'」 직접 매칭이 없어 <b>'+esc(S.pArea)+'</b> 계열로 보완 검색했습니다.</div>'):'')
+          +items.slice(0,12).map(function(x){ return '<span class="cc"><b>'+esc(x.major||'')+'</b><small>'+esc(x.series||'')+'</small></span>'; }).join('')
+          +'<div class="note">수업 도입에서 "<b>'+esc(q)+'</b> 단원이 '+esc(items[0].series||'')+' 계열로 어떻게 이어지는지" 연결해 설명하면 동기부여에 좋습니다.</div>'; }
       }catch(e){ S.careerHTML='<div class="d" style="color:var(--risk)">조회 실패: '+esc((e&&e.message)||e)+'</div>'; }
       box.innerHTML=S.careerHTML;
     }
