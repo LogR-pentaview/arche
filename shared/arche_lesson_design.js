@@ -19,8 +19,20 @@
   async function token(){ try{ var s=(await sb().auth.getSession()).data.session; return s?s.access_token:''; }catch(e){ return ''; } }
 
   // 매칭에서 과도하게 넓게 걸리는 일반 용어(단독으로는 매칭 제외)
-  var GENERIC=['함수','방정식','부등식','통계','수열','미분','적분','집합','명제','확률','도형','수와 연산','문자와 식','식의 계산','다항식'];
+  var GENERIC=['함수','방정식','부등식','통계','수열','미분','적분','집합','명제','확률','도형','다항식',
+    '수와 연산','문자와 식','식의 계산','변화와 관계','도형과 측정','자료와 가능성',
+    '수학','국어','영어','사회','과학'];
   var DIFF_RANK={ '최상':4,'상':3,'중':2,'하':1 };
+  var HI_SUBJ=/(공통수학|수학Ⅰ|수학Ⅱ|수학1|수학2|대수|미적분|기하|확률과\s*통계|통합과학|통합사회|공통국어|공통영어|국어Ⅰ|영어Ⅰ|고등)/;
+  // 문항의 학교급(중/고) 판정
+  function rowLevel(x){
+    var g=String((x&&x.grade)||'');
+    if(/^중/.test(g)) return '중';
+    if(/^고/.test(g)||g==='고등') return '고';
+    if(HI_SUBJ.test(String((x&&x.subject)||'')+' '+String((x&&x.unit_large)||''))) return '고';
+    return '';
+  }
+  function levelOfGrade(g){ g=String(g||''); if(/^중/.test(g)) return '중'; if(/^고/.test(g)||g==='고등') return '고'; return ''; }
 
   function injectCSS(){
     if(document.getElementById('lsd-css'))return;
@@ -48,10 +60,13 @@
     ".lsd .cov{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 6px}",
     ".lsd .covpill{font-size:11px;font-weight:800;background:#eef4ff;color:var(--b2);border:1px solid #d5e4ff;border-radius:20px;padding:4px 11px}",
     ".lsd .covpill.warn{background:#fff6e8;color:#b45309;border-color:#f3dcae}",
+    ".lsd .covpill.link{background:#eefaf2;color:#0f7a43;border-color:#bfe8cf}",
     ".lsd .qitem{border:1px solid var(--line);border-radius:12px;padding:11px 12px;margin-bottom:8px;background:#fff}",
     ".lsd .qitem .top{display:flex;align-items:center;gap:6px;flex-wrap:wrap}",
     ".lsd .qtag{font-size:10px;font-weight:800;padding:3px 8px;border-radius:20px;background:var(--p2);color:var(--dim)}",
     ".lsd .qtag.b{background:var(--bs);color:var(--b2)}.lsd .qtag.r{background:#fdecec;color:var(--risk)}.lsd .qtag.w{background:#fff6e8;color:#b45309}",
+    ".lsd .qtag.g{background:#eef2f7;color:#415168}.lsd .qtag.link{background:#eafaf1;color:#0f7a43;border:1px solid #bfe8cf}",
+    ".lsd .qitem.xlv{border-color:#bfe8cf;background:#fbfffd}",
     ".lsd .qitem .ct{font-size:12px;color:var(--ink);margin-top:7px;line-height:1.55}",
     ".lsd .qitem .un{font-size:11px;color:var(--mute);margin-top:4px}",
     ".lsd .cpnote{font-size:10.5px;color:var(--mute);margin-top:9px;line-height:1.5}",
@@ -76,6 +91,7 @@
     "#lsd-proj .pjmeta span{font-size:clamp(13px,1.5vw,20px);font-weight:800;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:8px 18px}",
     "#lsd-proj .pjmeta span.r{background:rgba(240,68,82,.22);border-color:rgba(240,68,82,.5)}",
     "#lsd-proj .pjmeta span.w{background:rgba(247,144,9,.22);border-color:rgba(247,144,9,.5)}",
+    "#lsd-proj .pjmeta span.link{background:rgba(18,183,106,.22);border-color:rgba(18,183,106,.55);color:#9fe6c0}",
     "#lsd-proj .pjq{font-size:clamp(22px,3.4vw,46px);font-weight:800;line-height:1.5;letter-spacing:-.4px}",
     "#lsd-proj .pjq .lbl{display:block;font-size:clamp(13px,1.3vw,18px);font-weight:800;color:#7fd1ff;margin-bottom:14px}",
     "#lsd-proj .pjans{margin-top:30px;font-size:clamp(15px,1.8vw,24px);color:#9fe6c0;line-height:1.5}",
@@ -109,7 +125,7 @@
     var S={ classes:[], classId:null, weak:[], storyHTML:'', stunit:'', cq:'', careerHTML:'',
       // 수업준비
       pSubject:'', pGrade:'', pUnitId:'', pUnitText:'', cu:[], cuKey:'',
-      pRows:[], pMsg:'', pBusy:false, pCov:null, pAdd:false, pAddMsg:'' };
+      pRows:[], pMsg:'', pBusy:false, pCov:null, pAdd:false, pAddMsg:'', pBaseLevel:'' };
 
     try{
       var rc=await sb().from('academy_classes').select('id,name,subject,grade_band,teacher_id').eq('academy_id',acid).order('created_at');
@@ -138,9 +154,15 @@
       if(!S.pSubject){ return; }
       try{
         var q=sb().from('curriculum_units').select('id,subject,grade,unit_large,unit_mid,order_no,aliases')
-          .ilike('subject','%'+S.pSubject+'%').order('order_no',{ascending:true}).limit(300);
+          .eq('active',true).ilike('subject','%'+S.pSubject+'%').order('order_no',{ascending:true}).limit(400);
         var r=await q; var rows=(r&&r.data)||[];
-        if(S.pGrade) rows=rows.filter(function(x){ return !x.grade || x.grade===S.pGrade; });
+        if(S.pGrade) rows=rows.filter(function(x){
+          if(!x.grade) return true;                                   // 전학년 공통
+          if(x.grade===S.pGrade) return true;                         // 학년 일치
+          if(x.grade==='고등' && S.pGrade.charAt(0)==='고') return true; // 고교 과목은 고1~3 공통
+          if(x.grade==='중등' && S.pGrade.charAt(0)==='중') return true; // 중등 공통 과목(국어·사회·역사 등)
+          return false;
+        });
         S.cu=rows;
       }catch(e){ S.cu=[]; }
     }
@@ -185,6 +207,7 @@
       if(!u && freeText) u=resolveUnit(freeText);
       var terms=matchTerms(u, freeText);
       var label = u ? (u.unit_mid||u.unit_large) : freeText;
+      S.pBaseLevel = levelOfGrade((u&&u.grade) ? u.grade : S.pGrade); // '중' 기준 검색이면 고1 연계도 함께
       if(!terms.length){ S.pMsg='단원을 선택하거나 입력하세요.'; render(); return; }
       S.pBusy=true; S.pMsg=''; S.pRows=[]; S.pCov=null; render();
       try{
@@ -212,9 +235,10 @@
         scored.sort(function(a,b){ return b.score-a.score; });
         S.pRows=scored.map(function(s){return s.row;});
         // 커버리지
-        var schools={}, years={};
-        S.pRows.forEach(function(x){ if(x.school) schools[x.school]=1; if(x.year) years[x.year]=1; });
-        S.pCov={ n:S.pRows.length, schools:Object.keys(schools).length, years:Object.keys(years).sort(), label:label };
+        var schools={}, years={}, xlv=0;
+        S.pRows.forEach(function(x){ if(x.school) schools[x.school]=1; if(x.year) years[x.year]=1;
+          if(S.pBaseLevel==='중' && rowLevel(x)==='고') xlv++; });
+        S.pCov={ n:S.pRows.length, schools:Object.keys(schools).length, years:Object.keys(years).sort(), label:label, xlv:xlv, base:S.pBaseLevel };
         S.pMsg = S.pRows.length ? '' : '해당 단원으로 매칭된 기출이 아직 없습니다. 기출은행에 자료가 쌓이면 자동으로 검색됩니다.';
       }catch(e){ S.pMsg='검색 실패: '+((e&&e.message)||e); }
       S.pBusy=false; render();
@@ -233,6 +257,8 @@
         if(x.school) arr.push('<span>'+esc(x.school)+'</span>');
         if(x.year) arr.push('<span>'+esc(x.year)+(x.round?(' '+esc(x.round)):'')+'</span>');
         else if(x.source_type) arr.push('<span>'+esc(x.source_type)+'</span>');
+        if(x.grade) arr.push('<span>'+esc(x.grade)+'</span>');
+        if(S.pBaseLevel==='중' && rowLevel(x)==='고') arr.push('<span class="link">🔗 고1 연계</span>');
         if(x.difficulty) arr.push('<span class="'+dcl+'">난이도 '+esc(x.difficulty)+'</span>');
         if(x.qtype) arr.push('<span>'+esc(x.qtype)+'</span>');
         return arr.join('');
@@ -270,14 +296,16 @@
       var head='수학';
       var now=new Date(); var ymd=now.getFullYear()+'.'+String(now.getMonth()+1).padStart(2,'0')+'.'+String(now.getDate()).padStart(2,'0');
       var trs=rows.map(function(x){
-        var where=[x.school||x.source_type||'-', (x.year?x.year:''), (x.round||'')].filter(Boolean).join(' ');
+        var xl=(cov.base==='중' && rowLevel(x)==='고');
+        var where=[x.school||x.source_type||'-', (x.year?x.year:''), (x.round||''), (x.grade||'')].filter(Boolean).join(' ')
+          +(xl?' <b style="color:#0f7a43">[고1 연계]</b>':'');
         var unit=[x.unit_large,x.unit_mid].filter(Boolean).join(' › ');
-        return '<tr><td style="white-space:nowrap">'+esc(where)+'</td>'
+        return '<tr'+(xl?' style="background:#fbfffd"':'')+'><td style="white-space:nowrap">'+where+'</td>'
           +'<td style="white-space:nowrap">'+esc(x.difficulty||'')+'</td>'
           +'<td style="white-space:nowrap">'+esc(x.qtype||'')+'</td>'
           +'<td>'+esc(x.content||'')+(x.answer?('<br><span style="color:#1b64da">💡 '+esc(x.answer)+'</span>'):'')+(unit?('<br><span style="color:#888;font-size:10px">'+esc(unit)+'</span>'):'')+'</td></tr>';
       }).join('');
-      var covline='주변 학교 '+(cov.schools||0)+'곳 · '+((cov.years&&cov.years.length)?(cov.years[cov.years.length-1]+'~'+cov.years[0]):'연도 다양')+' · 총 '+rows.length+'문항';
+      var covline='주변 학교 '+(cov.schools||0)+'곳 · '+((cov.years&&cov.years.length)?(cov.years[cov.years.length-1]+'~'+cov.years[0]):'연도 다양')+' · 총 '+rows.length+'문항'+((cov.xlv)?(' · 🔗 고1 연계 '+cov.xlv+'문항 포함'):'');
       var html='<div class="ph-wrap">'
         +'<h1>📌 '+esc(label)+' — 학교 기출 출제 경향</h1>'
         +'<div class="sub">'+esc(S.pSubject||'')+(S.pGrade?(' · '+esc(S.pGrade)):'')+(cls&&cls.name?(' · '+esc(cls.name)):'')+' · 수업 준비 자료 · '+ymd+'</div>'
@@ -312,21 +340,27 @@
           +'<span class="covpill">📄 '+cov.n+'문항</span>'
           +'<span class="covpill'+(cov.schools?'':' warn')+'">🏫 학교 '+cov.schools+'곳</span>'
           +'<span class="covpill'+(cov.years.length?'':' warn')+'">🗓️ '+(cov.years.length?(cov.years[cov.years.length-1]+'~'+cov.years[0]):'연도 미상')+'</span>'
+          +((cov.xlv)?('<span class="covpill link">🔗 고1 연계 '+cov.xlv+'문항</span>'):'')
           +'</div>';
         var list=S.pRows.slice(0,30).map(function(x){
           var dcl=(x.difficulty==='최상'?'r':(x.difficulty==='상'?'w':''));
           var unit=[x.unit_large,x.unit_mid,x.unit_small].filter(Boolean).join(' › ');
-          return '<div class="qitem"><div class="top">'
+          var xl=(cov.base==='중' && rowLevel(x)==='고');
+          return '<div class="qitem'+(xl?' xlv':'')+'"><div class="top">'
             +'<span class="qtag b">'+esc(x.source_type||'기출')+'</span>'
             +(x.school?'<span class="qtag">'+esc(x.school)+'</span>':'')
             +(x.year?'<span class="qtag">'+esc(x.year)+(x.round?(' '+esc(x.round)):'')+'</span>':'')
+            +(x.grade?'<span class="qtag g">'+esc(x.grade)+'</span>':'')
+            +(xl?'<span class="qtag link">🔗 고1 연계</span>':'')
             +(x.difficulty?'<span class="qtag '+dcl+'">난이도 '+esc(x.difficulty)+'</span>':'')
             +(x.qtype?'<span class="qtag">'+esc(x.qtype)+'</span>':'')+'</div>'
             +(x.content?'<div class="ct">'+esc(x.content)+'</div>':'<div class="ct" style="color:var(--mute)">(출제 요지 미등록)</div>')
             +(unit?'<div class="un">'+esc(unit)+'</div>':'')+'</div>';
         }).join('');
         var actions = S.pRows.length ? ('<div class="row1" style="margin:4px 0 10px"><button class="btn" id="lsd-proj-btn">🖥️ 수업용 보기 (학생 투사)</button><button class="btn gold" id="lsd-print-btn">🖨️ 수업 전 출력물</button></div>') : '';
-        body=covHTML+actions+(S.pMsg?('<div class="d" style="color:var(--warn);margin-bottom:8px">'+esc(S.pMsg)+'</div>'):'')+list
+        body=covHTML
+          +((cov.xlv)?('<div class="note" style="color:#0f7a43">🔗 중등 단원이라, 같은 개념의 <b>고1 기출(주변학교·학력평가 포함)</b> '+cov.xlv+'문항도 함께 찾았습니다. 아래 <b>🔗 고1 연계</b> 표시를 참고하세요.</div>'):'')
+          +actions+(S.pMsg?('<div class="d" style="color:var(--warn);margin-bottom:8px">'+esc(S.pMsg)+'</div>'):'')+list
           +(S.pRows.length>30?'<div class="note">상위 30문항 표시 · 출력물/투사는 전체 '+S.pRows.length+'문항 포함</div>':'')
           +'<div class="cpnote">※ 저작권 보호를 위해 문항 원문이 아닌 <b>출제 요지·메타정보</b>를 제시합니다. 수업 중 원문 제시는 보유 정식 자료를 활용하세요.</div>';
       } else {
