@@ -2399,6 +2399,83 @@ function expandGroupOfNav(navEl){
   });
 }
 window.initNavAccordion=initNavAccordion; window.expandGroupOfNav=expandGroupOfNav;
+/* ===== 역할별 시작 튜터리얼 (첫 로그인 1회 자동 + 재실행) ===== */
+var ACAD_TUT={
+  owner:{label:'원장 사용 안내',steps:[
+    {ic:'🏫',ttl:'ARCHE 원장앱에 오신 걸 환영합니다',body:'학원 운영·입시 컨설팅·펜타 학습을 한 곳에서. 1분이면 전체 흐름을 익힐 수 있어요.'},
+    {ic:'📊',ttl:'1. 원장 대시보드',body:'로그인하면 가장 먼저 보이는 화면이에요. <b>재원생 수·제출 현황·이탈 위험</b> 등 경영지표를 한눈에 봅니다.'},
+    {ic:'🧑‍🎓',ttl:'2. 학생 관리 · 출석부',body:'<b>학원생 관리</b>에서 학생을 등록하면 로그인 아이디가 자동 발급돼요. <b>출석부</b>에서 출결을 체크하고 실장·강사와 공유합니다.'},
+    {ic:'👩‍🏫',ttl:'3. 반 · 강사 관리',body:'<b>반·강사 관리</b>에서 강사를 등록(아이디 자동발급)하고, 강사별로 <b>🎓 컨설턴트 권한</b>을 켜면 수행평가·진로 징검다리를 맡길 수 있어요.'},
+    {ic:'🎯',ttl:'4. 컨설팅 (대입·고입)',body:'좌측 <b>컨설팅</b> 그룹에서 진단·합격 역설계·성장 로드맵·진로 징검다리·수행평가·리포트까지. 상단에서 대입/고입을 전환합니다.'},
+    {ic:'📧',ttl:'5. 학부모 소통 · 강사 확인',body:'<b>가정통신문</b>으로 학부모에게 월간 리포트를 보내고, <b>강사 활동 확인</b>으로 강사들의 수업·채점 활동을 점검해요.'},
+    {ic:'💳',ttl:'6. 구독 · 결제',body:'<b>구독·결제</b>에서 필요한 모듈(일반/컨설팅/펜타)만 골라 구독해요. 각 모듈은 별도 안전결제로 처리됩니다.'},
+    {ic:'✅',ttl:'준비 완료!',body:'자세한 사용법은 언제든 우측 하단 <b>❓ 사용 안내</b>로 다시 볼 수 있어요. 지금 시작해볼까요?',final:true,go:'roi',goLabel:'대시보드로'}
+  ]},
+  staff:{label:'강사 사용 안내',steps:[
+    {ic:'👋',ttl:'강사용 화면에 오신 걸 환영합니다',body:'담당 반 학생의 학습·출결·과제를 한 곳에서 관리해요.'},
+    {ic:'🗂️',ttl:'1. 강사 대시보드',body:'담당 반을 고르면 <b>펜타 시리즈·강의 관리·과제 채점·시험 분석·수업 설계</b> 탭이 열려요.'},
+    {ic:'🕘',ttl:'2. 출석부',body:'<b>출석부</b>에서 오늘 출결을 체크하면 실장·원장과 자동 공유됩니다.'},
+    {ic:'📝',ttl:'3. 과제 — 간편채점 / AI 과제채점',body:'강의 관리에서 과제를 등록하고 <b>간편채점</b>(제출·점수·성실도)을, 정밀하게는 <b>🤖 AI 과제채점</b> 탭(과제물 업로드→정답률·완성율)을 씁니다.'},
+    {ic:'🧪',ttl:'4. 시험 분석 · 수업 설계',body:'<b>시험 분석</b>으로 답안지 자동채점·오답 분석을, <b>수업 설계</b>로 수업안을 만들어요.'},
+    {ic:'🎓',ttl:'5. 컨설팅 기능 (권한 시)',body:'원장이 <b>컨설턴트 권한</b>을 주면 <b>수행평가 도우미·진로 징검다리</b>로 학생 제출물을 검토·확정할 수 있어요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'언제든 우측 하단 <b>❓ 사용 안내</b>로 다시 볼 수 있어요.',final:true,go:'tdash',goLabel:'대시보드로'}
+  ]},
+  parent:{label:'학부모 사용 안내',steps:[
+    {ic:'👨‍👩‍👧',ttl:'학부모 대시보드에 오신 걸 환영합니다',body:'자녀의 학원 생활과 성장을 한눈에 확인하세요.'},
+    {ic:'📈',ttl:'1. 자녀 현황 요약',body:'상단에서 이번 달 <b>출석률·과제 완성율·자체시험 평균</b>과 성적 추이를 바로 볼 수 있어요.'},
+    {ic:'🧠',ttl:'2. 펜타 · 진로 · 수행',body:'자녀가 수강 중인 <b>펜타 시리즈·진로 징검다리·수행평가</b> 결과 리포트를 카드에서 열람해요. 미수강 항목은 샘플로 미리 볼 수 있어요.'},
+    {ic:'📊',ttl:'3. 월간 분석표 · 학원 소식',body:'학원이 보내준 <b>월간 분석 리포트</b>와 <b>소식·시간표·새 강좌</b> 안내를 받아봅니다.'},
+    {ic:'✅',ttl:'준비 완료!',body:'언제든 우측 하단 <b>❓ 사용 안내</b>로 다시 볼 수 있어요.',final:true}
+  ]},
+  student:{label:'학생 사용 안내',steps:[
+    {ic:'🦉',ttl:'반가워요! 내 학습 화면이에요',body:'정답을 외우는 게 아니라 <b>내 생각을 만드는</b> 곳이에요. 스스로 해내는 힘을 길러요.'},
+    {ic:'🏠',ttl:'1. 내 대시보드',body:'선생님이 보내준 <b>과제와 코스</b>가 홈에 모여요. 오늘 할 학습을 여기서 시작해요.'},
+    {ic:'📝',ttl:'2. 인터뷰 · 성적 제출',body:'상담 전 <b>인터뷰·성적 제출</b>을 미리 작성하면 더 정확한 진단을 받을 수 있어요.'},
+    {ic:'🎯',ttl:'3. 진단 · 로드맵',body:'<b>나의 진단</b>으로 강·약점을 보고, <b>합격 역설계·성장 로드맵</b>으로 목표까지의 길을 확인해요.'},
+    {ic:'🧭',ttl:'4. 진로 징검다리 · 수행평가',body:'<b>진로 징검다리</b>로 내 탐구 주제를 찾고, <b>수행평가 도우미</b>로 학교 수행평가를 준비해요. AI는 답을 대신 써주지 않고 질문으로 도와줘요 — 글은 내가 직접 써요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'궁금하면 우측 하단 <b>❓ 사용 안내</b>를 다시 볼 수 있어요. 지금 오늘의 학습을 시작해요!',final:true,go:'home',goLabel:'홈으로'}
+  ]}
+};
+function acadTutorial(role, force){
+  var conf=ACAD_TUT[role]; if(!conf) return;
+  var key='acad_tut_'+role+'_'+(window._myUid||window._myUidFallback||'');
+  try{ if(!force && localStorage.getItem(key)) return; }catch(e){}
+  if(document.getElementById('acad-tut-ov')) return;
+  var STEPS=conf.steps, i=0;
+  var ov=document.createElement('div'); ov.id='acad-tut-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:2147483600;background:rgba(15,20,40,.55);display:flex;align-items:center;justify-content:center;padding:18px;font-family:inherit';
+  function done(goFinal){ try{ localStorage.setItem(key,'1'); }catch(e){} try{ ov.remove(); }catch(e){}
+    if(goFinal){ var s=STEPS[STEPS.length-1]; if(s&&s.go){ try{ var n=document.querySelector('.nav[data-v="'+s.go+'"]'); if(n&&n.style.display!=='none'&&window.go){ if(window.expandGroupOfNav)expandGroupOfNav(n); go(n); } }catch(e){} } } }
+  function render(){
+    var s=STEPS[i];
+    var dots=STEPS.map(function(_x,j){return '<span style="width:7px;height:7px;border-radius:50%;background:'+(j===i?'#1b64da':'#d3dae6')+';display:inline-block"></span>';}).join('');
+    ov.innerHTML='<div style="width:100%;max-width:430px;background:#fff;border-radius:20px;padding:26px 24px 20px;box-shadow:0 24px 60px rgba(0,0,0,.35);position:relative">'
+      +'<button id="acad-tut-skip" style="position:absolute;top:14px;right:16px;background:none;border:none;color:#8b95a1;font-size:12.5px;font-weight:700;cursor:pointer">건너뛰기</button>'
+      +'<div style="font-size:46px;line-height:1;margin:6px 0 14px">'+s.ic+'</div>'
+      +'<div style="font-size:19px;font-weight:800;color:#191f28;margin-bottom:8px">'+s.ttl+'</div>'
+      +'<div style="font-size:13.5px;color:#4e5968;line-height:1.7;min-height:72px">'+s.body+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;margin:16px 0 14px">'+dots+'</div>'
+      +'<div style="display:flex;gap:8px">'
+        +(i>0?'<button id="acad-tut-prev" style="flex:0 0 auto;padding:12px 16px;background:#f2f4f7;color:#4e5968;border:none;border-radius:11px;font-weight:700;font-size:13.5px;cursor:pointer">이전</button>':'')
+        +'<button id="acad-tut-next" style="flex:1;padding:12px;background:#1b64da;color:#fff;border:none;border-radius:11px;font-weight:800;font-size:14px;cursor:pointer">'+(s.final?(s.goLabel||'시작하기'):'다음')+'</button>'
+      +'</div></div>';
+    var sk=ov.querySelector('#acad-tut-skip'); if(sk)sk.onclick=function(){ done(false); };
+    var pv=ov.querySelector('#acad-tut-prev'); if(pv)pv.onclick=function(){ if(i>0){i--;render();} };
+    var nx=ov.querySelector('#acad-tut-next'); if(nx)nx.onclick=function(){ if(s.final){ done(true); } else { i++; render(); } };
+  }
+  document.body.appendChild(ov); render();
+}
+window.acadTutorial=acadTutorial;
+function acadCurRole(){ if(window._role==='parent')return 'parent'; if(window._role==='stu')return 'student'; return (window._isOwner===true?'owner':'staff'); }
+function acadHelpButton(){
+  if(document.getElementById('acad-help-fab')) return;
+  var b=document.createElement('button'); b.id='acad-help-fab'; b.type='button';
+  b.innerHTML='❓ 사용 안내';
+  b.style.cssText='position:fixed;right:18px;bottom:18px;z-index:1500;background:#1b64da;color:#fff;border:none;border-radius:24px;padding:10px 16px;font-size:13px;font-weight:800;box-shadow:0 6px 20px rgba(27,100,218,.35);cursor:pointer;font-family:inherit';
+  b.onclick=function(){ acadTutorial(acadCurRole(), true); };
+  document.body.appendChild(b);
+}
+window.acadHelpButton=acadHelpButton;
 // 뷰 이름으로 직접 전환 (뒤로가기용)
 function goView(v){
   var el=document.querySelector('.nav[data-v="'+v+'"]');
@@ -3215,6 +3292,8 @@ async function enterApp(session){
     if(!_fn || _fn.style.display==='none') _fn=document.querySelector('.nav[data-v="tdash"]');
     if(_fn){ try{ expandGroupOfNav(_fn); }catch(e){} go(_fn); }
   }catch(e){}
+  // 시작 튜터리얼 + 사용안내 버튼
+  try{ acadHelpButton(); setTimeout(function(){ acadTutorial(window._isOwner===true?'owner':'staff'); },500); }catch(e){}
 }
 /* ===== 게스트 체험 모드 ===== */
 var DEMO_TASK_LABEL={parse_record:'학생 자료 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'진로 징검다리',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
@@ -3283,6 +3362,7 @@ async function enterParentViewer(session){
   var root=document.getElementById('pv-root'); if(!root){ root=document.createElement('div'); root.id='pv-root'; document.body.appendChild(root); }
   if(!stu){ root.innerHTML='<div class="pv-wrap"><div class="pv-empty">연결된 자녀 정보를 찾지 못했어요.<br>학원에서 발급한 학부모 아이디로 로그인했는지 확인해 주세요.<br><br><button class="pv-btn" onclick="sbSignOutReload()">로그아웃</button></div></div>'; return; }
   pvRenderDashboard(root, stu);
+  try{ acadHelpButton(); setTimeout(function(){ acadTutorial('parent'); },500); }catch(e){}
 }
 function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/login'); }); }catch(e){ location.replace('/login'); } }
 window.sbSignOutReload=sbSignOutReload;
@@ -3488,6 +3568,7 @@ function pvSample(c){
 window.enterParentViewer=enterParentViewer;
 
 async function enterStudentApp(session){
+  try{ window._myUid=session.user.id; }catch(e){}
   /* [학교용] 학생 소속 학교(account_type='school') 감지 → 동의 게이트 문구 분기 (학원·학부모 학생은 false) */
   try{ var _sp=await sb.from('students').select('academy_id').limit(1); var _said=_sp&&_sp.data&&_sp.data[0]&&_sp.data[0].academy_id; if(_said){ var _sac=await sb.from('academies').select('account_type').eq('id',_said).limit(1); window._isSchool=!!(_sac&&_sac.data&&_sac.data[0]&&_sac.data[0].account_type==='school'); } }catch(e){}
   window._pentaSchool=(window._isSchool===true); /* [학교 B2G] 학생 세션: 심화→45분 학교버전 서빙 스위치 */
@@ -3547,6 +3628,7 @@ async function enterStudentApp(session){
   }
   try{ initNavAccordion(); }catch(e){}
   var h=document.querySelector('.nav[data-v="home"]'); if(h){ try{ expandGroupOfNav(h); }catch(e){} go(h); }
+  try{ acadHelpButton(); setTimeout(function(){ acadTutorial('student'); },500); }catch(e){}
 }
 function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
