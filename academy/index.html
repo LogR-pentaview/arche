@@ -2132,6 +2132,13 @@ window.ADMIN=ADMIN;
         <div class="eyebrow">Settings</div>
         <div class="h1">설정</div>
         <div class="sub">AI 분석에 사용할 Gemini API 키 방식을 선택하세요</div>
+        <div id="pw-card" style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px;display:none">
+          <div class="sectionhead"><span class="idx">🔑</span><h3>내 비밀번호 변경</h3></div>
+          <div style="font-size:12.5px;color:var(--ink-dim);margin:2px 0 12px">초기 비밀번호(000000)에서 나만의 비밀번호로 바꾸세요. <b>6자 이상</b>.</div>
+          <input id="own-pw" type="password" placeholder="새 비밀번호 (6자 이상)" style="width:100%;max-width:320px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;font-family:inherit">
+          <input id="own-pw2" type="password" placeholder="새 비밀번호 확인" onkeydown="if(event.key==='Enter')ownerChangePw()" style="width:100%;max-width:320px;margin-top:8px;padding:10px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:13px;font-family:inherit">
+          <div style="margin-top:10px"><button onclick="ownerChangePw()" style="padding:10px 18px;background:var(--gold);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer;font-family:inherit">비밀번호 변경</button> <span id="own-pw-msg" style="font-size:12px;margin-left:6px"></span></div>
+        </div>
         <div id="apikey-card" style="max-width:560px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px">
           <div class="sectionhead"><span class="idx">AI</span><h3>AI 엔진</h3></div>
           <div style="font-size:12.5px;color:var(--ink-dim);line-height:1.75">모든 AI 분석(학생 자료 파싱·진단·설계·자소서·면접·리포트 등)은 <b>로그·알 본사 엔진</b>으로 자동 처리됩니다.<br>별도의 API 키 등록이 필요 없습니다.</div>
@@ -7582,7 +7589,22 @@ async function loadApiKey(){
   if(sub)sub.textContent=window._isSchool?'계정 설정':(window._isB2C?'계정·구독 설정':'계정·팀 설정');
   var tc=document.getElementById('team-card'); if(tc&&(window._isB2C||window._isSchool))tc.style.display='none';
   var bc0=document.getElementById('brand-card'); if(bc0&&window._isSchool)bc0.style.display='none';
+  // 내 비밀번호 변경: 학원(B2B) 설정에서 노출(학교/학부모용은 각자 전용 화면에서 처리)
+  var pwc=document.getElementById('pw-card'); if(pwc)pwc.style.display=(!window._isB2C&&!window._isSchool)?'':'none';
 }
+async function ownerChangePw(){
+  var el=document.getElementById('own-pw'), el2=document.getElementById('own-pw2'), m=document.getElementById('own-pw-msg'); if(!el)return;
+  var np=(el.value||''); if(np.length<6){ if(m){m.style.color='var(--risk)';m.textContent='6자 이상 입력하세요.';} return; }
+  if(el2 && (el2.value||'')!==np){ if(m){m.style.color='var(--risk)';m.textContent='두 비밀번호가 일치하지 않습니다.';} return; }
+  if(m){m.style.color='var(--ink-mute)';m.textContent='변경 중…';}
+  try{
+    var r=await sb.auth.updateUser({password:np});
+    if(r.error){ if(m){m.style.color='var(--risk)';m.textContent='실패: '+r.error.message;} return; }
+    try{ if(window._myUid) await sb.from('academy_users').update({must_change:false}).eq('uid',window._myUid); }catch(_e){}
+    el.value=''; if(el2)el2.value=''; if(m){m.style.color='var(--safe)';m.textContent='✓ 변경되었습니다. 다음 로그인부터 새 비밀번호를 사용하세요.';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='오류: '+((e&&e.message)||e);} }
+}
+window.ownerChangePw=ownerChangePw;
 async function saveKeyMode(){
   var m=document.getElementById('set-msg'); if(!sb){m.textContent='DB 미로드';return;}
   var {data:acs}=await sb.from('academies').select('id').limit(1); var id=acs&&acs[0]&&acs[0].id;
