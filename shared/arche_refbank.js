@@ -59,7 +59,8 @@
     if(!window.sb || !window._acadId){ host.innerHTML='<div class="rfb"><div class="ph">🔌 로그인 후 이용할 수 있어요.</div></div>'; return; }
     var acid=window._acadId, uid=window._myUid;
 
-    function blankForm(){ return { id:null, source_type:'기출', school:'', region:'', year:(new Date().getFullYear()-1), round:'', grade:'고1', semester:'1학기', subject:'수학', unit_large:'', unit_mid:'', unit_small:'', qtype:'', difficulty:'', content:'', answer:'', source_ref:'' }; }
+    function blankForm(){ return { id:null, source_type:'기출', school:'', region:'', region_sido:(defSido()||''), region_sigungu:'', year:(new Date().getFullYear()-1), round:'중간고사', grade:'고1', semester:'1학기', subject:'수학', unit_large:'', unit_mid:'', unit_small:'', qtype:'', difficulty:'', content:'', answer:'', source_ref:'' }; }
+    function defSido(){ try{ var rr=(window._acadRegions||[]); if(rr.length&&rr[0].sido)return rr[0].sido; }catch(e){} return ''; }
     var S={ rows:[], filter:{school:'',grade:'',subject:''}, form:null, loading:true, imgBusy:false, imgMsg:'', msg:'' };
 
     host.innerHTML='<div class="rfb"><div id="rfb-root"></div></div>';
@@ -80,6 +81,9 @@
 
     function opts(arr,val){ return arr.map(function(o){ return '<option value="'+esc(o[0])+'"'+(o[0]===val?' selected':'')+'>'+esc(o[1])+'</option>'; }).join(''); }
     function gradeOpts(v){ return ['','초6','중1','중2','중3','고1','고2','고3'].map(function(g){ return '<option value="'+g+'"'+(g===v?' selected':'')+'>'+(g||'전체')+'</option>'; }).join(''); }
+    function selOpts(arr,v){ return arr.map(function(o){ return '<option value="'+esc(o)+'"'+(o===v?' selected':'')+'>'+esc(o)+'</option>'; }).join(''); }
+    function sidoOpts(v){ var L=(window.krSido?window.krSido():[]); return '<option value="">광역 선택</option>'+L.map(function(s){ return '<option value="'+esc(s)+'"'+(s===v?' selected':'')+'>'+esc(s)+'</option>'; }).join(''); }
+    function sigunguOpts(sido,v){ var L=(window.krSigungu?window.krSigungu(sido):[]); return '<option value="">'+(L.length?'기초단체 선택':'(해당없음)')+'</option>'+L.map(function(g){ return '<option value="'+esc(g)+'"'+(g===v?' selected':'')+'>'+esc(g)+'</option>'; }).join(''); }
 
     function formHTML(){
       var f=S.form; if(!f) return '';
@@ -90,10 +94,13 @@
         +(S.imgMsg?'<div class="msg" style="width:100%;color:'+(S.imgBusy?'#3182f6':(/실패/.test(S.imgMsg)?'#f04452':'#12b76a'))+'">'+esc(S.imgMsg)+'</div>':'')+'</div>'
         +'<div class="grid">'
         +'<div><label class="f">구분</label><select id="rf-source_type">'+opts(STYPE,f.source_type)+'</select></div>'
-        +inp('school','학교/출처 (예: 한빛고)')
-        +inp('year','연도')+inp('round','회차/범위 (예: 1학기 중간)')
+        +inp('school','학교명 (예: 전주한빛고)')
+        +'<div><label class="f">광역 (시·도)</label><select id="rf-region_sido">'+sidoOpts(f.region_sido)+'</select></div>'
+        +'<div><label class="f">기초 (시·군·구)</label><select id="rf-region_sigungu">'+sigunguOpts(f.region_sido,f.region_sigungu)+'</select></div>'
+        +inp('year','시험 연도')
+        +'<div><label class="f">학기</label><select id="rf-semester">'+selOpts(['1학기','2학기'],f.semester)+'</select></div>'
+        +'<div><label class="f">시험 구분</label><select id="rf-round">'+selOpts(['중간고사','기말고사','학력평가','모의고사','수능','기타'],f.round)+'</select></div>'
         +'<div><label class="f">학년</label><select id="rf-grade">'+gradeOpts(f.grade)+'</select></div>'
-        +inp('semester','학기')
         +inp('subject','과목')
         +'<div><label class="f">난이도</label><select id="rf-difficulty">'+opts(DIFF,f.difficulty)+'</select></div>'
         +inp('unit_large','대단원')+inp('unit_mid','중단원')
@@ -116,7 +123,8 @@
         return '<div class="item"><div class="top">'
           +'<span class="tag b">'+esc(x.source_type||'기출')+'</span>'
           +(x.school?'<span class="tag">'+esc(x.school)+'</span>':'')
-          +(x.year?'<span class="tag">'+esc(x.year)+(x.round?' '+esc(x.round):'')+'</span>':'')
+          +((x.region||x.region_sigungu)?'<span class="tag">📍 '+esc(x.region||x.region_sigungu)+'</span>':'')
+          +(x.year?'<span class="tag">'+esc(x.year)+(x.semester?' '+esc(x.semester):'')+(x.round?' '+esc(x.round):'')+'</span>':'')
           +(x.grade?'<span class="tag">'+esc(x.grade)+(x.subject?' '+esc(x.subject):'')+'</span>':'')
           +(x.difficulty?'<span class="tag '+dcl+'">난이도 '+esc(x.difficulty)+'</span>':'')
           +(x.qtype?'<span class="tag">'+esc(x.qtype)+'</span>':'')+'</div>'
@@ -152,13 +160,15 @@
         S._imgPath=path; return path;
       }catch(e){ S._imgPath=null; return null; }
     }
+    function regionText(f){ var sd=(window.krSidoShort?window.krSidoShort(f.region_sido):(f.region_sido||'')); return [sd||'', f.region_sigungu||''].filter(Boolean).join(' ')||null; }
     async function doSave(){
       var f=S.form; var m=root.querySelector('#rf-msg');
-      ['source_type','school','region','year','round','grade','semester','subject','unit_large','unit_mid','unit_small','qtype','difficulty','content','answer','source_ref'].forEach(function(k){
+      ['source_type','school','region_sido','region_sigungu','year','round','grade','semester','subject','unit_large','unit_mid','unit_small','qtype','difficulty','content','answer','source_ref'].forEach(function(k){
         var e=root.querySelector('#rf-'+k); if(e) f[k]=e.value; });
       if(!f.school && !f.unit_large && !f.content){ S.msg='학교 또는 단원/내용을 입력하세요.'; if(m)m.textContent=S.msg; return; }
       if(m) m.textContent='저장 중…';
-      var row={ academy_id:acid, source_type:f.source_type||null, school:f.school||null, region:f.region||null,
+      var row={ academy_id:acid, source_type:f.source_type||null, school:f.school||null, region:regionText(f),
+        region_sido:f.region_sido||null, region_sigungu:f.region_sigungu||null,
         year:(f.year?parseInt(f.year,10)||null:null), round:f.round||null, grade:f.grade||null, semester:f.semester||null,
         subject:f.subject||null, unit_large:f.unit_large||null, unit_mid:f.unit_mid||null, unit_small:f.unit_small||null,
         qtype:f.qtype||null, difficulty:f.difficulty||null, content:f.content||null, answer:f.answer||null, source_ref:f.source_ref||null };
@@ -201,7 +211,8 @@
     }
     async function saveExtra(){
       if(!S._extra||!S._extra.length) return; var f=S.form;
-      var rows=S._extra.map(function(it){ return { academy_id:acid, created_by:uid, source_type:f.source_type||null, school:f.school||null, region:f.region||null,
+      var rows=S._extra.map(function(it){ return { academy_id:acid, created_by:uid, source_type:f.source_type||null, school:f.school||null, region:regionText(f),
+        region_sido:f.region_sido||null, region_sigungu:f.region_sigungu||null,
         year:(it.year||f.year?parseInt(it.year||f.year,10)||null:null), round:f.round||null, grade:f.grade||null, semester:f.semester||null, subject:f.subject||null,
         unit_large:it.unit_large||null, unit_mid:it.unit_mid||null, unit_small:it.unit_small||null, qtype:it.qtype||null, difficulty:it.difficulty||null,
         content:it.content||null, answer:it.answer||null, source_ref:f.source_ref||null }; });
@@ -215,6 +226,7 @@
       var fg=root.querySelector('#rf-fgrade'); if(fg) fg.onchange=function(){ S.filter.grade=this.value; render(); };
       var fsub=root.querySelector('#rf-fsubject'); if(fsub) fsub.oninput=function(){ S.filter.subject=this.value; if(!S.form)render(); };
       var nw=root.querySelector('#rf-new'); if(nw) nw.onclick=function(){ S.form=blankForm(); S.msg=''; S.imgMsg=''; S._extra=null; S._imgFiles=null; S._imgPath=undefined; render(); };
+      var rsd=root.querySelector('#rf-region_sido'); if(rsd) rsd.onchange=function(){ if(S.form){ S.form.region_sido=this.value; S.form.region_sigungu=''; } var g=root.querySelector('#rf-region_sigungu'); if(g) g.innerHTML=sigunguOpts(this.value,''); };
       var sv=root.querySelector('#rf-save'); if(sv) sv.onclick=doSave;
       var cx=root.querySelector('#rf-cancel'); if(cx) cx.onclick=function(){ S.form=null; S.msg=''; render(); };
       var dl=root.querySelector('#rf-del'); if(dl) dl.onclick=function(){ doDelete(S.form.id); };

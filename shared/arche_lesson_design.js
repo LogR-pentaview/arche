@@ -39,6 +39,24 @@
     if(/학평|모의|학력/.test(s)) return '학평';
     return '내신';
   }
+  // 기출 행(x)의 지역이 학원 설정 지역(acadRegs: [{sido,sigungu}]) 중 하나와 맞는지. region_sido/sigungu 우선, 없으면 region(text) 호환.
+  function sidoShort(s){ return (window.krSidoShort?window.krSidoShort(s):String(s||'')); }
+  function examRegionMatch(x, acadRegs){
+    if(!acadRegs || !acadRegs.length) return true;
+    var exSido=String(x.region_sido||''), exGu=String(x.region_sigungu||''), exText=String(x.region||'');
+    for(var i=0;i<acadRegs.length;i++){
+      var a=acadRegs[i]; var aSido=String(a.sido||''); var aGu=a.sigungu?String(a.sigungu):'';
+      if(aGu){
+        if(exGu){ if(exGu===aGu) return true; }
+        else if(exText){ var base=aGu.replace(/[시군구]$/,''); if(exText.indexOf(aGu)>=0 || (base&&exText.indexOf(base)>=0)) return true; }
+      } else {
+        var aSh=sidoShort(aSido);
+        if(exSido){ if(sidoShort(exSido)===aSh) return true; }
+        else if(exText){ if((aSh&&exText.indexOf(aSh)>=0) || exText.indexOf(aSido)>=0) return true; }
+      }
+    }
+    return false;
+  }
 
   function injectCSS(){
     if(document.getElementById('lsd-css'))return;
@@ -235,14 +253,21 @@
       var terms=sel.terms, label=sel.label;
       S.pBaseLevel = levelOfGrade(S.pGrade); // '중' 기준 검색이면 고1 연계도 함께
       if(!terms.length){ S.pMsg='과목·단원을 선택하거나 직접 입력하세요.'; render(); return; }
-      // 학원 지역(학교기출은 해당 지역만 매칭 · 학평·수능은 전국)
-      if(S.acadRegion===undefined){ try{ var ar=await sb().from('academies').select('region').eq('id',acid).limit(1); S.acadRegion=((ar&&ar.data&&ar.data[0]&&ar.data[0].region)||'').trim(); }catch(e){ S.acadRegion=''; } }
+      // 학원 지역(학교기출은 해당 지역만 매칭 · 학평·수능은 전국). regions(jsonb 다중) 우선, 없으면 region(text) 호환.
+      if(S.acadRegions===undefined){
+        try{ var ar=await sb().from('academies').select('regions,region').eq('id',acid).limit(1); var arow=(ar&&ar.data&&ar.data[0])||{};
+          var regs=arow.regions;
+          if(Array.isArray(regs)&&regs.length){ S.acadRegions=regs.map(function(z){return {sido:z.sido||'',sigungu:z.sigungu||null};}); }
+          else { S.acadRegions=[]; }
+          S.acadRegion=(arow.region||'').trim(); // 노트 표시용
+        }catch(e){ S.acadRegions=[]; S.acadRegion=''; }
+      }
       S.pBusy=true; S.pMsg=''; S.pRows=[]; S.pCov=null; render();
       try{
         // 과목명 하드필터 제거: 수능 미적분·기하·확통처럼 과목명이 달라도 개념(단원 term)으로 매칭.
         // 과목 일치는 랭킹 가점으로만 사용.
         var q=sb().from('ref_exam_bank')
-          .select('id,academy_id,source_type,school,region,year,round,grade,semester,subject,unit_large,unit_mid,unit_small,qtype,difficulty,content,answer,image_url')
+          .select('id,academy_id,source_type,school,region,region_sido,region_sigungu,year,round,grade,semester,subject,unit_large,unit_mid,unit_small,qtype,difficulty,content,answer,image_url')
           .order('year',{ascending:false}).limit(700);
         var r=await q; var rows=(r&&r.data)||[];
         var psub=String(S.pArea||'');
@@ -258,9 +283,9 @@
           });
           if(!hit) return;
           // 학교기출(내신)은 학원 지역으로 제한 — 학원이 직접 올린 건 유지, 공유풀의 타지역 내신은 제외. (학평·수능은 전국이라 제한 없음)
-          if(S.acadRegion && srcCat(x)==='내신'){
+          if(S.acadRegions && S.acadRegions.length && srcCat(x)==='내신'){
             var ownRow = (String(x.academy_id||'')===String(acid||''));
-            if(!ownRow){ var reg=String(x.region||''); if(!reg || (reg.indexOf(S.acadRegion)<0 && S.acadRegion.indexOf(reg)<0)) return; }
+            if(!ownRow && !examRegionMatch(x, S.acadRegions)) return;
           }
           var gradeMatch = (!S.pGrade || !x.grade || x.grade===S.pGrade)?0:-1;
           var subjAff = (psub && String(x.subject||'').indexOf(psub)>=0)?1:0; // 과목 일치 가점
@@ -507,7 +532,7 @@
         }).join('');
         var actions = S.pRows.length ? ('<div class="row1" style="margin:4px 0 10px"><button class="btn" id="lsd-proj-btn">🖥️ 수업용 보기 (학생 투사)</button><button class="btn gold" id="lsd-print-btn">🖨️ 수업 전 출력물</button></div>') : '';
         body=covHTML
-          +((S.acadRegion)?('<div class="note" style="color:var(--mute)">📍 학교기출은 <b>'+esc(S.acadRegion)+'</b> 지역으로 제한 · 학평·수능은 전국</div>'):'')
+          +(function(){ var rs=(S.acadRegions||[]); if(rs.length){ var lbl=rs.map(function(r){ return r.sigungu?(sidoShort(r.sido)+' '+r.sigungu):(sidoShort(r.sido)+' 전체'); }).join(', '); return '<div class="note" style="color:var(--mute)">📍 학교기출은 <b>'+esc(lbl)+'</b> 지역으로 제한 · 학평·수능은 전국</div>'; } if(S.acadRegion){ return '<div class="note" style="color:var(--mute)">📍 학교기출은 <b>'+esc(S.acadRegion)+'</b> 지역으로 제한 · 학평·수능은 전국</div>'; } return '<div class="note" style="color:var(--mute)">📍 학원 지역 미설정 — 학교기출 전체 노출(설정▸학원 지역에서 지정)</div>'; })()
           +((cov.base==='고')?('<div class="note" style="color:#334">🎓 고등은 <b>주변학교 내신 · 전국연합 학력평가 · 수능</b>을 함께 검색합니다.</div>'):'')
           +((cov.xlv)?('<div class="note" style="color:#0f7a43">🔗 중등 단원이라, 같은 개념의 <b>고1 기출(주변학교·학력평가 포함)</b> '+cov.xlv+'문항도 함께 찾았습니다. 아래 <b>🔗 고1 연계</b> 표시를 참고하세요.</div>'):'')
           +actions+(S.pMsg?('<div class="d" style="color:var(--warn);margin-bottom:8px">'+esc(S.pMsg)+'</div>'):'')+list
