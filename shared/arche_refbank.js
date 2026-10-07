@@ -89,8 +89,8 @@
       var f=S.form; if(!f) return '';
       function inp(k,ph,w){ return '<div'+(w?' class="full"':'')+'><label class="f">'+ph+'</label><input id="rf-'+k+'" value="'+esc(f[k])+'" placeholder="'+ph+'"></div>'; }
       return '<div class="card"><div class="h">'+(f.id?'✏️ 기출 수정':'➕ 기출 추가')+' <span class="sub">· 주변 고교/모의/수능 근거</span></div>'
-        +'<div class="imgbar"><label class="imglbl">📷 사진으로 자동 입력<input id="rf-img" type="file" accept="image/*" multiple style="display:none"></label>'
-        +'<span style="font-size:11px;color:var(--b2)">기출 문제지를 촬영하면 AI가 단원·난이도·내용을 채워줍니다</span>'
+        +'<div class="imgbar"><label class="imglbl">📷📄 사진·PDF로 자동 입력<input id="rf-img" type="file" accept="image/*,application/pdf,.pdf" multiple style="display:none"></label>'
+        +'<span style="font-size:11px;color:var(--b2)">문제지 사진 또는 <b>PDF</b>를 올리면 AI가 단원·난이도·내용을 채워줍니다. PDF는 1개로 여러 쪽을 한 번에 처리합니다.</span>'
         +(S.imgMsg?'<div class="msg" style="width:100%;color:'+(S.imgBusy?'#3182f6':(/실패/.test(S.imgMsg)?'#f04452':'#12b76a'))+'">'+esc(S.imgMsg)+'</div>':'')+'</div>'
         +'<div class="grid">'
         +'<div><label class="f">구분</label><select id="rf-source_type">'+opts(STYPE,f.source_type)+'</select></div>'
@@ -127,7 +127,8 @@
           +(x.year?'<span class="tag">'+esc(x.year)+(x.semester?' '+esc(x.semester):'')+(x.round?' '+esc(x.round):'')+'</span>':'')
           +(x.grade?'<span class="tag">'+esc(x.grade)+(x.subject?' '+esc(x.subject):'')+'</span>':'')
           +(x.difficulty?'<span class="tag '+dcl+'">난이도 '+esc(x.difficulty)+'</span>':'')
-          +(x.qtype?'<span class="tag">'+esc(x.qtype)+'</span>':'')+'</div>'
+          +(x.qtype?'<span class="tag">'+esc(x.qtype)+'</span>':'')
+          +(x.image_url?'<span class="tag">'+(/\.pdf$/i.test(x.image_url)?'📄 PDF':'🖼️ 이미지')+' 첨부</span>':'')+'</div>'
           +(unit?'<div class="u">'+esc(unit)+'</div>':'')
           +(x.content?'<div class="c">'+esc(x.content)+'</div>':'')
           +'<div class="acts"><button data-edit="'+x.id+'">수정</button><button data-del="'+x.id+'">삭제</button></div></div>';
@@ -153,9 +154,11 @@
       var files=S._imgFiles||[];
       if(!files.length){ S._imgPath=null; return null; }
       try{
-        var f0=files[0]; var ext=(f0.type&&f0.type.indexOf('png')>=0)?'png':'jpg';
+        var f0=files[0];
+        var nm=String(f0.name||''); var dot=nm.lastIndexOf('.'); var ext=(dot>=0?nm.slice(dot+1):'').toLowerCase().replace(/[^a-z0-9]/g,'');
+        if(!ext){ ext=(f0.type&&f0.type.indexOf('png')>=0)?'png':((f0.type&&f0.type.indexOf('pdf')>=0)?'pdf':'jpg'); }
         var path=acid+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
-        var up=await sb().storage.from('refbank').upload(path, f0, {upsert:false, contentType:(f0.type||'image/jpeg')});
+        var up=await sb().storage.from('refbank').upload(path, f0, {upsert:false, contentType:(f0.type||'application/octet-stream')});
         if(up&&up.error){ S._imgPath=null; return null; }
         S._imgPath=path; return path;
       }catch(e){ S._imgPath=null; return null; }
@@ -186,17 +189,21 @@
 
     async function doExtract(files){
       var f=S.form; if(!f||!files||!files.length) return;
-      S._imgFiles=Array.prototype.slice.call(files,0,6); S._imgPath=undefined;
-      S.imgBusy=true; S.imgMsg='이미지 분석 중… (최대 1분)'; render();
+      var arr=Array.prototype.slice.call(files,0,6);
+      var big=arr.filter(function(x){ return x && x.size>18*1024*1024; });
+      if(big.length){ S.imgBusy=false; S.imgMsg='자동 입력 실패: 파일이 너무 큽니다(개당 18MB 이하). PDF는 해상도를 낮추거나 쪽수를 나눠 올려주세요.'; render(); return; }
+      var hasPdf=arr.some(function(x){ return /pdf/i.test(x.type||'') || /\.pdf$/i.test(x.name||''); });
+      S._imgFiles=arr; S._imgPath=undefined;
+      S.imgBusy=true; S.imgMsg=(hasPdf?'PDF':'이미지')+' 분석 중… (최대 1분)'; render();
       try{
-        var imgs=[]; for(var i=0;i<files.length && i<6;i++){ imgs.push(await fileB64(files[i])); }
+        var imgs=[]; for(var i=0;i<arr.length;i++){ imgs.push(await fileB64(arr[i])); }
         var tok=await token();
         var r=await fetch(fnBase()+'/refbank-extract',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},
-          body:JSON.stringify({ context:{ school:f.school, grade:f.grade, subject:f.subject, year:f.year, source_type:f.source_type }, images:imgs })});
+          body:JSON.stringify({ context:{ school:f.school, grade:f.grade, subject:f.subject, year:f.year, source_type:f.source_type }, files:imgs, images:imgs })});
         var j=await r.json().catch(function(){return{error:'응답 오류'};});
         if(!r.ok||j.error) throw new Error(j.error||('HTTP '+r.status));
         var items=j.items||[];
-        if(!items.length){ S.imgBusy=false; S.imgMsg='추출된 문항이 없습니다. 더 선명한 사진으로 시도해보세요.'; render(); return; }
+        if(!items.length){ S.imgBusy=false; S.imgMsg='추출된 문항이 없습니다. 더 선명한 파일로 시도해보세요.'; render(); return; }
         // 첫 항목은 현재 폼에 채우고, 2개 이상이면 나머지는 일괄 저장 제안
         var it=items[0];
         ['unit_large','unit_mid','unit_small','qtype','difficulty','content','answer'].forEach(function(k){ if(it[k]!=null && it[k]!=='') f[k]=it[k]; });

@@ -39,6 +39,7 @@
     if(/학평|모의|학력/.test(s)) return '학평';
     return '내신';
   }
+  function isPdf(p){ return /\.pdf($|\?)/i.test(String(p||'')); }
   // 기출 행(x)의 지역이 학원 설정 지역(acadRegs: [{sido,sigungu}]) 중 하나와 맞는지. region_sido/sigungu 우선, 없으면 region(text) 호환.
   function sidoShort(s){ return (window.krSidoShort?window.krSidoShort(s):String(s||'')); }
   function examRegionMatch(x, acadRegs){
@@ -98,6 +99,8 @@
     "#lsd-lb{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px;cursor:zoom-out}",
     "#lsd-lb img{max-width:96vw;max-height:94vh;border-radius:8px;background:#fff}",
     "#lsd-proj .pjimg{max-width:72vw;max-height:52vh;border-radius:10px;background:#fff;margin:0 auto 22px;display:none}",
+    "#lsd-proj .pjpdf{margin:0 auto 22px;padding:12px 22px;background:#fff;color:#1b64da;border-radius:10px;font-weight:800;font-size:17px;text-decoration:none}",
+    ".lsd .qpdf{margin-top:8px}.lsd .qpdf a{display:inline-block;padding:7px 13px;background:var(--bs,#eef4ff);color:#1b64da;border:1px solid var(--line);border-radius:8px;font-size:12px;font-weight:700;text-decoration:none}",
     ".lsd .cpnote{font-size:10.5px;color:var(--mute);margin-top:9px;line-height:1.5}",
     // 기존 카드
     ".lsd .cc{display:inline-flex;flex-direction:column;gap:1px;border:1px solid #cfe0ff;background:#eff5ff;border-radius:10px;padding:8px 11px;margin:0 7px 7px 0}",
@@ -337,7 +340,11 @@
         var x=rows[idx];
         var unit=[x.unit_large,x.unit_mid,x.unit_small].filter(Boolean).join(' › ');
         ov.querySelector('.pjmeta').innerHTML=meta(x);
-        var pim=ov.querySelector('.pjimg'); var iu=(x.image_url&&S.pImg&&S.pImg[x.image_url])?S.pImg[x.image_url]:''; if(pim){ if(iu){ pim.src=iu; pim.style.display='block'; } else { pim.removeAttribute('src'); pim.style.display='none'; } }
+        var pim=ov.querySelector('.pjimg'); var ppdf=ov.querySelector('.pjpdf');
+        var iu=(x.image_url&&S.pImg&&S.pImg[x.image_url])?S.pImg[x.image_url]:'';
+        var pdf=iu&&isPdf(x.image_url);
+        if(pim){ if(iu&&!pdf){ pim.src=iu; pim.style.display='block'; } else { pim.removeAttribute('src'); pim.style.display='none'; } }
+        if(ppdf){ if(pdf){ ppdf.href=iu; ppdf.style.display='inline-block'; } else { ppdf.removeAttribute('href'); ppdf.style.display='none'; } }
         ov.querySelector('.pjq').innerHTML='<span class="lbl">📌 지금 이 내용, 학교에서는 이렇게 출제돼요'+(unit?(' · '+esc(unit)):'')+'</span>'+esc(x.content||'(요지 미등록)');
         var ans=ov.querySelector('.pjans'); ans.innerHTML = x.answer?('💡 접근: '+esc(x.answer)):''; ans.style.display=x.answer?'block':'none';
         ov.querySelector('.pjcount').textContent=(idx+1)+' / '+rows.length;
@@ -346,7 +353,7 @@
       }
       ov.innerHTML=''
         +'<div class="pjhead"><div class="t">'+esc(label)+' <small>주변 학교 실제 출제 사례 · 아르케 기출은행</small></div><button class="pjx">✕ 닫기 (Esc)</button></div>'
-        +'<div class="pjbody"><div class="pjmeta"></div><img class="pjimg" alt="문제"><div class="pjq"></div><div class="pjans"></div>'
+        +'<div class="pjbody"><div class="pjmeta"></div><img class="pjimg" alt="문제"><a class="pjpdf" target="_blank" rel="noopener" style="display:none">📄 PDF 문제지 새 창에서 열기</a><div class="pjq"></div><div class="pjans"></div>'
           +'<div class="pjcp">※ 저작권 보호를 위해 문항 원문이 아닌 출제 요지·메타정보를 제시합니다. 원문은 보유 자료를 활용하세요.</div></div>'
         +'<div class="pjfoot"><button class="pjnav pjprev">◀ 이전</button><div class="pjcount"></div><button class="pjnav pjnext">다음 ▶</button></div>';
       document.body.appendChild(ov);
@@ -375,7 +382,7 @@
           +'<td style="white-space:nowrap">'+esc(x.difficulty||'')+'</td>'
           +'<td style="white-space:nowrap">'+esc(x.qtype||'')+'</td>'
           +'<td>'+esc(x.content||'')+(x.answer?('<br><span style="color:#1b64da">💡 '+esc(x.answer)+'</span>'):'')+(unit?('<br><span style="color:#888;font-size:10px">'+esc(unit)+'</span>'):'')
-            +((x.image_url&&S.pImg&&S.pImg[x.image_url])?('<br><img src="'+esc(S.pImg[x.image_url])+'" style="max-width:280px;max-height:220px;margin-top:5px;border:1px solid #ddd">'):'')+'</td></tr>';
+            +((x.image_url&&S.pImg&&S.pImg[x.image_url])?(isPdf(x.image_url)?('<br><a href="'+esc(S.pImg[x.image_url])+'" target="_blank" rel="noopener" style="color:#1b64da;font-size:11px">📄 PDF 문제지 열기</a>'):('<br><img src="'+esc(S.pImg[x.image_url])+'" style="max-width:280px;max-height:220px;margin-top:5px;border:1px solid #ddd">')):'')+'</td></tr>';
       }).join('');
       var covline='주변 학교 '+(cov.schools||0)+'곳 · '+((cov.years&&cov.years.length)?(cov.years[cov.years.length-1]+'~'+cov.years[0]):'연도 다양')+' · 총 '+rows.length+'문항'+((cov.xlv)?(' · 🔗 고1 연계 '+cov.xlv+'문항 포함'):'');
       var html='<div class="ph-wrap">'
@@ -527,7 +534,7 @@
             +(x.qtype?'<span class="qtag">'+esc(x.qtype)+'</span>':'')+'</div>'
             +(x.content?'<div class="ct">'+esc(x.content)+'</div>':'<div class="ct" style="color:var(--mute)">(출제 요지 미등록)</div>')
             +(unit?'<div class="un">'+esc(unit)+'</div>':'')
-            +((x.image_url&&S.pImg&&S.pImg[x.image_url])?('<div class="qimg"><img src="'+esc(S.pImg[x.image_url])+'" data-full="'+esc(S.pImg[x.image_url])+'"></div>'):'')
+            +((x.image_url&&S.pImg&&S.pImg[x.image_url])?(isPdf(x.image_url)?('<div class="qpdf"><a href="'+esc(S.pImg[x.image_url])+'" target="_blank" rel="noopener">📄 PDF 문제지 열기</a></div>'):('<div class="qimg"><img src="'+esc(S.pImg[x.image_url])+'" data-full="'+esc(S.pImg[x.image_url])+'"></div>')):'')
             +'</div>';
         }).join('');
         var actions = S.pRows.length ? ('<div class="row1" style="margin:4px 0 10px"><button class="btn" id="lsd-proj-btn">🖥️ 수업용 보기 (학생 투사)</button><button class="btn gold" id="lsd-print-btn">🖨️ 수업 전 출력물</button></div>') : '';
