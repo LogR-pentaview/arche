@@ -2180,6 +2180,21 @@ window.ADMIN=ADMIN;
           <div id="tm-msg" style="min-height:14px;font-size:12px;margin:6px 0"></div>
           <div id="tm-list" style="margin-top:8px"></div>
         </div>
+
+        <div id="region-card" style="max-width:640px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;margin-top:18px;display:none">
+          <div class="sectionhead"><span class="idx">📍</span><h3>학원 지역 설정 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 원장 전용</span></h3></div>
+          <div style="font-size:12px;color:var(--ink-mute);margin-bottom:12px;line-height:1.7">수업준비 <b>기출검색</b>에서 <b>학교기출(내신)</b>은 여기서 설정한 지역의 학교 문항만 매칭됩니다. 학평·수능은 지역과 무관하게 전국에서 매칭됩니다. 여러 지역을 <b>중복 선택</b>할 수 있습니다.</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+            <select id="rg-sido" onchange="regionSidoChange()" style="min-width:160px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;font-family:inherit"></select>
+            <select id="rg-gu" style="min-width:160px;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;font-family:inherit"></select>
+            <button onclick="regionAdd()" style="padding:9px 16px;background:var(--gold);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer;font-family:inherit">추가</button>
+          </div>
+          <div id="rg-chips" style="display:flex;gap:7px;flex-wrap:wrap;min-height:30px;margin-bottom:12px"></div>
+          <div style="display:flex;align-items:center;gap:12px">
+            <button onclick="regionSave()" style="padding:10px 22px;background:var(--lime);color:#0a1a05;border:none;border-radius:9px;font-weight:800;font-size:13px;cursor:pointer;font-family:inherit">저장</button>
+            <span id="rg-msg" style="font-size:12px;color:var(--ink-mute);min-height:14px"></span>
+          </div>
+        </div>
       </section>
 
       <section class="view" id="v-notice">
@@ -2228,12 +2243,13 @@ window.ADMIN=ADMIN;
 <script src="/academy/course_picker.js"></script>
 <script src="/shared/arche_academy_ops.js?v=5"></script>
 <script src="/shared/arche_teacher_dash.js?v=5"></script>
+<script src="/shared/arche_regions.js?v=1"></script>
 <script src="/shared/arche_assignment_grade.js?v=1"></script>
 <script src="/shared/arche_exam_analysis.js?v=5"></script>
-<script src="/shared/arche_lesson_design.js?v=13"></script>
+<script src="/shared/arche_lesson_design.js?v=14"></script>
 <script src="/shared/arche_newsletter.js?v=1"></script>
 <script src="/shared/arche_teacher_activity.js?v=1"></script>
-<script src="/shared/arche_refbank.js?v=2"></script>
+<script src="/shared/arche_refbank.js?v=3"></script>
 <style>
 .nav.ent-locked{opacity:.5}
 .nav.ent-locked .ent-lock{margin-left:auto;font-size:11px;opacity:.85}
@@ -7591,7 +7607,93 @@ async function loadApiKey(){
   var bc0=document.getElementById('brand-card'); if(bc0&&window._isSchool)bc0.style.display='none';
   // 내 비밀번호 변경: 학원(B2B) 설정에서 노출(학교/학부모용은 각자 전용 화면에서 처리)
   var pwc=document.getElementById('pw-card'); if(pwc)pwc.style.display=(!window._isB2C&&!window._isSchool)?'':'none';
+  // 학원 지역 설정: 원장 전용, 학원(B2B)만 노출
+  var rgc=document.getElementById('region-card');
+  if(rgc){ var showRg=(window._isOwner===true && !window._isB2C && !window._isSchool); rgc.style.display=showRg?'':'none'; if(showRg)regionLoad(); }
 }
+
+/* ===================== 학원 지역 설정 (원장 전용) ===================== */
+window._acadRegions=null;
+function regionFillSido(){
+  var s=document.getElementById('rg-sido'); if(!s||!window.KR_REGIONS)return;
+  if(s.options.length)return;
+  s.innerHTML='<option value="">광역 선택</option>'+window.krSido().map(function(sd){return '<option value="'+esc(sd)+'">'+esc(sd)+'</option>';}).join('');
+}
+function regionSidoChange(){
+  var s=document.getElementById('rg-sido'), g=document.getElementById('rg-gu'); if(!s||!g)return;
+  var list=window.krSigungu(s.value);
+  g.innerHTML='<option value="">'+(list.length?'기초단체 선택 (또는 광역 전체)':'해당 광역 전체')+'</option>'
+    +'<option value="__ALL__">▶ '+esc(s.value||'')+' 전체</option>'
+    +list.map(function(gu){return '<option value="'+esc(gu)+'">'+esc(gu)+'</option>';}).join('');
+}
+function regionChips(){
+  var box=document.getElementById('rg-chips'); if(!box)return;
+  var arr=window._acadRegions||[];
+  if(!arr.length){ box.innerHTML='<span style="font-size:12px;color:var(--ink-mute)">선택된 지역이 없습니다. (지역 미설정 시 기출검색은 전체 노출)</span>'; return; }
+  box.innerHTML=arr.map(function(r,i){
+    var label=r.sigungu?(window.krSidoShort(r.sido)+' '+r.sigungu):(r.sido+' 전체');
+    return '<span style="display:inline-flex;align-items:center;gap:6px;background:var(--panel-2);border:1px solid var(--line);border-radius:20px;padding:5px 10px;font-size:12px;font-weight:700;color:var(--ink)">📍 '+esc(label)
+      +'<button onclick="regionDel('+i+')" style="border:none;background:transparent;color:var(--ink-mute);cursor:pointer;font-size:13px;line-height:1;padding:0">✕</button></span>';
+  }).join('');
+}
+function regionAdd(){
+  var s=document.getElementById('rg-sido'), g=document.getElementById('rg-gu'); if(!s||!s.value){ return; }
+  var arr=window._acadRegions||(window._acadRegions=[]);
+  var sido=s.value, gu=(g&&g.value)||'';
+  var entry;
+  if(!gu || gu==='__ALL__'){ entry={sido:sido, sigungu:null}; }
+  else { entry={sido:sido, sigungu:gu}; }
+  var dup=arr.some(function(r){ return r.sido===entry.sido && (r.sigungu||'')===(entry.sigungu||''); });
+  // 광역 전체를 추가하면 같은 광역의 개별 기초 항목은 정리
+  if(!entry.sigungu){ window._acadRegions=arr.filter(function(r){ return r.sido!==entry.sido; }); arr=window._acadRegions; }
+  else { arr=window._acadRegions=arr.filter(function(r){ return !(r.sido===entry.sido && r.sigungu===null); }); }
+  if(!dup) arr.push(entry);
+  regionChips();
+}
+function regionDel(i){ var arr=window._acadRegions||[]; arr.splice(i,1); regionChips(); }
+async function regionLoad(){
+  regionFillSido(); regionSidoChange();
+  if(!sb) return;
+  var acid=window._acadId; if(!acid){ try{ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; window._acadId=acid; }catch(e){} }
+  if(!acid) return;
+  try{
+    var r=await sb.from('academies').select('regions,region').eq('id',acid).limit(1);
+    var row=(r.data&&r.data[0])||{};
+    var regs=row.regions;
+    if(Array.isArray(regs) && regs.length){ window._acadRegions=regs.map(function(x){ return {sido:x.sido||'', sigungu:x.sigungu||null}; }); }
+    else if(row.region){ // 기존 단일 text 값 -> 마이그레이션 표시 (광역 추정)
+      var m=regionGuess(row.region); window._acadRegions=m?[m]:[]; }
+    else { window._acadRegions=[]; }
+  }catch(e){ window._acadRegions=window._acadRegions||[]; }
+  regionChips();
+}
+function regionGuess(txt){ // "전주","전북 전주시" 같은 기존 값을 최선으로 해석
+  txt=String(txt||'').trim(); if(!txt)return null;
+  var sidos=window.krSido();
+  for(var i=0;i<sidos.length;i++){ var sd=sidos[i], sh=window.krSidoShort(sd);
+    if(txt.indexOf(sh)>=0 || txt.indexOf(sd)>=0){
+      var gus=window.krSigungu(sd);
+      for(var j=0;j<gus.length;j++){ if(txt.indexOf(gus[j])>=0) return {sido:sd,sigungu:gus[j]}; }
+      return {sido:sd,sigungu:null};
+    }
+  }
+  // 시군구명만 들어온 경우 역탐색
+  for(var k=0;k<sidos.length;k++){ var gus2=window.krSigungu(sidos[k]); for(var t=0;t<gus2.length;t++){ if(txt.indexOf(gus2[t])>=0) return {sido:sidos[k],sigungu:gus2[t]}; } }
+  return null;
+}
+async function regionSave(){
+  var m=document.getElementById('rg-msg'); var acid=window._acadId;
+  if(!sb||!acid){ if(m){m.style.color='var(--risk)';m.textContent='학원 정보를 찾을 수 없습니다.';} return; }
+  if(m){m.style.color='var(--ink-mute)';m.textContent='저장 중…';}
+  var arr=(window._acadRegions||[]).map(function(r){ return {sido:r.sido, sigungu:r.sigungu||null}; });
+  var regionText=arr.map(function(r){ return r.sigungu?(window.krSidoShort(r.sido)+' '+r.sigungu):(window.krSidoShort(r.sido)); }).join(', ');
+  try{
+    var r=await sb.from('academies').update({regions:arr, region:(regionText||null)}).eq('id',acid);
+    if(r.error){ if(m){m.style.color='var(--risk)';m.textContent='실패: '+r.error.message;} return; }
+    if(m){m.style.color='var(--safe)';m.textContent='✓ 저장되었습니다. 기출검색에 바로 반영됩니다.';}
+  }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='오류: '+((e&&e.message)||e);} }
+}
+window.regionLoad=regionLoad; window.regionSidoChange=regionSidoChange; window.regionAdd=regionAdd; window.regionDel=regionDel; window.regionSave=regionSave;
 async function ownerChangePw(){
   var el=document.getElementById('own-pw'), el2=document.getElementById('own-pw2'), m=document.getElementById('own-pw-msg'); if(!el)return;
   var np=(el.value||''); if(np.length<6){ if(m){m.style.color='var(--risk)';m.textContent='6자 이상 입력하세요.';} return; }
