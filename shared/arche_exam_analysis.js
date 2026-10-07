@@ -61,7 +61,7 @@
             grading:false, autoStu:null, autoMsg:'' };
 
     try{
-      var rc=await sb().from('academy_classes').select('id,name,subject,teacher_id').eq('academy_id',acid).order('created_at');
+      var rc=await sb().from('academy_classes').select('id,name,subject,grade_band,teacher_id').eq('academy_id',acid).order('created_at');
       var list=(rc&&rc.data)||[]; if(!canManage&&uid) list=list.filter(function(c){return c.teacher_id===uid;});
       S.classes=list; if(list[0]) S.classId=list[0].id;
     }catch(e){ S.classes=[]; }
@@ -233,7 +233,7 @@
         var imgs=[]; for(var i=0;i<files.length&&i<6;i++){ imgs.push(await fileB64(files[i])); }
         var cls=S.classes.filter(function(c){return c.id===S.classId;})[0]||{};
         var tok=await token();
-        var r=await fetch(fnBase()+'/assignment-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:'extract', context:{subject:cls.subject}, images:imgs})});
+        var r=await fetch(fnBase()+'/assignment-ai',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok},body:JSON.stringify({task:'extract', context:{subject:cls.subject, grade:cls.grade_band||''}, images:imgs})});
         var jj=await r.json().catch(function(){return{error:'응답 오류'};});
         if(!r.ok||jj.error) throw new Error(jj.error||('HTTP '+r.status));
         var its=jj.items||[]; if(!its.length){ S._exBusy=false; S._exMsg='문항을 인식하지 못했습니다. 더 선명한 파일로 시도하세요.'; render(); return; }

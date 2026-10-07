@@ -76,6 +76,10 @@
     ".lsd .qitem.xlv{border-color:#bfe8cf;background:#fbfffd}",
     ".lsd .qitem .ct{font-size:12px;color:var(--ink);margin-top:7px;line-height:1.55}",
     ".lsd .qitem .un{font-size:11px;color:var(--mute);margin-top:4px}",
+    ".lsd .qimg{margin-top:8px}.lsd .qimg img{max-height:140px;max-width:100%;border:1px solid var(--line);border-radius:8px;cursor:zoom-in;display:block}",
+    "#lsd-lb{position:fixed;inset:0;z-index:100000;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;padding:18px;cursor:zoom-out}",
+    "#lsd-lb img{max-width:96vw;max-height:94vh;border-radius:8px;background:#fff}",
+    "#lsd-proj .pjimg{max-width:72vw;max-height:52vh;border-radius:10px;background:#fff;margin:0 auto 22px;display:none}",
     ".lsd .cpnote{font-size:10.5px;color:var(--mute);margin-top:9px;line-height:1.5}",
     // 기존 카드
     ".lsd .cc{display:inline-flex;flex-direction:column;gap:1px;border:1px solid #cfe0ff;background:#eff5ff;border-radius:10px;padding:8px 11px;margin:0 7px 7px 0}",
@@ -236,7 +240,7 @@
         // 과목명 하드필터 제거: 수능 미적분·기하·확통처럼 과목명이 달라도 개념(단원 term)으로 매칭.
         // 과목 일치는 랭킹 가점으로만 사용.
         var q=sb().from('ref_exam_bank')
-          .select('id,source_type,school,region,year,round,grade,semester,subject,unit_large,unit_mid,unit_small,qtype,difficulty,content,answer')
+          .select('id,source_type,school,region,year,round,grade,semester,subject,unit_large,unit_mid,unit_small,qtype,difficulty,content,answer,image_url')
           .order('year',{ascending:false}).limit(700);
         var r=await q; var rows=(r&&r.data)||[];
         var psub=String(S.pArea||'');
@@ -264,10 +268,19 @@
           src[srcCat(x)]++;
           if(S.pBaseLevel==='중' && rowLevel(x)==='고') xlv++; });
         S.pCov={ n:S.pRows.length, schools:Object.keys(schools).length, years:Object.keys(years).sort(), label:label, xlv:xlv, base:S.pBaseLevel, src:src };
+        // 문제 이미지 서명 URL(비공개 버킷) 생성
+        S.pImg={};
+        try{ var paths=[]; S.pRows.forEach(function(x){ if(x.image_url) paths.push(x.image_url); });
+          if(paths.length){ var uniq=[]; paths.forEach(function(p){ if(uniq.indexOf(p)<0) uniq.push(p); });
+            var su=await sb().storage.from('refbank').createSignedUrls(uniq, 3600);
+            (((su&&su.data)||[])).forEach(function(o){ if(o&&o.path&&o.signedUrl) S.pImg[o.path]=o.signedUrl; }); } }catch(e){}
         S.pMsg = S.pRows.length ? '' : '해당 단원으로 매칭된 기출이 아직 없습니다. 기출은행에 자료가 쌓이면 자동으로 검색됩니다.';
       }catch(e){ S.pMsg='검색 실패: '+((e&&e.message)||e); }
       S.pBusy=false; render();
     }
+
+    // ---- 문제 이미지 확대(라이트박스) ----
+    function openLightbox(url){ if(!url) return; var old=document.getElementById('lsd-lb'); if(old) old.remove(); var d=document.createElement('div'); d.id='lsd-lb'; d.innerHTML='<img src="'+esc(url)+'">'; d.onclick=function(){ d.remove(); }; document.body.appendChild(d); }
 
     // ---- 투사(학생 제시) ----
     function openProjection(){
@@ -292,6 +305,7 @@
         var x=rows[idx];
         var unit=[x.unit_large,x.unit_mid,x.unit_small].filter(Boolean).join(' › ');
         ov.querySelector('.pjmeta').innerHTML=meta(x);
+        var pim=ov.querySelector('.pjimg'); var iu=(x.image_url&&S.pImg&&S.pImg[x.image_url])?S.pImg[x.image_url]:''; if(pim){ if(iu){ pim.src=iu; pim.style.display='block'; } else { pim.removeAttribute('src'); pim.style.display='none'; } }
         ov.querySelector('.pjq').innerHTML='<span class="lbl">📌 지금 이 내용, 학교에서는 이렇게 출제돼요'+(unit?(' · '+esc(unit)):'')+'</span>'+esc(x.content||'(요지 미등록)');
         var ans=ov.querySelector('.pjans'); ans.innerHTML = x.answer?('💡 접근: '+esc(x.answer)):''; ans.style.display=x.answer?'block':'none';
         ov.querySelector('.pjcount').textContent=(idx+1)+' / '+rows.length;
@@ -300,7 +314,7 @@
       }
       ov.innerHTML=''
         +'<div class="pjhead"><div class="t">'+esc(label)+' <small>주변 학교 실제 출제 사례 · 아르케 기출은행</small></div><button class="pjx">✕ 닫기 (Esc)</button></div>'
-        +'<div class="pjbody"><div class="pjmeta"></div><div class="pjq"></div><div class="pjans"></div>'
+        +'<div class="pjbody"><div class="pjmeta"></div><img class="pjimg" alt="문제"><div class="pjq"></div><div class="pjans"></div>'
           +'<div class="pjcp">※ 저작권 보호를 위해 문항 원문이 아닌 출제 요지·메타정보를 제시합니다. 원문은 보유 자료를 활용하세요.</div></div>'
         +'<div class="pjfoot"><button class="pjnav pjprev">◀ 이전</button><div class="pjcount"></div><button class="pjnav pjnext">다음 ▶</button></div>';
       document.body.appendChild(ov);
@@ -328,7 +342,8 @@
         return '<tr'+(xl?' style="background:#fbfffd"':'')+'><td style="white-space:nowrap">'+where+'</td>'
           +'<td style="white-space:nowrap">'+esc(x.difficulty||'')+'</td>'
           +'<td style="white-space:nowrap">'+esc(x.qtype||'')+'</td>'
-          +'<td>'+esc(x.content||'')+(x.answer?('<br><span style="color:#1b64da">💡 '+esc(x.answer)+'</span>'):'')+(unit?('<br><span style="color:#888;font-size:10px">'+esc(unit)+'</span>'):'')+'</td></tr>';
+          +'<td>'+esc(x.content||'')+(x.answer?('<br><span style="color:#1b64da">💡 '+esc(x.answer)+'</span>'):'')+(unit?('<br><span style="color:#888;font-size:10px">'+esc(unit)+'</span>'):'')
+            +((x.image_url&&S.pImg&&S.pImg[x.image_url])?('<br><img src="'+esc(S.pImg[x.image_url])+'" style="max-width:280px;max-height:220px;margin-top:5px;border:1px solid #ddd">'):'')+'</td></tr>';
       }).join('');
       var covline='주변 학교 '+(cov.schools||0)+'곳 · '+((cov.years&&cov.years.length)?(cov.years[cov.years.length-1]+'~'+cov.years[0]):'연도 다양')+' · 총 '+rows.length+'문항'+((cov.xlv)?(' · 🔗 고1 연계 '+cov.xlv+'문항 포함'):'');
       var html='<div class="ph-wrap">'
@@ -479,7 +494,9 @@
             +(x.difficulty?'<span class="qtag '+dcl+'">난이도 '+esc(x.difficulty)+'</span>':'')
             +(x.qtype?'<span class="qtag">'+esc(x.qtype)+'</span>':'')+'</div>'
             +(x.content?'<div class="ct">'+esc(x.content)+'</div>':'<div class="ct" style="color:var(--mute)">(출제 요지 미등록)</div>')
-            +(unit?'<div class="un">'+esc(unit)+'</div>':'')+'</div>';
+            +(unit?'<div class="un">'+esc(unit)+'</div>':'')
+            +((x.image_url&&S.pImg&&S.pImg[x.image_url])?('<div class="qimg"><img src="'+esc(S.pImg[x.image_url])+'" data-full="'+esc(S.pImg[x.image_url])+'"></div>'):'')
+            +'</div>';
         }).join('');
         var actions = S.pRows.length ? ('<div class="row1" style="margin:4px 0 10px"><button class="btn" id="lsd-proj-btn">🖥️ 수업용 보기 (학생 투사)</button><button class="btn gold" id="lsd-print-btn">🖨️ 수업 전 출력물</button></div>') : '';
         body=covHTML
@@ -580,6 +597,7 @@
       var pr=root.querySelector('#lsd-print-btn'); if(pr) pr.onclick=buildHandout;
       var dd=root.querySelector('#lsd-dldoc'); if(dd) dd.onclick=downloadDesignDoc;
       var pd=root.querySelector('#lsd-prdoc'); if(pd) pd.onclick=printDesignDoc;
+      root.querySelectorAll('.qimg img').forEach(function(im){ im.onclick=function(){ openLightbox(this.getAttribute('data-full')); }; });
       var ra=root.querySelector('#lsd-radd'); if(ra) ra.onclick=quickAddBank;
       // 기존
       var cg=root.querySelector('#lsd-cgo'); if(cg) cg.onclick=function(){ careerSearch(); };

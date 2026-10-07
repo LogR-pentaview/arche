@@ -139,6 +139,19 @@
       root.innerHTML=head+body; bind();
     }
 
+    // 업로드한 기출 이미지(문제 자체)를 비공개 버킷에 저장 → 경로 반환(배치 1회만)
+    async function uploadRefImages(){
+      if(S._imgPath!==undefined) return S._imgPath;
+      var files=S._imgFiles||[];
+      if(!files.length){ S._imgPath=null; return null; }
+      try{
+        var f0=files[0]; var ext=(f0.type&&f0.type.indexOf('png')>=0)?'png':'jpg';
+        var path=acid+'/'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
+        var up=await sb().storage.from('refbank').upload(path, f0, {upsert:false, contentType:(f0.type||'image/jpeg')});
+        if(up&&up.error){ S._imgPath=null; return null; }
+        S._imgPath=path; return path;
+      }catch(e){ S._imgPath=null; return null; }
+    }
     async function doSave(){
       var f=S.form; var m=root.querySelector('#rf-msg');
       ['source_type','school','region','year','round','grade','semester','subject','unit_large','unit_mid','unit_small','qtype','difficulty','content','answer','source_ref'].forEach(function(k){
@@ -151,7 +164,7 @@
         qtype:f.qtype||null, difficulty:f.difficulty||null, content:f.content||null, answer:f.answer||null, source_ref:f.source_ref||null };
       try{
         if(f.id){ var u=await sb().from('ref_exam_bank').update(row).eq('id',f.id); if(u.error)throw u.error; }
-        else{ row.created_by=uid; var i=await sb().from('ref_exam_bank').insert(row); if(i.error)throw i.error; }
+        else{ row.created_by=uid; var ipath=await uploadRefImages(); if(ipath) row.image_url=ipath; var i=await sb().from('ref_exam_bank').insert(row); if(i.error)throw i.error; }
         S.form=null; S.msg=''; await load();
       }catch(e){ S.msg='저장 실패: '+(e.message||e); if(m)m.textContent=S.msg; }
     }
@@ -163,6 +176,7 @@
 
     async function doExtract(files){
       var f=S.form; if(!f||!files||!files.length) return;
+      S._imgFiles=Array.prototype.slice.call(files,0,6); S._imgPath=undefined;
       S.imgBusy=true; S.imgMsg='이미지 분석 중… (최대 1분)'; render();
       try{
         var imgs=[]; for(var i=0;i<files.length && i<6;i++){ imgs.push(await fileB64(files[i])); }
@@ -191,7 +205,8 @@
         year:(it.year||f.year?parseInt(it.year||f.year,10)||null:null), round:f.round||null, grade:f.grade||null, semester:f.semester||null, subject:f.subject||null,
         unit_large:it.unit_large||null, unit_mid:it.unit_mid||null, unit_small:it.unit_small||null, qtype:it.qtype||null, difficulty:it.difficulty||null,
         content:it.content||null, answer:it.answer||null, source_ref:f.source_ref||null }; });
-      try{ var ins=await sb().from('ref_exam_bank').insert(rows); if(ins.error)throw ins.error; S._extra=null; S.imgMsg='✓ 나머지 일괄 저장 완료'; await load(); }
+      try{ var ipath=(S._imgPath!==undefined)?S._imgPath:await uploadRefImages(); if(ipath) rows.forEach(function(r){ r.image_url=ipath; });
+        var ins=await sb().from('ref_exam_bank').insert(rows); if(ins.error)throw ins.error; S._extra=null; S.imgMsg='✓ 나머지 일괄 저장 완료'; await load(); }
       catch(e){ S.imgMsg='일괄 저장 실패: '+(e.message||e); render(); }
     }
 
@@ -199,12 +214,12 @@
       var fs=root.querySelector('#rf-fschool'); if(fs) fs.oninput=function(){ S.filter.school=this.value; if(!S.form)render(); };
       var fg=root.querySelector('#rf-fgrade'); if(fg) fg.onchange=function(){ S.filter.grade=this.value; render(); };
       var fsub=root.querySelector('#rf-fsubject'); if(fsub) fsub.oninput=function(){ S.filter.subject=this.value; if(!S.form)render(); };
-      var nw=root.querySelector('#rf-new'); if(nw) nw.onclick=function(){ S.form=blankForm(); S.msg=''; S.imgMsg=''; S._extra=null; render(); };
+      var nw=root.querySelector('#rf-new'); if(nw) nw.onclick=function(){ S.form=blankForm(); S.msg=''; S.imgMsg=''; S._extra=null; S._imgFiles=null; S._imgPath=undefined; render(); };
       var sv=root.querySelector('#rf-save'); if(sv) sv.onclick=doSave;
       var cx=root.querySelector('#rf-cancel'); if(cx) cx.onclick=function(){ S.form=null; S.msg=''; render(); };
       var dl=root.querySelector('#rf-del'); if(dl) dl.onclick=function(){ doDelete(S.form.id); };
       var img=root.querySelector('#rf-img'); if(img) img.onchange=function(){ doExtract(this.files); this.value=''; };
-      root.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-edit'); var row=S.rows.filter(function(x){return String(x.id)===String(id);})[0]; if(row){ S.form=Object.assign(blankForm(),row); S.msg=''; S.imgMsg=''; S._extra=null; render(); } }; });
+      root.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick=function(){ var id=this.getAttribute('data-edit'); var row=S.rows.filter(function(x){return String(x.id)===String(id);})[0]; if(row){ S.form=Object.assign(blankForm(),row); S.msg=''; S.imgMsg=''; S._extra=null; S._imgFiles=null; S._imgPath=undefined; render(); } }; });
       root.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ doDelete(this.getAttribute('data-del')); }; });
       if(S._extra&&S._extra.length){ var host2=root.querySelector('#rf-msg'); if(host2){ var btn=document.createElement('button'); btn.className='btn sub'; btn.textContent='나머지 일괄 저장 ('+S._extra.length+')'; btn.style.marginLeft='6px'; btn.onclick=saveExtra; host2.parentNode.appendChild(btn); } }
     }
