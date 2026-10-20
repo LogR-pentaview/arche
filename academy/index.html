@@ -11781,7 +11781,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
       if(pk.note)h+='<tr>'+td('학교 특이사항',{th:1})+td(pe(pk.note))+'</tr>';
       if(pk.memo)h+='<tr>'+td('상담 메모',{th:1})+td(pe(pk.memo))+'</tr>';
       if(pk.ai){var a=parseAI(pk.ai);
-        h+='<tr>'+td('AI 로드맵(참고)',{th:1})+td((a.요약.length?'<b>총평</b> '+pe(a.요약[0].join(' '))+'<br>':'')+
+        h+='<tr>'+td('추천 로드맵',{th:1})+td((a.요약.length?'<b>총평</b> '+pe(a.요약[0].join(' '))+'<br>':'')+
           a.과목.map(function(f){return pe(f[0])+' '+pe(f[1])+' ('+pe(f[2])+'·'+pe(f[3])+') — '+pe(f[4])+(f[5]?' / 탐구: '+pe(f[5]):'');}).join('<br>')+
           (a.동아리.length?'<br><b>동아리</b><br>'+a.동아리.map(function(f){return pe(f[0])+' — '+pe(f[1])+(f[2]?' / '+pe(f[2]):'');}).join('<br>'):'')+
           (a.주의.length?'<br><b>주의</b> '+a.주의.map(function(f){return pe(f.join(' '));}).join(' · '):'')+
