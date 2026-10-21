@@ -814,19 +814,44 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();
 })();
 </script>
 
-<!-- 방문자 집계 (개인정보 미수집: 랜덤 방문자 토큰만) -->
+<!-- 방문자 집계 (개인정보 미수집: 랜덤 방문자 토큰만) · 2026-10-21: 봇·미리보기 접속 제외, 세션당 1회 -->
 <script>
 (function(){
   try{
-    var K='arche_vid', vid=localStorage.getItem(K);
-    if(!vid){ vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem(K,vid); }
-    var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit";
-    var K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
-    fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},
-      body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
+    var ua=navigator.userAgent||'';
+    // 자동화 도구·크롤러·링크 미리보기는 집계 제외
+    if(navigator.webdriver||/bot|crawl|spider|slurp|preview|headless|lighthouse|pagespeed|facebookexternalhit|inspectiontool|googleother|python|curl|wget|axios|node-fetch/i.test(ua))return;
+    var sent=false;
+    function send(){
+      if(sent)return; sent=true;
+      try{
+        var SK='arche_vlog:'+location.pathname;
+        if(sessionStorage.getItem(SK))return;      // 같은 탭 세션에서 같은 페이지는 1회만
+        sessionStorage.setItem(SK,'1');
+      }catch(e){}
+      try{
+        var K='arche_vid', vid=localStorage.getItem(K);
+        if(!vid){ vid=Date.now().toString(36)+Math.random().toString(36).slice(2,10); localStorage.setItem(K,vid); }
+        var U="https://dvxepjctjazobrkjrkdw.supabase.co/rest/v1/rpc/log_site_visit";
+        var K2="sb_publishable_-0O77zGATzEM5_FyEbO_wQ_vCykpXUn";
+        fetch(U,{method:'POST',headers:{'Content-Type':'application/json','apikey':K2,'Authorization':'Bearer '+K2},
+          body:JSON.stringify({p_visitor:vid,p_path:location.pathname,p_ref:(document.referrer||'')}),keepalive:true}).catch(function(){});
+      }catch(e){}
+    }
+    // 실제 사람 방문만: 화면이 보이는 상태로 2초 경과 또는 첫 조작(스크롤·클릭·터치·키)
+    ['pointerdown','keydown','scroll','touchstart'].forEach(function(ev){ window.addEventListener(ev,send,{once:true,passive:true}); });
+    function arm(){ setTimeout(function(){ if(document.visibilityState==='visible')send(); },2000); }
+    if(document.visibilityState==='visible')arm();
+    else document.addEventListener('visibilitychange',function f(){ if(document.visibilityState==='visible'){ document.removeEventListener('visibilitychange',f); arm(); } });
   }catch(e){}
 })();
 </script>
+
+<!-- Vercel Web Analytics (대시보드 Analytics > Enable 후 표시되는 경로와 다르면 src 교체) -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
 
 </body>
 </html>
