@@ -1560,7 +1560,7 @@
               <div class="uni" id="rp-uni"><div style="color:#999;font-size:12px;grid-column:1/-1">[진단]에서 AI 분석 실행 시 추천 6선이 생성됩니다.</div></div>
             </div>
             <div class="sec"><div class="sec-h"><span class="no">06</span><h3>합격 역설계 · 성장 로드맵</h3></div>
-              <div id="rp-reverse" style="color:#4e5968">합격선(골든시드) 적재 후, 목표 대학 대비 현재 위치와 필요 상승폭을 자동 산출합니다. 탐구 설계는 학생이 실제 수행할 주제·구조를 제안합니다(대필 아님).</div>
+              <div id="rp-reverse" style="color:#4e5968">[진단]에서 AI 분석을 실행하면 목표·추천 대학별 합격선(입결 DB) 대비 현재 위치와 필요 상승폭이 표시됩니다. 탐구 설계는 학생이 실제 수행할 주제·구조를 제안합니다(대필 아님).</div>
             </div>
             <div class="note2">※ 현행 대입 기준 반영: 교내수상·개인봉사·독서활동·자율동아리 등 <b>대입 미반영 항목은 평가에서 제외</b>했습니다. 활동은 읽기·분석 용도이며 문구 생성/대필이 아닙니다.</div>
           </div>
@@ -7127,6 +7127,56 @@ function archeMatchCut(rows, univ, major){
   return { best: pool[0], all: pool };
 }
 
+
+/* ===== 컨설팅 리포트 06 · 합격 역설계(입결 DB 연동, 5등급 환산 + 9등급 원본 병기) ===== */
+async function buildReportReverse(s, reco, n){
+  var myGrade=(n&&n.weighted_overall!=null&&!isNaN(n.weighted_overall))?Number(n.weighted_overall):null;
+  var sysNow=studentGradeSystem(s), myPct=null, myG5=null;
+  if(myGrade!=null){
+    if(sysNow===5){
+      var A5=window.G5_ANCHOR, gg=Math.max(1,Math.min(5,myGrade)), lo5=Math.floor(gg);
+      myPct=(gg>=5)?A5[4]:+(A5[lo5-1]+((A5[lo5]||A5[4])-A5[lo5-1])*(gg-lo5)).toFixed(2);
+      myG5=myGrade;
+    } else { myPct=g9ToPct(myGrade); myG5=pctToG5(myPct); }
+  }
+  var tg=[], seen={};
+  function add(name,major,tag){ if(!name)return; var k=String(name)+'|'+String(major||''); if(seen[k])return; seen[k]=1; tg.push({name:name,major:major||'',tag:tag}); }
+  if(s&&s.target_univ) add(s.target_univ,s.target_major,'목표');
+  (reco||[]).slice(0,6).forEach(function(u){ add(u.name,u.major,u.pos==='reach'?'소신':(u.pos==='safe'?'안정':'적정')); });
+  if(!tg.length) return '';
+  var cuts=[]; try{ cuts=await archeFetchCuts(tg.map(function(t){return t.name;})); }catch(e){ cuts=[]; }
+  var hit=0;
+  var TH='style="text-align:left;font-size:11px;color:#8b95a1;font-weight:600;padding:6px 8px;border-bottom:1px solid #e5e8eb;white-space:nowrap"';
+  var TD='style="font-size:12.5px;color:#333d4b;padding:8px;border-bottom:1px solid #f2f4f6;vertical-align:top"';
+  var rows=tg.map(function(t){
+    var m=archeMatchCut(cuts,t.name,t.major);
+    var nm='<b>'+esc(t.name)+'</b> '+esc(t.major)+' <span style="font-size:10.5px;color:#8b95a1">· '+esc(t.tag)+'</span>';
+    if(!m) return '<tr><td '+TD+'>'+nm+'</td><td '+TD+' colspan="4" style="font-size:12px;color:#8b95a1;padding:8px;border-bottom:1px solid #f2f4f6">입결 DB 미수록 모집단위</td></tr>';
+    hit++;
+    var c=m.best, is5=(Number(c.grade_system)===5);
+    var cutPct=(c.cut70_pct!=null?Number(c.cut70_pct):(c.cut50_pct!=null?Number(c.cut50_pct):null));
+    var cutRaw=(c.cut70!=null?Number(c.cut70):(c.cut50!=null?Number(c.cut50):null));
+    var cutG5=is5?cutRaw:(c.cut70_g5!=null?Number(c.cut70_g5):(c.cut50_g5!=null?Number(c.cut50_g5):(cutPct!=null?pctToG5(cutPct):null)));
+    var more=(m.all&&m.all.length>1)?' <span style="color:#8b95a1">외 '+(m.all.length-1)+'개 전형</span>':'';
+    var cutTxt=(cutG5!=null?'<b>약 '+cutG5.toFixed(1)+'등급</b>':'—')+((!is5&&cutRaw!=null)?'<div style="font-size:10.5px;color:#8b95a1">(9등급제 '+cutRaw.toFixed(2)+')</div>':'');
+    var gap=(cutPct!=null&&myPct!=null)?+(myPct-cutPct).toFixed(2):null;
+    var verdict=gap==null?'—':(gap<=-3?'안정권':(gap<=5?'적정권':'상향 지원'));
+    var vcol=gap==null?'#8b95a1':(gap<=-3?'#0a8f5a':(gap<=5?'#b7791f':'#d1383d'));
+    var need='—';
+    if(cutG5!=null&&myG5!=null){ var d=+(myG5-cutG5).toFixed(2); need=(d>0)?('<b style="color:#d1383d">▲ '+d.toFixed(2)+'등급 개선 필요</b>'):('<span style="color:#0a8f5a">여유 '+Math.abs(d).toFixed(2)+'등급</span>'); }
+    return '<tr><td '+TD+'>'+nm+'<div style="font-size:10.5px;color:#8b95a1;margin-top:2px">'+esc(String(c.year||''))+' '+esc(c.admission_type||'')+more+'</div></td>'
+      +'<td '+TD+'>'+cutTxt+'</td>'
+      +'<td '+TD+'>'+(myG5!=null?'약 '+Number(myG5).toFixed(1)+'등급':'—')+'</td>'
+      +'<td '+TD+'><b style="color:'+vcol+'">'+verdict+'</b>'+(gap!=null?'<div style="font-size:10.5px;color:#8b95a1">백분위 '+(gap>0?'+':'')+gap+'%p</div>':'')+'</td>'
+      +'<td '+TD+'>'+need+'</td></tr>';
+  }).join('');
+  var head='<div style="overflow:auto;margin:10px 0 6px"><table style="width:100%;border-collapse:collapse"><thead><tr><th '+TH+'>대학·모집단위</th><th '+TH+'>합격선(5등급 환산)</th><th '+TH+'>현재 내신(5등급 환산)</th><th '+TH+'>판정</th><th '+TH+'>필요 상승폭</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  var note='<div style="font-size:11px;color:#8b95a1;line-height:1.65">※ 합격선은 입결 DB(대학 공시·대입정보포털) 기준 <b>9등급제 입결을 누적 상위 백분위로 5등급 환산한 참고치</b>이며 직접 비교는 불가합니다. 같은 대학에 여러 전형이 있으면 가장 낮은 합격선 기준입니다.'
+    +(myGrade==null?'<br>※ 내신이 저장되지 않아 현재 위치·필요 상승폭을 산출하지 못했습니다. [자료 입력]에서 내신을 저장하세요.':'')
+    +(hit?'':'<br>※ 추천·목표 대학이 현재 적재된 입결 DB에 없습니다.')+'</div>';
+  return head+note;
+}
+
 async function renderArche(){
   const body=document.getElementById('arche-body'); if(!body)return;
   if(!window._activeStudent||!sb){ body.innerHTML='<div style="color:var(--ink-mute);padding:20px">[학생 관리]에서 학생을 활성화하세요.</div>'; return; }
@@ -8208,8 +8258,14 @@ async function renderReport(){
   var posLab={reach:'소신',fit:'적정',safe:'안정'};
   document.getElementById('rp-uni').innerHTML=(reco.length)?reco.slice(0,6).map(function(u,i){return '<div class="ucard"><div class="urank">'+String(i+1).padStart(2,'0')+'</div><div class="uname">'+esc(u.name||'')+'</div><div class="umajor">'+esc(u.major||'')+'</div><div class="urow"><span class="pos '+(u.pos||'fit')+'">'+(posLab[u.pos]||'적정')+'</span><span class="utype">'+esc(u.type||'')+'</span></div><div class="ubasis">'+esc(u.basis||'')+'</div></div>';}).join(''):'<div style="color:#999;font-size:12px;grid-column:1/-1">[진단]에서 AI 분석 실행 시 추천 6선이 생성됩니다.</div>';
 
-  // ⑥ 역설계
-  if(hasComp){var srt2=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});var tp=srt2[0],lw=srt2[srt2.length-1];document.getElementById('rp-reverse').innerHTML='<b>'+esc(s.target_univ||'목표 대학')+'</b> 기준 합격선(골든시드) 적재 후 현재 위치와 필요 상승폭을 자동 산출합니다. 최상위 <b>'+tp.key+'</b>를 지렛대로, 병목 <b>'+lw.key+'</b> 보완을 위한 탐구 주제·이수과목 로드맵을 학생이 실제 수행할 구조로 제안합니다(대필 아님).';}
+  // ⑥ 역설계 — 입결 DB(admission_cutlines) 연동
+  var _rvEl=document.getElementById('rp-reverse');
+  var _rvTail='';
+  if(hasComp){var srt2=vals.slice().filter(function(x){return x.v!=null;}).sort(function(a,b){return b.v-a.v;});var tp=srt2[0],lw=srt2[srt2.length-1];_rvTail='최상위 <b>'+tp.key+'</b>를 지렛대로, 병목 <b>'+lw.key+'</b> 보완을 위한 탐구 주제·이수과목 로드맵을 학생이 실제 수행할 구조로 제안합니다(대필 아님).';}
+  var _rvHtml='';
+  try{ _rvHtml=await buildReportReverse(s,reco,n); }catch(_e){ console.error('[report reverse]',_e); }
+  if(_rvHtml){ _rvEl.innerHTML=_rvHtml+(_rvTail?'<div style="margin-top:8px">'+_rvTail+'</div>':''); }
+  else if(_rvTail){ _rvEl.innerHTML='<b>'+esc(s.target_univ||'목표 대학')+'</b> 기준 입결 DB에서 합격선을 찾지 못했습니다. '+_rvTail; }
 }
 
 /* ===== 재설계 리포트 헬퍼 ===== */
