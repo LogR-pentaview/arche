@@ -7195,11 +7195,16 @@ async function renderArche(){
         +'<div class="marker now" style="left:'+pos(myPct)+'%"><div class="flag">현재 상위 '+myPct+'%</div></div></div>';
     }
 
-    var showG5 = (sysNow===5);
-    var cutLabel = showG5
-      ? ('5등급 환산 약 '+ (cutG5!=null?cutG5.toFixed(1):'—') +'등급')
-      : (cutRaw!=null? cutRaw.toFixed(2)+'등급(9등급제)' : '—');
-    var myLabel = (myGrade!=null? myGrade.toFixed(2)+'등급' : '—');
+    /* 5등급 환산 기본 표시 + 9등급 원본 병기 (학생 학년과 무관) */
+    var cutIs5 = (Number(c.grade_system)===5);
+    var cutG5v = cutIs5 ? cutRaw : (cutG5!=null ? cutG5 : (cutPct!=null ? pctToG5(cutPct) : null));
+    var cutLabel = (cutG5v!=null ? '5등급 환산 약 '+Number(cutG5v).toFixed(1)+'등급' : '—')
+      + ((!cutIs5 && cutRaw!=null) ? ' (9등급제 '+cutRaw.toFixed(2)+')' : '');
+    var myG5 = (sysNow===5) ? myGrade : (myPct!=null ? pctToG5(myPct) : null);
+    var myLabel = (myGrade!=null)
+      ? ((sysNow===5) ? myGrade.toFixed(2)+'등급(5등급제)'
+          : myGrade.toFixed(2)+'등급(9등급제)'+(myG5!=null?' · 5등급 환산 약 '+Number(myG5).toFixed(1):''))
+      : '—';
 
     return '<div class="arche-target">'+head+bar
       +'<div class="at-foot">'
@@ -7209,12 +7214,13 @@ async function renderArche(){
       +'<div class="metric"><small>경쟁률</small><b class="mono">'+(c.competition_rate!=null?Number(c.competition_rate).toFixed(2):'—')+'</b></div>'
       +'</div>'
       +'<div class="note" style="margin-top:8px;font-size:11px">기준 '+esc(c.univ||'')+' '+esc(c.major||'')+' · '+esc(c.metric||'')+' · '+esc(c.source||'')
-      + (showG5?' <b style="color:var(--gold,#3182f6)">· 9등급제 입결의 5등급 환산 참고치(백분위 경유) — 직접 비교 불가</b>':'')
+      + (cutIs5?'':' <b style="color:var(--gold,#3182f6)">· 9등급제 입결의 5등급 환산 참고치(누적 백분위 경유) — 직접 비교 불가</b>')
       +'</div></div>';
   }).join('');
 
   var footNote = '<div class="note">※ 합격선 = <b>입결 데이터</b>(대학 공시·대입정보포털 기준). '
     + '비교는 등급 숫자가 아니라 <b>누적 상위 백분위</b>로 수행 — 9등급제 입결을 5등급제 등급으로 단정 제시하지 않습니다.'
+    + '<br>※ <b>5등급 환산</b>은 9등급(4·7·12·17·20·17·12·7·4%)과 5등급(10·24·32·24·10%)의 누적 상위 백분위 중앙값을 기준으로 선형 보간한 참고치이며, 괄호 안은 9등급제 원본입니다.'
     + (sysNow===5?'<br>※ 2028학년도 대입은 내신 5등급제·수능 개편이 동시 적용되어 <b>연속성이 끊긴 데이터</b>입니다. 예측치가 아닌 <b>참고 좌표</b>로만 사용하세요.':'')
     + (hitCount?'':'<br>※ 추천 대학이 현재 적재된 입결 DB에 없습니다. 대학 추가 적재 시 자동 표기됩니다.')
     + '</div>';
