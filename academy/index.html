@@ -11711,11 +11711,32 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   /* ---- brand ---- */
   async function brand(){var b=null;try{if(window.loadAcadBrand)b=await window.loadAcadBrand();}catch(e){}b=b||window._acadBrand||{};
     return {name:b.name||(window._academy&&window._academy.name)||'',phone:b.phone||(window._academy&&window._academy.phone)||'',address:b.address||'',logo:b.logo_url||''};}
+  /* ---- 후보 고교 데이터: DB(prehs_schools / prehs_meta) 우선, 실패 시 내장 PREHS_DATA 사용 ---- */
+  var SCHDB=null;
+  async function loadSchoolsDB(force){
+    if(SCHDB&&!force)return SCHDB;
+    SCHDB={ok:false};
+    if(!window.sb||!D)return SCHDB;
+    try{
+      var r=await window.sb.from('prehs_schools').select('name,data,sort_order').eq('active',true).order('sort_order',{ascending:true});
+      if(r.error)throw r.error;
+      if(r.data&&r.data.length){
+        var m={};r.data.forEach(function(x){if(x&&x.name&&x.data&&Array.isArray(x.data.ratio)&&Array.isArray(x.data.groups))m[x.name]=x.data;});
+        if(Object.keys(m).length){
+          D.schools=m;SCHDB.ok=true;
+        }
+      }
+      var mr=await window.sb.from('prehs_meta').select('key,data');
+      if(!mr.error&&mr.data)mr.data.forEach(function(x){if(x.key==='tags'&&Array.isArray(x.data)&&x.data.length)D.tags=x.data;if(x.key==='dict'&&x.data&&typeof x.data==='object')D.dict=x.data;});
+    }catch(e){console.error('[prehs] 학교 DB 로드 실패 → 내장 데이터 사용',e);}
+    return SCHDB;
+  }
   /* ---- main render ---- */
   window.renderPrehs=async function(){
     root=document.getElementById('ph-root');if(!root)return;
     try{
       if(!D)throw new Error('학교 데이터(PREHS_DATA)가 로드되지 않았습니다. 파일이 최신 버전인지 확인하세요.');
+      await loadSchoolsDB();
       if(!P)P=newP();
       draw();
     }catch(e){root.innerHTML='<div class="ph-card" style="color:#c33">화면 생성 오류: '+pe(e&&e.message||e)+'<br><span class="ph-note">F12 콘솔의 [prehs] 오류와 함께 알려주세요.</span></div>';console.error('[prehs]',e);return;}
