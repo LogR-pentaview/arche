@@ -42,6 +42,7 @@
 #v-prehs .ph-item.s1{background:rgba(47,125,91,.14)}#v-prehs .ph-item.s1 .st{background:#2f7d5b;color:#fff;border-color:transparent}
 #v-prehs .ph-item.s2{background:rgba(200,150,40,.14)}#v-prehs .ph-item.s2 .st{background:#c89628;color:#fff;border-color:transparent}
 #v-prehs .ph-item .ac{display:block;font-size:11px;color:var(--ink-mute)}
+#v-prehs .ph-rec{font-size:10.5px;font-weight:700;color:#fff;background:#3182f6;border-radius:10px;padding:1px 6px}
 #v-prehs .ph-star{color:#e0a100;font-weight:700}
 #v-prehs .ph-chip{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:3px 10px;font-size:12px;cursor:pointer;margin:0 4px 4px 0}
 #v-prehs .ph-chip.on{background:#2f7d5b;color:#fff;border-color:transparent}
@@ -11617,7 +11618,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   var DIAGQ=['레벨테스트 또는 진단평가 일정 잡기','수강 시간표가 학교 일정과 겹치지 않는지 확인','교재·진도 방식 설명 완료'];
   var DUPQ=['여러 과목 수강 시 한 시간표로 조율해 안내','진단·학습 리포트를 한 곳에서 통합 관리함을 설명','학부모 피드백 주기 합의 (월 1회 등)'];
   var CONC=['고등 내신 적응 (상대평가 시작)','과목 간 학습 시간 배분','복수 과목 수강 부담','학생부 관리와 내신 병행','수강료·비용','자녀의 학습 동기','기타'];
-  var CROWS=[['field','희망 계열'],['major','희망 학과·진로'],['univ','목표 대학 (수준)'],['track','희망 전형'],['act','관심 활동']];
+  var CROWS=[['field','희망 계열'],['major','희망 학과·진로'],['univ','목표 대학 (대학명 입력 → 권장과목 자동 매칭)'],['track','희망 전형'],['act','관심 활동']];
   var COPT={field:['','인문','사회','자연','공학','의약','예체능','미정'],track:['','학생부교과','학생부종합','정시','미정'],act:['','동아리','대회','독서','탐구','봉사','기타']};
   /* ---- 수업 시간표 (학원별 설정) ---- */
   var SUBJC={'국어':'#1f9d55','수학':'#2b5fd9','영어':'#6a4bd8','과학':'#0e8f8a','기타':'#6b7280'},DAYS='월화수목금토일',TTNAME='__timetable__';
@@ -11737,6 +11738,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
     try{
       if(!D)throw new Error('학교 데이터(PREHS_DATA)가 로드되지 않았습니다. 파일이 최신 버전인지 확인하세요.');
       await loadSchoolsDB();
+      await loadRecDB();
       if(!P)P=newP();
       draw();
     }catch(e){root.innerHTML='<div class="ph-card" style="color:#c33">화면 생성 오류: '+pe(e&&e.message||e)+'<br><span class="ph-note">F12 콘솔의 [prehs] 오류와 함께 알려주세요.</span></div>';console.error('[prehs]',e);return;}
@@ -11773,10 +11775,111 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   }
   function drawTags(){var el=document.getElementById('ph-tags');if(!el)return;var a=autoTags(),on=P.tagOn||[];
     el.innerHTML=D.tags.map(function(t){var isA=a.indexOf(t)>=0,isOn=isA||on.indexOf(t)>=0;return '<span class="ph-chip'+(isOn?' on':'')+(isA?' auto':'')+'" data-tag="'+pe(t)+'">'+pe(t)+'</span>';}).join('')+(a.length||on.length?'':'<span class="ph-note">진로를 입력하면 자동 인식됩니다.</span>');}
+  /* ---- 목표대학 권장이수과목 매칭 (dept_recommended_subjects · 2028 자료집) ---- */
+  var REC=null;
+  async function loadRecDB(force){
+    if(REC&&!force)return REC;
+    REC=[];
+    try{
+      if(!window.sb)return REC;
+      var r=await window.sb.from('dept_recommended_subjects').select('univ,gye,moojib,subjects').limit(2000);
+      if(r.error)throw r.error;
+      REC=(r.data||[]).filter(function(x){return x&&x.univ&&Array.isArray(x.subjects);});
+    }catch(e){console.error('[prehs] 권장과목 DB 로드 실패',e);}
+    return REC;
+  }
+  var UAL=[['서울과학기술','서울과기'],['한기대','한국기술교육대'],['에리카','erica']];
+  function uNorm(t){t=String(t||'').toLowerCase().replace(/\s/g,'').replace(/학교/g,'');UAL.forEach(function(a){t=t.split(a[0]).join(a[1]);});return t;}
+  function uBase(u){return String(u||'').toLowerCase().replace(/[*⁎\s]/g,'').replace(/\(.*?\)/g,'');}
+  function uQual(u){var m=String(u||'').match(/\((.*?)\)/);return m?m[1].toLowerCase().replace(/\s/g,''):'';}
+  function findUnivRows(txt){
+    var t=uNorm(txt);if(!t)return null;
+    var bases={},best='';
+    REC.forEach(function(r){bases[uBase(r.univ)]=1;});
+    Object.keys(bases).forEach(function(b){if(b&&t.indexOf(b)>=0&&b.length>best.length)best=b;});
+    if(!best)return null;
+    var rows=REC.filter(function(r){return uBase(r.univ)===best;});
+    var q=rows.filter(function(r){var x=uQual(r.univ);return x&&t.indexOf(x)>=0;});
+    if(q.length)rows=q;
+    return {name:best,rows:rows};
+  }
+  var GYE_OF={'의약·생명':'의약','공학·AI·SW':'공학','자연과학·수학':'자연','인문·언어':'인문','사회·법·경제':'사회','교육':'교육','예체능·미디어':'예체능'};
+  function recGye(){var c=P.car,f=(c.field.s||c.field.p||'');
+    if(['인문','사회','자연','공학','의약','예체능'].indexOf(f)>=0)return [f];
+    var out=[];activeTags().forEach(function(t){var g=GYE_OF[t];if(g&&out.indexOf(g)<0)out.push(g);});return out;}
+  var MSYN={'의예':['의대','의학','의사','의예'],'약학':['약대','약학','약사'],'컴퓨터공학':['컴퓨터','소프트웨어','sw','인공지능','ai','개발자','프로그래','코딩'],'기계공학':['기계','로봇','자동차'],'생명과학':['생명','바이오','생물'],'화학':['화학'],'물리':['물리'],'심리':['심리'],'경영':['경영','마케팅'],'시각디자인':['디자인'],'철학':['철학']};
+  function majTxt(){var c=P.car;return [c.major.s,c.major.p,P.careerFree].join(' ').toLowerCase().replace(/\s/g,'');}
+  function majScore(m,txt){if(!m||!txt)return 0;var s=0,mm=String(m).toLowerCase().replace(/\s/g,'');
+    if(txt.indexOf(mm)>=0)s=3;(MSYN[m]||[]).forEach(function(k){if(txt.indexOf(k)>=0)s=Math.max(s,2);});
+    if(!s&&mm.length>=2&&txt.indexOf(mm.slice(0,2))>=0)s=1;return s;}
+  function tally(rows){var m={};rows.forEach(function(r){(r.subjects||[]).forEach(function(x){m[x]=(m[x]||0)+1;});});
+    return Object.keys(m).map(function(k){return {n:k,cnt:m[k],tot:rows.length};}).sort(function(a,b){return b.cnt-a.cnt||(a.n<b.n?-1:1);});}
+  function recFor(ut){
+    var mt=majTxt(),gy=recGye(),u=ut?findUnivRows(ut):null,out={target:ut||'',subjects:[],level:'',src:'',note:''};
+    if(u){
+      var sc=u.rows.map(function(r){return {r:r,s:majScore(r.moojib,mt)};}),mx=Math.max.apply(null,sc.map(function(o){return o.s;}));
+      if(mx>0){var rows=sc.filter(function(o){return o.s===mx;}).map(function(o){return o.r;});
+        out.level='대학·학과';out.src=rows.map(function(r){return String(r.univ).replace(/[*⁎]/g,'')+' '+r.moojib;}).join(' / ');out.subjects=tally(rows);return out;}
+      var gr=gy.length?u.rows.filter(function(r){return gy.indexOf(r.gye)>=0;}):u.rows;
+      if(gr.length){out.level='대학·계열';out.src=u.name+' '+(gy.join('·')||'전체')+' ('+gr.map(function(r){return r.moojib;}).join(', ')+')';
+        out.note='희망 학과와 일치하는 모집단위가 자료집에 없어, 같은 대학·계열 모집단위의 권장과목을 빈도순으로 표시합니다.';out.subjects=tally(gr);return out;}
+      out.note=u.name+'의 해당 계열 자료가 자료집에 없어 계열 공통으로 대체합니다.';
+    }else if(ut)out.note='입력한 대학(' + ut + ')은 2028 자료집에 수록되어 있지 않아 계열 공통으로 대체합니다.';
+    var rr=gy.length?REC.filter(function(r){return gy.indexOf(r.gye)>=0;}):[];
+    if(rr.length){out.level='계열 공통';out.src=gy.join('·')+' 계열 '+rr.length+'개 모집단위 빈도';out.subjects=tally(rr).slice(0,8);}
+    return out;
+  }
+  function recTargets(){var c=P.car,l=[];[c.univ.s,c.univ.p].forEach(function(x){x=String(x||'').trim();if(x&&l.indexOf(x)<0)l.push(x);});return l.length?l:[''];}
+  function recResults(){if(!REC||!REC.length)return [];return recTargets().map(recFor);}
+  function recNames(){var names=[];recResults().forEach(function(r){r.subjects.forEach(function(x){if(r.level==='계열 공통'&&x.cnt/x.tot<0.5)return;if(names.indexOf(x.n)<0)names.push(x.n);});});return names;}
+  function nk(s){return String(s||'').toLowerCase().replace(/[\s·ㆍ,\/]/g,'').replace(/Ⅰ/g,'1').replace(/Ⅱ/g,'2');}
+  var RSYN={'지구과학':['지구과학','지구시스템과학','행성우주과학'],'일반사회':['사회와문화','법과사회','정치','경제','사회문제탐구'],'역사':['세계사','동아시아역사기행','역사로탐구하는현대세계'],'윤리':['윤리와사상','윤리문제탐구','현대사회와윤리','인간과철학'],'영어':['영어독해와작문','심화영어','영어발표와토론','영미문학읽기','심화영어독해와작문','미디어영어'],'물리학':['고급물리학','역학과에너지','전자기와양자'],'화학':['고급화학ab','화학반응의세계','물질과에너지'],'생명과학':['고급생명과학','세포와물질대사','생물의유전']};
+  var FIXED={'대수':1,'미적분Ⅰ':1,'확률과통계':1,'영어':1,'국어':1,'수학':1};
+  function cMatch(sj,cn){var k=nk(sj),ck=nk(cn);if(ck===k)return 2;var syn=(RSYN[sj]||[]).map(nk);if(syn.indexOf(ck)>=0||(k.length>=3&&ck.indexOf(k)>=0))return 1;return 0;}
+  function recFlag(cn,names){var m=0;(names||recNames()).forEach(function(sj){m=Math.max(m,cMatch(sj,cn));});return m;}
+  function courseHits(sj,s){var ex=[],sm=[];s.groups.forEach(function(g){g.courses.forEach(function(c){var m=cMatch(sj,c.n);if(m===2)ex.push({g:g,c:c});else if(m===1)sm.push({g:g,c:c});});});return {ex:ex,sm:sm};}
+  function recStatus(sj,pk,s){var h=courseHits(sj,s),all=h.ex.concat(h.sm);
+    var picked=all.filter(function(o){return pk.courses[o.g.term+'|'+o.c.n];});
+    if(all.length)return {st:h.ex.length?'개설':'유사',hits:all,picked:picked};
+    return {st:FIXED[sj]?'편제확인':'미개설',hits:[],picked:[]};}
+  function recCardHTML(){
+    var box='<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px;background:rgba(49,130,246,.06)">';
+    if(!REC||!REC.length)return box+'<div class="ph-note">※ 대학 권장이수과목 DB를 불러오지 못했습니다. (권장과목 매칭 비활성)</div></div>';
+    var rs=recResults(),h=box+'<div class="ph-sub" style="margin-top:0">🎓 목표 대학 권장이수과목 <span class="ph-note" style="display:inline">(2028 자료집 · 4번 \'목표 대학\'·희망 학과 입력 시 자동 매칭)</span></div>';
+    rs.forEach(function(r){
+      h+='<div style="margin:6px 0 2px;font-size:12.5px"><b>'+pe(r.target||'목표 대학 미입력')+'</b>'+(r.level?' <span style="font-size:11px;background:#3182f6;color:#fff;border-radius:10px;padding:1px 8px">'+pe(r.level)+'</span>':'')+'</div>';
+      if(r.subjects.length){
+        h+='<div style="display:flex;flex-wrap:wrap;gap:6px;margin:4px 0">'+r.subjects.map(function(x){return '<span style="border:1px solid #3182f6;border-radius:7px;padding:3px 10px;font-size:12px;background:#fff">'+pe(x.n)+(x.tot>1?' <span style="color:var(--ink-mute);font-size:11px">'+x.cnt+'/'+x.tot+'</span>':'')+'</span>';}).join('')+'</div>';
+        h+='<div class="ph-note">근거: '+pe(r.src)+'</div>';
+      }else h+='<div class="ph-note">'+(r.target?'매칭 가능한 권장과목 데이터가 없습니다. 희망 계열을 선택하거나 학과를 입력하세요.':'목표 대학(또는 희망 계열)을 입력하면 대학이 제시하는 권장이수과목이 자동 매칭됩니다.')+'</div>';
+      if(r.note)h+='<div class="ph-note" style="color:#a06a00">'+pe(r.note)+'</div>';
+    });
+    return h+'<div class="ph-note" style="margin-top:6px">※ 대학·학과 단위 권장과목은 해당 연도 대학 공지가 우선합니다. 입학 연도에 변경될 수 있습니다.</div></div>';
+  }
+  function recSchoolHTML(pk,s){
+    var names=recNames();if(!names.length)return '';
+    var warn=[],miss=[],chips=names.map(function(sj){var r=recStatus(sj,pk,s),bg,bd,tx;
+      if(r.st==='미개설'){bg='rgba(220,60,60,.10)';bd='#d04a4a';tx='✖ 선택과목 목록에 없음';miss.push(sj);}
+      else if(r.st==='편제확인'){bg='rgba(120,120,120,.10)';bd='#999';tx='편제표 확인(공통·고정 편성 가능)';}
+      else{var ok=r.picked.length>0;bg=ok?'rgba(47,125,91,.15)':'rgba(200,150,40,.14)';bd=ok?'#2f7d5b':'#c89628';
+        tx=(ok?'✔ 계획 반영 · ':'개설 · ')+(r.st==='유사'?'유사: ':'')+r.hits.slice(0,3).map(function(o){return o.g.term+' '+o.c.n;}).join(', ');if(!ok)warn.push(sj);}
+      return '<span style="border:1px solid '+bd+';background:'+bg+';border-radius:7px;padding:3px 9px;font-size:11.5px"><b>'+pe(sj)+'</b> <span style="color:var(--ink-mute)">'+pe(tx)+'</span></span>';});
+    return '<div class="ph-sub">권장이수과목 대비 이 학교 개설 현황</div><div style="display:flex;flex-wrap:wrap;gap:6px">'+chips.join('')+'</div>'+
+      (warn.length?'<div class="ph-note" style="color:#a06a00;margin-top:4px">개설되어 있으나 계획에 미반영: <b>'+pe(warn.join(', '))+'</b> → 아래에서 선택하거나 ⚡자동 추천을 사용하세요.</div>':'')+
+      (miss.length?'<div class="ph-note" style="color:#c33;margin-top:2px">선택과목 목록에 없는 권장과목: <b>'+pe(miss.join(', '))+'</b> → 편제표(공통·고정 과목)로 개설되는지 학교에 확인하세요.</div>':'');
+  }
+  function recSchoolText(pk,s){var names=recNames();if(!names.length)return '';
+    return names.map(function(sj){var r=recStatus(sj,pk,s),t=r.st==='개설'||r.st==='유사'?(r.picked.length?'계획 반영':'개설'):(r.st==='편제확인'?'편제 확인':'목록에 없음');return pe(sj)+'('+t+')';}).join(', ');}
+  function recPrintHTML(){var h='';recResults().forEach(function(r){if(!r.subjects.length)return;
+    h+='<div style="font-size:11px;margin-top:3px"><b>대학 권장이수과목</b> ('+pe(r.target||'희망 계열 공통')+' · '+pe(r.level)+') · '+r.subjects.map(function(x){return pe(x.n);}).join(', ')+'</div>';});return h;}
+  function recPromptText(pk){var names=recNames();if(!names.length)return '';var s=D.schools[pk.school];
+    var src=recResults().filter(function(r){return r.subjects.length;}).map(function(r){return (r.target||'계열 공통')+' '+r.level;}).join(' / ');
+    return '\n[목표대학 권장이수과목 — '+src+'] '+names.map(function(sj){var r=recStatus(sj,pk,s);return sj+(r.st==='개설'||r.st==='유사'?'(이 학교 개설: '+r.hits.slice(0,3).map(function(o){return o.g.term+' '+o.c.n;}).join(', ')+')':r.st==='편제확인'?'(공통·고정 편성 확인 필요)':'(이 학교 선택과목 목록에 없음)');}).join('; ');}
+  function recBoost(c,names){var b=0;(names||[]).forEach(function(sj){var m=cMatch(sj,c.n);b=Math.max(b,m===2?8:m===1?4:0);});return b;}
   /* ---- 후보 고교 ---- */
   function grpCount(pk,g){var n=0;g.courses.forEach(function(c){if(pk.courses[g.term+'|'+c.n]==='선택')n++;});return n;}
-  function drawPicks(){var el=document.getElementById('ph-picks');if(!el)return;var act=activeTags();
-    el.innerHTML=P.picks.map(function(pk,i){
+  function drawPicks(){var el=document.getElementById('ph-picks');if(!el)return;var act=activeTags(),rnames=recNames();
+    el.innerHTML=recCardHTML()+P.picks.map(function(pk,i){
       var s=D.schools[pk.school];
       var h='<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px"><div class="ph-g2">'+field('후보 고교 '+(i+1),'<select data-pick="'+i+'" data-k="school"><option value="">(선택)</option>'+Object.keys(D.schools).map(function(k){return '<option'+(k===pk.school?' selected':'')+'>'+k+'</option>';}).join('')+'</select>')+'</div>';
       if(!s)return h+'</div>';
@@ -11784,10 +11887,11 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
       h+='<div class="ph-sub">수행평가 주요 형태</div><div style="font-size:12px;line-height:1.6">'+s.perf.map(pe).join('<br>')+'</div>';
       h+='<div class="ph-sub">동아리·대회 '+(s.clubHead?'<span class="ph-note" style="display:inline">('+pe(s.clubHead)+')</span>':'')+'</div>';
       h+=s.clubs.map(function(c,j){var st=pk.clubs[c.n]||'';return itemHTML(i,'club',c.n,'['+c.c+'] '+c.n,c.a,st,isStar(c,act));}).join('');
+      h+=recSchoolHTML(pk,s);
       h+='<div class="ph-sub">선택과목 계획</div>';
       s.groups.forEach(function(g){var cnt=grpCount(pk,g);
         h+='<div class="ph-note" style="margin-top:8px"><b>'+pe(g.term)+' · '+pe(g.label)+'</b>'+(g.limit?' — 선택 '+cnt+'/'+g.limit:'')+'</div>';
-        h+=g.courses.map(function(c){var st=pk.courses[g.term+'|'+c.n]||'';return itemHTML(i,'course',g.term+'|'+c.n,c.n+(c.ty?' ('+c.ty+')':''),c.a,st,isStar(c,act));}).join('');});
+        h+=g.courses.map(function(c){var st=pk.courses[g.term+'|'+c.n]||'';return itemHTML(i,'course',g.term+'|'+c.n,c.n+(c.ty?' ('+c.ty+')':''),c.a,st,isStar(c,act),recFlag(c.n,rnames));}).join('');});
       h+='<div class="ph-g2" style="margin-top:10px">'+field('학교 특이사항','<input type="text" data-pick="'+i+'" data-k="note" value="'+pe(pk.note)+'">')+field('상담 메모','<input type="text" data-pick="'+i+'" data-k="memo" value="'+pe(pk.memo)+'">')+'</div>';
       h+='<div class="ph-note" style="margin-top:10px">▶ 진로 입력 후 자동 추천: <b>선택 = 1순위안</b>(진로 연관도 최상) · <b>대안 = 2순위안</b>(진로 연계 + 안전형: 성취도 평가 과목 우선). 생성 후 항목을 클릭해 개별 수정할 수 있습니다.</div><div style="margin-top:6px"><button class="ph-btn pri" data-act="plan" data-i="'+i+'">⚡ 진로 기반 자동 추천 (1·2순위안)</button> <button class="ph-btn" data-act="plan-clear" data-i="'+i+'">선택 초기화</button> <span class="ph-note" id="ph-plan-msg'+i+'"></span></div>'+
       '<div style="margin-top:10px"><button class="ph-btn" data-act="ai" data-i="'+i+'">🤖 AI 로드맵 생성</button> <span class="ph-note" id="ph-ai-msg'+i+'"></span></div>';
@@ -11796,8 +11900,8 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
       return h+'</div>';
     }).join('');
   }
-  function itemHTML(i,kind,key,label,actTxt,st,star){
-    return '<div class="ph-item'+(st==='선택'?' s1':st==='대안'?' s2':'')+'" data-item="'+kind+'" data-i="'+i+'" data-key="'+pe(key)+'"><span class="st">'+(st||'·')+'</span><span>'+(star?'<span class="ph-star">★</span> ':'')+pe(label)+(actTxt?'<span class="ac">'+pe(actTxt)+'</span>':'')+'</span></div>';
+  function itemHTML(i,kind,key,label,actTxt,st,star,rec){
+    return '<div class="ph-item'+(st==='선택'?' s1':st==='대안'?' s2':'')+'" data-item="'+kind+'" data-i="'+i+'" data-key="'+pe(key)+'"><span class="st">'+(st||'·')+'</span><span>'+(rec?'<span class="ph-rec">권장</span> ':'')+(star?'<span class="ph-star">★</span> ':'')+pe(label)+(actTxt?'<span class="ac">'+pe(actTxt)+'</span>':'')+'</span></div>';
   }
 
   /* ---- 진로 기반 자동 추천: 1순위안(선택) / 2순위안(대안: 진로 연계+안전형) ---- */
@@ -11808,10 +11912,10 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
     var txt=((item.n||'')+' '+(item.a||'')).toLowerCase();kws.forEach(function(k){if(k.length>=2&&txt.indexOf(k)>=0)sc+=2;});return sc;}
   function pickTop(arr,n,keyFn){return arr.map(function(x,i){return{x:x,i:i,k:keyFn(x)};}).sort(function(a,b){return b.k-a.k||a.i-b.i;}).slice(0,n).map(function(o){return o.x;});}
   function autoPlan(i){var pk=P.picks[i],s=D.schools[pk.school];if(!s)return{err:'후보 고교를 먼저 선택하세요.'};
-    var act=activeTags(),kws=careerKws();if(!act.length&&!kws.length)return{err:'진로·관심 분야를 먼저 입력하세요. (4번 진로 방향과 목표)'};
+    var act=activeTags(),kws=careerKws(),rn=recNames();if(!act.length&&!kws.length&&!rn.length)return{err:'진로·관심 분야를 먼저 입력하세요. (4번 진로 방향과 목표)'};
     pk.courses={};pk.clubs={};var n1=0,n2=0,c1=0,c2=0;
     s.groups.forEach(function(g){var lim=g.limit;if(!lim)return;
-      var artOK=act.indexOf('예체능·미디어')>=0;var cs=g.courses.filter(function(c){return artOK||String(c.t||'').indexOf('예체능·미디어')<0;});if(!cs.length)return;var sc=function(c){return relScore(c,act,kws);};
+      var artOK=act.indexOf('예체능·미디어')>=0;var cs=g.courses.filter(function(c){return artOK||String(c.t||'').indexOf('예체능·미디어')<0;});if(!cs.length)return;var sc=function(c){return relScore(c,act,kws)+recBoost(c,rn);};
       /* 1순위안: 진로 연관도 최상 (동점이면 일반선택 우선 = 기본 틀 유지) */
       var p1=pickTop(cs,lim,function(c){var v=sc(c);return v*10+(v>0?(c.ty==='진로선택'?2:c.ty==='일반선택'?1:0):(c.ty==='일반선택'?1:0));});
       p1.forEach(function(c){pk.courses[g.term+'|'+c.n]='선택';n1++;});
@@ -11825,7 +11929,8 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
     var rest2=cl.filter(function(c){return top.indexOf(c)<0;});
     var safe=pickTop(rest2,3,function(c){return Math.min(cs2(c),6)*10+(/탐구|독서|학술|연구|토론|신문|봉사/.test(c.n+c.a)?5:0);});
     safe.forEach(function(c){pk.clubs[c.n]='대안';c2++;});
-    return{n1:n1,n2:n2,c1:c1,c2:c2};}
+    var rr=0;rn.forEach(function(sj){var h=courseHits(sj,s);if(h.ex.concat(h.sm).some(function(o){return pk.courses[o.g.term+'|'+o.c.n]==='선택';}))rr++;});
+    return{n1:n1,n2:n2,c1:c1,c2:c2,rr:rr,rt:rn.length};}
   function cycle(i,kind,key){var pk=P.picks[i],s=D.schools[pk.school];if(!s)return;
     var map=kind==='club'?pk.clubs:pk.courses,cur=map[key]||'',next;
     var lim=null,grp=null;
@@ -11839,8 +11944,8 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
     var cs=s.groups.map(function(g){return '['+g.term+' '+g.label+(g.limit?' 정원'+g.limit:'')+'] '+g.courses.map(function(x){return x.n+(x.ty?'('+x.ty+')':'');}).join(', ');}).join('\n');
     var cl=s.clubs.map(function(x){return x.n+'('+x.c+')';}).join(', ');
     var career=[c.major.s,c.major.p,P.careerFree].filter(Boolean).join(' / ');
-    return '너는 대한민국 대입 컨설팅 보조 엔진이다. 학교생활기록부(세특) 공식 기재용 완성 문장을 생성하지 않는다. 대필·조작을 돕지 않는다. 분석·진단·추정만 제공한다.\n[선택과목·동아리 로드맵] 2022 개정(고교학점제) 기준. 계열: '+(c.field.s||c.field.p||'미정')+'. 학과·진로: '+(career||'미정')+'. 목표대학: '+(c.univ.s||c.univ.p||'미정')+'. 현재 학년학기: 예비고1(고1 입학 전). 후보 고교: '+pk.school+'.\n[이 학교 개설 선택과목 — 이 목록에 있는 과목만 선택. 괄호는 선택과목 유형, [정원]은 그 묶음에서 고를 수 있는 개수]\n'+cs+'\n[이 학교 동아리 — 이 목록에서만 추천]\n'+cl+
-    '\n원칙: ①1학년엔 선택과목 배치 금지(공통과목 기간), 2-1부터 배치. ②위 목록에 없는 과목·동아리는 쓰지 않는다. ③묶음별 정원(택n)을 넘기지 않는다. ④위계를 지킨다(예: 물리학→역학과 에너지). ⑤진로 연결 이유와 탐구활동은 구체적으로. 대필 금지.\n출력은 설명·마크다운·번호 없이 한 줄에 한 항목, 필드는 | 로 구분한다. 형식:\n과목|학기(예 2-1)|과목명|유형(일반선택/진로선택/융합선택)|우선순위(필수/권장/보완)|진로 연결 이유(40자 이내)|대표 탐구활동(40자 이내)\n동아리|동아리명|예상 활동(30자 이내)|진로 연결 이유(30자 이내) — 3~5개\n요약|2문장 이내 총평\n주의|유의사항 — 1~3개\n대안|조건|대체 과목 — 1~2개\n과목 줄을 학기 순서대로 먼저, 이어서 동아리, 요약, 주의, 대안 순으로 출력한다.';}
+    return '너는 대한민국 대입 컨설팅 보조 엔진이다. 학교생활기록부(세특) 공식 기재용 완성 문장을 생성하지 않는다. 대필·조작을 돕지 않는다. 분석·진단·추정만 제공한다.\n[선택과목·동아리 로드맵] 2022 개정(고교학점제) 기준. 계열: '+(c.field.s||c.field.p||'미정')+'. 학과·진로: '+(career||'미정')+'. 목표대학: '+(c.univ.s||c.univ.p||'미정')+'. 현재 학년학기: 예비고1(고1 입학 전). 후보 고교: '+pk.school+'.\n[이 학교 개설 선택과목 — 이 목록에 있는 과목만 선택. 괄호는 선택과목 유형, [정원]은 그 묶음에서 고를 수 있는 개수]\n'+cs+'\n[이 학교 동아리 — 이 목록에서만 추천]\n'+cl+recPromptText(pk)+
+    '\n원칙: ①1학년엔 선택과목 배치 금지(공통과목 기간), 2-1부터 배치. ②위 목록에 없는 과목·동아리는 쓰지 않는다. ③묶음별 정원(택n)을 넘기지 않는다. ④위계를 지킨다(예: 물리학→역학과 에너지). ⑤진로 연결 이유와 탐구활동은 구체적으로. ⑥[목표대학 권장이수과목]이 있으면 이 학교에 개설된 권장과목을 우선 배치하고 우선순위를 필수/권장으로 표시하며, 개설되지 않은 권장과목은 주의 줄에 명시한다. 대필 금지.\n출력은 설명·마크다운·번호 없이 한 줄에 한 항목, 필드는 | 로 구분한다. 형식:\n과목|학기(예 2-1)|과목명|유형(일반선택/진로선택/융합선택)|우선순위(필수/권장/보완)|진로 연결 이유(40자 이내)|대표 탐구활동(40자 이내)\n동아리|동아리명|예상 활동(30자 이내)|진로 연결 이유(30자 이내) — 3~5개\n요약|2문장 이내 총평\n주의|유의사항 — 1~3개\n대안|조건|대체 과목 — 1~2개\n과목 줄을 학기 순서대로 먼저, 이어서 동아리, 요약, 주의, 대안 순으로 출력한다.';}
   async function runAI(i){var pk=P.picks[i],m=document.getElementById('ph-ai-msg'+i);
     if(!pk.school){if(m)m.textContent='학교를 먼저 선택하세요.';return;}
     if(!window.callAI){if(m)m.textContent='AI 연결 없음';return;}
@@ -11920,6 +12025,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
     h+=band('3. 진로 방향과 목표')+'<table style="width:100%;border-collapse:collapse"><tr>'+td('항목',{th:1})+td('학생',{th:1})+td('학부모',{th:1})+'</tr>'+CROWS.map(function(r){var c=P.car[r[0]];return '<tr>'+td(r[1],{th:1})+td(pe(c.s))+td(pe(c.p))+'</tr>';}).join('')+'</table>';
     if(P.careerFree||act.length)h+='<div style="font-size:11px;margin-top:5px">'+(P.careerFree?'<b>관심 분야</b> · '+pe(P.careerFree)+'  ':'')+(act.length?'<b>★ 추천 분야</b> · '+act.map(pe).join(', '):'')+'</div>';
     if(P.goal1)h+='<div style="font-size:11px;margin-top:3px"><b>고1 1학기 목표</b> · '+pe(P.goal1)+'</div>';
+    h+=recPrintHTML();
     h+=band('4. 후보 고교별 확인 사항');
     P.picks.forEach(function(pk,i){var s=D.schools[pk.school];if(!s)return;
       h+='<div style="background:#fff2cc;font-weight:700;font-size:12px;padding:5px 9px;margin-top:8px">후보 고교 '+(i+1)+' · '+pe(pk.school)+'</div><table style="width:100%;border-collapse:collapse">';
@@ -11930,6 +12036,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
       var el=[];s.groups.forEach(function(g){var sel=g.courses.filter(function(c){return pk.courses[g.term+'|'+c.n]==='선택';}),alt=g.courses.filter(function(c){return pk.courses[g.term+'|'+c.n]==='대안';});
         if(sel.length||alt.length)el.push('<b>'+pe(g.term)+'</b> '+sel.map(function(c){return (isStar(c,act)?'★':'')+pe(c.n)+(c.ty?'<span style="color:#777">('+pe(c.ty)+')</span>':'');}).join(', ')+(alt.length?' <span style="color:#a06a00">[2순위안: '+alt.map(function(c){return pe(c.n);}).join(', ')+']</span>':''));});
       h+='<tr>'+td('선택과목 계획',{th:1})+td(el.join('<br>'))+'</tr>';
+      var rst=recSchoolText(pk,s);if(rst)h+='<tr>'+td('권장과목 대비',{th:1})+td(rst)+'</tr>';
       if(pk.note)h+='<tr>'+td('학교 특이사항',{th:1})+td(pe(pk.note))+'</tr>';
       if(pk.memo)h+='<tr>'+td('상담 메모',{th:1})+td(pe(pk.memo))+'</tr>';
       if(pk.ai){var a=parseAI(pk.ai);
@@ -11964,6 +12071,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
     h+=band('2. 상담 목적과 설명회 후 관심사')+'<div style="font-size:11px;line-height:1.9">'+cbl(INTERESTS,'interests')+'</div><div style="font-size:11px;margin-top:4px"><b>이번 상담에서 꼭 얻고 싶은 것</b> · '+pe(P.want)+'</div>';
     h+=band('3. 중학교 학습 현황')+'<table style="width:100%;border-collapse:collapse"><tr>'+['과목','최근 성취(점수/등급)','강점','어려운 점','학습 시간(주)','현재 학원·교재'].map(function(x){return td(x,{th:1});}).join('')+'</tr>'+['국어','수학','영어','과학'].map(function(sj){var x=P.subj[sj];return '<tr>'+td(sj,{th:1})+td(pe(x.ach))+td(pe(x.str))+td(pe(x.hard))+td(pe(x.hrs))+td(pe(x.cur))+'</tr>';}).join('')+'</table><div style="font-size:11px;line-height:1.9;margin-top:5px"><b>학습 습관</b><br>'+cbl(HABITS,'habits')+'</div><div style="font-size:11px;margin-top:3px"><b>비교과·특이사항</b> · '+pe(P.extra)+'</div>';
     h+=band('4. 진로 방향과 목표')+'<table style="width:100%;border-collapse:collapse"><tr>'+td('항목',{th:1})+td('학생',{th:1})+td('학부모',{th:1})+'</tr>'+CROWS.map(function(r){var c=P.car[r[0]];return '<tr>'+td(r[1],{th:1})+td(pe(c.s))+td(pe(c.p))+'</tr>';}).join('')+'</table><div style="font-size:11px;margin-top:5px"><b>관심 분야(자유 입력)</b> · '+pe(P.careerFree)+'&emsp;<b>★ 추천 분야</b> · '+pe(act.join(', '))+'</div><div style="font-size:11px;line-height:1.9">'+cbl(CFLAGS,'cflags')+'</div><div style="font-size:11px"><b>고1 1학기 목표</b> · '+pe(P.goal1)+'</div>';
+    h+=recPrintHTML();
     h+=band('5. 후보 고교별 확인 사항');
     P.picks.forEach(function(pk,i){var sc=D.schools[pk.school];h+='<div style="background:#fff2cc;font-weight:700;font-size:12px;padding:5px 9px;margin-top:8px">후보 고교 '+(i+1)+' · '+pe(pk.school||'(미선택)')+'</div>';if(!sc)return;
       var cl=sc.clubs.filter(function(c){return pk.clubs[c.n];}).map(function(c){return (pk.clubs[c.n]==='대안'?'(2순위) ':'')+(isStar(c,act)?'★':'')+pe(c.n);});
@@ -12012,7 +12120,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   });
   document.addEventListener('click',function(e){var t=e.target;if(!t.closest||!t.closest('#v-prehs'))return;
     var b=t.closest('[data-act]');
-    if(b){var a=b.dataset.act;if(a==='save')save();else if(a==='new'){if(confirm('작성 중인 내용을 지우고 새 상담을 시작할까요?')){P=newP();draw();}}else if(a==='result')showResult();else if(a==='sheet')printSheet();else if(a==='ai')runAI(+b.dataset.i);else if(a==='plan'){var ii=+b.dataset.i,r=autoPlan(ii);if(r.err){alert(r.err);return;}drawPicks();var m=document.getElementById('ph-plan-msg'+ii);if(m)m.textContent='1순위안 과목 '+r.n1+'개·동아리 '+r.c1+'개 / 2순위안 과목 '+r.n2+'개·동아리 '+r.c2+'개 적용';}else if(a==='plan-clear'){var jj=+b.dataset.i;P.picks[jj].courses={};P.picks[jj].clubs={};drawPicks();}else if(a==='tt-add'){TT.push(C('국어','','','','','',''));drawTT();}else if(a==='tt-del'){TT.splice(+b.dataset.i,1);drawTT();}else if(a==='tt-save')saveTT();else if(a==='sync'){var n=autoSync();drawSel();msg(n?n+'개 수업을 추가했습니다.':'일치하는 새 수업이 없습니다. (5번 진단의 추천 반·강사에 강사 이름이나 반 이름을 입력하세요)');}return;}
+    if(b){var a=b.dataset.act;if(a==='save')save();else if(a==='new'){if(confirm('작성 중인 내용을 지우고 새 상담을 시작할까요?')){P=newP();draw();}}else if(a==='result')showResult();else if(a==='sheet')printSheet();else if(a==='ai')runAI(+b.dataset.i);else if(a==='plan'){var ii=+b.dataset.i,r=autoPlan(ii);if(r.err){alert(r.err);return;}drawPicks();var m=document.getElementById('ph-plan-msg'+ii);if(m)m.textContent='1순위안 과목 '+r.n1+'개·동아리 '+r.c1+'개 / 2순위안 과목 '+r.n2+'개·동아리 '+r.c2+'개 적용'+(r.rt?' · 권장과목 '+r.rr+'/'+r.rt+'개 1순위안 반영':'');}else if(a==='plan-clear'){var jj=+b.dataset.i;P.picks[jj].courses={};P.picks[jj].clubs={};drawPicks();}else if(a==='tt-add'){TT.push(C('국어','','','','','',''));drawTT();}else if(a==='tt-del'){TT.splice(+b.dataset.i,1);drawTT();}else if(a==='tt-save')saveTT();else if(a==='sync'){var n=autoSync();drawSel();msg(n?n+'개 수업을 추가했습니다.':'일치하는 새 수업이 없습니다. (5번 진단의 추천 반·강사에 강사 이름이나 반 이름을 입력하세요)');}return;}
     var cl=t.closest('[data-cls]');if(cl){var k=cl.dataset.cls,sl2=P.sel||(P.sel=[]),ix=sl2.map(ckey).indexOf(k);if(ix>=0)sl2.splice(ix,1);else{var cc=(TT||[]).filter(function(c){return ckey(c)===k;})[0];if(cc)sl2.push(JSON.parse(JSON.stringify(cc)));}drawSel();return;}
     var d=t.closest('[data-del]');if(d){e.stopPropagation();del(d.dataset.del);return;}
     var l=t.closest('[data-load]');if(l){loadOne(l.dataset.load);return;}
