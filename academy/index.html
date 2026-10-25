@@ -11878,10 +11878,19 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   function recBoost(c,names){var b=0;(names||[]).forEach(function(sj){var m=cMatch(sj,c.n);b=Math.max(b,m===2?8:m===1?4:0);});return b;}
   /* ---- 후보 고교 ---- */
   function grpCount(pk,g){var n=0;g.courses.forEach(function(c){if(pk.courses[g.term+'|'+c.n]==='선택')n++;});return n;}
+  function schRegion(k){var s=D.schools[k];return (s&&s.region)||'기타';}
+  function regionList(){var seen=[];Object.keys(D.schools).forEach(function(k){var r=schRegion(k);if(seen.indexOf(r)<0)seen.push(r);});return seen;}
+  function schoolOptsHTML(cur){var rg=P.region||'',keys=Object.keys(D.schools),o=function(k){return '<option'+(k===cur?' selected':'')+'>'+pe(k)+'</option>';},h='<option value="">(선택)</option>';
+    if(rg){var a=keys.filter(function(k){return schRegion(k)===rg;}),b=keys.filter(function(k){return schRegion(k)!==rg;});
+      h+='<optgroup label="'+pe(rg)+' 지역 ('+a.length+')">'+a.map(o).join('')+'</optgroup>';
+      if(b.length)h+='<optgroup label="다른 지역">'+b.map(o).join('')+'</optgroup>';}
+    else regionList().forEach(function(r){h+='<optgroup label="'+pe(r)+'">'+keys.filter(function(k){return schRegion(k)===r;}).map(o).join('')+'</optgroup>';});
+    return h;}
+  function regionBarHTML(){var rs=regionList();return '<div class="ph-g2" style="margin-bottom:10px">'+field('지역 선택 (학교 목록 정렬)','<select data-region="1"><option value="">전체 지역</option>'+rs.map(function(r){return '<option'+(r===P.region?' selected':'')+'>'+pe(r)+'</option>';}).join('')+'</select>')+'</div>';}
   function drawPicks(){var el=document.getElementById('ph-picks');if(!el)return;var act=activeTags(),rnames=recNames();
-    el.innerHTML=recCardHTML()+P.picks.map(function(pk,i){
+    el.innerHTML=recCardHTML()+regionBarHTML()+P.picks.map(function(pk,i){
       var s=D.schools[pk.school];
-      var h='<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px"><div class="ph-g2">'+field('후보 고교 '+(i+1),'<select data-pick="'+i+'" data-k="school"><option value="">(선택)</option>'+Object.keys(D.schools).map(function(k){return '<option'+(k===pk.school?' selected':'')+'>'+k+'</option>';}).join('')+'</select>')+'</div>';
+      var h='<div style="border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-bottom:12px"><div class="ph-g2">'+field('후보 고교 '+(i+1),'<select data-pick="'+i+'" data-k="school">'+schoolOptsHTML(pk.school)+'</select>')+'</div>';
       if(!s)return h+'</div>';
       h+='<div class="ph-sub">지필·수행 비율 (정기:수행)</div><div style="font-size:12.5px">'+s.ratio.map(pe).join('<br>')+'</div>';
       h+='<div class="ph-sub">수행평가 주요 형태</div><div style="font-size:12px;line-height:1.6">'+s.perf.map(pe).join('<br>')+'</div>';
@@ -12115,6 +12124,7 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   document.addEventListener('change',function(e){var el=e.target;if(!el.closest||!el.closest('#v-prehs'))return;
     if(el.dataset.a){var a=P[el.dataset.a]||(P[el.dataset.a]=[]),k=a.indexOf(el.value);if(el.checked&&k<0)a.push(el.value);if(!el.checked&&k>=0)a.splice(k,1);}
     else if(el.dataset.dup!==undefined){P.dup[+el.dataset.dup].rec=el.checked;}
+    else if(el.dataset.region!==undefined){P.region=el.value;drawPicks();}
     else if(el.dataset.pick!==undefined&&el.dataset.k==='school'){var pk=P.picks[+el.dataset.pick];if(pk.school!==el.value){pk.school=el.value;pk.clubs={};pk.courses={};pk.ai='';pk.aiErr='';(TT||[]).forEach(function(c){if(c.school&&c.school===el.value&&!(P.sel||[]).some(function(x){return ckey(x)===ckey(c);}))(P.sel=P.sel||[]).push(JSON.parse(JSON.stringify(c)));});}drawPicks();drawSel();}
     else if(el.dataset.p!==undefined&&(el.dataset.p.indexOf('car.')===0)){drawTags();drawPicks();}
   });
