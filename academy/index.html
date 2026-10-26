@@ -5231,13 +5231,129 @@ async function perfMount(track){
   if(!(window._isOwner===true || window._isConsultant===true)){ box.innerHTML='<div style="font-size:12px;color:var(--ink-mute);padding:14px 2px">🔒 수행평가 검토·완성은 <b>컨설턴트 권한</b>이 있는 선생님만 이용할 수 있습니다. 원장님께 컨설턴트 지정을 요청하세요.</div>'; return; }
   return perfConView(track,s);
 }
+/* ---------- 성취기준 DB 대조 (수행평가 도우미 · 학원용) ----------
+   학교 평가지에서 AI가 뽑은 성취기준을 achievement_standards(DB)와 대조해 코드를 보정하고,
+   AI 호출(관점설계·학습가이드·예상채점)에는 DB의 정식 성취기준 문구를 넣는다.
+   v: ok(코드·문구 일치) / text(코드 보정됨) / code(코드는 있으나 문구 불일치) / none(DB 미확인) */
+var PF_STD_COLS='code,subject,standard,level_a,level_b,level_c,level_d,level_e,min_standard';
+var PF_STD_SUBJ={};   /* 과목별 DB 후보 캐시 */
+function pfNormCode(c){ return String(c||'').replace(/[\[\]\(\)\s]/g,'').replace(/[‐‑–—−]/g,'-'); }
+function pfNormTxt(t){ return String(t||'').replace(/[\s･ㆍ·‧・,.\-~()\[\]「」『』"'“”‘’:;]/g,''); }
+function pfBg(t){ var s=pfNormTxt(t),o={},n=0; for(var i=0;i<s.length-1;i++){ var k=s.substr(i,2); if(!o[k]){o[k]=1;n++;} } return {m:o,n:n}; }
+function pfSim(a,b){ var A=pfBg(a),B=pfBg(b); if(!A.n||!B.n)return 0; var x=0; for(var k in A.m){ if(B.m[k])x++; } return 2*x/(A.n+B.n); }
+/* 성취수준(A~E)·최소성취수준: DB에 적재된 경우에만 사용 */
+function pfLv(d){ var L={}, any=false; ['a','b','c','d','e'].forEach(function(k){ var v=d&&d['level_'+k]; if(v&&String(v).trim()){ L[k]=String(v).trim(); any=true; } }); if(d&&d.min_standard&&String(d.min_standard).trim()){ L.min=String(d.min_standard).trim(); any=true; } return any?L:null; }
+function pfLvText(lv,n){ if(!lv)return ''; n=n||110; var o=[]; ['a','b','c','d','e'].forEach(function(k){ if(lv[k])o.push(k.toUpperCase()+': '+lv[k].slice(0,n)); }); if(lv.min)o.push('최소성취수준: '+lv.min.slice(0,n)); return o.join(' / '); }
+function pfSafeQ(s){ return String(s==null?'':s).replace(/[%,()\\*]/g,' ').trim(); }
+async function pfStdBySubject(subject){
+  var s=pfSafeQ(subject); if(!s)return [];
+  if(PF_STD_SUBJ[s])return PF_STD_SUBJ[s];
+  var rows=[], ns=s.replace(/\s/g,'');
+  try{
+    var q=await sb.from('achievement_standards').select(PF_STD_COLS).eq('subject',s).limit(400); rows=q.data||[];
+    if(!rows.length){ q=await sb.from('achievement_standards').select(PF_STD_COLS).ilike('subject','%'+ns+'%').limit(400);
+      /* 과목명이 '정확히' 같은 것만(공백 차이 허용) — '한국지리'가 '한국지리 탐구'로 오매칭되는 것 방지 */
+      rows=(q.data||[]).filter(function(d){ return String(d.subject||'').replace(/\s/g,'')===ns; }); }
+  }catch(e){ rows=[]; }
+  PF_STD_SUBJ[s]=rows; return rows;
+}
+async function pfStdVerify(subject,list){
+  list=(list||[]).map(function(x){ return {code:String((x&&x.code)||'').trim(),text:String((x&&x.text)||'').trim()}; }).filter(function(x){ return x.code||x.text; });
+  if(!list.length||!window.sb)return list;
+  var byCode={}, codes=[];
+  list.forEach(function(x){ var c=pfNormCode(x.code); if(c&&codes.indexOf(c)<0)codes.push(c); });
+  try{ if(codes.length){ var r=await sb.from('achievement_standards').select(PF_STD_COLS).in('code',codes); (r.data||[]).forEach(function(d){ byCode[pfNormCode(d.code)]=d; }); } }catch(e){}
+  var cand=null;
+  var out=[];
+  for(var i=0;i<list.length;i++){
+    var x=list[i], nc=pfNormCode(x.code), d=nc?byCode[nc]:null, o={code:x.code,text:x.text,v:'none'};
+    if(d){
+      var sm=x.text?pfSim(x.text,d.standard):1;
+      o.code=d.code; o.v=(sm>=0.5)?'ok':'code'; o.db_text=d.standard; o.db_subject=d.subject; o.lv=pfLv(d);
+    } else {
+      if(cand===null)cand=await pfStdBySubject(subject);
+      var best=null,bs=0;
+      if(x.text){ for(var j=0;j<cand.length;j++){ var sc=pfSim(x.text,cand[j].standard); if(sc>bs){bs=sc;best=cand[j];} } }
+      if(best&&bs>=0.55){ o.orig=x.code||''; o.code=best.code; o.v='text'; o.db_text=best.standard; o.db_subject=best.subject; o.lv=pfLv(best); }
+    }
+    out.push(o);
+  }
+  return out;
+}
+/* AI 호출용: 정식 문구(DB) 우선. 결과 캐시 */
+var PF_STD_AI={};
+async function pfStdForAI(a){
+  var key=a&&a.id?('a'+a.id):null;
+  if(key&&PF_STD_AI[key])return PF_STD_AI[key];
+  var v=[]; try{ v=await pfStdVerify(a.subject||'',a.standards||[]); }catch(e){ v=(a.standards||[]); }
+  var res=v.map(function(x,i){ var t=((x.v==='ok'||x.v==='text')&&x.db_text)?x.db_text:x.text; var lt=(i<5&&(x.v==='ok'||x.v==='text'))?pfLvText(x.lv,110):''; return {code:x.code,text:t+(lt?(' ▶ 성취수준 — '+lt):'')}; });
+  if(key)PF_STD_AI[key]=res; return res;
+}
+function pfStdCtx(arr){
+  if(!arr||!arr.length)return '';
+  return '[교육과정 성취기준(DB 정식 문구)·성취수준 — 이 기준에 맞춰 안내하라]\n'+arr.slice(0,6).map(function(x){ return '· ['+x.code+'] '+String(x.text||'').slice(0,420); }).join('\n')+'\n\n';
+}
+function pfStdBadge(x){
+  if(!x||!x.v)return '';
+  var m={ok:['DB✓','var(--safe,#12b76a)'],text:['DB✓ 코드보정','var(--safe,#12b76a)'],code:['⚠ 문구 불일치','var(--risk,#e5484d)'],none:['DB 미확인','var(--ink-mute)']}[x.v];
+  return m?(' <span style="font-size:10px;font-weight:700;color:'+m[1]+';border:1px solid '+m[1]+';border-radius:5px;padding:0 5px;white-space:nowrap">'+m[0]+'</span>'):'';
+}
+function pfStdNoteHtml(v){
+  if(!v||!v.length)return '<span style="color:var(--ink-mute)">성취기준이 비어 있습니다. 아래 “DB에서 찾아 추가”로 넣을 수 있어요.</span>';
+  var ok=0,fix=0,bad=0,none=0, lines='';
+  v.forEach(function(x){
+    if(x.v==='ok')ok++; else if(x.v==='text'){ fix++; lines+='<div>· 코드 보정: <b>'+esc(x.orig||'(없음)')+'</b> → <b>'+esc(x.code)+'</b></div>'; }
+    else if(x.v==='code'){ bad++; lines+='<div style="color:var(--risk,#e5484d)">· ⚠ ['+esc(x.code)+'] 평가지 문구가 DB와 다릅니다 → DB: '+esc(String(x.db_text||'').slice(0,80))+'</div>'; }
+    else { none++; lines+='<div>· DB 미확인: '+esc((x.code?('['+x.code+'] '):'')+String(x.text||'').slice(0,40))+'</div>'; }
+  });
+  return '<b style="color:var(--ink)">DB 대조</b> 일치 '+ok+' · 코드보정 '+fix+' · 불일치 '+bad+' · 미확인 '+none+lines;
+}
+async function pfStdRefreshNote(track){
+  var ta=document.getElementById('pf-s-std-'+track), box=document.getElementById('pf-stdnote-'+track); if(!ta||!box)return;
+  var subj=(document.getElementById('pf-s-subject-'+track)||{}).value||'';
+  var list=ta.value.split('\n').map(function(l){ l=l.trim(); if(!l)return null; var p=l.split('::'); return {code:(p[0]||'').trim(),text:(p.slice(1).join('::')||'').trim()}; }).filter(Boolean);
+  box.innerHTML='<span style="color:var(--ink-mute)">DB 대조 중…</span>';
+  var v=await pfStdVerify(subj,list); box.innerHTML=pfStdNoteHtml(v);
+  /* 코드 보정이 있으면 입력칸에도 반영 */
+  if(v.some(function(x){return x.v==='text';})){ ta.value=v.map(function(x){ return (x.code||'')+' :: '+(x.text||''); }).join('\n'); }
+}
+function pfStdTools(track){
+  return '<div id="pf-stdnote-'+track+'" style="font-size:11px;color:var(--ink-dim);line-height:1.6;margin:-2px 0 8px"></div>'
+   +'<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:6px"><input id="pf-stdq-'+track+'" placeholder="과목·키워드로 DB 성취기준 검색 (예: 한국지리, 답사)" style="flex:1;min-width:160px;padding:6px 9px;background:var(--panel-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-size:12px;box-sizing:border-box" onkeydown="if(event.key===\'Enter\'){event.preventDefault();pfStdSearch(\''+track+'\');}">'
+   +'<button type="button" class="btn ghost" style="padding:5px 11px;font-size:11.5px" onclick="pfStdSearch(\''+track+'\')">DB에서 찾아 추가</button></div>'
+   +'<div id="pf-stdres-'+track+'" style="margin-bottom:8px"></div>';
+}
+async function pfStdSearch(track){
+  var inp=document.getElementById('pf-stdq-'+track), box=document.getElementById('pf-stdres-'+track); if(!inp||!box)return;
+  var q=pfSafeQ(inp.value)||pfSafeQ((document.getElementById('pf-s-subject-'+track)||{}).value||'');
+  if(!q){ box.innerHTML='<div style="font-size:11px;color:var(--ink-mute)">과목명이나 키워드를 입력하세요.</div>'; return; }
+  box.innerHTML='<div style="font-size:11px;color:var(--ink-mute)">검색 중…</div>';
+  try{
+    var r=await sb.from('achievement_standards').select('code,subject,standard').or('subject.ilike.%'+q+'%,standard.ilike.%'+q+'%,code.ilike.%'+q+'%').order('code').limit(25);
+    var rows=r.data||[];
+    window._pfStdRes=window._pfStdRes||{}; window._pfStdRes[track]=rows;
+    if(!rows.length){ box.innerHTML='<div style="font-size:11px;color:var(--ink-mute)">검색 결과가 없습니다.</div>'; return; }
+    box.innerHTML='<div style="max-height:190px;overflow:auto;border:1px solid var(--line);border-radius:8px">'+rows.map(function(d,i){
+      return '<div style="display:flex;gap:8px;align-items:flex-start;padding:6px 9px;border-top:'+(i?'1px solid var(--line)':'0')+';font-size:11.5px;line-height:1.5"><div style="flex:1;color:var(--ink-dim)"><b style="color:var(--ink)">['+esc(d.code)+']</b> <span style="color:var(--ink-mute)">'+esc(d.subject||'')+'</span><br>'+esc(d.standard||'')+'</div><button type="button" class="btn ghost" style="padding:3px 9px;font-size:11px;flex:none" onclick="pfStdAdd(\''+track+'\','+i+')">추가</button></div>';
+    }).join('')+'</div>';
+  }catch(e){ box.innerHTML='<div style="font-size:11px;color:var(--risk)">검색 실패: '+esc(e.message||e)+'</div>'; }
+}
+function pfStdAdd(track,i){
+  var d=((window._pfStdRes||{})[track]||[])[i]; var ta=document.getElementById('pf-s-std-'+track); if(!d||!ta)return;
+  if(ta.value.indexOf(d.code)>=0){ if(window.toast)toast('이미 추가된 성취기준입니다'); return; }
+  ta.value=(ta.value.trim()?ta.value.trim()+'\n':'')+d.code+' :: '+d.standard;
+  var sj=document.getElementById('pf-s-subject-'+track); if(sj&&!sj.value.trim())sj.value=d.subject||'';
+  pfStdRefreshNote(track);
+}
+window.pfStdSearch=pfStdSearch;window.pfStdAdd=pfStdAdd;window.pfStdRefreshNote=pfStdRefreshNote;
+
 /* ---------- 공용 표시 ---------- */
 var PF_ST={assigned:['배포됨','var(--ink-mute)'],doing:['학생 작성 중','var(--gold,#3182f6)'],review:['검토 요청','var(--reach,#3182f6)'],returned:['피드백 전달됨','var(--gold,#3182f6)'],completed:['완성','var(--safe,#12b76a)']};
 function perfSpecHtml(a){
   var h='<div style="border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:6px 0;background:var(--panel-2)">';
   if(a.unit)h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:4px"><b style="color:var(--ink)">단원</b> '+esc(a.unit)+'</div>';
   if(a.task_body)h+='<div style="font-size:12px;color:var(--ink);line-height:1.65;margin-bottom:6px;white-space:pre-wrap"><b>과제</b>\n'+esc(a.task_body)+'</div>';
-  if(Array.isArray(a.standards)&&a.standards.length)h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:6px"><b style="color:var(--ink)">성취기준</b><br>'+a.standards.map(function(x){return esc((x.code?('['+x.code+'] '):'')+(x.text||''));}).join('<br>')+'</div>';
+  if(Array.isArray(a.standards)&&a.standards.length)h+='<div style="font-size:11.5px;color:var(--ink-dim);margin-bottom:6px"><b style="color:var(--ink)">성취기준</b><br>'+a.standards.map(function(x){return esc((x.code?('['+x.code+'] '):'')+(x.text||''))+pfStdBadge(x);}).join('<br>')+'</div>';
   if(Array.isArray(a.rubric)&&a.rubric.length){ h+='<div style="font-size:11.5px;color:var(--ink-dim)"><b style="color:var(--ink)">채점기준</b>'; a.rubric.forEach(function(r){ h+='<div style="border-top:1px dashed var(--line);padding:4px 0"><b style="color:var(--ink)">'+esc(r.area||'')+'</b>'+(r.points!=null?' ('+esc(r.points)+'점)':'')+(r.criteria?'<br><span style="color:var(--ink-mute)">'+esc(r.criteria)+'</span>':'')+'</div>'; }); h+='</div>'; }
   var bp=a.blueprint||{}; if(bp.total_points||bp.reflect_ratio||a.due_at||a.submit_method){ h+='<div style="font-size:11px;color:var(--ink-mute);margin-top:6px">'+(bp.total_points?('총배점 '+esc(bp.total_points)+' · '):'')+(bp.reflect_ratio?('반영 '+esc(bp.reflect_ratio)+' · '):'')+(a.submit_method?('제출 '+esc(a.submit_method)+' · '):'')+(a.due_at?('마감 '+esc(String(a.due_at).slice(0,10))):'')+'</div>'; }
   return h+'</div>';
@@ -5310,18 +5426,20 @@ function perfRenderSpec(track,o,fname){
   var box=document.getElementById('pf-spec-'+track);
   box.innerHTML='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:12px">'
     +pfField('과목','pf-s-subject',track,o.subject||'')+pfField('단원/영역','pf-s-unit',track,o.unit||'')+pfField('과제명','pf-s-title',track,o.title||'')
-    +pfArea('성취기준 (한 줄에 하나 · 코드 :: 내용)','pf-s-std',track,std,3)+pfArea('과제 내용·조건','pf-s-task',track,o.task_body||'',3)
+    +pfArea('성취기준 (한 줄에 하나 · 코드 :: 내용)','pf-s-std',track,std,3)+pfStdTools(track)+pfArea('과제 내용·조건','pf-s-task',track,o.task_body||'',3)
     +pfArea('채점기준 루브릭 (한 줄에 하나 · 영역 :: 배점 :: 기준)','pf-s-rub',track,rub,4)
     +'<div style="display:flex;gap:8px;flex-wrap:wrap">'+pfFieldInline('총배점','pf-s-total',track,o.total_points!=null?o.total_points:'')+pfFieldInline('반영비율','pf-s-ratio',track,o.reflect_ratio||'')+pfFieldInline('마감(YYYY-MM-DD)','pf-s-due',track,'')+'</div>'
     +pfField('제출 방식','pf-s-method',track,o.submit_method||'')+pfArea('유의사항','pf-s-notice',track,o.notice||'',2)
     +'<input type="hidden" id="pf-s-fname-'+track+'" value="'+esc(fname||'')+'">'
     +'<div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap"><button class="btn" onclick="perfSaveAsmt(\''+track+'\')">✅ 수행평가 등록 · 학생에게 배포</button><span id="pf-savemsg-'+track+'" style="font-size:11.5px;align-self:center"></span></div></div>';
+  try{ var _ta=document.getElementById('pf-s-std-'+track); if(_ta)_ta.addEventListener('change',function(){ pfStdRefreshNote(track); }); pfStdRefreshNote(track); }catch(_e){}
 }
 async function perfSaveAsmt(track){
   var s=perfStu(track); var m=document.getElementById('pf-savemsg-'+track);
   function V(id){ var e=document.getElementById(id+'-'+track); return e?e.value.trim():''; }
   var title=V('pf-s-title'); if(!title){ m.style.color='var(--risk)'; m.textContent='과제명을 입력하세요.'; return; }
-  var std=V('pf-s-std').split('\n').map(function(l){ l=l.trim(); if(!l)return null; var p=l.split('::'); return {code:(p[0]||'').trim(),text:(p[1]||'').trim()}; }).filter(Boolean);
+  var std=V('pf-s-std').split('\n').map(function(l){ l=l.trim(); if(!l)return null; var p=l.split('::'); return {code:(p[0]||'').trim(),text:(p.slice(1).join('::')||'').trim()}; }).filter(Boolean);
+  try{ std=await pfStdVerify(V('pf-s-subject'),std); }catch(_e){}
   var rub=V('pf-s-rub').split('\n').map(function(l){ l=l.trim(); if(!l)return null; var p=l.split('::'); return {area:(p[0]||'').trim(),points:(parseFloat(p[1])||null),criteria:(p[2]||'').trim()}; }).filter(Boolean);
   var due=V('pf-s-due'); var dueIso=null; if(due){ var dd=new Date(due); if(!isNaN(dd.getTime()))dueIso=dd.toISOString(); }
   var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
@@ -5408,7 +5526,7 @@ async function perfRunEval(sid,aid,track,silent){
   var sr=await sb.from('perf_submissions').select('draft_content,final_content').eq('id',sid).limit(1); var sd=(sr.data&&sr.data[0])||{};
   var content=''; try{ var tmp=document.createElement('div'); tmp.innerHTML=sd.final_content||sd.draft_content||''; content=(tmp.innerText||tmp.textContent||''); }catch(e){ content=sd.final_content||sd.draft_content||''; }
   if(m&&!silent){m.style.color='var(--ink-mute)';m.textContent='AI 채점 중… (10~25초)';}
-  try{ var d=await callAI('perf_eval',{subject:a.subject||'',title:a.title||'',standards:a.standards||[],task_body:a.task_body||'',rubric:a.rubric||[],content:content}); var ev=JSON.parse(d.text);
+  try{ var _stdAI=await pfStdForAI(a); var d=await callAI('perf_eval',{subject:a.subject||'',title:a.title||'',standards:_stdAI,task_body:a.task_body||'',rubric:a.rubric||[],content:content}); var ev=JSON.parse(d.text);
     await sb.from('perf_submissions').update({rubric_eval:ev,cog_metrics:ev.cog||null,golden_sentences:ev.golden_sentences||null,narrative:ev.narrative||null,verdict:ev.verdict||null,verdict_reason:ev.verdict_reason||null,diagnosed_at:new Date().toISOString()}).eq('id',sid);
     if(m&&!silent){m.style.color='var(--safe)';m.textContent='채점 완료';} if(!silent)perfMount(track);
   }catch(e){ if(m&&!silent){m.style.color='var(--risk)';m.textContent='채점 실패: '+(e.message||e);} }
@@ -5459,6 +5577,7 @@ async function perfStuParse(track){
   if(!text&&!b64.length){ m.style.color='var(--risk)'; m.textContent='평가지 파일·사진을 올리거나 내용을 붙여넣어 주세요.'; return; }
   m.style.color='var(--ink-mute)'; m.textContent='AI가 평가 자료를 분석하는 중… (10~25초)';
   try{ var d=await callAI('perf_parse',{text:text||'(이미지 참조)',images:b64}); var o=JSON.parse(d.text);
+    try{ o.standards=await pfStdVerify(o.subject||'',o.standards||[]); }catch(_e){}
     window._pfSSpec=window._pfSSpec||{}; window._pfSSpec[track]={spec:o,fname:(f?f.name:null)};
     m.style.color='var(--safe)'; m.textContent='분석 완료 — 확인 후 등록하세요.'; perfStuSpecConfirm(track,o,f?f.name:null);
   }catch(e){ m.style.color='var(--risk)'; m.textContent='분석 실패: '+(e.message||e); }
@@ -5469,7 +5588,7 @@ function perfStuSpecConfirm(track,o,fname){
   box.innerHTML='<div style="border-top:1px dashed var(--line);margin-top:8px;padding-top:12px">'
     +pfField('과목','pf-ss-subject',track,o.subject||'')+pfField('과제명','pf-ss-title',track,o.title||'')+pfField('단원/영역','pf-ss-unit',track,o.unit||'')
     +(o.task_body?'<div style="font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:2px 0 8px;white-space:pre-wrap;max-height:120px;overflow:auto;border:1px solid var(--line);border-radius:7px;padding:8px 10px;background:var(--panel-2)"><b style="color:var(--ink)">과제 내용</b>\n'+esc(o.task_body)+'</div>':'')
-    +'<div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">AI가 정리함 · 성취기준 '+stdN+'개 · 채점기준 '+rubN+'개 (등록 후 선생님이 함께 다듬어 드려요)</div>'
+    +'<div style="font-size:11px;color:var(--ink-mute);margin-bottom:8px">AI가 정리함 · 성취기준 '+stdN+'개'+(stdN?(' (교육과정 DB 확인 '+(o.standards||[]).filter(function(x){return x.v==='ok'||x.v==='text';}).length+'개)'):'')+' · 채점기준 '+rubN+'개 (등록 후 선생님이 함께 다듬어 드려요)</div>'
     +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="perfStuSaveAsmt(\''+track+'\')">✅ 등록하고 시작하기</button><span id="pf-ssavemsg-'+track+'" style="font-size:11.5px;align-self:center"></span></div></div>';
 }
 async function perfStuSaveAsmt(track){
@@ -5480,6 +5599,7 @@ async function perfStuSaveAsmt(track){
   var acid=s.academy_id||window._acadId||(window._academy&&window._academy.id)||null;
   if(!acid){ try{ var a=await sb.from('academies').select('id').limit(1); acid=a.data&&a.data[0]&&a.data[0].id; }catch(_){}}
   var std=(o.standards||[]).map(function(x){return {code:(x.code||'').toString().trim(),text:(x.text||'').toString().trim()};});
+  try{ std=await pfStdVerify(V('pf-ss-subject')||o.subject||'',std); }catch(_e){}
   var rub=(o.rubric||[]).map(function(x){return {area:(x.area||'').toString().trim(),points:(x.points!=null&&!isNaN(Number(x.points))?Number(x.points):null),criteria:(x.criteria||'').toString().trim()};});
   var row={academy_id:acid,student_id:s.id,title:title,subject:(V('pf-ss-subject')||o.subject||null),unit:(V('pf-ss-unit')||o.unit||null),standards:std,task_body:o.task_body||null,rubric:rub,submit_method:o.submit_method||null,notice:o.notice||null,source_file:cache.fname||null,blueprint:{total_points:(o.total_points!=null?o.total_points:null),reflect_ratio:o.reflect_ratio||null},status:'active',created_by_type:'student',created_by:((s&&s.auth_uid)||window._myUid||null)};
   if(m){m.style.color='var(--ink-mute)';m.textContent='등록 중…';}
@@ -5546,7 +5666,7 @@ async function perfGenInterview(aid,track){
   var m=document.getElementById('pf-ivm-'+aid); var s=perfStu(track); if(m){m.style.color='var(--ink-mute)';m.textContent='관점 설계 질문 생성 중… (10~20초)';}
   var ar=await sb.from('perf_assessments').select('*').eq('id',aid).limit(1); var a=(ar.data&&ar.data[0])||{};
   var ctx=''; try{ ctx=await extraCtx(s.id); }catch(e){}
-  try{ var d=await callAI('perf_interview',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:a.standards||[],career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),target:(track==='goip'?(s.target_school||''):(s.target_univ||'')),context:ctx});
+  try{ var _stdAI=await pfStdForAI(a); var d=await callAI('perf_interview',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:_stdAI,career:(s.career||s.target_major||''),field:(window.majorToField?majorToField(s.target_major):''),target:(track==='goip'?(s.target_school||''):(s.target_univ||'')),context:ctx});
     var o=JSON.parse(d.text); var iv={questions:o.questions||[],answers:{},done:false};
     await sb.from('perf_submissions').update({interview:iv}).eq('assessment_id',aid).eq('student_id',s.id); perfStuWork(aid,track);
   }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='생성 실패: '+(e.message||e);} }
@@ -5571,7 +5691,7 @@ async function perfGenGuide(aid,track){
   var iv=(sr.data&&sr.data[0]&&sr.data[0].interview)||{}; if(typeof iv==='string'){try{iv=JSON.parse(iv);}catch(_){iv={};}}
   var chosen=(iv.questions||[]).map(function(qq,i){ var oi=(iv.answers||{})[i]; var op=(qq.options||[])[oi]; return op?('· '+(qq.stage||'')+': '+(op.label||'')+' — '+(op.desc||'')):''; }).filter(Boolean).join('\n');
   var ctx=''; try{ ctx=await extraCtx(s.id); }catch(e){}
-  try{ var d=await callAI('perf_guide',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:a.standards||[],career:(s.career||s.target_major||''),answers:chosen,context:ctx});
+  try{ var _stdAI=await pfStdForAI(a); var d=await callAI('perf_guide',{subject:a.subject||'',title:a.title||'',task_body:a.task_body||'',rubric:a.rubric||[],standards:_stdAI,career:(s.career||s.target_major||''),answers:chosen,context:(pfStdCtx(_stdAI)+(ctx||''))});
     var o=JSON.parse(d.text); await sb.from('perf_submissions').update({guide:o}).eq('assessment_id',aid).eq('student_id',s.id);
     if(window.toast)toast('학습가이드가 완성됐어요',true); perfStuWork(aid,track);
   }catch(e){ if(m){m.style.color='var(--risk)';m.textContent='생성 실패: '+(e.message||e);} }
