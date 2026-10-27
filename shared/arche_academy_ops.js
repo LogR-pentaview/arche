@@ -15,6 +15,85 @@
   }
   function sb(){ return window.sb; }
 
+  /* ========================= 일괄 등록 파서 (인코딩 자동판별 + 제목행 기반 열 인식) ========================= */
+  var IMPORT_EMPTY = /^(미입력|미기재|없음|해당없음|n\/a|na|null|none|-+|x)$/i;
+  function cellTxt(v){ var t=(v==null?'':String(v)).replace(/[​﻿]/g,'').trim(); return IMPORT_EMPTY.test(t)?'':t; }
+  /* 바이트 → 문자열: UTF-8(BOM 포함) 우선, 실패하면 한글 엑셀 기본 CP949(EUC-KR) */
+  function decodeText(bytes){
+    var off=(bytes.length>=3 && bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF)?3:0;
+    if(bytes.length>=2 && bytes[0]===0xFF && bytes[1]===0xFE) return { text:new TextDecoder('utf-16le').decode(bytes.subarray(2)), enc:'utf-16le' };
+    if(bytes.length>=2 && bytes[0]===0xFE && bytes[1]===0xFF) return { text:new TextDecoder('utf-16be').decode(bytes.subarray(2)), enc:'utf-16be' };
+    try{ return { text:new TextDecoder('utf-8',{fatal:true}).decode(bytes.subarray(off)), enc:'utf-8' }; }catch(e){}
+    try{ return { text:new TextDecoder('euc-kr').decode(bytes.subarray(off)), enc:'cp949' }; }catch(e2){}
+    return { text:new TextDecoder('utf-8').decode(bytes.subarray(off)), enc:'utf-8?' };
+  }
+  /* 파일 버퍼 → 2차원 배열(행×열). xlsx/xls 는 시그니처로 판별, 그 외(csv/txt)는 인코딩 자동판별 */
+  function tableFromBuffer(buf, XL){
+    var bytes=new Uint8Array(buf);
+    var isZip=(bytes[0]===0x50 && bytes[1]===0x4B), isOle=(bytes[0]===0xD0 && bytes[1]===0xCF && bytes[2]===0x11 && bytes[3]===0xE0);
+    var wb, enc='excel';
+    if(isZip || isOle){ wb=XL.read(buf,{type:'array'}); }
+    else { var d=decodeText(bytes); enc=d.enc; wb=XL.read(d.text,{type:'string',raw:true}); }
+    var ws=wb.Sheets[wb.SheetNames[0]];
+    var rows=XL.utils.sheet_to_json(ws,{header:1,defval:'',raw:(!(isZip||isOle))});
+    return { rows:rows, enc:enc };
+  }
+  var HDR_RULES = [
+    ['name',   /이름|성명|^name$/i],
+    ['pphone', /(학부모|부모|보호자|어머니|아버지|모|부).*(연락|전화|폰|휴대|번호)/],
+    ['sphone', /(학생|본인).*(연락|전화|폰|휴대|번호)/],
+    ['school', /학교/],
+    ['grade',  /학년/],
+    ['cls',    /수강|반$|반\d|^반|과목|class/i],
+    ['phone',  /연락처|전화|휴대폰|핸드폰/]
+  ];
+  /* 제목행이 있으면 열 이름으로 매핑, 없으면 기존 고정 순서(이름·학교·학년·수강반·학생·학부모) */
+  function mapColumns(rows){
+    var map={ name:-1, school:-1, grade:-1, cls:[], sphone:-1, pphone:-1 }, start=0, byHeader=false;
+    var head=(rows[0]||[]).map(cellTxt);
+    var hit=0; head.forEach(function(h){ if(/이름|성명|학교|학년|수강|연락처|전화|name/i.test(h)) hit++; });
+    if(hit>=2 || /이름|성명|^name$/i.test(head[0]||'')){
+      byHeader=true; start=1;
+      head.forEach(function(h,i){
+        if(!h) return;
+        for(var k=0;k<HDR_RULES.length;k++){
+          var key=HDR_RULES[k][0], re=HDR_RULES[k][1];
+          if(re.test(h)){
+            if(key==='cls') map.cls.push(i);
+            else if(key==='phone'){ if(map.sphone<0) map.sphone=i; else if(map.pphone<0) map.pphone=i; }
+            else if(map[key]<0) map[key]=i;
+            break;
+          }
+        }
+      });
+      if(map.name<0) map.name=0;
+    } else {
+      map={ name:0, school:1, grade:2, cls:[3], sphone:4, pphone:5 };
+    }
+    return { map:map, start:start, byHeader:byHeader };
+  }
+  function fixPhone(v){
+    var t=cellTxt(v); if(!t) return '';
+    var d=t.replace(/[^0-9]/g,'');
+    if(d.length<9) return '';                       // 번호로 보기 어려운 값(미입력 등) 제외
+    if(/^\d+$/.test(t) && d.length===10 && d.charAt(0)==='1') return '0'+d; // 엑셀이 앞자리 0을 지운 경우
+    return t;
+  }
+  function parseStudentRows(rows){
+    var cm=mapColumns(rows), m=cm.map, out=[], seen={};
+    for(var i=cm.start;i<rows.length;i++){
+      var r=rows[i]; if(!r) continue;
+      var name=cellTxt(r[m.name]); if(!name) continue;
+      var clsSet=[]; 
+      m.cls.forEach(function(ci){
+        cellTxt(r[ci]).split(/[,;|\n]/).map(cellTxt).filter(Boolean).forEach(function(c){ if(clsSet.indexOf(c)<0) clsSet.push(c); });
+      });
+      out.push({ name:name, school:(m.school>=0?cellTxt(r[m.school]):''), grade:(m.grade>=0?cellTxt(r[m.grade]):''),
+        classes:clsSet, sphone:(m.sphone>=0?fixPhone(r[m.sphone]):''), pphone:(m.pphone>=0?fixPhone(r[m.pphone]):''), line:i+1 });
+    }
+    return { students:out, byHeader:cm.byHeader, map:m };
+  }
+
   /* ========================= 학원생 관리 (정보·상담·진로·성적·추이) ========================= */
   async function mountStudentMgmt(host){
     var acid=window._acadId;
@@ -48,7 +127,7 @@
         +'<div style="margin-top:8px"><button class="tab on" id="sm-nadd" style="padding:9px 16px">+ 등록</button></div>'
         +'<div id="sm-nmsg" style="font-size:12px;margin-top:6px"></div></div>';
       var bulk='<div class="card"><div style="font-weight:800;font-size:14px;margin-bottom:6px">📥 엑셀 일괄 등록 <span style="font-size:11px;color:var(--ink-mute);font-weight:400">· 전체 명단 한 번에</span></div>'
-        +'<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:10px">열 순서: <b>이름 · 학교 · 학년 · 수강반(쉼표로 복수) · 학생연락처 · 학부모연락처</b>. 이름+학부모연락처로 기존 학생을 찾아 <b>갱신</b>하고, 없는 반은 <b>자동 생성</b>합니다. (.xlsx / .csv)</div>'
+        +'<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:10px">첫 줄 제목으로 열을 자동 인식합니다: <b>이름 · 학교 · 학년 · 수강반(여러 열/쉼표 복수 가능) · 학생연락처 · 학부모연락처</b>. 이름+학부모연락처로 기존 학생을 찾아 <b>갱신</b>하고, 없는 반은 <b>자동 생성</b>합니다. (.xlsx / .csv · 한글 엑셀 CSV도 OK)</div>'
         +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input type="file" id="sm-xls" accept=".xlsx,.xls,.csv" style="font-size:12.5px">'
         +'<button class="tab" id="sm-xls-tmpl" style="padding:8px 12px">양식 내려받기</button></div>'
         +'<div id="sm-xls-msg" style="font-size:12px;margin-top:8px"></div></div>';
@@ -261,38 +340,34 @@
       m.style.color='var(--ink-mute)'; m.textContent='파일 읽는 중…';
       try{
         var buf=await file.arrayBuffer();
-        var wb=XLSX.read(buf,{type:'array'});
-        var ws=wb.Sheets[wb.SheetNames[0]];
-        var rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+        var t=tableFromBuffer(buf, XLSX);
+        var rows=t.rows;
         if(!rows.length){ m.textContent='빈 파일입니다.'; return; }
-        var start=0; var h0=norm(rows[0][0]);
-        if(/이름|성명|name/i.test(h0)) start=1; // 헤더 스킵
-        var added=0,updated=0,skipped=0,enr=0;
-        for(var i=start;i<rows.length;i++){
-          var r=rows[i]; if(!r) continue;
-          var name=norm(r[0]); if(!name){ continue; }
-          var school=norm(r[1]), grade=norm(r[2]);
-          var clsStr=norm(r[3]), sphone=norm(r[4]), pphone=norm(r[5]);
-          var clsNames=clsStr.split(/[,/·|]/).map(norm).filter(Boolean);
-          var clsIds=[]; for(var k=0;k<clsNames.length;k++){ var cid=await ensureClass(clsNames[k]); if(cid)clsIds.push(cid); }
-          // 기존 학생 매칭(이름+학부모연락처, 없으면 이름)
-          var exist=(S.list||[]).filter(function(s){ if(norm(s.name)!==name) return false; if(pphone) return digits(s.parent_phone)===digits(pphone); return true; })[0];
-          var payload={ academy_id:acid, name:name, school:school||null, grade:grade||null,
-            student_phone:sphone||null, parent_phone:pphone||null,
+        var P=parseStudentRows(rows);
+        if(!P.students.length){ m.style.color='var(--risk)'; m.textContent='등록할 학생(이름)을 찾지 못했습니다. 첫 줄에 [이름·학교·학년·수강반·학생연락처·학부모연락처] 제목이 있는지 확인해 주세요.'; return; }
+        var added=0,updated=0,skipped=0,enr=0,newCls=0, clsBefore=(S.classes||[]).length;
+        for(var i=0;i<P.students.length;i++){
+          var st=P.students[i];
+          var clsIds=[]; for(var k=0;k<st.classes.length;k++){ var cid=await ensureClass(st.classes[k]); if(cid && clsIds.indexOf(cid)<0) clsIds.push(cid); }
+          // 기존 학생 매칭(이름+학부모연락처, 연락처가 없으면 이름만)
+          var exist=(S.list||[]).filter(function(s){ if(norm(s.name)!==st.name) return false; if(st.pphone) return digits(s.parent_phone)===digits(st.pphone); return true; })[0];
+          var payload={ academy_id:acid, name:st.name, school:st.school||null, grade:st.grade||null,
+            student_phone:st.sphone||null, parent_phone:st.pphone||null,
             subjects:(enrollSubjects(clsIds)||null), class_id:(clsIds[0]||null) };
           var sid=null;
           if(exist){ var u=await sb().from('students').update(payload).eq('id',exist.id); if(!u.error){ updated++; sid=exist.id; } else { skipped++; continue; } }
-          else { if(window._myUid) payload.consultant_uid=window._myUid; var ins=await sb().from('students').insert(payload).select('id').single(); if(!ins.error&&ins.data){ added++; sid=ins.data.id; } else { skipped++; continue; } }
+          else { if(window._myUid) payload.consultant_uid=window._myUid; var ins=await sb().from('students').insert(payload).select('id').single(); if(!ins.error&&ins.data){ added++; sid=ins.data.id; (S.list=S.list||[]).push({id:sid,name:st.name,parent_phone:st.pphone||null}); } else { skipped++; continue; } }
           // enrollment 추가(기존 유지, 없는 것만)
           if(sid&&clsIds.length){
-            var cur=S.enroll[sid]||[];
+            var cur=S.enroll[sid]||[]; S.enroll[sid]=cur;
             var toAdd=clsIds.filter(function(c){return cur.indexOf(c)<0;});
-            if(toAdd.length){ try{ await sb().from('student_enrollments').insert(toAdd.map(function(c){return {academy_id:acid,student_id:sid,class_id:c};})); enr+=toAdd.length; }catch(e){} }
+            if(toAdd.length){ try{ await sb().from('student_enrollments').insert(toAdd.map(function(c){return {academy_id:acid,student_id:sid,class_id:c};})); toAdd.forEach(function(c){cur.push(c);}); enr+=toAdd.length; }catch(e){} }
           }
-          m.textContent='처리 중… '+(added+updated)+'명';
+          m.textContent='처리 중… '+(i+1)+'/'+P.students.length+'명';
         }
+        newCls=(S.classes||[]).length-clsBefore;
         await loadList(); shell();
-        var m2=host.querySelector('#sm-xls-msg'); if(m2){ m2.style.color='var(--safe)'; m2.textContent='✓ 완료 · 신규 '+added+'명 · 갱신 '+updated+'명 · 수강반 연결 '+enr+'건'+(skipped?(' · 건너뜀 '+skipped):''); }
+        var m2=host.querySelector('#sm-xls-msg'); if(m2){ m2.style.color='var(--safe)'; m2.textContent='✓ 완료 · 신규 '+added+'명 · 갱신 '+updated+'명 · 수강반 연결 '+enr+'건'+(newCls?(' · 새 반 '+newCls+'개 자동 생성'):'')+(skipped?(' · 건너뜀 '+skipped):'')+' (인코딩: '+t.enc+')'; }
       }catch(e){ m.style.color='var(--risk)'; m.textContent='실패: '+((e&&e.message)||e); }
     }
 
@@ -1020,5 +1095,5 @@
     }
   }
 
-  window.ArcheAcademyOps = { version:'2.0' };
+  window.ArcheAcademyOps = { version:'2.1', _parseStudentRows:parseStudentRows, _tableFromBuffer:tableFromBuffer, _decodeText:decodeText };
 })();
