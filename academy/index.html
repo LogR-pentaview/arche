@@ -3697,7 +3697,18 @@ async function enterStudentApp(session){
   // 인터뷰·성적 제출: 고=대입 자료입력 / 중=고입 자료입력 / 초=없음
   var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(lvl==='고'){ _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _ivn.style.display='none'; } }
   var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn){ if(lvl==='중'){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _givn.style.display='none'; } }
-  try{ if(window._isSchool){ var _sp2=document.getElementById('nav-studyplan'); if(_sp2)_sp2.style.display='none'; } }catch(e){}
+  /* 학습 스케줄러: 학생에게는 '컨설팅 홈' 바로 아래로 옮겨 노출 (학교 테넌트 제외) */
+  try{
+    var _sp2=document.getElementById('nav-studyplan');
+    if(_sp2){
+      if(window._isSchool){ _sp2.style.display='none'; }
+      else{
+        var _hn=document.querySelector('.nav[data-v="home"]');
+        if(_hn&&_hn.parentNode){ _hn.parentNode.insertBefore(_sp2,_hn.nextSibling); }
+        _sp2.style.display='';
+      }
+    }
+  }catch(e){}
   // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
