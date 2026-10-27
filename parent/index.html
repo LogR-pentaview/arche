@@ -474,6 +474,11 @@
       <button data-lr="adm" onclick="setLoginRole('adm')" style="flex:1">관리자</button>
     </div>
     <div id="login-role-desc" class="mono" style="font-size:10px;color:var(--ink-mute);margin-bottom:12px;min-height:13px"></div>
+    <button id="au-google" style="display:none;position:relative;width:100%;margin-top:2px;padding:14px 11px;background:#fff;color:#3c4043;border:1.5px solid #dadce0;border-radius:11px;font-weight:700;cursor:pointer;align-items:center;justify-content:center;gap:10px;font-size:15px;font-family:inherit;box-shadow:0 2px 8px rgba(25,31,40,.07)">
+      <span style="position:absolute;top:-9px;right:12px;font-size:10px;font-weight:800;color:#fff;background:var(--gold,#3182f6);border-radius:20px;padding:2px 9px">추천</span><svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <span>Google로 계속하기</span>
+    </button>
+    <div id="au-google-note" style="display:none;font-size:11.5px;color:var(--ink-mute);text-align:center;margin-top:7px;line-height:1.5">가입과 로그인이 한 번에 · <b style="color:var(--gold,#3182f6)">인증 메일 없음</b></div><div id="au-google-div" style="display:none;align-items:center;gap:10px;margin:16px 0 12px;font-size:11.5px;font-weight:600;color:var(--ink-mute)"><span style="flex:1;height:1px;background:var(--line)"></span>또는 이메일로 가입·로그인<span style="flex:1;height:1px;background:var(--line)"></span></div>
     <input id="au-sid" type="text" placeholder="자녀 아이디 (예: PV0001)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-adm" type="text" placeholder="관리자 아이디 (admin)" style="display:none;width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
     <input id="au-email" type="email" placeholder="이메일" autocomplete="email" style="width:100%;margin-bottom:10px;padding:11px 13px;background:var(--panel-2);border:1px solid var(--line);border-radius:9px;color:var(--ink);font-size:14px">
@@ -484,12 +489,7 @@
       <button id="au-login" style="flex:1;padding:11px;background:var(--gold);color:#ffffff;border:none;border-radius:9px;font-weight:700;cursor:pointer">로그인</button>
       <button id="au-signup" style="flex:1;padding:11px;background:transparent;color:var(--ink);border:1px solid var(--line);border-radius:9px;font-weight:500;cursor:pointer">회원가입</button>
     </div>
-    <button id="au-google" style="display:none;width:100%;margin-top:10px;padding:11px;background:#fff;color:#3c4043;border:1px solid #dadce0;border-radius:9px;font-weight:700;cursor:pointer;align-items:center;justify-content:center;gap:9px;font-size:14px">
-      <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      <span>Google로 계속하기 (원클릭)</span>
-    </button>
-    <div id="au-google-note" style="display:none;font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:6px;line-height:1.5">구글 계정으로 <b style="color:var(--gold,#3182f6)">인증메일 없이 즉시 가입·로그인</b>됩니다.</div>
-    <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:8px;line-height:1.5">회원가입 시 인증 메일이 <b>해외 서버(Supabase)</b>에서 발송됩니다.<br>메일이 안 오면 <b style="color:var(--gold,#3182f6)">스팸함·프로모션함</b>을 확인하세요.</div>
+    <div id="au-mailwarn" style="display:none;margin-top:12px;background:#fff7e0;border:1.5px solid #f5c451;border-radius:12px;padding:11px 13px;color:#7a4b00;font-size:12px;line-height:1.65;font-weight:500"><div style="font-size:13px;font-weight:800;margin-bottom:3px">📩 이메일 가입은 '인증 메일'을 꼭 확인하세요</div>인증 메일은 <b style="background:rgba(245,196,81,.35);padding:0 3px;border-radius:3px">해외 서버(Supabase)</b>에서 발송되어 <b style="background:rgba(245,196,81,.35);padding:0 3px;border-radius:3px">스팸함·프로모션함</b>으로 가거나 몇 분 늦을 수 있습니다. 발신자는 <b>Supabase Auth</b>이며, 메일의 <b>인증 링크</b>를 눌러야 가입이 완료됩니다.</div>
     <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
 <div style="font-size:10.5px;color:var(--ink-mute);text-align:center;margin-top:2px;line-height:1.5">회원가입 후 <b style="color:var(--gold,#3182f6)">각 서비스 첫 시즌 1강을 무료</b>로 바로 시작할 수 있습니다.<br>한 브라우저에서는 한 계정만 로그인됩니다.</div>
       <div id="guest-form" style="display:none;margin-top:10px">
@@ -2278,7 +2278,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.08.12.1";
+window.APP_VERSION="2026.10.27.1";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2407,6 +2407,8 @@ function setLoginRole(r){
   document.getElementById('au-signup').style.display=parent?'block':'none';
   var _gbtn=document.getElementById('au-google'); if(_gbtn)_gbtn.style.display=parent?'flex':'none';
   var _gnote=document.getElementById('au-google-note'); if(_gnote)_gnote.style.display=parent?'block':'none';
+  var _gdiv=document.getElementById('au-google-div'); if(_gdiv)_gdiv.style.display=parent?'flex':'none';
+  var _mw=document.getElementById('au-mailwarn'); if(_mw)_mw.style.display=parent?'block':'none';
   // 이름 입력란 라벨
   var nm=document.getElementById('au-name');
   if(nm)nm.placeholder=parent?'보호자 성함 또는 자녀 이름 (가입 시)':'학원명';
@@ -3529,7 +3531,8 @@ document.getElementById('au-signup').onclick=async()=>{
   const {data,error}=await sb.auth.signUp({email:auE(),password:auP(),options:{data:{academy_name:nmv,account_type:(isParent?'b2c':'b2b')}}});
   if(error)return msg(error.message);
   if(data.session) enterApp(data.session);
-  else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='확인 메일을 보냈습니다. 인증 후 로그인하세요.<br><span style="color:var(--gold,#3182f6);font-size:11.5px;line-height:1.5">⚠️ 인증 메일은 Supabase(해외 서버)에서 발송됩니다. 메일이 안 보이면 <b>스팸함·프로모션함</b>을 꼭 확인하세요.</span>'; }
+  else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='📩 <b>'+esc(auE())+'</b> 로 인증 메일을 보냈습니다.<br>메일의 인증 링크를 누른 뒤 로그인하세요.<div style="margin-top:8px;background:#fff7e0;border:1.5px solid #f5c451;border-radius:10px;padding:9px 11px;color:#7a4b00;font-size:12px;line-height:1.6;font-weight:500">⚠️ <b>메일이 안 보이면 스팸함·프로모션함을 먼저 확인하세요.</b><br>해외(Supabase) 발송이라 최대 5~10분 늦을 수 있습니다. 발신자: Supabase Auth</div><a href="#" id="au-resend" style="display:inline-block;margin-top:8px;font-size:12px;font-weight:700;color:var(--gold,#3182f6)">인증 메일 다시 보내기</a>';
+    var _rs=document.getElementById('au-resend'); if(_rs) _rs.onclick=async function(ev){ ev.preventDefault(); if(_rs.dataset.busy)return; _rs.dataset.busy='1'; _rs.textContent='보내는 중…'; try{ var r=await sb.auth.resend({type:'signup',email:auE()}); _rs.textContent=r.error?('재발송 실패: '+r.error.message):'다시 보냈습니다. 스팸함도 확인하세요.'; }catch(e){ _rs.textContent='재발송 실패'; } setTimeout(function(){ delete _rs.dataset.busy; },60000); }; }
 };
 // [구글 원클릭] 학부모(b2c) 소셜 로그인 — 인증메일 없이 즉시 가입·로그인.
 //   복귀 시 getSession → enterApp → ensureAcademy가 신규면 b2c로 프로비저닝(_pv_oauth_acct 플래그).
