@@ -21,15 +21,17 @@
   function ymd(d){ return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
   function parseYmd(s){ var p=String(s).split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
   function addDays(d,n){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()+n); return x; }
-  function mondayOf(d){ var x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); x.setDate(x.getDate()-((x.getDay()+6)%7)); return x; }
   function todayStart(){ var n=new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate()); }
-  function dateOf(week,dow){ return addDays(parseYmd(week),dow-1); }
+  function isoDow(d){ return ((d.getDay()+6)%7)+1; }
+  /* 계획 구간 = 시작일(week_start)부터 7일. dow(1=월..7=일)는 요일 그대로이고, 날짜는 시작일 이후 처음 오는 해당 요일 */
+  function dateOf(start,dow){ var a=parseYmd(start); return addDays(a,(dow-isoDow(a)+7)%7); }
+  function dowOrder(start){ var a=isoDow(parseYmd(start)),r=[],i; for(i=0;i<7;i++) r.push(((a-1+i)%7)+1); return r; }
   function md(d){ return (d.getMonth()+1)+'/'+d.getDate(); }
-  function weekLabel(week){ var a=parseYmd(week),b=addDays(a,6); return md(a)+'('+DAYS[0]+') ~ '+md(b)+'('+DAYS[6]+')'; }
+  function weekLabel(start){ var a=parseYmd(start),b=addDays(a,6); return md(a)+'('+DAYS[isoDow(a)-1]+') ~ '+md(b)+'('+DAYS[isoDow(b)-1]+')'; }
   function hhmm(t){ return t?String(t).slice(0,5):''; }
 
   /* ----------------------------- 상태 ----------------------------- */
-  var S={ host:null, week:ymd(mondayOf(new Date())), sel:null, form:null, busy:false,
+  var S={ host:null, ref:ymd(todayStart()), starts:[], sel:null, form:null, busy:false,
           mentees:[], cands:[], plans:{}, items:{}, cur:null, msgs:[], mentor:null, filter:'' };
 
   function isStu(){ return window._role==='stu'; }
@@ -160,10 +162,21 @@
   function sortItems(a){ return a.slice().sort(function(x,y){ return (x.dow-y.dow)||String(x.start_time||'').localeCompare(String(y.start_time||''))||(x.sort-y.sort); }); }
 
   /* ----------------------------- 공통 조각 ----------------------------- */
+  function curWin(){
+    var p=S.cur&&S.cur.plan; var st=p?p.week_start:S.ref;
+    return {start:st,end:ymd(addDays(parseYmd(st),6)),plan:p};
+  }
   function weekBar(){
-    var cur=ymd(mondayOf(new Date()));
-    return '<div class="weeknav"><button class="btn sm" onclick="SPL.week(-1)">‹ 이전 주</button><b>'+weekLabel(S.week)+(S.week===cur?' · 이번 주':'')+'</b>'
-      +'<button class="btn sm" onclick="SPL.week(1)">다음 주 ›</button>'+(S.week!==cur?'<button class="btn sm" onclick="SPL.week(0)">이번 주로</button>':'')+'</div>';
+    var t=ymd(todayStart());
+    if(isStu()){
+      var w=curWin(), has=w.start<=t&&t<=w.end, hasPrev=S.starts.some(function(x){return x<w.start;});
+      return '<div class="weeknav"><button class="btn sm" '+(hasPrev?'':'disabled ')+'onclick="SPL.week(-1)">‹ 이전 계획</button><b>'+weekLabel(w.start)+(has?' · 오늘 포함':'')+'</b>'
+        +'<button class="btn sm" onclick="SPL.week(1)">다음 7일 ›</button>'+(has?'':'<button class="btn sm" onclick="SPL.week(0)">오늘로</button>')+'</div>';
+    }
+    var r=parseYmd(S.ref);
+    return '<div class="weeknav"><button class="btn sm" onclick="SPL.week(-1)">‹ 7일 전</button><b>기준일 '+md(r)+'('+DAYS[isoDow(r)-1]+')'+(S.ref===t?' · 오늘':'')+'</b>'
+      +'<input type="date" value="'+S.ref+'" style="border:1px solid #e5e8eb;border-radius:7px;padding:4px 7px;font:inherit;font-size:12.5px" onchange="SPL.setRef(this.value)">'
+      +'<button class="btn sm" onclick="SPL.week(1)">7일 후 ›</button>'+(S.ref!==t?'<button class="btn sm" onclick="SPL.week(0)">오늘로</button>':'')+'</div>';
   }
   function stepper(plan){
     var s=plan?plan.status:'none', i=(s==='draft'||s==='none')?0:(s==='confirmed'?3:1);
@@ -192,8 +205,8 @@
     var editable=(me==='stu')?(st==='draft'||st==='revising'):(st!=='confirmed');
     var conf=(st==='confirmed'), today=todayStart(), h='<div class="board">';
     var sorted=sortItems(items);
-    for(var d=1;d<=7;d++){
-      var dt=dateOf(plan.week_start,d), isToday=(ymd(dt)===ymd(today));
+    dowOrder(plan.week_start).forEach(function(d,i){
+      var dt=addDays(parseYmd(plan.week_start),i), isToday=(ymd(dt)===ymd(today));
       h+='<div class="day'+(isToday?' today':'')+'"><div class="dh"><span>'+DAYS[d-1]+(isToday?' · 오늘':'')+'</span><small>'+md(dt)+'</small></div>';
       sorted.filter(function(x){return x.dow===d;}).forEach(function(x){
         if(S.form&&S.form.id===x.id) h+=formHTML(S.form); else h+=itemHTML(plan,x,me,editable,conf,dt,today);
@@ -203,7 +216,7 @@
         else h+='<button class="add" onclick="SPL.form(null,'+d+')">+ 항목</button>';
       }
       h+='</div>';
-    }
+    });
     return h+'</div>';
   }
   function formHTML(f){
@@ -235,8 +248,12 @@
 
   /* ----------------------------- 데이터 로드 ----------------------------- */
   async function loadPlanFor(sid){
-    var r=await sbc().from('study_plans').select('*').eq('student_id',sid).eq('week_start',S.week).limit(1);
+    // 기준일(S.ref)이 속한 7일 구간의 계획: week_start ∈ [ref-6, ref]
+    var lo=ymd(addDays(parseYmd(S.ref),-6));
+    var r=await sbc().from('study_plans').select('*').eq('student_id',sid).gte('week_start',lo).lte('week_start',S.ref).order('week_start',{ascending:false}).limit(1);
     if(r.error){ fail(r); return {plan:null,items:[],msgs:[]}; }
+    var sr=await sbc().from('study_plans').select('week_start').eq('student_id',sid).order('week_start');
+    S.starts=(sr.data||[]).map(function(x){return x.week_start;});
     var plan=r.data&&r.data[0]; if(!plan) return {plan:null,items:[],msgs:[]};
     var q=await Promise.all([
       sbc().from('study_items').select('*').eq('plan_id',plan.id).order('dow').order('start_time',{nullsFirst:true}),
@@ -244,13 +261,14 @@
     return { plan:plan, items:q[0].data||[], msgs:q[1].data||[] };
   }
   async function createPlan(sid){
-    var r=await sbc().from('study_plans').insert({student_id:sid,week_start:S.week}).select().limit(1);
+    var st=S.ref, nxt=S.starts.filter(function(x){return x>st&&x<=ymd(addDays(parseYmd(st),6));})[0];
+    if(nxt){ toast('다음 계획('+md(parseYmd(nxt))+' 시작)과 기간이 겹쳐요. 시작일을 '+md(addDays(parseYmd(nxt),-7))+' 이전으로 골라주세요.'); return false; }
+    var r=await sbc().from('study_plans').insert({student_id:sid,week_start:st}).select().limit(1);
     if(r.error){ fail(r); return false; }
     return true;
   }
-  async function copyPrev(sid,planId){
-    var prevWeek=ymd(addDays(parseYmd(S.week),-7));
-    var p=await sbc().from('study_plans').select('id,week_start').eq('student_id',sid).lt('week_start',S.week).order('week_start',{ascending:false}).limit(1);
+  async function copyPrev(sid,planId,start){
+    var p=await sbc().from('study_plans').select('id,week_start').eq('student_id',sid).lt('week_start',start).order('week_start',{ascending:false}).limit(1);
     if(p.error){ fail(p); return; }
     if(!p.data||!p.data[0]){ toast('복사할 지난 계획이 없습니다.'); return; }
     var it=await sbc().from('study_items').select('dow,start_time,minutes,subject,title,detail,sort').eq('plan_id',p.data[0].id);
@@ -259,7 +277,7 @@
     var rows=it.data.map(function(x){ return {plan_id:planId,student_id:sid,dow:x.dow,start_time:x.start_time,minutes:x.minutes,subject:x.subject,title:x.title,detail:x.detail,sort:x.sort||0}; });
     var ins=await sbc().from('study_items').insert(rows);
     if(ins.error){ fail(ins); return; }
-    toast('지난 계획('+weekLabel(p.data[0].week_start)+')을 복사했어요.');
+    toast('지난 계획('+weekLabel(p.data[0].week_start)+')을 요일 그대로 복사했어요.');
   }
 
   /* ----------------------------- 학생 화면 ----------------------------- */
@@ -276,11 +294,12 @@
     var d=await loadPlanFor(stu.id); S.cur=d; S.msgs=d.msgs;
     var plan=d.plan, items=d.items, late=lateItems(plan,items), o='';
     o+='<div class="spl"><div class="hint" style="font-weight:800;letter-spacing:1px;color:#1b64da">STUDY PLANNER</div><div style="font-size:22px;font-weight:800;margin:2px 0 4px">나의 학습 스케줄러</div>'
-      +'<div style="color:#4e5968;font-size:13px">담당 선생님과 상의해서 이번 주 자기주도학습 계획을 만들고, 매일 실천한 만큼 체크해요.</div>';
+      +'<div style="color:#4e5968;font-size:13px">담당 선생님과 상의해서 오늘부터 7일간의 자기주도학습 계획을 만들고, 매일 실천한 만큼 체크해요.</div>';
     o+='<div class="card"><div class="row rowb">'+weekBar()+chip(plan?plan.status:'none')+'</div>'
       +'<div class="hint" style="margin-top:8px">담당 선생님 : '+esc(mentor.mentor_name)+(mentor.goal?' · 목표 : '+esc(mentor.goal):'')+'</div>'+stepper(plan)+'</div>';
     if(!plan){
-      o+='<div class="empty"><div class="big">✏️</div><div style="font-weight:800;font-size:15px;margin-top:6px">이 주의 계획이 아직 없어요</div><div class="hint" style="margin:6px 0 12px">요일별로 공부할 내용을 직접 짜 보세요.</div>'
+      o+='<div class="empty"><div class="big">✏️</div><div style="font-weight:800;font-size:15px;margin-top:6px">이 기간의 계획이 아직 없어요</div><div class="hint" style="margin:6px 0 10px">시작일부터 7일 동안의 공부 계획을 직접 짜 보세요.</div>'
+        +'<div class="row" style="justify-content:center;margin-bottom:10px"><span class="hint">시작일</span><input type="date" value="'+S.ref+'" style="border:1px solid #e5e8eb;border-radius:7px;padding:5px 8px;font:inherit;font-size:13px" onchange="SPL.setRef(this.value)"></div>'
         +'<div class="row" style="justify-content:center"><button class="btn pri" onclick="SPL.newPlan()">계획 만들기</button><button class="btn" onclick="SPL.newPlan(true)">지난 계획 복사해서 시작</button></div></div></div>';
       h.innerHTML=o; return;
     }
@@ -291,7 +310,7 @@
     if(st==='proposed') o+='<div class="alert info"><div style="font-size:18px">⏳</div><div><b>선생님이 계획을 검토하고 있어요.</b><br>검토 중에는 수정할 수 없어요. 궁금한 점은 아래 대화로 남겨주세요.</div></div>';
     if(st==='revising') o+='<div class="alert"><div style="font-size:18px">🛠️</div><div><b>선생님과 계획을 조율하는 중이에요.</b><br>아래 대화를 확인하고 계획을 고친 뒤 다시 제출해요.</div></div>';
     if(st==='confirmed') o+=progress(plan,items);
-    o+='<div class="card"><div class="row rowb"><div class="h3">주간 계획표</div>';
+    o+='<div class="card"><div class="row rowb"><div class="h3">계획표 <span class="hint" style="font-weight:600">· '+weekLabel(plan.week_start)+'</span></div>';
     if(st==='draft'||st==='revising'){
       o+='<div class="row" style="gap:8px">'+(items.length?'':'<button class="btn sm" onclick="SPL.copyPrev()">지난 계획 복사</button>')+'<button class="btn pri" onclick="SPL.act(\'submit\')">선생님께 제출</button></div>';
     }
@@ -310,7 +329,7 @@
     var ids=S.mentees.map(function(m){return m.student_id;});
     S.plans={}; S.items={};
     if(ids.length){
-      var pr=await sbc().from('study_plans').select('*').eq('week_start',S.week).in('student_id',ids);
+      var pr=await sbc().from('study_plans').select('*').gte('week_start',ymd(addDays(parseYmd(S.ref),-6))).lte('week_start',S.ref).in('student_id',ids);
       (pr.data||[]).forEach(function(p){ S.plans[p.student_id]=p; });
       var pids=(pr.data||[]).map(function(p){return p.id;});
       if(pids.length){
@@ -355,7 +374,7 @@
     mine.forEach(function(m){
       var p=S.plans[m.student_id], it=p?(S.items[p.id]||[]):[], r=rate(it), l=lateItems(p,it).length;
       o+='<button class="si'+(S.sel===m.student_id?' on':'')+'" onclick="SPL.pick(\''+m.student_id+'\')"><div class="nm"><span>'+esc(m.students.name)+' <small style="color:#8b95a1;font-weight:600">'+esc(m.students.grade||'')+'</small></span>'+(l?'<span class="badge">'+l+'</span>':'')+'</div>'
-        +'<div class="mt">'+(p?STATUS[p.status]:'이 주 계획 없음')+(p&&p.status==='confirmed'?' · '+r.d+'/'+r.n+' 완료':'')+(isMgr()?' · '+esc(mentorName(m.mentor_uid)):'')+'</div>'
+        +'<div class="mt">'+(p?STATUS[p.status]:'이 기간 계획 없음')+(p&&p.status==='confirmed'?' · '+r.d+'/'+r.n+' 완료':'')+(isMgr()?' · '+esc(mentorName(m.mentor_uid)):'')+'</div>'
         +'<div class="bar'+(r.pct>=70?' ok':'')+'"><span style="width:'+(p&&p.status==='confirmed'?r.pct:0)+'%"></span></div></button>';
     });
     o+='</div></div><div>';
@@ -368,12 +387,12 @@
         +(isMgr()?'<select style="border:1px solid #e5e8eb;border-radius:7px;padding:5px 8px;font:inherit;font-size:12px" onchange="SPL.mentor(this.value)">'+S.cands.map(function(c){return '<option value="'+c.uid+'"'+(c.uid===m.mentor_uid?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select>':'')
         +'<button class="btn sm" onclick="SPL.release()">관리 해제</button></div></div>'+stepper(plan)+'</div>';
       if(!plan){
-        o+='<div class="empty"><div class="big">📝</div><div style="font-weight:800;margin-top:6px">이 주의 계획이 아직 없어요</div><div class="hint" style="margin:6px 0 12px">학생이 작성하면 여기에 표시돼요. 강사가 먼저 초안을 만들어 줄 수도 있어요.</div>'
+        o+='<div class="empty"><div class="big">📝</div><div style="font-weight:800;margin-top:6px">기준일('+md(parseYmd(S.ref))+')이 속한 기간의 계획이 아직 없어요</div><div class="hint" style="margin:6px 0 10px">학생이 작성하면 여기에 표시돼요. 강사가 먼저 초안을 만들 수도 있어요. (기준일부터 7일 구간으로 생성)</div>'
           +'<div class="row" style="justify-content:center"><button class="btn pri" onclick="SPL.newPlan()">초안 직접 만들기</button><button class="btn" onclick="SPL.newPlan(true)">지난 계획 복사해서 시작</button></div></div>';
       } else {
         var st=plan.status;
         if(st==='confirmed') o+=progress(plan,items);
-        o+='<div class="card"><div class="row rowb"><div class="h3">주간 계획표</div><div class="row" style="gap:8px">';
+        o+='<div class="card"><div class="row rowb"><div class="h3">계획표 <span class="hint" style="font-weight:600">· '+weekLabel(plan.week_start)+'</span></div><div class="row" style="gap:8px">';
         if(st==='proposed') o+='<button class="btn warn" onclick="SPL.act(\'revise\')">수정 요청</button><button class="btn ok" onclick="SPL.act(\'confirm\')">이 계획으로 확정</button>';
         if(st==='draft'||st==='revising') o+='<button class="btn ok" onclick="SPL.act(\'confirm\')">이 계획으로 확정</button>';
         if(st==='confirmed') o+='<button class="btn sm" onclick="SPL.act(\'reopen\')">다시 조율하기</button>';
@@ -412,7 +431,17 @@
 
   /* ----------------------------- 동작(전역 SPL) ----------------------------- */
   var SPL={
-    week:function(d){ S.form=null; S.week=(d===0)?ymd(mondayOf(new Date())):ymd(addDays(parseYmd(S.week),7*d)); render(); },
+    week:function(d){
+      S.form=null; var t=todayStart();
+      if(d===0){ S.ref=ymd(t); }
+      else if(isStu()){
+        var w=curWin(), c;
+        if(d<0){ c=S.starts.filter(function(x){return x<w.start;}); if(!c.length) return; S.ref=c[c.length-1]; }
+        else { c=S.starts.filter(function(x){return x>w.start;}); var e1=addDays(parseYmd(w.end),1); S.ref=c.length?c[0]:ymd(e1>t?e1:t); }
+      } else { S.ref=ymd(addDays(parseYmd(S.ref),7*d)); }
+      render();
+    },
+    setRef:function(v){ if(!/^\d{4}-\d{2}-\d{2}$/.test(v||'')) return; S.form=null; S.ref=v; render(); },
     reload:function(){ render(); },
     pick:function(sid){ S.sel=sid; S.form=null; render(); },
     filter:function(v){ S.filter=v||''; S.sel=null; render(); },
@@ -468,16 +497,16 @@
       var p=S.cur&&S.cur.plan; if(!p) return;
       if(a==='confirm'&&!confirm('이 계획으로 확정할까요? 확정 후에는 학생이 체크·소감만 입력할 수 있어요.')) return;
       var r=await sbc().rpc('sp_set_status',{p_plan:p.id,p_action:a}); if(r.error){ fail(r); return; }
-      toast({submit:'선생님께 제출했어요',revise:'수정을 요청했어요',confirm:'이번 주 계획을 확정했어요 ✅',reopen:'수정 단계로 되돌렸어요'}[a]||'처리했어요');
+      toast({submit:'선생님께 제출했어요',revise:'수정을 요청했어요',confirm:'계획을 확정했어요 ✅',reopen:'수정 단계로 되돌렸어요'}[a]||'처리했어요');
       render();
     },
     newPlan:async function(copy){
       var sid=curStudentId(); if(!sid) return;
       var ok=await createPlan(sid); if(!ok) return;
-      if(copy){ var d=await loadPlanFor(sid); if(d.plan) await copyPrev(sid,d.plan.id); }
+      if(copy){ var d=await loadPlanFor(sid); if(d.plan) await copyPrev(sid,d.plan.id,d.plan.week_start); }
       render();
     },
-    copyPrev:async function(){ if(!S.cur||!S.cur.plan) return; await copyPrev(S.cur.plan.student_id,S.cur.plan.id); render(); },
+    copyPrev:async function(){ if(!S.cur||!S.cur.plan) return; await copyPrev(S.cur.plan.student_id,S.cur.plan.id,S.cur.plan.week_start); render(); },
     goal:async function(v){
       var m=S.mentees.filter(function(x){return x.student_id===S.sel;})[0]; if(!m) return;
       var r=await sbc().from('study_mentees').update({goal:(v||'').trim()||null}).eq('id',m.id); if(r.error){ fail(r); return; }
