@@ -243,6 +243,14 @@
           +'<input type="text" maxlength="500" style="margin-top:6px" placeholder="짧은 코멘트 (Enter)" value="'+esc(x.mentor_comment||'')+'" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="SPL.cm(\''+x.id+'\',this.value)">';
       }
     }
+    if(conf&&!x.done){
+      // 미완료 항목: 강사 독려 코멘트 (이모지 응원은 완료 항목 전용)
+      if(me==='men'){
+        h+='<input type="text" maxlength="500" style="margin-top:6px" placeholder="'+(isLate?'독려 메시지 (Enter)':'미리 남기는 한마디 (Enter)')+'" value="'+esc(x.mentor_comment||'')+'" onkeydown="if(event.key===\'Enter\')this.blur()" onchange="SPL.cm(\''+x.id+'\',this.value)">';
+      } else if(x.mentor_comment){
+        h+='<div class="cm"><b>💬 '+esc(x.comment_by_name||'선생님')+'</b><div>'+esc(x.mentor_comment)+'</div></div>';
+      }
+    }
     return h+'</div>';
   }
 
