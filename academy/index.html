@@ -617,7 +617,7 @@
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_basic'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></svg> 펜타 비전 기초 <span style="font-size:9px;color:var(--ink-mute)">초등</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'vision_adv'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 7v10M7 12h10"/></svg> 펜타 비전 심화 <span style="font-size:9px;color:var(--ink-mute)">초·중1~2</span></div>
         <div class="nav" data-v="penta" onclick="go(this);if(window.ArchePentaApp)ArchePentaApp.mount(document.getElementById('penta-mount'),{course:'track'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M3 17l6-6 4 4 8-8"/><path d="M21 7v5h-5"/></svg> 펜타 트랙 <span style="font-size:9px;color:var(--ink-mute)">중3</span></div>
-        <div class="navlabel" style="padding:8px 10px 3px;font-size:9px;letter-spacing:.12em;color:var(--ink-mute)">수업 운영</div>
+        <div class="navlabel" id="nl-ops" style="padding:8px 10px 3px;font-size:9px;letter-spacing:.12em;color:var(--ink-mute)">수업 운영</div>
         <div class="nav" data-v="live" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg> 실시간 관제 <span style="font-size:9px;font-weight:800;color:#fff;background:linear-gradient(135deg,#7B1FA2,#E91E63);border-radius:5px;padding:1px 5px">LIVE</span></div>
         <div class="nav" data-v="course" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v14H4z"/><path d="M4 9h16M9 9v10"/></svg> 코스웨어</div>
         <div class="nav" data-v="submits" onclick="go(this)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M6 3h9l4 4v14H6z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg> 학생 제출물 관리</div>
@@ -3708,7 +3708,7 @@ async function enterStudentApp(session){
   }
   if(_gP)_gP.classList.add('open');
   // 공통: 컨설턴트/관리 전용 메뉴 숨김
-  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice','psend','sm','members','staffmsg','tactivity','newsletter','tdash','attend','refbank','bulkreg'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
+  ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice','psend','sm','members','staffmsg','tactivity','newsletter','tdash','attend','refbank','bulkreg','live','course','submits'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
   // 인터뷰·성적 제출: 고=대입 자료입력 / 중=고입 자료입력 / 초=없음
   var _ivn=document.querySelector('.nav[data-v="intake"]'); if(_ivn){ if(lvl==='고'){ _ivn.style.display=''; _ivn.innerHTML=_ivn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _ivn.style.display='none'; } }
   var _givn=document.querySelector('.nav[data-v="gintake"]'); if(_givn){ if(lvl==='중'){ _givn.style.display=''; _givn.innerHTML=_givn.innerHTML.replace('학생 자료 입력','인터뷰·성적 제출'); } else { _givn.style.display='none'; } }
@@ -3724,6 +3724,7 @@ async function enterStudentApp(session){
       }
     }
   }catch(e){}
+  var _nlo=document.getElementById('nl-ops'); if(_nlo)_nlo.style.display='none'; /* 수업 운영(강사용) 라벨 숨김 */
   // 학생 전용: 설정(비밀번호 변경) 메뉴 노출
   var _ns=document.getElementById('nav-stuset'); if(_ns)_ns.style.display='';
 
