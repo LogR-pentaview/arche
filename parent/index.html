@@ -5439,6 +5439,33 @@ window.callFollowup=async function(payload){
   var res=await fetch(SB_URL+'/functions/v1/arche-followup',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+(sess?sess.access_token:'')},body:JSON.stringify({payload:payload})});
   var d=await res.json(); if(!res.ok)throw new Error(d.error||'AI 오류'); return d;
 };
+window.ivFuBlock=function(fq,val){
+  return '<div class="iv-fq" data-fq="'+esc(fq)+'" style="margin-top:8px;padding-left:10px;border-left:2px solid var(--gold)"><div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:4px">↳ '+esc(fq)+'</div><textarea class="iv-a iv-fa" rows="2" onpaste="ivBlockPaste(event)" placeholder="이어서 직접 작성해 주세요" style="width:100%;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical">'+esc(val||'')+'</textarea><div class="iv-warn" style="display:none;font-size:11px;color:var(--risk);margin-top:3px">붙여넣기는 제한됩니다 — 직접 작성해 주세요.</div></div>';
+};
+window.ivCurStu=function(track){ return (track==='goip')?(window._gactive||window._activeStudent):window._activeStudent; };
+window.ivDraftSave=function(track){
+  try{
+    var s=ivCurStu(track); var box=document.getElementById(track==='goip'?'iv-intake-goip':'iv-intake-dae');
+    if(!s||!box||box.getAttribute('data-built')!=='1'||box.getAttribute('data-sid')!==String(s.id))return;
+    var d=[]; Array.prototype.forEach.call(box.querySelectorAll('.iv-q'),function(c){
+      var ta=c.querySelector('.iv-a'); var f=[];
+      Array.prototype.forEach.call(c.querySelectorAll('.iv-fq'),function(w){ var t=w.querySelector('.iv-a'); f.push({q:w.getAttribute('data-fq')||'',a:t?t.value:''}); });
+      d.push({a:ta?ta.value:'',f:f});
+    });
+    var k='ivdraft:'+track+':'+s.id;
+    if(d.some(function(x){return x.a||x.f.length;}))localStorage.setItem(k,JSON.stringify(d)); else localStorage.removeItem(k);
+  }catch(e){}
+};
+window.ivDraftRestore=function(track){
+  try{
+    var s=ivCurStu(track); var box=document.getElementById(track==='goip'?'iv-intake-goip':'iv-intake-dae'); if(!s||!box)return;
+    var raw=localStorage.getItem('ivdraft:'+track+':'+s.id); if(!raw)return; var d=JSON.parse(raw);
+    Array.prototype.forEach.call(box.querySelectorAll('.iv-q'),function(c,i){
+      var x=d[i]; if(!x)return; var ta=c.querySelector('.iv-a'); if(ta)ta.value=x.a||'';
+      var fu=c.querySelector('.iv-fu'); if(fu)(x.f||[]).forEach(function(y){ fu.insertAdjacentHTML('beforeend',ivFuBlock(y.q,y.a)); });
+    });
+  }catch(e){}
+};
 window.ivFollowup=async function(btn,track){
   track=(track==='goip')?'goip':'dae';
   var box=btn.closest?btn.closest('.iv-q'):(function(n){while(n&&!(n.className&&n.className.indexOf('iv-q')>=0))n=n.parentNode;return n;})(btn);
@@ -5456,24 +5483,30 @@ window.ivFollowup=async function(btn,track){
     var o={}; try{o=JSON.parse(d.text);}catch(_){o={};}
     var list=(o.followups||[]).filter(function(x){return x&&String(x).trim();});
     if(!list.length){ if(msg){msg.style.color='var(--risk)';msg.textContent='추가 질문이 필요 없을 만큼 충분해요 · 다음 질문으로!';} btn.disabled=false; return; }
-    var h='';
-    list.forEach(function(fq){ h+='<div style="margin-top:8px;padding-left:10px;border-left:2px solid var(--gold)"><div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:4px">↳ '+esc(fq)+'</div><textarea class="iv-a" rows="2" onpaste="ivBlockPaste(event)" placeholder="이어서 직접 작성해 주세요" style="width:100%;padding:8px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea><div class="iv-warn" style="display:none;font-size:11px;color:var(--risk);margin-top:3px">붙여넣기는 제한됩니다 — 직접 작성해 주세요.</div></div>'; });
-    if(fu){ fu.innerHTML=fu.innerHTML+h; }
-    if(msg){msg.style.color='var(--safe)';msg.textContent='✓ 심화 질문 '+list.length+'개가 추가됐어요 · 답하면 함께 저장됩니다.'+(o.note?' ('+esc(o.note)+')':'');}
+    var _have={}; if(fu)Array.prototype.forEach.call(fu.querySelectorAll('.iv-fq'),function(n){_have[n.getAttribute('data-fq')]=1;});
+    var _added=0;
+    list.forEach(function(fq){ fq=String(fq).trim(); if(_have[fq])return; _have[fq]=1; _added++; if(fu)fu.insertAdjacentHTML('beforeend',ivFuBlock(fq,'')); });
+    if(!_added){ if(msg){msg.style.color='var(--ink-mute)';msg.textContent='이미 받은 심화 질문과 같아요 · 위 질문에 먼저 답해 보세요.';} btn.disabled=false; return; }
+    ivDraftSave(track);
+    if(msg){msg.style.color='var(--safe)';msg.textContent='✓ 심화 질문 '+_added+'개가 추가됐어요 · 답하면 함께 저장됩니다.'+(o.note?' ('+esc(o.note)+')':'');}
   }catch(e){ if(msg){msg.style.color='var(--risk)';msg.textContent='생성 실패: '+(e.message||e);} }
   btn.disabled=false;
 };
 window.renderIVIntake=function(track){
   track=(track==='goip')?'goip':'dae';
-  var box=document.getElementById(track==='goip'?'iv-intake-goip':'iv-intake-dae'); if(!box||box.getAttribute('data-built')==='1')return;
+  var box=document.getElementById(track==='goip'?'iv-intake-goip':'iv-intake-dae'); if(!box)return;
+  var _cs=ivCurStu(track); var _sid=_cs?String(_cs.id):'';
+  if(box.getAttribute('data-built')==='1'&&box.getAttribute('data-sid')===_sid)return;
   var qs=IV_QSETS[track];
   var h='<div class="sectionhead"><span class="idx">🗣</span><h3>인터뷰로 입력 <span style="font-size:11px;color:var(--ink-mute)">· 원본 없이 · 학생 본인의 경험을 직접</span></h3></div>';
-  h+='<div style="font-size:12px;color:var(--ink-dim);background:rgba(49,130,246,.08);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:12px"><b>생활기록부를 보고 옮겨 적지 마세요.</b> 학생 본인이 기억하는 경험을 그대로 적으면 됩니다. <b>상담 전에 미리 작성</b>해 두면 더 정확한 분석을 받을 수 있어요. 저장한 답변은 아래에서 <b>언제든 수정·추가</b>할 수 있습니다.</div>';
+  h+='<div style="font-size:12px;color:var(--ink-dim);background:rgba(49,130,246,.08);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-bottom:12px"><b>생활기록부를 보고 옮겨 적지 마세요.</b> 학생 본인이 기억하는 경험을 그대로 적으면 됩니다. <b>상담 전에 미리 작성</b>해 두면 더 정확한 분석을 받을 수 있어요. 저장한 답변은 아래에서 <b>언제든 수정·추가</b>할 수 있습니다.<br>작성 중인 내용은 이 기기에 자동 임시저장되어 새로고침해도 유지됩니다.</div>';
   qs.forEach(function(o,i){ h+='<div class="iv-q" data-area="'+o.a+'" style="margin-bottom:14px"><div class="iv-qtext" style="font-size:13px;font-weight:700;color:var(--ink);margin-bottom:5px">Q'+(i+1)+'. '+esc(o.q)+'</div><textarea class="iv-a" rows="3" onpaste="ivBlockPaste(event)" placeholder="직접 작성해 주세요 · 붙여넣기는 제한됩니다" style="width:100%;padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;resize:vertical"></textarea><div class="iv-warn" style="display:none;font-size:11px;color:var(--risk);margin-top:3px">붙여넣기는 제한됩니다 — 생활기록부 문구를 옮겨 적지 말고 직접 작성해 주세요.</div><div class="iv-fu"></div><div style="display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap"><button type="button" class="iv-fu-btn" onclick="ivFollowup(this,\''+track+'\')" style="font-size:11.5px;padding:5px 11px;background:transparent;border:1px solid var(--gold);color:var(--gold);border-radius:16px;cursor:pointer">🔍 AI 심화 질문 받기</button><span class="iv-fu-msg" style="font-size:11px"></span></div></div>'; });
   h+='<div id="iv-msg-'+track+'" style="min-height:14px;font-size:12px;margin-bottom:6px"></div>';
   h+='<button onclick="saveIVIntake(\''+track+'\')" style="width:100%;padding:11px;background:var(--gold);color:#fff;border:none;border-radius:9px;font-weight:700;cursor:pointer">인터뷰 답변 저장</button>';
   h+='<div id="iv-saved-'+track+'" style="margin-top:18px;border-top:1px solid var(--line);padding-top:14px"></div>';
-  box.innerHTML=h; box.setAttribute('data-built','1');
+  box.innerHTML=h; box.setAttribute('data-built','1'); box.setAttribute('data-sid',_sid);
+  ivDraftRestore(track);
+  if(!box.getAttribute('data-l')){ box.setAttribute('data-l','1'); box.addEventListener('input',function(){ ivDraftSave(track); }); }
   if(window.renderIVSaved)renderIVSaved(track);
 };
 window.saveIVIntake=async function(track){
@@ -5482,13 +5515,20 @@ window.saveIVIntake=async function(track){
   var m=document.getElementById('iv-msg-'+track);
   if(!s||!sb){ if(m){m.style.color='var(--risk)';m.textContent='먼저 학생을 선택하세요.';} return; }
   var box=document.getElementById(track==='goip'?'iv-intake-goip':'iv-intake-dae'); if(!box)return;
-  var rows=[]; Array.prototype.forEach.call(box.querySelectorAll('.iv-q'),function(c){ var ta=c.querySelector('.iv-a'); var t=ta?ta.value.trim():''; if(t)rows.push({student_id:s.id,subject:'인터뷰',area:c.getAttribute('data-area'),text:t,source:'interview'}); });
+  if(box.getAttribute('data-sid')!==String(s.id)){ if(m){m.style.color='var(--risk)';m.textContent='학생이 바뀌었습니다 · 화면을 다시 열어 주세요 (작성 내용은 임시저장되어 있습니다).';} return; }
+  var rows=[]; Array.prototype.forEach.call(box.querySelectorAll('.iv-q'),function(c){
+    var ta=c.querySelector('.iv-a'); var t=ta?ta.value.trim():''; var ar=c.getAttribute('data-area');
+    if(t)rows.push({student_id:s.id,subject:'인터뷰',area:ar,text:t,source:'interview'});
+    Array.prototype.forEach.call(c.querySelectorAll('.iv-fq'),function(w){ var fa=w.querySelector('.iv-a'); var ft=fa?fa.value.trim():''; if(ft)rows.push({student_id:s.id,subject:'인터뷰',area:ar,text:'[심화] '+(w.getAttribute('data-fq')||'')+' → '+ft,source:'interview'}); });
+  });
   if(!rows.length){ if(m){m.style.color='var(--risk)';m.textContent='답변을 1개 이상 입력하세요.';} return; }
   if(m){m.style.color='var(--ink-mute)';m.textContent='저장 중…';}
   var r=await sb.from('student_setech').insert(rows);
   if(r.error){ if(m){m.style.color='var(--risk)';m.textContent=esc(r.error.message);} return; }
   if(m){m.style.color='var(--safe)';m.textContent='✓ '+rows.length+'개 답변이 학생 자료로 저장되었습니다 · 진단·리포트에서 활용됩니다.';}
   Array.prototype.forEach.call(box.querySelectorAll('.iv-a'),function(t){t.value='';});
+  Array.prototype.forEach.call(box.querySelectorAll('.iv-fu'),function(f){f.innerHTML='';});
+  try{localStorage.removeItem('ivdraft:'+track+':'+s.id);}catch(_e){}
   if(track!=='goip'&&window.loadSetech)loadSetech();
   if(window.renderIVSaved)renderIVSaved(track);
 };
