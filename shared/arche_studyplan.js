@@ -29,6 +29,13 @@
   function md(d){ return (d.getMonth()+1)+'/'+d.getDate(); }
   function weekLabel(start){ var a=parseYmd(start),b=addDays(a,6); return md(a)+'('+DAYS[isoDow(a)-1]+') ~ '+md(b)+'('+DAYS[isoDow(b)-1]+')'; }
   function hhmm(t){ return t?String(t).slice(0,5):''; }
+  /* 완료 시각 표시: '✓ 완료 10/30 14:32' (예정일 이후 완료면 '· 기한 후') */
+  function doneTag(x,dt){
+    if(!x.done||!x.done_at) return '';
+    var d=new Date(x.done_at); if(isNaN(d)) return '';
+    var late=ymd(d)>ymd(dt);
+    return '<div class="dtm'+(late?' late':'')+'">✓ 완료 '+md(d)+' '+pad(d.getHours())+':'+pad(d.getMinutes())+(late?' · 기한 후 완료':'')+'</div>';
+  }
 
   /* ----------------------------- 상태 ----------------------------- */
   var S={ host:null, ref:ymd(todayStart()), starts:[], sel:null, form:null, busy:false,
@@ -133,6 +140,7 @@
     '.spl .empty{border:1.5px dashed #d5dae1;border-radius:14px;padding:34px 20px;text-align:center;background:#fff;margin-top:12px;color:#4e5968}',
     '.spl .empty .big{font-size:30px}',
     '.spl .weeknav{display:flex;align-items:center;gap:8px}',
+    '.spl .dtm{margin-top:4px;font-size:11.5px;font-weight:700;color:#12a150}','.spl .dtm.late{color:#e8590c}',
     '.spl .weeknav b{font-size:15px}',
     '.spl .ov{position:fixed;inset:0;background:rgba(15,20,30,.45);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px}',
     '.spl-ov{position:fixed;inset:0;background:rgba(15,20,30,.45);z-index:3000;display:flex;align-items:center;justify-content:center;padding:16px}',
@@ -233,6 +241,7 @@
     if(canCheck) h+='<label class="chk"><input type="checkbox" '+(x.done?'checked':'')+' onchange="SPL.toggle(\''+x.id+'\')"><span class="t">'+esc(x.title)+'</span></label>';
     else h+='<div class="t">'+(conf&&me==='men'?(x.done?'✅ ':'⬜ '):'')+esc(x.title)+'</div>';
     h+='<div class="m"><span class="sj '+(SJC[x.subject]||'x')+'">'+esc(x.subject||'기타')+'</span>'+(x.start_time?hhmm(x.start_time):'')+(x.minutes?' · '+x.minutes+'분':'')+(isLate?' <span class="late-tag">· 미완료</span>':'')+'</div>';
+    h+=doneTag(x,dt);
     if(conf&&x.done){
       if(me==='stu'){
         h+='<div class="refl"><label>✍️ 오늘 인상 깊었던 점</label><textarea maxlength="500" placeholder="짧게 적어보세요 (선택)" onchange="SPL.refl(\''+x.id+'\',this.value)">'+esc(x.reflection||'')+'</textarea></div>';
