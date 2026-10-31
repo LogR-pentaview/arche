@@ -267,6 +267,127 @@ footer .biz b{color:var(--ink);font-weight:700}
 footer .plinks{margin-top:8px}
 footer .plinks a{color:var(--ink-dim);font-weight:700;margin-right:14px;border-bottom:1px solid var(--line)}
 footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:500}
+
+/* ═══ 홈 개편: 상품 분기형 히어로 (hs-) ═══ */
+body{overflow-x:hidden}
+.hs{width:100vw;margin-left:calc(50% - 50vw);margin-top:-18px}
+.hs-lead{text-align:center;padding:30px 20px 20px;max-width:860px;margin:0 auto}
+.hs-eyb{font-size:11.5px;font-weight:800;letter-spacing:.14em;color:var(--mint)}
+.hs-lead h1{font-size:28px;line-height:1.3;margin:6px 0 8px;font-weight:900;letter-spacing:-.03em}
+.hs-lead h1 .g{background:var(--aurora);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.hs-lead p{color:var(--ink-dim);font-size:14px;font-weight:500}
+.hs-finder{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:16px;align-items:center}
+.hs-finder .lb{font-size:12.5px;font-weight:700;color:var(--ink-mute)}
+.hs-finder button{padding:8px 14px;border-radius:99px;background:#fff;border:1.5px solid var(--line);font-family:inherit;font-size:13px;font-weight:700;color:var(--ink-dim);cursor:pointer}
+.hs-finder button.on{border-color:var(--blue);background:var(--blue-soft);color:var(--blue)}
+.hs-recmsg{min-height:22px;margin-top:10px;font-size:13px;font-weight:700;color:var(--mint)}
+.hs-wrap{position:relative;padding-bottom:26px}
+.hs-panels{display:flex;min-height:640px}
+.hs-pn{flex:1;position:relative;color:#fff;padding:44px 26px 34px;display:flex;flex-direction:column;align-items:center;text-align:center;transition:flex .35s,opacity .25s,filter .25s;overflow:hidden;cursor:pointer}
+.hs-pn:hover{flex:1.14}
+.hs-pn.vision{background:linear-gradient(180deg,#6366f1 0%,#4338ca 55%,#312e81 100%)}
+.hs-pn.track{background:linear-gradient(180deg,#8b5cf6 0%,#6d28d9 55%,#4c1d95 100%)}
+.hs-pn.arche{background:linear-gradient(180deg,#ec4899 0%,#be185d 55%,#831843 100%)}
+.hs-pn.dim{opacity:.5;filter:saturate(.7)}
+.hs-stg{font-size:11.5px;font-weight:800;letter-spacing:.08em;background:#ffffff26;border-radius:99px;padding:4px 12px}
+.hs-pn .nm{margin-top:14px;font-size:38px;font-weight:800;letter-spacing:-.03em;display:flex;align-items:center;gap:8px;justify-content:center}
+.hs-pn .nm i{font-style:normal;font-size:17px;font-weight:800;background:#ffffff30;border-radius:99px;padding:3px 14px;letter-spacing:0}
+.hs-pn h3{margin-top:12px;font-size:18px;font-weight:800}
+.hs-pn .ds{margin-top:6px;font-size:12.8px;opacity:.88;max-width:310px;line-height:1.65;font-weight:500}
+.hs-cta{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap;justify-content:center}
+.hs-cta a,.hs-cta span{padding:11px 16px;border-radius:9px;font-size:13px;font-weight:700;border:1.5px solid #fff;cursor:pointer}
+.hs-cta .w{background:#fff;color:#1e1b3a}
+.hs-cta .o{color:#fff}.hs-cta .o:hover{background:#ffffff1f}
+.hs-pn .rec{display:none;position:absolute;top:14px;right:14px;background:#fff;color:var(--ink);font-size:11px;font-weight:800;border-radius:99px;padding:3px 10px}
+.hs-pn.isrec .rec{display:block}
+.hs-pn .tbadge{position:absolute;top:14px;left:14px;background:#fff;color:var(--mint);font-size:11px;font-weight:800;border-radius:99px;padding:3px 10px}
+.hs-art{position:relative;width:100%;max-width:330px;height:250px;margin-top:20px}
+.hs-art svg{width:100%;height:100%}
+.hs-chip{position:absolute;background:#ffffff2e;backdrop-filter:blur(4px);border:1px solid #ffffff3d;border-radius:99px;font-size:11px;font-weight:700;padding:5px 11px;white-space:nowrap}
+.hs-pn .foot{margin-top:auto;padding-top:20px;font-size:16.5px;font-weight:800;line-height:1.5}
+.hs-pn .price{margin-top:8px;font-size:13px;font-weight:700;opacity:.9;min-height:40px}
+.hs-cmp{position:absolute;left:50%;bottom:0;transform:translateX(-50%);z-index:5;background:var(--aurora);color:#fff;font-family:inherit;font-weight:800;font-size:14px;padding:12px 26px;border-radius:99px;box-shadow:0 8px 22px rgba(79,70,229,.4);border:3px solid #fff;cursor:pointer}
+.hs-allin{margin:26px auto 0;max-width:860px;border-radius:20px;background:var(--aurora);color:#fff;padding:20px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between}
+.hs-allin h3{font-size:17px;font-weight:800}.hs-allin p{font-size:12.5px;opacity:.92;margin-top:2px}
+.hs-allin .pr{font-size:24px;font-weight:900}.hs-allin .pr small{font-size:12px;font-weight:700}
+.hs-allin a{background:#fff;color:var(--blue-deep);font-size:13px;font-weight:800;padding:10px 16px;border-radius:12px;cursor:pointer}
+.hs-in{max-width:860px;margin:0 auto;padding:0 16px}
+.hs-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.hs-links button,.hs-orgc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px 16px;text-align:left;font-family:inherit;cursor:pointer;display:block;color:inherit}
+.hs-links b,.hs-orgc b{display:block;font-size:14.5px;font-weight:800}
+.hs-links span,.hs-orgc span{display:block;font-size:12px;color:var(--ink-dim);margin-top:3px;line-height:1.6;font-weight:500}
+.hs-links em,.hs-orgc em{display:inline-block;font-style:normal;font-size:11.5px;font-weight:800;color:var(--blue);margin-top:7px}
+.hs-org{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* 상품 상세 배너 */
+.hs-pd{border-radius:20px;color:#fff;padding:20px 22px;display:flex;gap:14px;align-items:center;overflow:hidden;position:relative;margin-bottom:14px}
+.hs-pd.vision{background:linear-gradient(135deg,#6366f1,#312e81)}.hs-pd.track{background:linear-gradient(135deg,#8b5cf6,#4c1d95)}.hs-pd.arche{background:linear-gradient(135deg,#ec4899,#831843)}
+.hs-pd .tx{flex:1;min-width:0;position:relative;z-index:1}
+.hs-pd h2{font-size:24px;font-weight:900;margin:6px 0 2px;letter-spacing:-.02em}
+.hs-pd p{font-size:13px;opacity:.92;font-weight:600}
+.hs-pd .pr{font-size:17px;font-weight:900;margin-top:10px}.hs-pd .pr small{font-size:11.5px;font-weight:600;opacity:.85}
+.hs-pd .go{display:inline-block;margin-top:10px;background:#fff;color:#1e1b3a;font-size:13px;font-weight:800;padding:9px 15px;border-radius:10px}
+.hs-pd .hs-art{width:230px;max-width:230px;height:172px;margin:0;flex:none}
+.hs-pd .hs-chip{display:none}
+.hs-sub{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+.hs-sub button{font-family:inherit;font-size:12.5px;font-weight:800;padding:7px 13px;border-radius:99px;border:1.5px solid var(--line);background:#fff;color:var(--ink-dim);cursor:pointer}
+.hs-sub button:hover{border-color:var(--blue);color:var(--blue)}
+.hs-anc{scroll-margin-top:118px}
+.hs-back{font-family:inherit;font-size:12.5px;font-weight:800;color:var(--ink-dim);background:#fff;border:1px solid var(--line);border-radius:99px;padding:6px 13px;cursor:pointer;margin-bottom:10px}
+/* 비교표 */
+.cmp{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:12.5px;margin-bottom:12px}
+.cmp th,.cmp td{padding:11px 12px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line-soft);line-height:1.55}
+.cmp tr:last-child td{border-bottom:0}
+.cmp th.c{color:#fff;text-align:center;font-size:13.5px;font-weight:800}
+.cmp th.v{background:#4f46e5}.cmp th.t{background:#7c3aed}.cmp th.a{background:#db2777}
+.cmp td.rl{font-weight:800;color:var(--ink-dim);background:var(--bg);width:17%;white-space:nowrap}
+.cmpw{overflow-x:auto}
+@media(max-width:760px){.hs-panels{flex-direction:column;min-height:0}.hs-pn{padding:34px 20px 28px}.hs-pn:hover{flex:1}.hs-pn .nm{font-size:32px}.hs-art{height:230px}.hs-lead h1{font-size:22px}.hs-lead{padding:24px 16px 16px}.hs-links,.hs-org{grid-template-columns:1fr}.hs-pd{flex-direction:column;align-items:flex-start}.hs-pd .hs-art{width:100%;max-width:300px;height:190px;align-self:center}.cmp{min-width:540px}}
+@media (prefers-reduced-motion:reduce){.hs *,.hs-pd *,.hs-pn,.hs-pn::before,.hs-pn::after{animation:none!important}.hs-tl{stroke-dashoffset:0}}
+
+.hs-pn::before,.hs-pn::after{content:'';position:absolute;border-radius:50%;pointer-events:none;z-index:0}
+.hs-pn::before{width:340px;height:340px;top:-110px;left:-90px;background:radial-gradient(circle,#ffffff2e,transparent 66%);animation:hs-drift 11s ease-in-out infinite alternate}
+.hs-pn::after{width:300px;height:300px;bottom:-90px;right:-80px;background:radial-gradient(circle,#ffffff22,transparent 66%);animation:hs-drift 14s ease-in-out infinite alternate-reverse}
+.hs-pn>*:not(.rec):not(.tbadge){position:relative;z-index:1}.hs-pn .rec,.hs-pn .tbadge{z-index:2}
+@keyframes hs-drift{from{transform:translate(0,0) scale(1)}to{transform:translate(70px,50px) scale(1.25)}}
+.hs-pn{animation:hs-rise .7s cubic-bezier(.2,.7,.2,1) both}.hs-pn:nth-child(2){animation-delay:.12s}.hs-pn:nth-child(3){animation-delay:.24s}
+@keyframes hs-rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+.hs-pn .hs-art svg{transition:transform .35s}.hs-pn:hover .hs-art svg{transform:scale(1.06)}
+.hs-chip{animation:hs-fl 4.6s ease-in-out infinite}.hs-art .hs-chip:nth-of-type(2){animation-delay:-1.5s}.hs-art .hs-chip:nth-of-type(3){animation-delay:-3s}
+@keyframes hs-fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.hs-orb{transform-box:fill-box;transform-origin:center;animation:hs-spin 40s linear infinite}
+@keyframes hs-spin{to{transform:rotate(360deg)}}
+.hs-breath{transform-box:fill-box;transform-origin:center;animation:hs-br 5s ease-in-out infinite}
+@keyframes hs-br{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.1);opacity:.7}}
+.hs-nd{transform-box:fill-box;transform-origin:center;animation:hs-ndp 7s ease-in-out infinite}
+@keyframes hs-ndp{0%,100%{filter:none}50%{filter:drop-shadow(0 0 6px #fff)}}
+.hs-core{transform-box:fill-box;transform-origin:center;animation:hs-br 3s ease-in-out infinite}
+.hs-plus{animation:hs-plus 7s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes hs-plus{0%,38%{opacity:0;transform:translateY(8px) scale(.8)}50%,76%{opacity:1;transform:none}86%,100%{opacity:0;transform:translateY(-4px)}}
+.hs-pop{transform-box:fill-box;transform-origin:center;animation:hs-pop 7s ease-in-out infinite}
+.hs-pb{animation-delay:.1s}.hs-pc{animation-name:hs-pop2}
+@keyframes hs-pop{0%,2%{transform:scale(0)}10%,90%{transform:scale(1)}100%{transform:scale(0)}}
+@keyframes hs-pop2{0%,40%{transform:scale(0)}50%{transform:scale(1.25)}56%,90%{transform:scale(1)}100%{transform:scale(0)}}
+
+.hs-wv{animation:hs-wvm 3.4s linear infinite}.hs-wv2{animation-duration:5s;animation-direction:reverse}
+@keyframes hs-wvm{to{transform:translateX(-60px)}}
+.hs-stn{transform-box:fill-box;transform-origin:bottom center;animation:hs-stn 6.5s ease-in-out infinite}
+@keyframes hs-stn{0%,2%{transform:scale(0)}9%{transform:scale(1.15)}13%,90%{transform:scale(1)}100%{transform:scale(0)}}
+.hs-wl{stroke-dasharray:100;animation:hs-wlm 6.5s ease-in-out infinite;animation-delay:1.4s}.hs-wl1{animation-delay:1.7s}.hs-wl2{animation-delay:2s}
+@keyframes hs-wlm{0%,35%{stroke-dashoffset:100}55%,100%{stroke-dashoffset:0}}
+.hs-chk2{transform-box:fill-box;transform-origin:center;animation:hs-chk2 6.5s ease-in-out infinite;animation-delay:1.8s}
+@keyframes hs-chk2{0%,58%{transform:scale(0)}66%{transform:scale(1.3)}72%,88%{transform:scale(1)}100%{transform:scale(0)}}
+
+.hs-tl{stroke-dasharray:100;animation:hs-tl0 7s ease-in-out infinite}.hs-tl1{animation-name:hs-tl1}.hs-tl2{animation-name:hs-tl2}
+@keyframes hs-tl0{0%{stroke-dashoffset:100;opacity:1}22%,90%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes hs-tl1{0%,22%{stroke-dashoffset:100;opacity:1}46%,90%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+@keyframes hs-tl2{0%,22%{stroke-dashoffset:100;opacity:1}62%,90%{stroke-dashoffset:0;opacity:1}100%{stroke-dashoffset:0;opacity:0}}
+.hs-pm1{animation-name:hs-pm1}.hs-pm2{animation-name:hs-pm2}.hs-pm3{animation-name:hs-pm3}
+@keyframes hs-pm1{0%,30%{transform:scale(0)}38%{transform:scale(1.2)}44%,90%{transform:scale(1)}100%{transform:scale(0)}}
+@keyframes hs-pm2{0%,42%{transform:scale(0)}50%{transform:scale(1.2)}56%,90%{transform:scale(1)}100%{transform:scale(0)}}
+@keyframes hs-pm3{0%,54%{transform:scale(0)}62%{transform:scale(1.2)}68%,90%{transform:scale(1)}100%{transform:scale(0)}}
+.hs-lnk{animation:hs-lnk 7s linear infinite}
+@keyframes hs-lnk{0%,62%{opacity:0;stroke-dashoffset:0}68%{opacity:1}90%{opacity:1;stroke-dashoffset:-60}100%{opacity:0;stroke-dashoffset:-70}}
+
 </style>
 </head>
 <body>
@@ -289,14 +410,12 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
   </div>
   <nav class="tabnav">
     <div class="inner" id="tabs">
-      <button class="on" data-t="story">✨ 이야기</button>
-      <button data-t="report">📊 성장 리포트</button>
+      <button class="on" data-t="story">🏠 홈</button>
       <button data-t="vision">📘 비전</button>
       <button data-t="track">📗 트랙</button>
       <button data-t="arche">🪜 아르케</button>
-      <button data-t="why">🧭 왜 펜타</button>
+      <button data-t="pricing">💳 요금·비교</button>
       <button data-t="how">🚀 사용방법</button>
-      <button data-t="pricing">💳 요금제</button>
       <button data-t="about">🏢 회사</button>
     </div>
   </nav>
@@ -306,6 +425,48 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
 
   <!-- ═══ 이야기 (기본) ═══ -->
   <section class="panel on" data-p="story">
+
+    <div class="hs">
+      <div class="hs-lead"><div class="hs-eyb">PENTA SERIES</div>
+        <h1>우리 아이 학년에 맞는 코스를 <span class="g">골라보세요</span></h1>
+        <p>비전 → 트랙 → 아르케, 생각이 자라는 3단계 · AI가 대신 써주지 않고 아이가 직접 씁니다</p>
+        <div class="hs-finder"><span class="lb">우리 아이는</span>
+          <button onclick="hsRec(0,'vision','초5~6 → 펜타 비전 (기초)')">초5~6</button><button onclick="hsRec(1,'vision','중1~2 → 펜타 비전 (심화)')">중1~2</button><button onclick="hsRec(2,'track','중3 → 펜타 트랙')">중3</button><button onclick="hsRec(3,'arche','고1~3 → 펜타 아르케')">고1~3</button></div>
+        <div class="hs-recmsg" id="hs-recmsg"></div></div>
+      <div class="hs-wrap"><div class="hs-panels">
+        <article class="hs-pn vision" id="hs-vision" onclick="hsGo('vision')">
+      <span class="rec">우리 아이 추천 ✓</span>
+      <span class="hs-stg">초등 5 ~ 중2</span>
+      <div class="nm">펜타<i>비전</i></div><h3>사고의 뿌리를 키우는 단계</h3><p class="ds">정답을 외우는 게 아니라, 5대 지성 주파수로 아이가 스스로 생각을 만들어내는 힘을 기릅니다.</p>
+      <div class="hs-cta"><a class="w" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener" onclick="event.stopPropagation()">첫 1강 무료 체험 ›</a><span class="o">비전 자세히 보기</span></div>
+      <div class="hs-art" data-hsart="vision" data-chips="5대 지성 주파수|8시즌 · 40강|학부모–학생 루프"></div>
+      <div class="foot">생각을 만드는 첫걸음,<br>펜타 비전</div><div class="price">월 12,900원</div>
+    </article>
+        <article class="hs-pn track" id="hs-track" onclick="hsGo('track')">
+      <span class="tbadge">추천</span><span class="rec">우리 아이 추천 ✓</span>
+      <span class="hs-stg">중3</span>
+      <div class="nm">펜타<i>트랙</i></div><h3>관심을 진로로 좁히는 단계</h3><p class="ds">직업 목록에서 고르는 게 아니라, 아이의 생각 속에서 진로의 방향을 찾아 고교 설계로 잇습니다.</p>
+      <div class="hs-cta"><a class="w" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener" onclick="event.stopPropagation()">첫 1강 무료 체험 ›</a><span class="o">트랙 자세히 보기</span></div>
+      <div class="hs-art" data-hsart="track" data-chips="융합 인과율 해부|진로 주파수 매칭|고교 로드맵"></div>
+      <div class="foot">진로의 방향이 보이는 중3,<br>펜타 트랙</div><div class="price">월 19,900원</div>
+    </article>
+        <article class="hs-pn arche" id="hs-arche" onclick="hsGo('arche')">
+      <span class="rec">우리 아이 추천 ✓</span>
+      <span class="hs-stg">고교</span>
+      <div class="nm">펜타<i>아르케</i></div><h3>실행하고 증명하는 단계</h3><p class="ds">찾은 진로를 탐구·수행평가·본인 작성 증명으로 실행해, 생활기록부의 실제 근거로 남깁니다.</p>
+      <div class="hs-cta"><a class="w" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener" onclick="event.stopPropagation()">첫 1강 무료 체험 ›</a><span class="o">아르케 자세히 보기</span></div>
+      <div class="hs-art" data-hsart="arche" data-chips="진로 징검다리|수행평가 도우미|본인 작성 증명"></div>
+      <div class="foot">직접 쓰고, 스스로 증명하는<br>펜타 아르케</div><div class="price">월 29,900원<br><small>올인원 포함 · 단품 5회권 9,900원</small></div>
+    </article>
+      </div><button class="hs-cmp" onclick="hsCmp()">한눈에 비교하기 ›</button></div>
+      <div class="hs-in">
+        <div class="hs-allin"><div><h3>🪜 올인원 (가정) · 비전·트랙·아르케 모두</h3><p>🎟️ 첫 1강 무료 체험 · 👨‍👩‍👧 형제 할인 둘째부터 30% · 시즌 개별 구매도 가능</p></div><div class="pr">29,900<small>원 / 월</small></div><a onclick="hsCmp()">요금 비교 보기</a></div>
+        <div class="hs-links">
+          <button onclick="hsGo('report')"><b>📊 성장 리포트 샘플</b><span>국·수·사·과·예 과목별 사고 분석, Before/After 성장 추적</span><em>샘플 보기 →</em></button>
+          <button onclick="hsGo('why')"><b>🧭 왜 펜타인가 · 3층 진단</b><span>5대 지성 주파수 · 사고 과정 진단 · 본인 작성 증명</span><em>자세히 보기 →</em></button>
+        </div>
+      </div>
+    </div>
     <div class="story-hero">
       <div class="story-eyb">PENTA SERIES · Log.R</div>
       <h1 class="story-h1">AI가 답을 써주는 시대,<br>우리는 <span class="g">생각의 과정</span>을 남깁니다</h1>
@@ -319,29 +480,6 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="p"><div class="e">🤖</div><h5>결과만 남는 교육</h5><small>답과 점수는 남지만, 거기 도달한 사고의 궤적은 어디에도 기록되지 않습니다.</small></div>
       <div class="p"><div class="e">✍️</div><h5>AI 대필의 일상화</h5><small>누구나 매끄러운 글을 뽑는 지금, 결과물만으론 실제 사고력을 가릴 수 없습니다.</small></div>
       <div class="p"><div class="e">🎤</div><h5>강화되는 검증</h5><small>대학은 서류 뒤 '진짜 실력'을 확인하려 면접·과정 검증을 높이는 추세입니다.</small></div>
-    </div>
-
-    <div class="eyebrow">SERIES · 생각이 자라는 3단계</div>
-    <p class="narr" style="margin-bottom:11px">한 아이의 성장 여정을 초등부터 고교까지 이어서 설계했습니다. <b>생각을 만들고 → 진로를 찾고 → 로드맵으로 도달</b>하는 하나의 흐름입니다.</p>
-    <div class="journey">
-      <button class="jcard" style="--c:#4f46e5" onclick="document.querySelector('[data-t=&quot;vision&quot;]').click();window.scrollTo(0,0)">
-        <div class="jt"><b>📘 펜타 비전</b><small>· 초등~중2</small></div>
-        <div class="jcopy">생각을 만든다</div>
-        <div class="jd">정답을 외우는 게 아니라, 5대 지성 주파수로 아이가 스스로 생각을 만들어내는 힘을 기릅니다.</div>
-        <span class="jgo">비전 자세히 보기 →</span>
-      </button>
-      <button class="jcard" style="--c:#7c3aed" onclick="document.querySelector('[data-t=&quot;track&quot;]').click();window.scrollTo(0,0)">
-        <div class="jt"><b>📗 펜타 트랙</b><small>· 중3</small></div>
-        <div class="jcopy">생각에서 진로를 찾는다</div>
-        <div class="jd">직업 목록에서 고르는 게 아니라, 만들어진 생각 속에서 진로의 방향을 찾아 고교 설계로 잇습니다.</div>
-        <span class="jgo">트랙 자세히 보기 →</span>
-      </button>
-      <button class="jcard" style="--c:#db2777" onclick="document.querySelector('[data-t=&quot;arche&quot;]').click();window.scrollTo(0,0)">
-        <div class="jt"><b>🪜 펜타 아르케</b><small>· 고교</small></div>
-        <div class="jcopy">진로에 도달할 로드맵을 세운다</div>
-        <div class="jd">찾은 진로를 탐구·수행평가·본인 작성 증명으로 실행해, 생활기록부의 실제 근거로 남깁니다.</div>
-        <span class="jgo">아르케 자세히 보기 →</span>
-      </button>
     </div>
 
     <div class="eyebrow">PURPOSE · 우리가 추구하는 교육</div>
@@ -358,6 +496,13 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="vd">수업에서의 사고 기록이 학교 기록이 되고, 그 기록이 학생 자신의 성장 근거가 되는 것 — Log.R이 특허 기반 프로세스 분석 기술로 만들어가는 미래입니다. 우리는 점수 경쟁의 도구가 아니라, <b>과정이 존중받는 입시 문화의 인프라</b>가 되고자 합니다.</div>
     </div>
 
+    
+    <div class="eyebrow">FOR INSTITUTIONS · 학원·학교에서 도입하시나요?</div>
+    <div class="hs-org">
+      <a class="hs-orgc" href="mailto:gwkim06@gmail.com?subject=펜타 시리즈 학원 도입 문의"><b>🏫 학원용</b><span>원장 · 강사 · 재원생 · 학부모가 연동되는 학원 로그인으로 운영합니다.</span><em>학원 도입 문의 →</em></a>
+      <a class="hs-orgc" href="mailto:gwkim06@gmail.com?subject=펜타 시리즈 학교 도입 문의"><b>🎓 학교용</b><span>일반고·특성화고를 위한 프로세스 분석 엔진. 사고 과정 기록, 타이핑 무결성 인증, NEIS 규격 기록 지원.</span><em>학교 도입 문의 →</em></a>
+    </div>
+
     <div class="cta-band">
       <h3>아이의 생각이 자라는 여정, 지금 시작하세요</h3>
       <p>학부모가 직접 회원가입하고 바로 사용합니다. 관리자 승인 없이 가입 즉시 시작하며, 각 서비스 첫 시즌 1강을 무료로 체험할 수 있어요.</p>
@@ -367,6 +512,7 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
 
   <!-- ═══ 성장 리포트 ═══ -->
   <section class="panel" data-p="report">
+    <button class="hs-back" onclick="hsGo('story')">← 홈으로</button>
     <div class="ptitle">성적표에 없던 <span style="color:var(--blue)">생각의 성장</span></div>
     <div class="psub">펜타 시리즈는 아이가 스스로 사고하고 직접 쓰게 하고, 그 변화를 리포트로 남깁니다 · 이제 <b>국·수·사·과·예 과목별 분석</b>까지</div>
     <div class="report-card">
@@ -441,13 +587,15 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
 
   <!-- ═══ 비전 ═══ -->
   <section class="panel" data-p="vision">
-    <div class="ptitle">📘 펜타 비전 <small>· 초등~중2</small></div>
+    <div class="hs-pd vision"><div class="tx"><span class="hs-stg">초등 5 ~ 중2 · 기초 초5~6 · 심화 중1~2</span><h2>펜타 비전</h2><p>생각을 만든다</p><div class="pr">월 12,900원<small> · 첫 1강 무료</small></div><a class="go" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">첫 1강 무료 체험 ›</a></div><div class="hs-art" data-hsart="vision" data-chips=""></div></div>
+<div class="hs-sub"><button onclick="hsAnc('v-ov')">개요</button><button onclick="hsAnc('v-fq')">5대 지성</button><button onclick="hsAnc('v-se')">시즌</button><button onclick="hsAnc('v-sm')">샘플</button><button onclick="hsAnc('v-pr')">요금</button></div>
+<div id="v-ov" class="hs-anc"></div><div class="ptitle">📘 펜타 비전 <small>· 초등~중2</small></div>
     <div class="tagline">생각을 만든다</div>
     <div class="tagchain"><span class="self">비전 · 생각</span><i>→</i><span class="mid">트랙 · 진로</span><i>→</i><span class="end">아르케 · 로드맵</span></div>
     <div class="psub">5대 지성 융합사고 · 학부모가 컨설턴트가 되는 학부모–학생 루프 · 온라인 구독</div>
     <p class="lead">사고의 뿌리가 자라는 결정적 시기. 정답을 외우는 게 아니라 아이가 <b>스스로 생각을 만들어내는</b> 힘을 기릅니다. <b>5대 지성 주파수</b>로 아이의 지성을 진단하고, 회차별 워크북으로 사고를 확장하며, 학부모가 리포트를 읽고 아이를 직접 이끕니다. 온라인 구독으로 대치동 컨설팅의 깊이를 집에서.</p>
 
-    <div class="eyebrow">5대 지성 주파수</div>
+    <div class="eyebrow hs-anc" id="v-fq">5대 지성 주파수</div>
     <div class="freq">
       <div class="fq"><div class="fn">F1</div><div class="fbar"><i data-w="82%"></i></div><h5>수학·논리</h5><p>구조·추론</p></div>
       <div class="fq"><div class="fn">F2</div><div class="fbar"><i data-w="68%"></i></div><h5>과학·기술</h5><p>탐구·검증</p></div>
@@ -461,7 +609,7 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="bd"><h4>학부모–학생 루프 작동 방식</h4><p>학부모가 회차를 보내면 학생이 수행하고, AI 리포트가 학부모에게 돌아오는 순환. 학부모가 컨설턴트의 눈을 갖습니다.</p><span class="tag">👆 탭하면 6단계 상세</span></div>
     </div>
 
-    <div class="eyebrow">시즌 라인업 · 8개 대주제 = 8개 시즌</div>
+    <div class="eyebrow hs-anc" id="v-se">시즌 라인업 · 8개 대주제 = 8개 시즌</div>
     <div class="season">
       <div class="sh">📘 펜타 비전 <span style="font-size:11px;font-weight:700;color:var(--ink-mute)">· 기초(초5~6) · 심화(중1~2)</span></div>
       <div class="ss">각 시즌은 독립적으로 수강·완주할 수 있고, 원하는 시즌부터 골라 담아 시작합니다. 첫 1강은 무료 체험입니다.</div>
@@ -476,7 +624,7 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="sfoot">🎟️ 첫 시즌 1강 무료 체험 · 총 8시즌 40강</div>
     </div>
 
-    <div class="eyebrow">샘플 미리보기 · 워크북과 리포트</div>
+    <div class="eyebrow hs-anc" id="v-sm">샘플 미리보기 · 워크북과 리포트</div>
     <div class="smpl">
       <div class="smock">
         <div class="mh">📘 워크북<span class="tg" style="color:var(--sky)">STAGE 1</span></div>
@@ -503,11 +651,17 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="ah"><span class="ae">ANNUAL REPORT</span><div class="at">📘 펜타 비전 · 연간 성장 리포트</div><div class="am">STAGE 1 · 초등~중2 · 국·수·사·과·예 과목별 분석 포함</div></div>
       <span class="alink">연간 리포트 전체 보기 →</span>
     </a>
+    <div class="eyebrow hs-anc" id="v-pr">요금</div>
+    <div class="plan"><div class="ph"><span class="pnm">📘 펜타 비전</span></div><div class="pd">초등~중2 · 5대 지성 사고력</div><div class="pr">12,900<small>원 / 월</small></div>
+      <ul><li>펜타 비전 워크북 전 회차</li><li>회차 리포트 + 월간 성장 리포트</li><li>AI 소크 발문 회차당 10회</li><li>🎟️ 첫 1강 무료 체험</li></ul><a class="pbtn" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">구독 시작</a></div>
+    <div class="psub" style="margin-top:6px"><a style="text-decoration:underline" onclick="hsCmp()">3개 상품 한눈에 비교하기 →</a></div>
   </section>
 
   <!-- ═══ 트랙 ═══ -->
   <section class="panel" data-p="track">
-    <div class="ptitle">📗 펜타 트랙 <small>· 중3</small></div>
+    <div class="hs-pd track"><div class="tx"><span class="hs-stg">중3 · 융합 탐구 + 진로 설계</span><h2>펜타 트랙</h2><p>생각에서 진로를 찾는다</p><div class="pr">월 19,900원<small> · 첫 1강 무료</small></div><a class="go" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">첫 1강 무료 체험 ›</a></div><div class="hs-art" data-hsart="track" data-chips=""></div></div>
+<div class="hs-sub"><button onclick="hsAnc('t-ov')">개요</button><button onclick="hsAnc('t-se')">시즌</button><button onclick="hsAnc('t-sm')">샘플</button><button onclick="hsAnc('t-pr')">요금</button></div>
+<div id="t-ov" class="hs-anc"></div><div class="ptitle">📗 펜타 트랙 <small>· 중3</small></div>
     <div class="tagline hero">생각을 읽으면, 진로의 방향이 보인다.</div>
     <div class="tagchain"><span>비전 · 생각</span><i>→</i><span class="mid self">트랙 · 진로</span><i>→</i><span class="end">아르케 · 로드맵</span></div>
     <div class="psub">생각에서 진로를 찾는다 · 융합 탐구로 관심을 진로로 좁히는 온라인 구독</div>
@@ -519,7 +673,7 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="item"><div class="ico" style="background:var(--amber-soft)">🧑‍🏫</div><div class="bd"><h4>전문 컨설턴트 상담(선택)</h4><p>필요 시 로그.알 전문 컨설턴트 상담을 별도로 연결할 수 있습니다(추가 비용 발생 가능).</p></div></div>
     </div>
 
-    <div class="eyebrow" style="color:var(--mint)">시즌 라인업 · 시즌당 12주제 융합 탐구</div>
+    <div class="eyebrow hs-anc" id="t-se" style="color:var(--mint)">시즌 라인업 · 시즌당 12주제 융합 탐구</div>
     <div class="season track">
       <div class="sh">📙 펜타 트랙 <span style="font-size:11px;font-weight:700;color:var(--ink-mute)">· 중3 · 학문융합</span></div>
       <div class="ss">원하는 시즌부터 골라 담아 시작하고, 첫 1강은 무료 체험입니다.</div>
@@ -529,7 +683,7 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="sfoot">🎟️ 첫 시즌 1강 무료 체험</div>
     </div>
 
-    <div class="eyebrow" style="color:var(--mint)">샘플 미리보기 · 워크북과 리포트</div>
+    <div class="eyebrow hs-anc" id="t-sm" style="color:var(--mint)">샘플 미리보기 · 워크북과 리포트</div>
     <div class="smpl">
       <div class="smock">
         <div class="mh">📗 워크북<span class="tg">STAGE 2</span></div>
@@ -554,11 +708,17 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="ah"><span class="ae">ANNUAL REPORT</span><div class="at">📗 펜타 트랙 · 연간 성장 리포트</div><div class="am">STAGE 2 · 중3 · 진로 매칭 + 고교 과목별 분석</div></div>
       <span class="alink">연간 리포트 전체 보기 →</span>
     </a>
+    <div class="eyebrow hs-anc" id="t-pr">요금</div>
+    <div class="plan hot"><div class="ph"><span class="pnm">📗 펜타 트랙</span></div><div class="pd">중3 · 융합 탐구 + 진로 설계</div><div class="pr">19,900<small>원 / 월</small></div>
+      <ul><li>펜타 트랙 워크북 전 회차</li><li>진로 매칭 · 커리어넷 · 고교 로드맵</li><li>반기 / 연간 성장 리포트</li><li>AI 소크 발문 회차당 15회</li><li>🎟️ 첫 1강 무료 체험</li></ul><a class="pbtn" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">구독 시작</a></div>
+    <div class="psub" style="margin-top:6px"><a style="text-decoration:underline" onclick="hsCmp()">3개 상품 한눈에 비교하기 →</a></div>
   </section>
 
   <!-- ═══ 아르케 ═══ -->
   <section class="panel" data-p="arche">
-    <div class="ptitle">🪜 펜타 아르케 <small>· 고교</small></div>
+    <div class="hs-pd arche"><div class="tx"><span class="hs-stg">고교 · 진로·수행·작성 증명</span><h2>펜타 아르케</h2><p>진로에 도달할 로드맵을 세운다</p><div class="pr">올인원 29,900원/월<small> · 단품 5회권 9,900원</small></div><a class="go" href="https://arche.penta-view.com/parent?trial=1" target="_blank" rel="noopener">첫 1강 무료 체험 ›</a></div><div class="hs-art" data-hsart="arche" data-chips=""></div></div>
+<div class="hs-sub"><button onclick="hsAnc('a-ov')">개요</button><button onclick="hsAnc('a-fl')">작동 방식</button><button onclick="hsAnc('a-pr')">요금</button></div>
+<div id="a-ov" class="hs-anc"></div><div class="ptitle">🪜 펜타 아르케 <small>· 고교</small></div>
     <div class="tagline">진로에 도달할 로드맵을 세운다</div>
     <div class="tagchain"><span>비전 · 생각</span><i>→</i><span class="mid">트랙 · 진로</span><i>→</i><span class="end self">아르케 · 로드맵</span></div>
     <div class="psub">직접 쓰고, 스스로 증명하는 — 진로 로드맵·수행평가·본인 작성 증명</div>
@@ -570,17 +730,22 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
       <div class="item"><div class="ico" style="background:var(--safe-soft)">🔒</div><div class="bd"><h4>본인 작성 증명 (Proof of Authorship)</h4><p>타이핑 리듬·편집 흐름·의미 변화를 5계층으로 기록해, 학생이 직접 썼음을 데이터로 뒷받침. 생기부 신뢰도를 높이는 증명 레이어.</p><span class="tag" style="background:var(--safe-soft);color:#0e8a4f">타이핑DNA 5계층</span></div></div>
     </div>
 
-    <div class="eyebrow" style="color:var(--amber)">작동 방식 · 인터뷰 → 작성 → 증명</div>
+    <div class="eyebrow hs-anc" id="a-fl" style="color:var(--amber)">작동 방식 · 인터뷰 → 작성 → 증명</div>
     <div class="grid3">
       <div class="mini"><div class="e">💬</div><h4>STEP 1<small>인터뷰형 입력</small></h4><p>업로드 대신, AI가 던지는 질문에 학생이 자기 경험·관점을 직접 답합니다.</p></div>
       <div class="mini"><div class="e">✏️</div><h4>STEP 2<small>학생이 직접 수행</small></h4><p>설계도를 참고해 학생이 스스로 초안을 씁니다. AI는 방향과 논리를 코칭합니다.</p></div>
       <div class="mini"><div class="e">🔒</div><h4>STEP 3<small>작성 과정 검증</small></h4><p>타이핑 리듬·편집 흐름을 기록해 본인 작성 여부를 진단하고, 리포트로 남깁니다.</p></div>
     </div>
     <p class="lead" style="margin-top:12px;font-size:12px;color:var(--ink-mute)">※ 검증은 붙여넣기·비정상 리듬 등 확률적 정황을 진단하는 보조 지표이며, 최종 판단은 사용자의 몫입니다. 결과나 합격을 보장하지 않습니다.</p>
+    <div class="eyebrow hs-anc" id="a-pr">요금</div>
+    <div class="plan"><div class="ph"><span class="pnm">🪜 올인원 (가정)</span></div><div class="pd">비전·트랙·아르케 모두 · 아르케는 올인원에 포함</div><div class="pr">29,900<small>원 / 월</small></div>
+      <ul><li>펜타 비전 · 트랙 전체</li><li>펜타 아르케(진로·수행) 무제한</li><li>분기 · 연간 프리미엄 리포트</li><li>단품: 펜타 아르케 5회권 9,900원</li><li>🎟️ 첫 1강 무료 체험</li></ul><a class="pbtn" href="https://arche.penta-view.com/parent" target="_blank" rel="noopener">구독 시작</a></div>
+    <div class="psub" style="margin-top:6px"><a style="text-decoration:underline" onclick="hsCmp()">3개 상품 한눈에 비교하기 →</a></div>
   </section>
 
   <!-- ═══ 왜 펜타 ═══ -->
   <section class="panel" data-p="why">
+    <button class="hs-back" onclick="hsGo('story')">← 홈으로</button>
     <div class="ptitle">🧭 왜 펜타인가</div>
     <div class="psub">무엇을 · 어떻게 · 진짜인가 — 세 가지를 한 번에 봅니다</div>
     <p class="lead">성적표 한 줄로는 보이지 않는 것. 펜타는 학생의 지성을 세 층위로 진단하고, 그 결과가 학생 본인의 것임을 증명합니다.</p>
@@ -656,8 +821,20 @@ footer .copy{margin-top:16px;font-size:11px;color:var(--ink-faint);font-weight:5
 
   <!-- ═══ 요금제 ═══ -->
   <section class="panel" data-p="pricing">
-    <div class="ptitle">💳 요금제</div>
+    <div class="ptitle">💳 요금 · 비교</div>
     <div class="psub">모든 요금은 부가세 포함 월 구독가입니다. 정기결제는 월 단위이며, 첫 1강은 무료 체험입니다.</div>
+
+    <div id="cmp" class="hs-anc"></div>
+    <div class="eyebrow">COMPARE · 한눈에 비교하기</div>
+    <div class="cmpw"><table class="cmp"><tr><th></th><th class="c v">📘 펜타 비전</th><th class="c t">📗 펜타 트랙</th><th class="c a">🪜 펜타 아르케</th></tr>
+      <tr><td class="rl">대상</td><td>초5 ~ 중2</td><td>중3</td><td>고1 ~ 고3</td></tr>
+      <tr><td class="rl">한 줄 목표</td><td>생각을 만든다</td><td>생각에서 진로를 찾는다</td><td>진로에 도달할 로드맵을 세운다</td></tr>
+      <tr><td class="rl">핵심 기능</td><td>5대 지성 주파수 · 회차별 워크북</td><td>융합 인과율 해부 · 진로 주파수 매칭 · 고교 로드맵</td><td>진로 징검다리 · 수행평가 도우미 · 본인 작성 증명</td></tr>
+      <tr><td class="rl">구성</td><td>8시즌 · 40강</td><td>3시즌 · 시즌당 12강</td><td>인터뷰 → 작성 → 증명 3단계</td></tr>
+      <tr><td class="rl">리포트</td><td>회차 + 월간 성장 리포트</td><td>반기 / 연간 성장 리포트</td><td>분기 · 연간 프리미엄 (올인원)</td></tr>
+      <tr><td class="rl">월 요금</td><td>12,900원</td><td>19,900원</td><td>올인원 29,900원 · 5회권 9,900원</td></tr>
+      <tr><td class="rl">무료 체험</td><td>첫 1강</td><td>첫 1강</td><td>올인원 첫 1강</td></tr></table></div>
+
 
     <div class="plan">
       <div class="ph"><span class="pnm">📘 펜타 비전</span></div>
@@ -809,8 +986,90 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape')closeLoop();
     });
     window.scrollTo(0,0);
   }
+  window.pentaShow=show;
   tabs.forEach(function(b){ b.onclick=function(){ show(b.getAttribute('data-t')); }; });
   show('story');
+})();
+</script>
+
+
+<script>
+/* ═══ 홈 개편: 상품별 히어로 (움직이는 SVG) ═══ */
+(function(){
+/* 일러스트 (자체 제작 · 움직이는 SVG) */
+function art(k){
+ if(k==='vision'){
+  var cx=165,cy=118,lb=['수학·논리','과학·기술','역사·사회','심리·인지','예술·디자인'],lo=[[0,-17,'middle'],[15,4,'start'],[10,23,'start'],[-10,23,'end'],[-15,4,'end']];
+  var bf=[.5,.72,.46,.62,.56],af=[1,.93,1,.88,.97],R=80;
+  function pt(i,f){var a=(-90+72*i)*Math.PI/180;return [cx+R*f*Math.cos(a),cy+R*f*Math.sin(a)]}
+  function seq(fn){var v=[bf,af,af,bf].map(function(F){return fn(F)});return v.join(';')}
+  var poly=seq(function(F){return F.map(function(f,i){return pt(i,f).map(function(n){return n.toFixed(1)}).join(',')}).join(' ')});
+  var kt='0;.4;.75;1',ks='.4 0 .2 1;0 0 1 1;.4 0 .2 1';
+  var anim=function(attr,vals,dur){return '<animate attributeName="'+attr+'" values="'+vals+'" keyTimes="'+kt+'" calcMode="spline" keySplines="'+ks+'" dur="'+(dur||7)+'s" repeatCount="indefinite"/>'};
+  var g='<svg viewBox="0 0 330 230"><circle cx="165" cy="118" r="96" fill="#ffffff10"/><circle class="hs-orb" cx="165" cy="118" r="92" fill="none" stroke="#fff" stroke-opacity=".28" stroke-dasharray="3 7"/>'
+   +'<circle class="hs-breath" cx="165" cy="118" r="58" fill="#ffffff16"/>'
+   +'<polygon fill="#ffffff2a" stroke="#fff" stroke-opacity=".8" stroke-width="2" points="'+poly.split(';')[0]+'">'+anim('points',poly)+'</polygon>';
+  for(var i=0;i<5;i++){
+   var xs=seq(function(F){return pt(i,F[i])[0].toFixed(1)}),ys=seq(function(F){return pt(i,F[i])[1].toFixed(1)});
+   var lx=seq(function(F){return (pt(i,F[i])[0]+lo[i][0]).toFixed(1)}),ly=seq(function(F){return (pt(i,F[i])[1]+lo[i][1]).toFixed(1)});
+   g+='<line x1="165" y1="118" stroke="#fff" stroke-opacity=".3" x2="'+pt(i,bf[i])[0].toFixed(1)+'" y2="'+pt(i,bf[i])[1].toFixed(1)+'">'+anim('x2',xs)+anim('y2',ys)+'</line>'
+    +'<circle class="hs-nd" style="animation-delay:'+(i*.35)+'s" r="9" fill="#fff" cx="'+pt(i,bf[i])[0].toFixed(1)+'" cy="'+pt(i,bf[i])[1].toFixed(1)+'">'+anim('cx',xs)+anim('cy',ys)+'</circle>'
+    +'<text text-anchor="'+lo[i][2]+'" font-size="11" font-weight="800" fill="#fff" x="'+(pt(i,bf[i])[0]+lo[i][0]).toFixed(1)+'" y="'+(pt(i,bf[i])[1]+lo[i][1]).toFixed(1)+'">'+lb[i]+anim('x',lx)+anim('y',ly)+'</text>';
+  }
+  g+='<circle cx="165" cy="118" r="22" fill="#fff" class="hs-core"/><text x="165" y="123" text-anchor="middle" font-size="13" font-weight="800" fill="#4338ca">생각</text>'
+   +'<g class="hs-plus"><rect x="252" y="128" width="66" height="26" rx="13" fill="#fff"/><text x="285" y="145.5" text-anchor="middle" font-size="12" font-weight="800" fill="#4338ca">확장 +24%</text></g>'
+   +'<circle r="5" fill="#fff"><animateMotion dur="9s" repeatCount="indefinite" path="M165,26 A92,92 0 1,1 164.9,26"/></circle></svg>';
+  return g;}
+ if(k==='track'){
+  var A='M50 150 C 88 150, 112 118, 150 118',B1='M150 118 Q 200 100 262 56',B2='M150 118 Q192 116 200 142 Q214 166 236 164 Q258 164 272 186';
+  return '<svg viewBox="0 0 330 230"><circle cx="165" cy="118" r="94" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2" stroke-dasharray="4 7" class="hs-orb"/><circle class="hs-breath" cx="165" cy="118" r="60" fill="#ffffff14"/>'
+   +'<path class="hs-tl hs-tl0" d="'+A+'" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" pathLength="100"/>'
+   +'<path class="hs-tl hs-tl1" d="'+B1+'" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" pathLength="100"/>'
+   +'<path class="hs-tl hs-tl2" d="'+B2+'" fill="none" stroke="#fff" stroke-opacity=".85" stroke-width="4" stroke-linecap="round" pathLength="100"/>'
+   +'<path class="hs-lnk" d="M268 72 Q312 126 280 174" fill="none" stroke="#fde68a" stroke-width="2.5" stroke-dasharray="4 6" stroke-linecap="round"/>'
+   +'<circle class="hs-pop hs-pa" cx="50" cy="150" r="12" fill="#fff"/><text x="50" y="176" text-anchor="middle" font-size="10.5" font-weight="800" fill="#fff">융합 생각</text>'
+   +'<circle class="hs-pop hs-pb" cx="150" cy="118" r="9" fill="#c4b5fd" stroke="#fff" stroke-width="3"/>'
+   +'<circle class="hs-pop hs-pc" cx="262" cy="56" r="15" fill="#fff"/><text class="hs-pop hs-pc" x="262" y="61" text-anchor="middle" font-size="14" font-weight="800" fill="#6d28d9">★</text>'
+   +[[200,142,'고1','hs-pm1'],[236,164,'고2','hs-pm2'],[272,186,'고3','hs-pm3']].map(function(n){return '<g class="hs-pop '+n[3]+'"><circle cx="'+n[0]+'" cy="'+n[1]+'" r="12" fill="#fff"/><text x="'+n[0]+'" y="'+(n[1]+3.6)+'" text-anchor="middle" font-size="10" font-weight="800" fill="#6d28d9">'+n[2]+'</text></g>'}).join('')
+   +'<circle r="6" fill="#fde68a"><animateMotion dur="7s" repeatCount="indefinite" path="'+A+' L150 118 Q 200 100 262 56" keyPoints="0;1;1" keyTimes="0;.5;1" calcMode="linear"/><animate attributeName="opacity" values="1;1;0;0" keyTimes="0;.5;.51;1" dur="7s" repeatCount="indefinite"/></circle>'
+   +'<circle r="5" fill="#fde68a"><animateMotion dur="7s" repeatCount="indefinite" path="'+A+' '+B2.replace('M','L')+'" keyPoints="0;0;1;1" keyTimes="0;.22;.62;1" calcMode="linear"/><animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.22;.23;.62;.63;1" dur="7s" repeatCount="indefinite"/></circle></svg>';}
+ return artArche('A');
+}
+function waves(){var d='M-40 206',i;for(i=0;i<16;i++)d+=' q15 -7 30 0 t30 0';return '<g class="hs-wv"><path d="'+d+'" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="2"/></g><g class="hs-wv hs-wv2"><path d="'+d.replace('206','214')+'" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/></g>'}
+function artArche(v){
+ if(v==='A'){ /* 진로 징검다리 → 탐구보고서 */
+  var st=[[48,188,'관심'],[100,168,'탐구'],[152,150,'활동'],[204,134,'수행']];
+  var g='<svg viewBox="0 0 330 230"><circle cx="165" cy="118" r="94" fill="#ffffff12" class="hs-breath"/>'+waves();
+  st.forEach(function(x,i){g+='<g class="hs-stn" style="animation-delay:'+(i*.35)+'s"><ellipse cx="'+x[0]+'" cy="'+(x[1]+5)+'" rx="27" ry="11" fill="#000" fill-opacity=".18"/><ellipse cx="'+x[0]+'" cy="'+x[1]+'" rx="27" ry="11" fill="#fff"/><text x="'+x[0]+'" y="'+(x[1]+4)+'" text-anchor="middle" font-size="11" font-weight="800" fill="#be185d">'+x[2]+'</text></g>'});
+  g+='<g class="hs-stn" style="animation-delay:1.4s"><rect x="238" y="58" width="58" height="76" rx="7" fill="#fff"/><path d="M280 58 h8 a8 8 0 0 1 8 8 v0 h-16z" fill="#fbcfe8"/>'
+   +'<rect x="246" y="70" width="30" height="5" rx="2.5" fill="#be185d"/>'
+   +[0,1,2].map(function(i){return '<line class="hs-wl hs-wl'+i+'" x1="246" y1="'+(86+i*11)+'" x2="'+(286-i*8)+'" y2="'+(86+i*11)+'" stroke="#f9a8d4" stroke-width="4" stroke-linecap="round" pathLength="100"/>'}).join('')+'</g>'
+   +'<g class="hs-chk2"><circle cx="292" cy="58" r="15" fill="#22c55e" stroke="#fff" stroke-width="3"/><path d="M285 58 l5 6 l9 -11" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></g>'
+   +'<g><circle r="8" fill="#fde68a" stroke="#fff" stroke-width="2.5"><animateMotion begin="1.8s" dur="6.5s" repeatCount="indefinite" calcMode="linear" keyPoints="0;1;1" keyTimes="0;.6;1" path="M48,176 Q74,138 100,156 Q126,120 152,138 Q178,102 204,122 Q224,96 246,108"/>'
+   +'<animate attributeName="opacity" begin="1.8s" values="1;1;0;0" keyTimes="0;.62;.7;1" dur="6.5s" repeatCount="indefinite"/></circle></g></svg>';
+  return g;}
+}
+var CP={vision:[[6,4],[66,2],[30,90]],track:[[4,10],[60,4],[58,88]],arche:[[2,6],[62,0],[30,90]]};
+function chipPos(k,i){var p=CP[k][i];return 'left:'+p[0]+'%;top:'+p[1]+'%'}
+
+
+function hsPaint(){
+  document.querySelectorAll('[data-hsart]').forEach(function(el){
+    var k=el.getAttribute('data-hsart'); if(el.getAttribute('data-done'))return; el.setAttribute('data-done','1');
+    var h=art(k), ch=(el.getAttribute('data-chips')||'').split('|').filter(Boolean);
+    el.innerHTML=h+ch.map(function(c,i){return '<span class="hs-chip" style="'+chipPos(k,i)+'">'+c+'</span>';}).join('');
+  });
+  try{ if(matchMedia('(prefers-reduced-motion:reduce)').matches) document.querySelectorAll('[data-hsart] svg').forEach(function(v){ if(v.pauseAnimations)v.pauseAnimations(); }); }catch(e){}
+}
+window.hsGo=function(t){ var b=document.querySelector('#tabs [data-t="'+t+'"]'); if(b){ b.click(); } else if(window.pentaShow){ window.pentaShow(t); } };
+window.hsRec=function(i,k,msg){
+  document.querySelectorAll('.hs-finder button').forEach(function(b,j){ b.classList.toggle('on',j===i); });
+  ['vision','track','arche'].forEach(function(x){ var e=document.getElementById('hs-'+x); if(e){ e.classList.toggle('isrec',x===k); e.classList.toggle('dim',x!==k); } });
+  var m=document.getElementById('hs-recmsg'); if(m) m.textContent='✓ '+msg+' 를 추천해요';
+};
+window.hsAnc=function(id){ var e=document.getElementById(id); if(e) e.scrollIntoView({behavior:'smooth',block:'start'}); };
+window.hsCmp=function(){ hsGo('pricing'); setTimeout(function(){ hsAnc('cmp'); },60); };
+hsPaint();
 })();
 </script>
 
