@@ -2937,7 +2937,12 @@ function applySchoolMode(){
   function qcard(v,ic,t,d){ return '<div onclick="goView(\''+v+'\')" style="cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:.15s"><div style="font-size:22px">'+ic+'</div><div style="font-weight:800;font-size:14px;margin-top:6px;color:var(--ink)">'+t+' →</div><div style="font-size:12px;color:var(--ink-mute);margin-top:3px;line-height:1.5">'+d+'</div></div>'; }
   try{
     // 1) 사이드바: 입시 컨설팅·B2C 마케팅·매출 메뉴 숨김 (학교는 B2G)
-    ['roi','basecon','prehs','sm','promo','notice','psend','billing','members','staffmsg','hqnews'].forEach(function(v){ var n=document.querySelector('.nav[data-v="'+v+'"]'); if(n) n.style.display='none'; });
+    ['roi','basecon','prehs','sm','promo','notice','psend','billing','members','staffmsg','hqnews','tactivity','newsletter','tdash','bulkreg','attend','refbank','studyplan'].forEach(function(v){ var n=document.querySelector('.nav[data-v="'+v+'"]'); if(n) n.style.display='none'; });
+    /* 1-a) 학원 전용 섹션 라벨 정리: '원장 대시보드'는 숨기고, '컨설팅'→'홈', '컨설팅 홈'→'학교 홈', '담당 학생 관리'→'학생 등록·관리' */
+    document.querySelectorAll('.navlabel').forEach(function(l){ var t=(l.textContent||'').trim(); if(t==='원장 대시보드') l.style.display='none'; else if(t==='컨설팅') l.textContent='홈'; });
+    var _hn=document.querySelector('.nav[data-v="home"]'); if(_hn){ _hn.innerHTML=_hn.innerHTML.replace('컨설팅 홈','학교 홈'); }
+    var _an=document.querySelector('.nav[data-v="allstudents"] .nav-lbl'); if(_an) _an.textContent='학생 등록·관리';
+    var _lg=document.querySelector('.brand .tag'); if(_lg) _lg.textContent='PentaView · 학교용 수업 엔진';
     ['trackseg','grp-dae','grp-goip'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
     // 1-b) '학원 운영·마케팅' 섹션 전체는 학교에 불필요 → 섹션 라벨까지 숨김
     document.querySelectorAll('.navlabel').forEach(function(l){ if(l.textContent && l.textContent.indexOf('학원 운영')>=0) l.style.display='none'; });
@@ -3385,13 +3390,13 @@ async function enterApp(session){
   try{ initNavAccordion(); }catch(e){}
   // 역할별 첫 화면: 원장→원장대시보드, 강사→강사대시보드
   try{
-    var _first=(window._isOwner===true)?'roi':'tdash';
+    var _first=window._isSchool?'home':((window._isOwner===true)?'roi':'tdash');
     var _fn=document.querySelector('.nav[data-v="'+_first+'"]');
-    if(!_fn || _fn.style.display==='none') _fn=document.querySelector('.nav[data-v="tdash"]');
+    if(!_fn || _fn.style.display==='none') _fn=document.querySelector('.nav[data-v="'+(window._isSchool?'live':'tdash')+'"]');
     if(_fn){ try{ expandGroupOfNav(_fn); }catch(e){} go(_fn); }
   }catch(e){}
   // 시작 튜터리얼 + 사용안내 버튼
-  try{ acadHelpButton(); setTimeout(function(){ acadTutorial(window._isOwner===true?'owner':'staff'); },500); }catch(e){}
+  if(!window._isSchool){ try{ acadHelpButton(); setTimeout(function(){ acadTutorial(window._isOwner===true?'owner':'staff'); },500); }catch(e){} }
 }
 /* ===== 게스트 체험 모드 ===== */
 var DEMO_TASK_LABEL={parse_record:'학생 자료 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'진로 징검다리',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
@@ -9392,6 +9397,7 @@ async function delGStudent(id){
 function selectGStudent(id){
   var s=(window._gstudents||[]).find(function(x){return x.id===id;}); if(!s)return;
   window._gactive=s; // 대입 활성(_activeStudent)과 분리 유지
+  try{ if(window.renderIVIntake)renderIVIntake('goip'); }catch(_e){} // 학생 선택 즉시 해당 학생의 인터뷰 답변·임시저장 표시
   fillGoipPickers();
   renderGStudents();
   if(window._topbarMode==='goip'){var td=document.getElementById('topbar-student');if(td)td.value=s.id;}
