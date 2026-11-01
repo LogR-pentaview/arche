@@ -3359,6 +3359,7 @@ async function enterApp(session){
   try{ applyB2CLabels(); }catch(e){}
   try{ if(window._isSchool) applySchoolConsentLabels(); }catch(e){}
   try{ if(window._isSchool) applySchoolMode(); }catch(e){}
+  try{ if(window._isSchool) setTimeout(function(){ if(window.cwSyncSchool) cwSyncSchool(); },2500); }catch(e){} /* 학교가 미리 신청한 15강좌를 모든 반에 연동 */
   try{ if(window._isSchool){ var _sp=document.getElementById('nav-studyplan'); if(_sp)_sp.style.display='none'; } }catch(e){}
   if(isAdmin){
     // 관리자는 무조건 본사 대시보드(/admin/) 하나만 사용 — 학원앱 내 관리자 콘솔로 새지 않게 자동 이동
