@@ -3713,6 +3713,8 @@ async function enterStudentApp(session){
     _sg(_gD,false); _sg(_gG,false); _sg(_gP,true);
   }
   if(_gP)_gP.classList.add('open');
+  /* [학교 B2G] 학생: 비전 기초·트랙 메뉴 숨김, 심화(45분 학교버전)만 '수업 워크북'으로 노출 */
+  if(window._isSchool===true){ try{ document.querySelectorAll('#grp-penta .nav').forEach(function(n){ var oc=n.getAttribute('onclick')||''; if(oc.indexOf("course:'vision_basic'")>=0||oc.indexOf("course:'track'")>=0){ n.style.display='none'; } else if(oc.indexOf("course:'vision_adv'")>=0){ n.style.display=''; n.innerHTML=n.innerHTML.replace('펜타 비전 심화','수업 워크북'); } }); }catch(e){} }
   // 공통: 컨설턴트/관리 전용 메뉴 숨김
   ['allstudents','roi','consult','students','settings','admin_data','essaybatch','admin','hqnews','billing','promo','notice','psend','sm','members','staffmsg','tactivity','newsletter','tdash','attend','refbank','bulkreg','live','course','submits'].forEach(function(v){var n=document.querySelector('.nav[data-v="'+v+'"]');if(n)n.style.display='none';});
   // 인터뷰·성적 제출: 고=대입 자료입력 / 중=고입 자료입력 / 초=없음
@@ -3754,7 +3756,7 @@ function renderStudentHome(){
   if(window._stuLevel==='초'){
     v.innerHTML='<div class="eyebrow">My Dashboard</div><div class="h1">'+esc(s.name||'')+' 학생</div><div class="sub">융합사고 역량 코스</div>'+
       '<div class="grid g3" style="margin-top:20px">'+
-      '<div class="card" onclick="(function(){var n=document.querySelector(\'#grp-penta .nav\');if(n)n.click();})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">🧠 융합사고 역량 코스 ›</div><div style="font-size:12px;color:var(--ink-dim)">오늘의 사고력 워크북을 시작해요</div></div>'+
+      '<div class="card" onclick="(function(){var a=document.querySelectorAll(\'#grp-penta .nav[data-v=penta]\'),i;for(i=0;i<a.length;i++){if(a[i].style.display!==\'none\'){a[i].click();break;}}})()" style="cursor:pointer"><div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:5px">🧠 융합사고 역량 코스 ›</div><div style="font-size:12px;color:var(--ink-dim)">오늘의 사고력 워크북을 시작해요</div></div>'+
       '</div>';
     return;
   }
