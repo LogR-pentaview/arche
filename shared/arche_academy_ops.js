@@ -986,7 +986,7 @@
     (function(){ var isSchool=(window._isSchool===true), MAXN=15; window._cwCount=rows.length; var addBtn=host.querySelector('#cw-add'); if(!addBtn||!isSchool)return; if(rows.length>=MAXN){ addBtn.disabled=true; addBtn.style.opacity='.5'; addBtn.textContent='최대 15회 편성됨'; } else { addBtn.disabled=false; addBtn.style.opacity='1'; addBtn.textContent='+ 차시 추가 ('+rows.length+'/15)'; } })();
     if(!rows.length){ el.innerHTML='<div style="border:1px dashed var(--line);border-radius:10px;padding:26px;text-align:center;color:var(--ink-mute);font-size:13px">아직 편성된 차시가 없습니다.<br>[+ 차시 추가]로 학원용 회차를 순서대로 담아보세요.</div>'; return; }
     var SER={starter:['🌱 비전 기초','#c8a24a'],architecture:['🏛 비전 심화','#6366f1'],track:['🎯 트랙','#3fa34d'],master:['🔷 지성 다이빙','#0ea5e9']};
-    function skey(r){ if(r.stage==='vision'&&r.level==='architecture')return'architecture'; if(r.stage==='vision')return'starter'; if(r.stage==='track')return'track'; return 'master'; }
+    function skey(r){ if(r.stage==='vision'&&(r.level==='architecture'||r.level==='architecture45'))return'architecture'; if(r.stage==='vision')return'starter'; if(r.stage==='track')return'track'; return 'master'; }
     el.innerHTML=rows.map(function(r,i){
       var f=(i===0),la=(i===rows.length-1); var s=SER[skey(r)]||['회차','#8b95a1']; var opened=r.status==='opened';
       return '<div style="display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:8px;flex-wrap:wrap">'
