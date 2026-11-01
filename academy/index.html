@@ -3573,7 +3573,7 @@ async function enterParentViewer(session){
   try{ acadHelpButton(); setTimeout(function(){ acadTutorial('parent'); },500); }catch(e){}
 }
 /* [로그아웃 복귀지] 로그인했던 포털로 돌아감 — 학교(교사·학생)→/school, 학부모(b2c)→/parent, 그 외 학원→/login */
-function logoutHome(){ try{ if(window._role==='parent')return '/parent'; if(window._isSchool===true)return '/school'; if(window._isB2C===true)return '/parent'; }catch(e){} return '/login'; }
+function logoutHome(){ try{ if(window._isSchool===true)return '/school'; if(window._isB2C===true)return '/parent'; }catch(e){} return '/login'; }
 window.logoutHome=logoutHome;
 function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace(logoutHome()); }); }catch(e){ location.replace(logoutHome()); } }
 window.sbSignOutReload=sbSignOutReload;
