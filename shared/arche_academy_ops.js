@@ -930,17 +930,44 @@
     _cwCatalog=rows.map(function(c){ return { id:c.id, level:(c.stage==='track'?'track':(c.level||'')), season:+c.season, week:+c.week, theme:c.theme||'', title:c.title||'', grade_band:c.grade_band||'', tier:(c.stage==='track') }; });
     return _cwCatalog;
   }
+  /* [학교용] 관리자가 학교 단위로 미리 편성한 15강좌를 모든 반에 연동 — 편성이 없는 반은 편성된 반(원본)의 차시를 '계획됨' 상태로 복사 */
+  var _cwSyncP=null;
+  function cwSyncSchool(){
+    if(_cwSyncP) return _cwSyncP;
+    _cwSyncP=(async function(){
+      var sb=window.sb; if(!sb||window._isSchool!==true) return 0;
+      var acid=window._acadId||(window._academy&&window._academy.id); if(!acid) return 0;
+      try{
+        var rc=await sb.from('academy_classes').select('id').eq('academy_id',acid); var ids=(rc.data||[]).map(function(c){return c.id;});
+        if(ids.length<2) return 0;
+        var rr=await sb.from('academy_curriculum').select('*').eq('academy_id',acid).order('order_no'); var rows=rr.data||[];
+        var by={}; rows.forEach(function(r){ (by[r.class_id]=by[r.class_id]||[]).push(r); });
+        var src=null,max=0; ids.forEach(function(id){ var n=(by[id]||[]).length; if(n>max){max=n;src=id;} });
+        if(!src) return 0;
+        var empty=ids.filter(function(id){ return !(by[id]&&by[id].length); });
+        if(!empty.length) return 0;
+        var ins=[]; empty.forEach(function(cid){ by[src].forEach(function(r){ ins.push({academy_id:acid,class_id:cid,order_no:r.order_no,catalog_id:r.catalog_id,stage:r.stage,level:r.level,season:r.season,week:r.week,tier:r.tier,title:r.title,theme:r.theme,status:'planned'}); }); });
+        var w=await sb.from('academy_curriculum').insert(ins); if(w.error) throw w.error;
+        return ins.length;
+      }catch(e){ try{console.warn('cwSyncSchool',e);}catch(_){} return 0; }
+    })();
+    _cwSyncP.then(function(){ setTimeout(function(){ _cwSyncP=null; },3000); },function(){ _cwSyncP=null; });
+    return _cwSyncP;
+  }
+  window.cwSyncSchool=cwSyncSchool;
   async function mountCurriculum(host){
     var sb=window.sb;
     if(!sb || !window._academy){ host.innerHTML=phRaw('🔌','미연결','로그인(DB 연결) 후 차시 편성이 활성화됩니다.'); return; }
-    var acid=window._acadId||(window._academy&&window._academy.id), classes=[];
+    var acid=window._acadId||(window._academy&&window._academy.id), classes=[], _stuCnt={};
+    if(window._isSchool===true){ try{ await cwSyncSchool(); }catch(e){} }
     try{ var rc=await sb.from('academy_classes').select('id,name,grade_band').eq('academy_id',acid).order('created_at'); classes=rc.data||[]; }
     catch(e){ host.innerHTML=phRaw('⚠️','불러오기 실패',(e&&e.message)||e); return; }
     if(!classes.length){ host.innerHTML=phRaw('🏷️','반이 없습니다',(window._isSchool===true)?'[학생 관리]에서 엑셀로 학생을 업로드하면 학년·반이 자동 생성됩니다.':'[반·강사 관리]에서 먼저 반을 만들고 학생을 배정하세요.'); return; }
-    if(!_cwClass || !classes.some(function(c){return c.id===_cwClass;})) _cwClass=classes[0].id;
+    if(window._isSchool===true){ try{ var _rs=await sb.from('students').select('class_id').eq('academy_id',acid); (_rs.data||[]).forEach(function(x){ if(x.class_id)_stuCnt[x.class_id]=(_stuCnt[x.class_id]||0)+1; }); }catch(e){} }
+    if(!_cwClass || !classes.some(function(c){return c.id===_cwClass;})){ var _pf=(window._isSchool===true)?classes.filter(function(c){return _stuCnt[c.id]>0;})[0]:null; _cwClass=(_pf||classes[0]).id; }
     host.innerHTML='<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:6px">'
       +'<select id="cw-csel" style="padding:10px 12px;border:1px solid var(--line);border-radius:9px;font-size:13.5px;font-weight:700;min-width:170px">'
-      + classes.map(function(c){return '<option value="'+c.id+'"'+(c.id===_cwClass?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')
+      + classes.map(function(c){return '<option value="'+c.id+'"'+(c.id===_cwClass?' selected':'')+'>'+esc(c.name)+((window._isSchool===true)?(' · '+(_stuCnt[c.id]||0)+'명'):'')+'</option>';}).join('')
       +'</select>'
       +'<button id="cw-add" class="tab on" style="padding:10px 16px">+ 차시 추가</button>'
       +'<span style="font-size:12px;color:var(--ink-mute)">'+((window._isSchool===true)?'펜타 비전 심화 40강 중 <b>최대 15강</b>을 골라 담고 [수업 개방] → 이 반 학생 전원에게 전달됩니다':'회차를 순서대로 편성 → [수업 개방] 시 이 반 학생 전원에게 배정됩니다')+'</span></div>'
