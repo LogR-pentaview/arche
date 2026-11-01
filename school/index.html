@@ -13,6 +13,7 @@ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:c
 .sub{color:var(--mute);font-size:12.5px;margin:2px 0 18px}
 .inp{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-family:inherit;margin-bottom:9px}
 .btn{width:100%;background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn:disabled{opacity:.6}
 .msg{font-size:12.5px;padding:9px 11px;border-radius:9px;margin-top:10px}
 .msg.err{background:#fdecec;color:#c0392b}.msg.ok{background:#e8f6ee;color:#1c7a45}
 .hint{color:var(--mute);font-size:11.5px;margin-top:14px;line-height:1.6}
@@ -21,11 +22,11 @@ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:c
 <div class="card">
   <div class="brand"><div class="mk">P</div><h1>펜타비전 학교</h1></div>
   <div class="sub">교사 · 학생 · 관리자 로그인</div>
-  <input class="inp" id="lg-id" placeholder="아이디 또는 이메일" autocomplete="username">
+  <input class="inp" id="lg-id" placeholder="아이디 또는 이메일" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
   <input class="inp" id="lg-pw" type="password" placeholder="비밀번호" autocomplete="current-password">
   <button class="btn" id="lg-btn" onclick="doLogin()">로그인</button>
   <div id="lg-msg"></div>
-  <div class="hint">· 교사·학생: 발급받은 아이디로 로그인<br>· 관리자: 이메일로 로그인<br>· 로그인 후 각자 화면으로 자동 이동합니다.</div>
+  <div class="hint">· 교사·학생: 발급받은 아이디로 로그인<br>· 관리자: 아이디(admin) 또는 이메일로 로그인<br>· 로그인 후 각자 화면으로 자동 이동합니다.</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -53,13 +54,36 @@ async function boot(){
   var {data:{session}}=await sb.auth.getSession();
   if(session){ el('lg-msg').className='msg ok'; el('lg-msg').textContent='로그인됨 — 이동 중…'; routeByRole(); }
 }
+/* 아이디 → 로그인 후보 이메일.
+   '@' 포함 = 이메일 그대로 / 'admin' = 관리자 계정 / 그 외 = 발급 아이디(@stu.penta-view.com) */
+function candidates(idv){
+  var low=idv.toLowerCase();
+  if(idv.indexOf('@')>0) return [idv];
+  if(low==='admin') return ['admin@arche.penta-view.com'];
+  return [low+'@stu.penta-view.com'];
+}
 async function doLogin(){
   var idv=(el('lg-id').value||'').trim(); var pw=el('lg-pw').value||'';
   if(!idv||!pw){ msg('아이디와 비밀번호를 입력하세요.'); return; }
-  var email=(idv.indexOf('@')>0)?idv:(idv.toLowerCase()+'@stu.penta-view.com');
+  if(!sb){ msg('설정 로드 실패 — 새로고침 해주세요'); return; }
   el('lg-btn').disabled=true; el('lg-msg').className='msg'; el('lg-msg').textContent='로그인 중…';
-  var r=await sb.auth.signInWithPassword({email:email,password:pw});
-  if(r.error){ el('lg-btn').disabled=false; msg('로그인 실패: '+r.error.message); return; }
+  var last=null, ok=false;
+  try{
+    var list=candidates(idv);
+    for(var i=0;i<list.length;i++){
+      var r=await sb.auth.signInWithPassword({email:list[i],password:pw});
+      if(!r.error){ ok=true; break; }
+      last=r.error;
+    }
+  }catch(e){ last=e; }
+  if(!ok){
+    el('lg-btn').disabled=false;
+    var m=(last&&last.message)||'';
+    if(/invalid login/i.test(m)) msg('아이디 또는 비밀번호가 올바르지 않습니다. (관리자는 admin 또는 이메일 전체를 입력하세요)');
+    else if(/email not confirmed/i.test(m)) msg('이메일 인증이 완료되지 않은 계정입니다.');
+    else msg('로그인 실패: '+m);
+    return;
+  }
   msg('로그인 성공 — 이동 중…', true); routeByRole();
 }
 el('lg-pw').addEventListener('keydown',function(e){ if(e.key==='Enter') doLogin(); });
