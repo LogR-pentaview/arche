@@ -2307,6 +2307,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_attendance.js?v=1"></script>
 <script src="/shared/arche_studyplan.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js?v=4"></script>
+<script src="/shared/arche_school_parent.js?v=1"></script>
 <script src="/shared/arche_entitlements.js"></script>
 <script src="/shared/arche_penta_period.js"></script>
 <script src="/academy/course_picker.js"></script>
@@ -3566,11 +3567,13 @@ async function enterParentViewer(session){
   pvInjectCss();
   var root=document.getElementById('pv-root'); if(!root){ root=document.createElement('div'); root.id='pv-root'; document.body.appendChild(root); }
   if(!stu){ root.innerHTML='<div class="pv-wrap"><div class="pv-empty">연결된 자녀 정보를 찾지 못했어요.<br>학원에서 발급한 학부모 아이디로 로그인했는지 확인해 주세요.<br><br><button class="pv-btn" onclick="sbSignOutReload()">로그아웃</button></div></div>'; return; }
+  /* [학교 학부모] 학교 계정이면 학원용 대시보드 대신 학교용 화면 */
+  try{ var _si=await sb.rpc('student_academy_info'); var _sr=_si&&_si.data&&_si.data[0]; if(_sr&&_sr.account_type==='school'){ window._isSchool=true; window._schoolName=_sr.name; try{ document.title='펜타비전 · 학교 학부모'; }catch(e){} if(window.ArcheSchoolParent){ await ArcheSchoolParent.mount(root, stu, _sr); return; } } }catch(e){}
   pvRenderDashboard(root, stu);
   try{ acadHelpButton(); setTimeout(function(){ acadTutorial('parent'); },500); }catch(e){}
 }
 /* [로그아웃 복귀지] 로그인했던 포털로 돌아감 — 학교(교사·학생)→/school, 학부모(b2c)→/parent, 그 외 학원→/login */
-function logoutHome(){ try{ if(window._isSchool===true)return '/school'; if(window._isB2C===true)return '/parent'; }catch(e){} return '/login'; }
+function logoutHome(){ try{ if(window._role==='parent')return '/parent'; if(window._isSchool===true)return '/school'; if(window._isB2C===true)return '/parent'; }catch(e){} return '/login'; }
 window.logoutHome=logoutHome;
 function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace(logoutHome()); }); }catch(e){ location.replace(logoutHome()); } }
 window.sbSignOutReload=sbSignOutReload;
