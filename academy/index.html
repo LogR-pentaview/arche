@@ -3713,7 +3713,12 @@ window.enterParentViewer=enterParentViewer;
 async function enterStudentApp(session){
   try{ window._myUid=session.user.id; }catch(e){}
   /* [학교용] 학생 소속 학교(account_type='school') 감지 → 동의 게이트 문구 분기 (학원·학부모 학생은 false) */
-  try{ var _sp=await sb.from('students').select('academy_id').limit(1); var _said=_sp&&_sp.data&&_sp.data[0]&&_sp.data[0].academy_id; if(_said){ var _sac=await sb.from('academies').select('account_type,name').eq('id',_said).limit(1); window._isSchool=!!(_sac&&_sac.data&&_sac.data[0]&&_sac.data[0].account_type==='school'); if(window._isSchool){ window._schoolName=_sac.data[0].name||''; } } }catch(e){}
+  try{
+    /* 학생은 academy_users에 없어 academies를 직접 읽을 수 없음 → SECURITY DEFINER RPC(student_academy_info)로 조회 */
+    var _ri=await sb.rpc('student_academy_info'); var _rr=_ri&&_ri.data; if(Array.isArray(_rr)) _rr=_rr[0];
+    if(_rr&&_rr.account_type){ window._isSchool=(_rr.account_type==='school'); if(window._isSchool){ window._schoolName=_rr.name||''; } }
+    else { var _sp=await sb.from('students').select('academy_id').limit(1); var _said=_sp&&_sp.data&&_sp.data[0]&&_sp.data[0].academy_id; if(_said){ var _sac=await sb.from('academies').select('account_type,name').eq('id',_said).limit(1); window._isSchool=!!(_sac&&_sac.data&&_sac.data[0]&&_sac.data[0].account_type==='school'); if(window._isSchool){ window._schoolName=_sac.data[0].name||''; } } }
+  }catch(e){}
   window._pentaSchool=(window._isSchool===true); /* [학교 B2G] 학생 세션: 심화→45분 학교버전 서빙 스위치 */
   if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
