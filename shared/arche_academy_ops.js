@@ -1130,29 +1130,44 @@
     var sb=window.sb;
     if(!sb || !_ctlClass) return;
     var acid = window._acadId||(window._academy&&window._academy.id);
-    var students=[], acts=[];
+    var students=[], acts=[], subDone={};
     try{
       var rs = await sb.from('students').select('id,name,grade').eq('academy_id',acid).eq('class_id',_ctlClass).order('name'); students = rs.data||[];
-      if(students.length){ var ids = students.map(function(s){return s.id;}); var ra = await sb.from('student_activity_status').select('*').in('student_id',ids); acts = ra.data||[]; }
+      if(students.length){ var ids = students.map(function(s){return s.id;}); var ra = await sb.from('student_activity_status').select('*').in('student_id',ids); acts = ra.data||[];
+        try{
+          var rcu = await sb.from('academy_curriculum').select('stage,season,week,status,order_no').eq('class_id',_ctlClass).order('order_no',{ascending:false});
+          var cul = (rcu&&rcu.data)||[]; var curRow = cul.filter(function(x){return x.status==='opened';})[0]||cul[0];
+          var rsub = await sb.from('penta_submissions').select('student_id,stage,season,week,status').in('student_id',ids);
+          (rsub&&rsub.data||[]).forEach(function(x){
+            if(x.status!=='submitted'&&x.status!=='reviewed'&&x.status!=='sent') return;
+            if(curRow && !(x.stage===curRow.stage && String(x.season)===String(curRow.season) && String(x.week)===String(curRow.week))) return;
+            subDone[x.student_id]=1;
+          });
+        }catch(e2){}
+      }
     }catch(e){ return; }
     var amap={}; acts.forEach(function(a){ amap[a.student_id]=a; });
-    var nOnline=0, nWork=0, nStag=0, nSubmit=0, alerts=[];
+    var nOnline=0, nWork=0, nStag=0, nSubmit=0, alerts=[], rSum=0, rCnt=0, nDna=0;
     students.forEach(function(s){
+      if(subDone[s.id]) nSubmit++;
       var a=amap[s.id]; if(!a) return;
       var fresh = a.updated_at && (Date.now()-new Date(a.updated_at).getTime() < 30000);
-      if(fresh) nOnline++;
-      if(a.status==='working') nWork++;
-      if((a.stagnation_sec||0)>=120){ nStag++; alerts.push('🔴 '+(s.name||'')+' 정체 '+Math.floor((a.stagnation_sec||0)/60)+'분'); }
-      if((a.care_level||0)>=2) alerts.push('⚠️ '+(s.name||'')+' 케어 '+(a.care_level>=3?'긴급':'경고'));
-      if(a.status==='submitted') nSubmit++;
+      if(fresh && a.status!=='idle') nOnline++;
+      var live = fresh && a.status!=='idle' && !subDone[s.id];
+      if(live && a.status==='working') nWork++;
+      if(live && a.thinking_speed_x){ rSum+=parseFloat(a.thinking_speed_x); rCnt++; }
+      if(live && a.typing_dna_verified) nDna++;
+      if(live && a.status==='working' && (a.stagnation_sec||0)>=120){ nStag++; alerts.push('🔴 '+(s.name||'')+' 정체 '+Math.floor((a.stagnation_sec||0)/60)+'분'); }
+      if(live && (a.care_level||0)>=2) alerts.push('⚠️ '+(s.name||'')+' 케어 '+(a.care_level>=3?'긴급':'경고')+(a.care_signal?' — '+a.care_signal:''));
     });
-    var statHost=host.querySelector? null : null;
-    statHost=document.getElementById('ctl-stats'); if(!statHost) return;
+    var statHost=document.getElementById('ctl-stats'); if(!statHost) return;
     statHost.innerHTML = statCards([
       {k:'접속',v:nOnline,s:'/'+students.length,d:'최근 30초'},
       {k:'작성 중',v:nWork,s:'명'},
       {k:'정체',v:nStag,s:'명',d:'2분+'},
-      {k:'제출',v:students.length?Math.round(nSubmit/students.length*100):0,s:'%'}
+      {k:'제출',v:students.length?Math.round(nSubmit/students.length*100):0,s:'%'},
+      {k:'성찰력',v:rCnt?(rSum/rCnt).toFixed(1):'-',s:rCnt?'x':'',d:'평균'},
+      {k:'진정성 인증',v:nOnline?Math.round(nDna/nOnline*100):0,s:'%',d:'직접 작성'}
     ]) + (alerts.length?('<div style="background:var(--panel,#fff);border:1px solid #f0445233;border-radius:14px;padding:14px;margin-top:10px"><div style="font-size:12px;font-weight:800;color:var(--risk);margin-bottom:6px">주의</div>'+alerts.slice(0,6).map(function(a){return '<div style="font-size:12.5px;color:var(--ink-dim);margin:2px 0">'+esc(a)+'</div>';}).join('')+'</div>'):'');
     var grid=document.getElementById('ctl-grid'); if(!grid) return;
     if(!students.length){ grid.innerHTML=phRaw('👥','학생 없음','이 반에 배정된 학생이 없습니다.'); return; }
@@ -1162,14 +1177,16 @@
       var fresh = a.updated_at && (Date.now()-new Date(a.updated_at).getTime()<30000);
       if(!fresh) st='idle';
       if((a.stagnation_sec||0)>=120 && st==='working') st='stagnation';
+      if(subDone[s.id]) st='submitted';
       var L=LB[st]||LB.idle;
       var fill=a.fill_count||0, total=a.total_fill||0, pct=total?Math.round(fill/total*100):0;
-      return '<div style="background:var(--panel,#fff);border:1px solid '+L[1]+'33;border-radius:14px;padding:14px">'
+      return '<div onclick="ArchePentaApp&amp;&amp;ArchePentaApp.openStudentWorkbook(\''+s.id+'\',\''+_ctlClass+'\')" title="클릭하면 이 학생의 워크북을 봅니다" style="cursor:pointer;background:var(--panel,#fff);border:1px solid '+L[1]+'33;border-radius:14px;padding:14px">'
         +'<div style="display:flex;align-items:center;gap:8px"><b style="font-size:14px">'+esc(s.name||'-')+'</b>'
         +'<span style="margin-left:auto;font-size:10.5px;font-weight:800;color:'+L[1]+';background:'+L[2]+';padding:3px 9px;border-radius:20px">'+L[0]+'</span></div>'
         +'<div style="height:6px;background:var(--panel-3,#e5e8eb);border-radius:4px;margin-top:10px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+L[1]+'"></div></div>'
         +'<div style="font-size:11.5px;color:var(--ink-dim);margin-top:6px">작성 '+fill+'/'+total+' · '+((a.stagnation_sec||0)>=60?('정체 '+Math.floor((a.stagnation_sec||0)/60)+'분'):(esc(a.current_title||'대기')))+'</div>'
-        +((a.care_level||0)>=2?'<div style="font-size:11px;font-weight:800;color:var(--risk);margin-top:6px">⚠️ 케어 '+(a.care_level>=3?'긴급':'경고')+'</div>':'')
+        +((st==='idle'||st==='submitted')?'':(a.thinking_speed_x?'<div style="font-size:11px;color:var(--ink-dim);margin-top:5px">성찰력 <b>'+parseFloat(a.thinking_speed_x).toFixed(1)+'x</b>'+(a.typing_dna_verified?' · 🧬 직접 작성':'')+'</div>':''))
+        +((a.care_level||0)>=2&&st!=='idle'&&st!=='submitted'?'<div style="font-size:11px;font-weight:800;color:var(--risk);margin-top:6px">⚠️ 케어 '+(a.care_level>=3?'긴급':'경고')+(a.care_signal?' · '+esc(a.care_signal):'')+'</div>':'')
         +'</div>';
     }).join('')+'</div>';
     var up=document.getElementById('ctl-updated'); if(up) up.textContent='업데이트 '+new Date().toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
