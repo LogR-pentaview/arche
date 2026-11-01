@@ -1067,10 +1067,92 @@
   window.mountCourseView=mountCourseView;
 
   /* 학생 제출물 관리 뷰: 제출물·분석리포트 / 학부모 전송 / 정기 리포트 탭 */
+  /* ========================= [학교용] 학생 제출물·분석리포트 (학년 표기·수강 코스와 무관하게 전교생 대상) =========================
+   * 학원용 검토 탭은 '초·중등 + 코스 수강생'만 나열해, 학년이 '1학년'이거나 코스 미지정인 학교 학생의 제출물이 보이지 않던 문제 해결.
+   * 제출물(penta_submissions)을 기준으로 반·학생·회차를 직접 나열하고, 기존 검토 화면(ArchePentaApp.openReview/openStudentWorkbook)을 재사용. */
+  var _srPickInstalled=false;
+  function _srInstallPick(){
+    var sb=window.sb; if(_srPickInstalled||!sb||!sb.rpc) return; _srPickInstalled=true;
+    var orig=sb.rpc.bind(sb);
+    sb.rpc=function(name,args){
+      var p=orig(name,args);
+      if(name==='list_penta_assignments' && window.__srPick){
+        return Promise.resolve(p).then(function(r){
+          try{ var k=window.__srPick; var rows=(r&&r.data)||[];
+            var hit=rows.filter(function(x){ return x.stage===k.stage && String(x.season)===String(k.season) && String(x.week)===String(k.week); });
+            if(hit.length){ r=Object.assign({},r,{data:hit.concat(rows.filter(function(x){return hit.indexOf(x)<0;}))}); }
+          }catch(e){}
+          return r;
+        });
+      }
+      return p;
+    };
+  }
+  async function mountSchoolReview(host){
+    var sb=window.sb, acid=window._acadId||(window._academy&&window._academy.id);
+    if(!sb||!acid){ host.innerHTML=phRaw('🔌','미연결','로그인 후 이용하세요.'); return; }
+    _srInstallPick();
+    host.innerHTML='<div style="padding:30px;text-align:center;color:var(--ink-mute)">불러오는 중…</div>';
+    var students=[], classes=[], subs=[];
+    try{
+      var rs=await sb.from('students').select('id,name,grade,class_id,seat_no').eq('academy_id',acid); students=(rs&&rs.data)||[];
+      var rc=await sb.from('academy_classes').select('id,name').eq('academy_id',acid); classes=(rc&&rc.data)||[];
+      var rb=await sb.from('penta_submissions').select('id,student_id,stage,level,season,week,theme,title,status,report,updated_at,sent_at').eq('academy_id',acid).order('updated_at',{ascending:false}).limit(500); subs=(rb&&rb.data)||[];
+    }catch(e){ host.innerHTML=phRaw('⚠️','불러오기 실패',(e&&e.message)||e); return; }
+    var smap={}; students.forEach(function(s){ smap[String(s.id)]=s; });
+    var cmap={}; classes.forEach(function(c){ cmap[c.id]=c.name; });
+    var fClass='', fStat='';
+    var STL={submitted:['검토 대기','#b8860b','#fff4e0'],reviewed:['리포트 검토중','#2b64c4','#e7f0ff'],sent:['학부모 발행 완료','#137a44','#e9f9ef']};
+    function draw(){
+      var rows=subs.filter(function(x){ var st=smap[String(x.student_id)]; if(!st) return false;
+        if(fClass && (st.class_id||'')!==fClass) return false; if(fStat && x.status!==fStat) return false; return !!STL[x.status]; });
+      var nWait=subs.filter(function(x){return x.status==='submitted'&&smap[String(x.student_id)];}).length;
+      var h='<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 0 14px">'
+        +'<select id="sr-class" style="padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-weight:700"><option value="">전체 반</option>'+classes.map(function(c){return '<option value="'+c.id+'"'+(fClass===c.id?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select>'
+        +'<select id="sr-stat" style="padding:9px 12px;border:1px solid var(--line);border-radius:9px;font-size:13px;font-weight:700"><option value="">전체 상태</option><option value="submitted"'+(fStat==='submitted'?' selected':'')+'>검토 대기</option><option value="reviewed"'+(fStat==='reviewed'?' selected':'')+'>리포트 검토중</option><option value="sent"'+(fStat==='sent'?' selected':'')+'>학부모 발행 완료</option></select>'
+        +'<button id="sr-refresh" style="padding:9px 14px;border:1px solid var(--line);border-radius:9px;background:var(--panel,#fff);font-weight:700;cursor:pointer">🔄 새로고침</button>'
+        +'<span style="margin-left:auto;font-size:12px;color:var(--ink-mute)">제출 '+subs.filter(function(x){return smap[String(x.student_id)];}).length+'건 · 검토 대기 <b style="color:#b8860b">'+nWait+'</b>건</span></div>';
+      if(!rows.length){ h+=phRaw('📝','제출물이 없습니다','학생이 워크북을 [제출]하면 이곳에 나타납니다.'); }
+      else {
+        h+='<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px">'+rows.map(function(x,i){
+          var st=smap[String(x.student_id)], L=STL[x.status]; var d=x.updated_at?new Date(x.updated_at):null;
+          return '<div style="background:var(--panel,#fff);border:1px solid var(--line,#e5e8eb);border-radius:14px;padding:15px 16px">'
+            +'<div style="display:flex;align-items:center;gap:8px"><b style="font-size:15px">'+esc(st.name||'-')+'</b><span style="font-size:11.5px;color:var(--ink-mute)">'+esc(cmap[st.class_id]||'반 미배정')+(st.seat_no?(' · '+esc(st.seat_no)+'번'):'')+'</span>'
+            +'<span style="margin-left:auto;font-size:10.5px;font-weight:800;color:'+L[1]+';background:'+L[2]+';padding:3px 9px;border-radius:20px">'+L[0]+'</span></div>'
+            +'<div style="font-size:13.5px;font-weight:800;color:#1A237E;margin-top:9px;line-height:1.4">'+esc(x.title||'워크북')+'</div>'
+            +'<div style="font-size:11.5px;color:var(--ink-mute);margin-top:3px">시즌'+esc(x.season)+' · '+esc(x.week)+'주차'+(d?(' · '+(d.getMonth()+1)+'/'+d.getDate()+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2)+' 제출'):'')+'</div>'
+            +'<div style="display:flex;gap:8px;margin-top:12px"><button class="sr-view" data-i="'+i+'" style="flex:1;padding:9px;border:0;border-radius:10px;background:#eef1ff;color:#1A237E;font-weight:800;cursor:pointer">제출물 보기</button>'
+            +'<button class="sr-rep" data-i="'+i+'" style="flex:1;padding:9px;border:0;border-radius:10px;background:#D4AF37;color:#1A237E;font-weight:800;cursor:pointer">'+(x.report?'리포트 열기':'리포트 생성')+'</button></div></div>';
+        }).join('')+'</div>';
+      }
+      host.innerHTML=h;
+      var sc=host.querySelector('#sr-class'); if(sc) sc.onchange=function(){ fClass=sc.value; draw(); };
+      var ss=host.querySelector('#sr-stat'); if(ss) ss.onchange=function(){ fStat=ss.value; draw(); };
+      var rf=host.querySelector('#sr-refresh'); if(rf) rf.onclick=function(){ mountSchoolReview(host); };
+      host.querySelectorAll('.sr-view').forEach(function(b){ b.onclick=async function(){
+        var x=rows[+b.getAttribute('data-i')], st=smap[String(x.student_id)];
+        if(!(window.ArchePentaApp&&ArchePentaApp.openStudentWorkbook)){ alert('워크북 모듈 미로드'); return; }
+        window.__srPick={stage:x.stage,season:x.season,week:x.week};
+        try{ await ArchePentaApp.openStudentWorkbook(st.id, st.class_id||null); } finally { setTimeout(function(){ window.__srPick=null; },1500); }
+      }; });
+      host.querySelectorAll('.sr-rep').forEach(function(b){ b.onclick=async function(){
+        var x=rows[+b.getAttribute('data-i')], st=smap[String(x.student_id)];
+        if(!(window.ArchePentaApp&&ArchePentaApp.openReview)){ alert('리포트 모듈 미로드'); return; }
+        var a=null;
+        try{ var r=await sb.rpc('list_penta_assignments',{p_academy:acid,p_student:String(st.id)}); var ar=(r&&r.data)||[];
+          a=ar.filter(function(y){return y.stage===x.stage&&String(y.season)===String(x.season)&&String(y.week)===String(x.week);})[0]||null; }catch(e){}
+        if(!a){ a={stage:x.stage,level:x.level||'',season:x.season,week:x.week,title:x.title,theme:x.theme,status:x.status,content:null}; }
+        ArchePentaApp.openReview(a,{id:st.id,name:st.name,grade:st.grade||''});
+      }; });
+    }
+    draw();
+  }
+  window.mountSchoolReview=mountSchoolReview;
+
   function mountSubmitsView(host){
     var sbR=host.querySelector('#sb-review'), sbS=host.querySelector('#sb-send'), sbP=host.querySelector('#sb-period');
     var _mR=false, _mS=false, _mP=false;
-    function _showR(){ if(_mR||!sbR)return; if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(sbR,'staff',{onlyReview:true}); }catch(e){ sbR.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } } else sbR.innerHTML=phRaw('🔌','미연결','로그인 후 제출물이 표시됩니다.'); _mR=true; }
+    function _showR(){ if(_mR||!sbR)return; if(window._isSchool===true){ _mR=true; mountSchoolReview(sbR); return; } if(window.ArchePentaApp && window.sb){ try{ ArchePentaApp.mountRole(sbR,'staff',{onlyReview:true}); }catch(e){ sbR.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } } else sbR.innerHTML=phRaw('🔌','미연결','로그인 후 제출물이 표시됩니다.'); _mR=true; }
     function _showS(){ if(_mS||!sbS)return; if(window.ArcheParentHub && window.sb){ try{ ArcheParentHub.mountSend(sbS); }catch(e){ sbS.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } } else sbS.innerHTML=phRaw('🔌','미연결','로그인 후 이용하세요.'); _mS=true; }
     function _showP(){ if(_mP||!sbP)return; try{ mountPeriodMgmt(sbP); }catch(e){ sbP.innerHTML=phRaw('⚠️','로드 실패',(e&&e.message)||e); } _mP=true; }
     host.querySelectorAll('[data-sb]').forEach(function(t){ t.onclick=function(){
