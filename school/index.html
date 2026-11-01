@@ -21,12 +21,12 @@ body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:c
 </head><body>
 <div class="card">
   <div class="brand"><div class="mk">P</div><h1>펜타비전 학교</h1></div>
-  <div class="sub">교사 · 학생 · 관리자 로그인</div>
+  <div class="sub">교사 · 학생 · 학부모 · 관리자 로그인</div>
   <input class="inp" id="lg-id" placeholder="아이디 또는 이메일" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
   <input class="inp" id="lg-pw" type="password" placeholder="비밀번호" autocomplete="current-password">
   <button class="btn" id="lg-btn" onclick="doLogin()">로그인</button>
   <div id="lg-msg"></div>
-  <div class="hint">· 교사·학생: 발급받은 아이디로 로그인<br>· 관리자: 아이디(admin) 또는 이메일로 로그인<br>· 로그인 후 각자 화면으로 자동 이동합니다.</div>
+  <div class="hint">· 교사·학생: 발급받은 아이디로 로그인<br>· 학부모: 학교에서 안내한 학부모 아이디(학생 아이디 뒤에 p)로 로그인<br>· 관리자: 아이디(admin) 또는 이메일로 로그인<br>· 로그인 후 각자 화면으로 자동 이동합니다.</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
