@@ -2590,7 +2590,7 @@ async function guestSignup(){
     if(se){m.style.color='var(--risk)';m.textContent='자동 로그인 실패: '+se.message;btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';return;}
     /* [b2c 전용 운영] 체험 계정을 b2c로 전환하고 무조건 학부모(parent) 앱으로 진입 */
     try{ await sb.from('academies').update({account_type:'b2c'}).eq('owner_uid', sd.session.user.id); }catch(_e){}
-    location.replace('/parent');
+    location.replace(logoutHome());
   }catch(e){m.style.color='var(--risk)';m.textContent=String(e);btn.disabled=false;btn.textContent='체험 계정 발급 & 시작';}
 }
 function setupDemoMode(){
@@ -2679,7 +2679,10 @@ function pvMountMenuEngine(root, stu){
   });
 }
 /* [로그아웃 복귀지] 학부모·자녀는 학부모 전용 로그인(/parent)으로 복귀 */
-function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/parent'); }); }catch(e){ location.replace('/parent'); } }
+/* [로그아웃 복귀지] 학교 계정(교사·학생·학부모)은 /school, 그 외(가정용 학부모)는 /parent */
+function logoutHome(){ try{ if(window._isSchool===true) return '/school'; }catch(e){} return '/parent'; }
+window.logoutHome=logoutHome;
+function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace(logoutHome()); }); }catch(e){ location.replace(logoutHome()); } }
 window.sbSignOutReload=sbSignOutReload;
 
 function pvInjectCss(){
@@ -3549,7 +3552,7 @@ if(_gBtn) _gBtn.onclick=async()=>{
   var {error}=await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:redir, queryParams:{ prompt:'select_account' } } });
   if(error){ try{ localStorage.removeItem('_pv_oauth_acct'); }catch(_e){} msg('구글 로그인 실패: '+error.message+' (관리자: Supabase에서 Google 제공자 활성화 필요)'); }
 };
-document.getElementById('au-logout').onclick=async()=>{try{await sb.auth.signOut();}catch(e){}location.replace('/parent');};
+document.getElementById('au-logout').onclick=async()=>{try{await sb.auth.signOut();}catch(e){}location.replace(logoutHome());};
 /* 회원 탈퇴 — 상단 로그아웃과 분리해 페이지 맨 아래로 이동(실수 클릭 방지). 대상자에게만 표시 */
 (function(){ try{ if(document.getElementById('au-account-zone'))return; var z=document.createElement('div'); z.id='au-account-zone'; z.style.cssText='display:none;max-width:900px;margin:52px auto 30px;padding:18px 16px 0;text-align:center;border-top:1px solid var(--line)'; z.innerHTML='<button id="au-withdraw" onclick="selfWithdraw()" style="padding:9px 18px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ink-mute);font-size:12px;cursor:pointer">회원 탈퇴</button><div style="font-size:11px;color:var(--ink-mute);margin-top:8px">탈퇴 시 모든 정보가 영구 파기되며 되돌릴 수 없습니다.</div>'; document.body.appendChild(z); }catch(_e){} })();
 window.selfWithdraw=async function(){
@@ -3571,7 +3574,7 @@ window.selfWithdraw=async function(){
   }
   alert('탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.');
   try{ await sb.auth.signOut(); }catch(e){}
-  location.replace('/parent');
+  location.replace(logoutHome());
 };
 if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ window._sessionUid=data.session.user.id; enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } try{ if(window.ArcheGift) ArcheGift.checkUrl(); }catch(e){} });
 // 같은 브라우저 다중 로그인 감지 (탭 간 localStorage 공유로 계정이 뒤바뀌는 경우)
