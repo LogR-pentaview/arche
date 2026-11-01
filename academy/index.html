@@ -3133,7 +3133,10 @@ async function loadSchoolRoster(){
     var cl=await sb.from('academy_classes').select('id,name,grade_band').eq('academy_id',acid);
     var st=await sb.from('students').select('id,name,grade,class_id,seat_no').eq('academy_id',acid);
     var ac=await sb.from('student_accounts').select('student_id,login_id,must_change').eq('academy_id',acid);
+    var pr=null; try{ pr=await sb.from('parent_accounts').select('student_id,login_id').eq('academy_id',acid); }catch(e){}
     var classes=(cl.data||[]).slice(); var studs=st.data||[]; var accts={}; (ac.data||[]).forEach(function(a){ accts[a.student_id]=a; });
+    var paccts={}; ((pr&&pr.data)||[]).forEach(function(a){ paccts[a.student_id]=a; });
+    window._schAccts=accts; window._schPAccts=paccts; window._schStuds=studs;
     window._schClasses=classes;
     if(!studs.length && !classes.length){ host.innerHTML='<div style="color:var(--ink-mute);padding:14px;border:1px dashed var(--line);border-radius:12px">아직 등록된 학생이 없습니다. 위에서 엑셀을 업로드하세요.</div>'; return; }
     var sortedClasses=classes.slice().sort(function(a,b){ return String(a.name).localeCompare(String(b.name),'ko'); });
@@ -3151,18 +3154,24 @@ async function loadSchoolRoster(){
         var idbox=a? ('<span style="color:var(--safe,#1b64da);font-weight:700">'+esc(a.login_id)+'</span> <span style="color:var(--ink-mute);font-size:11px">· 비번 '+(a.must_change?'000000(미변경)':'변경됨')+'</span>')
                    : '<span style="color:var(--risk)">계정 없음</span>';
         var moveSel='<select title="반 이동" onchange="schoolMoveStudent(\''+s.id+'\',this.value)" style="padding:4px 6px;border:1px solid var(--line);border-radius:7px;font-size:11px;color:var(--ink-dim);background:#fff;font-family:inherit;max-width:110px">'+optsFor(s.class_id||null)+'</select>';
+        var pa=paccts[s.id];
+        var pbox = pa
+          ? '<span style="font-size:11.5px;color:#1A237E;white-space:nowrap">👪 <b>'+esc(pa.login_id)+'</b></span> <button onclick="schoolResetParentPw(\''+s.id+'\')" style="padding:4px 8px;background:transparent;border:1px solid var(--line);border-radius:7px;font-size:10.5px;color:var(--ink-mute);cursor:pointer">학부모 비번초기화</button>'
+          : (a ? '<button onclick="schoolIssueParent(\''+s.id+'\',this)" style="padding:5px 9px;background:transparent;border:1px solid #1A237E;border-radius:7px;font-size:11px;font-weight:700;color:#1A237E;cursor:pointer">👪 학부모 계정 발급</button>' : '');
         return '<div style="display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--line-soft);font-size:12.5px;flex-wrap:wrap">'
           +'<span style="width:26px;color:var(--ink-mute);font-size:11px;flex:none">'+esc(s.seat_no||'-')+'</span>'
           +'<b style="color:var(--ink);min-width:58px">'+esc(s.name||'-')+'</b>'
           +'<span style="flex:1;min-width:120px">'+idbox+'</span>'
+          +pbox
           +moveSel
           +(a?'<button onclick="schoolResetPw(\''+s.id+'\')" style="padding:5px 9px;background:transparent;border:1px solid var(--line);border-radius:7px;font-size:11px;color:var(--ink-mute);cursor:pointer">비번초기화</button>':'<button onclick="schoolIssueOne(\''+s.id+'\',this)" style="padding:5px 9px;background:var(--gold);color:#fff;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer">계정 발급</button>')
           +'<button onclick="delAllStudent(\''+s.id+'\')" style="padding:5px 9px;background:transparent;border:1px solid var(--line);border-radius:7px;font-size:11px;color:var(--ink-mute);cursor:pointer">삭제</button>'
         +'</div>';
       }).join('') || '<div style="padding:10px 12px;color:var(--ink-mute);font-size:12px">학생 없음 — 위 학생의 반 이동 드롭다운으로 배치하세요</div>';
-      var editBtn = G.id? '<button onclick="event.stopPropagation();schoolRenameClass(\''+G.id+'\')" title="반 이름 편집" style="margin-left:auto;padding:4px 9px;background:#fff;border:1px solid var(--line);border-radius:7px;font-size:11px;color:var(--ink-mute);cursor:pointer">✎ 이름</button>' : '';
+      var parBtn = G.list.length? '<button onclick="event.stopPropagation();schoolIssueParentsBulk(\''+(G.id||'')+'\',this)" title="이 반 학생 전원의 학부모 계정을 한 번에 발급하고 안내표(CSV)를 내려받습니다" style="margin-left:auto;padding:4px 9px;background:#fff;border:1px solid #1A237E;border-radius:7px;font-size:11px;font-weight:700;color:#1A237E;cursor:pointer">👪 학부모 계정 일괄 발급</button>' : '';
+      var editBtn = G.id? '<button onclick="event.stopPropagation();schoolRenameClass(\''+G.id+'\')" title="반 이름 편집" style="'+(parBtn?'':'margin-left:auto;')+'padding:4px 9px;background:#fff;border:1px solid var(--line);border-radius:7px;font-size:11px;color:var(--ink-mute);cursor:pointer">✎ 이름</button>' : '';
       return '<div style="margin-bottom:10px;border:1px solid var(--line);border-radius:12px;overflow:hidden">'
-        +'<div onclick="toggleFolder(\''+fid+'\')" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel-2);padding:11px 14px"><span id="arrow-'+fid+'" style="color:var(--gold,#3182f6)">▾</span><b style="color:var(--ink);font-size:13px">📁 '+esc(G.name)+'</b><span style="font-size:11px;color:var(--ink-mute)">'+G.list.length+'명</span>'+editBtn+'</div>'
+        +'<div onclick="toggleFolder(\''+fid+'\')" style="cursor:pointer;display:flex;align-items:center;gap:8px;background:var(--panel-2);padding:11px 14px"><span id="arrow-'+fid+'" style="color:var(--gold,#3182f6)">▾</span><b style="color:var(--ink);font-size:13px">📁 '+esc(G.name)+'</b><span style="font-size:11px;color:var(--ink-mute)">'+G.list.length+'명</span>'+parBtn+editBtn+'</div>'
         +'<div id="fold-'+fid+'" style="display:block">'+rowsHtml+'</div></div>';
     }).join('');
     host.innerHTML=out;
@@ -3210,6 +3219,62 @@ async function schoolIssueOne(sid,btn){
   }catch(e){ alert('발급 오류: '+((e&&e.message)||e)); if(btn){ btn.disabled=false; btn.textContent='계정 발급'; btn.style.opacity='1'; } }
 }
 window.schoolIssueOne=schoolIssueOne;
+
+/* [학교용] 학부모 계정 발급 — 학생 아이디 + 'p' (초기 비밀번호 000000). 학부모는 /parent 에서 로그인 */
+async function _schCallParent(sid,action){
+  var sess=(await sb.auth.getSession()).data.session; if(!sess) throw new Error('로그인이 필요합니다.');
+  var r=await fetch(SB_URL+'/functions/v1/create-parent',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+sess.access_token},body:JSON.stringify(action?{student_id:sid,action:action}:{student_id:sid})});
+  return await r.json();
+}
+async function schoolIssueParent(sid,btn){
+  if(!sb||!sid) return;
+  if(btn){ btn.disabled=true; btn.textContent='발급 중…'; btn.style.opacity='.6'; }
+  try{
+    var d=await _schCallParent(sid);
+    if(d&&d.need_student){ alert('먼저 학생 계정을 발급해 주세요.'); }
+    else if(d&&d.error){ alert('학부모 계정 발급 실패: '+d.error); }
+    else if(d&&d.existed){ alert('이미 발급된 계정입니다.\n학부모 아이디: '+d.login_id); }
+    else if(d&&d.ok){ alert('학부모 계정 발급 완료 🎉\n학부모 아이디: '+d.login_id+'\n초기 비밀번호: '+(d.pw||'000000')+'\n\n학부모님은 학부모 로그인 화면(/parent)에서 이 아이디로 접속하면 자녀 전용 화면이 열립니다.'); }
+  }catch(e){ alert('발급 오류: '+((e&&e.message)||e)); }
+  loadSchoolRoster();
+}
+window.schoolIssueParent=schoolIssueParent;
+async function schoolResetParentPw(sid){
+  if(!sb||!sid) return; if(!confirm('학부모 비밀번호를 000000 으로 초기화할까요?')) return;
+  try{ var d=await _schCallParent(sid,'reset_pw'); if(d.error) return alert('실패: '+d.error); alert('학부모 비밀번호 초기화 완료\n아이디: '+(d.login_id||'-')+'\n초기 비밀번호: '+(d.pw||'000000')); }
+  catch(e){ alert('초기화 오류: '+((e&&e.message)||e)); }
+}
+window.schoolResetParentPw=schoolResetParentPw;
+/* 반 단위 일괄 발급 + 안내표(CSV) 다운로드. classId 가 빈 문자열이면 '미배정' 학생 */
+async function schoolIssueParentsBulk(classId,btn){
+  if(!sb) return;
+  var studs=(window._schStuds||[]).filter(function(s){ return (s.class_id||'')===(classId||''); });
+  var accts=window._schAccts||{}, paccts=window._schPAccts||{};
+  var targets=studs.filter(function(s){ return accts[s.id]; });
+  if(!targets.length){ alert('학생 계정이 발급된 학생이 없습니다. 먼저 학생 계정을 발급해 주세요.'); return; }
+  var todo=targets.filter(function(s){ return !paccts[s.id]; });
+  if(!todo.length){ alert('이 반 학생의 학부모 계정은 모두 발급되어 있습니다.'); return; }
+  if(!confirm('이 반 '+targets.length+'명 중 학부모 계정이 없는 '+todo.length+'명에게 발급합니다.\n(이미 발급된 학부모는 건너뜁니다)\n\n진행할까요?')) return;
+  var cname=''; try{ var c=(window._schClasses||[]).filter(function(x){return x.id===classId;})[0]; cname=c?c.name:'미배정'; }catch(e){}
+  var rows=[['반','번호','학생이름','학생아이디','학부모아이디','초기비밀번호(학부모)','비고']], ok=0, ex=targets.length-todo.length, fail=0;
+  if(btn){ btn.disabled=true; btn.style.opacity='.6'; }
+  for(var i=0;i<todo.length;i++){
+    var s=todo[i]; if(btn) btn.textContent='발급 중 '+(i+1)+'/'+todo.length;
+    try{
+      var d=await _schCallParent(s.id);
+      if(d&&d.ok&&d.existed){ ex++; rows.push([cname,s.seat_no||'',s.name,accts[s.id].login_id,d.login_id,'(기존 계정·변경 여부 확인)','기존']); }
+      else if(d&&d.ok){ ok++; rows.push([cname,s.seat_no||'',s.name,accts[s.id].login_id,d.login_id,d.pw||'000000','신규']); }
+      else { fail++; rows.push([cname,s.seat_no||'',s.name,accts[s.id].login_id,'','', '실패: '+((d&&d.error)||'')]); }
+    }catch(e){ fail++; rows.push([cname,s.seat_no||'',s.name,accts[s.id].login_id,'','','실패']); }
+  }
+  try{
+    var csv='\uFEFF'+rows.map(function(r){ return r.map(function(x){ x=String(x==null?'':x); return /[",\n]/.test(x)?('"'+x.replace(/"/g,'""')+'"'):x; }).join(','); }).join('\r\n');
+    var a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})); a.download='학부모계정안내_'+cname.replace(/\s+/g,'')+'.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
+  }catch(e){}
+  alert('학부모 계정 발급 완료\n신규 '+ok+'명 · 기존 '+ex+'명'+(fail?(' · 실패 '+fail+'명'):'')+'\n\n안내표(CSV)가 내려받아졌습니다. 초기 비밀번호는 000000 이며 첫 로그인 후 변경하도록 안내해 주세요.');
+  loadSchoolRoster();
+}
+window.schoolIssueParentsBulk=schoolIssueParentsBulk;
 
 /* ===================== [학교용] 설정: ①비밀번호 변경 ②내 계정·학교 정보(+로그아웃) ③학기말 데이터 관리 ===================== */
 async function renderSchoolSettings(){
