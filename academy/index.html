@@ -2523,6 +2523,13 @@ var ACAD_TUT={
     {ic:'📊',ttl:'3. 월간 분석표 · 학원 소식',body:'학원이 보내준 <b>월간 분석 리포트</b>와 <b>소식·시간표·새 강좌</b> 안내를 받아봅니다.'},
     {ic:'✅',ttl:'준비 완료!',body:'언제든 우측 하단 <b>❓ 사용 안내</b>로 다시 볼 수 있어요.',final:true}
   ]},
+  student_school:{label:'학생 사용 안내',steps:[
+    {ic:'🦉',ttl:'반가워요! 수업 화면이에요',body:'정답을 외우는 게 아니라 <b>내 생각을 만드는</b> 시간이에요. 선생님이 수업을 열면 이곳에서 함께 시작해요.'},
+    {ic:'📖',ttl:'1. 수업 워크북',body:'왼쪽 <b>수업 워크북</b>에서 선생님이 연 차시를 눌러 <b>워크북 열기</b>를 누르세요.'},
+    {ic:'✍️',ttl:'2. 직접 써요',body:'칸마다 내 생각을 <b>직접</b> 적어요. 정답은 없어요. 다 쓰면 <b>제출</b>을 눌러요.'},
+    {ic:'🙋',ttl:'3. 막히면',body:'모르겠으면 선생님께 손을 들어 보세요. 선생님 화면에서 내 진행 상황이 보여요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'궁금하면 우측 하단 <b>❓ 사용 안내</b>를 다시 볼 수 있어요.',final:true}
+  ]},
   student:{label:'학생 사용 안내',steps:[
     {ic:'🦉',ttl:'반가워요! 내 학습 화면이에요',body:'정답을 외우는 게 아니라 <b>내 생각을 만드는</b> 곳이에요. 스스로 해내는 힘을 길러요.'},
     {ic:'🏠',ttl:'1. 내 대시보드',body:'선생님이 보내준 <b>과제와 코스</b>가 홈에 모여요. 오늘 할 학습을 여기서 시작해요.'},
@@ -2562,7 +2569,7 @@ function acadTutorial(role, force){
   document.body.appendChild(ov); render();
 }
 window.acadTutorial=acadTutorial;
-function acadCurRole(){ if(window._role==='parent')return 'parent'; if(window._role==='stu')return 'student'; return (window._isOwner===true?'owner':'staff'); }
+function acadCurRole(){ if(window._role==='parent')return 'parent'; if(window._role==='stu')return (window._isSchool===true?'student_school':'student'); return (window._isOwner===true?'owner':'staff'); }
 function acadHelpButton(){
   if(document.getElementById('acad-help-fab')) return;
   var b=document.createElement('button'); b.id='acad-help-fab'; b.type='button';
@@ -3685,7 +3692,7 @@ async function enterStudentApp(session){
   var me=sd&&sd[0];
   if(me){ window._activeStudent=me; if(me.academy_id)window._acadId=me.academy_id; document.getElementById('acadname').textContent=(me.name||'학생'); var _az=document.getElementById('au-account-zone'); if(_az)_az.style.display='block'; }
   // 학년 레벨 판별: 초(융합만) / 중(고입+융합) / 고(대입)
-  var lvl=(function(){ var g=(me&&me.grade)||''; if(g.indexOf('초')>=0)return '초'; if(g.indexOf('중')>=0)return '중'; return '고'; })();
+  var lvl=(function(){ var g=(me&&me.grade)||''; if(window._isSchool===true)return '초'; /* [학교용] 학교 학생은 학년 표기('1학년'/빈칸)와 무관하게 수업 워크북 전용 화면 — 대입·고입 컨설팅 메뉴 노출 방지 */ if(g.indexOf('초')>=0)return '초'; if(g.indexOf('중')>=0)return '중'; return '고'; })();
   window._stuLevel=lvl;
   var isGoip=(lvl==='중');
   window._stuTrack=isGoip?'goip':'dae';
@@ -3748,7 +3755,21 @@ async function enterStudentApp(session){
   }
   try{ initNavAccordion(); }catch(e){}
   var h=document.querySelector('.nav[data-v="home"]'); if(h){ try{ expandGroupOfNav(h); }catch(e){} go(h); }
-  try{ acadHelpButton(); setTimeout(function(){ acadTutorial('student'); },500); }catch(e){}
+  if(window._isSchool===true){
+    /* [학교용] 학생: 컨설팅 홈·진단류 메뉴를 숨기고 '수업 워크북'으로 바로 진입 */
+    try{
+      if(h)h.style.display='none';
+      /* 다른 코드가 display를 되돌려도 유지되도록 CSS로 고정 */
+      document.body.classList.add('school-stu');
+      try{ var _pv=document.getElementById('v-penta'); if(_pv){ var _e=_pv.querySelector('.eyebrow'),_h=_pv.querySelector('.h1'),_s=_pv.querySelector('.sub'); if(_e)_e.textContent='Class · 수업'; if(_h)_h.textContent='수업 워크북'; if(_s)_s.textContent='선생님이 연 차시를 열어 직접 작성하고 [제출]하세요.'; } }catch(e){}
+      if(!document.getElementById('school-stu-css')){ var _st=document.createElement('style'); _st.id='school-stu-css'; _st.textContent='body.school-stu .nav[data-v="home"],body.school-stu #grp-dae,body.school-stu #grp-goip,body.school-stu #nav-studyplan{display:none!important}body.school-stu #grp-penta .nav[data-v="penta"] span{display:none}'; document.head.appendChild(_st); }
+      ['intake','gintake','diag','gdiag','arche','curri','roadmap','sr','perf','iv','report','goip','greport','groadmap','gdesign','gperf','ginterview','gessay','gconsult','gstudents'].forEach(function(v){ var n=document.querySelector('.nav[data-v="'+v+'"]'); if(n)n.style.display='none'; });
+      var _gD2=document.getElementById('grp-dae'), _gG2=document.getElementById('grp-goip'); if(_gD2)_gD2.style.display='none'; if(_gG2)_gG2.style.display='none';
+      var _wb=null; document.querySelectorAll('#grp-penta .nav[data-v=penta]').forEach(function(n){ if(!_wb && n.style.display!=='none') _wb=n; });
+      if(_wb){ try{ expandGroupOfNav(_wb); }catch(e){} _wb.click(); }
+    }catch(e){}
+  }
+  try{ acadHelpButton(); setTimeout(function(){ acadTutorial(window._isSchool===true?'student_school':'student'); },500); }catch(e){}
 }
 function renderStudentHome(){
   var v=document.getElementById('v-home'); if(!v)return;
