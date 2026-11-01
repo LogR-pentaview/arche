@@ -2523,6 +2523,14 @@ var ACAD_TUT={
     {ic:'📊',ttl:'3. 월간 분석표 · 학원 소식',body:'학원이 보내준 <b>월간 분석 리포트</b>와 <b>소식·시간표·새 강좌</b> 안내를 받아봅니다.'},
     {ic:'✅',ttl:'준비 완료!',body:'언제든 우측 하단 <b>❓ 사용 안내</b>로 다시 볼 수 있어요.',final:true}
   ]},
+  school_teacher:{label:'교사 사용 안내',steps:[
+    {ic:'🏫',ttl:'펜타비전 학교용 수업 엔진에 오신 걸 환영합니다',body:'워크북 편성부터 실시간 관제, 제출물 확인까지 수업에 필요한 흐름을 한 곳에서 진행해요.'},
+    {ic:'👩‍🎓',ttl:'1. 학생 등록·관리',body:'<b>학생 등록·관리</b>에서 엑셀(이름·학년·반·번호)로 한 번에 등록하면 <b>로그인 아이디가 자동 발급</b>돼요.'},
+    {ic:'📚',ttl:'2. 코스웨어 — 차시 편성',body:'<b>코스웨어</b>에서 학급별로 <b>15회 차시</b>를 담고, 수업할 차시를 <b>수업 개방</b>하면 학생 화면에 열려요.'},
+    {ic:'🖥️',ttl:'3. 실시간 관제',body:'<b>실시간 관제</b>에서 학생별 작성 진행·정체·성찰 신호를 한눈에 보고, <b>라이브 판서</b>로 수업을 이어가요.'},
+    {ic:'📝',ttl:'4. 학생 제출물',body:'<b>학생 제출물</b>에서 제출 워크북을 확인하고 피드백해요. 학기말에는 <b>설정</b>에서 학생 데이터를 파기할 수 있어요.'},
+    {ic:'✅',ttl:'준비 완료!',body:'언제든 우측 하단 <b>❓ 사용 안내</b>로 다시 볼 수 있어요.',final:true,go:'live',goLabel:'실시간 관제로'}
+  ]},
   student_school:{label:'학생 사용 안내',steps:[
     {ic:'🦉',ttl:'반가워요! 수업 화면이에요',body:'정답을 외우는 게 아니라 <b>내 생각을 만드는</b> 시간이에요. 선생님이 수업을 열면 이곳에서 함께 시작해요.'},
     {ic:'📖',ttl:'1. 수업 워크북',body:'왼쪽 <b>수업 워크북</b>에서 선생님이 연 차시를 눌러 <b>워크북 열기</b>를 누르세요.'},
@@ -2569,7 +2577,7 @@ function acadTutorial(role, force){
   document.body.appendChild(ov); render();
 }
 window.acadTutorial=acadTutorial;
-function acadCurRole(){ if(window._role==='parent')return 'parent'; if(window._role==='stu')return (window._isSchool===true?'student_school':'student'); return (window._isOwner===true?'owner':'staff'); }
+function acadCurRole(){ if(window._role==='parent')return 'parent'; if(window._role==='stu')return (window._isSchool===true?'student_school':'student'); return (window._isSchool===true?'school_teacher':(window._isOwner===true?'owner':'staff')); }
 function acadHelpButton(){
   if(document.getElementById('acad-help-fab')) return;
   var b=document.createElement('button'); b.id='acad-help-fab'; b.type='button';
@@ -2940,6 +2948,23 @@ function applySchoolConsentLabels(){
 }
 window.applySchoolConsentLabels=applySchoolConsentLabels;
 
+/* [학교용] 화면 브랜딩: 학원(아르케·입시 컨설팅) 로고·문구를 학교 전용(펜타비전 · 학교용 수업 엔진)으로 교체 — 교사·학생 공통 */
+function applySchoolBrand(){
+  try{
+    document.title='펜타비전 · 학교';
+    var lg=document.querySelector('.brand .logo'); if(lg){ lg.innerHTML='PENTAVIEW<b>.</b>'; lg.style.fontSize='24px'; lg.style.letterSpacing='.01em'; }
+    var tg=document.querySelector('.brand .tag'); if(tg) tg.textContent='학교용 수업 엔진';
+    var cr=document.getElementById('topbar-crumbs'); if(cr && cr.firstChild && cr.firstChild.nodeType===3) cr.firstChild.nodeValue='펜타비전 · ';
+    try{ if(typeof crumbMap!=='undefined'){ crumbMap.home='학교 홈'; } }catch(e){}
+    var cc=document.getElementById('crumb'); if(cc && cc.textContent==='컨설팅 홈') cc.textContent='학교 홈';
+    var nm=(window._schoolName)||((window._academy&&window._academy.name)||'');
+    var foot=document.querySelector('.side .foot'); if(foot){ var av=foot.querySelector('.avatar'); if(av) av.style.display='none'; var who=foot.querySelector('.who'); if(who) who.textContent=nm||'학교'; }
+    var fab=document.getElementById('acad-help-fab'); if(fab) fab.textContent='❓ 사용 안내';
+    var pwa=document.getElementById('pwa-install'); if(pwa){ pwa.innerHTML=pwa.innerHTML.replace(/아르케/g,'펜타비전'); }
+  }catch(e){ try{ console.warn('applySchoolBrand',e); }catch(_){} }
+}
+window.applySchoolBrand=applySchoolBrand;
+
 /* [학교용] account_type='school' 교사(원장) 로그인 시 입시 컨설팅 화면을 감추고 학교용(워크북·관제·제출물·학생관리)으로 정리 — school 모드에서만 */
 function applySchoolMode(){
   function qcard(v,ic,t,d){ return '<div onclick="goView(\''+v+'\')" style="cursor:pointer;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px;transition:.15s"><div style="font-size:22px">'+ic+'</div><div style="font-weight:800;font-size:14px;margin-top:6px;color:var(--ink)">'+t+' →</div><div style="font-size:12px;color:var(--ink-mute);margin-top:3px;line-height:1.5">'+d+'</div></div>'; }
@@ -2950,7 +2975,10 @@ function applySchoolMode(){
     document.querySelectorAll('.navlabel').forEach(function(l){ var t=(l.textContent||'').trim(); if(t==='원장 대시보드') l.style.display='none'; else if(t==='컨설팅') l.textContent='홈'; });
     var _hn=document.querySelector('.nav[data-v="home"]'); if(_hn){ _hn.innerHTML=_hn.innerHTML.replace('컨설팅 홈','학교 홈'); }
     var _an=document.querySelector('.nav[data-v="allstudents"] .nav-lbl'); if(_an) _an.textContent='학생 등록·관리';
-    var _lg=document.querySelector('.brand .tag'); if(_lg) _lg.textContent='PentaView · 학교용 수업 엔진';
+    applySchoolBrand();
+    /* 항목이 모두 숨겨진 빈 섹션 라벨 정리 + 입시용 학생 표(1지망·진로·프로파일) 숨김 */
+    document.querySelectorAll('.navlabel').forEach(function(l){ var t=(l.textContent||'').replace(/\s+/g,'').trim(); if(t==='본사소식'||t==='구독·결제'||t==='워크북') l.style.display='none'; });
+    try{ var _tb=document.querySelector('#v-home table'); if(_tb){ var _bx=_tb.closest('.card')||_tb.parentNode; if(_bx) _bx.style.display='none'; } }catch(e){}
     ['trackseg','grp-dae','grp-goip'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
     // 1-b) '학원 운영·마케팅' 섹션 전체는 학교에 불필요 → 섹션 라벨까지 숨김
     document.querySelectorAll('.navlabel').forEach(function(l){ if(l.textContent && l.textContent.indexOf('학원 운영')>=0) l.style.display='none'; });
@@ -3405,7 +3433,7 @@ async function enterApp(session){
     if(_fn){ try{ expandGroupOfNav(_fn); }catch(e){} go(_fn); }
   }catch(e){}
   // 시작 튜터리얼 + 사용안내 버튼
-  if(!window._isSchool){ try{ acadHelpButton(); setTimeout(function(){ acadTutorial(window._isOwner===true?'owner':'staff'); },500); }catch(e){} }
+  try{ acadHelpButton(); setTimeout(function(){ acadTutorial(window._isSchool?'school_teacher':(window._isOwner===true?'owner':'staff')); },500); }catch(e){}
 }
 /* ===== 게스트 체험 모드 ===== */
 var DEMO_TASK_LABEL={parse_record:'학생 자료 파싱',estimate_cog:'역량 진단',recommend_univ:'대학 추천',research_topics:'탐구주제',curri_check:'이수과목 검증',course_roadmap:'선택과목 로드맵',design_record:'진로 징검다리',analyze_activity:'활동 분석',report_comment:'리포트 코멘트',interview_prep:'면접 문항',interview_feedback:'면접 피드백',golden_sentences:'황금문장 정제',career_match:'진로·학과 매칭',monthly_brief:'월간 브리핑'};
@@ -3476,7 +3504,10 @@ async function enterParentViewer(session){
   pvRenderDashboard(root, stu);
   try{ acadHelpButton(); setTimeout(function(){ acadTutorial('parent'); },500); }catch(e){}
 }
-function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace('/login'); }); }catch(e){ location.replace('/login'); } }
+/* [로그아웃 복귀지] 로그인했던 포털로 돌아감 — 학교(교사·학생)→/school, 학부모(b2c)→/parent, 그 외 학원→/login */
+function logoutHome(){ try{ if(window._isSchool===true)return '/school'; if(window._isB2C===true)return '/parent'; }catch(e){} return '/login'; }
+window.logoutHome=logoutHome;
+function sbSignOutReload(){ try{ sb.auth.signOut().then(function(){ location.replace(logoutHome()); }); }catch(e){ location.replace(logoutHome()); } }
 window.sbSignOutReload=sbSignOutReload;
 
 function pvInjectCss(){
@@ -3682,7 +3713,7 @@ window.enterParentViewer=enterParentViewer;
 async function enterStudentApp(session){
   try{ window._myUid=session.user.id; }catch(e){}
   /* [학교용] 학생 소속 학교(account_type='school') 감지 → 동의 게이트 문구 분기 (학원·학부모 학생은 false) */
-  try{ var _sp=await sb.from('students').select('academy_id').limit(1); var _said=_sp&&_sp.data&&_sp.data[0]&&_sp.data[0].academy_id; if(_said){ var _sac=await sb.from('academies').select('account_type').eq('id',_said).limit(1); window._isSchool=!!(_sac&&_sac.data&&_sac.data[0]&&_sac.data[0].account_type==='school'); } }catch(e){}
+  try{ var _sp=await sb.from('students').select('academy_id').limit(1); var _said=_sp&&_sp.data&&_sp.data[0]&&_sp.data[0].academy_id; if(_said){ var _sac=await sb.from('academies').select('account_type,name').eq('id',_said).limit(1); window._isSchool=!!(_sac&&_sac.data&&_sac.data[0]&&_sac.data[0].account_type==='school'); if(window._isSchool){ window._schoolName=_sac.data[0].name||''; } } }catch(e){}
   window._pentaSchool=(window._isSchool===true); /* [학교 B2G] 학생 세션: 심화→45분 학교버전 서빙 스위치 */
   if(!(await ensureConsent(session.user,'student'))){ return; }
   gate.style.display='none';
@@ -3756,6 +3787,7 @@ async function enterStudentApp(session){
   try{ initNavAccordion(); }catch(e){}
   var h=document.querySelector('.nav[data-v="home"]'); if(h){ try{ expandGroupOfNav(h); }catch(e){} go(h); }
   if(window._isSchool===true){
+    try{ applySchoolBrand(); }catch(e){}
     /* [학교용] 학생: 컨설팅 홈·진단류 메뉴를 숨기고 '수업 워크북'으로 바로 진입 */
     try{
       if(h)h.style.display='none';
@@ -3885,7 +3917,7 @@ document.getElementById('au-signup').onclick=async()=>{
   if(data.session) enterApp(data.session);
   else { auMsg.style.color='var(--safe)'; auMsg.innerHTML='확인 메일을 보냈습니다. 인증 후 로그인하세요.<br><span style="color:var(--gold,#3182f6);font-size:11.5px;line-height:1.5">⚠️ 인증 메일은 Supabase(해외 서버)에서 발송됩니다. 메일이 안 보이면 <b>스팸함·프로모션함</b>을 꼭 확인하세요.</span>'; }
 };
-document.getElementById('au-logout').onclick=async()=>{await sb.auth.signOut();location.replace('/login');};
+document.getElementById('au-logout').onclick=async()=>{var _lh=logoutHome();try{await sb.auth.signOut();}catch(e){}location.replace(_lh);};
 /* 회원 탈퇴 — 상단 로그아웃과 분리해 페이지 맨 아래로 이동(실수 클릭 방지). 학생 활성 시에만 표시 */
 (function(){ try{ if(document.getElementById('au-account-zone'))return; var z=document.createElement('div'); z.id='au-account-zone'; z.style.cssText='display:none;max-width:900px;margin:52px auto 30px;padding:18px 16px 0;text-align:center;border-top:1px solid var(--line)'; z.innerHTML='<button id="au-withdraw" onclick="selfWithdraw()" style="padding:9px 18px;background:transparent;border:1px solid var(--line);border-radius:8px;color:var(--ink-mute);font-size:12px;cursor:pointer">회원 탈퇴</button><div style="font-size:11px;color:var(--ink-mute);margin-top:8px">탈퇴 시 성적·리포트 등 모든 정보가 영구 파기되며 되돌릴 수 없습니다.</div>'; document.body.appendChild(z); }catch(_e){} })();
 window.selfWithdraw=async function(){
@@ -3895,8 +3927,8 @@ window.selfWithdraw=async function(){
   if(!confirm('마지막 확인입니다.\n탈퇴 후에는 어떤 정보도 되돌릴 수 없습니다. 진행할까요?'))return;
   try{ await purgeStudentReq(s.id); }catch(e){ alert('탈퇴 처리 실패: '+(e.message||e)); return; }
   alert('탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.');
-  try{ await sb.auth.signOut(); }catch(e){}
-  location.replace('/login');
+  var _lh2=logoutHome(); try{ await sb.auth.signOut(); }catch(e){}
+  location.replace(_lh2);
 };
 if(sb) sb.auth.getSession().then(({data})=>{ if(data.session){ window._sessionUid=data.session.user.id; enterApp(data.session); if(window.handleBillingRedirect)setTimeout(handleBillingRedirect,800); } });
 // 같은 브라우저 다중 로그인 감지 (탭 간 localStorage 공유로 계정이 뒤바뀌는 경우)
