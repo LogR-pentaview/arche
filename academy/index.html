@@ -1258,12 +1258,14 @@
       <section class="view" id="v-ginterview">
         <div class="eyebrow">GOIP · Interview Prep</div>
         <div class="h1">고입 면접 준비</div>
-        <div class="sub">지원 학교를 선택하면 그 학교의 면접 형태·기출 경향과 학생 학생 자료를 결합해 예상 문항을 생성합니다. 과학고·영재학교는 제공하지 않습니다.</div>
+        <div class="sub">학생과 지원 학교를 선택하면 그 학교의 면접 형태와 해당 학생의 자소서·생기부를 결합해 학생별 예상 문항을 생성합니다. 과학고·영재학교는 제공하지 않습니다.</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
-          <select id="giv-school" class="goip-con-only" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 지원 학교 선택 —</option></select>
+          <select id="giv-student" class="goip-con-only" onchange="givSelectStudent(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:180px"><option value="">— 학생 선택 —</option></select>
+          <select id="giv-school" class="goip-con-only" onchange="givSelectSchool()" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 지원 학교 선택 —</option></select>
           <button class="btn goip-con-only" onclick="runGInterview()">예상 문항 생성</button>
           <span id="giv-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
+        <div id="giv-essay-status" class="goip-con-only" style="font-size:12px;margin-top:8px;color:var(--ink-mute)"></div>
         <div id="giv-result" style="margin-top:16px"></div>
       </section>
 
@@ -10062,22 +10064,27 @@ window.renderGInterview=async function(){
   }
   var ss=document.getElementById('giv-school');
   if(ss){
-    var pref=window._gactive&&window._gactive.target_school?window._gactive.target_school:'';
+    var pref=ss.value||(window._gactive&&window._gactive.target_school?window._gactive.target_school:'');
     var list=(window._gesSchools||[]).filter(function(x){return x.school_type!=='과학고'&&x.school_type!=='영재학교';});
     ss.innerHTML='<option value="">— 지원 학교 선택 —</option>'+list.map(function(x){return '<option value="'+esc(x.name)+'"'+(x.name===pref?' selected':'')+'>'+esc(x.name)+' ('+esc(x.school_type)+')</option>';}).join('');
   }
+  var sst=document.getElementById('giv-student');
+  if(sst){ var _cid=window._gactive?window._gactive.id:''; sst.innerHTML='<option value="">— 학생 선택 —</option>'+(window._gstudents||[]).map(function(x){return '<option value="'+x.id+'"'+(x.id===_cid?' selected':'')+'>'+esc(x.name||'-')+(x.grade?' ('+esc(x.grade)+')':'')+'</option>';}).join(''); sst.value=_cid; }
   var box=document.getElementById('giv-result');
-  if(!window._gactive){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">탑바에서 학생을 먼저 선택하세요.</div>';window._gIvCur=null;return;}
+  if(!window._gactive){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">위에서 학생을 먼저 선택하세요.</div>';window._gIvCur=null;try{givUpdateEssayStatus();}catch(e){}return;}
+  try{ givUpdateEssayStatus(); }catch(e){}
   // 진행중 세트 우선, 없으면 최신
   var cur=null;
   try{
-    var a=await sb.from('goip_interviews').select('*').eq('student_id',window._gactive.id).neq('status','done').order('created_at',{ascending:false}).limit(1);
+    var _cs=(document.getElementById('giv-school')||{}).value||'';   // 선택한 지원 학교의 세트만 (학생×학교 매칭)
+    var qa=sb.from('goip_interviews').select('*').eq('student_id',window._gactive.id); if(_cs)qa=qa.eq('school_name',_cs);
+    var a=await qa.neq('status','done').order('created_at',{ascending:false}).limit(1);
     if(a.data&&a.data[0])cur=a.data[0];
-    if(!cur){var b=await sb.from('goip_interviews').select('*').eq('student_id',window._gactive.id).order('created_at',{ascending:false}).limit(1); if(b.data&&b.data[0])cur=b.data[0];}
+    if(!cur){var qb=sb.from('goip_interviews').select('*').eq('student_id',window._gactive.id); if(_cs)qb=qb.eq('school_name',_cs); var b=await qb.order('created_at',{ascending:false}).limit(1); if(b.data&&b.data[0])cur=b.data[0];}
   }catch(e){}
   window._gIvCur=cur;
   if(!cur||!cur.result){
-    box.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._role==='stu'?'아직 선생님이 면접 문항을 준비하지 않았습니다.':'지원 학교를 선택하고 [예상 문항 생성]을 누르세요.')+'</div>';
+    box.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._role==='stu'?'아직 선생님이 면접 문항을 준비하지 않았습니다.':(window._gactive.name+' 학생의 '+(((document.getElementById('giv-school')||{}).value)||'지원 학교')+' 면접 문항이 아직 없습니다. 학교를 선택하고 [예상 문항 생성]을 누르세요.'))+'</div>';
     return;
   }
   if(window._role==='stu'&&(cur.status||'draft')==='draft'){
@@ -10188,6 +10195,30 @@ async function gIvDelete(){
   var {error}=await sb.from('goip_interviews').delete().eq('id',rec.id);
   if(!error)renderGInterview();
 }
+/* 학생 선택(화면 내) — 같은 학교를 지원한 여러 학생도 각자의 자소서로 문항이 만들어지도록 학생×학교 단위로 동작 */
+window.givSelectStudent=function(id){
+  var s=(window._gstudents||[]).find(function(x){return x.id===id;});
+  window._gactive=s||null; window._gIvCur=null;
+  var ss=document.getElementById('giv-school'); if(ss)ss.value='';   // 학생의 목표학교로 다시 선택
+  try{ if(window.renderIVIntake)renderIVIntake('goip'); }catch(e){}
+  try{ fillGoipPickers(); }catch(e){}
+  try{ if(window._topbarMode==='goip'){var td=document.getElementById('topbar-student'); if(td&&s)td.value=s.id;} }catch(e){}
+  renderGInterview();
+};
+window.givSelectSchool=function(){ window._gIvCur=null; renderGInterview(); };
+async function givUpdateEssayStatus(){
+  var el=document.getElementById('giv-essay-status'); if(!el)return;
+  var s=window._gactive, sch=(document.getElementById('giv-school')||{}).value||'';
+  if(!s||!sch){ el.textContent=''; return; }
+  try{
+    var r=await sb.from('goip_essay_drafts').select('q_no,draft').eq('student_id',s.id).eq('school_name',sch);
+    var set={}; (r.data||[]).forEach(function(d){ if(d.draft&&String(d.draft).trim()) set[d.q_no]=1; });
+    var n=Object.keys(set).length;
+    el.style.color=n?'var(--safe)':'var(--ink-mute)';
+    el.textContent='✍️ '+s.name+' · '+sch+' 자소서 초안 저장 '+n+'문항'+(n?'':' — 자소서 기반 면접 학교(고양외고·김포외고 등)는 자소서 초안을 먼저 저장해야 문항이 생성됩니다.');
+  }catch(e){ el.textContent=''; }
+}
+window.givUpdateEssayStatus=givUpdateEssayStatus;
 async function runGInterview(){
   var m=document.getElementById('giv-msg'),box=document.getElementById('giv-result');
   var s=window._gactive; if(!s){m.style.color='var(--risk)';m.textContent='학생을 선택하세요.';return;}
@@ -10207,9 +10238,10 @@ async function runGInterview(){
   try{
     var r=await sb.functions.invoke('arche-goip',{body:{task:'goip_interview',payload:{school_name:school,career:s.career||ctx.career,grade:s.grade||ctx.grade,record_text:ctx.record,student_id:s.id}}});
     var data=r.data,error=r.error;
+    if(error&&!data&&error.context&&typeof error.context.json==='function'){ try{ data=await error.context.clone().json(); }catch(_e1){ try{ data=await error.context.json(); }catch(_e2){} } }
     if(error||!data||data.error){
       m.style.color='var(--risk)';
-      m.textContent=(data&&data.need_essay)?('✍️ 이 학교는 자소서 기반 면접입니다. 자소서 '+(data.need_questions||'전체')+'개 문항의 초안을 먼저 입력·저장한 뒤 다시 생성해 주세요. (고입 > 자소서 메뉴)'):esc((data&&data.error)||(error&&error.message)||'생성 실패');
+      m.textContent=(data&&data.need_essay)?('✍️ '+s.name+' 학생의 '+school+' 자소서 초안이 아직 부족합니다. 자소서 '+(data.need_questions||'전체')+'개 문항을 모두 입력·저장한 뒤 다시 생성해 주세요. (고입 > 자소서 메뉴)'):esc((data&&data.error)||(error&&error.message)||'생성 실패');
       return;
     }
     m.style.color='var(--safe)';m.textContent='생성 완료'+(data.has_dedicated_data?' (전용 면접 자료 반영)':' (입시요강 기반)')+' — 검토 후 [학생에게 전달]을 누르세요.';
