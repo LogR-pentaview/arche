@@ -6,6 +6,7 @@
  *   · 학교  : (window._isSchool===true) 가정통신문·알림장·학사일정·수업/수행평가 안내·상담 등
  * 학부모  : ArcheParentHub.loadInbox(academyId, studentId) → 항목 배열,
  *           ArcheParentHub.openItem(item) 오버레이 열람, renderList(container, items).
+ * v1.4: 첨부파일(분석 리포트 PDF/이미지/문서) 업로드 — 비공개 버킷 parent-files, 열람 시 서명 URL(2분).
  * 학교 발송 항목은 data.school=true 로 표시되어 학부모 화면에서도 학교용 라벨로 보입니다.
  * 의존: window.sb, window._acadId
  * ==========================================================================*/
@@ -67,6 +68,9 @@
     +".aph .it .tt{flex:1}.aph .it .tt b{font-size:13.5px;color:#243244}.aph .it .tt .m{font-size:11.5px;color:#8b95a1;margin-top:2px}"
     +".aph .tag{font-size:10.5px;font-weight:800;background:#eef1ff;color:#1A237E;border-radius:99px;padding:3px 9px}"
     +".aph .tip{font-size:11.5px;color:#6b7688;background:#f6f8fc;border:1px solid #e6e9f0;border-radius:10px;padding:9px 12px;margin-top:12px;line-height:1.6}"
+    +".aph input[type=file]{width:100%;border:1.5px dashed #c5cbe0;border-radius:9px;padding:10px 12px;font:inherit;font-size:12.5px;background:#fbfcfe}"
+    +".aph .att{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 0}"
+    +".aph .att .chip,.aph-ovc .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700;color:#1A237E;background:#eef1ff;border:1px solid #d6dcff;border-radius:10px;padding:7px 11px;cursor:pointer;text-decoration:none}"
     +".aph .del{font-size:11px;color:#c0313d;background:#fdf0f1;border:1px solid #f3c0c5;border-radius:8px;padding:5px 9px;cursor:pointer}"
     +".aph-ov{position:fixed;inset:0;background:rgba(8,11,46,.55);z-index:10000;overflow:auto;padding:24px 14px}"
     +".aph-ovc{max-width:640px;margin:0 auto;background:#fff;border-radius:16px;padding:22px}"
@@ -89,7 +93,37 @@
     var r=await window.sb.from('parent_inbox').select('id,student_id,type,title,created_at,active,data').eq('academy_id',acadId()).eq('active',true).order('created_at',{ascending:false}).limit(30);
     if(r.error)throw r.error; return r.data||[];
   }
-  async function deactivate(id){ var r=await window.sb.from('parent_inbox').update({active:false}).eq('id',id); if(r.error)throw r.error; }
+  async function deactivate(id,files){
+    var r=await window.sb.from('parent_inbox').update({active:false}).eq('id',id); if(r.error)throw r.error;
+    try{ var ps=(files||[]).map(function(f){return f.path;}).filter(Boolean); if(ps.length) await window.sb.storage.from(BUCKET).remove(ps); }catch(e){}
+  }
+
+  // ── 첨부파일 ──
+  var BUCKET='parent-files', MAX_FILES=5, MAX_BYTES=20*1024*1024;
+  function fmtSize(n){ n=Number(n)||0; return n>=1048576?(n/1048576).toFixed(1)+'MB':Math.max(1,Math.round(n/1024))+'KB'; }
+  function safeName(n){ var m=String(n||'file').match(/\.([A-Za-z0-9]{1,8})$/); var ext=m?('.'+m[1].toLowerCase()):''; var base=String(n||'file').replace(/\.[^.]*$/,'').replace(/[^A-Za-z0-9_-]+/g,'_').replace(/^_+|_+$/g,'').slice(0,30)||'file'; return base+ext; }
+  async function uploadFiles(fileList,studentId){
+    var out=[], done=[];
+    try{
+      for(var i=0;i<fileList.length;i++){
+        var f=fileList[i];
+        var path=acadId()+'/'+(studentId||'all')+'/'+Date.now()+'_'+i+'_'+safeName(f.name);
+        var up=await window.sb.storage.from(BUCKET).upload(path,f,{upsert:false,contentType:f.type||'application/octet-stream'});
+        if(up.error) throw up.error;
+        done.push(path); out.push({name:f.name,path:path,size:f.size,type:f.type||''});
+      }
+    }catch(e){ try{ if(done.length) await window.sb.storage.from(BUCKET).remove(done); }catch(_){} throw e; }
+    return out;
+  }
+  async function openFile(f){
+    var w=null; try{ w=window.open('','_blank'); }catch(e){}
+    try{
+      var r=await window.sb.storage.from(BUCKET).createSignedUrl(f.path,120);
+      if(r.error||!r.data||!r.data.signedUrl) throw (r.error||new Error('열 수 없는 파일입니다'));
+      if(w) w.location.href=r.data.signedUrl; else window.location.href=r.data.signedUrl;
+    }catch(e){ if(w) try{w.close();}catch(_){} toast('파일을 열지 못했어요: '+(e.message||e)); }
+  }
+  function filesOf(item){ try{ var a=item&&item.data&&item.data.files; return Array.isArray(a)?a:[]; }catch(e){ return []; } }
 
   // 학부모용 조회 (RLS로 자녀+broadcast만)
   async function loadInbox(academyId, studentId){
@@ -107,6 +141,12 @@
     c.appendChild(el('<div style="font-size:11.5px;color:#8b95a1;margin-bottom:14px">'+esc((item.created_at||'').slice(0,10))+'</div>'));
     if(item.body) c.appendChild(el('<div style="font-size:14px;color:#39465a;line-height:1.85;white-space:pre-wrap">'+esc(item.body)+'</div>'));
     if(item.link) c.appendChild(el('<div style="margin-top:14px"><a href="'+esc(item.link)+'" target="_blank" rel="noopener" style="color:#1A237E;font-weight:700;text-decoration:underline;font-size:13.5px">첨부·링크 열기 →</a></div>'));
+    var fl=filesOf(item);
+    if(fl.length){
+      var box=el('<div style="margin-top:16px;padding-top:12px;border-top:1px solid #eef1f4"><div style="font-size:11.5px;font-weight:800;color:#8b95a1;margin-bottom:6px">첨부파일</div><div class="att"></div></div>');
+      fl.forEach(function(f){ var b=el('<a class="chip">📎 '+esc(f.name||'첨부파일')+' <span style="font-weight:500;color:#6b7688">'+fmtSize(f.size)+'</span></a>'); b.addEventListener('click',function(){ openFile(f); }); box.querySelector('.att').appendChild(b); });
+      c.appendChild(box);
+    }
     document.body.appendChild(ov);
     ov.querySelector('.x').addEventListener('click',function(){ov.remove();});
     ov.addEventListener('click',function(e){ if(e.target===ov)ov.remove(); });
@@ -117,7 +157,7 @@
     if(!items.length){ container.innerHTML='<div style="text-align:center;color:#8b95a1;font-size:13.5px;padding:30px">받은 항목이 없습니다.</div>'; return; }
     container.innerHTML='';
     items.forEach(function(it){
-      var row=el('<div class="it"><div class="tt"><b>'+esc(it.title||'(제목 없음)')+'</b><div class="m">'+esc((it.created_at||'').slice(0,10))+(it.student_id?'':' · 전체 공지')+'</div></div><span class="tag">'+esc(typeLabel(it.type,it).replace(/^[^ ]+ /,''))+'</span></div>');
+      var row=el('<div class="it"><div class="tt"><b>'+esc(it.title||'(제목 없음)')+'</b><div class="m">'+esc((it.created_at||'').slice(0,10))+(it.student_id?'':' · 전체 공지')+(filesOf(it).length?' · 📎 첨부 '+filesOf(it).length:'')+'</div></div><span class="tag">'+esc(typeLabel(it.type,it).replace(/^[^ ]+ /,''))+'</span></div>');
       row.style.cursor='pointer';
       row.addEventListener('click',function(){ openItem(it); });
       container.appendChild(row);
@@ -134,8 +174,8 @@
     var root=el('<div class="aph"></div>'); container.innerHTML=''; container.appendChild(root);
     if(!window.sb){ root.innerHTML='<div class="card">로그인 후 이용할 수 있어요.</div>'; return; }
     var subTxt = SCH
-      ? '가정통신문·알림장·학사일정·수업/수행평가 안내·학습 성장 리포트 등을 학부모 대시보드로 전송합니다.'
-      : '소식지·시간표·새 강좌·월간 분석표, 진로/수행 결과 등을 학부모 대시보드로 전송합니다.';
+      ? '가정통신문·알림장·학사일정·수업/수행평가 안내·학습 성장 리포트 등을 학부모 대시보드로 전송합니다. 분석 리포트는 파일로 첨부할 수 있어요.'
+      : '소식지·시간표·새 강좌·월간 분석표, 진로/수행 결과 등을 학부모 대시보드로 전송합니다. 분석 리포트는 파일로 첨부할 수 있어요.';
     root.innerHTML='<h2>학부모에게 보내기</h2><div class="sub">'+subTxt+'</div>'
       +'<div class="card" id="aph-form"></div><h2 style="font-size:15px;margin-top:8px">최근 보낸 항목</h2><div class="card" id="aph-sent"><div class="sub" style="margin:0">불러오는 중…</div></div>';
     var form=root.querySelector('#aph-form');
@@ -150,15 +190,20 @@
       +'<div class="fl">제목</div><input type="text" id="aph-title" placeholder="'+esc(phTitle)+'">'
       +'<div class="fl">내용</div><textarea id="aph-body" rows="5" placeholder="'+esc(phBody)+'"></textarea>'
       +'<div class="fl">링크·첨부 URL (선택)</div><input type="text" id="aph-link" placeholder="'+esc(phLink)+'">'
+      +'<div class="fl">📎 첨부파일 — 분석 리포트 등 (선택 · 최대 5개 · 파일당 20MB)</div><input type="file" id="aph-file" multiple accept=".pdf,.png,.jpg,.jpeg,.webp,.hwp,.hwpx,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt">'
+      +'<div class="sub" id="aph-flist" style="margin:6px 0 0"></div>'
       +'<div style="margin-top:14px"><button class="btn" id="aph-send">학부모에게 보내기</button></div>'
       +'<div id="aph-msg" style="font-size:12.5px;margin-top:8px;min-height:14px"></div>'
       +(SCH?'<div class="tip">💡 <b>전체 공지</b>는 우리 학교 모든 학부모에게, <b>개별 전송</b>은 선택한 학생의 학부모에게만 전달됩니다. 개별 학생의 학습 결과·상담 내용은 반드시 <b>개별 전송</b>으로 보내 주세요.</div>':'');
+    form.querySelector('#aph-file').addEventListener('change',function(){
+      var fs=Array.prototype.slice.call(this.files||[]); form.querySelector('#aph-flist').textContent=fs.length?fs.map(function(f){return f.name+' ('+fmtSize(f.size)+')';}).join(' · '):'';
+    });
     var sentBox=root.querySelector('#aph-sent');
     async function refresh(){ try{ var rows=await listSent(); if(!rows.length){ sentBox.innerHTML='<div class="sub" style="margin:0">아직 보낸 항목이 없습니다.</div>'; return; }
       sentBox.innerHTML=''; rows.forEach(function(it){
         var nm = it.student_id ? '개별' : '전체 공지';
-        var row=el('<div class="it"><div class="tt"><b>'+esc(it.title||'(제목 없음)')+'</b><div class="m">'+esc(typeLabel(it.type,it))+' · '+nm+' · '+esc((it.created_at||'').slice(0,10))+'</div></div></div>');
-        var d=el('<button class="del">삭제</button>'); d.addEventListener('click',async function(){ if(!confirm('이 항목을 학부모 대시보드에서 내릴까요?'))return; try{ await deactivate(it.id); toast('삭제됨'); refresh(); }catch(e){ toast('실패: '+(e.message||e)); } });
+        var row=el('<div class="it"><div class="tt"><b>'+esc(it.title||'(제목 없음)')+'</b><div class="m">'+esc(typeLabel(it.type,it))+' · '+nm+(filesOf(it).length?' · 📎'+filesOf(it).length:'')+' · '+esc((it.created_at||'').slice(0,10))+'</div></div></div>');
+        var d=el('<button class="del">삭제</button>'); d.addEventListener('click',async function(){ if(!confirm('이 항목을 학부모 대시보드에서 내릴까요?'))return; try{ await deactivate(it.id,filesOf(it)); toast('삭제됨'); refresh(); }catch(e){ toast('실패: '+(e.message||e)); } });
         row.appendChild(d); sentBox.appendChild(row);
       });
     }catch(e){ sentBox.innerHTML='<div class="sub" style="margin:0;color:#c0313d">'+esc(e.message||e)+'</div>'; } }
@@ -167,10 +212,18 @@
       var title=form.querySelector('#aph-title').value.trim(), body=form.querySelector('#aph-body').value.trim(), link=form.querySelector('#aph-link').value.trim();
       var msg=form.querySelector('#aph-msg');
       if(!title){ msg.style.color='#c0313d'; msg.textContent='제목을 입력하세요.'; return; }
-      btn.disabled=true; msg.style.color='#6b7688'; msg.textContent='전송 중…';
-      try{ await push(target, type, title, body, link, SCH?{school:true}:null);
+      var fin=form.querySelector('#aph-file'), picked=Array.prototype.slice.call(fin.files||[]);
+      if(picked.length>MAX_FILES){ msg.style.color='#c0313d'; msg.textContent='첨부파일은 최대 '+MAX_FILES+'개까지 가능합니다.'; return; }
+      var big=picked.filter(function(f){return f.size>MAX_BYTES;})[0];
+      if(big){ msg.style.color='#c0313d'; msg.textContent='"'+big.name+'" 파일이 20MB를 넘습니다.'; return; }
+      if(picked.length && !target && !confirm('첨부파일이 있는 전체 공지는 모든 학부모에게 공개됩니다.\n학생 개인 분석 리포트라면 받는 대상을 해당 학생으로 선택해 주세요.\n\n그래도 전체에게 보낼까요?')) return;
+      btn.disabled=true; msg.style.color='#6b7688'; msg.textContent=picked.length?'파일 업로드·전송 중…':'전송 중…';
+      try{ var meta=SCH?{school:true}:{}; var up=[];
+        if(picked.length){ up=await uploadFiles(picked,target); meta.files=up; }
+        try{ await push(target, type, title, body, link, Object.keys(meta).length?meta:null); }
+        catch(pe){ try{ if(up.length) await window.sb.storage.from(BUCKET).remove(up.map(function(x){return x.path;})); }catch(_){} throw pe; }
         msg.style.color='#137a44'; msg.textContent=(target?'해당 학부모':(SCH?'우리 학교 전체 학부모':'전체 학부모'))+'에게 전송했습니다.';
-        form.querySelector('#aph-title').value=''; form.querySelector('#aph-body').value=''; form.querySelector('#aph-link').value='';
+        form.querySelector('#aph-title').value=''; form.querySelector('#aph-body').value=''; form.querySelector('#aph-link').value=''; fin.value=''; form.querySelector('#aph-flist').textContent='';
         refresh();
       }catch(e){ msg.style.color='#c0313d'; msg.textContent='전송 실패: '+(e.message||e); }
       btn.disabled=false;
@@ -238,5 +291,5 @@
     wrap.appendChild(cta);
   }
 
-  window.ArcheParentHub={ mountSend:mountSend, loadInbox:loadInbox, openItem:openItem, renderList:renderList, renderSample:renderSample, typeLabel:typeLabel, TYPES:TYPES, SCHOOL_TYPES:SCHOOL_TYPES, NOTE_TYPE:NOTE_TYPE, version:'1.3' };
+  window.ArcheParentHub={ mountSend:mountSend, loadInbox:loadInbox, openItem:openItem, renderList:renderList, renderSample:renderSample, typeLabel:typeLabel, TYPES:TYPES, SCHOOL_TYPES:SCHOOL_TYPES, NOTE_TYPE:NOTE_TYPE, version:'1.4' };
 })();
