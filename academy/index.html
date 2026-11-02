@@ -2303,6 +2303,30 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=30"></script>
+<script src="/shared/arche_soke_chat.js?v=1"></script>
+<script>
+/* [학교] 소크 발문 챗: 학교 테넌트에서만 노출 · 회차당 5회 고정 · 학생별 카운트 */
+(function(){
+  try{
+    var lib=window.ArcheSoke; if(!lib||lib.__schoolGate) return;
+    var _open=lib.open;
+    lib.open=function(o){
+      o=o||{};
+      try{
+        o.limit=5; o.tier='allinone';
+        var sid=o.studentId; if(sid&&typeof sid==='object') sid=sid.id;
+        if(!sid&&window._activeStudent) sid=window._activeStudent.id;
+        if(sid) o.studentId=String(sid);
+      }catch(e){}
+      return _open.call(lib,o);
+    };
+    lib.__schoolGate=true;
+    /* 학교(_pentaSchool)일 때만 window.ArcheSoke 가 보이게 → 워크북이 소크 버튼을 그림 */
+    try{ delete window.ArcheSoke; }catch(e){}
+    Object.defineProperty(window,'ArcheSoke',{configurable:true,get:function(){ return (window._pentaSchool===true)?lib:undefined; }});
+  }catch(e){ try{ console.warn('soke gate',e); }catch(_){} }
+})();
+</script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=14"></script>
 <script src="/shared/arche_live_report.js?v=1"></script>
