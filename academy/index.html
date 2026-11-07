@@ -981,6 +981,7 @@
               <div class="eyebrow">Consultation</div>
               <div class="h1">상담 기록</div>
               <div class="sub">학생 자료가 없어도 상담 내용 기반으로 진로 징검다리을 생성합니다</div>
+              <div class="stu-inline" id="con-stu-row"><span class="stu-inline-lb">상담 학생</span><select id="consult-student" onchange="topbarSelect(this.value)"><option value="">— 학생 검색·선택 —</option></select><span class="stu-inline-hint">이름·학교·초성으로 검색하세요</span></div>
               <div class="card" id="mb-card" style="margin-top:14px;padding:18px 20px;display:none"></div>
               <div style="display:flex;gap:8px;margin:14px 0">
                 <select id="con-kind" class="con-kind-sel" style="padding:9px 11px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px"><option value="student">학생 상담</option><option value="parent">학부모 상담</option></select>
@@ -5294,6 +5295,7 @@ function fillStudentPickers(){
     td.value=cur;
   }
   var ip=document.getElementById('intake-student'); if(ip){var v2=ip.value;ip.innerHTML='<option value="">— 학생 선택 —</option>'+(window._students||[]).map(function(s){return '<option value="'+s.id+'">'+esc(s.name||'-')+'</option>';}).join('');ip.value=v2;}
+  try{ syncInlineStuPickers(); }catch(e){}
 }
 window.fillStudentPickers=fillStudentPickers;
 /* topbar 활성 학생 — 대입/고입 트랙 인식 */
@@ -5343,23 +5345,108 @@ async function syncTopbarPicker(v){
     td._sig=sig;
   }
   if(td.value!==(cur||'')) td.value=(cur||'');
-  try{ renderStuMenu(list, cur||''); }catch(e){}
+  try{ renderStuMenu(list, cur||''); }catch(e){} try{ syncInlineStuPickers(); }catch(e){}
 }
 /* [커스텀 학생 선택창] 네이티브 <select> 드롭다운(안드로이드 리페인트 깜빡임 원인)을 쓰지 않고, 상단바에 직접 그리는 경량 메뉴 */
+function _stuBtnLabel(list,cur){ var s=(list||[]).filter(function(x){return x.id===cur;})[0]; return s?(esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')):'— 미선택 —'; }
+/* ---- 학생 검색 공용 로직 (이름·학년·학교 부분일치 + 초성 검색) ---- */
+var _HAN_CHO='ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ';
+function _stuCho(str){ var o=''; for(var i=0;i<str.length;i++){ var c=str.charCodeAt(i); if(c>=0xAC00&&c<=0xD7A3){ o+=_HAN_CHO.charAt(Math.floor((c-0xAC00)/588)); } else { o+=str.charAt(i); } } return o; }
+function _stuNorm(s){ return String(s==null?'':s).toLowerCase().replace(/\s+/g,''); }
+function stuMatch(hay,q){
+  q=_stuNorm(q); if(!q) return true;
+  var h=_stuNorm(hay); if(h.indexOf(q)>=0) return true;
+  if(/^[ㄱ-ㅎ]+$/.test(q)) return _stuCho(h).indexOf(q)>=0;  /* 초성 검색: ㄱㅎㄴ → 김하나 */
+  return false;
+}
+function _stuHl(text,q){
+  var t=String(text==null?'':text), qq=String(q||'').trim();
+  if(!qq) return esc(t);
+  var i=t.toLowerCase().indexOf(qq.toLowerCase());
+  if(i<0) return esc(t);
+  return esc(t.slice(0,i))+'<mark>'+esc(t.slice(i,i+qq.length))+'</mark>'+esc(t.slice(i+qq.length));
+}
+window.stuMatch=stuMatch;
+/* [커스텀 학생 선택창] 네이티브 <select> 드롭다운(안드로이드 리페인트 깜빡임 원인)을 쓰지 않고, 상단바에 직접 그리는 경량 메뉴 + 검색창 */
 function _stuBtnLabel(list,cur){ var s=(list||[]).filter(function(x){return x.id===cur;})[0]; return s?(esc(s.name||'-')+(s.grade?' · '+esc(s.grade):'')):'— 미선택 —'; }
 function renderStuMenu(list, cur){
   list=list||[]; cur=cur||'';
   var btn=document.getElementById('topbar-student-btn');
   if(btn){ btn.innerHTML=_stuBtnLabel(list,cur)+' <span style="font-size:9px;opacity:.6">▾</span>'; }
   var menu=document.getElementById('topbar-student-menu'); if(!menu)return;
-  var mi=function(id,label,on,mute){ return '<div class="stu-mi" data-id="'+id+'" style="padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;'+(on?'background:#eef3ff;color:#1b64da;font-weight:700':(mute?'color:#8b95a1':'color:#191f28'))+'">'+label+'</div>'; };
-  var html=mi('', '— 미선택 —', !cur, true);
-  html+=list.map(function(s){ return mi(s.id, esc(s.name||'-')+(s.grade?' <span style="color:#8b95a1;font-weight:400">· '+esc(s.grade)+'</span>':''), s.id===cur, false); }).join('');
-  menu.innerHTML=html;
+  menu._list=list; menu._cur=cur;
+  if(!menu.querySelector('#stu-q')){
+    menu.innerHTML='<div class="stu-sh"><input id="stu-q" type="text" inputmode="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="이름·학교 검색 (초성 가능)" aria-label="학생 검색"><div class="stu-cnt" id="stu-cnt"></div></div><div id="stu-lst"></div>';
+  }
+  drawStuList();
 }
-function toggleStuMenu(ev){ if(ev&&ev.stopPropagation)ev.stopPropagation(); var m=document.getElementById('topbar-student-menu'); if(!m)return; m.style.display=(m.style.display==='none'||!m.style.display)?'block':'none'; }
+function drawStuList(){
+  var menu=document.getElementById('topbar-student-menu'); var lst=document.getElementById('stu-lst'); var qi=document.getElementById('stu-q');
+  if(!menu||!lst||!qi) return;
+  var list=menu._list||[], cur=menu._cur||'', q=qi.value||'';
+  var rows=list.filter(function(s){ return stuMatch((s.name||'')+' '+(s.grade||'')+' '+(s.school||''),q); });
+  var html='';
+  if(!String(q).trim()) html+='<div class="stu-mi mute'+(!cur?' on':'')+'" data-id="">— 미선택 —</div>';
+  html+=rows.map(function(s,i){
+    var on=(s.id===cur);
+    return '<div class="stu-mi'+(on?' on':'')+'" data-id="'+esc(s.id)+'">'+_stuHl(s.name||'-',q)+(s.grade?' <span class="stu-sub">· '+esc(s.grade)+'</span>':'')+(s.school?' <span class="stu-sub2">'+_stuHl(s.school,q)+'</span>':'')+'</div>';
+  }).join('');
+  if(!rows.length) html+='<div class="stu-empty">'+(list.length?'“'+esc(q)+'” 검색 결과가 없습니다':'등록된 학생이 없습니다')+'</div>';
+  lst.innerHTML=html;
+  var cnt=document.getElementById('stu-cnt'); if(cnt) cnt.textContent=String(q).trim()?(rows.length+' / '+list.length+'명'):('전체 '+list.length+'명');
+  if(String(q).trim()){ var f=lst.querySelector('.stu-mi[data-id]:not([data-id=""])'); if(f) f.classList.add('hl'); }
+}
+function toggleStuMenu(ev){
+  if(ev&&ev.stopPropagation)ev.stopPropagation();
+  var m=document.getElementById('topbar-student-menu'); if(!m)return;
+  var open=(m.style.display==='none'||!m.style.display);
+  m.style.display=open?'block':'none';
+  if(open){
+    var qi=document.getElementById('stu-q'); if(qi) qi.value='';
+    drawStuList();
+    try{ /* 좁은 화면에서 메뉴가 오른쪽 밖으로 잘리지 않게 보정 */
+      m.style.left='0px'; m.style.width='';
+      var vv=window.visualViewport, vw=Math.min(window.innerWidth, vv?vv.width:window.innerWidth);
+      var mr=m.getBoundingClientRect(), over=mr.right-(vw-8);
+      if(over>0){ var tg=document.getElementById('topbar-studenttag').getBoundingClientRect(), nl=tg.left-over; if(nl<8){ m.style.width=(vw-16)+'px'; nl=8; } m.style.left=(nl-tg.left)+'px'; }
+    }catch(_e){}
+    setTimeout(function(){
+      var q2=document.getElementById('stu-q'); if(q2){ try{ q2.focus({preventScroll:true}); }catch(e){ q2.focus(); } }
+      var on=document.querySelector('#stu-lst .stu-mi.on'); if(on&&on.scrollIntoView){ try{ on.scrollIntoView({block:'nearest'}); }catch(e){} }
+    },30);
+  }
+}
+/* 학생 검색 입력 / 키보드(↑↓ 이동 · Enter 선택 · Esc 닫기) */
+document.addEventListener('input', function(e){ if(e.target&&e.target.id==='stu-q') drawStuList(); });
+document.addEventListener('keydown', function(e){
+  var t=e.target; if(!t||t.id!=='stu-q') return;
+  var items=[].slice.call(document.querySelectorAll('#stu-lst .stu-mi[data-id]:not([data-id=""])'));
+  var hi=-1; items.forEach(function(x,i){ if(x.classList.contains('hl')) hi=i; });
+  if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+    e.preventDefault(); if(!items.length) return;
+    var ni=e.key==='ArrowDown'?Math.min(items.length-1,hi+1):Math.max(0,hi<0?0:hi-1);
+    items.forEach(function(x){ x.classList.remove('hl'); }); items[ni].classList.add('hl');
+    try{ items[ni].scrollIntoView({block:'nearest'}); }catch(_e){}
+  } else if(e.key==='Enter'){
+    e.preventDefault(); var pick=items[hi>=0?hi:0]; if(!pick) return;
+    var id=pick.getAttribute('data-id')||''; closeStuMenu(); var sel=document.getElementById('topbar-student'); if(sel)sel.value=id; if(id)topbarSelect(id);
+  } else if(e.key==='Escape'){ e.preventDefault(); closeStuMenu(); }
+});
+/* 화면 안 인라인 학생 선택(상담 기록): 대입 학생 목록 + 활성 학생 동기화 */
+function syncInlineStuPickers(){
+  var s=document.getElementById('consult-student'); if(!s) return;
+  var list=window._students||[];
+  var cur=(window._activeStudent&&list.some(function(x){return x.id===window._activeStudent.id;}))?window._activeStudent.id:'';
+  var sig=list.map(function(x){return x.id+':'+(x.name||'')+':'+(x.grade||'')+':'+(x.school||'');}).join(',');
+  if(s._sig!==sig){
+    s.innerHTML='<option value="">— 학생 검색·선택 —</option>'+list.map(function(x){ return '<option value="'+esc(x.id)+'">'+esc(x.name||'-')+(x.grade?' · '+esc(x.grade):'')+(x.school?' · '+esc(x.school):'')+'</option>'; }).join('');
+    s._sig=sig;
+  }
+  if(s.value!==cur) s.value=cur;
+}
+window.syncInlineStuPickers=syncInlineStuPickers;
 function closeStuMenu(){ var m=document.getElementById('topbar-student-menu'); if(m)m.style.display='none'; }
-window.toggleStuMenu=toggleStuMenu; window.renderStuMenu=renderStuMenu;
+window.toggleStuMenu=toggleStuMenu; window.renderStuMenu=renderStuMenu; window.drawStuList=drawStuList;
 document.addEventListener('click', function(e){
   var t=e.target;
   var item=(t&&t.closest)?t.closest('.stu-mi'):null;
@@ -12809,6 +12896,166 @@ if(/[?&]reset=1/.test(location.search)){window.archeHardReset();}
   });
 })();
 
+</script>
+<script id="stusearch-js">
+/* ===== 학생 검색 선택기 (2026-11) =====
+   - 학생 <select> 전체(고입·성적·출석·시험분석·펜타 등)를 검색 가능한 선택창으로 자동 전환
+   - 원본 <select>는 숨긴 채 유지(값/onchange/innerHTML 갱신 그대로 동작) */
+(function(){
+  if(window.__stuSearchInit) return; window.__stuSearchInit=true;
+  function E(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  function match(h,q){ return (window.stuMatch?window.stuMatch(h,q):(String(h).toLowerCase().indexOf(String(q).toLowerCase())>=0)); }
+  function hl(t,q){ t=String(t==null?'':t); q=String(q||'').trim(); if(!q) return E(t); var i=t.toLowerCase().indexOf(q.toLowerCase()); if(i<0) return E(t); return E(t.slice(0,i))+'<mark>'+E(t.slice(i,i+q.length))+'</mark>'+E(t.slice(i+q.length)); }
+
+  /* ---- CSS ---- */
+  var css=[
+  '#topbar-student-menu{min-width:260px!important;padding:0!important;overflow:hidden!important;max-height:none!important}',
+  '#topbar-student-menu .stu-sh,.ss-pop .ss-sh{padding:8px 8px 6px;background:#fff;border-bottom:1px solid #eef0f2;position:relative}',
+  '#stu-q,.ss-pop .ss-q{width:100%;box-sizing:border-box;padding:8px 10px 8px 31px;border:1px solid #e1e5e9;border-radius:8px;font-size:13px;font-family:inherit;color:#191f28;background:#f7f8fa url("data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'14\' height=\'14\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%238b95a1\' stroke-width=\'2.4\' stroke-linecap=\'round\'><circle cx=\'11\' cy=\'11\' r=\'7\'/><path d=\'M21 21l-4.3-4.3\'/></svg>") no-repeat 10px center;outline:none}',
+  '#stu-q:focus,.ss-pop .ss-q:focus{border-color:#3182f6;background-color:#fff;box-shadow:0 0 0 3px rgba(49,130,246,.12)}',
+  '.stu-cnt,.ss-pop .ss-cnt{font-size:10.5px;color:#8b95a1;margin:5px 3px 0}',
+  '#stu-lst,.ss-pop .ss-lst{max-height:min(48vh,360px);overflow-y:auto;padding:5px;-webkit-overflow-scrolling:touch}',
+  '.stu-mi,.ss-pop .ss-mi{padding:9px 12px;border-radius:7px;cursor:pointer;font-size:13px;color:#191f28;line-height:1.35}',
+  '.stu-mi:hover,.ss-pop .ss-mi:hover{background:#f2f4f6}',
+  '.stu-mi.hl,.ss-pop .ss-mi.hl{background:#f2f4f6}',
+  '.stu-mi.on,.ss-pop .ss-mi.on{background:#eef3ff;color:#1b64da;font-weight:700}',
+  '.stu-mi.mute,.ss-pop .ss-mi.mute{color:#8b95a1}',
+  '.stu-sub{color:#8b95a1;font-weight:400}.stu-sub2{color:#b0b8c1;font-weight:400;font-size:11.5px;margin-left:2px}',
+  '.stu-mi mark,.ss-pop mark{background:#fff1b8;color:inherit;border-radius:3px;padding:0 1px}',
+  '.stu-empty,.ss-pop .ss-empty{padding:18px 10px;text-align:center;color:#8b95a1;font-size:12.5px}',
+  '.ss-hide{display:none!important}',
+  '.ss-btn{display:inline-flex;align-items:center;justify-content:space-between;gap:8px;box-sizing:border-box;min-width:180px;max-width:100%;padding:8px 11px;background:var(--panel-2,#f7f8fa);border:1px solid var(--line,#e1e5e9);border-radius:8px;color:var(--ink,#191f28);font-size:13px;font-family:inherit;line-height:1.3;cursor:pointer;text-align:left;vertical-align:middle}',
+  '.ss-btn:hover{border-color:#b7c3d4}.ss-btn:focus-visible{outline:2px solid #3182f6;outline-offset:1px}',
+  '.ss-btn[disabled]{opacity:.55;cursor:not-allowed}',
+  '.ss-btn .ss-t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}.ss-btn .ss-t.mute{color:#8b95a1}.ss-btn .ss-car{font-size:9px;opacity:.6;flex:none}',
+  '.ss-pop{position:fixed;z-index:99990;background:#fff;border:1px solid #e1e5e9;border-radius:12px;box-shadow:0 14px 34px rgba(0,0,0,.18);overflow:hidden}',
+  '.stu-inline{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}',
+  '.stu-inline-lb{font-size:12.5px;font-weight:700;color:var(--ink-dim,#4e5968)}.stu-inline-hint{font-size:11.5px;color:var(--ink-mute,#8b95a1)}',
+  '@media (max-width:820px){#stu-q,.ss-pop .ss-q{font-size:16px}}',
+  '@media print{.ss-pop,.ss-btn,.stu-inline{display:none!important}.ss-hide{display:none!important}}'
+  ].join('\n');
+  var st=document.createElement('style'); st.id='stusearch-css'; st.textContent=css; document.head.appendChild(st);
+
+  /* ---- 팝업 ---- */
+  var pop=null, cur=null, onDoc=null, onPos=null;
+  function closePop(focusBtn){
+    if(pop&&pop.parentNode) pop.parentNode.removeChild(pop);
+    if(onDoc){ document.removeEventListener('mousedown',onDoc,true); document.removeEventListener('touchstart',onDoc,true); }
+    if(onPos){ window.removeEventListener('resize',onPos); window.removeEventListener('scroll',onPos,true); }
+    var c=cur; pop=null; cur=null; onDoc=null; onPos=null;
+    if(c&&c.btn){ c.btn.setAttribute('aria-expanded','false'); if(focusBtn){ try{ c.btn.focus({preventScroll:true}); }catch(e){} } }
+  }
+  function place(){
+    if(!pop||!cur) return;
+    var b=cur.btn; if(!b.isConnected||!b.offsetParent&&getComputedStyle(b).position!=='fixed'){ closePop(); return; }
+    var vv=window.visualViewport;
+    var r=b.getBoundingClientRect(), vw=Math.min(window.innerWidth, vv?vv.width:window.innerWidth), vh=Math.min(window.innerHeight, vv?vv.height:window.innerHeight);
+    var w=Math.min(Math.max(r.width,280),vw-16);
+    var left=Math.max(8,Math.min(r.left,vw-w-8));
+    pop.style.width=w+'px'; pop.style.left=left+'px';
+    var below=vh-r.bottom, above=r.top;
+    if(below<260&&above>below){ pop.style.top='auto'; pop.style.bottom=(vh-r.top+4)+'px'; pop.querySelector('.ss-lst').style.maxHeight=Math.max(140,Math.min(360,above-90))+'px'; }
+    else { pop.style.bottom='auto'; pop.style.top=(r.bottom+4)+'px'; pop.querySelector('.ss-lst').style.maxHeight=Math.max(140,Math.min(360,below-90))+'px'; }
+  }
+  function draw(){
+    if(!pop||!cur) return;
+    var sel=cur.sel, q=pop.querySelector('.ss-q').value||'', lst=pop.querySelector('.ss-lst');
+    var opts=[].slice.call(sel.options), qq=String(q).trim(), html='', n=0, total=0;
+    opts.forEach(function(o,i){
+      if(o.value===''){ if(!qq) html+='<div class="ss-mi mute'+(sel.value===''?' on':'')+'" data-i="'+i+'">'+E(o.text||'— 미선택 —')+'</div>'; return; }
+      total++;
+      if(!match(o.text,q)) return; n++;
+      html+='<div class="ss-mi'+(o.value===sel.value?' on':'')+'" data-i="'+i+'">'+hl(o.text,q)+'</div>';
+    });
+    if(!n) html+='<div class="ss-empty">'+(total?('“'+E(q)+'” 검색 결과가 없습니다'):'등록된 학생이 없습니다')+'</div>';
+    lst.innerHTML=html;
+    pop.querySelector('.ss-cnt').textContent=qq?(n+' / '+total+'명'):('전체 '+total+'명');
+    if(qq){ var f=lst.querySelector('.ss-mi:not(.mute)'); if(f) f.classList.add('hl'); }
+  }
+  function choose(i){
+    if(!cur) return; var sel=cur.sel, o=sel.options[i]; if(!o){ closePop(true); return; }
+    var changed=(sel.value!==o.value);
+    closePop(true);
+    sel.value=o.value;                       /* 값 갱신(라벨 동기화 포함) */
+    if(changed){ try{ sel.dispatchEvent(new Event('change',{bubbles:true})); }catch(e){} }
+  }
+  function openPop(sel,btn){
+    if(cur&&cur.btn===btn){ closePop(true); return; }
+    closePop();
+    pop=document.createElement('div'); pop.className='ss-pop'; pop.setAttribute('role','listbox');
+    pop.innerHTML='<div class="ss-sh"><input class="ss-q" type="text" inputmode="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="이름·학교 검색 (초성 가능)" aria-label="학생 검색"><div class="ss-cnt"></div></div><div class="ss-lst"></div>';
+    document.body.appendChild(pop); cur={sel:sel,btn:btn}; btn.setAttribute('aria-expanded','true');
+    draw(); place();
+    var qi=pop.querySelector('.ss-q');
+    qi.addEventListener('input',draw);
+    qi.addEventListener('keydown',function(e){
+      var items=[].slice.call(pop.querySelectorAll('.ss-mi:not(.mute)')), hi=-1;
+      items.forEach(function(x,i){ if(x.classList.contains('hl')) hi=i; });
+      if(e.key==='ArrowDown'||e.key==='ArrowUp'){
+        e.preventDefault(); if(!items.length) return;
+        var ni=e.key==='ArrowDown'?Math.min(items.length-1,hi+1):Math.max(0,hi<0?0:hi-1);
+        items.forEach(function(x){ x.classList.remove('hl'); }); items[ni].classList.add('hl');
+        try{ items[ni].scrollIntoView({block:'nearest'}); }catch(_e){}
+      } else if(e.key==='Enter'){ e.preventDefault(); var p=items[hi>=0?hi:0]; if(p) choose(+p.getAttribute('data-i')); }
+      else if(e.key==='Escape'){ e.preventDefault(); closePop(true); }
+      else if(e.key==='Tab'){ closePop(); }
+    });
+    pop.addEventListener('mousedown',function(e){ var it=e.target.closest&&e.target.closest('.ss-mi'); if(it){ e.preventDefault(); choose(+it.getAttribute('data-i')); } });
+    pop.addEventListener('touchend',function(e){ var it=e.target.closest&&e.target.closest('.ss-mi'); if(it){ e.preventDefault(); choose(+it.getAttribute('data-i')); } });
+    onDoc=function(e){ if(pop&&(pop.contains(e.target)||(cur&&cur.btn.contains(e.target)))) return; closePop(); };
+    document.addEventListener('mousedown',onDoc,true); document.addEventListener('touchstart',onDoc,true);
+    var raf=0; onPos=function(e){ if(e&&e.target&&pop&&pop.contains(e.target)) return; cancelAnimationFrame(raf); raf=requestAnimationFrame(place); };
+    window.addEventListener('resize',onPos); window.addEventListener('scroll',onPos,true);
+    setTimeout(function(){ try{ qi.focus({preventScroll:true}); }catch(e){ qi.focus(); } var on=pop&&pop.querySelector('.ss-mi.on'); if(on&&on.scrollIntoView){ try{ on.scrollIntoView({block:'nearest'}); }catch(e){} } },20);
+  }
+
+  /* ---- <select> → 검색 선택창 ---- */
+  var VAL=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value');
+  var IDX=Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'selectedIndex');
+  function enhance(sel){
+    if(sel._ss) return; sel._ss=1;
+    var btn=document.createElement('button'); btn.type='button'; btn.className='ss-btn'; btn.setAttribute('aria-haspopup','listbox'); btn.setAttribute('aria-expanded','false');
+    if(sel.id) btn.setAttribute('data-ss-for',sel.id);
+    var cs=sel.style; ['minWidth','maxWidth','width','flex','margin','height'].forEach(function(p){ if(cs[p]) btn.style[p]=cs[p]; });
+    if(sel.className){ btn.className+=' '+String(sel.className).split(/\s+/).filter(function(c){return c&&c!=='ss-hide';}).join(' '); }
+    btn._for=sel;
+    function refresh(){
+      var o=sel.options[sel.selectedIndex]; var empty=(!o||o.value==='');
+      var ph=(sel.options[0]&&sel.options[0].value==='')?sel.options[0].text:'— 학생 선택 —';
+      btn.innerHTML='<span class="ss-t'+(empty?' mute':'')+'">'+E(empty?ph:o.text)+'</span><span class="ss-car">▾</span>';
+      btn.disabled=!!sel.disabled; btn.title=(empty?ph:o.text);
+    }
+    try{
+      Object.defineProperty(sel,'value',{configurable:true,enumerable:true,get:function(){return VAL.get.call(this);},set:function(v){ VAL.set.call(this,v); refresh(); }});
+      Object.defineProperty(sel,'selectedIndex',{configurable:true,enumerable:true,get:function(){return IDX.get.call(this);},set:function(v){ IDX.set.call(this,v); refresh(); }});
+    }catch(e){}
+    sel.classList.add('ss-hide');
+    sel.parentNode.insertBefore(btn,sel.nextSibling);
+    btn.addEventListener('click',function(e){ e.preventDefault(); e.stopPropagation(); if(btn.disabled) return; openPop(sel,btn); });
+    sel.addEventListener('change',refresh);
+    try{ new MutationObserver(function(){ refresh(); if(cur&&cur.sel===sel) draw(); }).observe(sel,{childList:true,subtree:true,attributes:true,attributeFilter:['disabled','selected']}); }catch(e){}
+    refresh();
+  }
+  var ID_RE=/(stu|student)$/i, PH_RE=/학생\s*(검색|선택|고르)/;
+  function isStu(sel){
+    if(sel._ss||sel.multiple||(sel.size&&sel.size>1)||sel.hasAttribute('data-nosearch')) return false;
+    if(sel.id==='topbar-student') return false;
+    var id=sel.id||'', f=sel.options&&sel.options[0];
+    if(ID_RE.test(id)||id==='sc-pick') return true;
+    return !!(f&&f.value===''&&PH_RE.test(f.text));
+  }
+  function scan(){
+    [].forEach.call(document.querySelectorAll('select'),function(s){ if(!s._ss&&isStu(s)) enhance(s); });
+    [].forEach.call(document.querySelectorAll('.ss-btn'),function(b){ if(b._for&&!b._for.isConnected&&b.parentNode) b.parentNode.removeChild(b); });
+  }
+  var tm=null;
+  try{ new MutationObserver(function(ms){
+    var real=ms.some(function(m){ var t=m.target; return !(t&&t.closest&&t.closest('.ss-pop')); });
+    if(!real) return; clearTimeout(tm); tm=setTimeout(scan,80);
+  }).observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  window.stuSearchify=enhance; window.stuSearchScan=scan;
+  scan();
+})();
 </script>
 </body>
 </html>
