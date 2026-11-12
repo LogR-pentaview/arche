@@ -2127,7 +2127,7 @@ function fmtMetric(t,p){
       var w=p.weighted_overall; var byS=p.by_semester||{};
       var semN=Object.keys(byS).length;
       if(w==null&&!semN)return '<span style="color:var(--ink-mute);font-size:11px">아직 성적 미입력</span>';
-      return '<span style="color:var(--ink-mute)">단위가중 평균</span> <b>'+num1(w)+'</b>'+(semN?' <span style="color:var(--ink-mute)">· 학기 '+semN+'개</span>':'');
+      return '<span style="color:var(--ink-mute)">단위가중 평균</span> <b>'+num1(w)+'</b>'+archeG5Suffix(w)+(semN?' <span style="color:var(--ink-mute)">· 학기 '+semN+'개</span>':'');
     }
     if(t==='univ_reco'){
       var arr=Array.isArray(p)?p:(p.list||p.items||[]);
@@ -7599,7 +7599,7 @@ async function renderRmGpa(){
   // 우선순위: 반영단위 큰데 등급 낮은(개선여력) 과목
   var pri=courses.slice().sort(function(a,b){return (b.unit*b.grade)-(a.unit*a.grade);}).slice(0,3);
   var priHtml=pri.map(function(c,i){return '<div class="pri"><div class="rank r'+(i+1)+'">'+(i+1)+'</div><div class="pinfo"><div class="pn">'+esc(c.subject||'')+' <small>단위 '+c.unit+' · 현재 '+c.grade+'등급</small></div><div class="pwhy">반영단위(단위×등급 부담)가 커 개선 효과가 큼. 우선 투자 대상.</div></div><div class="pg"><div class="cur">현재 '+c.grade+'</div><div class="arw">→ '+Math.max(1,c.grade-1)+'</div></div></div>';}).join('');
-  var body_html='<div class="grid g4" style="margin-bottom:20px"><div class="card kpi"><div class="lab">전체 내신</div><div class="num">'+(overall!=null?Number(overall).toFixed(2):'—')+'</div></div>'+semHtml+'</div>';
+  var body_html='<div class="grid g4" style="margin-bottom:20px"><div class="card kpi"><div class="lab">전체 내신</div><div class="num">'+(overall!=null?Number(overall).toFixed(2):'—')+(overall!=null?archeG5Suffix(overall).replace('<span','<br><span'):'')+'</div></div>'+semHtml+'</div>';
   body_html+='<div class="sectionhead"><span class="idx">★</span><h3>과목 우선순위 <span style="color:var(--ink-mute);font-size:11px">· 반영단위 × 개선여력</span></h3></div>'+priHtml;
   body_html+='<div class="strat" style="margin-top:16px"><b>관리 전략:</b> 반영단위 큰 과목의 등급 개선이 전체 내신에 미치는 효과가 큽니다. 이미 1등급인 과목은 방어, 위 상위 과목의 등급을 끌어올리는 데 집중하세요.</div>';
   body.innerHTML=body_html;
@@ -7629,6 +7629,24 @@ function studentGradeSystem(s){
   return 9; /* 고3·재수·미상 = 9등급 */
 }
 window._cutCache = window._cutCache || {};
+/* 전형군 선택: auto=일반전형(교과·종합·논술) 중 가장 엄격한 합격선 / 교과·종합·논술·특별·정시 개별 선택 */
+try{ window._cutGroup = window._cutGroup || sessionStorage.getItem('arche_cut_group') || 'auto'; }catch(e){ window._cutGroup = window._cutGroup || 'auto'; }
+function archeSetCutGroup(g){ window._cutGroup=g; try{ sessionStorage.setItem('arche_cut_group',g); }catch(e){} if(typeof renderArche==='function') renderArche(); }
+/* 내신 → 5등급 환산 (9등급제 학생은 누적 백분위 경유). 5등급제 학생은 원값 그대로 */
+function archeG5Of(s, grade){
+  if(grade==null||isNaN(grade)) return null; grade=Number(grade);
+  if(studentGradeSystem(s)===5) return grade;
+  return pctToG5(g9ToPct(grade));
+}
+function archeG5Suffix(grade, s){
+  s = s || window._activeStudent;
+  if(grade==null||isNaN(grade)||!s||studentGradeSystem(s)===5) return '';
+  var g5=archeG5Of(s,grade);
+  return g5==null?'':' <span style="font-size:.78em;color:#8b95a1;font-weight:500">5등급 환산 약 '+g5.toFixed(1)+'</span>';
+}
+/* 백분위 격차 → DB 기준 포지션 (AI 라벨과 분리된 단일 기준) */
+function archeDbPos(gap){ return gap==null?null:(gap<=-3?'safe':(gap<=5?'fit':'reach')); }
+var ARCHE_POS_LABEL={reach:'소신',fit:'적정',safe:'안정'};
 async function archeFetchCuts(univNames){
   if(!sb||!univNames.length) return [];
   var roots = univNames.map(function(n){
@@ -7638,33 +7656,51 @@ async function archeFetchCuts(univNames){
   if(window._cutCache[key]) return window._cutCache[key];
   var ors = roots.map(function(r){ return 'univ.ilike.%'+r+'%'; }).join(',');
   var q = await sb.from('admission_cutlines')
-    .select('univ,year,admission_type,major,cut50,cut70,cut50_pct,cut70_pct,cut50_g5,cut70_g5,competition_rate,recruit_count,grade_system,metric,source')
-    .or(ors).order('year',{ascending:false}).limit(1200);
+    .select('univ,year,admission_type,major,cut50,cut70,cut50_pct,cut70_pct,cut50_g5,cut70_g5,competition_rate,recruit_count,grade_system,metric,source,adm_group,note')
+    .or(ors).order('year',{ascending:false}).limit(2500);
   var rows=(q&&q.data)||[];
   window._cutCache[key]=rows;
   return rows;
 }
-function archeMatchCut(rows, univ, major){
+function archeIsGradeMetric(r){
+  var m=String(r.metric||'');
+  if(/수능|백분위|논술점수|환산점수|경쟁률|충원|등급컷 없음/.test(m)) return false;
+  return (r.cut50!=null||r.cut70!=null);
+}
+/* group: 'auto'|'교과'|'종합'|'논술'|'특별'|'정시'. 반환 {best, all, group, usedAvg} */
+function archeMatchCut(rows, univ, major, group){
   var ur=String(univ||'').replace(/\s/g,'').replace(/학교$/,'').slice(0,3);
   var mj=String(major||'').replace(/\s/g,'');
+  group = group || window._cutGroup || 'auto';
   if(!ur) return null;
-  var pool=rows.filter(function(r){ return String(r.univ||'').indexOf(ur)>=0; });
+  var pool=rows.filter(function(r){ return String(r.univ||'').indexOf(ur)>=0 && archeIsGradeMetric(r); });
   if(!pool.length) return null;
-  if(mj){
+  var isAvg=function(r){ return /^계열평균/.test(String(r.metric||'')); };
+  var real=pool.filter(function(r){return !isAvg(r);}), avg=pool.filter(isAvg);
+  var byGroup=function(arr){
+    if(group==='auto') return arr.filter(function(r){ return r.adm_group==='교과'||r.adm_group==='종합'||r.adm_group==='논술'||!r.adm_group; });
+    return arr.filter(function(r){ return r.adm_group===group; });
+  };
+  var pickMajor=function(arr){
+    if(!mj) return arr;
     var head=mj.slice(0,2);
-    var exact=pool.filter(function(r){
-      var m=String(r.major||'').replace(/\s/g,'');
-      return m===mj || m.indexOf(mj)>=0 || mj.indexOf(m)>=0;
-    });
-    if(exact.length) pool=exact;
-    else{
-      var loose=pool.filter(function(r){ return String(r.major||'').indexOf(head)>=0; });
-      if(loose.length) pool=loose;
-      else return null;
-    }
+    var ex=arr.filter(function(r){ var m=String(r.major||'').replace(/\s/g,''); return m&&(m===mj||m.indexOf(mj)>=0||mj.indexOf(m)>=0); });
+    if(ex.length) return ex;
+    return arr.filter(function(r){ return String(r.major||'').indexOf(head)>=0; });
+  };
+  var cand=pickMajor(byGroup(real)), usedAvg=false;
+  if(!cand.length && avg.length){
+    var fa=byGroup(avg); cand=fa.filter(function(r){return r.major==='전체';}); usedAvg=cand.length>0;
   }
-  pool.sort(function(a,b){ return (a.cut70||a.cut50||9)-(b.cut70||b.cut50||9); });
-  return { best: pool[0], all: pool };
+  if(!cand.length) return null;
+  cand.sort(function(a,b){ return (a.cut70||a.cut50||9)-(b.cut70||b.cut50||9); });
+  return { best: cand[0], all: cand, group: group, usedAvg: usedAvg };
+}
+function archeGroupSelectHtml(){
+  var cur=window._cutGroup||'auto';
+  var opts=[['auto','자동(일반전형 중 가장 엄격)'],['교과','교과전형'],['종합','학종'],['논술','논술'],['특별','특별전형(농어촌·기회균형 등)'],['정시','정시']];
+  return '<label style="font-size:12px;color:#8b95a1">전형 기준 <select onchange="archeSetCutGroup(this.value)" style="margin-left:6px;padding:4px 8px;border-radius:8px;border:1px solid #e5e8eb;font-size:12px">'
+    +opts.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===cur?' selected':'')+'>'+o[1]+'</option>';}).join('')+'</select></label>';
 }
 
 
@@ -7702,19 +7738,22 @@ async function buildReportReverse(s, reco, n){
     var gap=(cutPct!=null&&myPct!=null)?+(myPct-cutPct).toFixed(2):null;
     var verdict=gap==null?'—':(gap<=-3?'안정권':(gap<=5?'적정권':'상향 지원'));
     var vcol=gap==null?'#8b95a1':(gap<=-3?'#0a8f5a':(gap<=5?'#b7791f':'#d1383d'));
+    var dbPos=archeDbPos(gap);
+    if(dbPos){ var dbL=ARCHE_POS_LABEL[dbPos]; nm='<b>'+esc(t.name)+'</b> '+esc(t.major)+' <span style="font-size:10.5px;color:#8b95a1">· '+esc(t.tag==='목표'?'목표 · ':'')+dbL+'(입결 기준)'+((t.tag!=='목표'&&t.tag!==dbL)?' · AI 초기 '+esc(t.tag):'')+'</span>'; }
+    var avgNote=m.usedAvg?'<div style="font-size:10.5px;color:#b7791f">학과 입결 없음 — 대학 계열 평균 참고</div>':'';
     var need='—';
     if(cutG5!=null&&myG5!=null){ var d=+(myG5-cutG5).toFixed(2); need=(d>0)?('<b style="color:#d1383d">▲ '+d.toFixed(2)+'등급 개선 필요</b>'):('<span style="color:#0a8f5a">여유 '+Math.abs(d).toFixed(2)+'등급</span>'); }
-    return '<tr><td '+TD+'>'+nm+'<div style="font-size:10.5px;color:#8b95a1;margin-top:2px">'+esc(String(c.year||''))+' '+esc(c.admission_type||'')+more+'</div></td>'
+    return '<tr><td '+TD+'>'+nm+'<div style="font-size:10.5px;color:#8b95a1;margin-top:2px">'+esc(String(c.year||''))+' '+esc(c.admission_type||'')+more+'</div>'+avgNote+'</td>'
       +'<td '+TD+'>'+cutTxt+'</td>'
       +'<td '+TD+'>'+(myG5!=null?'약 '+Number(myG5).toFixed(1)+'등급':'—')+'</td>'
       +'<td '+TD+'><b style="color:'+vcol+'">'+verdict+'</b>'+(gap!=null?'<div style="font-size:10.5px;color:#8b95a1">백분위 '+(gap>0?'+':'')+gap+'%p</div>':'')+'</td>'
       +'<td '+TD+'>'+need+'</td></tr>';
   }).join('');
   var head='<div style="overflow:auto;margin:10px 0 6px"><table style="width:100%;border-collapse:collapse"><thead><tr><th '+TH+'>대학·모집단위</th><th '+TH+'>합격선(5등급 환산)</th><th '+TH+'>현재 내신(5등급 환산)</th><th '+TH+'>판정</th><th '+TH+'>필요 상승폭</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
-  var note='<div style="font-size:11px;color:#8b95a1;line-height:1.65">※ 합격선은 입결 DB(대학 공시·대입정보포털) 기준 <b>9등급제 입결을 누적 상위 백분위로 5등급 환산한 참고치</b>이며 직접 비교는 불가합니다. 같은 대학에 여러 전형이 있으면 가장 낮은 합격선 기준입니다.'
+  var note='<div style="font-size:11px;color:#8b95a1;line-height:1.65">※ 합격선은 입결 DB(대학 공시·대입정보포털) 기준 <b>9등급제 입결을 누적 상위 백분위로 5등급 환산한 참고치</b>이며 직접 비교는 불가합니다. 전형 기준을 선택하지 않으면 교과·종합·논술 중 가장 엄격한(낮은) 합격선을 쓰며, 농어촌·기회균형 등 특별전형은 [전형 기준]에서 직접 선택해야 반영됩니다. 포지션(소신/적정/안정)은 입결 DB 격차 기준이며 AI 초기 판정과 다르면 함께 표기합니다.'
     +(myGrade==null?'<br>※ 내신이 저장되지 않아 현재 위치·필요 상승폭을 산출하지 못했습니다. [자료 입력]에서 내신을 저장하세요.':'')
     +(hit?'':'<br>※ 추천·목표 대학이 현재 적재된 입결 DB에 없습니다.')+'</div>';
-  return head+note;
+  return '<div style="margin:6px 0">'+archeGroupSelectHtml()+'</div>'+head+note;
 }
 
 async function renderArche(){
@@ -7758,10 +7797,15 @@ async function renderArche(){
   const POS={reach:['소신','var(--risk)'],fit:['적정','var(--reach)'],safe:['안정','var(--safe)']};
   var hitCount=0;
   const rows=list.map(function(u){
-    var pk=POS[u.pos]||POS.fit;
+    var m=archeMatchCut(cuts,u.name,u.major);
+    var aiPk=POS[u.pos]||POS.fit, pk=aiPk, dbNote='';
+    if(m&&myGrade!=null){
+      var c0=m.best, cp0=(c0.cut70_pct!=null?Number(c0.cut70_pct):(c0.cut50_pct!=null?Number(c0.cut50_pct):null));
+      var g0=(cp0!=null&&myPct!=null)?+(myPct-cp0).toFixed(2):null, dp=archeDbPos(g0);
+      if(dp){ pk=POS[dp]; if(dp!==u.pos) dbNote='AI 초기 판정 '+aiPk[0]+' → 입결 DB 기준 '+pk[0]+'로 보정'; }
+    }
     var head='<div class="at-head"><div class="at-uni">'+esc(u.name||'')+' '+esc(u.major||'')+' <span>· '+esc(u.type||'')+'</span></div><div class="at-verdict" style="color:'+pk[1]+'">'+pk[0]+'</div></div>';
 
-    var m=archeMatchCut(cuts,u.name,u.major);
     if(!m||myGrade==null){
       return '<div class="arche-target">'+head+'<div class="at-foot"><div class="metric"><small>포지션</small><b style="color:'+pk[1]+'">'+pk[0]+'</b></div><div class="metric" style="flex:2"><small>근거</small><b style="font-weight:500;font-size:12px">'+esc(u.basis||'')+'</b></div></div>'
         + (m?'':'<div class="note" style="margin-top:8px;font-size:11px">입결 DB 미수록 모집단위 — 포지션 판정은 계열·내신 근사 추정</div>')+'</div>';
@@ -7805,17 +7849,19 @@ async function renderArche(){
       +'</div>'
       +'<div class="note" style="margin-top:8px;font-size:11px">기준 '+esc(c.univ||'')+' '+esc(c.major||'')+' · '+esc(c.metric||'')+' · '+esc(c.source||'')
       + (cutIs5?'':' <b style="color:var(--gold,#3182f6)">· 9등급제 입결의 5등급 환산 참고치(누적 백분위 경유) — 직접 비교 불가</b>')
+      +(dbNote?'<br><b style="color:var(--gold,#3182f6)">'+esc(dbNote)+'</b>':'')+(m.usedAvg?'<br>학과 입결 없음 — 대학 계열 평균 참고':'')
       +'</div></div>';
   }).join('');
 
   var footNote = '<div class="note">※ 합격선 = <b>입결 데이터</b>(대학 공시·대입정보포털 기준). '
     + '비교는 등급 숫자가 아니라 <b>누적 상위 백분위</b>로 수행 — 9등급제 입결을 5등급제 등급으로 단정 제시하지 않습니다.'
+    + '<br>※ 전형 기준 미선택 시 교과·종합·논술 중 가장 엄격한 합격선을 사용하며 특별전형은 제외됩니다. 포지션 라벨은 입결 DB 격차(안정 ≤ -3%p · 적정 ≤ +5%p · 그 외 소신) 기준입니다.'
     + '<br>※ <b>5등급 환산</b>은 9등급(4·7·12·17·20·17·12·7·4%)과 5등급(10·24·32·24·10%)의 누적 상위 백분위 중앙값을 기준으로 선형 보간한 참고치이며, 괄호 안은 9등급제 원본입니다.'
     + (sysNow===5?'<br>※ 2028학년도 대입은 내신 5등급제·수능 개편이 동시 적용되어 <b>연속성이 끊긴 데이터</b>입니다. 예측치가 아닌 <b>참고 좌표</b>로만 사용하세요.':'')
     + (hitCount?'':'<br>※ 추천 대학이 현재 적재된 입결 DB에 없습니다. 대학 추가 적재 시 자동 표기됩니다.')
     + '</div>';
 
-  body.innerHTML=rows+footNote+(growth||'');
+  body.innerHTML='<div style="margin:0 0 10px">'+archeGroupSelectHtml()+'</div>'+rows+footNote+(growth||'');
 }
 
 async function renderDiag(){
@@ -8740,7 +8786,7 @@ async function renderReport(){
   var se=res[2].data||[];
   var reco=(res[3]&&res[3].data&&res[3].data[0]&&res[3].data[0].payload&&res[3].data[0].payload.list)||[];
   var q4=(res[4]&&res[4].data&&res[4].data[0]&&res[4].data[0].payload)||{};
-  document.getElementById('rp-kpi-naesin').textContent=(n.weighted_overall!=null?Number(n.weighted_overall).toFixed(2):(cp.naesin!=null?cp.naesin:'—'));
+  document.getElementById('rp-kpi-naesin').innerHTML=(n.weighted_overall!=null?Number(n.weighted_overall).toFixed(2)+archeG5Suffix(n.weighted_overall):(cp.naesin!=null?esc(String(cp.naesin)):'—'));
   document.getElementById('rp-kpi-mopyeong').textContent=(cp.mopyeong!=null?cp.mopyeong:'—');
   var bs=n.by_semester||{}, sk=['1-1','1-2','2-1','2-2','3-1'];
   var semHtml=sk.filter(function(k){return bs[k]!=null;}).map(function(k){return '<div class="rp-sem-i">'+k+'<b>'+Number(bs[k]).toFixed(2)+'</b></div>';}).join('');
