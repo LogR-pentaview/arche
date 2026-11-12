@@ -6309,6 +6309,25 @@ function archeIsGradeMetric(r){
   if(/수능|백분위|논술점수|환산점수|경쟁률|충원|등급컷 없음/.test(m)) return false;
   return (r.cut50!=null||r.cut70!=null);
 }
+function archeMajorStem(x){
+  var s=String(x||'').replace(/\s/g,'').replace(/[()·ㆍ・,]/g,'');
+  s=s.replace(/(학부|전공|과)$/,'');
+  if(/공학$/.test(s)&&s.length>3) s=s.replace(/공학$/,'');
+  else if(/학$/.test(s)&&s.length>=3) s=s.replace(/학$/,'');
+  return s;
+}
+/* 학과명 동일/하위 변형만 일치 (물리학과 ≠ 물리치료학과) */
+function archeMajorMatch(a,b){
+  var x=archeMajorStem(a), y=archeMajorStem(b);
+  if(x.length<2||y.length<2) return false;
+  if(x===y) return true;
+  var lo=x.length<=y.length?x:y, hi=x.length<=y.length?y:x;
+  if(hi.indexOf(lo)<0) return false;
+  var rem=hi.replace(lo,'');
+  if(rem.length>3) return false;
+  if(/치료|교육|간호|의료|보건|체육|디자인|치의|한의|수의|약|의예|재활|영양|경영|경제|산업|문화|관광|연극|무용|음악/.test(rem)) return false;
+  return true;
+}
 /* group: 'auto'|'교과'|'종합'|'논술'|'특별'|'정시'. 반환 {best, all, group, usedAvg} */
 function archeMatchCut(rows, univ, major, group){
   var ur=String(univ||'').replace(/\s/g,'').replace(/학교$/,'').slice(0,3);
@@ -6325,10 +6344,7 @@ function archeMatchCut(rows, univ, major, group){
   };
   var pickMajor=function(arr){
     if(!mj) return arr;
-    var head=mj.slice(0,2);
-    var ex=arr.filter(function(r){ var m=String(r.major||'').replace(/\s/g,''); return m&&(m===mj||m.indexOf(mj)>=0||mj.indexOf(m)>=0); });
-    if(ex.length) return ex;
-    return arr.filter(function(r){ return String(r.major||'').indexOf(head)>=0; });
+    return arr.filter(function(r){ return archeMajorMatch(r.major,mj); });
   };
   var cand=pickMajor(byGroup(real)), usedAvg=false;
   if(!cand.length && avg.length){
@@ -6374,13 +6390,10 @@ async function archeDbReco(s, grade, sys, n){
     if(cm&&cm.majors) cm.majors.slice(0,5).forEach(function(x){ if(x&&x.major) targets.push(String(x.major)); });
   }catch(e){}
   String((s&&s.target_major)||'').split(/[,/·、\s>→]+/).forEach(function(t){ t=t.replace(/^\d+[.)]?/,''); if(t&&targets.indexOf(t)<0) targets.push(t); });
-  var stem=function(x){ return String(x||'').replace(/\s/g,'').replace(/(학과|학부|전공|과)$/,'').replace(/(공학|학)$/,''); };
-  var tstems=targets.map(stem).filter(function(x){return x.length>=2;});
-  var tf=majorToField(targets.join(' '));
+  var tstems=targets.filter(function(x){return archeMajorStem(x).length>=2;});
   var relOf=function(mj){
-    var ms=stem(mj); if(ms.length<2) return 0;
-    for(var i=0;i<tstems.length;i++){ var t=tstems[i]; if(ms.indexOf(t)>=0||t.indexOf(ms)>=0) return 3-Math.min(i,4)*0.5; }
-    return (tf&&majorToField(mj)===tf)?0.5:0;
+    for(var i=0;i<tstems.length;i++){ if(archeMajorMatch(mj,tstems[i])) return 3-Math.min(i,4)*0.5; }
+    return 0;
   };
   var base=[];
   rows.forEach(function(r){
@@ -6388,7 +6401,7 @@ async function archeDbReco(s, grade, sys, n){
     if(grp==='auto'){ if(!(r.adm_group==='교과'||r.adm_group==='종합'||r.adm_group==='논술')) return; }
     else if(r.adm_group!==grp) return;
     var cp=(r.cut70_pct!=null?Number(r.cut70_pct):(r.cut50_pct!=null?Number(r.cut50_pct):null)); if(cp==null) return;
-    base.push({r:r,cp:cp,rel:(tstems.length||tf)?relOf(r.major):3});
+    base.push({r:r,cp:cp,rel:tstems.length?relOf(r.major):3});
   });
   var bucket=function(g){ return g<=-3?'safe':(g<=5?'fit':(g<=8?'reach':null)); };
   var build=function(minRel){
@@ -6410,16 +6423,15 @@ async function archeDbReco(s, grade, sys, n){
     if(picked.length<n){ ['fit','reach','safe'].forEach(function(b){ B[b].forEach(function(r){ if(picked.length<n&&picked.indexOf(r)<0&&!used[r.univ]){ used[r.univ]=1; picked.push(r);} }); }); }
     return picked;
   };
-  var picked=build((tstems.length)?1:0);          /* 진로매칭 학과와 직접 일치 */
-  if(picked.length<3 && tstems.length) picked=build(0.5);   /* 부족하면 같은 계열까지 확대 */
-  if(picked.length<3) return null;
+  var picked=build(tstems.length?1:0);          /* 진로매칭 학과와 직접 일치만 (계열 확대 없음) */
+  if(!picked.length) return [];
   var ORD={reach:0,fit:1,safe:2};
   picked.sort(function(a,b){return ORD[bucket(a._gap)]-ORD[bucket(b._gap)];});
   return picked.slice(0,n).map(function(r){
     var cg=(r.cut70_g5!=null?Number(r.cut70_g5):(r.cut50_g5!=null?Number(r.cut50_g5):null));
     var raw=(r.cut70!=null?Number(r.cut70):(r.cut50!=null?Number(r.cut50):null));
     return { name:r.univ, major:r.major, type:r.admission_type, pos:bucket(r._gap), _gap:r._gap,
-      basis:(r._rel>=1?'진로매칭 학과 일치 · ':'동일 계열 · ')+r.year+' '+r.admission_type+' 합격선 5등급 환산 약 '+(cg!=null?cg.toFixed(1):'—')+(raw!=null?'(9등급제 '+raw.toFixed(2)+')':'')+' · 현재 약 '+(myG5!=null?Number(myG5).toFixed(1):'—')+'등급 → 백분위 격차 '+(r._gap>0?'+':'')+r._gap+'%p (입결 DB 기준)' };
+      basis:(tstems.length?'진로매칭 학과 일치 · ':'')+r.year+' '+r.admission_type+' 합격선 5등급 환산 약 '+(cg!=null?cg.toFixed(1):'—')+(raw!=null?'(9등급제 '+raw.toFixed(2)+')':'')+' · 현재 약 '+(myG5!=null?Number(myG5).toFixed(1):'—')+'등급 → 백분위 격차 '+(r._gap>0?'+':'')+r._gap+'%p (입결 DB 기준)' };
   });
 }
 function archeGroupSelectHtml(){
