@@ -8907,10 +8907,15 @@ async function renderReport(){
   document.getElementById('rp-setech').innerHTML=seHtml||'<li style="list-style:none;color:#999">활동 데이터 없음</li>';
   if(window.renderGoldenSection)renderGoldenSection(s,se);
 
-  // ⑤ 지원가능 대학 6선
+  // ⑤ 지원가능 대학 6선 (AI 분석 결과가 없으면 입결 DB 기준으로 자동 산출 — 저장하지 않음)
+  var _recoAuto=false;
+  if(!reco.length && n && n.weighted_overall!=null){
+    try{ var _dr=await archeDbReco(s,Number(n.weighted_overall),studentGradeSystem(s)); if(_dr&&_dr.length){ reco=_dr; _recoAuto=true; } }catch(_e){ console.error('[report db reco]',_e); }
+  }
   var posLab={reach:'소신',fit:'적정',safe:'안정'};
   document.getElementById('rp-uni').innerHTML=(reco.length)?reco.slice(0,6).map(function(u,i){return '<div class="ucard"><div class="urank">'+String(i+1).padStart(2,'0')+'</div><div class="uname">'+esc(u.name||'')+'</div><div class="umajor">'+esc(u.major||'')+'</div><div class="urow"><span class="pos '+(u.pos||'fit')+'">'+(posLab[u.pos]||'적정')+'</span><span class="utype">'+esc(u.type||'')+'</span></div><div class="ubasis">'+esc(u.basis||'')+'</div></div>';}).join(''):'<div style="color:#999;font-size:12px;grid-column:1/-1">[진단]에서 AI 분석 실행 시 추천 6선이 생성됩니다.</div>';
 
+  if(_recoAuto){ var _ru=document.getElementById('rp-uni'); if(_ru) _ru.insertAdjacentHTML('beforeend','<div style="grid-column:1/-1;font-size:11px;color:#8b95a1;margin-top:6px">※ AI 분석 전이라 입결 DB(5등급 환산) 기준으로 자동 산출한 후보입니다. [진단]에서 AI 분석을 실행하면 활동·진로까지 반영해 보정됩니다.</div>'); }
   // ⑥ 역설계 — 입결 DB(admission_cutlines) 연동
   var _rvEl=document.getElementById('rp-reverse');
   var _rvTail='';
