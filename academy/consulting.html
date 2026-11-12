@@ -1174,15 +1174,16 @@
       <section class="view" id="v-gessay">
         <div class="eyebrow">GOIP · Self-Introduction Letter</div>
         <div class="h1">고입 자소서 준비</div>
-        <div class="sub">컨설턴트: 설계도 생성 → 코멘트·수정 → [학생에게 전달] · 학생: 전달받은 설계로 작성 → 평가 → 컨설턴트 피드백. 완성 문장 대필은 하지 않습니다.</div>
+        <div class="sub">컨설턴트: 설계도 생성 → 코멘트·수정 → [학생에게 전달] · 학생: 전달받은 설계로 작성 → 평가 → 컨설턴트 피드백. 최종 완성본은 아래 [최종 완성 자소서 업로드]에 등록하면 면접 준비의 근거가 됩니다. 완성 문장 대필은 하지 않습니다.</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
           <select id="ges-student" onchange="gesSelect(this.value)" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 학생 선택 —</option></select>
-          <select id="ges-school" class="goip-con-only" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 지원 학교 —</option></select>
+          <select id="ges-school" class="goip-con-only" onchange="gefRender('ges')" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:200px"><option value="">— 지원 학교 —</option></select>
           <button class="btn goip-con-only" onclick="gesGenBlueprint()">설계도 생성</button>
           <button class="btn goip-con-only" onclick="gesSendAll()" style="background:var(--gold);color:#ffffff">전체 학생에게 전달</button>
           <button class="btn ghost" onclick="gesLoad()">불러오기</button>
         </div>
         <div id="ges-msg" style="font-size:12px;margin-top:8px"></div>
+        <div id="gef-host-ges" class="goip-con-only"></div>
         <div id="ges-body" style="margin-top:16px"></div>
       </section>
 
@@ -1192,10 +1193,11 @@
         <div class="h1">고입 면접 준비</div>
         <div class="sub">지원 학교를 선택하면 그 학교의 면접 형태·기출 경향과 학생 학생 자료를 결합해 예상 문항을 생성합니다. 과학고·영재학교는 제공하지 않습니다.</div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px">
-          <select id="giv-school" class="goip-con-only" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 지원 학교 선택 —</option></select>
+          <select id="giv-school" class="goip-con-only" onchange="gefRender('giv')" style="padding:7px 10px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:13px;min-width:220px"><option value="">— 지원 학교 선택 —</option></select>
           <button class="btn goip-con-only" onclick="runGInterview()">예상 문항 생성</button>
           <span id="giv-msg" style="font-size:12px;color:var(--ink-mute)"></span>
         </div>
+        <div id="gef-host-giv" class="goip-con-only"></div>
         <div id="giv-result" style="margin-top:16px"></div>
       </section>
 
@@ -8495,6 +8497,7 @@ window.renderGInterview=async function(){
     ss.innerHTML='<option value="">— 지원 학교 선택 —</option>'+list.map(function(x){return '<option value="'+esc(x.name)+'"'+(x.name===pref?' selected':'')+'>'+esc(x.name)+' ('+esc(x.school_type)+')</option>';}).join('');
   }
   var box=document.getElementById('giv-result');
+  try{ gefRender('giv'); }catch(_e){}
   if(!window._gactive){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">탑바에서 학생을 먼저 선택하세요.</div>';window._gIvCur=null;return;}
   // 진행중 세트 우선, 없으면 최신
   var cur=null;
@@ -8640,11 +8643,118 @@ async function runGInterview(){
       m.textContent=esc((data&&data.error)||(error&&error.message)||'생성 실패');
       return;
     }
-    m.style.color='var(--safe)';m.textContent='생성 완료'+(data.has_dedicated_data?' (전용 면접 자료 반영)':' (입시요강 기반)')+' — 검토 후 [학생에게 전달]을 누르세요.';
+    m.style.color='var(--safe)';m.textContent='생성 완료'+(data.has_dedicated_data?' (전용 면접 자료 반영)':' (입시요강 기반)')+(data.essay_source==='final'?' · 최종 완성 자소서 반영':'')+' — 검토 후 [학생에게 전달]을 누르세요.';
     renderGInterview();
   }catch(e){m.style.color='var(--risk)';m.textContent='오류: '+esc(e.message||String(e));}
   finally{if(window.hideAiLoading)hideAiLoading();}
 }
+/* ===== 최종 완성 자소서 업로드 (설계도 협업 → 최종 완성본 → 면접 준비의 근거) ===== */
+window._gefCache={};
+window._gefFname={};
+function gefCfg(p){ return p==='ges'?{school:'ges-school',host:'gef-host-ges'}:{school:'giv-school',host:'gef-host-giv'}; }
+function gefFmtDate(v){ try{ var d=new Date(v); if(isNaN(d))return ''; return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'); }catch(e){ return ''; } }
+async function gefRender(p){
+  var cfg=gefCfg(p), host=document.getElementById(cfg.host); if(!host)return;
+  if(window._role==='stu'){ host.innerHTML=''; return; }
+  var s=window._gactive, sch=(document.getElementById(cfg.school)||{}).value||'';
+  var row=null, err='';
+  if(s&&sch&&window.sb){
+    try{
+      var r=await sb.from('goip_essay_finals').select('*').eq('student_id',s.id).eq('school_name',sch).limit(1);
+      if(r.error)err=r.error.message; else row=(r.data&&r.data[0])||null;
+    }catch(e){ err=e.message||String(e); }
+  }
+  window._gefCache[p]=row;
+  window._gefFname[p]=null;
+  var h='<div class="card" style="border-left:3px solid var(--safe);margin:14px 0;padding:14px 16px">';
+  h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px"><b style="font-size:13.5px">📎 최종 완성 자소서 업로드</b>';
+  if(row)h+='<span style="font-size:11px;font-weight:700;color:var(--safe);border:1px solid currentColor;border-radius:12px;padding:1px 9px">등록됨 · '+(row.char_count||String(row.final_text||'').length)+'자</span>';
+  else if(s&&sch)h+='<span style="font-size:11px;font-weight:700;color:var(--ink-mute);border:1px solid currentColor;border-radius:12px;padding:1px 9px">미등록</span>';
+  h+='</div>';
+  h+='<div style="font-size:12px;color:var(--ink-dim);line-height:1.6;margin-bottom:10px">학생과 컨설턴트가 설계도로 주고받으며 <b style="color:var(--ink)">최종 완성한 자소서</b>를 올리면, 면접 예상 문항이 <b style="color:var(--ink)">이 완성본을 근거로</b> 생성됩니다. 문항별 초안이 비어 있어도 면접 문항 생성이 가능합니다.</div>';
+  if(!s){ h+='<div style="font-size:12px;color:var(--ink-mute)">학생을 먼저 선택하세요.</div></div>'; host.innerHTML=h; return; }
+  if(!sch){ h+='<div style="font-size:12px;color:var(--ink-mute)">지원 학교를 선택하면 <b>'+esc(s.name||'')+'</b> 학생의 최종 완성본을 학교별로 등록할 수 있습니다.</div></div>'; host.innerHTML=h; return; }
+  if(err){ h+='<div style="font-size:12px;color:var(--risk)">불러오기 실패: '+esc(err)+'</div></div>'; host.innerHTML=h; return; }
+  if(row){
+    h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:11.5px;color:var(--ink-mute);margin-bottom:8px">'
+      +'<span>'+esc(s.name||'')+' · '+esc(sch)+'</span>'
+      +(row.file_name?'<span>📎 '+esc(row.file_name)+'</span>':'')
+      +(row.updated_at?'<span>최종 저장 '+gefFmtDate(row.updated_at)+'</span>':'')
+      +'<button class="btn ghost" style="font-size:11.5px;padding:3px 10px" onclick="gefDelete(\''+p+'\')">삭제</button></div>';
+    h+='<details style="margin-bottom:10px"><summary style="font-size:12px;color:var(--gold);cursor:pointer;font-weight:700">등록된 완성본 내용 보기</summary>'
+      +'<div style="white-space:pre-wrap;font-size:12.5px;color:var(--ink-dim);line-height:1.7;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin-top:6px;max-height:320px;overflow:auto">'+esc(row.final_text||'')+'</div></details>';
+  }
+  h+='<div style="font-size:11.5px;color:var(--ink-mute);font-weight:700;margin-bottom:4px">'+(row?'새 완성본으로 교체':'완성본 등록')+'</div>';
+  h+='<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">'
+    +'<input type="file" id="gef-file-'+p+'" accept=".txt,.md,.docx,.pdf" onchange="gefPick(\''+p+'\')" style="font-size:12px;max-width:260px">'
+    +'<button class="btn ghost" style="font-size:11.5px;padding:4px 11px" onclick="gefFromDrafts(\''+p+'\')">문항별 초안·제출본 합치기</button>'
+    +'<span style="font-size:11px;color:var(--ink-mute)">txt · docx · pdf 지원 (HWP는 내용을 복사해 붙여넣기)</span></div>';
+  h+='<textarea id="gef-ta-'+p+'" rows="8" oninput="gefCount(\''+p+'\')" placeholder="최종 완성된 자소서 전문을 붙여넣거나 위에서 파일을 선택하세요. 문항이 여러 개면 문항 번호가 보이도록 이어서 붙여 주세요." style="width:100%;padding:9px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.65;resize:vertical"></textarea>';
+  h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:6px"><span id="gef-cnt-'+p+'" style="font-size:11px;color:var(--ink-mute)">0자</span>'
+    +'<button class="btn" style="font-size:12px;padding:6px 16px" onclick="gefSave(\''+p+'\')">'+(row?'교체 저장':'최종 완성본 저장')+'</button>'
+    +'<span id="gef-msg-'+p+'" style="font-size:12px;color:var(--ink-mute)"></span></div>';
+  h+='</div>';
+  host.innerHTML=h;
+}
+window.gefRender=gefRender;
+function gefCount(p){ var ta=document.getElementById('gef-ta-'+p), c=document.getElementById('gef-cnt-'+p); if(ta&&c)c.textContent=ta.value.length+'자'; }
+window.gefCount=gefCount;
+async function gefPick(p){
+  var f=(document.getElementById('gef-file-'+p)||{}).files; f=f&&f[0]; var m=document.getElementById('gef-msg-'+p);
+  if(!f)return;
+  if(m){ m.style.color='var(--ink-mute)'; m.textContent='텍스트 추출 중…'; }
+  try{
+    if(window.pdfjsLib&&window.pdfjsLib.GlobalWorkerOptions&&!window.pdfjsLib.GlobalWorkerOptions.workerSrc){ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; }
+    var t=await extractExtraText(f);
+    if(t&&t.trim()){
+      document.getElementById('gef-ta-'+p).value=t.trim().slice(0,30000);
+      window._gefFname[p]=f.name; gefCount(p);
+      if(m){ m.style.color='var(--safe)'; m.textContent='추출 완료 — 내용을 확인한 뒤 저장하세요.'; }
+    } else if(m){ m.style.color='var(--risk)'; m.textContent='이 형식은 자동 추출이 안 됩니다(HWP·스캔 PDF 등). 내용을 복사해 붙여넣어 주세요.'; }
+  }catch(e){ if(m){ m.style.color='var(--risk)'; m.textContent='추출 실패: '+(e.message||e); } }
+}
+window.gefPick=gefPick;
+// 설계도 협업으로 쌓인 문항별 최신 초안/제출본을 한 번에 합쳐 편집창에 채움
+async function gefFromDrafts(p){
+  var s=window._gactive, sch=(document.getElementById(gefCfg(p).school)||{}).value||''; var m=document.getElementById('gef-msg-'+p);
+  if(!s||!sch){ if(m){ m.style.color='var(--risk)'; m.textContent='학생과 지원 학교를 먼저 선택하세요.'; } return; }
+  var r=await sb.from('goip_essay_drafts').select('q_no,q_area,draft').eq('student_id',s.id).eq('school_name',sch).order('q_no',{ascending:true});
+  var rows=(r.data||[]).filter(function(d){ return d.draft&&String(d.draft).trim(); });
+  if(!rows.length){ if(m){ m.style.color='var(--ink-mute)'; m.textContent='합칠 문항별 초안이 아직 없습니다. 직접 붙여넣거나 파일을 올려 주세요.'; } return; }
+  document.getElementById('gef-ta-'+p).value=rows.map(function(d){ return '['+d.q_no+'번'+(d.q_area?' · '+d.q_area:'')+']\n'+String(d.draft).trim(); }).join('\n\n');
+  window._gefFname[p]=null; gefCount(p);
+  if(m){ m.style.color='var(--safe)'; m.textContent=rows.length+'개 문항의 최신 초안을 불러왔습니다 — 최종 수정 후 저장하세요.'; }
+}
+window.gefFromDrafts=gefFromDrafts;
+async function gefSave(p){
+  var s=window._gactive, sch=(document.getElementById(gefCfg(p).school)||{}).value||''; var m=document.getElementById('gef-msg-'+p);
+  if(!s){ if(m){ m.style.color='var(--risk)'; m.textContent='학생을 선택하세요.'; } return; }
+  if(!sch){ if(m){ m.style.color='var(--risk)'; m.textContent='지원 학교를 선택하세요.'; } return; }
+  var txt=((document.getElementById('gef-ta-'+p)||{}).value||'').trim().slice(0,30000);
+  if(!txt){ if(m){ m.style.color='var(--risk)'; m.textContent='완성본 내용을 입력하거나 파일을 선택하세요.'; } return; }
+  if(txt.length<200&&!confirm('내용이 '+txt.length+'자로 매우 짧습니다. 이대로 최종 완성본으로 저장할까요?'))return;
+  var prev=window._gefCache[p];
+  if(prev&&!confirm('이미 등록된 최종 완성본이 있습니다. 새 내용으로 교체할까요?'))return;
+  if(m){ m.style.color='var(--ink-mute)'; m.textContent='저장 중…'; }
+  var row={ student_id:s.id, academy_id:s.academy_id||null, school_name:sch, final_text:txt, file_name:(window._gefFname[p]||(prev&&prev.file_name)||null), char_count:txt.length, source:'consultant', uploaded_by:window._myUid||null, updated_at:new Date().toISOString() };
+  var up=await sb.from('goip_essay_finals').upsert(row,{onConflict:'student_id,school_name'});
+  if(up.error){ if(m){ m.style.color='var(--risk)'; m.textContent='저장 실패: '+up.error.message; } if(window.toast)toast('저장 실패: '+up.error.message,false); return; }
+  if(window.toast)toast('최종 완성 자소서 저장됨 — 면접 준비의 근거로 사용됩니다',true);
+  await gefRender(p);
+  var m2=document.getElementById('gef-msg-'+p); if(m2){ m2.style.color='var(--safe)'; m2.textContent='저장 완료'+(p==='giv'?' — 이제 [예상 문항 생성]을 누르면 이 완성본 기준으로 문항이 만들어집니다.':' — [면접 준비]에서 이 완성본 기반으로 문항을 생성할 수 있습니다.'); }
+  try{ if(p==='giv'&&window.givUpdateEssayStatus)givUpdateEssayStatus(true); }catch(e){}
+}
+window.gefSave=gefSave;
+async function gefDelete(p){
+  var s=window._gactive, sch=(document.getElementById(gefCfg(p).school)||{}).value||''; if(!s||!sch)return;
+  if(!confirm('등록된 최종 완성 자소서를 삭제할까요? (문항별 초안은 삭제되지 않습니다)'))return;
+  var d=await sb.from('goip_essay_finals').delete().eq('student_id',s.id).eq('school_name',sch);
+  if(d.error){ if(window.toast)toast('삭제 실패: '+d.error.message,false); return; }
+  if(window.toast)toast('삭제됨');
+  await gefRender(p);
+  try{ if(p==='giv'&&window.givUpdateEssayStatus)givUpdateEssayStatus(true); }catch(e){}
+}
+window.gefDelete=gefDelete;
 window.renderGEssay=async function(){
   if(window._role!=='stu'){ await loadGStudents(); } // 컨설턴트만 전체 목록
   var sel=document.getElementById('ges-student');
@@ -8728,6 +8838,7 @@ async function gesGenBlueprint(){
   finally{ if(window.hideAiLoading)hideAiLoading(); }
 }
 async function gesLoad(){
+  try{ gefRender('ges'); }catch(_e){}
   var s=window._gactive; var body=document.getElementById('ges-body');
   var school=document.getElementById('ges-school').value;
   if(!s||!body)return;
