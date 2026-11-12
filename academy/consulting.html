@@ -6272,8 +6272,8 @@ function studentGradeSystem(s){
 }
 window._cutCache = window._cutCache || {};
 /* 전형군 선택: auto=일반전형(교과·종합·논술) 중 가장 엄격한 합격선 / 교과·종합·논술·특별·정시 개별 선택 */
-try{ window._cutGroup = window._cutGroup || sessionStorage.getItem('arche_cut_group') || 'auto'; }catch(e){ window._cutGroup = window._cutGroup || 'auto'; }
-function archeSetCutGroup(g){ window._cutGroup=g; try{ sessionStorage.setItem('arche_cut_group',g); }catch(e){} try{ if(document.getElementById('arche-body')&&typeof renderArche==='function') renderArche(); }catch(e){} try{ if(document.getElementById('rp-reverse')&&typeof renderReport==='function') renderReport(); }catch(e){} }
+window._cutGroup = window._cutGroup || 'auto';  /* 새로고침 시 항상 자동(교과·종합·논술) 기준으로 시작 */
+function archeSetCutGroup(g){ window._cutGroup=g; try{ if(document.getElementById('arche-body')&&typeof renderArche==='function') renderArche(); }catch(e){} try{ if(document.getElementById('rp-reverse')&&typeof renderReport==='function') renderReport(); }catch(e){} }
 /* 내신 → 5등급 환산 (9등급제 학생은 누적 백분위 경유). 5등급제 학생은 원값 그대로 */
 function archeG5Of(s, grade){
   if(grade==null||isNaN(grade)) return null; grade=Number(grade);
