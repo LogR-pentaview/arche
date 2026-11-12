@@ -6652,9 +6652,11 @@ async function estimateCog(){
       }catch(e){}
       var careerComposite='목표학과 '+rankedTxt+(relatedTxt?(' / 학생부 기반 관련 학과: '+relatedTxt):'')+(s.career?(' / 희망 진로: '+s.career):'');
       var recoCtx=('★추천 원칙: 목표학과 1~3순위를 우선하되, 학생부 기반 관련 학과와 상담 희망을 함께 고려해 6개를 폭넓게 매칭하라(단일 학과에 갇히지 말 것).\n'+_cmCtx+consTxt+'[활동]\n'+setechTxt).slice(0,4200);
-    var rc=await callAI('recommend_univ',{career:careerComposite,field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:(naesin!=null?naesin:''),gpa_sys:studentGradeSystem(s),context:recoCtx});
-      var ulist=JSON.parse(rc.text);
-      if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:'ai_estimate'}}); }
+    var ulist=null, _dbReco=false;
+      if(naesin!=null){ try{ ulist=await archeDbReco(s,Number(naesin),studentGradeSystem(s)); _dbReco=!!ulist; }catch(e){ ulist=null; } }
+      if(!ulist){ var rc=await callAI('recommend_univ',{career:careerComposite,field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:(naesin!=null?naesin:''),gpa_sys:studentGradeSystem(s),context:recoCtx});
+      ulist=JSON.parse(rc.text); }
+      if(Array.isArray(ulist)&&ulist.length){ await sb.from('student_metrics').insert({student_id:s.id,metric_type:'univ_reco',payload:{list:ulist,source:(_dbReco?'db_cutline':'ai_estimate')}}); }
     }catch(ue){}
     if(window.renderDiag)renderDiag(); if(window.renderArche)renderArche(); if(window.renderReport)renderReport(); if(window.loadMetrics)loadMetrics();
     alert('AI 분석 완료: 5역량 + 지원가능 대학 6선 (학생 자료 기반 근사치). 리포트 반영됨. 활동 추가 후 다시 누르면 보정됩니다.');
@@ -7695,6 +7697,71 @@ function archeMatchCut(rows, univ, major, group){
   if(!cand.length) return null;
   cand.sort(function(a,b){ return (a.cut70||a.cut50||9)-(b.cut70||b.cut50||9); });
   return { best: cand[0], all: cand, group: group, usedAvg: usedAvg };
+}
+/* ===== 입결 DB 기반 지원 대학 추천 (AI 추측 대신 합격선 5등급 환산 매칭) ===== */
+function archeGradeToPct(grade, sys){
+  if(grade==null||isNaN(grade)) return null; grade=Number(grade);
+  if(Number(sys)===5){
+    var A=window.G5_ANCHOR, g=Math.max(1,Math.min(5,grade)), lo=Math.floor(g);
+    return (g>=5)?A[4]:+(A[lo-1]+((A[lo]||A[4])-A[lo-1])*(g-lo)).toFixed(2);
+  }
+  return g9ToPct(grade);
+}
+async function archeFetchAllCuts(){
+  if(window._allCuts) return window._allCuts;
+  if(!sb) return [];
+  var out=[], from=0, step=1000;
+  for(var i=0;i<8;i++){
+    var q=await sb.from('admission_cutlines')
+      .select('univ,year,admission_type,major,cut50,cut70,cut50_pct,cut70_pct,cut50_g5,cut70_g5,competition_rate,grade_system,metric,adm_group')
+      .order('id',{ascending:true}).range(from,from+step-1);
+    var d=(q&&q.data)||[]; out=out.concat(d); if(d.length<step) break; from+=step;
+  }
+  window._allCuts=out; return out;
+}
+/* 반환: [{name,major,type,pos,basis,_gap}] — 입결 DB 후보가 3개 미만이면 null(호출측이 AI 보조) */
+async function archeDbReco(s, grade, sys, n){
+  n=n||6;
+  var myPct=archeGradeToPct(grade,sys); if(myPct==null) return null;
+  var myG5=(Number(sys)===5)?Number(grade):pctToG5(myPct);
+  var rows=await archeFetchAllCuts();
+  var grp=window._cutGroup||'auto';
+  var tm=String((s&&s.target_major)||'').replace(/\s/g,''), tf=majorToField(tm);
+  var best={};
+  rows.forEach(function(r){
+    if(!archeIsGradeMetric(r)||/^계열평균/.test(String(r.metric||''))) return;
+    if(grp==='auto'){ if(!(r.adm_group==='교과'||r.adm_group==='종합'||r.adm_group==='논술')) return; }
+    else if(r.adm_group!==grp) return;
+    var cp=(r.cut70_pct!=null?Number(r.cut70_pct):(r.cut50_pct!=null?Number(r.cut50_pct):null)); if(cp==null) return;
+    var mj=String(r.major||'').replace(/\s/g,'');
+    var rel=0;
+    if(tm&&(mj.indexOf(tm)>=0||tm.indexOf(mj)>=0)&&mj) rel=2;
+    else if(tf&&majorToField(mj)===tf) rel=1;
+    if((tm||tf)&&rel===0) return;
+    var k=r.univ+'|'+mj;
+    if(!best[k]||cp<best[k]._cp){ var o=Object.assign({},r); o._cp=cp; o._rel=rel; o._gap=+(myPct-cp).toFixed(2); best[k]=o; }
+  });
+  var all=Object.keys(best).map(function(k){return best[k];});
+  var bucket=function(r){ return r._gap<=-3?'safe':(r._gap<=5?'fit':(r._gap<=8?'reach':null)); };
+  var B={reach:[],fit:[],safe:[]};
+  all.forEach(function(r){ var b=bucket(r); if(b&&r._gap>=-15) B[b].push(r); });
+  var byRel=function(a,b){ return (b._rel-a._rel); };
+  B.reach.sort(function(a,b){return byRel(a,b)||(a._gap-b._gap);});      /* 도전권 중 가장 가까운 순 */
+  B.fit.sort(function(a,b){return byRel(a,b)||(Math.abs(a._gap-1)-Math.abs(b._gap-1));});
+  B.safe.sort(function(a,b){return byRel(a,b)||(b._gap-a._gap);});       /* 안정권 중 합격선에 가까운 순 */
+  var used={}, picked=[];
+  var take=function(arr,cnt){ var c=0; for(var i=0;i<arr.length&&c<cnt;i++){ if(used[arr[i].univ]) continue; used[arr[i].univ]=1; picked.push(arr[i]); c++; } };
+  take(B.reach,2); take(B.fit,2); take(B.safe,2);
+  if(picked.length<n){ ['fit','reach','safe'].forEach(function(b){ B[b].forEach(function(r){ if(picked.length<n&&picked.indexOf(r)<0&&!used[r.univ]){ used[r.univ]=1; picked.push(r);} }); }); }
+  if(picked.length<3) return null;
+  var ORD={reach:0,fit:1,safe:2};
+  picked.sort(function(a,b){return ORD[bucket(a)]-ORD[bucket(b)];});
+  return picked.slice(0,n).map(function(r){
+    var cg=(r.cut70_g5!=null?Number(r.cut70_g5):(r.cut50_g5!=null?Number(r.cut50_g5):null));
+    var raw=(r.cut70!=null?Number(r.cut70):(r.cut50!=null?Number(r.cut50):null));
+    return { name:r.univ, major:r.major, type:r.admission_type, pos:bucket(r), _gap:r._gap,
+      basis:r.year+' '+r.admission_type+' 합격선 5등급 환산 약 '+(cg!=null?cg.toFixed(1):'—')+(raw!=null?'(9등급제 '+raw.toFixed(2)+')':'')+' · 현재 약 '+(myG5!=null?Number(myG5).toFixed(1):'—')+'등급 → 백분위 격차 '+(r._gap>0?'+':'')+r._gap+'%p (입결 DB 기준)' };
+  });
 }
 function archeGroupSelectHtml(){
   var cur=window._cutGroup||'auto';
@@ -11544,8 +11611,10 @@ window.simRunAI=async function(){
   try{
     var P=+((_simSt.P!=null?_simSt.P:_simSt.W)).toFixed(2);
     var ctx='[\ub0b4\uc2e0 \uc2dc\ub098\ub9ac\uc624 \uc2dc\ubbac\ub808\uc774\uc158] \ud604\uc7ac '+_simSt.C+'\uac1c \ud559\uae30 \ud3c9\uade0 '+_simSt.W.toFixed(2)+'\ub4f1\uae09. \ub0a8\uc740 '+_simSt.R+'\uac1c \ud559\uae30 \ud3c9\uade0 '+Number(_simSt.F||_simSt.W).toFixed(1)+'\ub4f1\uae09 \uac00\uc815 \uc2dc \ucd5c\uc885 \ub0b4\uc2e0 '+P+'\ub4f1\uae09\uc774 \ub418\ub294 \uac00\uc0c1 \uc2dc\ub098\ub9ac\uc624\uc784. \uc774 \ucd5c\uc885 \ub0b4\uc2e0\uc744 \uc804\uc81c\ub85c \ucd94\ucc9c\ud558\ub77c.';
-    var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:P,gpa_sys:_simSt.sys,context:ctx});
-    var list=JSON.parse(rc.text); if(!Array.isArray(list))list=[];
+    var list=null;
+    try{ list=await archeDbReco(s,P,_simSt.sys); }catch(e){ list=null; }
+    if(!list){ var rc=await callAI('recommend_univ',{career:(s.career||s.target_major||''),field:majorToField(s.target_major),target:(s.target_univ||''),gender:(s.gender||''),region:(s.region||''),gpa:P,gpa_sys:_simSt.sys,context:ctx});
+    list=JSON.parse(rc.text); if(!Array.isArray(list))list=[]; }
     var POS={reach:['\uc18c\uc2e0','var(--reach,#f79009)','rgba(247,144,9,.1)'],fit:['\uc801\uc815','var(--blue,#3182f6)','rgba(49,130,246,.08)'],safe:['\uc548\uc815','var(--safe,#12b76a)','rgba(18,183,106,.1)']};
     out.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--ink);margin:12px 0 2px">\ucd5c\uc885 \ub0b4\uc2e0 '+P+'\ub4f1\uae09 \uac00\uc815 \uc2dc \uc9c0\uc6d0 \uc2a4\ud399\ud2b8\ub7fc <span style="font-weight:400;color:var(--ink-mute)">(\uc2dc\ub098\ub9ac\uc624 \ucc38\uace0\uc6a9 \u2014 \uc800\uc7a5\ub418\uc9c0 \uc54a\uc2b5\ub2c8\ub2e4)</span></div>'
       +list.map(function(u){ var pz=POS[u.pos]||['\u2014','var(--ink-mute)','var(--panel-2,#f9fafb)']; return '<div class="u"><span class="pos" style="color:'+pz[1]+';background:'+pz[2]+'">'+pz[0]+'</span><b style="color:var(--ink)">'+esc(u.name||'')+'</b> <span>'+esc(u.major||'')+'</span> <span style="color:var(--ink-mute);font-size:11px">'+esc(u.type||'')+'</span><span style="flex:1"></span><span style="font-size:11px;color:var(--ink-mute)">'+esc(u.basis||'')+'</span></div>';}).join('');
