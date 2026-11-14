@@ -10340,29 +10340,62 @@ window.renderGInterview=async function(){
   var box=document.getElementById('giv-result');
   if(!window._gactive){box.innerHTML='<div style="color:var(--ink-mute);padding:16px">위에서 학생을 먼저 선택하세요.</div>';window._gIvCur=null;try{givUpdateEssayStatus();}catch(e){}return;}
   try{ givUpdateEssayStatus(); }catch(e){}
-  // 진행중 세트 우선, 없으면 최신
-  var cur=null;
+  // 학생×학교의 전체 문항 세트를 차수순(오래된 것=1차)으로 조회 — 이전 차수 질문·답변·코멘트를 누적해서 볼 수 있게 함
+  var cur=null, all=[];
   try{
     var _cs=(document.getElementById('giv-school')||{}).value||'';   // 선택한 지원 학교의 세트만 (학생×학교 매칭)
     var qa=sb.from('goip_interviews').select('*').eq('student_id',window._gactive.id); if(_cs)qa=qa.eq('school_name',_cs);
-    var a=await qa.neq('status','done').order('created_at',{ascending:false}).limit(1);
-    if(a.data&&a.data[0])cur=a.data[0];
-    if(!cur){var qb=sb.from('goip_interviews').select('*').eq('student_id',window._gactive.id); if(_cs)qb=qb.eq('school_name',_cs); var b=await qb.order('created_at',{ascending:false}).limit(1); if(b.data&&b.data[0])cur=b.data[0];}
+    var ra=await qa.order('created_at',{ascending:true});
+    all=ra.data||[];
   }catch(e){}
-  window._gIvCur=cur;
-  if(!cur||!cur.result){
-    box.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(window._role==='stu'?'아직 선생님이 면접 문항을 준비하지 않았습니다.':(window._gactive.name+' 학생의 '+(((document.getElementById('giv-school')||{}).value)||'지원 학교')+' 면접 문항이 아직 없습니다. 학교를 선택하고 [예상 문항 생성]을 누르세요.'))+'</div>';
+  var _isStu=(window._role==='stu');
+  window._gIvPending=false;
+  if(_isStu){   // 학생에게는 전달 전(draft) 세트 비노출
+    window._gIvPending=all.some(function(x){return (x.status||'draft')==='draft';});
+    all=all.filter(function(x){return (x.status||'draft')!=='draft';});
+  }
+  all=all.filter(function(x){return x.result;});
+  // 진행중 세트 우선, 없으면 최신
+  for(var _i=all.length-1;_i>=0;_i--){ if((all[_i].status||'draft')!=='done'){ cur=all[_i]; break; } }
+  if(!cur&&all.length)cur=all[all.length-1];
+  window._gIvAll=all; window._gIvCur=cur;
+  if(!cur){
+    box.innerHTML='<div style="color:var(--ink-mute);padding:16px">'+(_isStu?(window._gIvPending?'선생님이 면접 문항을 준비 중입니다. 전달되면 여기에 표시됩니다.':'아직 선생님이 면접 문항을 준비하지 않았습니다.'):(window._gactive.name+' 학생의 '+(((document.getElementById('giv-school')||{}).value)||'지원 학교')+' 면접 문항이 아직 없습니다. 학교를 선택하고 [예상 문항 생성]을 누르세요.'))+'</div>';
     return;
   }
-  if(window._role==='stu'&&(cur.status||'draft')==='draft'){
-    box.innerHTML='<div style="color:var(--ink-mute);padding:16px">선생님이 면접 문항을 준비 중입니다. 전달되면 여기에 표시됩니다.</div>';
-    window._gIvCur=null; return;
-  }
-  box.innerHTML=gIvFlow(cur);
+  gIvPaint();
 };
+/* 차수별 이력 — 같은 학생×학교의 1차·2차·… 문항 세트와 각 학생 답변·코멘트를 누적해서 열람 */
+var GIV_ST_SHORT={draft:'준비 중',sent:'답변 대기',answered:'제출됨',commented:'수정 대기',done:'완료'};
+function gIvPaint(){
+  var box=document.getElementById('giv-result'); if(!box)return;
+  var all=window._gIvAll||[], cur=window._gIvCur; if(!cur)return;
+  var view=null; for(var i=0;i<all.length;i++){ if(all[i].id===window._gIvView){ view=all[i]; break; } }
+  if(!view)view=cur;
+  box.innerHTML=gIvTabs(all,view,cur)+gIvFlow(view,view.id!==cur.id);
+}
+function gIvTabs(all,view,cur){
+  var pend=!!window._gIvPending;
+  if(all.length<2&&!pend)return '';
+  var h='<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:12px">';
+  var totAns=0;
+  all.forEach(function(x,i){
+    var tq=0; ((x.result&&x.result.sections)||[]).forEach(function(sec){ tq+=(sec.items||[]).length; });
+    var ans=x.answers||{}; var ac=Object.keys(ans).filter(function(k){return ans[k]&&ans[k].text;}).length;
+    totAns+=ac;
+    var on=x.id===view.id;
+    h+='<button type="button" onclick="gIvView(\''+esc(x.id)+'\')" style="cursor:pointer;font-size:12px;font-weight:700;padding:6px 12px;border-radius:16px;border:1px solid '+(on?'var(--gold)':'var(--line)')+';background:'+(on?'var(--gold)':'var(--panel-2)')+';color:'+(on?'#fff':'var(--ink-dim)')+'">'
+      +(i+1)+'차 문항 <span style="font-weight:500;opacity:.85">· '+esc(GIV_ST_SHORT[x.status||'draft']||x.status)+' · 답변 '+ac+'/'+tq+(x.created_at?' · '+esc(gefFmtDate(x.created_at)):'')+'</span></button>';
+  });
+  if(pend)h+='<span style="font-size:11.5px;color:var(--ink-mute)">다음 차수 문항을 선생님이 준비 중입니다</span>';
+  h+='<span style="font-size:11.5px;color:var(--ink-mute);margin-left:auto">누적 '+all.length+'차 · 학생 답변 '+totAns+'개 보존</span></div>';
+  if(view.id!==cur.id)h+='<div style="font-size:12px;color:var(--ink-mute);margin:-4px 0 10px">📚 지난 차수 기록입니다 (읽기 전용). 진행 중인 문항은 <b>'+(all.indexOf(cur)+1)+'차</b> 탭에서 확인하세요.</div>';
+  return h;
+}
+window.gIvView=function(id){ window._gIvView=id; gIvPaint(); };
 var GIV_ST={draft:'작성 중 (전달 전)',sent:'학생 답변 대기',answered:'학생 답변 제출됨 — 코멘트 필요',commented:'학생 수정 대기',done:'완료'};
 var GIV_ST_STU={draft:'선생님 준비 중',sent:'답변을 작성해 제출하세요',answered:'제출 완료 — 선생님 확인 중',commented:'선생님 코멘트 도착 — 답변을 수정해 다시 제출하세요',done:'완료'};
-function gIvFlow(rec){
+function gIvFlow(rec,ro){
   var o=rec.result||{},st=rec.status||'draft',isStu=(window._role==='stu');
   var ans=rec.answers||{},cmt=rec.comments||{};
   var h='';
@@ -10370,8 +10403,9 @@ function gIvFlow(rec){
   var stLabel=isStu?(GIV_ST_STU[st]||st):(GIV_ST[st]||st);
   var stColor=st==='done'?'var(--safe)':(st==='answered'?'var(--gold)':'var(--ink-dim)');
   h+='<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px">';
-  h+='<span style="font-size:11px;font-weight:700;color:'+stColor+';border:1px solid currentColor;border-radius:12px;padding:2px 10px">'+esc(rec.school_name||'')+' · '+esc(stLabel)+' · '+rec.round+'회차</span>';
-  if(!isStu){
+  h+='<span style="font-size:11px;font-weight:700;color:'+stColor+';border:1px solid currentColor;border-radius:12px;padding:2px 10px">'+esc(rec.school_name||'')+' · '+(((window._gIvAll||[]).indexOf(rec)+1)?((window._gIvAll||[]).indexOf(rec)+1)+'차 문항 · ':'')+esc(ro?'지난 기록 ('+(GIV_ST_SHORT[st]||st)+')':stLabel)+((rec.round||1)>1?' · 코멘트 '+((rec.round||1)-1)+'회':'')+'</span>';
+  if(ro){ /* 지난 차수는 읽기 전용 — 버튼 없음 */ }
+  else if(!isStu){
     if(st==='draft')h+='<button class="btn" style="font-size:12px;padding:6px 14px" onclick="gIvSend()">학생에게 전달</button><button class="btn ghost" style="font-size:12px;padding:6px 14px" onclick="gIvDelete()">삭제</button>';
     if(st==='answered')h+='<button class="btn" style="font-size:12px;padding:6px 14px" onclick="gIvSendComments()">코멘트 학생에게 전달</button>';
     if(st==='answered'||st==='commented')h+='<button class="btn ghost" style="font-size:12px;padding:6px 14px" onclick="gIvComplete()">이 세트 완료</button>';
@@ -10381,8 +10415,8 @@ function gIvFlow(rec){
   }
   h+='<span id="giv-flow-msg" style="font-size:12px;color:var(--ink-mute)"></span></div>';
   if(o.format_summary)h+='<div class="card" style="margin-bottom:12px;border-left:3px solid var(--gold)"><div style="font-size:12px;color:var(--gold);font-weight:700;margin-bottom:6px">'+esc(rec.school_name||'')+' 면접 형태</div><div style="font-size:13px;color:var(--ink-dim);line-height:1.65">'+esc(o.format_summary)+'</div></div>';
-  var canAnswer=isStu&&(st==='sent'||st==='commented');
-  var canComment=!isStu&&st==='answered';
+  var canAnswer=!ro&&isStu&&(st==='sent'||st==='commented');
+  var canComment=!ro&&!isStu&&st==='answered';
   (o.sections||[]).forEach(function(sec,si){
     h+='<div style="font-size:13.5px;font-weight:800;color:var(--ink);margin:16px 0 8px">'+esc(sec.label||'')+'</div>';
     (sec.items||[]).forEach(function(q,qi){
@@ -10394,6 +10428,7 @@ function gIvFlow(rec){
       if(q.intent)h+='<div style="font-size:11.5px;color:var(--ink-mute);margin:6px 0 0 28px">평가 요소: '+esc(q.intent)+'</div>';
       if(q.guide&&q.guide.length)h+='<div style="margin:8px 0 0 28px;padding:9px 12px;background:var(--panel-2);border-radius:8px"><div style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:4px">답변 구성 가이드</div>'+q.guide.map(function(g){return '<div style="font-size:12px;color:var(--ink-dim);line-height:1.6">· '+esc(g)+'</div>';}).join('')+'</div>';
       if(q.followups&&q.followups.length)h+='<div style="margin:7px 0 0 28px;font-size:11.5px;color:var(--ink-mute)">예상 꼬리질문: '+q.followups.map(esc).join(' / ')+'</div>';
+      if(q.prev_link)h+='<div style="margin:7px 0 0 28px;font-size:11.5px;color:#3182f6">🔗 이전 차수 답변 연계: '+esc(q.prev_link)+'</div>';
       // 학생 답변 영역
       if(canAnswer){
         h+='<div style="margin:10px 0 0 28px"><div style="font-size:11px;color:var(--safe);font-weight:700;margin-bottom:4px">내 답변'+(a.text?' (수정 가능)':'')+'</div><textarea id="giv-a-'+key+'" rows="4" style="width:100%;padding:9px 12px;background:var(--panel-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-size:12.5px;line-height:1.6;resize:vertical" placeholder="답변 구성 가이드를 참고해 본인의 경험으로 작성하세요">'+esc(a.text||'')+'</textarea></div>';
@@ -10465,14 +10500,14 @@ async function gIvDelete(){
 /* 학생 선택(화면 내) — 같은 학교를 지원한 여러 학생도 각자의 자소서로 문항이 만들어지도록 학생×학교 단위로 동작 */
 window.givSelectStudent=function(id){
   var s=(window._gstudents||[]).find(function(x){return x.id===id;});
-  window._gactive=s||null; window._gIvCur=null;
+  window._gactive=s||null; window._gIvCur=null; window._gIvView=null;
   var ss=document.getElementById('giv-school'); if(ss)ss.value='';   // 학생의 목표학교로 다시 선택
   try{ if(window.renderIVIntake)renderIVIntake('goip'); }catch(e){}
   try{ fillGoipPickers(); }catch(e){}
   try{ if(window._topbarMode==='goip'){var td=document.getElementById('topbar-student'); if(td&&s)td.value=s.id;} }catch(e){}
   renderGInterview();
 };
-window.givSelectSchool=function(){ window._gIvCur=null; renderGInterview(); };
+window.givSelectSchool=function(){ window._gIvCur=null; window._gIvView=null; renderGInterview(); };
 async function givUpdateEssayStatus(skipCard){
   var el=document.getElementById('giv-essay-status'); if(!el)return;
   var s=window._gactive, sch=(document.getElementById('giv-school')||{}).value||'';
@@ -10500,7 +10535,7 @@ async function runGInterview(){
   if(!school){m.style.color='var(--risk)';m.textContent='지원 학교를 선택하세요.';return;}
   try{ await killerGate(s,'interview'); }catch(e){}
   if(window._gIvCur&&window._gIvCur.status!=='done'){
-    if(!confirm('진행 중인 문항 세트가 있습니다("'+window._gIvCur.school_name+'"). 새로 생성하면 기존 세트는 완료 처리됩니다. 계속할까요?'))return;
+    if(!confirm('진행 중인 문항 세트가 있습니다("'+window._gIvCur.school_name+'"). 새로 생성하면 기존 세트는 완료 처리됩니다. (이전 질문·학생 답변·코멘트는 차수별 기록으로 보존되고, 다음 문항 생성에 반영됩니다) 계속할까요?'))return;
     await sb.from('goip_interviews').update({status:'done'}).eq('id',window._gIvCur.id);
   }
   m.style.color='var(--ink-mute)';m.textContent='학생 자료 수집 중…';
@@ -10518,7 +10553,8 @@ async function runGInterview(){
       m.textContent=(data&&data.need_essay)?('✍️ '+s.name+' 학생의 '+school+' 자소서 초안이 아직 부족합니다. 자소서 '+(data.need_questions||'전체')+'개 문항을 모두 입력·저장하거나, 이 화면의 [최종 완성 자소서 업로드]로 완성본을 등록한 뒤 다시 생성해 주세요.'):esc((data&&data.error)||(error&&error.message)||'생성 실패');
       return;
     }
-    m.style.color='var(--safe)';m.textContent='생성 완료'+(data.has_dedicated_data?' (전용 면접 자료 반영)':' (입시요강 기반)')+(data.essay_source==='final'?' · 최종 완성 자소서 반영':'')+' — 검토 후 [학생에게 전달]을 누르세요.';
+    m.style.color='var(--safe)';m.textContent='생성 완료'+(data.has_dedicated_data?' (전용 면접 자료 반영)':' (입시요강 기반)')+(data.essay_source==='final'?' · 최종 완성 자소서 반영':'')+(data.used_prev_answers?' · 이전 차수 답변·코멘트 반영('+(data.round_no||'')+'차)':'')+' — 검토 후 [학생에게 전달]을 누르세요.';
+    window._gIvView=null;
     renderGInterview();
   }catch(e){m.style.color='var(--risk)';m.textContent='오류: '+esc(e.message||String(e));}
   finally{if(window.hideAiLoading)hideAiLoading();}
