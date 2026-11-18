@@ -56,7 +56,10 @@
     ".asp .sc .trial{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:var(--warn);background:#fff;border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.12)}",
     ".asp .sc .ownedbadge{position:absolute;top:14px;right:14px;z-index:2;font-size:10.5px;font-weight:800;color:#fff;background:var(--safe);border-radius:20px;padding:4px 10px;box-shadow:0 2px 8px rgba(0,0,0,.12)}",
     ".asp .foot{text-align:center;font-size:12.5px;color:var(--mute);margin-top:24px;line-height:1.7}",
-    ".asp .aspmsg{text-align:center;color:var(--mute);font-size:13px;padding:40px 0}"
+    ".asp .aspmsg{text-align:center;color:var(--mute);font-size:13px;padding:40px 0}",
+    ".asp .rmban{max-width:640px;margin:16px auto 0;background:#fff7df;border:1px solid #e3d9b6;border-radius:14px;padding:11px 14px;font-size:13px;color:#5b4f40;text-align:center;line-height:1.6}",
+    ".asp .btn.pick{background:#d4a94a;color:#fff}",
+    ".asp .rmnote{font-size:11.5px;color:var(--mute);text-align:center;margin-top:8px}"
     ].join('');
     document.head.appendChild(s);
   }
@@ -65,27 +68,28 @@
 
   var LEVELS=[['starter','초5~6 · 기초'],['architecture','중1~2 · 심화']];
 
-  function cardHTML(p, isFirst){
+  function cardHTML(p, isFirst, rm){
     // [무료 정책] 무료 체험 1강은 각 코스(비전 기초·심화·트랙)의 '첫 시즌'에서만 제공
     var bullets=(p.bullets||[]).map(function(b){return '<div class="tp"><span class="d">◆</span>'+esc(b)+'</div>';}).join('');
     var fu=(p.fusion_tags||[]).map(function(f){return '<span>'+esc(f)+'</span>';}).join('');
     var more=p.more_note?('<div class="more">'+esc(p.more_note)+'</div>'):'';
-    var corner=p.owned?('<span class="ownedbadge">✓ 구독중</span>'):(isFirst?('<span class="trial">'+esc(p.trial_label||'🎟️ 1강 무료')+'</span>'):'');
+    var corner=(rm&&p.owned)?('<span class="ownedbadge">'+(rm.free?'🎁 무료 오픈':'✓ 선택한 시즌')+'</span>'):p.owned?('<span class="ownedbadge">✓ 구독중</span>'):(isFirst?('<span class="trial">'+esc(p.trial_label||'🎟️ 1강 무료')+'</span>'):'');
     var cta=p.owned
-      ? '<button class="btn owned" data-act="open" data-id="'+p.id+'">이어서 학습 →</button>'
+      ? '<button class="btn owned" data-act="open" data-id="'+p.id+'">'+(rm&&rm.free?'시작하기 →':'이어서 학습 →')+'</button>'
       : ((isFirst?'<button class="btn ghost" data-act="trial" data-id="'+p.id+'">체험 1강</button>':'')+'<button class="btn pri" data-act="start" data-id="'+p.id+'">이 시즌 시작 →</button>');
     // 🛒 담기 / 🎁 선물하기: 미구독 카드에 노출 (vision·track 모두 store_products 등록됨)
-    var cartBtn=(!p.owned)
+    var pickBtn=(rm&&!p.owned&&rm.allinone)?(rm.can_pick?'<button class="btn pick" data-act="pick" data-id="'+p.id+'" style="width:100%;flex:none;margin-top:8px">⭐ 이번 달 시즌으로 선택</button>':'<div class="rmnote">이번 결제 기간에는 이미 선택했어요 · 다음 결제일 이후 선택</div>'):'';
+    var cartBtn=(!p.owned && !(rm&&rm.allinone))
       ? '<button class="btn cart" data-act="cart" data-id="'+p.id+'">🛒 장바구니에 담기</button>'
       : '';
-    var giftBtn=(!p.owned)
+    var giftBtn=(!p.owned && !(rm&&rm.allinone))
       ? '<button class="btn gift" data-act="gift" data-id="'+p.id+'">🎁 선물하기</button>'
       : '';
     return '<div class="sc">'+corner
       +'<div class="cap"><span class="sn">시즌 '+esc(p.season)+(p.lesson_count?(' · '+p.lesson_count+'강'):'')+'</span><div class="ct">'+nl2br(p.caption_title)+'</div><div class="cm">'+esc(p.caption_meta||'')+'</div></div>'
       +'<div class="body"><div class="hl">이런 걸 배워요</div>'+bullets+more
       +'<div class="fu">'+fu+'</div>'
-      +'<div class="cta">'+cta+'</div>'+cartBtn+giftBtn+'</div></div>';
+      +'<div class="cta">'+cta+'</div>'+pickBtn+cartBtn+giftBtn+'</div></div>';
   }
 
   function mount(el, opts){
@@ -104,17 +108,27 @@
       +'<div class="foot">시즌은 원하는 순서로 선택할 수 있어요. 한 시즌을 완주하면 다음 시즌 추천과 성장 리포트가 이어집니다.<br>⏱️ <b>이용(사용)기간</b>: 시즌 개별구매 상품은 <b>결제일로부터 3개월</b> 동안 이용할 수 있습니다. (디지털 학습 콘텐츠 · 실물 배송 없음)</div>';
 
     var grid=el.querySelector('#asp-seasons');
+    if(course==='ramyeon_lit'){ var _ft=el.querySelector('.foot'); if(_ft)_ft.innerHTML='시즌은 원하는 순서로 시작할 수 있어요. 시즌마다 5강, 한 시즌을 마치면 시즌 성장 리포트가 이어집니다.<br>올인원 구독은 결제 기간마다 시즌 1개를 선택해 열 수 있어요.'; var _pp=el.querySelector('.top p'); if(_pp)_pp.textContent='이야기로 5개의 눈을 키우는 4개 시즌 · 시즌마다 5강. 아이에게 맞는 주제의 시즌부터 시작해 보세요.'; }
 
     function load(){
       grid.innerHTML='<div class="aspmsg">불러오는 중…</div>';
       var sb=window.sb;
       if(!sb||!sb.rpc){ grid.innerHTML='<div class="aspmsg">로그인/DB 미연결 — 새로고침 해주세요.</div>'; return; }
-      sb.rpc('list_season_catalog',{p_stage:course,p_level:state.level,p_student:opts.studentId||null})
-        .then(function(res){
+      var stP=(course==='ramyeon_lit'&&opts.studentId)?sb.rpc('ramyeon_pick_status',{p_student:String(opts.studentId)}).then(function(r){ return (r&&r.data&&r.data.ok)?r.data:null; },function(){ return null; }):Promise.resolve(null);
+      Promise.all([sb.rpc('list_season_catalog',{p_stage:course,p_level:state.level,p_student:opts.studentId||null}), stP])
+        .then(function(both){
+          var res=both[0], rm=both[1];
           if(res.error){ grid.innerHTML='<div class="aspmsg">불러오기 실패: '+esc(res.error.message)+'</div>'; return; }
           var rows=res.data||[];
           if(!rows.length){ grid.innerHTML='<div class="aspmsg">준비된 시즌이 없습니다.</div>'; return; }
-          grid.innerHTML=rows.map(function(p,i){return cardHTML(p, i===0);}).join('');
+          var ban=el.querySelector('#asp-rmban'); if(ban)ban.remove();
+          if(rm){
+            var msg=rm.free?'🎁 지금은 <b>무료 오픈</b> 기간이에요. 모든 시즌을 자유롭게 시작해 보세요!'
+              :(rm.allinone?(rm.can_pick?'⭐ 올인원 구독 중이에요. <b>이번 결제 기간에 시즌 1개</b>를 선택해 열 수 있어요. 고른 시즌은 계속 볼 수 있어요.':'⭐ 올인원 구독 중이에요. 이번 결제 기간의 시즌은 이미 선택했어요. 다음 결제일 이후 새 시즌을 고를 수 있어요.')
+              :'시즌별 <b>1강 무료 체험</b> 후 구독·구매로 이어서 학습할 수 있어요.');
+            grid.insertAdjacentHTML('beforebegin','<div class="rmban" id="asp-rmban">'+msg+'</div>');
+          }
+          grid.innerHTML=rows.map(function(p,i){return cardHTML(p, i===0, rm);}).join('');
           el._aspRows=rows;
         })
         .catch(function(e){ grid.innerHTML='<div class="aspmsg">오류: '+esc(e&&e.message||e)+'</div>'; });
@@ -135,6 +149,17 @@
       var id=+btn.dataset.id, act=btn.dataset.act;
       var p=(el._aspRows||[]).filter(function(r){return r.id===id;})[0]; if(!p)return;
       var ref=course+':'+(state.level||'')+':'+p.season;
+      if(act==='pick'){
+        if(!window.sb||!opts.studentId) return;
+        if(!window.confirm('시즌 '+p.season+'을(를) 이번 결제 기간의 시즌으로 선택할까요?\n(결제 기간마다 1개만 고를 수 있어요)')) return;
+        btn.disabled=true;
+        window.sb.rpc('pick_ramyeon_season',{p_student:String(opts.studentId),p_season:p.season}).then(function(r){
+          var d=r&&r.data; if(r&&r.error){ alert('선택 실패: '+r.error.message); btn.disabled=false; return; }
+          if(d&&d.ok){ try{ if(window.toast)window.toast('시즌 '+p.season+' 선택 완료!',true); }catch(e){} load(); }
+          else { alert((d&&d.error)||'선택하지 못했어요'); btn.disabled=false; }
+        });
+        return;
+      }
       if(act==='trial' && opts.onTrial) opts.onTrial(p);
       else if(act==='start' && opts.onStart) opts.onStart(p);
       else if(act==='open' && opts.onOpen) opts.onOpen(p);

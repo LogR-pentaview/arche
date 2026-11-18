@@ -77,6 +77,48 @@
     h+='<button class="pr" onclick="window.print()">🖨️ 인쇄 / PDF로 저장</button><div class="foot">이 리포트는 부모님이 발행한 강별 리포트를 모아 만든 것입니다.<br>다른 아이와 비교하지 않으며, 지난 시즌의 아이와 비교합니다.</div>';
     root.innerHTML=h;
   }
+
+  // ── 시리즈(20강) 전체 리포트 ──
+  function trendSvg(by, seasons){
+    seasons=[1,2,3,4]; var W=300,H=190,L=34,Rr=26,T=14,B=30; var pw=W-L-Rr, ph=H-T-B;
+    function X(i){ return L+(seasons.length<2?pw/2:pw*i/(seasons.length-1)); }
+    function Y(v){ return T+ph*(1-(v-1)/3); }
+    var g='';
+    for(var k=1;k<=4;k++){ g+='<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+Y(k).toFixed(1)+'" y2="'+Y(k).toFixed(1)+'" stroke="#e6dcc6"/><text x="'+(L-6)+'" y="'+(Y(k)+4).toFixed(1)+'" text-anchor="end" font-size="11">'+LVI[k]+'</text>'; }
+    seasons.forEach(function(se,i){ g+='<text x="'+X(i).toFixed(1)+'" y="'+(H-10)+'" text-anchor="middle" font-size="11" fill="#5b4f40" font-weight="700">시즌 '+se+'</text>'; });
+    EYES.forEach(function(E,ei){
+      var pts=[]; seasons.forEach(function(se,i){ var v=by[se]?by[se].avg[ei]:null; if(v!=null) pts.push([X(i),Y(v)]); });
+      if(pts.length>1) g+='<polyline points="'+pts.map(function(p){return p[0].toFixed(1)+','+p[1].toFixed(1);}).join(' ')+'" fill="none" stroke="'+E.c+'" stroke-width="2.2" stroke-linejoin="round"/>';
+      pts.forEach(function(p){ g+='<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.8" fill="'+E.c+'" stroke="#fff" stroke-width="1.3"/>'; });
+    });
+    return '<svg viewBox="0 0 '+W+' '+H+'" width="100%" style="max-width:420px" role="img" aria-label="시즌별 5개의 눈 변화">'+g+'</svg>';
+  }
+  function drawSeries(root, by){
+    var seasons=Object.keys(by).map(Number).sort();
+    var total=0; seasons.forEach(function(se){ total+=Object.keys(by[se].lessons).length; });
+    var h='';
+    h+='<div class="card"><h2>🍜 시리즈 여정 '+(total>=20?'· 완주 🎉':'')+'</h2><p class="sub">발행된 강별 리포트 기준 <b>'+total+' / 20강</b></p><div style="display:grid;gap:7px">'
+      +[1,2,3,4].map(function(se){ var n=by[se]?Object.keys(by[se].lessons).length:0; return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:92px;font-weight:800">시즌 '+se+' · '+esc(SNAME[se])+'</span><span style="flex:1;height:9px;border-radius:6px;background:#eee4cd;overflow:hidden"><i style="display:block;height:100%;width:'+(n*20)+'%;background:linear-gradient(90deg,#d4a94a,#e0453a)"></i></span><span style="width:34px;text-align:right;color:#8a7d6a">'+n+'/5</span></div>'; }).join('')+'</div></div>';
+    h+='<div class="card"><h2>📈 시즌별 5개의 눈 변화</h2><p class="sub">시즌 평균이에요. 점이 없는 시즌은 그 눈을 쓰지 않았어요.</p>'+trendSvg(by,seasons)
+      +'<div class="lg" style="flex-direction:row;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:12px">'+EYES.map(function(E){ return '<span><i style="border-color:'+E.c+'"></i>'+E.nm+'</span>'; }).join('')+'</div></div>';
+    h+='<div class="card"><h2>🗂️ 눈 × 시즌 평균</h2><div style="overflow-x:auto"><table><tr><th></th>'+seasons.map(function(se){return '<th>시즌 '+se+'</th>';}).join('')+'<th>변화</th></tr>'
+      +EYES.map(function(E,i){ var vals=seasons.map(function(se){ return by[se].avg[i]; }); var first=null,last=null; vals.forEach(function(v){ if(v!=null){ if(first==null)first=v; last=v; } });
+        var ch=(first!=null&&last!=null&&seasons.length>1)?(last-first):null; var cnt=0; seasons.forEach(function(se){ cnt+=by[se].cnt[i]; });
+        return '<tr><td class="l">'+E.ic+' '+E.nm+'</td>'+vals.map(function(v){return '<td>'+fx(v)+'</td>';}).join('')+'<td class="av">'+(ch==null?'—':(ch>0?'+':'')+fx(ch))+'<small>'+cnt+'회 관찰'+(cnt<2?' · 참고용':'')+'</small></td></tr>'; }).join('')+'</table></div></div>';
+    // 관찰 ≤2 (참고용)
+    var obs=[]; if(seasons.length>1){ var bi=-1,bd=0; for(var i2=0;i2<5;i2++){ var f=null,l=null; seasons.forEach(function(se){ var v=by[se].avg[i2]; if(v!=null){ if(f==null)f=v; l=v; } }); if(f!=null&&l!=null&&l-f>bd){bd=l-f;bi=i2;} }
+      if(bi>=0&&bd>=0.5) obs.push('시리즈를 지나며 <b>'+EYES[bi].nm+'의 눈</b>이 가장 많이 자랐어요 (+'+fx(bd)+').'); }
+    var cs=[0,0,0,0,0]; seasons.forEach(function(se){ for(var j=0;j<5;j++)cs[j]+=by[se].cnt[j]; });
+    var mx=-1,mv=0; cs.forEach(function(c,j){ if(c>mv){mv=c;mx=j;} }); if(mx>=0&&obs.length<2) obs.push('가장 자주 쓰인 눈은 <b>'+EYES[mx].nm+'의 눈</b>('+mv+'회)이에요.');
+    if(obs.length) h+='<div class="card"><h2>🔎 시리즈 관찰</h2>'+obs.map(function(t){return '<div class="ob">'+t+'<span class="tag">참고용</span></div>';}).join('')+'</div>';
+    // 그림 여정
+    var arts=[]; seasons.forEach(function(se){ Object.keys(by[se].lessons).map(Number).sort().forEach(function(w){ var d=((by[se].lessons[w].drawings)||[]).filter(function(x){return x.img;})[0]; if(d)arts.push({se:se,w:w,d:d}); }); });
+    if(arts.length) h+='<div class="card"><h2>🎨 그림 여정</h2><p class="sub">강마다 첫 번째 그림을 모았어요.</p><div class="arts" style="grid-template-columns:repeat(4,1fr)">'+arts.map(function(a){ return '<figure><img alt="아이 그림" src="'+esc(a.d.img)+'"><figcaption>'+a.se+'-'+a.w+'</figcaption></figure>'; }).join('')+'</div></div>';
+    var gs=[]; seasons.forEach(function(se){ Object.keys(by[se].lessons).map(Number).sort().forEach(function(w){ var r=by[se].lessons[w]; if(r.golden&&r.golden.sentence)gs.push({se:se,w:w,s:r.golden.sentence,t:(r.lesson&&r.lesson.work)||''}); }); });
+    if(gs.length) h+='<div class="card"><h2>✨ 황금 문장 모음</h2>'+gs.map(function(x){return '<div class="gs">'+esc(x.s)+'<small>시즌 '+x.se+' · '+x.w+'강 · '+esc(x.t)+'</small></div>';}).join('')+'</div>';
+    h+='<button class="pr" onclick="window.print()">🖨️ 인쇄 / PDF로 저장</button><div class="foot">시리즈 리포트는 발행된 강별 리포트를 모아 만들어요.<br>다른 아이와 비교하지 않고, 처음의 아이와 지금의 아이를 비교합니다.</div>';
+    root.innerHTML=h;
+  }
   async function mount(host, ctx){
     inject(); ctx=ctx||{};
     host.innerHTML='<div class="rsn"><div class="empty">불러오는 중…</div></div>'; var root=host.firstChild;
@@ -88,9 +130,9 @@
     if(!seasons.length){ root.innerHTML=hero+'<div class="card"><div class="empty">아직 발행된 강별 리포트가 없어요.<br>자녀가 제출한 강에서 [AI 리포트 생성 → 발행]을 하면 여기에 모여요.</div></div>'; return; }
     var cur=seasons[seasons.length-1];
     function paint(){
-      root.innerHTML=hero+'<div class="tabs">'+[1,2,3,4].map(function(s){ return '<button data-s="'+s+'" class="'+(s===cur?'on':'')+'"'+(by[s]?'':' disabled')+'>시즌 '+s+' · '+esc(SNAME[s])+'</button>'; }).join('')+'</div><div id="rsn-body"></div>';
+      root.innerHTML=hero+'<div class="tabs">'+[1,2,3,4].map(function(s){ return '<button data-s="'+s+'" class="'+(s===cur?'on':'')+'"'+(by[s]?'':' disabled')+'>시즌 '+s+' · '+esc(SNAME[s])+'</button>'; }).join('')+'<button data-s="0" class="'+(cur===0?'on':'')+'">🍜 전체(20강)</button></div><div id="rsn-body"></div>';
       root.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){ if(b.disabled)return; cur=+b.dataset.s; paint(); }); });
-      drawSeason(root.querySelector('#rsn-body'), ctx.name, by, cur);
+      if(cur===0) drawSeries(root.querySelector('#rsn-body'), by); else drawSeason(root.querySelector('#rsn-body'), ctx.name, by, cur);
     }
     paint();
   }
