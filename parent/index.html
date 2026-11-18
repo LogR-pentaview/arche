@@ -3750,6 +3750,8 @@ async function renderAllStudents(){
 }
 function openStudentUnified(id){
   var s=(window._allStudents||[]).find(function(x){return x.id===id;}); if(!s)return;
+  /* [B2C 초등] 학생 자료 입력(인터뷰) 불필요 — 활성 자녀로 지정 후 홈(대시보드)으로 */
+  if(window._isB2C && b2cBand(s.grade)==='초'){ window._activeStudent=s; try{ b2cGoHome(); }catch(e){ goView('home'); } return; }
   if(s.admission_track==='고입'){ window._gactive=s; if(window._gstudents&&!window._gstudents.find(function(x){return x.id===id;}))window._gstudents.push(s); goView('gintake'); }
   else { window._activeStudent=s; if(window._students&&!window._students.find(function(x){return x.id===id;}))window._students.push(s); goView('intake'); }
 }
