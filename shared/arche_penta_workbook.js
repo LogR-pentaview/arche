@@ -353,6 +353,8 @@
   function render(mount, opts){
     inject();
     opts=opts||{}; var L=opts.lesson||{}; var mode=opts.mode||'live'; var ro=!!opts.readOnly;
+    // [라면 순한맛] 전용 렌더러로 위임 (펜타 vision/track 경로 무영향) — shared/arche_ramyeon_ext.js
+    if(L.series==='ramyeon' && L.heat==='mild' && window.ArcheRamyeonExt){ return window.ArcheRamyeonExt.render(mount, opts); }
     var ROLE=(opts.role||window._wbRole||'student'); // 'staff'=교사용(가이드·발문 표시) / 'student'=수강생
     // [무료 워크북 체험 집계] b2c(학부모/무료) 컨텍스트에서 워크북을 열면 1회 이벤트 로그 (관리자 지표용)
     try{
@@ -919,5 +921,5 @@
       collect:function(){ return { answers:state.answers, radar_before:state.radar_before, radar_after:state.radar_after, compass:+state.compass }; } };
   }
 
-  window.ArchePentaWorkbook = { render: render, version: '2.2-ramyeon' };
+  window.ArchePentaWorkbook = { render: render, version: '2.3-ramyeon-mild' };
 })();

@@ -96,7 +96,7 @@
     var state={ level: (course==='vision') ? (opts.level||'starter') : (opts.level||'') };
     el.classList.add('asp');
     el.innerHTML=
-      '<div class="top"><div class="eb">'+(course==='track'?'PENTA TRACK':'PENTA VISION')+'</div>'
+      '<div class="top"><div class="eb">'+(course==='track'?'PENTA TRACK':course==='ramyeon_lit'?'문학과 함께라면':'PENTA VISION')+'</div>'
       +'<h1>흥미로운 <em>시즌을 골라</em> 시작하세요</h1>'
       +'<p>순서에 얽매이지 않아요. 관심 가는 주제의 시즌부터 담아 시작하고, 각 시즌은 독립적으로 수강·완주할 수 있습니다.</p>'
       +((course==='vision')?('<div class="lvltoggle">'+LEVELS.map(function(l){return '<button data-lv="'+l[0]+'"'+(l[0]===state.level?' class="on"':'')+'>'+esc(l[1])+'</button>';}).join('')+'</div>'):'')+'</div>'

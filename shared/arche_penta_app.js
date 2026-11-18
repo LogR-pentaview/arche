@@ -110,14 +110,15 @@
   var COURSES={
     vision_basic:{ stage:'vision', level:'starter',      title:'펜타 비전 기초', short:'비전 기초', bands:['초등'],        desc:'초등 · 5대 지성 주파수 발견(쉬운 언어)' },
     vision_adv:  { stage:'vision', level:'architecture', title:'펜타 비전 심화', short:'비전 심화', bands:['초등','중등'], desc:'초등 고학년~중등 · 논리적 사고 확장' },
-    track:       { stage:'track',  level:'',             title:'펜타 트랙',     short:'트랙',     bands:['중등'],        desc:'중3 · 교과 융합 + 진로·고교 선택과목 설계' }
+    track:       { stage:'track',  level:'',             title:'펜타 트랙',     short:'트랙',     bands:['중등'],        desc:'중3 · 교과 융합 + 진로·고교 선택과목 설계' },
+    ramyeon_lit: { stage:'ramyeon_lit', level:'mild',    title:'문학과 함께라면', short:'라면 문학', bands:['초등'],        desc:'초3~4 · 순한맛 · 이야기로 키우는 5개의 눈 (B2C 전용)', b2cOnly:true }
   };
   function courseSpec(c){ return COURSES[c]||{ title:'펜타 시리즈', short:'전체', desc:'비전·트랙 통합', stage:null, level:null }; }
   function courseLabel(c){ return COURSES[c]?COURSES[c].short:'미수강'; }
   function stageTitle(s){ return COURSES[s]?COURSES[s].title:(s==='vision'?'펜타 비전':(s==='track'?'펜타 트랙':'펜타 시리즈')); }
   function stageDesc(s){ return COURSES[s]?COURSES[s].desc:'비전·트랙 통합'; }
   function gradeBand(g){ g=String(g||''); if(/초/.test(g))return '초등'; if(/중/.test(g))return '중등'; if(/고|N수/.test(g))return '고등'; return '기타'; }
-  function eligibleCourses(grade){ var b=gradeBand(grade); return Object.keys(COURSES).filter(function(k){return COURSES[k].bands.indexOf(b)>=0;}); }
+  function eligibleCourses(grade){ var b=gradeBand(grade); return Object.keys(COURSES).filter(function(k){ if(COURSES[k].b2cOnly && !window._isB2C) return false; return COURSES[k].bands.indexOf(b)>=0;}); }
   function byStage(rows, stage){ return stage ? (rows||[]).filter(function(r){return r.stage===stage;}) : (rows||[]); }
   // 코스 스펙에 맞는 카탈로그/배정 행 필터 (stage + level)
   function bySpec(rows, spec){ var out=(!spec||!spec.stage)?(rows||[]):(rows||[]).filter(function(r){ return r.stage===spec.stage && ((r.level||'')===(spec.level||'')); }); try{ if(window._pentaSeason!=null){ out=out.filter(function(r){ return String(r.season)===String(window._pentaSeason); }); } }catch(e){} return out; }
@@ -126,9 +127,10 @@
     {key:'starter',      label:'🌱 비전 기초 · 초5~6',  stage:'vision', level:'starter'},
     {key:'architecture', label:'🏛 비전 심화 · 중1~2',  stage:'vision', level:'architecture'},
     {key:'track',        label:'🎯 트랙 · 중3·입시',    stage:'track',  level:null},
-    {key:'master',       label:'🔷 지성 다이빙',          stage:'master', level:null}
+    {key:'master',       label:'🔷 지성 다이빙',          stage:'master', level:null},
+    {key:'ramyeon_lit',  label:'🍜 문학과 함께라면 · 초3~4', stage:'ramyeon_lit', level:'mild'}
   ];
-  function seriesKeyOf(r){ var st=r.stage||'', lv=r.level||''; if(st==='vision'&&lv==='architecture')return 'architecture'; if(st==='vision')return 'starter'; if(st==='track')return 'track'; if(st==='master')return 'master'; return 'etc'; }
+  function seriesKeyOf(r){ var st=r.stage||'', lv=r.level||''; if(st==='vision'&&lv==='architecture')return 'architecture'; if(st==='vision')return 'starter'; if(st==='track')return 'track'; if(st==='master')return 'master'; if(st==='ramyeon_lit')return 'ramyeon_lit'; return 'etc'; }
   function catOptionsHTML(cat){
     var groups={}; (cat||[]).forEach(function(c){ var k=seriesKeyOf(c); (groups[k]=groups[k]||[]).push(c); });
     function opt(c){ return '<option value="'+c.id+'">시즌'+esc(c.season)+' · '+esc(c.week)+'주차 · '+esc(c.title)+'</option>'; }
