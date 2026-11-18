@@ -15,11 +15,13 @@
       icon:'🔬', title:'과학과 함께라면', short:'라면 과학', band:'초3~4', unit:'실험',
       pitch:'직접 해 보며 5개의 눈을 키우는 25강',
       centerEye:'F2',
+      eyes:[{ax:'F1',ic:'🔭',nm:'관찰력',c:'#e0453a'},{ax:'F2',ic:'🌿',nm:'자연의 눈',c:'#2f9e8f'},{ax:'F3',ic:'🌍',nm:'세상의 눈',c:'#2b6cb0'},{ax:'F4',ic:'💗',nm:'마음의 눈',c:'#d6578a'},{ax:'F5',ic:'💡',nm:'상상력',c:'#d4a94a'}],
       seasons:[ {no:1,name:'물리'}, {no:2,name:'화학'}, {no:3,name:'생명'}, {no:4,name:'우주와 하늘'}, {no:5,name:'환경'} ] }
   ];
   function list(all){ return LIST.filter(function(s){ return all||s.enabled; }); }
   function byStage(stage){ for(var i=0;i<LIST.length;i++) if(LIST[i].stage===stage && LIST[i].enabled) return LIST[i]; return null; }
   function isStage(stage){ return !!byStage(stage); }
   function lessonsOf(s){ return (s.seasons.length)*5; }
-  window.ArcheRamyeonSeries={ list:list, byStage:byStage, isStage:isStage, lessonsOf:lessonsOf, version:1 };
+  function eyesOf(stage){ for(var i=0;i<LIST.length;i++) if(LIST[i].stage===stage) return LIST[i].eyes||null; return null; }
+  window.ArcheRamyeonSeries={ eyesOf:eyesOf, list:list, byStage:byStage, isStage:isStage, lessonsOf:lessonsOf, version:2 };
 })();

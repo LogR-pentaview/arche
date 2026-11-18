@@ -205,16 +205,17 @@
     (c.stages||[]).forEach(function(st){
       (st.blocks||[]).forEach(function(b){
         if(b.t!=='text' && b.t!=='choice' && b.t!=='draw') return;
-        var it={ id:b.id, type:b.t, eye:st.eye, q:_rmText(b.q||b.head) };
+        var bax=b.axis||st.f;
+        var it={ id:b.id, type:b.t, eye:st.eye, axis:bax, q:_rmText(b.q||b.head) };
         if(b.speaker) it.speaker=b.speaker;
-        if(b.t==='text'){ it.answer=String(ans[b.id]||''); if(it.answer.trim() && /^F[1-4]$/.test(st.f)) act[st.f]=1; }
+        if(b.t==='text'){ it.answer=String(ans[b.id]||''); if(it.answer.trim() && /^F[1-5]$/.test(bax)) act[bax]=1; }
         else if(b.t==='choice'){
           var v=ans[b.id], vs=Array.isArray(v)?v:(v!=null&&v!==''?[v]:[]);
           var map={}; (b.options||[]).forEach(function(o){ map[o.v]=_rmText(o.label); });
-          it.answer=vs.map(function(x){ return map[x]||x; }); if(vs.length && /^F[1-4]$/.test(st.f)) act[st.f]=1;
+          it.answer=vs.map(function(x){ return map[x]||x; }); if(vs.length && /^F[1-5]$/.test(bax)) act[bax]=1;
         } else {
           it.caption=String(ans[b.id+'_cap']||''); it.answer=dr[b.id]?'[그림 첨부]':'[그림 없음]';
-          if(dr[b.id]){ drawings.push({ id:b.id, eye:st.eye, prompt:_rmText(b.q), caption:it.caption, data:dr[b.id] }); act.F5=1; if(/^F[1-4]$/.test(st.f)) act[st.f]=1; }
+          if(dr[b.id]){ drawings.push({ id:b.id, eye:st.eye, prompt:_rmText(b.q), caption:it.caption, data:dr[b.id] }); act.F5=1; if(/^F[1-4]$/.test(bax)) act[bax]=1; }
         }
         items.push(it);
       });

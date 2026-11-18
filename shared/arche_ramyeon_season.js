@@ -10,7 +10,8 @@
   var LVI=['','🌱','🌿','🌸','🍎'], LVN=['','씨앗','새싹','꽃','열매'];
   var SNAME={1:'나',2:'가족',3:'친구',4:'마을과 나라'}, NS=4, NL=20, STAGE='ramyeon_lit', STITLE='문학과 함께라면';
   function range(n){ var a=[]; for(var i=1;i<=n;i++)a.push(i); return a; }
-  function useSeries(stage){ STAGE=stage||'ramyeon_lit'; var R=window.ArcheRamyeonSeries&&ArcheRamyeonSeries.byStage(STAGE); if(R){ SNAME={}; R.seasons.forEach(function(x){ SNAME[x.no]=x.name; }); NS=R.seasons.length; NL=NS*5; STITLE=R.title; } else { SNAME={1:'나',2:'가족',3:'친구',4:'마을과 나라'}; NS=4; NL=20; STITLE='문학과 함께라면'; } }
+  var EYES_LIT=EYES.slice();
+  function useSeries(stage){ STAGE=stage||'ramyeon_lit'; EYES=(window.ArcheRamyeonSeries&&ArcheRamyeonSeries.eyesOf&&ArcheRamyeonSeries.eyesOf(STAGE))||EYES_LIT; var R=window.ArcheRamyeonSeries&&ArcheRamyeonSeries.byStage(STAGE); if(R){ SNAME={}; R.seasons.forEach(function(x){ SNAME[x.no]=x.name; }); NS=R.seasons.length; NL=NS*5; STITLE=R.title; } else { SNAME={1:'나',2:'가족',3:'친구',4:'마을과 나라'}; NS=4; NL=20; STITLE='문학과 함께라면'; } }
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function sbc(){ return window.sb; }
   var CSS='.rsn{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#241c12;line-height:1.65;font-size:15px;max-width:760px;margin:0 auto}.rsn *{box-sizing:border-box}'

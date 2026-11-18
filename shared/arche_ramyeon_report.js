@@ -51,7 +51,9 @@
     return '<svg viewBox="0 0 '+W+' '+W+'" width="230" height="230" role="img" aria-label="5개의 눈 레이더">'+g+'</svg>';
   }
 
+  var EYES_LIT=EYES.slice();
   function render(mount, r){
+    EYES=(window.ArcheRamyeonSeries&&ArcheRamyeonSeries.eyesOf&&ArcheRamyeonSeries.eyesOf(r&&r.stage))||EYES_LIT;
     inject(); r=r||{};
     var eyes=(r.eyes||[]).slice(); while(eyes.length<5) eyes.push({axis:'F'+(eyes.length+1),level:null});
     var L=r.lesson||{}, S=r.student||{};
