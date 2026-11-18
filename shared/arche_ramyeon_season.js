@@ -1,6 +1,6 @@
 /* ============================================================================
  * arche_ramyeon_season.js · '~와 함께라면' 시즌 성장 리포트 (v1)
- * API: ArcheRamyeonSeason.mount(host, {studentId,name,grade})
+ * API: ArcheRamyeonSeason.mount(host, {studentId,name,grade,stage})   (stage 생략 시 ramyeon_lit · 시리즈 설정은 ArcheRamyeonSeries 등록표)
  * 데이터: penta_submissions(stage='ramyeon_lit', status='sent', report.kind==='ramyeon') 집계 — AI 호출 없음
  * 구성: 시즌 5눈 레이더(이전 시즌 비교) · 5눈×5강 히트표 · 관찰 ≤2(참고용) · 그림 모음 · 황금 문장
  * ============================================================================ */
@@ -8,7 +8,9 @@
   'use strict';
   var EYES=[{ax:'F1',ic:'📖',nm:'이야기',c:'#e0453a'},{ax:'F2',ic:'🌿',nm:'자연',c:'#2f9e8f'},{ax:'F3',ic:'🌍',nm:'세상',c:'#2b6cb0'},{ax:'F4',ic:'💗',nm:'마음',c:'#d6578a'},{ax:'F5',ic:'🎨',nm:'아름다움',c:'#d4a94a'}];
   var LVI=['','🌱','🌿','🌸','🍎'], LVN=['','씨앗','새싹','꽃','열매'];
-  var SNAME={1:'나',2:'가족',3:'친구',4:'마을과 나라'};
+  var SNAME={1:'나',2:'가족',3:'친구',4:'마을과 나라'}, NS=4, NL=20, STAGE='ramyeon_lit', STITLE='문학과 함께라면';
+  function range(n){ var a=[]; for(var i=1;i<=n;i++)a.push(i); return a; }
+  function useSeries(stage){ STAGE=stage||'ramyeon_lit'; var R=window.ArcheRamyeonSeries&&ArcheRamyeonSeries.byStage(STAGE); if(R){ SNAME={}; R.seasons.forEach(function(x){ SNAME[x.no]=x.name; }); NS=R.seasons.length; NL=NS*5; STITLE=R.title; } else { SNAME={1:'나',2:'가족',3:'친구',4:'마을과 나라'}; NS=4; NL=20; STITLE='문학과 함께라면'; } }
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function sbc(){ return window.sb; }
   var CSS='.rsn{font-family:-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;color:#241c12;line-height:1.65;font-size:15px;max-width:760px;margin:0 auto}.rsn *{box-sizing:border-box}'
@@ -80,7 +82,7 @@
 
   // ── 시리즈(20강) 전체 리포트 ──
   function trendSvg(by, seasons){
-    seasons=[1,2,3,4]; var W=300,H=190,L=34,Rr=26,T=14,B=30; var pw=W-L-Rr, ph=H-T-B;
+    seasons=range(NS); var W=300,H=190,L=34,Rr=26,T=14,B=30; var pw=W-L-Rr, ph=H-T-B;
     function X(i){ return L+(seasons.length<2?pw/2:pw*i/(seasons.length-1)); }
     function Y(v){ return T+ph*(1-(v-1)/3); }
     var g='';
@@ -97,8 +99,8 @@
     var seasons=Object.keys(by).map(Number).sort();
     var total=0; seasons.forEach(function(se){ total+=Object.keys(by[se].lessons).length; });
     var h='';
-    h+='<div class="card"><h2>🍜 시리즈 여정 '+(total>=20?'· 완주 🎉':'')+'</h2><p class="sub">발행된 강별 리포트 기준 <b>'+total+' / 20강</b></p><div style="display:grid;gap:7px">'
-      +[1,2,3,4].map(function(se){ var n=by[se]?Object.keys(by[se].lessons).length:0; return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:92px;font-weight:800">시즌 '+se+' · '+esc(SNAME[se])+'</span><span style="flex:1;height:9px;border-radius:6px;background:#eee4cd;overflow:hidden"><i style="display:block;height:100%;width:'+(n*20)+'%;background:linear-gradient(90deg,#d4a94a,#e0453a)"></i></span><span style="width:34px;text-align:right;color:#8a7d6a">'+n+'/5</span></div>'; }).join('')+'</div></div>';
+    h+='<div class="card"><h2>🍜 시리즈 여정 '+(total>=NL?'· 완주 🎉':'')+'</h2><p class="sub">발행된 강별 리포트 기준 <b>'+total+' / '+NL+'강</b></p><div style="display:grid;gap:7px">'
+      +range(NS).map(function(se){ var n=by[se]?Object.keys(by[se].lessons).length:0; return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:92px;font-weight:800">시즌 '+se+' · '+esc(SNAME[se])+'</span><span style="flex:1;height:9px;border-radius:6px;background:#eee4cd;overflow:hidden"><i style="display:block;height:100%;width:'+(n*20)+'%;background:linear-gradient(90deg,#d4a94a,#e0453a)"></i></span><span style="width:34px;text-align:right;color:#8a7d6a">'+n+'/5</span></div>'; }).join('')+'</div></div>';
     h+='<div class="card"><h2>📈 시즌별 5개의 눈 변화</h2><p class="sub">시즌 평균이에요. 점이 없는 시즌은 그 눈을 쓰지 않았어요.</p>'+trendSvg(by,seasons)
       +'<div class="lg" style="flex-direction:row;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:12px">'+EYES.map(function(E){ return '<span><i style="border-color:'+E.c+'"></i>'+E.nm+'</span>'; }).join('')+'</div></div>';
     h+='<div class="card"><h2>🗂️ 눈 × 시즌 평균</h2><div style="overflow-x:auto"><table><tr><th></th>'+seasons.map(function(se){return '<th>시즌 '+se+'</th>';}).join('')+'<th>변화</th></tr>'
@@ -120,17 +122,17 @@
     root.innerHTML=h;
   }
   async function mount(host, ctx){
-    inject(); ctx=ctx||{};
+    inject(); ctx=ctx||{}; useSeries(ctx.stage);
     host.innerHTML='<div class="rsn"><div class="empty">불러오는 중…</div></div>'; var root=host.firstChild;
     var subs=[];
-    try{ var r=await sbc().from('penta_submissions').select('season,week,report,status,sent_at').eq('student_id',ctx.studentId).eq('stage','ramyeon_lit').eq('status','sent'); if(r.error)throw r.error; subs=r.data||[]; }
+    try{ var r=await sbc().from('penta_submissions').select('season,week,report,status,sent_at').eq('student_id',ctx.studentId).eq('stage',STAGE).eq('status','sent'); if(r.error)throw r.error; subs=r.data||[]; }
     catch(e){ root.innerHTML='<div class="empty">리포트를 불러오지 못했어요: '+esc(e.message||e)+'</div>'; return; }
     var by=aggregate(subs); var seasons=Object.keys(by).map(Number).sort();
-    var hero='<div class="hero"><div class="eb">~와 함께라면 · 시즌 성장 리포트</div><h1>'+esc(ctx.name||'우리 아이')+'의 5개의 눈</h1><div class="mt">강별 리포트를 발행하면 시즌 리포트가 쌓여요.</div></div>';
+    var hero='<div class="hero"><div class="eb">'+esc(STITLE)+' · 시즌 성장 리포트</div><h1>'+esc(ctx.name||'우리 아이')+'의 5개의 눈</h1><div class="mt">강별 리포트를 발행하면 시즌 리포트가 쌓여요.</div></div>';
     if(!seasons.length){ root.innerHTML=hero+'<div class="card"><div class="empty">아직 발행된 강별 리포트가 없어요.<br>자녀가 제출한 강에서 [AI 리포트 생성 → 발행]을 하면 여기에 모여요.</div></div>'; return; }
     var cur=seasons[seasons.length-1];
     function paint(){
-      root.innerHTML=hero+'<div class="tabs">'+[1,2,3,4].map(function(s){ return '<button data-s="'+s+'" class="'+(s===cur?'on':'')+'"'+(by[s]?'':' disabled')+'>시즌 '+s+' · '+esc(SNAME[s])+'</button>'; }).join('')+'<button data-s="0" class="'+(cur===0?'on':'')+'">🍜 전체(20강)</button></div><div id="rsn-body"></div>';
+      root.innerHTML=hero+'<div class="tabs">'+range(NS).map(function(s){ return '<button data-s="'+s+'" class="'+(s===cur?'on':'')+'"'+(by[s]?'':' disabled')+'>시즌 '+s+' · '+esc(SNAME[s])+'</button>'; }).join('')+'<button data-s="0" class="'+(cur===0?'on':'')+'">🍜 전체('+NL+'강)</button></div><div id="rsn-body"></div>';
       root.querySelectorAll('.tabs button').forEach(function(b){ b.addEventListener('click',function(){ if(b.disabled)return; cur=+b.dataset.s; paint(); }); });
       if(cur===0) drawSeries(root.querySelector('#rsn-body'), by); else drawSeason(root.querySelector('#rsn-body'), ctx.name, by, cur);
     }

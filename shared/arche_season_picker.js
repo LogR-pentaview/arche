@@ -97,10 +97,11 @@
     if(typeof el==='string')el=document.getElementById(el)||document.querySelector(el);
     if(!el)return;
     var course=opts.course||'vision';
+    var RS=window.ArcheRamyeonSeries&&ArcheRamyeonSeries.byStage(course); if(!RS&&course==='ramyeon_lit')RS={title:'문학과 함께라면'}; var isRM=!!RS;   // 라면 시리즈(등록표 기준)
     var state={ level: (course==='vision') ? (opts.level||'starter') : (opts.level||'') };
     el.classList.add('asp');
     el.innerHTML=
-      '<div class="top"><div class="eb">'+(course==='track'?'PENTA TRACK':course==='ramyeon_lit'?'문학과 함께라면':'PENTA VISION')+'</div>'
+      '<div class="top"><div class="eb">'+(course==='track'?'PENTA TRACK':isRM?esc(RS.title):'PENTA VISION')+'</div>'
       +'<h1>흥미로운 <em>시즌을 골라</em> 시작하세요</h1>'
       +'<p>순서에 얽매이지 않아요. 관심 가는 주제의 시즌부터 담아 시작하고, 각 시즌은 독립적으로 수강·완주할 수 있습니다.</p>'
       +((course==='vision')?('<div class="lvltoggle">'+LEVELS.map(function(l){return '<button data-lv="'+l[0]+'"'+(l[0]===state.level?' class="on"':'')+'>'+esc(l[1])+'</button>';}).join('')+'</div>'):'')+'</div>'
@@ -108,13 +109,13 @@
       +'<div class="foot">시즌은 원하는 순서로 선택할 수 있어요. 한 시즌을 완주하면 다음 시즌 추천과 성장 리포트가 이어집니다.<br>⏱️ <b>이용(사용)기간</b>: 시즌 개별구매 상품은 <b>결제일로부터 3개월</b> 동안 이용할 수 있습니다. (디지털 학습 콘텐츠 · 실물 배송 없음)</div>';
 
     var grid=el.querySelector('#asp-seasons');
-    if(course==='ramyeon_lit'){ var _ft=el.querySelector('.foot'); if(_ft)_ft.innerHTML='시즌은 원하는 순서로 시작할 수 있어요. 시즌마다 5강, 한 시즌을 마치면 시즌 성장 리포트가 이어집니다.<br>올인원 구독은 결제 기간마다 시즌 1개를 선택해 열 수 있어요.'; var _pp=el.querySelector('.top p'); if(_pp)_pp.textContent='이야기로 5개의 눈을 키우는 4개 시즌 · 시즌마다 5강. 아이에게 맞는 주제의 시즌부터 시작해 보세요.'; }
+    if(isRM){ var _ft=el.querySelector('.foot'); if(_ft)_ft.innerHTML='시즌은 원하는 순서로 시작할 수 있어요. 시즌마다 5강, 한 시즌을 마치면 시즌 성장 리포트가 이어집니다.<br>올인원 구독은 결제 기간마다 시즌 1개를 선택해 열 수 있어요.'; var _pp=el.querySelector('.top p'); if(_pp)_pp.textContent=(RS.pitch?(RS.pitch.replace(/\s*\d+강$/,'')):'이야기로 5개의 눈을 키우는')+' '+((RS.seasons&&RS.seasons.length)||4)+'개 시즌 · 시즌마다 5강. 아이에게 맞는 주제의 시즌부터 시작해 보세요.'; }
 
     function load(){
       grid.innerHTML='<div class="aspmsg">불러오는 중…</div>';
       var sb=window.sb;
       if(!sb||!sb.rpc){ grid.innerHTML='<div class="aspmsg">로그인/DB 미연결 — 새로고침 해주세요.</div>'; return; }
-      var stP=(course==='ramyeon_lit'&&opts.studentId)?sb.rpc('ramyeon_pick_status',{p_student:String(opts.studentId)}).then(function(r){ return (r&&r.data&&r.data.ok)?r.data:null; },function(){ return null; }):Promise.resolve(null);
+      var stP=(isRM&&opts.studentId)?sb.rpc('ramyeon_pick_status',{p_student:String(opts.studentId),p_stage:course}).then(function(r){ return (r&&r.data&&r.data.ok)?r.data:null; },function(){ return null; }):Promise.resolve(null);
       Promise.all([sb.rpc('list_season_catalog',{p_stage:course,p_level:state.level,p_student:opts.studentId||null}), stP])
         .then(function(both){
           var res=both[0], rm=both[1];
@@ -153,7 +154,7 @@
         if(!window.sb||!opts.studentId) return;
         if(!window.confirm('시즌 '+p.season+'을(를) 이번 결제 기간의 시즌으로 선택할까요?\n(결제 기간마다 1개만 고를 수 있어요)')) return;
         btn.disabled=true;
-        window.sb.rpc('pick_ramyeon_season',{p_student:String(opts.studentId),p_season:p.season}).then(function(r){
+        window.sb.rpc('pick_ramyeon_season',{p_student:String(opts.studentId),p_season:p.season,p_stage:course}).then(function(r){
           var d=r&&r.data; if(r&&r.error){ alert('선택 실패: '+r.error.message); btn.disabled=false; return; }
           if(d&&d.ok){ try{ if(window.toast)window.toast('시즌 '+p.season+' 선택 완료!',true); }catch(e){} load(); }
           else { alert((d&&d.error)||'선택하지 못했어요'); btn.disabled=false; }

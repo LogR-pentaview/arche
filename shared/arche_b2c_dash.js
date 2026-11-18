@@ -82,7 +82,7 @@
 
   function bandOf(g){ g=String(g||''); if(/고|N수/.test(g))return '고'; if(/중/.test(g))return '중'; if(/초/.test(g))return '초'; return '중'; }
   // 상품별 대상 학년 라벨
-  var TARGET={ ramyeon_lit:'초등', vision_basic:'초등', vision_adv:'중등', track:'중3', sr:'중·고', perf:'중·고' };
+  var TARGET={ ramyeon_lit:'초등', ramyeon_sci:'초등', vision_basic:'초등', vision_adv:'중등', track:'중3', sr:'중·고', perf:'중·고' };
 
   // 펜타 비전(레벨 자동) + 펜타 트랙 — 전 학년 노출, 비대상=off
   function pentaLine(band){
@@ -90,7 +90,10 @@
           : (band==='중') ? {key:'vision_adv',ic:'📗',title:'펜타 비전 심화',off:false}
           :                 {key:'vision_adv',ic:'📗',title:'펜타 비전 심화',off:true};   // 고
     var t = {key:'track',ic:'📙',title:'펜타 트랙',off:(band!=='중')};
-    if(band==='초' && window._isB2C) return [v,{key:'ramyeon_lit',ic:'🍜',title:'문학과 함께라면',off:false,ramyeon:true},t];   // [라면] B2C 초등 전용
+    if(band==='초' && window._isB2C){   // [라면] B2C 초등 전용 — 등록표(ArcheRamyeonSeries)의 활성 시리즈 전부
+      var rl=(window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[{key:'lit',stage:'ramyeon_lit',icon:'🍜',title:'문학과 함께라면',band:'초3~4',pitch:'이야기로 5개의 눈을 키우는 20강'}]).map(function(R){ return {key:R.stage,ic:R.icon,title:R.title,off:false,ramyeon:true,band:R.band,pitch:R.pitch}; });
+      return [v].concat(rl,[t]);
+    }
     return [v,t];
   }
   // 펜타 아르케(진로 징검다리 + 수행평가) — 전 학년 노출, 초등=off
@@ -105,7 +108,7 @@
         desc:'이 과정은 '+TARGET[x.key]+' 대상이에요. '+(role==='parent'?'체험 회차를 보내 미리 경험할 수 있어요.':'체험으로 한 번 해볼 수 있어요.'),
         badge:['b-trial','체험 1회'], actions:[['ghost',(role==='parent'?'체험 보내기':'체험 해보기'),'trial']]};
     }
-    if(x.ramyeon && role==='parent') return {ic:x.ic,title:x.title,key:x.key,sub:'초3~4 · 순한맛',desc:'이야기로 5개의 눈을 키우는 20강. 시즌별 1강은 무료로 체험해 보세요.',badge:['b-new','NEW'],actions:[['gold','시즌 보기','send']]};
+    if(x.ramyeon && role==='parent') return {ic:x.ic,title:x.title,key:x.key,sub:(x.band||'초3~4')+' · 순한맛',desc:(x.pitch||'이야기로 5개의 눈을 키우는 20강')+'. 마음에 드는 시즌부터 골라 시작해 보세요.',badge:['b-new','NEW'],actions:[['gold','시즌 보기','send']]};
     if(role==='parent') return {ic:x.ic,title:x.title,key:x.key,sub:'권장',desc:'이번 주 회차를 보내면 자녀가 수행하고 성장 리포트가 회신됩니다.',badge:['b-new','성장 리포트'],actions:[['gold','회차 보내기','send'],['ghost','리포트 보기','report']]};
     return {ic:x.ic,title:x.title,key:x.key,sub:'내 코스',desc:'받은 회차를 열어 사고력 워크북을 진행하고, 탐구 전/후 지성 레이더로 성장을 확인해요.',badge:['b-new','회차'],actions:[['gold','워크북 열기 →','open']]};
   }

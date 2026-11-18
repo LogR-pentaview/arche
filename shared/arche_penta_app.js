@@ -113,6 +113,8 @@
     track:       { stage:'track',  level:'',             title:'펜타 트랙',     short:'트랙',     bands:['중등'],        desc:'중3 · 교과 융합 + 진로·고교 선택과목 설계' },
     ramyeon_lit: { stage:'ramyeon_lit', level:'mild',    title:'문학과 함께라면', short:'라면 문학', bands:['초등'],        desc:'초3~4 · 순한맛 · 이야기로 키우는 5개의 눈 (B2C 전용)', b2cOnly:true }
   };
+  // [라면 등록표] 문학 외 시리즈(과학 등)는 ArcheRamyeonSeries 등록표에서 자동 추가
+  try{ (window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[]).forEach(function(R){ if(!COURSES[R.stage]) COURSES[R.stage]={ stage:R.stage, level:R.level||'mild', title:R.title, short:R.short, bands:['초등'], desc:R.band+' · 순한맛 · '+R.pitch+' (B2C 전용)', b2cOnly:true }; }); }catch(e){}
   function courseSpec(c){ return COURSES[c]||{ title:'펜타 시리즈', short:'전체', desc:'비전·트랙 통합', stage:null, level:null }; }
   function courseLabel(c){ return COURSES[c]?COURSES[c].short:'미수강'; }
   function stageTitle(s){ return COURSES[s]?COURSES[s].title:(s==='vision'?'펜타 비전':(s==='track'?'펜타 트랙':'펜타 시리즈')); }
@@ -130,7 +132,8 @@
     {key:'master',       label:'🔷 지성 다이빙',          stage:'master', level:null},
     {key:'ramyeon_lit',  label:'🍜 문학과 함께라면 · 초3~4', stage:'ramyeon_lit', level:'mild'}
   ];
-  function seriesKeyOf(r){ var st=r.stage||'', lv=r.level||''; if(st==='vision'&&lv==='architecture')return 'architecture'; if(st==='vision')return 'starter'; if(st==='track')return 'track'; if(st==='master')return 'master'; if(st==='ramyeon_lit')return 'ramyeon_lit'; return 'etc'; }
+  try{ (window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[]).forEach(function(R){ if(!SERIES_ORDER.some(function(x){return x.key===R.stage;})) SERIES_ORDER.push({key:R.stage,label:R.icon+' '+R.title+' · '+R.band,stage:R.stage,level:R.level||'mild'}); }); }catch(e){}
+  function seriesKeyOf(r){ var st=r.stage||'', lv=r.level||''; if(st==='vision'&&lv==='architecture')return 'architecture'; if(st==='vision')return 'starter'; if(st==='track')return 'track'; if(st==='master')return 'master'; if(/^ramyeon_/.test(st))return st; return 'etc'; }
   function catOptionsHTML(cat){
     var groups={}; (cat||[]).forEach(function(c){ var k=seriesKeyOf(c); (groups[k]=groups[k]||[]).push(c); });
     function opt(c){ return '<option value="'+c.id+'">시즌'+esc(c.season)+' · '+esc(c.week)+'주차 · '+esc(c.title)+'</option>'; }
@@ -216,7 +219,7 @@
         items.push(it);
       });
     });
-    return { lesson:{ work:c.work||'', title:c.title||cat.title||'', theme:c.theme||cat.theme||'', activeEyes:Object.keys(act).filter(function(k){ return act[k]; }) },
+    return { lesson:{ stage:cat.stage, lens:c.lens||'literature', work:c.work||'', title:c.title||cat.title||'', theme:c.theme||cat.theme||'', activeEyes:Object.keys(act).filter(function(k){ return act[k]; }) },
       items:items, drawings:drawings, radar_before:sub.radar_before, radar_after:sub.radar_after, student:{ name:(stu&&stu.name)||'', grade:(stu&&stu.grade)||'' } };
   }
   function assembleRamyeon(ai, sub, cat, stu, payload){
@@ -583,7 +586,7 @@
       genBtn.addEventListener('click', async function(){
         genBtn.disabled=true; genBtn.innerHTML='<span class="spin"></span>생성 중…';
         try{
-          if(a.stage==='ramyeon_lit'){
+          if(/^ramyeon_/.test(a.stage||'')){
             var _rp=ramyeonPayload(sub, a, stu);
             var _rres=await callFn('ramyeon-ai', { task:'ramyeon_report', payload:_rp });
             var _rai; try{ _rai=JSON.parse(_rres.text); }catch(pe){ throw new Error('AI 응답 파싱 실패'); }
