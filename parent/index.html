@@ -2056,21 +2056,22 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_report_typingdna.js"></script>
 <script src="/shared/arche_report_selfcompare.js"></script>
 <script src="/shared/arche_penta_workbook.js?v=31"></script>
+<script src="/shared/arche_ramyeon_series.js?v=1"></script>
 <script src="/shared/arche_ramyeon_ext.js?v=1"></script>
 <script src="/shared/arche_soke_chat.js?v=1"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_ramyeon_report.js?v=1"></script>
-<script src="/shared/arche_ramyeon_season.js?v=4"></script>
-<script src="/shared/arche_penta_app.js?v=17"></script>
+<script src="/shared/arche_ramyeon_season.js?v=5"></script>
+<script src="/shared/arche_penta_app.js?v=18"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_toss_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js?v=4"></script>
 <script src="/shared/arche_school_parent.js?v=1"></script>
-<script src="/shared/arche_season_picker.js?v=11"></script>
+<script src="/shared/arche_season_picker.js?v=12"></script>
 <script src="/shared/arche_cart.js?v=5"></script>
 <script src="/shared/arche_buy.js?v=1"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
-<script src="/shared/arche_b2c_dash.js?v=6"></script>
+<script src="/shared/arche_b2c_dash.js?v=7"></script>
 <script src="/shared/arche_career_bridge.js?v=6"></script>
 <script src="/shared/arche_selfdrive.js?v=1"></script>
 <script src="/shared/arche_gift.js?v=3"></script>
@@ -2282,7 +2283,7 @@ line('lineNaesin',[{l:'1-1',v:1.9},{l:'1-2',v:1.78},{l:'2-1',v:1.61},{l:'2-2',v:
 line('lineMopyeong',[{l:'고2 3월',v:86},{l:'6월',v:89},{l:'9월',v:91},{l:'고3 3월',v:94}],{invert:false,min:80,max:100,fmt:v=>Math.round(v),color:'#3182f6'});
 
 /* ===== Supabase 연동 ===== */
-window.APP_VERSION="2026.11.18.2";
+window.APP_VERSION="2026.11.18.3";
 /* SB_URL · SB_KEY 는 shared/config.js 에서 전역 제공 (중복 선언 제거) */
 let sb=null;
 if(window.supabase&&window.supabase.createClient){ try{ sb=window.supabase.createClient(SB_URL,SB_KEY); window.sb=sb; }catch(e){console.error('[arche] init',e);} }
@@ -2732,7 +2733,9 @@ function pvInjectCss(){
 }
 
 function pvGradeBand(g){ g=String(g||''); if(/초/.test(g))return '초등'; if(/중/.test(g))return '중등'; if(/고|N수/.test(g))return '고등'; return ''; }
-function pvCourseLabel(c){ return c==='vision_basic'?'펜타 비전 기초':c==='vision_adv'?'펜타 비전 심화':c==='track'?'펜타 트랙':c==='ramyeon_lit'?'문학과 함께라면':''; }
+function pvIsRM(k){ return !!(window.ArcheRamyeonSeries&&ArcheRamyeonSeries.isStage(k)); }   // 라면 시리즈 여부(등록표)
+function pvRM(k){ return window.ArcheRamyeonSeries?ArcheRamyeonSeries.byStage(k):null; }
+function pvCourseLabel(c){ var R=pvRM(c); return c==='vision_basic'?'펜타 비전 기초':c==='vision_adv'?'펜타 비전 심화':c==='track'?'펜타 트랙':R?R.title:''; }
 
 async function pvRenderDashboard(root, stu){
   var band=pvGradeBand(stu.grade);
@@ -2825,8 +2828,8 @@ function b2cBand(g){ g=String(g||''); if(g.indexOf('중')>=0)return '중'; if(g.
 function b2cOpenChildPenta(child, key, season){
   try{ window._activeStudent=child; }catch(e){}
   var band=b2cBand(child&&child.grade);
-  var courseKey=(key==='ramyeon_lit')?'ramyeon_lit':(key==='vision_basic')?'vision_basic':(key==='track')?'track':(key==='vision_adv')?'vision_adv':(band==='초'?'vision_basic':'vision_adv');
-  var idx=(courseKey==='vision_basic'||courseKey==='ramyeon_lit')?0:(courseKey==='track')?2:1;
+  var courseKey=pvIsRM(key)?key:(key==='vision_basic')?'vision_basic':(key==='track')?'track':(key==='vision_adv')?'vision_adv':(band==='초'?'vision_basic':'vision_adv');
+  var idx=(courseKey==='vision_basic'||pvIsRM(courseKey))?0:(courseKey==='track')?2:1;
   var navs=document.querySelectorAll('#grp-penta .nav');
   var nav=navs[idx]||navs[0];
   // [시즌 전달] 고른 시즌만 로딩 — season 없으면 전체(null)
@@ -2839,13 +2842,13 @@ function b2cOpenChildPenta(child, key, season){
 }
 /* [샘플 리포트] "샘플 리포트/미리보기" 클릭 시 실제 도구로 이동하던 버그 → 진짜 샘플 오버레이 표시 */
 /* [상품 대상 학년 라벨] 비대상 학년 안내·체험용 */
-function b2cTargetLabel(key){ return ({vision_basic:'초등',vision_adv:'중등',track:'중3',ramyeon_lit:'초3~4',sr:'중·고',perf:'중·고',sr1:'중·고'})[key]||'해당 학년'; }
+function b2cTargetLabel(key){ return ({vision_basic:'초등',vision_adv:'중등',track:'중3',ramyeon_lit:'초3~4',ramyeon_sci:'초3~4',sr:'중·고',perf:'중·고',sr1:'중·고'})[key]||'해당 학년'; }
 window.b2cTargetLabel=b2cTargetLabel;
 function b2cShowSample(sec, key){
   var map={ sr:{type:'design',title:'진로 징검다리'}, sr1:{type:'design',title:'진로 징검다리'},
             perf:{type:'perf',title:'수행평가 도우미'},
             vision_basic:{type:'penta',title:'펜타비전 기초'}, vision_adv:{type:'penta',title:'펜타비전 심화'},
-            track:{type:'penta',title:'펜타트랙'}, ramyeon_lit:{type:'penta',title:'문학과 함께라면'} };
+            track:{type:'penta',title:'펜타트랙'}, ramyeon_lit:{type:'penta',title:'문학과 함께라면'}, ramyeon_sci:{type:'penta',title:'과학과 함께라면'} };
   var m=map[key]||{ type:(sec==='penta'?'penta':''), title:'샘플 리포트' };
   try{
     if(typeof pvOverlay==='function' && window.ArcheParentHub && ArcheParentHub.renderSample){
@@ -2865,6 +2868,7 @@ window._b2cActivateHome=_b2cActivateHome;
 function b2cOpenSeasonPicker(child, key){
   try{ window._activeStudent=child; }catch(e){}
   var map={ vision_basic:['vision','starter','펜타 비전 기초'], vision_adv:['vision','architecture','펜타 비전 심화'], track:['track','','펜타 트랙'], ramyeon_lit:['ramyeon_lit','mild','문학과 함께라면'] };
+  if(!map[key] && pvIsRM(key)) map[key]=[key,'mild',pvRM(key).title];
   var m=map[key]; if(!m){ b2cOpenChildPenta(child,key); return; }
   var v=document.getElementById('v-home'); if(!v) return; if(window._b2cActivateHome)_b2cActivateHome(v);
   v.innerHTML='<div style="max-width:1000px;margin:0 auto;padding:16px 14px 60px">'
@@ -2883,7 +2887,7 @@ function b2cOpenSeasonPicker(child, key){
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
 /* [정기 성장 리포트] 학부모가 월간/분기/연간 종합 리포트를 분석·발행. 코스 선택 → ArchePentaPeriod.mountManage */
 function b2cPeriodCourses(grade){
-  var g=String(grade||''); if(/초/.test(g)) return [['vision','starter','펜타 비전 기초'],['vision','architecture','펜타 비전 심화'],['ramyeon_lit','mild','문학과 함께라면']];
+  var g=String(grade||''); if(/초/.test(g)) return [['vision','starter','펜타 비전 기초'],['vision','architecture','펜타 비전 심화'],['ramyeon_lit','mild','문학과 함께라면']].concat((window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[]).filter(function(R){return R.stage!=='ramyeon_lit';}).map(function(R){return [R.stage,'mild',R.title];}));
   if(/중/.test(g)) return [['vision','architecture','펜타 비전 심화'],['track','','펜타 트랙']];
   return [];
 }
@@ -2905,7 +2909,7 @@ function b2cOpenPeriodReport(child, presetStage){
   function esc2(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   var host=document.getElementById('b2c-pr-host');
   function draw(c){
-    if(c[0]==='ramyeon_lit' && window.ArcheRamyeonSeason){ ArcheRamyeonSeason.mount(host, { studentId:child.id, name:child.name, grade:child.grade }); return; }
+    if(pvIsRM(c[0]) && window.ArcheRamyeonSeason){ ArcheRamyeonSeason.mount(host, { studentId:child.id, name:child.name, grade:child.grade, stage:c[0] }); return; }
     ArchePentaPeriod.mountManage(host, { studentId:child.id, name:child.name, grade:child.grade, stage:c[0], level:c[1] });
   }
   if(courses.length>1){
@@ -2932,10 +2936,10 @@ function b2cOpenPeriodViewer(){
     +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button>'
     +'<div id="b2c-prv-host"></div></div>';
   var _prh=document.getElementById('b2c-prv-host');
-  function _vdraw(k){ if(k==='ramyeon' && window.ArcheRamyeonSeason){ ArcheRamyeonSeason.mount(_prh, { studentId:stu.id, name:stu.name, grade:stu.grade }); } else { ArchePentaPeriod.mountViewer(_prh, { studentId:stu.id, name:stu.name, grade:stu.grade }); } }
+  function _vdraw(k){ if(pvIsRM(k) && window.ArcheRamyeonSeason){ ArcheRamyeonSeason.mount(_prh, { studentId:stu.id, name:stu.name, grade:stu.grade, stage:k }); } else { ArchePentaPeriod.mountViewer(_prh, { studentId:stu.id, name:stu.name, grade:stu.grade }); } }
   if(/초/.test(String(stu.grade||'')) && window.ArcheRamyeonSeason){
     var _bar=document.createElement('div'); _bar.style.cssText='display:flex;gap:6px;margin-bottom:14px'; _prh.parentNode.insertBefore(_bar,_prh);
-    [['penta','펜타 비전'],['ramyeon','🍜 문학과 함께라면']].forEach(function(c){ var bt=document.createElement('button'); bt.textContent=c[1]; var on0=(c[0]==='penta');
+    [['penta','펜타 비전']].concat((window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[]).map(function(R){ return [R.stage,R.icon+' '+R.title]; })).forEach(function(c){ var bt=document.createElement('button'); bt.textContent=c[1]; var on0=(c[0]==='penta');
       bt.style.cssText='flex:1;border:1px solid '+(on0?'#141a29':'#dfe3ec')+';background:'+(on0?'#141a29':'#fff')+';color:'+(on0?'#fff':'#4e5968')+';font-weight:700;font-size:12.5px;padding:9px 8px;border-radius:10px;cursor:pointer';
       bt.addEventListener('click',function(){ Array.prototype.forEach.call(_bar.children,function(x){x.style.background='#fff';x.style.color='#4e5968';x.style.borderColor='#dfe3ec';}); bt.style.background='#141a29';bt.style.color='#fff';bt.style.borderColor='#141a29'; _vdraw(c[0]); }); _bar.appendChild(bt); });
   }
@@ -3102,7 +3106,7 @@ async function b2cOpenInbox(){
   var subs=[];
   try{ subs=await ArchePentaApp.listSubmissions(ids); }catch(e){ list.innerHTML='<div style="color:#f04452;padding:12px">불러오기 실패: '+esc(e.message||e)+'</div>'; return; }
   if(!subs.length){ list.innerHTML='<div style="background:#fff;border:1px solid #eef1f4;border-radius:14px;padding:28px;text-align:center;color:#8b95a1;line-height:1.75">🦉 아직 자녀가 제출한 워크북이 없어요.<br>자녀 계정에서 워크북을 <b>제출</b>하면 여기로 도착합니다.</div>'; return; }
-  function cLabel(s){ return s.stage==='ramyeon_lit'?'문학과 함께라면':s.stage==='track'?'펜타 트랙':(s.level==='starter'?'펜타 비전 기초':'펜타 비전 심화'); }
+  function cLabel(s){ return pvIsRM(s.stage)?pvRM(s.stage).title:s.stage==='track'?'펜타 트랙':(s.level==='starter'?'펜타 비전 기초':'펜타 비전 심화'); }
   list.innerHTML = subs.map(function(s){
     var kid=byId[s.student_id]||{}; var pub=(s.status==='sent');
     var badge = pub ? '<span style="font-size:10px;font-weight:800;color:#0a6b3a;background:#e3f6ea;border-radius:6px;padding:3px 9px;white-space:nowrap">✓ 발행완료</span>'
@@ -3227,7 +3231,7 @@ function applyB2CSidebar(band, mode){
   Array.prototype.forEach.call(side.children, function(ch){ if(ch===host||ch.classList.contains('brand')||ch.classList.contains('foot')||ch.id==='ver-box') return; ch.style.display='none'; });
   var _visItem = (band==='초') ? ['vision_basic','📘','펜타 비전 기초'] : ['vision_adv','📗','펜타 비전 심화'];
   var penta = [ _visItem, ['track','📙','펜타 트랙'] ];
-  if(band==='초') penta.splice(1,0,['ramyeon_lit','🍜','문학과 함께라면']);  // [라면] B2C 초등 전용  // 비전(레벨자동)+트랙 · 전 학년(비대상은 체험/미리보기)
+  if(band==='초') (window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[{stage:'ramyeon_lit',icon:'🍜',title:'문학과 함께라면'}]).forEach(function(R,i){ penta.splice(1+i,0,[R.stage,R.icon,R.title]); });  // [라면] B2C 초등 전용  // 비전(레벨자동)+트랙 · 전 학년(비대상은 체험/미리보기)
   var arche = (band==='고') ? [['sr','🪜','펜타 아르케 · 진로'],['perf','📝','펜타 아르케 · 수행평가']]
             : (band==='중') ? [['gdesign','🪜','펜타 아르케 · 진로'],['gperf','📝','펜타 아르케 · 수행평가']]
             : []; // 초: 사이드바 아르케 생략(대시보드에서 체험 제공)
@@ -3439,7 +3443,7 @@ function renderStudentHome(){
           act=(key==='sr'||key==='perf')?'start':'open';
         }
         if(sec==='penta' || act==='open'){
-          var idx=(key==='vision_basic'||key==='ramyeon_lit')?0:(key==='vision_adv')?1:(key==='track')?2:((band==='초')?0:1);
+          var idx=(key==='vision_basic'||pvIsRM(key))?0:(key==='vision_adv')?1:(key==='track')?2:((band==='초')?0:1);
           var navs=document.querySelectorAll('#grp-penta .nav'); if(navs[idx])navs[idx].click(); else if(navs[0])navs[0].click(); return;
         }
         var v2 = (key==='sr1'||key==='sr')? (band==='중'?'gdesign':'sr') : (key==='perf')? (band==='중'?'gperf':'perf') : null;
