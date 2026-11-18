@@ -189,6 +189,50 @@
   async function unassign(id){ var r=await window.sb.rpc('unassign_penta',{p_id:id}); if(r.error)throw r.error; return r.data; }
   async function getSubmission(id){ var r=await window.sb.from('penta_submissions').select('*').eq('id',id).limit(1); if(r.error)throw r.error; return (r.data&&r.data[0])||null; }
   async function getSubmissionBy(studentId,stage,season,week){ var r=await window.sb.from('penta_submissions').select('*').eq('academy_id',acadId()).eq('student_id',studentId).eq('stage',stage).eq('season',season).eq('week',week).limit(1); if(r.error)throw r.error; return (r.data&&r.data[0])||null; }
+
+  // ── [라면] 5개의 눈 리포트: 렌더 분기 · 페이로드 · 조립 (비전/트랙 경로와 분리) ──
+  function renderRpt(mount, report){
+    if(report && report.kind==='ramyeon' && window.ArcheRamyeonReport) return ArcheRamyeonReport.render(mount, report);
+    return ArchePentaReport.render(mount, report);
+  }
+  function _rmText(h){ return String(h||'').replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim(); }
+  function ramyeonPayload(sub, cat, stu){
+    var c=cat.content; if(typeof c==='string'){ try{ c=JSON.parse(c); }catch(e){ c={}; } } c=c||{};
+    var ans=sub.answers||{}, dr=ans._draw||{}, items=[], drawings=[], act={F1:0,F2:0,F3:0,F4:0,F5:0};
+    (c.stages||[]).forEach(function(st){
+      (st.blocks||[]).forEach(function(b){
+        if(b.t!=='text' && b.t!=='choice' && b.t!=='draw') return;
+        var it={ id:b.id, type:b.t, eye:st.eye, q:_rmText(b.q||b.head) };
+        if(b.speaker) it.speaker=b.speaker;
+        if(b.t==='text'){ it.answer=String(ans[b.id]||''); if(it.answer.trim() && /^F[1-4]$/.test(st.f)) act[st.f]=1; }
+        else if(b.t==='choice'){
+          var v=ans[b.id], vs=Array.isArray(v)?v:(v!=null&&v!==''?[v]:[]);
+          var map={}; (b.options||[]).forEach(function(o){ map[o.v]=_rmText(o.label); });
+          it.answer=vs.map(function(x){ return map[x]||x; }); if(vs.length && /^F[1-4]$/.test(st.f)) act[st.f]=1;
+        } else {
+          it.caption=String(ans[b.id+'_cap']||''); it.answer=dr[b.id]?'[그림 첨부]':'[그림 없음]';
+          if(dr[b.id]){ drawings.push({ id:b.id, eye:st.eye, prompt:_rmText(b.q), caption:it.caption, data:dr[b.id] }); act.F5=1; if(/^F[1-4]$/.test(st.f)) act[st.f]=1; }
+        }
+        items.push(it);
+      });
+    });
+    return { lesson:{ work:c.work||'', title:c.title||cat.title||'', theme:c.theme||cat.theme||'', activeEyes:Object.keys(act).filter(function(k){ return act[k]; }) },
+      items:items, drawings:drawings, radar_before:sub.radar_before, radar_after:sub.radar_after, student:{ name:(stu&&stu.name)||'', grade:(stu&&stu.grade)||'' } };
+  }
+  function assembleRamyeon(ai, sub, cat, stu, payload){
+    var c=cat.content; if(typeof c==='string'){ try{ c=JSON.parse(c); }catch(e){ c={}; } } c=c||{};
+    var dmap={}; (ai.drawings||[]).forEach(function(d){ dmap[d.id]=d; });
+    var rep={ kind:'ramyeon', v:1, stage:cat.stage, level:cat.level||'mild',
+      student:{ name:(stu&&stu.name)||'', grade:(stu&&stu.grade)||'' },
+      lesson:{ season:cat.season, week:cat.week, title:cat.title, work:c.work||'', theme:c.theme||cat.theme||'', date:(new Date()).toISOString().slice(0,10).replace(/-/g,'.') },
+      persona:ai.persona||{}, summary:ai.summary||'', eyes:ai.eyes||[], golden:ai.golden||{}, home:ai.home||[], consultantConfirmed:true };
+    rep.date=rep.lesson.date;
+    rep.drawings=(payload.drawings||[]).map(function(d){ return { id:d.id, eye:d.eye, caption:d.caption, img:d.data, observation:(dmap[d.id]&&dmap[d.id].observation)||'' }; });
+    var ax=c.radarAxes||[], b=sub.radar_before||[], a2=sub.radar_after||[], sf={axes:[],before:[],after:[]};
+    for(var i=0;i<ax.length;i++){ if(b[i]!=null && a2[i]!=null){ sf.axes.push(String(ax[i]).replace(/의 눈$/,'')); sf.before.push(b[i]); sf.after.push(a2[i]); } }
+    if(sf.axes.length) rep.self=sf;
+    return rep;
+  }
   async function saveReport(id,report,persona,status,edited){ var r=await window.sb.rpc('save_penta_report',{p_id:id,p_report:report,p_persona:persona||null,p_status:status,p_edited:!!edited}); if(r.error)throw r.error; return r.data; }
 
   function growthPct(before,after){ try{ var b=(before||[]).reduce(function(a,x){return a+(+x||0);},0); var a=(after||[]).reduce(function(s,x){return s+(+x||0);},0); if(!b)return null; return Math.round((a-b)/b*100);}catch(e){return null;} }
@@ -291,7 +335,7 @@
     var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
     document.body.appendChild(ov);
     ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
-    ArchePentaReport.render(ov.querySelector('.rpmount'), sub.report);
+    renderRpt(ov.querySelector('.rpmount'), sub.report);
   }
 
   // ── 컨설턴트/원장 뷰 (코스 기반: 학년폴더 · 일괄/개별 전송 · 수강 등록/진급) ──
@@ -532,13 +576,21 @@
         +(report?'<button class="act gh" id="rv-edit">간편 수정</button><button class="act dn" id="rv-pub">'+(b2c?'리포트 발행':'학부모에게 발행')+'</button>':'')+'</div></div>');
       wrap.appendChild(ctl);
       var mount=el('<div class="rpmount"></div>'); wrap.appendChild(mount);
-      if(report){ try{ ArchePentaReport.render(mount, report); }catch(e){ mount.innerHTML='<div class="warn">렌더 오류: '+esc(e.message||e)+'</div>'; } }
+      if(report){ try{ renderRpt(mount, report); }catch(e){ mount.innerHTML='<div class="warn">렌더 오류: '+esc(e.message||e)+'</div>'; } }
       else mount.innerHTML='<div class="empty">아직 리포트가 없습니다. [AI 리포트 생성]을 눌러 초안을 만드세요.</div>';
 
       var genBtn=ctl.querySelector('#rv-gen');
       genBtn.addEventListener('click', async function(){
         genBtn.disabled=true; genBtn.innerHTML='<span class="spin"></span>생성 중…';
         try{
+          if(a.stage==='ramyeon_lit'){
+            var _rp=ramyeonPayload(sub, a, stu);
+            var _rres=await callFn('ramyeon-ai', { task:'ramyeon_report', payload:_rp });
+            var _rai; try{ _rai=JSON.parse(_rres.text); }catch(pe){ throw new Error('AI 응답 파싱 실패'); }
+            report = assembleRamyeon(_rai, sub, a, stu, _rp);
+            await saveReport(sub.id, report, (report.persona&&report.persona.name)||null, 'reviewed', false);
+            toast('리포트 초안을 생성했어요'); paint(); return;
+          }
           var task = a.stage==='track' ? 'penta_track_report' : 'penta_vision_report';
           var payload = {
             theme:sub.theme, title:sub.title, level:sub.level,
@@ -575,7 +627,7 @@
         +'<div class="fl">'+(isTrack?'시그니처 설명':'페르소나 한 줄')+'</div><textarea id="e-pt" rows="2">'+esc(per.tagline||per.desc||'')+'</textarea>'
         +'<div class="fl">황금 문장</div><textarea id="e-gs" rows="2">'+esc(g.sentence||'')+'</textarea>'
         +'<div class="fl">선생님 비평</div><textarea id="e-gc" rows="2">'+esc(g.critique||'')+'</textarea>'
-        +'<label class="ck"><input type="checkbox" id="e-nobook" '+((!bk||!bk.title)?'checked':'')+'> 추천 도서 숨기기(적절한 실제 책이 없을 때)</label>'
+        +(report.kind==='ramyeon'?'<input type="checkbox" id="e-nobook" checked style="display:none">':'<label class="ck"><input type="checkbox" id="e-nobook" '+((!bk||!bk.title)?'checked':'')+'> 추천 도서 숨기기(적절한 실제 책이 없을 때)</label>')
         +'<div class="row"><button class="act pri" id="e-save">수정 적용</button><button class="act mut" id="e-cancel">취소</button></div></div>');
       wrap.insertBefore(form, wrap.children[1]);
       form.querySelector('#e-cancel').addEventListener('click',function(){ form.remove(); });
@@ -620,7 +672,7 @@
     var ov=el('<div class="pnta-ov"><div class="pnta-ovc"><div class="pnta-ovx"><button>✕ 닫기</button></div><div class="rpmount"></div></div></div>');
     document.body.appendChild(ov);
     ov.querySelector('.pnta-ovx button').addEventListener('click',function(){ ov.remove(); });
-    ArchePentaReport.render(ov.querySelector('.rpmount'), report);
+    renderRpt(ov.querySelector('.rpmount'), report);
   }
 
   // ── 진입점 ──────────────────────────────────────────────────────────────
