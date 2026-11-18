@@ -2060,13 +2060,13 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_soke_chat.js?v=1"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_ramyeon_report.js?v=1"></script>
-<script src="/shared/arche_ramyeon_season.js?v=2"></script>
+<script src="/shared/arche_ramyeon_season.js?v=4"></script>
 <script src="/shared/arche_penta_app.js?v=17"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_toss_billing.js?v=1"></script>
 <script src="/shared/arche_parent_hub.js?v=4"></script>
 <script src="/shared/arche_school_parent.js?v=1"></script>
-<script src="/shared/arche_season_picker.js?v=10"></script>
+<script src="/shared/arche_season_picker.js?v=11"></script>
 <script src="/shared/arche_cart.js?v=5"></script>
 <script src="/shared/arche_buy.js?v=1"></script>
 <script src="/shared/arche_b2c.js?v=3"></script>
@@ -2931,7 +2931,15 @@ function b2cOpenPeriodViewer(){
   v.innerHTML='<div style="max-width:520px;margin:0 auto;padding:16px 14px 60px">'
     +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button>'
     +'<div id="b2c-prv-host"></div></div>';
-  ArchePentaPeriod.mountViewer(document.getElementById('b2c-prv-host'), { studentId:stu.id, name:stu.name, grade:stu.grade });
+  var _prh=document.getElementById('b2c-prv-host');
+  function _vdraw(k){ if(k==='ramyeon' && window.ArcheRamyeonSeason){ ArcheRamyeonSeason.mount(_prh, { studentId:stu.id, name:stu.name, grade:stu.grade }); } else { ArchePentaPeriod.mountViewer(_prh, { studentId:stu.id, name:stu.name, grade:stu.grade }); } }
+  if(/초/.test(String(stu.grade||'')) && window.ArcheRamyeonSeason){
+    var _bar=document.createElement('div'); _bar.style.cssText='display:flex;gap:6px;margin-bottom:14px'; _prh.parentNode.insertBefore(_bar,_prh);
+    [['penta','펜타 비전'],['ramyeon','🍜 문학과 함께라면']].forEach(function(c){ var bt=document.createElement('button'); bt.textContent=c[1]; var on0=(c[0]==='penta');
+      bt.style.cssText='flex:1;border:1px solid '+(on0?'#141a29':'#dfe3ec')+';background:'+(on0?'#141a29':'#fff')+';color:'+(on0?'#fff':'#4e5968')+';font-weight:700;font-size:12.5px;padding:9px 8px;border-radius:10px;cursor:pointer';
+      bt.addEventListener('click',function(){ Array.prototype.forEach.call(_bar.children,function(x){x.style.background='#fff';x.style.color='#4e5968';x.style.borderColor='#dfe3ec';}); bt.style.background='#141a29';bt.style.color='#fff';bt.style.borderColor='#141a29'; _vdraw(c[0]); }); _bar.appendChild(bt); });
+  }
+  _vdraw('penta');
   try{ window.scrollTo(0,0); }catch(e){}
 }
 window.b2cOpenPeriodViewer=b2cOpenPeriodViewer;
