@@ -2060,6 +2060,7 @@ window.ADMIN=ADMIN;
 <script src="/shared/arche_soke_chat.js?v=1"></script>
 <script src="/shared/arche_penta_report.js?v=2"></script>
 <script src="/shared/arche_ramyeon_report.js?v=1"></script>
+<script src="/shared/arche_ramyeon_season.js?v=2"></script>
 <script src="/shared/arche_penta_app.js?v=17"></script>
 <script src="/shared/arche_penta_period.js?v=2"></script>
 <script src="/shared/arche_toss_billing.js?v=1"></script>
@@ -2882,7 +2883,7 @@ function b2cOpenSeasonPicker(child, key){
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
 /* [정기 성장 리포트] 학부모가 월간/분기/연간 종합 리포트를 분석·발행. 코스 선택 → ArchePentaPeriod.mountManage */
 function b2cPeriodCourses(grade){
-  var g=String(grade||''); if(/초/.test(g)) return [['vision','starter','펜타 비전 기초'],['vision','architecture','펜타 비전 심화']];
+  var g=String(grade||''); if(/초/.test(g)) return [['vision','starter','펜타 비전 기초'],['vision','architecture','펜타 비전 심화'],['ramyeon_lit','mild','문학과 함께라면']];
   if(/중/.test(g)) return [['vision','architecture','펜타 비전 심화'],['track','','펜타 트랙']];
   return [];
 }
@@ -2904,6 +2905,7 @@ function b2cOpenPeriodReport(child, presetStage){
   function esc2(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
   var host=document.getElementById('b2c-pr-host');
   function draw(c){
+    if(c[0]==='ramyeon_lit' && window.ArcheRamyeonSeason){ ArcheRamyeonSeason.mount(host, { studentId:child.id, name:child.name, grade:child.grade }); return; }
     ArchePentaPeriod.mountManage(host, { studentId:child.id, name:child.name, grade:child.grade, stage:c[0], level:c[1] });
   }
   if(courses.length>1){
