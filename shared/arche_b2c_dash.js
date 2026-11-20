@@ -85,12 +85,12 @@
   var TARGET={ ramyeon_lit:'초등', ramyeon_sci:'초등', vision_basic:'초등', vision_adv:'중등', track:'중3', sr:'중·고', perf:'중·고' };
 
   // 펜타 비전(레벨 자동) + 펜타 트랙 — 전 학년 노출, 비대상=off
-  function pentaLine(band){
+  function pentaLine(band, forceRamyeon){
     var v = (band==='초') ? {key:'vision_basic',ic:'📘',title:'펜타 비전 기초',off:false}
           : (band==='중') ? {key:'vision_adv',ic:'📗',title:'펜타 비전 심화',off:false}
           :                 {key:'vision_adv',ic:'📗',title:'펜타 비전 심화',off:true};   // 고
     var t = {key:'track',ic:'📙',title:'펜타 트랙',off:(band!=='중')};
-    if(band==='초' && window._isB2C){   // [라면] B2C 초등 전용 — 등록표(ArcheRamyeonSeries)의 활성 시리즈 전부
+    if(band==='초' && (window._isB2C || forceRamyeon)){   // [라면] B2C 초등 전용 — 등록표(ArcheRamyeonSeries)의 활성 시리즈 전부
       var rl=(window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[{key:'lit',stage:'ramyeon_lit',icon:'🍜',title:'문학과 함께라면',band:'초3~4',pitch:'이야기로 5개의 눈을 키우는 20강'}]).map(function(R){ return {key:R.stage,ic:R.icon,title:R.title,off:false,ramyeon:true,band:R.band,pitch:R.pitch}; });
       return [v].concat(rl,[t]);
     }
@@ -108,6 +108,7 @@
         desc:'이 과정은 '+TARGET[x.key]+' 대상이에요. '+(role==='parent'?'체험 회차를 보내 미리 경험할 수 있어요.':'체험으로 한 번 해볼 수 있어요.'),
         badge:['b-trial','체험 1회'], actions:[['ghost',(role==='parent'?'체험 보내기':'체험 해보기'),'trial']]};
     }
+    if(x.ramyeon && role==='child') return {ic:x.ic,title:x.title,key:x.key,sub:(x.band||'초3~4')+' · 순한맛',desc:(x.pitch||'이야기로 5개의 눈을 키우는 라면 시리즈')+'. 시즌을 골라 시작해요.',badge:['b-new','NEW'],actions:[['gold','시즌 열기 →','open']]};
     if(x.ramyeon && role==='parent') return {ic:x.ic,title:x.title,key:x.key,sub:(x.band||'초3~4')+' · 순한맛',desc:(x.pitch||'이야기로 5개의 눈을 키우는 20강')+'. 마음에 드는 시즌부터 골라 시작해 보세요.',badge:['b-new','NEW'],actions:[['gold','시즌 보기','send']]};
     if(role==='parent') return {ic:x.ic,title:x.title,key:x.key,sub:'권장',desc:'이번 주 회차를 보내면 자녀가 수행하고 성장 리포트가 회신됩니다.',badge:['b-new','성장 리포트'],actions:[['gold','회차 보내기','send'],['ghost','리포트 보기','report']]};
     return {ic:x.ic,title:x.title,key:x.key,sub:'내 코스',desc:'받은 회차를 열어 사고력 워크북을 진행하고, 탐구 전/후 지성 레이더로 성장을 확인해요.',badge:['b-new','회차'],actions:[['gold','워크북 열기 →','open']]};
@@ -160,8 +161,11 @@
     root.classList.add('b2cd');
 
     var inbox=opts.inbox||[];
-    var penta=opts.penta||pentaLine(band).map(function(x){ return pentaCardObj(x,'child'); });
+    var penta=opts.penta||pentaLine(band,true).map(function(x){ return pentaCardObj(x,'child'); });
     var arche=opts.arche||archeLine(band).map(function(x){ return archeCardObj(x,'child'); });
+    // [학년 매칭] 내 학년 코스는 메인에, 비대상 학년 코스는 아래 '다른 학년 체험'으로 접어 둠
+    var pOn=penta.filter(function(o){return !o.off;}), pOff=penta.filter(function(o){return o.off;});
+    var aOn=arche.filter(function(o){return !o.off;}), aOff=arche.filter(function(o){return o.off;});
     var got=inbox.length;
 
     var html='<section class="b2cd-view">'
@@ -170,15 +174,20 @@
         +'<div class="who"><div class="eb">PENTA · 학생</div><h1>'+esc(name)+' 학생</h1>'
         +'<div class="meta">'+(grade?'<span class="chip">'+esc(grade)+'</span>':'')+'<span class="chip">받은 과제 '+esc(got)+'</span></div></div></div>';
     if(got) html+='<div class="sec-t"><span class="pip a">📩</span>부모님이 보낸 과제</div><div class="grid" id="b2cd-c-inbox"></div>';
-    html+='<div class="sec-t"><span class="pip p">✦</span>펜타 비전 · 트랙 <span style="font-weight:600;color:var(--ink-faint)">· 오늘의 사고력</span></div><div class="grid" id="b2cd-c-penta"></div>'
-      +'<div class="sec-t"><span class="pip a">🎓</span>펜타 아르케 <span style="font-weight:600;color:var(--ink-faint)">· 진로·수행</span></div><div class="grid" id="b2cd-c-arche"></div>'
-      +'<div class="note">받은 과제를 수행하면 결과가 부모님께 자동으로 전달돼요. 작성은 언제나 <b>학생 본인</b>이 합니다.</div>'
+    if(pOn.length) html+='<div class="sec-t"><span class="pip p">✦</span>내 학년 코스 <span style="font-weight:600;color:var(--ink-faint)">· 오늘의 사고력</span></div><div class="grid" id="b2cd-c-penta"></div>';
+    if(aOn.length) html+='<div class="sec-t"><span class="pip a">🎓</span>펜타 아르케 <span style="font-weight:600;color:var(--ink-faint)">· 진로·수행</span></div><div class="grid" id="b2cd-c-arche"></div>';
+    if(pOff.length||aOff.length) html+='<details style="margin-top:22px"><summary style="cursor:pointer;font-size:12.5px;font-weight:800;color:var(--ink-mute);padding:6px 4px">다른 학년 과정 체험해 보기 ('+(pOff.length+aOff.length)+')</summary>'
+      +(pOff.length?'<div class="grid" id="b2cd-c-poff" style="margin-top:10px"></div>':'')+(aOff.length?'<div class="grid" id="b2cd-c-aoff" style="margin-top:10px"></div>':'')+'</details>';
+    html+='<div class="note">받은 과제를 수행하면 결과가 부모님께 자동으로 전달돼요. 작성은 언제나 <b>학생 본인</b>이 합니다.</div>'
       +'</section>';
     root.innerHTML=html;
 
     if(got) fillGrid(root.querySelector('#b2cd-c-inbox'),'a',inbox,function(act,key){ if(opts.onAction)opts.onAction('inbox',act,key); });
-    fillGrid(root.querySelector('#b2cd-c-penta'),'p',penta,function(act,key){ if(opts.onAction)opts.onAction('penta',act,key); });
-    fillGrid(root.querySelector('#b2cd-c-arche'),'a',arche,function(act,key){ if(opts.onAction)opts.onAction('arche',act,key); });
+    var gP=root.querySelector('#b2cd-c-penta'), gA=root.querySelector('#b2cd-c-arche'), gPo=root.querySelector('#b2cd-c-poff'), gAo=root.querySelector('#b2cd-c-aoff');
+    if(gP)fillGrid(gP,'p',pOn,function(act,key){ if(opts.onAction)opts.onAction('penta',act,key); });
+    if(gA)fillGrid(gA,'a',aOn,function(act,key){ if(opts.onAction)opts.onAction('arche',act,key); });
+    if(gPo)fillGrid(gPo,'p',pOff,function(act,key){ if(opts.onAction)opts.onAction('penta',act,key); });
+    if(gAo)fillGrid(gAo,'a',aOff,function(act,key){ if(opts.onAction)opts.onAction('arche',act,key); });
     // 히어로 내 로그아웃 버튼 제거(상단 우측 로그아웃과 중복·미배선이었음). onLogout 콜백은 필요시 재사용 가능.
     var lo=root.querySelector('[data-lo]'); if(lo)lo.addEventListener('click',function(){ if(opts.onLogout)opts.onLogout(); });
   }
