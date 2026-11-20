@@ -3198,10 +3198,27 @@ function b2cOpenStore(){
     var vadv=ps.filter(function(p){return p.kind==='season'&&p.stage==='vision'&&p.level==='architecture';});
     var track=ps.filter(function(p){return p.kind==='season'&&p.stage==='track';});
     // [개별 시즌] 카테고리 탭으로 하나씩만 노출 (긴 목록 → 선택 쉽게)
-    window._b2cSeasonHtml={ basic:seasonCards(vbasic), adv:seasonCards(vadv), track:seasonCards(track) };
-    var cats=[]; if(vbasic.length)cats.push(['basic','펜타 비전 기초']); if(vadv.length)cats.push(['adv','펜타 비전 심화']); if(track.length)cats.push(['track','펜타 트랙']);
+    // [라면 시리즈] 오픈된 시리즈=상품/무료 안내, 미오픈 시리즈=상품 준비중(미리 노출)
+    function raHead(R){ return '<div style="font-size:13px;font-weight:800;color:#191f28;margin:14px 2px 8px">'+esc(R.icon||'🍜')+' '+esc(R.title)+'</div>'; }
+    function raSoon(icon,title,note){ return '<div style="display:flex;align-items:center;gap:10px;border:1px dashed #d5dae1;border-radius:12px;padding:12px 14px;margin-bottom:8px;background:#fafbfc;flex-wrap:wrap">'
+        +'<div style="font-size:22px">'+icon+'</div><div style="flex:1;min-width:130px"><div style="font-weight:700;font-size:14px;color:#6b7688">'+esc(title)+'</div><div style="font-size:11.5px;color:#8b95a1;margin-top:2px">'+esc(note||'')+'</div></div>'
+        +'<span style="font-size:11.5px;font-weight:800;color:#8b95a1;background:#eef1f4;border-radius:8px;padding:6px 11px;white-space:nowrap">상품 준비중</span></div>'; }
+    var raOpen=(window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[{stage:'ramyeon_lit',icon:'🍜',title:'문학과 함께라면'}]);
+    var raHtml='<div style="font-size:11.5px;color:#8b95a1;margin:0 2px 4px">초3·4를 위한 라면 시리즈 · 시즌 5강씩 · 시즌마다 1강 무료 체험</div>';
+    raOpen.forEach(function(R){
+      var rows=ps.filter(function(p){return p.kind==='season'&&p.stage===R.stage;});
+      raHtml+=raHead(R);
+      if(rows.length){ raHtml+=seasonCards(rows); }
+      else { raHtml+='<div style="display:flex;align-items:center;gap:10px;border:1px solid #d7f0e0;border-radius:12px;padding:12px 14px;margin-bottom:8px;background:#f2fbf6;flex-wrap:wrap"><div style="flex:1;min-width:130px"><div style="font-weight:700;font-size:14px;color:#0a6b3a">전 강 무료 오픈</div><div style="font-size:11.5px;color:#4e8c68;margin-top:2px">별도 결제 없이 앱에서 바로 학습할 수 있어요.</div></div><span style="font-size:11.5px;font-weight:800;color:#0a6b3a;background:#e3f6ea;border-radius:8px;padding:6px 11px;white-space:nowrap">무료</span></div>'; }
+    });
+    [['ramyeon_phil','🦉','철학과 함께라면','생각의 힘을 키우는 철학 라면'],['ramyeon_art','🎨','예술과 함께라면','보는 눈을 키우는 예술 라면'],['ramyeon_his','🏛️','역사와 함께라면','시간의 눈을 키우는 역사 라면']].forEach(function(u){
+      var on=raOpen.some(function(R){return R.stage===u[0];}); if(on)return;
+      raHtml+=raSoon(u[1],u[2],u[3]);
+    });
+    window._b2cSeasonHtml={ ramyeon:raHtml, basic:seasonCards(vbasic), adv:seasonCards(vadv), track:seasonCards(track) };
+    var cats=[['ramyeon','🍜 초3·4 라면']]; if(vbasic.length)cats.push(['basic','펜타 비전 기초']); if(vadv.length)cats.push(['adv','펜타 비전 심화']); if(track.length)cats.push(['track','펜타 트랙']);
     var band=(window.b2cBand?b2cBand(s.grade):'');
-    var defCat=(band==='초')?'basic':(band==='고')?'track':(band==='중'?'adv':'');
+    var defCat=(band==='초')?'ramyeon':(band==='고')?'track':(band==='중'?'adv':'');
     if(!defCat || !window._b2cSeasonHtml[defCat]) defCat=(cats[0]&&cats[0][0])||'basic';
     var tabBtn=function(c){ return '<button onclick="b2cStoreTab(\''+c[0]+'\')" data-cat="'+c[0]+'" class="b2c-stab" style="border:1px solid #e5e8eb;background:#fff;color:#4e5968;border-radius:20px;padding:7px 14px;font-size:12.5px;font-weight:700;cursor:pointer">'+c[1]+'</button>'; };
     var seasonBlock = cats.length ? (
