@@ -2867,6 +2867,7 @@ function _b2cActivateHome(v){ try{ document.querySelectorAll('.view').forEach(fu
 window._b2cActivateHome=_b2cActivateHome;
 function b2cOpenSeasonPicker(child, key){
   try{ window._activeStudent=child; }catch(e){}
+  if(key==='ramyeon_hub'){ b2cOpenRamyeonHub(child); return; }
   var map={ vision_basic:['vision','starter','펜타 비전 기초'], vision_adv:['vision','architecture','펜타 비전 심화'], track:['track','','펜타 트랙'], ramyeon_lit:['ramyeon_lit','mild','문학과 함께라면'] };
   if(!map[key] && pvIsRM(key)) map[key]=[key,'mild',pvRM(key).title];
   var m=map[key]; if(!m){ b2cOpenChildPenta(child,key); return; }
@@ -2885,6 +2886,30 @@ function b2cOpenSeasonPicker(child, key){
   } else if(host){ host.innerHTML='<div style="text-align:center;color:#8b95a1;padding:40px">시즌 정보를 불러오지 못했습니다. 새로고침 해주세요.</div>'; }
 }
 window.b2cOpenSeasonPicker=b2cOpenSeasonPicker;
+/* [초3·4 라면 시리즈] 폴더 화면 — 등록표(ArcheRamyeonSeries)에 켜진 시리즈를 카드로 나열. 새 시리즈는 등록표만 켜면 자동 추가 */
+function b2cOpenRamyeonHub(child){
+  try{ if(child) window._activeStudent=child; }catch(e){}
+  child = child || window._activeStudent || {};
+  var v=document.getElementById('v-home'); if(!v) return; if(window._b2cActivateHome)_b2cActivateHome(v);
+  function esc2(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  var RS = window.ArcheRamyeonSeries ? ArcheRamyeonSeries.list() : [{stage:'ramyeon_lit',icon:'🍜',title:'문학과 함께라면',pitch:'이야기로 5개의 눈을 키우는 20강',band:'초3~4'}];
+  var cards = RS.map(function(R){
+    var n = (R.seasons&&R.seasons.length) ? R.seasons.length*5 : 0;
+    return '<div onclick="b2cOpenSeasonPicker(window._activeStudent||{},\''+R.stage+'\')" style="cursor:pointer;background:#fff;border:1px solid #e5e8eb;border-radius:16px;padding:18px 16px;display:flex;gap:14px;align-items:center;box-shadow:0 1px 4px rgba(0,0,0,.04)">'
+      +'<div style="font-size:34px;width:52px;height:52px;border-radius:14px;background:#fff3e6;display:flex;align-items:center;justify-content:center;flex:none">'+(R.icon||'🍜')+'</div>'
+      +'<div style="flex:1;min-width:0"><div style="font-size:16px;font-weight:800;color:#191f28">'+esc2(R.title)+'</div>'
+      +'<div style="font-size:12.5px;color:#6b7684;margin-top:3px">'+esc2(R.pitch||'')+'</div>'
+      +'<div style="font-size:11.5px;color:#8b95a1;margin-top:5px">'+esc2(R.band||'초3~4')+(n?' · 시즌 '+R.seasons.length+'개 · '+n+'강':'')+'</div></div>'
+      +'<div style="color:#b0b8c1;font-size:20px">›</div></div>';
+  }).join('');
+  v.innerHTML='<div style="max-width:760px;margin:0 auto;padding:16px 14px 60px">'
+    +'<button onclick="b2cGoHome()" style="background:#fff;border:1px solid #e5e8eb;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:700;color:#4e5968;cursor:pointer;margin-bottom:12px">← 대시보드로</button>'
+    +'<div style="font-size:22px;font-weight:800;margin:4px 2px 2px">🍜 초3·4를 위한 라면 시리즈</div>'
+    +'<div style="font-size:13px;color:#6b7684;margin:0 2px 16px">하나의 이야기·실험·질문으로 세 개의 눈을 켜는 생각 훈련이에요. 관심 있는 시리즈를 골라 보세요.</div>'
+    +'<div style="display:grid;gap:12px">'+cards+'</div></div>';
+  try{ window.scrollTo(0,0); }catch(e){}
+}
+window.b2cOpenRamyeonHub=b2cOpenRamyeonHub;
 /* [정기 성장 리포트] 학부모가 월간/분기/연간 종합 리포트를 분석·발행. 코스 선택 → ArchePentaPeriod.mountManage */
 function b2cPeriodCourses(grade){
   var g=String(grade||''); if(/초/.test(g)) return [['vision','starter','펜타 비전 기초'],['vision','architecture','펜타 비전 심화'],['ramyeon_lit','mild','문학과 함께라면']].concat((window.ArcheRamyeonSeries?ArcheRamyeonSeries.list():[]).filter(function(R){return R.stage!=='ramyeon_lit';}).map(function(R){return [R.stage,'mild',R.title];}));
@@ -3235,6 +3260,14 @@ function applyB2CSidebar(band, mode){
   var arche = (band==='고') ? [['sr','🪜','펜타 아르케 · 진로'],['perf','📝','펜타 아르케 · 수행평가']]
             : (band==='중') ? [['gdesign','🪜','펜타 아르케 · 진로'],['gperf','📝','펜타 아르케 · 수행평가']]
             : []; // 초: 사이드바 아르케 생략(대시보드에서 체험 제공)
+  // [학부모 메뉴 통일] 자녀 선택·학년과 무관하게 모든 학부모에게 같은 순서로 노출:
+  //  라면 시리즈(등록표 기준) → 펜타 비전 기초 → 펜타 비전 심화 → 펜타 트랙 → 진로 징검다리 → 수행평가 도우미 → 정기 성장 리포트
+  if(mode==='parent'){
+    penta = [['ramyeon_hub','🍜','초3·4 라면 시리즈']]   // 폴더형: 눌러서 들어가면 문학·과학·(철학·예술…) 시리즈 카드가 나열됨 → 시리즈가 늘어도 메뉴는 1개
+      .concat([['vision_basic','📘','펜타 비전 기초'],['vision_adv','📗','펜타 비전 심화'],['track','📙','펜타 트랙']]);
+    arche = (band==='고') ? [['sr','🪜','진로 징검다리'],['perf','📝','수행평가 도우미']]
+                          : [['gdesign','🪜','진로 징검다리'],['gperf','📝','수행평가 도우미']];   // 초·중·미선택 = 중등용 화면
+  }
   function e2(s){ return String(s).replace(/'/g,"\\'"); }
   function emo(e){ return '<span style="width:20px;display:inline-block;text-align:center">'+e+'</span>'; }
   function itemsHTML(list, isPenta){
@@ -3257,7 +3290,7 @@ function applyB2CSidebar(band, mode){
   }
   // ② 학습 콘텐츠
   if(penta.length){ h+=lbl('학습 콘텐츠')+itemsHTML(penta,true); }
-  if(arche.length){ h+=lbl('펜타 아르케')+itemsHTML(arche,false); }
+  if(arche.length){ h+=(mode==='parent'?'':lbl('펜타 아르케'))+itemsHTML(arche,false); }
   if(penta.length){ h+=''
     +'<div class="nav" onclick="'+(mode==='parent'?"b2cOpenPeriodReport(window._activeStudent)":"b2cOpenPeriodViewer()")+'">'+emo('📈')+' 정기 성장 리포트</div>'; }
   // ③ 구매·결제 (학부모)
