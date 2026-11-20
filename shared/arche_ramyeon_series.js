@@ -11,12 +11,12 @@
       pitch:'이야기로 5개의 눈을 키우는 20강',
       centerEye:'F1',
       seasons:[ {no:1,name:'나'}, {no:2,name:'가족'}, {no:3,name:'친구'}, {no:4,name:'마을과 나라'} ] },
-    { key:'sci', stage:'ramyeon_sci', level:'mild', lens:'science', enabled:false,
+    { key:'sci', stage:'ramyeon_sci', level:'mild', lens:'science', enabled:true,
       icon:'🔬', title:'과학과 함께라면', short:'라면 과학', band:'초3~4', unit:'실험',
       pitch:'직접 해 보며 5개의 눈을 키우는 25강',
       centerEye:'F2',
       eyes:[{ax:'F1',ic:'🔭',nm:'관찰력',c:'#e0453a'},{ax:'F2',ic:'🌿',nm:'자연의 눈',c:'#2f9e8f'},{ax:'F3',ic:'🌍',nm:'세상의 눈',c:'#2b6cb0'},{ax:'F4',ic:'💗',nm:'마음의 눈',c:'#d6578a'},{ax:'F5',ic:'💡',nm:'상상력',c:'#d4a94a'}],
-      seasons:[ {no:1,name:'물리'}, {no:2,name:'화학'}, {no:3,name:'생명'}, {no:4,name:'우주와 하늘'}, {no:5,name:'환경'} ] }
+      seasons:[ {no:1,name:'물리'}, {no:2,name:'화학'}, {no:3,name:'생명'}, {no:4,name:'열과 날씨'}, {no:5,name:'지구와 환경'} ] }
   ];
   function list(all){ return LIST.filter(function(s){ return all||s.enabled; }); }
   function byStage(stage){ for(var i=0;i<LIST.length;i++) if(LIST[i].stage===stage && LIST[i].enabled) return LIST[i]; return null; }
