@@ -39,7 +39,22 @@
 
   /* ----------------------------- 상태 ----------------------------- */
   var S={ host:null, ref:ymd(todayStart()), starts:[], sel:null, form:null, busy:false,
-          mentees:[], cands:[], plans:{}, items:{}, cur:null, msgs:[], mentor:null, filter:'' };
+          mentees:[], cands:[], plans:{}, items:{}, cur:null, msgs:[], mentor:null, filter:'',
+          vs:null, mv:false, nw:false, ns:null };   // vs=강사가 보고 있는 계획 시작일, mv=시작일 변경 입력창, nw=새 계획 입력창, ns=새 계획 시작일
+
+  /* 학생의 계획 시작일 목록(오름차순)에서 '지금 보여줄 계획' 고르기: 오늘이 속한 계획 → 가장 가까운 예정 계획 → 가장 최근 지난 계획 */
+  function pickStart(starts,t){
+    if(!starts||!starts.length) return null;
+    var i; for(i=starts.length-1;i>=0;i--){ if(starts[i]<=t&&t<=ymd(addDays(parseYmd(starts[i]),6))) return starts[i]; }
+    var up=starts.filter(function(x){return x>t;}); if(up.length) return up[0];
+    return starts[starts.length-1];
+  }
+  function defaultNs(){
+    var n=ymd(todayStart());
+    if(S.starts&&S.starts.length){ var e=ymd(addDays(parseYmd(S.starts[S.starts.length-1]),7)); if(e>n) n=e; }
+    return n;
+  }
+  function weekShort(start){ var a=parseYmd(start),b=addDays(a,6); return md(a)+'~'+md(b); }
 
   function isStu(){ return window._role==='stu'; }
   function isMgr(){ return window._isOwner===true || window._myRole==='manager' || window._canManage===true; }
@@ -186,10 +201,35 @@
       return '<div class="weeknav"><button class="btn sm" '+(hasPrev?'':'disabled ')+'onclick="SPL.week(-1)">‹ 이전 계획</button><b>'+weekLabel(w.start)+(has?' · 오늘 포함':'')+'</b>'
         +'<button class="btn sm" onclick="SPL.week(1)">다음 7일 ›</button>'+(has?'':'<button class="btn sm" onclick="SPL.week(0)">오늘로</button>')+'</div>';
     }
-    var r=parseYmd(S.ref);
-    return '<div class="weeknav"><button class="btn sm" onclick="SPL.week(-1)">‹ 7일 전</button><b>기준일 '+md(r)+'('+DAYS[isoDow(r)-1]+')'+(S.ref===t?' · 오늘':'')+'</b>'
-      +'<input type="date" value="'+S.ref+'" style="border:1px solid #e5e8eb;border-radius:7px;padding:4px 7px;font:inherit;font-size:12.5px" onchange="SPL.setRef(this.value)">'
-      +'<button class="btn sm" onclick="SPL.week(1)">7일 후 ›</button>'+(S.ref!==t?'<button class="btn sm" onclick="SPL.week(0)">오늘로</button>':'')+'</div>';
+    return '';
+  }
+  var DATE_CSS='border:1px solid #e5e8eb;border-radius:7px;padding:4px 7px;font:inherit;font-size:12.5px';
+  /* 시작일 변경 입력줄 (강사·학생 공통) */
+  function mvRow(plan){
+    if(!S.mv||!plan) return '';
+    return '<div class="row" style="gap:8px;margin-top:10px;background:#f3f8ff;border:1px solid #b9d3ff;border-radius:10px;padding:8px 10px"><b style="font-size:12.5px">📅 새 시작일</b>'
+      +'<input type="date" id="spl-mv" value="'+plan.week_start+'" style="'+DATE_CSS+'">'
+      +'<button class="btn pri sm" onclick="SPL.moveStart()">변경</button><button class="btn sm" onclick="SPL.toggleMv()">닫기</button>'
+      +'<span class="hint">요일별 항목이 같은 간격만큼 함께 이동해요 (예: 11/21 토 → 11/23 월 시작이면 모든 항목이 +2일)</span></div>';
+  }
+  /* 강사용: 선택 학생의 계획 이동바 (이전/다음 계획 · 시작일 변경 · 새 계획) */
+  function planBar(plan){
+    var ws=plan.week_start, i=S.starts.indexOf(ws), t=ymd(todayStart());
+    var has=ws<=t&&t<=ymd(addDays(parseYmd(ws),6));
+    var h='<div class="weeknav" style="flex-wrap:wrap;margin-top:10px"><button class="btn sm" '+(i>0?'':'disabled ')+'onclick="SPL.week(-1)">‹ 이전 계획</button>'
+      +'<b>'+weekLabel(ws)+(has?' · 오늘 포함':(ws>t?' · 예정':' · 지난 계획'))+'</b>'
+      +'<button class="btn sm" '+(i>=0&&i<S.starts.length-1?'':'disabled ')+'onclick="SPL.week(1)">다음 계획 ›</button>'
+      +(has?'':'<button class="btn sm" onclick="SPL.week(0)">오늘로</button>')
+      +'<button class="btn sm" onclick="SPL.toggleMv()">📅 시작일 변경</button><button class="btn sm" onclick="SPL.toggleNw()">＋ 새 계획</button></div>';
+    return h+mvRow(plan)+nwRow();
+  }
+  /* 강사용: 새 계획 생성 입력줄 (시작일 선택) */
+  function nwRow(){
+    if(!S.nw) return '';
+    var v=S.ns||defaultNs();
+    return '<div class="row" style="gap:8px;margin-top:10px;background:#f6fbf8;border:1px solid #b7e4c7;border-radius:10px;padding:8px 10px"><b style="font-size:12.5px">＋ 새 계획 시작일</b>'
+      +'<input type="date" value="'+v+'" style="'+DATE_CSS+'" onchange="SPL.setNs(this.value)">'
+      +'<button class="btn pri sm" onclick="SPL.newPlan()">초안 만들기</button><button class="btn sm" onclick="SPL.newPlan(true)">지난 계획 복사해서</button><button class="btn sm" onclick="SPL.toggleNw()">닫기</button></div>';
   }
   function stepper(plan){
     var s=plan?plan.status:'none', i=(s==='draft'||s==='none')?0:(s==='confirmed'?3:1);
@@ -282,12 +322,12 @@
       sbc().from('study_plan_msgs').select('*').eq('plan_id',plan.id).order('created_at')]);
     return { plan:plan, items:q[0].data||[], msgs:q[1].data||[] };
   }
-  async function createPlan(sid){
-    var st=S.ref, nxt=S.starts.filter(function(x){return x>st&&x<=ymd(addDays(parseYmd(st),6));})[0];
-    if(nxt){ toast('다음 계획('+md(parseYmd(nxt))+' 시작)과 기간이 겹쳐요. 시작일을 '+md(addDays(parseYmd(nxt),-7))+' 이전으로 골라주세요.'); return false; }
+  async function createPlan(sid,start){
+    var st=start||S.ref, nxt=S.starts.filter(function(x){return x>st&&x<=ymd(addDays(parseYmd(st),6));})[0];
+    if(nxt){ toast('다음 계획('+md(parseYmd(nxt))+' 시작)과 기간이 겹쳐요. 시작일을 '+md(addDays(parseYmd(nxt),-7))+' 이전으로 골라주세요.'); return null; }
     var r=await sbc().from('study_plans').insert({student_id:sid,week_start:st}).select().limit(1);
-    if(r.error){ fail(r); return false; }
-    return true;
+    if(r.error){ fail(r); return null; }
+    return (r.data&&r.data[0])||{week_start:st};
   }
   async function copyPrev(sid,planId,start){
     var p=await sbc().from('study_plans').select('id,week_start').eq('student_id',sid).lt('week_start',start).order('week_start',{ascending:false}).limit(1);
@@ -334,9 +374,9 @@
     if(st==='confirmed') o+=progress(plan,items);
     o+='<div class="card"><div class="row rowb"><div class="h3">계획표 <span class="hint" style="font-weight:600">· '+weekLabel(plan.week_start)+'</span></div>';
     if(st==='draft'||st==='revising'){
-      o+='<div class="row" style="gap:8px">'+(items.length?'':'<button class="btn sm" onclick="SPL.copyPrev()">지난 계획 복사</button>')+'<button class="btn pri" onclick="SPL.act(\'submit\')">선생님께 제출</button></div>';
+      o+='<div class="row" style="gap:8px">'+(items.length?'':'<button class="btn sm" onclick="SPL.copyPrev()">지난 계획 복사</button>')+'<button class="btn sm" onclick="SPL.toggleMv()">📅 시작일 변경</button><button class="btn pri" onclick="SPL.act(\'submit\')">선생님께 제출</button></div>';
     }
-    o+='</div>'+board(plan,items,'stu')+'</div>';
+    o+='</div>'+((st==='draft'||st==='revising')?mvRow(plan):'')+board(plan,items,'stu')+'</div>';
     o+=thread(d.msgs,'선생님께 하고 싶은 말을 적어보세요')+'</div>';
     h.innerHTML=o; afterPaint();
   }
@@ -351,9 +391,15 @@
     var ids=S.mentees.map(function(m){return m.student_id;});
     S.plans={}; S.items={};
     if(ids.length){
-      var pr=await sbc().from('study_plans').select('*').gte('week_start',ymd(addDays(parseYmd(S.ref),-6))).lte('week_start',S.ref).in('student_id',ids);
-      (pr.data||[]).forEach(function(p){ S.plans[p.student_id]=p; });
-      var pids=(pr.data||[]).map(function(p){return p.id;});
+      // 목록·KPI용: 학생별 '지금 보여줄 계획'(오늘 포함 → 가장 가까운 예정 → 최근 지난 계획). 최근 60일 이후 계획만 조회
+      var tdy=ymd(todayStart());
+      var pr=await sbc().from('study_plans').select('*').gte('week_start',ymd(addDays(todayStart(),-60))).in('student_id',ids).order('week_start');
+      var byS={}; (pr.data||[]).forEach(function(p){ (byS[p.student_id]=byS[p.student_id]||[]).push(p); });
+      var pids=[];
+      ids.forEach(function(sid){
+        var l=byS[sid]||[]; var st=pickStart(l.map(function(x){return x.week_start;}),tdy);
+        if(st){ var p=l.filter(function(x){return x.week_start===st;})[0]; S.plans[sid]=p; pids.push(p.id); }
+      });
       if(pids.length){
         var ir=await sbc().from('study_items').select('*').in('plan_id',pids);
         (ir.data||[]).forEach(function(x){ (S.items[x.plan_id]=S.items[x.plan_id]||[]).push(x); });
@@ -363,8 +409,21 @@
     if(isMgr()&&S.filter){ mine=S.mentees.filter(function(m){return m.mentor_uid===S.filter;}); }
     if(!S.sel||!mine.some(function(m){return m.student_id===S.sel;})) S.sel=mine[0]?mine[0].student_id:null;
     var detail=null;
-    if(S.sel){ detail=await loadPlanFor(S.sel); S.cur=detail; S.msgs=detail.msgs; }
+    if(S.sel){ detail=await loadDetail(S.sel); S.cur=detail; S.msgs=detail.msgs; }
     paintMentor(mine,detail);
+  }
+  /* 선택한 학생의 계획 상세: S.vs(보고 있는 시작일)가 있으면 그 계획, 없으면 자동 선택. 기준일(오늘) 제한 없이 학생의 모든 계획에서 고름 */
+  async function loadDetail(sid){
+    var sr=await sbc().from('study_plans').select('*').eq('student_id',sid).order('week_start');
+    if(sr.error){ fail(sr); S.starts=[]; return {plan:null,items:[],msgs:[]}; }
+    var all=sr.data||[]; S.starts=all.map(function(x){return x.week_start;});
+    var ws=(S.vs&&S.starts.indexOf(S.vs)>=0)?S.vs:pickStart(S.starts,ymd(todayStart()));
+    var plan=ws?all.filter(function(x){return x.week_start===ws;})[0]:null;
+    if(!plan) return {plan:null,items:[],msgs:[]};
+    var q=await Promise.all([
+      sbc().from('study_items').select('*').eq('plan_id',plan.id).order('dow').order('start_time',{nullsFirst:true}),
+      sbc().from('study_plan_msgs').select('*').eq('plan_id',plan.id).order('created_at')]);
+    return { plan:plan, items:q[0].data||[], msgs:q[1].data||[] };
   }
   function mentorName(uid){ var c=S.cands.filter(function(x){return x.uid===uid;})[0]; return c?c.name:'담당 선생님'; }
 
@@ -379,7 +438,7 @@
     });
     o+='<div class="spl"><div class="hint" style="font-weight:800;letter-spacing:1px;color:#1b64da">STUDY PLANNER · MENTOR</div><div style="font-size:22px;font-weight:800;margin:2px 0 4px">학습 스케줄러 — 자기주도 관리</div>'
       +'<div style="color:#4e5968;font-size:13px">담당 학생의 주간 계획을 조율·확정하고, 학생이 완료한 학습에 코멘트와 응원을 남겨요.</div>';
-    o+='<div class="row rowb" style="margin-top:12px">'+weekBar()+'<button class="btn sm" onclick="SPL.reload()">↻ 새로고침</button></div>';
+    o+='<div class="row rowb" style="margin-top:12px"><span class="hint">학생을 선택하면 그 학생의 계획 시작일부터 7일이 표시돼요 (오늘 기준 · 예정 계획 포함)</span><button class="btn sm" onclick="SPL.reload()">↻ 새로고침</button></div>';
     o+='<div class="kpis"><div class="kpi"><b>'+mine.length+'명</b><span>관리 대상 학생</span></div>'
       +'<div class="kpi"><b style="color:'+(wait?'#6741d9':'inherit')+'">'+wait+'명</b><span>검토 대기 중인 계획</span></div>'
       +'<div class="kpi"><b>'+(tot?Math.round(dn*100/tot):0)+'%</b><span>확정 계획 평균 달성률</span></div>'
@@ -396,7 +455,7 @@
     mine.forEach(function(m){
       var p=S.plans[m.student_id], it=p?(S.items[p.id]||[]):[], r=rate(it), l=lateItems(p,it).length;
       o+='<button class="si'+(S.sel===m.student_id?' on':'')+'" onclick="SPL.pick(\''+m.student_id+'\')"><div class="nm"><span>'+esc(m.students.name)+' <small style="color:#8b95a1;font-weight:600">'+esc(m.students.grade||'')+'</small></span>'+(l?'<span class="badge">'+l+'</span>':'')+'</div>'
-        +'<div class="mt">'+(p?STATUS[p.status]:'이 기간 계획 없음')+(p&&p.status==='confirmed'?' · '+r.d+'/'+r.n+' 완료':'')+(isMgr()?' · '+esc(mentorName(m.mentor_uid)):'')+'</div>'
+        +'<div class="mt">'+(p?weekShort(p.week_start)+' · '+STATUS[p.status]:'계획 없음')+(p&&p.status==='confirmed'?' · '+r.d+'/'+r.n+' 완료':'')+(isMgr()?' · '+esc(mentorName(m.mentor_uid)):'')+'</div>'
         +'<div class="bar'+(r.pct>=70?' ok':'')+'"><span style="width:'+(p&&p.status==='confirmed'?r.pct:0)+'%"></span></div></button>';
     });
     o+='</div></div><div>';
@@ -409,7 +468,8 @@
         +(isMgr()?'<select style="border:1px solid #e5e8eb;border-radius:7px;padding:5px 8px;font:inherit;font-size:12px" onchange="SPL.mentor(this.value)">'+S.cands.map(function(c){return '<option value="'+c.uid+'"'+(c.uid===m.mentor_uid?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select>':'')
         +'<button class="btn sm" onclick="SPL.release()">관리 해제</button></div></div>'+stepper(plan)+'</div>';
       if(!plan){
-        o+='<div class="empty"><div class="big">📝</div><div style="font-weight:800;margin-top:6px">기준일('+md(parseYmd(S.ref))+')이 속한 기간의 계획이 아직 없어요</div><div class="hint" style="margin:6px 0 10px">학생이 작성하면 여기에 표시돼요. 강사가 먼저 초안을 만들 수도 있어요. (기준일부터 7일 구간으로 생성)</div>'
+        o+='<div class="empty"><div class="big">📝</div><div style="font-weight:800;margin-top:6px">아직 계획이 없어요</div><div class="hint" style="margin:6px 0 10px">학생이 작성하면 여기에 표시돼요. 강사가 먼저 초안을 만들 수도 있어요. (시작일부터 7일 구간으로 생성)</div>'
+          +'<div class="row" style="justify-content:center;margin-bottom:10px"><span class="hint">시작일</span><input type="date" value="'+(S.ns||defaultNs())+'" style="'+DATE_CSS+'" onchange="SPL.setNs(this.value)"></div>'
           +'<div class="row" style="justify-content:center"><button class="btn pri" onclick="SPL.newPlan()">초안 직접 만들기</button><button class="btn" onclick="SPL.newPlan(true)">지난 계획 복사해서 시작</button></div></div>';
       } else {
         var st=plan.status;
@@ -418,7 +478,7 @@
         if(st==='proposed') o+='<button class="btn warn" onclick="SPL.act(\'revise\')">수정 요청</button><button class="btn ok" onclick="SPL.act(\'confirm\')">이 계획으로 확정</button>';
         if(st==='draft'||st==='revising') o+='<button class="btn ok" onclick="SPL.act(\'confirm\')">이 계획으로 확정</button>';
         if(st==='confirmed') o+='<button class="btn sm" onclick="SPL.act(\'reopen\')">다시 조율하기</button>';
-        o+='</div></div>';
+        o+='</div></div>'+planBar(plan);
         if(st==='proposed') o+='<div class="hint" style="margin-top:6px">학생이 제출한 계획입니다. 항목을 직접 고치거나(✎ 수정 · × 삭제 · + 항목), 메시지로 조율한 뒤 확정하세요.</div>';
         if(st==='draft') o+='<div class="hint" style="margin-top:6px">학생이 아직 제출하지 않은 초안입니다. 강사가 바로 확정할 수도 있어요.</div>';
         if(st==='confirmed') o+='<div class="hint" style="margin-top:6px">완료된 학습에 응원 이모지와 짧은 코멘트를 남기면 학생 화면에 바로 표시돼요.</div>';
@@ -454,19 +514,28 @@
   /* ----------------------------- 동작(전역 SPL) ----------------------------- */
   var SPL={
     week:function(d){
-      S.form=null; var t=todayStart();
+      S.form=null; S.mv=false; var t=todayStart();
+      if(!isStu()){   // 강사: 선택 학생의 이전/다음 계획으로 이동 (0=오늘 기준 자동 선택)
+        if(d===0){ S.vs=null; }
+        else {
+          var cp=S.cur&&S.cur.plan, ci=cp?S.starts.indexOf(cp.week_start):-1, cj=ci+d;
+          if(ci<0||cj<0||cj>=S.starts.length) return;
+          S.vs=S.starts[cj];
+        }
+        render(); return;
+      }
       if(d===0){ S.ref=ymd(t); }
-      else if(isStu()){
+      else {
         var w=curWin(), c;
         if(d<0){ c=S.starts.filter(function(x){return x<w.start;}); if(!c.length) return; S.ref=c[c.length-1]; }
         else { c=S.starts.filter(function(x){return x>w.start;}); var e1=addDays(parseYmd(w.end),1); S.ref=c.length?c[0]:ymd(e1>t?e1:t); }
-      } else { S.ref=ymd(addDays(parseYmd(S.ref),7*d)); }
+      }
       render();
     },
     setRef:function(v){ if(!/^\d{4}-\d{2}-\d{2}$/.test(v||'')) return; S.form=null; S.ref=v; render(); },
     reload:function(){ render(); },
-    pick:function(sid){ S.sel=sid; S.form=null; render(); },
-    filter:function(v){ S.filter=v||''; S.sel=null; render(); },
+    pick:function(sid){ S.sel=sid; S.form=null; S.vs=null; S.mv=false; S.nw=false; S.ns=null; render(); },
+    filter:function(v){ S.filter=v||''; S.sel=null; S.vs=null; S.mv=false; S.nw=false; render(); },
     form:function(id,dow){
       if(id){ var x=findItem(id); if(!x) return; S.form={id:x.id,dow:x.dow,subject:x.subject,title:x.title,start_time:x.start_time,minutes:x.minutes}; }
       else S.form={id:null,dow:dow,subject:'수학'};
@@ -524,9 +593,26 @@
     },
     newPlan:async function(copy){
       var sid=curStudentId(); if(!sid) return;
-      var ok=await createPlan(sid); if(!ok) return;
-      if(copy){ var d=await loadPlanFor(sid); if(d.plan) await copyPrev(sid,d.plan.id,d.plan.week_start); }
+      var pl=await createPlan(sid,isStu()?S.ref:(S.ns||defaultNs())); if(!pl) return;
+      if(copy){
+        if(!pl.id){ var d=await loadPlanFor(sid); pl=d.plan||pl; }
+        if(pl.id) await copyPrev(sid,pl.id,pl.week_start);
+      }
+      if(!isStu()){ S.vs=pl.week_start; S.nw=false; S.mv=false; S.ns=null; }
       render();
+    },
+    setNs:function(v){ if(/^\d{4}-\d{2}-\d{2}$/.test(v||'')) S.ns=v; },
+    toggleMv:function(){ S.mv=!S.mv; S.nw=false; rerenderLocal(); },
+    toggleNw:function(){ S.nw=!S.nw; S.mv=false; if(S.nw&&!S.ns) S.ns=defaultNs(); rerenderLocal(); },
+    moveStart:async function(){
+      var p=S.cur&&S.cur.plan; if(!p) return;
+      var el=document.getElementById('spl-mv'); var v=el&&el.value;
+      if(!/^\d{4}-\d{2}-\d{2}$/.test(v||'')){ toast('날짜를 선택해 주세요'); return; }
+      if(v===p.week_start){ S.mv=false; rerenderLocal(); return; }
+      var a=parseYmd(v);
+      if(!confirm(weekLabel(p.week_start)+'\n→ '+weekLabel(v)+'\n\n시작일을 변경할까요? 요일별 항목이 같은 간격만큼 함께 이동합니다.')) return;
+      var r=await sbc().rpc('sp_move_plan',{p_plan:p.id,p_new_start:v}); if(r.error){ fail(r); return; }
+      S.mv=false; S.vs=v; S.ref=v; toast('시작일을 '+md(a)+'('+DAYS[isoDow(a)-1]+')로 변경했어요'); render();
     },
     copyPrev:async function(){ if(!S.cur||!S.cur.plan) return; await copyPrev(S.cur.plan.student_id,S.cur.plan.id,S.cur.plan.week_start); render(); },
     goal:async function(v){
@@ -610,7 +696,7 @@
   window.SPL=SPL;
   window.mountStudyPlanner=function(host){
     if(!host) return; css();
-    S.host=host; S.form=null; S.busy=false;
+    S.host=host; S.form=null; S.busy=false; S.vs=null; S.mv=false; S.nw=false; S.ns=null;
     if(!sbc()){ host.innerHTML='<div class="spl"><div class="empty">DB 연결 전입니다. 새로고침 해주세요.</div></div>'; return; }
     host.innerHTML='<div class="spl"><div class="hint" style="padding:14px">불러오는 중…</div></div>';
     render();
