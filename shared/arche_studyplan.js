@@ -151,6 +151,11 @@
     '.spl-ov .lst{border:1px solid #e5e8eb;border-radius:10px;max-height:220px;overflow:auto;margin-top:6px}',
     '.spl-ov .lst div{padding:8px 11px;border-bottom:1px solid #f1f3f5;cursor:pointer;font-size:13px}',
     '.spl-ov .lst div:last-child{border-bottom:0}.spl-ov .lst div:hover{background:#f3f8ff}.spl-ov .lst div.on{background:#e8f1ff;font-weight:800}',
+    /* 모달은 body 직속이라 .spl 바깥 → 버튼·행 스타일을 모달 안에서도 명시 (지정 버튼이 흰 글씨/흰 배경으로 사라지던 문제 수정) */
+    '.spl-ov .row{display:flex;gap:8px;flex-wrap:nowrap;align-items:center;justify-content:flex-end}',
+    '.spl-ov .btn{border:1px solid #e5e8eb;background:#fff;color:#191f28;padding:9px 18px;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap}',
+    '.spl-ov .btn:hover{background:#f7f9fc}',
+    '.spl-ov .btn.pri{background:#1b64da;border-color:#1b64da;color:#fff}.spl-ov .btn.pri:hover{background:#1757bd}',
     '.spl-toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#191f28;color:#fff;padding:10px 18px;border-radius:99px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:4000;max-width:90vw}',
     '.spl-toast.show{opacity:1}',
     '@media(max-width:900px){.spl .board{grid-template-columns:1fr}.spl .day{min-height:0}.spl .mgrid{grid-template-columns:1fr}.spl .kpis{grid-template-columns:repeat(2,1fr)}}'
@@ -546,6 +551,8 @@
 
   /* ----------------------------- 학생 추가(관리 대상 지정) ----------------------------- */
   async function openAdd(){
+    css();   // 스타일 누락 방지
+    var old=document.getElementById('spl-ov'); if(old) old.remove();   // 중복 모달 방지
     var have={}; S.mentees.forEach(function(m){have[m.student_id]=1;});
     var studs=[];
     if(isMgr()){
@@ -561,7 +568,7 @@
       }
     }
     studs=studs.filter(function(s){return !have[s.id];});
-    var ov=document.createElement('div'); ov.className='spl-ov'; ov.id='spl-ov';
+    var ov=document.createElement('div'); ov.className='spl-ov spl'; ov.id='spl-ov';
     var picked=null;
     function listHTML(q){
       q=(q||'').trim();
@@ -574,7 +581,7 @@
       +(isMgr()?'<select id="spl-am">'+S.cands.map(function(c){return '<option value="'+c.uid+'"'+(c.uid===myUid()?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select>'
                :'<input type="text" value="본인(내가 멘토)" disabled>')
       +'<label>학습 목표 (선택)</label><input type="text" id="spl-ag" maxlength="100" placeholder="예: 내신 수학 1등급 · 영어 단어 매일 30개">'
-      +'<div class="row" style="justify-content:flex-end;margin-top:16px;gap:8px"><button class="btn spl-x" id="spl-ax">취소</button><button class="btn pri" id="spl-ao">지정</button></div></div>';
+      +'<div class="row" style="justify-content:flex-end;margin-top:16px;gap:8px"><button type="button" class="btn spl-x" id="spl-ax">취소</button><button type="button" class="btn pri" id="spl-ao">지정</button></div></div>';
     document.body.appendChild(ov);
     var close=function(){ ov.remove(); };
     ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
