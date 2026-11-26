@@ -2842,13 +2842,13 @@ function b2cOpenChildPenta(child, key, season){
 }
 /* [샘플 리포트] "샘플 리포트/미리보기" 클릭 시 실제 도구로 이동하던 버그 → 진짜 샘플 오버레이 표시 */
 /* [상품 대상 학년 라벨] 비대상 학년 안내·체험용 */
-function b2cTargetLabel(key){ return ({vision_basic:'초등',vision_adv:'중등',track:'중3',ramyeon_lit:'초3~4',ramyeon_sci:'초3~4',sr:'중·고',perf:'중·고',sr1:'중·고'})[key]||'해당 학년'; }
+function b2cTargetLabel(key){ return ({vision_basic:'초등',vision_adv:'중등',track:'중3',ramyeon_lit:'초3~4',ramyeon_sci:'초3~4',ramyeon_phil:'초3~4',sr:'중·고',perf:'중·고',sr1:'중·고'})[key]||'해당 학년'; }
 window.b2cTargetLabel=b2cTargetLabel;
 function b2cShowSample(sec, key){
   var map={ sr:{type:'design',title:'진로 징검다리'}, sr1:{type:'design',title:'진로 징검다리'},
             perf:{type:'perf',title:'수행평가 도우미'},
             vision_basic:{type:'penta',title:'펜타비전 기초'}, vision_adv:{type:'penta',title:'펜타비전 심화'},
-            track:{type:'penta',title:'펜타트랙'}, ramyeon_lit:{type:'penta',title:'문학과 함께라면'}, ramyeon_sci:{type:'penta',title:'과학과 함께라면'} };
+            track:{type:'penta',title:'펜타트랙'}, ramyeon_lit:{type:'penta',title:'문학과 함께라면'}, ramyeon_sci:{type:'penta',title:'과학과 함께라면'}, ramyeon_phil:{type:'penta',title:'철학과 함께라면'} };
   var m=map[key]||{ type:(sec==='penta'?'penta':''), title:'샘플 리포트' };
   try{
     if(typeof pvOverlay==='function' && window.ArcheParentHub && ArcheParentHub.renderSample){
