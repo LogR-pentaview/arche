@@ -82,7 +82,7 @@
 
   function bandOf(g){ g=String(g||''); if(/고|N수/.test(g))return '고'; if(/중/.test(g))return '중'; if(/초/.test(g))return '초'; return '중'; }
   // 상품별 대상 학년 라벨
-  var TARGET={ ramyeon_lit:'초등', ramyeon_sci:'초등', vision_basic:'초등', vision_adv:'중등', track:'중3', sr:'중·고', perf:'중·고' };
+  var TARGET={ ramyeon_lit:'초등', ramyeon_sci:'초등', ramyeon_phil:'초등', vision_basic:'초등', vision_adv:'중등', track:'중3', sr:'중·고', perf:'중·고' };
 
   // 펜타 비전(레벨 자동) + 펜타 트랙 — 전 학년 노출, 비대상=off
   function pentaLine(band, forceRamyeon){
